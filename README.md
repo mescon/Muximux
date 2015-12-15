@@ -1,5 +1,5 @@
 # Managethis
-A lightweight manager for your HTPC
+A lightweight way to manage your HTPC.
 
 This is based off of: https://codyhouse.co/gem/responsive-tabbed-navigation/
 
