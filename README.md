@@ -15,4 +15,4 @@ This is a lightwieight way to manage your HTPC apps without having to run anythi
 
 You may want to setup htaccess to secure it but even if you don't your apps will not be accessible as long as they themselves are secure.
 
-Please note that this is currently in it's very early stages and there will be bugs.
+Basically do what you want with it, I'm not much of a coder and hope someone can improve on what I started.
