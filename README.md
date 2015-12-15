@@ -14,4 +14,5 @@ This is a lightwieight way to manage your HTPC apps without having to run anythi
 - Navigate to http://youripaddress/Managethis to access it.
 
 You may want to setup htaccess to secure it but even if you don't your apps will not be accessible as long as they themselves are secure.
+
 Please note that this is currently in it's very early stages and there will be bugs.
