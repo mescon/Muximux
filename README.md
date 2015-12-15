@@ -3,7 +3,7 @@ A lightweight way to manage your HTPC.
 
 This is based off of: https://codyhouse.co/gem/responsive-tabbed-navigation/
 
-This is a lightwieight way to manage your HTPC apps without having to run anything extra, all you need is to have a webserver. It basically acts as a portal for all of your apps in once place so you don't need to keep multiple tabs open.
+This is a lightweight way to manage your HTPC apps without having to run anything extra, all you need is to have a webserver. It basically acts as a portal for all of your apps in once place so you don't need to keep multiple tabs open.
 
 ![alt tag](http://i.imgur.com/ncX2jU3.jpg)
 
