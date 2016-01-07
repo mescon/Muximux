@@ -53,7 +53,7 @@ jQuery(document).ready(function($){
 
 	// Measure viewport and subtract the height the navigation tabs, then resize the iframes.
 	function resizeIframe(){
-		var newSize = $(window).height() - $('.cd-tabs').height();
+		var newSize = $(window).height() - $('nav').height();
         $('iframe').css({ 'height': newSize + 'px' });
 	}
 
