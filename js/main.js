@@ -1,6 +1,6 @@
 jQuery(document).ready(function($){
 	var tabs = $('.cd-tabs');
-	
+
 	tabs.each(function(){
 		var tab = $(this),
 			tabItems = tab.find('ul.cd-tabs-navigation'),
@@ -14,11 +14,11 @@ jQuery(document).ready(function($){
 				var selectedTab = selectedItem.data('content'),
 					selectedContent = tabContentWrapper.find('li[data-content="'+selectedTab+'"]'),
 					slectedContentHeight = selectedContent.innerHeight();
-				
+
 				tabItems.find('a.selected').removeClass('selected');
 				selectedItem.addClass('selected');
 				selectedContent.addClass('selected').siblings('li').removeClass('selected');
-				//animate tabContentWrapper height when content changes 
+				//animate tabContentWrapper height when content changes
 				tabContentWrapper.animate({
 					'height': slectedContentHeight
 				}, 200);
@@ -27,17 +27,18 @@ jQuery(document).ready(function($){
 
 		//hide the .cd-tabs::after element when tabbed navigation has scrolled to the end (mobile version)
 		checkScrolling(tabNavigation);
-		tabNavigation.on('scroll', function(){ 
+		tabNavigation.on('scroll', function(){
 			checkScrolling($(this));
 		});
 	});
-	
+
 	$(window).on('resize', function(){
 		tabs.each(function(){
 			var tab = $(this);
 			checkScrolling(tab.find('nav'));
 			tab.find('.cd-tabs-content').css('height', 'auto');
 		});
+		resizeIframe(); // Resize iframes when window is resized.
 	});
 
 	function checkScrolling(tabs){
@@ -49,4 +50,15 @@ jQuery(document).ready(function($){
 			tabs.parent('.cd-tabs').removeClass('is-ended');
 		}
 	}
+
+	// Measure viewport and subtract the height the navigation tabs, then resize the iframes.
+	function resizeIframe(){
+		var newSize = $(window).height() - $('.cd-tabs').height();
+        $('iframe').css({ 'height': newSize + 'px' });
+	}
+
+// Call resizeIframe when document is ready
+resizeIframe();
+
+
 });
