@@ -15,6 +15,10 @@ jQuery(document).ready(function($){
 					selectedContent = tabContentWrapper.find('li[data-content="'+selectedTab+'"]'),
 					slectedContentHeight = selectedContent.innerHeight();
 
+				selectedItem.dblclick(function() {
+					selectedContent.children('iframe').attr('src', selectedContent.children('iframe').attr('src'));
+				})
+
 				tabItems.find('a.selected').removeClass('selected');
 				selectedItem.addClass('selected');
 				selectedContent.addClass('selected').siblings('li').removeClass('selected');
@@ -54,11 +58,9 @@ jQuery(document).ready(function($){
 	// Measure viewport and subtract the height the navigation tabs, then resize the iframes.
 	function resizeIframe(){
 		var newSize = $(window).height() - $('nav').height();
-        $('iframe').css({ 'height': newSize + 'px' });
+		$('iframe').css({ 'height': newSize + 'px' });
 	}
 
 // Call resizeIframe when document is ready
 resizeIframe();
-
-
 });
