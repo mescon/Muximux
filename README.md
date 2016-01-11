@@ -13,6 +13,7 @@ This is a lightweight way to manage your HTPC apps without having to run anythin
 - Now edit the parts marked as "replace me" with the urls of your apps.
 - Change the icons by replacing them with ones from http://bootstrapdocs.com/v3.0.0/docs/components/
 - Navigate to http://youripaddress/Managethis to access it.
+- To reload an app, double click it in the menu. Only that specific page will reload.
 
 You may want to setup htaccess to secure it but even if you don't your apps will not be accessible as long as they themselves are secure.
 
