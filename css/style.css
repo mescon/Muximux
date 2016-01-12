@@ -16,12 +16,9 @@ Primary style
 body {
   font-size: 0px;
   font-family: "PT Sans", sans-serif;
-  color: #f8f7ee;
-  background-color: #ffffff;
 }
 
 a {
-  color: #f2b87ef;
   text-decoration: none;
 }
 
@@ -35,38 +32,10 @@ a:hover, a:visited, a:link, a:active
 Main components 
 
 -------------------------------- */
-.cd-tabs::after {
-  /* subtle gradient layer on top right - to indicate it's possible to scroll */
-  position: absolute;
-  top: 0;
-  right: 0;
-  height: 40px;
-  width: 50px;
-  z-index: 1;
-  pointer-events: none;
-  background: -webkit-linear-gradient( right , #f8f7ee, rgba(248, 247, 238, 0));
-  background: linear-gradient(to left, #f8f7ee, rgba(248, 247, 238, 0));
-  visibility: visible;
-  opacity: 1;
-  -webkit-transition: opacity .3s 0s, visibility 0s 0s;
-  -moz-transition: opacity .3s 0s, visibility 0s 0s;
-  transition: opacity .3s 0s, visibility 0s 0s;
-}
-.no-cssgradients .cd-tabs::after {
-  display: none;
-}
-.cd-tabs.is-ended::after {
-  /* class added in jQuery - remove the gradient layer when it's no longer possible to scroll */
-  visibility: hidden;
-  opacity: 0;
-  -webkit-transition: opacity .3s 0s, visibility 0s .3s;
-  -moz-transition: opacity .3s 0s, visibility 0s .3s;
-  transition: opacity .3s 0s, visibility 0s .3s;
-}
+
 .cd-tabs nav {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
-  background: #f8f7ee;
   box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
   }
 }
@@ -101,23 +70,22 @@ Main components
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 700;
-  color: #c3c2b9;
+  color: #747b8b;
   padding-top: 32px;
 }
 .no-touch .cd-tabs-navigation a:hover {
-  color: #29324e;
+  color: #f1f3f2; /* Hover text colour */
   background-color: rgba(233, 230, 202, 0.3);
 }
 .cd-tabs-navigation a.selected {
-  background-color: #ffffff !important;
-  box-shadow: inset 0 2px 0 #2b87ef;
-  color: #29324e;
+  background-color: #41434f !important; /* Selected tab colour */
+  color: #f1f3f2; /* Selected text colour */
 }
 @media only screen and (min-width: 0px) {
   .cd-tabs-navigation {
     /* tabbed on top of devices */
     width: 100%;
-    background-color: #f8f7ee;
+    background-color: #343843; /* Main nav colour */
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
   }
   .cd-tabs-navigation a {
@@ -130,7 +98,7 @@ Main components
     padding: 0 2em 0 2em;
   }
   .cd-tabs-navigation a.selected {
-    box-shadow: inset 0 5px 0 #2b87ef;
+    box-shadow: inset 0 5px 0 #31ac63; /* Selected tab marker colour */
   }
   .cd-tabs-navigation a::before {
     top: 50%;
@@ -141,7 +109,7 @@ Main components
 }
 
 .cd-tabs-content {
-  background: #36363b;
+  background: #36363b; /* Content background colour */
 }
 .cd-tabs-content li {
   display: none;
