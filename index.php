@@ -46,7 +46,7 @@ function frameContent($config) {
 	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
 	<script src="js/modernizr.js"></script> <!-- Modernizr -->
 
-	<title>Managethis</title>
+	<title>MTPHP - Application Management Console</title>
 </head>
 
 <body>
