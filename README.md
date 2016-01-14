@@ -1,7 +1,7 @@
 # MTPHP
 A lightweight way to manage your HTPC, dynamically handled with PHP and a simple configuration-file.
 
-This is a PHP enabled fork of (simpler/more lightweight) "Managethis" found here: https://github.com/Tenzinn3/Managethis
+This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here: https://github.com/Tenzinn3/Managethis
 
 This is a lightweight way to manage your HTPC apps without having to run anything extra, all you need is to have a webserver. It basically acts as a portal for all of your apps in once place so you don't need to keep multiple tabs open.
 
