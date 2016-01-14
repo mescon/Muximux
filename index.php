@@ -39,6 +39,7 @@ function frameContent($config) {
 
 function landingPage($config, $keyname) {
 	$item = "
+	<html lang=\"en\">
 	<head>
 	<title>". $config[$keyname]["name"] ."</title>
 	<link rel=\"stylesheet\" href=\"css/landing.css\">
