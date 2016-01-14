@@ -7,9 +7,9 @@ function menuItems($config) {
 	foreach ($config as $keyname => $section) {
 		if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
 			if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-				$item .= "<li><a data-content=\"" . $keyname . "\" href=\"#0\" class=\"selected\"><span class=\"". $section["icon"] ."\"></span> ". $section["name"] ."</a></li>\n";
+				$item .= "<li><a data-content=\"" . $keyname . "\" href=\"#0\" class=\"selected\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
 			} else {
-				$item .= "<li><a data-content=\"" . $keyname . "\" href=\"#0\"><span class=\"". $section["icon"] ."\"></span> ". $section["name"] ."</a></li>\n";
+				$item .= "<li><a data-content=\"" . $keyname . "\" href=\"#0\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
 			}
 		}
 	}
@@ -21,6 +21,10 @@ function menuItems($config) {
 function frameContent($config) {
 	if (empty($item)) $item = '';
 	foreach ($config as $keyname => $section) {
+		if(!empty($section["landingpage"]) && !($section["landingpage"]=="false") && ($section["landingpage"]=="true")) {
+			$section["url"] = "?landing=" . $keyname;
+		}
+
 		if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
 			if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
 				$item .= "<li data-content=\"". $keyname . "\" class=\"selected\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\" style=\"width:100%; height:926px\"></iframe></li>\n";
@@ -32,6 +36,32 @@ function frameContent($config) {
 	return $item;
 }
 
+
+function landingPage($config, $keyname) {
+	$item = "
+	<head>
+	<title>". $config[$keyname]["name"] ."</title>
+	<link rel=\"stylesheet\" href=\"css/landing.css\">
+	</head>
+	<body>
+	<div class=\"login\">
+		<div class=\"heading\">
+			<h2><span class=\"". $config[$keyname]["icon"] ." fa-3x\"></span></h2>
+			<section>
+	        	<a href=\"". $config[$keyname]["url"] ."\" target=\"_self\" title=\"Launch ". $config[$keyname]["name"] ."!\"><button class=\"float\">Launch ". $config[$keyname]["name"] ."</button></a>
+			</section>
+		</div>
+	 </div>
+	 </body></html>";
+	if (empty($item)) $item = '';
+	return $item;
+}
+
+if(isset($_GET['landing'])) {
+	$keyname = $_GET['landing'];
+	echo landingPage($config, $keyname);
+	die();
+}
 ?>
 <html lang="en" class="no-js">
 <head>
@@ -40,7 +70,7 @@ function frameContent($config) {
 	<link rel="shortcut icon" type="image/ico" href="favicon.ico" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" /> <!-- Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /> <!--FontAwesome-->
-        
+
 	<link href='//fonts.googleapis.com/css?family=PT+Sans:400' rel='stylesheet' type='text/css'> <!-- Font -->
 	<link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
 	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->

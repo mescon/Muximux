@@ -7,7 +7,7 @@
 }
 
 html {
-  background: url(images/landing-bg.jpg) no-repeat center center fixed;
+  background: url(../images/landing-bg.jpg) no-repeat center center fixed;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
@@ -40,23 +40,23 @@ body, input, button {
   padding-bottom: 5px;
   text-shadow: 1px 1px 3px #23203b;
 }
-.login form .input-group {
+.login section .input-group {
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
-.login form .input-group:last-of-type {
+.login section .input-group:last-of-type {
   border-top: none;
 }
-.login form .input-group span {
+.login section .input-group span {
   background: transparent;
   min-width: 53px;
   border: none;
 }
-.login form .input-group span i {
+.login section .input-group span i {
   font-size: 1.5em;
   color: rgba(255, 255, 255, 0.2);
 }
-.login form input.form-control {
+.login section input.form-control {
   display: block;
   width: auto;
   height: auto;
@@ -71,10 +71,10 @@ body, input, button {
   background: transparent;
   color: #c2b8b1;
 }
-.login form input.form-control:focus {
+.login section input.form-control:focus {
   border: none;
 }
-.login form button {
+.login section button {
   margin-top: 20px;
   background: #27AE60;
   border: none;
@@ -86,7 +86,7 @@ body, input, button {
   color: #b3eecc;
   border-bottom: 4px solid #1e8449;
 }
-.login form button:hover {
+.login section button:hover {
   background: #30b166;
   -webkit-animation: hop 1s;
   animation: hop 1s;
