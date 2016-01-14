@@ -1,0 +1,105 @@
+; <?php die("Access denied"); ?>
+;
+; CONFIGURATION FILE
+; 
+; The order that you put these blocks in determine in what order they will be listed in the menu.
+; Enable or disable each block and edit the URL to point to your desired location.
+;
+; Please note that if MTPHP is served via HTTPS, any services that are NOT served via HTTPS might be blocked by your web-browser.
+; Loading of unsecured content in the context of an SSL encrypted website where you see a green lock would be misleading, therefore the browser blocks it.
+; The only known work-around is to serve MTPHP via an unsecured website, or to make sure all the services/urls you links to use https://
+;
+; You must rename this file to config.ini.php for MTPHP to function.
+; 
+; See https://github.com/mescon/mtphp/ for more information.
+;
+; Block configuration:
+;
+; [blockname]			# Name of the app that you're adding.
+; enabled = "value"		# true or false - used to quickly enable/disable the menu item and iframe.
+; default = "value"		# true or false - only set it to true in ONE of the blocks - otherwise it will try to load all menu items as the first item.
+; name = "value"		# Whatever you want the name of the item to be.
+; url = "value"			# Set the URL of your app, including http:// or https:// depending on which you use. Example: "https://my.server.com:8989/"
+; landingpage = "value"	# true or false - if set to false, the iframe will load instantly. Use true if you're bombarded with HTTP Auth-dialogs every time you visit the website.
+; icon = "value"		# Class name of either a Glyphicon or Font-Awesome icon. See https://glyphicons.com/ or http://fontawesome.io/icons/
+;
+
+[rutorrent]
+enabled = "true"
+default = "false"
+name = "RuTorrent"
+url = "https://github.com/Novik/ruTorrent"
+landingpage = "true"
+icon = "fa fa-globe fa-lg"
+
+[sonarr]
+enabled = "true"
+default = "true"
+name = "Sonarr"
+url = "https://sonarr.tv/"
+landingpage = "false"
+icon = "glyphicon glyphicon-calendar fa-lg"
+
+[headphones]
+enabled = "true"
+default = "false"
+name = "Headphones"
+url = "https://github.com/rembo10/headphones"
+landingpage = "false"
+icon = "glyphicon glyphicon-headphones fa-lg"
+
+[glances]
+enabled = "true"
+default = "false"
+name = "Glances"
+url = "https://github.com/nicolargo/glances"
+landingpage = "false"
+icon = glyphicon glyphicon-dashboard fa-lg
+
+[plexrequests]
+enabled = "true"
+default = "false"
+name = "PlexRequests"
+url = "https://github.com/lokenx/plexrequests-meteor"
+landingpage = "true"
+icon = "glyphicon glyphicon-bullhorn fa-lg"
+
+[nzbget]
+enabled = "true"
+default = "false"
+name = "NZBGet"
+url = "https://nzbget.net/"
+landingpage = "false"
+icon = "fa fa-download fa-lg"
+
+[plexpy]
+enabled = "true"
+default = "false"
+name = "PlexPy"
+url = "https://github.com/drzoidberg33/plexpy"
+landingpage = "false"
+icon = "fa fa-server fa-lg"
+
+[nzbhydra]
+enabled = "true"
+default = "false"
+name = "NZB Hydra"
+url = "https://github.com/theotherp/nzbhydra"
+landingpage = "false"
+icon = "glyphicon glyphicon-search"
+
+[deluge]
+enabled = "false"
+default = "false"
+name = "Deluge"
+url = "http://www.deluge-torrent.org/"
+landingpage = "false"
+icon = "fa fa-tint fa-lg"
+
+[plex]
+enabled = "true"
+default = "false"
+name = "Plex"
+url = "https://plex.tv/"
+landingpage = "false"
+icon = "fa fa-play-circle fa-lg"
