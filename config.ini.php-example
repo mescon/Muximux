@@ -40,6 +40,14 @@ url = "https://sonarr.tv/"
 landingpage = "false"
 icon = "glyphicon glyphicon-calendar fa-lg"
 
+[couchpotato]
+enabled = "true"
+default = "false"
+name = "CouchPotato"
+url = "https://couchpota.to/"
+landingpage = "false"
+icon = "fa fa-television fa-lg"
+
 [headphones]
 enabled = "true"
 default = "false"
