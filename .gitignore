@@ -1,4 +1,4 @@
-# Do not submit configuration settings to GitHub.
+# Do not submit or pull configuration settings when interacting with GitHub.
 config.ini.php
 test.php
 tmp/*

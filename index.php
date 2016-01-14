@@ -27,9 +27,9 @@ function frameContent($config) {
 
 		if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
 			if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-				$item .= "<li data-content=\"". $keyname . "\" class=\"selected\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\" style=\"width:100%; height:926px\"></iframe></li>\n";
+				$item .= "<li data-content=\"". $keyname . "\" class=\"selected\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
 			} else {
-				$item .= "<li data-content=\"". $keyname . "\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\" style=\"width:100%; height:926px\"></iframe></li>\n";
+				$item .= "<li data-content=\"". $keyname . "\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
 			}
 		}
 	}
@@ -64,23 +64,31 @@ if(isset($_GET['landing'])) {
 	die();
 }
 ?>
-<html lang="en" class="no-js">
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9" lang="en"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en"> <!--<![endif]-->
 <head>
 	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link rel="shortcut icon" type="image/ico" href="favicon.ico" />
+	<meta name="description" content="MTPHP - Application Management Console">
+	<link rel="shortcut icon" href="favicon.ico" type="image/ico" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" /> <!-- Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /> <!--FontAwesome-->
-
-	<link href='//fonts.googleapis.com/css?family=PT+Sans:400' rel='stylesheet' type='text/css'> <!-- Font -->
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css"> <!-- Font -->
 	<link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
 	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
-	<script src="js/modernizr.js"></script> <!-- Modernizr -->
+	<script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script> <!-- Modernizr -->
 
 	<title>MTPHP - Application Management Console</title>
 </head>
 
 <body>
+<!--[if lt IE 8]>
+	<p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+<![endif]-->
+
 <div class="cd-tabs">
 	<nav>
 		<ul class="cd-tabs-navigation">
@@ -93,7 +101,7 @@ if(isset($_GET['landing'])) {
 	</ul>
 </div>
 
-<script src="js/jquery-2.1.1.js"></script>
+<script src="js/jquery-2.2.0.min.js"></script>
 <script src="js/main.js"></script> <!-- Resource jQuery -->
 </body>
 </html>
