@@ -1,3 +1,4 @@
 # Do not submit configuration settings to GitHub.
 config.ini.php
 test.php
+tmp/*
