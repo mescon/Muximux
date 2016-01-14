@@ -39,13 +39,16 @@ Main components
 -------------------------------- */
 
 .cd-tabs nav {
-  overflow: auto;
+  overflow: hidden;
   -webkit-overflow-scrolling: touch;
   box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
   }
 }
+
 @media only screen and (min-width: 0px) {
   .cd-tabs nav {
+    overflow: auto;
+    margin: 0;
     position: relative;
     float: none;
     background: transparent;
@@ -53,19 +56,26 @@ Main components
   }
 }
 
-
 .cd-tabs-navigation {
   width: 360px;
 }
+
 .cd-tabs-navigation:after {
   content: "";
   display: table;
   clear: both;
 }
+
 .cd-tabs-navigation li {
   float: left;
 }
-.cd-tabs-navigation a {
+
+.cd-tabs-navigation li:last-child {
+  float: right;
+  right: 0px;
+}
+
+.cd-tabs-navigation a, #reload {
   position: relative;
   display: block;
   height: 160px;
@@ -79,14 +89,21 @@ Main components
   color: #747b8b;
   padding-top: 32px;
 }
-.no-touch .cd-tabs-navigation a:hover {
+
+#reload, .cd-tabs-navigation li {
+  cursor: pointer;
+}
+
+.no-touch .cd-tabs-navigation a:hover, #reload:hover {
   color: #f1f3f2; /* Hover text colour */
   background-color: rgba(233, 230, 202, 0.3);
 }
-.cd-tabs-navigation a.selected {
+
+.cd-tabs-navigation a.selected:not(#reload) {
   background-color: #41434f !important; /* Selected tab colour */
   color: #f1f3f2; /* Selected text colour */
 }
+
 @media only screen and (min-width: 0px) {
   .cd-tabs-navigation {
     /* tabbed on top of devices */
@@ -94,7 +111,7 @@ Main components
     background-color: #343843; /* Main nav colour */
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
   }
-  .cd-tabs-navigation a {
+  .cd-tabs-navigation a, #reload {
     height: 40px;
     line-height: 45px;
     width: 100%;
@@ -103,7 +120,7 @@ Main components
     font-size: 0.875rem;
     padding: 0 2em 0 2em;
   }
-  .cd-tabs-navigation a.selected {
+  .cd-tabs-navigation a.selected:not(#reload) {
     box-shadow: inset 0 5px 0 #31ac63; /* Selected tab marker colour */
   }
   .cd-tabs-navigation a::before {
@@ -117,16 +134,19 @@ Main components
 .cd-tabs-content {
   background: #36363b; /* Content background colour */
 }
+
 .cd-tabs-content li {
   display: none;
   padding: 0;
 }
+
 .cd-tabs-content li.selected {
   display: block;
   -webkit-animation: cd-fade-in 0.5s;
   -moz-animation: cd-fade-in 0.5s;
   animation: cd-fade-in 0.5s;
 }
+
 .cd-tabs-content li p {
   font-size: 14px;
   font-size: 0.875rem;
@@ -134,6 +154,7 @@ Main components
   color: #8493bf;
   margin-bottom: 2em;
 }
+
 @media only screen and (min-width: 0px) {
   .cd-tabs-content {
     min-height: 0;
@@ -155,6 +176,7 @@ Main components
     opacity: 1;
   }
 }
+
 @-moz-keyframes cd-fade-in {
   0% {
     opacity: 0;
@@ -163,6 +185,7 @@ Main components
     opacity: 1;
   }
 }
+
 @keyframes cd-fade-in {
   0% {
     opacity: 0;
@@ -174,4 +197,3 @@ Main components
     margin: 0px;
     padding: 0px;
 }
-

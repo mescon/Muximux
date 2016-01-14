@@ -1,69 +1,5 @@
 <!doctype html>
-<?php
-$config = parse_ini_file('config.ini.php', true);
-
-function menuItems($config) {
-	if (empty($item)) $item = '';
-	foreach ($config as $keyname => $section) {
-		if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
-			if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-				$item .= "<li><a data-content=\"" . $keyname . "\" href=\"#0\" class=\"selected\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
-			} else {
-				$item .= "<li><a data-content=\"" . $keyname . "\" href=\"#0\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
-			}
-		}
-	}
-	if (empty($item)) $item = '';
-	return $item;
-}
-
-
-function frameContent($config) {
-	if (empty($item)) $item = '';
-	foreach ($config as $keyname => $section) {
-		if(!empty($section["landingpage"]) && !($section["landingpage"]=="false") && ($section["landingpage"]=="true")) {
-			$section["url"] = "?landing=" . $keyname;
-		}
-
-		if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
-			if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-				$item .= "<li data-content=\"". $keyname . "\" class=\"selected\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
-			} else {
-				$item .= "<li data-content=\"". $keyname . "\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
-			}
-		}
-	}
-	return $item;
-}
-
-
-function landingPage($config, $keyname) {
-	$item = "
-	<html lang=\"en\">
-	<head>
-	<title>". $config[$keyname]["name"] ."</title>
-	<link rel=\"stylesheet\" href=\"css/landing.css\">
-	</head>
-	<body>
-	<div class=\"login\">
-		<div class=\"heading\">
-			<h2><span class=\"". $config[$keyname]["icon"] ." fa-3x\"></span></h2>
-			<section>
-	        	<a href=\"". $config[$keyname]["url"] ."\" target=\"_self\" title=\"Launch ". $config[$keyname]["name"] ."!\"><button class=\"float\">Launch ". $config[$keyname]["name"] ."</button></a>
-			</section>
-		</div>
-	 </div>
-	 </body></html>";
-	if (empty($item)) $item = '';
-	return $item;
-}
-
-if(isset($_GET['landing'])) {
-	$keyname = $_GET['landing'];
-	echo landingPage($config, $keyname);
-	die();
-}
-?>
+<?php require_once("mtphp.php"); ?>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang="en"> <![endif]-->
@@ -93,6 +29,7 @@ if(isset($_GET['landing'])) {
 	<nav>
 		<ul class="cd-tabs-navigation">
 		<?php echo menuItems($config); ?>
+		<li><a id="reload" title="Double click your app in the menu, or press this button to refresh the current app."><span class="fa fa-refresh fa-lg"></span></a></li>
 		</ul>
 	</nav>
 
