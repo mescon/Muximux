@@ -6,7 +6,11 @@
 This is a lightweight portal to manage your HTPC apps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
-![alt tag](http://i.imgur.com/04Y0tDD.jpg)
+**Desktop screenshot**
+![Desktop screenshot](http://i.imgur.com/VguPTzR.jpg)
+
+**Mobile screenshot**
+![Mobile screenshot](https://i.imgur.com/a4N3TLx.jpg)
 
 #### Added features and fixes
 * No need to edit HTML pages anywhere.
@@ -46,6 +50,16 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
   - You can enable or disable apps simply by setting ``enabled = "true"`` or ``enabled = "false"``
   - You can change the app icons by replacing them with ones from http://bootstrapdocs.com/v3.0.0/docs/components/ or http://fontawesome.io/icons/
 - The configuration file ``config.inc.php`` can not be read by any visitor, as long as you don't remove the top part of the file.
+
+ > **Important note regarding HTTPS:**
+ > If you are serving Muximux from a HTTPS-enabled webserver (i.e``https://myserver.com/muximux``), all of your services must also be secured via HTTPS.
+ > Any URL that does not start with https:// (such as ``http://myserver.com:5050``) will be blocked by your web-browser!
+ >
+ > If you can, try serving Muximux from a non-secure (HTTP) webserver instead.
+ >
+ > The only known workaround is for Chrome, Opera and Chromium-based webbrowsers.
+ > The plugin "Ignore X-Frame headers" disables the blocking of non-secure content.
+ > https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe
 
 ## Usage
 - Navigate to ``http://<host>/muximux`` where ``<host>`` is either the IP or hostname of your webserver. *Obviously if you put the files in the root directory of your webserver, there is no need to append ``/muximux``*
