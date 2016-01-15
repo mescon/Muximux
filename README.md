@@ -7,9 +7,11 @@ This is a lightweight portal to manage your HTPC apps without having to run anyt
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
 **Desktop screenshot**
+
 ![Desktop screenshot](http://i.imgur.com/VguPTzR.jpg)
 
 **Mobile screenshot**
+
 ![Mobile screenshot](https://i.imgur.com/a4N3TLx.jpg)
 
 #### Added features and fixes
