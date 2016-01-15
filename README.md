@@ -22,8 +22,8 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 
 * You now have the possibility to easily:
   * Enable or disable any app or site.
-  * Enable or disable a landingpages for each app (landingpage prevent being bombarded with login-prompts, and reduces load on your browser)
-  * Change or replace icons
+  * Enable or disable a landingpage for each app (landingpages prevent you from being bombarded with login-prompts, and reduces load on your browser).
+  * Change or replace icons.
   * Add your own apps, without having to delete, change or extend any code - it's all in the configuration file!
 
 * Added a "refresh" icon. When you click it, the app or site you are currently using will be reloaded - not every app you've configured, which is very useful if you're having temporary problems with one of your apps/sites and don't want to reload every single app you have configured.
