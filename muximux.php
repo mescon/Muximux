@@ -20,6 +20,16 @@ function menuItems($config) {
 	return $item;
 }
 
+function getTitle($config){
+	if (empty($item)) $item = '';
+	foreach ($config as $keyname => $section) {
+		if(($keyname == "general")) {		
+			$item .= $section["title"];
+			break;
+		}
+	}
+	return $item;
+}
 
 function frameContent($config) {
 	if (empty($item)) $item = '';
