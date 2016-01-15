@@ -20,6 +20,16 @@ function menuItems($config) {
 	return $item;
 }
 
+function getTitle($config){
+	if (empty($item)) $item = '';
+	foreach ($config as $keyname => $section) {
+		if(($keyname == "general")) {		
+			$item .= $section["title"];
+			break;
+		}
+	}
+	return $item;
+}
 
 function frameContent($config) {
 	if (empty($item)) $item = '';
@@ -30,10 +40,12 @@ function frameContent($config) {
 
 		if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
 			if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-				$item .= "<li data-content=\"". $keyname . "\" class=\"selected\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
+				$item .= "<li data-content=\"". $keyname . "\" class=\"selected\">";
 			} else {
-				$item .= "<li data-content=\"". $keyname . "\"><iframe scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
+				$item .= "<li data-content=\"". $keyname . "\">";
 			}
+			
+			$item .= "<iframe allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
 		}
 	}
 	return $item;

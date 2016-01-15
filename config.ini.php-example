@@ -31,6 +31,9 @@
 ; icon = "value"		# Class name of either a Glyphicon or Font-Awesome icon. See https://glyphicons.com/ or http://fontawesome.io/icons/
 ;
 
+[general]
+title = "Muximux - Application Management Console"
+
 [rutorrent]
 enabled = "true"
 default = "false"
