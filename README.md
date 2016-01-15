@@ -17,8 +17,8 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 #### Added features and fixes
 * No need to edit HTML pages anywhere.
 * Everything is configured in an easy config-file!
-  * *Just rename config.inc.php-example to config.inc.php and open it up in your favorite text editor!*
-  * *Your config.inc.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
+  * *Just rename config.ini.php-example to config.ini.php and open it up in your favorite text editor!*
+  * *Your config.ini.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
 
 * You now have the possibility to easily:
   * Enable or disable any app or site.
@@ -47,11 +47,11 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 - To set it up, clone this repository:
 `` git clone https://github.com/mescon/Muximux `` or download the ZIP-file.
 - Place all files on a publically accessible webserver, either directly in the root, or inside a directory called ``muximux`` or whatever you want it to be called.
-- Rename ``config.inc.php-example`` to ``config.inc.php`` *(Note: Your ``config.inc.php`` will never be overwritten if you update to a new version)*
-- In your favourite text-editor open ``config.inc.php`` and read the instructions.
+- Rename ``config.ini.php-example`` to ``config.ini.php`` *(Note: Your ``config.ini.php`` will never be overwritten if you update to a new version)*
+- In your favourite text-editor open ``config.ini.php`` and read the instructions.
   - You can enable or disable apps simply by setting ``enabled = "true"`` or ``enabled = "false"``
   - You can change the app icons by replacing them with ones from http://bootstrapdocs.com/v3.0.0/docs/components/ or http://fontawesome.io/icons/
-- The configuration file ``config.inc.php`` can not be read by any visitor, as long as you don't remove the top part of the file.
+- The configuration file ``config.ini.php`` can not be read by any visitor, as long as you don't remove the top part of the file.
 
  > **Important note regarding HTTPS:**
  > If you are serving Muximux from a HTTPS-enabled webserver (i.e``https://myserver.com/muximux``), all of your services must also be secured via HTTPS.
