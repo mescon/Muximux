@@ -17,7 +17,7 @@
 	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
 	<script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script> <!-- Modernizr -->
 
-	<title>Muximux - Application Management Console</title>
+	<title><?php echo getTitle($config); ?></title>
 </head>
 
 <body>
