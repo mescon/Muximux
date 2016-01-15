@@ -1,5 +1,5 @@
 <!doctype html>
-<?php require_once("mtphp.php"); ?>
+<?php require_once("muximux.php"); ?>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang="en"> <![endif]-->
@@ -8,7 +8,7 @@
 	<meta charset="UTF-8">
 	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="description" content="MTPHP - Application Management Console">
+	<meta name="description" content="Muximux - Application Management Console">
 	<link rel="shortcut icon" href="favicon.ico" type="image/ico" />
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" /> <!-- Bootstrap -->
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /> <!--FontAwesome-->
@@ -17,7 +17,7 @@
 	<link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
 	<script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script> <!-- Modernizr -->
 
-	<title>MTPHP - Application Management Console</title>
+	<title>Muximux - Application Management Console</title>
 </head>
 
 <body>

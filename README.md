@@ -1,21 +1,51 @@
-# MTPHP
-A lightweight way to manage your HTPC, dynamically handled with PHP and a simple configuration-file.
+# Muximux
+A lightweight way to manage your HTPC.
 
-This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here: https://github.com/Tenzinn3/Managethis
+>This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
+> https://github.com/Tenzinn3/Managethis
 
-This is a lightweight way to manage your HTPC apps without having to run anything extra, all you need is to have a webserver. It basically acts as a portal for all of your apps in once place so you don't need to keep multiple tabs open.
+This is a lightweight portal to manage your HTPC apps without having to run anything more than a PHP enabled webserver.
+With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
 ![alt tag](http://i.imgur.com/04Y0tDD.jpg)
 
+#### Added features and fixes
+* No need to edit HTML pages anywhere.
+* Everything is configured in an easy config-file!
+  * *Just rename config.inc.php-example to config.inc.php and open it up in your favorite text editor!*
+
+* You now have the possibility to enable or disable any app or site, enable or disable a landingpage that reduces the load on your browser, easily add your own apps, without having to delete, change or extend any code - it's all in the configuration file!
+* Added a "refresh" icon. When you click it, the app or site you are using will be reloaded - not every frame, which is very useful if you're having temporary problems with one of your apps/sites and don't want to reload every single app you have open.
+  * *You can also double click on the item you want to refresh in the menu*
+
+* Fixed an issue with Internet Explorer which would result in a scrollbar being present in the menu.
+* Custom versions of minified javascript libraries that removes some of the unnecessary functions we're not using, which result in less javascript overhead and faster loading times.
+
+* Moved everything CSS-related to a CSS-file (no inline CSS in the HTML)
+
+#### The future
+* I'll be fiddling with this on and off, and when I haven't found any bugs myself, or had any bugs filed for a while I will release version 1.0. After that, I'm taking suggestions for new features! In the meantime I'm happy to accept any pull requests/merge requests.
+
+
+
 ## Setup
+**Requirements:** A webserver (nginx, Apache, IIS or any other webserver) configured with PHP5 support.
+`` parse_ini_file `` must be allowed in php.ini (default is allowed!)
+- To set it up, clone this repository:
+`` git clone https://github.com/mescon/Muximux `` or download the ZIP-file.
+- Place all files on a publically accessible webserver, either directly in the root, or inside a directory called ``muximux`` or whatever you want it to be called.
+- Rename ``config.inc.php-example`` to ``config.inc.php``
+- In your favourite text-editor open ``config.inc.php`` and read the instructions.
+  - You can add new apps or disable apps simply by setting ``enabled = "false"``
+  - You can change the app icons by replacing them with ones from http://bootstrapdocs.com/v3.0.0/docs/components/ or http://fontawesome.io/icons/
+- The configuration file (``config.inc.php``) can not by read by any visitor, as long as you don't remove the top part of the file.
 
-- To set it up clone and place the folder inside the root directory of your webserver then rename config.inc.php-example to config.inc.php
-- In your favourite editor open config.inc.php and read the instructions.
-- You can change the app icons by replacing them with ones from http://bootstrapdocs.com/v3.0.0/docs/components/ or http://fontawesome.io/icons/
-- Navigate to http://youripaddress/mtphp to access MTPHP.
-- You can access your apps by clicking on the "Launch" button. This was implemented to stop you being hit by multiple login requests as soon as you start the app. It also speeds up loading time. You can enable or disable this functionality in the configuration file, for each app.
-- To reload an app, double click it in the menu. Only that specific page will reload.
-- You can enable or disable specific apps without having to remove them entirely by just editing the configuration file.
-- The configuration by default can not be read by a visitor, as long as you don't remove the top part of the file.
+## Usage
+- Navigate to ``http://<host>/muximux`` where ``<host>`` is either the IP or hostname of your webserver. *Obviously if you put the files in the root directory of your webserver, there is no need to append ``/muximux``*
+- Access your apps by clicking on the "Launch" button. If you don't see a "Launch" button, you have ``landingpage = "false"`` configured for the app you're linking to. *This functionality implemented to stop you being hit by multiple login requests as soon as you start the app. It also speeds up loading time.*
+- To reload an app, double click it in the menu, or press the refresh button in the top right bar.
 
-You may want to setup htaccess to secure it but even if you don't your apps will not be accessible as long as they themselves are secure.
+### Notes
+**It is strongly recommended that you secure Muximux with Basic Auth (``.htpasswd / .htaccess``)**
+Instructions for [Nginx](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04), [Apache](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04) and [Microsoft IIS](http://serverfault.com/a/272292).
+If you decide not to, Muximux disallows search engines from indexing your site, however, Muximux itself does not password protect your services, so you have to secure each of your applications properly (which they already should be!).

@@ -5,13 +5,13 @@
 ; The order that you put these blocks in determine in what order they will be listed in the menu.
 ; Enable or disable each block and edit the URL to point to your desired location.
 ;
-; Please note that if MTPHP is served via HTTPS, any services that are NOT served via HTTPS might be blocked by your web-browser.
+; Please note that if Muximux is served via HTTPS, any services that are NOT served via HTTPS might be blocked by your web-browser.
 ; Loading of unsecured content in the context of an SSL encrypted website where you see a green lock would be misleading, therefore the browser blocks it.
-; The only known work-around is to serve MTPHP via an unsecured website, or to make sure all the services/urls you link to use https://
+; The only known work-around is to serve Muximux via an unsecured website, or to make sure all the services/urls you link to use https://
 ;
-; You must rename this file to config.ini.php for MTPHP to function.
+; You must rename this file to config.ini.php for Muximux to function.
 ;
-; See https://github.com/mescon/mtphp/ for more information.
+; See https://github.com/mescon/Muximux/ for more information.
 ;
 ; Block configuration:
 ;
@@ -37,7 +37,7 @@ enabled = "true"
 default = "true"
 name = "Sonarr"
 url = "https://sonarr.tv/"
-landingpage = "false"
+landingpage = "true"
 icon = "glyphicon glyphicon-calendar"
 
 [couchpotato]
@@ -45,7 +45,7 @@ enabled = "true"
 default = "false"
 name = "CouchPotato"
 url = "https://couchpota.to/"
-landingpage = "false"
+landingpage = "true"
 icon = "fa fa-television"
 
 [headphones]
@@ -53,7 +53,7 @@ enabled = "true"
 default = "false"
 name = "Headphones"
 url = "https://github.com/rembo10/headphones"
-landingpage = "false"
+landingpage = "true"
 icon = "glyphicon glyphicon-headphones"
 
 [glances]
@@ -61,7 +61,7 @@ enabled = "true"
 default = "false"
 name = "Glances"
 url = "https://github.com/nicolargo/glances"
-landingpage = "false"
+landingpage = "true"
 icon = glyphicon glyphicon-dashboard
 
 [plexrequests]
@@ -77,7 +77,7 @@ enabled = "true"
 default = "false"
 name = "NZBGet"
 url = "https://nzbget.net/"
-landingpage = "false"
+landingpage = "true"
 icon = "fa fa-download"
 
 [plexpy]
@@ -85,7 +85,7 @@ enabled = "true"
 default = "false"
 name = "PlexPy"
 url = "https://github.com/drzoidberg33/plexpy"
-landingpage = "false"
+landingpage = "true"
 icon = "fa fa-server"
 
 [nzbhydra]
@@ -93,7 +93,7 @@ enabled = "true"
 default = "false"
 name = "NZB Hydra"
 url = "https://github.com/theotherp/nzbhydra"
-landingpage = "false"
+landingpage = "true"
 icon = "glyphicon glyphicon-search"
 
 [deluge]
@@ -101,7 +101,7 @@ enabled = "false"
 default = "false"
 name = "Deluge"
 url = "http://www.deluge-torrent.org/"
-landingpage = "false"
+landingpage = "true"
 icon = "fa fa-tint"
 
 [plex]
@@ -109,5 +109,5 @@ enabled = "true"
 default = "false"
 name = "Plex"
 url = "https://plex.tv/"
-landingpage = "false"
+landingpage = "true"
 icon = "fa fa-play-circle"
