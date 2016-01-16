@@ -22,13 +22,13 @@
 ;
 ; Block configuration:
 ;
-; [blockname]			# Name of the app that you're adding.
-; enabled = "value"		# true or false - used to quickly enable/disable the menu item and iframe.
-; default = "value"		# true or false - only set it to true in ONE of the blocks - otherwise it will try to load all menu items as the first item.
-; name = "value"		# Whatever you want the name of the item to be.
-; url = "value"			# Set the URL of your app, including http:// or https:// depending on which you use. Example: "https://my.server.com:8989/"
-; landingpage = "value"	# true or false - if set to false, the iframe will load instantly. Use true if you're bombarded with HTTP Auth-dialogs every time you visit the website.
-; icon = "value"		# Class name of either a Glyphicon or Font-Awesome icon. See https://glyphicons.com/ or http://fontawesome.io/icons/
+; [blockname]           # Name of the app that you're adding.
+; enabled = "value"     # true or false - used to quickly enable/disable the menu item and iframe.
+; default = "value"     # true or false - only set it to true in ONE of the blocks - otherwise it will try to load all menu items as the first item.
+; name = "value"        # Whatever you want the name of the item to be.
+; url = "value"         # Set the URL of your app, including http:// or https:// depending on which you use. Example: "https://my.server.com:8989/"
+; landingpage = "value" # true or false - if set to false, the iframe will load instantly. Use true if you're bombarded with HTTP Auth-dialogs every time you visit the website.
+; icon = "value"        # Class name of either a Glyphicon or Font-Awesome icon. See https://glyphicons.com/ or http://fontawesome.io/icons/
 ;
 
 [general]
