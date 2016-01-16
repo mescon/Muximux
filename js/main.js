@@ -13,24 +13,23 @@ jQuery(document).ready(function($){
             if( !selectedItem.hasClass('selected') ) {
                 var selectedTab = selectedItem.data('content'),
                     selectedContent = tabContentWrapper.find('li[data-content="'+selectedTab+'"]'),
-                    slectedContentHeight = selectedContent.innerHeight();
+                    selectedContentHeight = selectedContent.innerHeight();
 
                 selectedItem.dblclick(function() {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').attr('src'));
-                });
+                })
 
-                var sifsrc = selectedContent.children('iframe').src;
+                var sifsrc = selectedContent.children('iframe').attr('src');
                 if (sifsrc === undefined || sifsrc === "") {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').data('src'));
                 }
-
 
                 tabItems.find('a.selected').removeClass('selected');
                 selectedItem.addClass('selected');
                 selectedContent.addClass('selected').siblings('li').removeClass('selected');
                 //animate tabContentWrapper height when content changes
                 tabContentWrapper.animate({
-                    'height': slectedContentHeight
+                    'height': selectedContentHeight
                 }, 200);
             }
         });
