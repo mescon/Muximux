@@ -85,16 +85,6 @@ jQuery(document).ready(function($){
             dropdown.css('left', button.offset().left + "px");
     }
 
-    $(window).resize(function() {
-      if($(this).width() < 1024) {
-        $('.dropdown').hide();
-      } else {
-        $('.dropdown').show();
-      }
-
-    });
-
-
 // Call resizeIframe when document is ready
 resizeIframe();
 });
