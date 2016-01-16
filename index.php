@@ -1,5 +1,16 @@
 <!doctype html>
-<?php require_once("muximux.php"); ?>
+<?php
+function exception_error_handler($errno, $errstr, $errfile, $errline ) {
+    throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
+}
+
+set_error_handler("exception_error_handler");
+try {
+    include("muximux.php");
+} catch (ErrorException $ex) {
+    exit("Unable to load muximux.php.");
+}
+?>
 <!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8" lang="en"> <![endif]-->
 <!--[if IE 8]>         <html class="no-js lt-ie9" lang="en"> <![endif]-->
@@ -16,8 +27,8 @@
     <link rel="stylesheet" href="css/reset.css"> <!-- CSS reset -->
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script> <!-- Modernizr -->
-
     <title><?php echo getTitle($config); ?></title>
+    <base target="_blank">
 </head>
 
 <body>

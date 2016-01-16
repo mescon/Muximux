@@ -171,6 +171,90 @@ Main components
   }
 }
 
+.main-nav,
+.drop-nav {
+  background: #343843;
+}
+.main-nav {
+  float: right;
+  margin-top: 0px;
+}
+
+.main-nav > li:hover {
+  color: #f1f3f2; /* Hover text colour */
+  background-color: rgba(233, 230, 202, 0.3);
+}
+
+
+.main-nav > li {
+  float: left;
+  font-size: 14px;
+  font-size: 0.875rem;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 700;
+  background-color: #343843; /* Main nav colour */
+  cursor: pointer;
+  line-height: 1.5;
+}
+
+.main-nav li:first-child {
+  border-left: none;
+}
+
+.main-nav:after {
+  clear: right;
+  display: block;
+}
+
+
+
+
+.main-nav a {
+  display: block;
+  padding: 10px 10px;
+  text-decoration: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-weight: 700;
+  color: #747b8b;
+}
+
+.dd {
+  position: relative;
+}
+
+.dd a:hover {
+  color: #f1f3f2; /* Hover text colour */
+  background-color: rgba(233, 230, 202, 0.3);
+}
+
+.dd:after {
+  content: "";
+  font-size: .5em;
+  display: block;
+  position: absolute;
+  top: 38%;
+  right: 12%;
+}
+.drop-nav {
+  position: absolute;
+  display: none;
+  width: 150px;
+}
+.drop-nav li {
+  border-bottom: 1px solid rgba(255,255,255,.2);
+}
+.dd:hover > .drop-nav {
+  display: block;
+}
+
+.drop-nav > li:hover, .drop-nav > li:hover a {
+  color: #f1f3f2; /* Selected text colour */
+  background-color: rgba(233, 230, 202, 0.3);
+}
+
+
 @-webkit-keyframes cd-fade-in {
   0% {
     opacity: 0;

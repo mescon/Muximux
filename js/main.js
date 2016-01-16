@@ -3,7 +3,7 @@ jQuery(document).ready(function($){
 
     tabs.each(function(){
         var tab = $(this),
-            tabItems = tab.find('ul.cd-tabs-navigation'),
+            tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
 
@@ -75,14 +75,14 @@ jQuery(document).ready(function($){
         $('iframe').css({ 'height': newSize + 'px' });
     }
 
-    $('.dropdown-toggle').click(function (){
-                dropDownFixPosition($('.dropdown-toggle'),$('.dropdown-menu'));
+    $('.main-nav').hover(function (){
+                dropDownFixPosition($('.main-nav'),$('.drop-nav'));
             });
 
     function dropDownFixPosition(button,dropdown){
           var dropDownTop = button.offset().top + button.outerHeight();
             dropdown.css('top', dropDownTop + "px");
-            dropdown.css('left', button.offset().left + "px");
+            dropdown.css('left', $(window).width()-$('.drop-nav').width() - button.offset().left + "px");
     }
 
 // Call resizeIframe when document is ready

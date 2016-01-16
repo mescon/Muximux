@@ -4,7 +4,12 @@
 * The settings are all in config.ini.php
 */
 
-$config = parse_ini_file('config.ini.php', true);
+try {
+    $config = parse_ini_file('config.ini.php', true);
+} catch(Exception $e) {
+    die('<b>Unable to read config.ini.php. Did you rename it from config.ini.php-example?</b><br><br>Error message: ' .$e->getMessage());
+}
+
 
 function menuItems($config) {
     if (empty($item)) $item = '';
@@ -13,7 +18,7 @@ function menuItems($config) {
             if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
                 $item .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
             } else {
-                $item .= "<li><a data-content=\"" . $keyname . "\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
+                    $item .= "<li><a data-content=\"" . $keyname . "\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
             }
         }
     }
@@ -24,12 +29,13 @@ function getTitle($config){
     if (empty($item)) $item = 'Muximux - Application Management Console';
     foreach ($config as $keyname => $section) {
         if(($keyname == "general")) {
-            $item .= $section["title"];
+            $item = $section["title"];
             break;
         }
     }
     return $item;
 }
+
 
 function frameContent($config) {
     if (empty($item)) $item = '';
