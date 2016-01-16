@@ -21,7 +21,7 @@ function menuItems($config) {
 }
 
 function getTitle($config){
-	if (empty($item)) $item = '';
+	if (empty($item)) $item = 'Muximux - Application Management Console';
 	foreach ($config as $keyname => $section) {
 		if(($keyname == "general")) {		
 			$item .= $section["title"];
