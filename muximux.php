@@ -51,7 +51,7 @@ function frameContent($config) {
                 $item .= "<li data-content=\"". $keyname . "\">";
             }
 
-            $item .= "<iframe allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe></li>\n";
+            $item .= "<iframe allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"". $section["url"] . "\"></iframe></li>\n";
         }
     }
     return $item;

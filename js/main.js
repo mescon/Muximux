@@ -17,7 +17,13 @@ jQuery(document).ready(function($){
 
                 selectedItem.dblclick(function() {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').attr('src'));
-                })
+                });
+
+                var sifsrc = selectedContent.children('iframe').src;
+                if (sifsrc === undefined || sifsrc === "") {
+                    selectedContent.children('iframe').attr('src', selectedContent.children('iframe').data('src'));
+                }
+
 
                 tabItems.find('a.selected').removeClass('selected');
                 selectedItem.addClass('selected');
