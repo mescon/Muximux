@@ -3,6 +3,9 @@
 >This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
 > https://github.com/Tenzinn3/Managethis
 
+
+> If you prefer a NodeJS version with a built-in webserver, it is available at https://github.com/onedr0p/manage-this-node
+
 This is a lightweight portal to manage your HTPC apps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
