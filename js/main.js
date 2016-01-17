@@ -55,11 +55,7 @@ jQuery(document).ready(function($){
             tab.find('.cd-tabs-content').css('height', 'auto');
         });
 
-        if($(this).width() < 1024) { // Hide dropdown-menu if we're on a small screen.
-                $('.dropdown').hide();
-              } else {
-                $('.dropdown').show();
-        }
+        hideDropdownMenu(); // Check if we should hide the dropdown menu.
         resizeIframe(); // Resize iframes when window is resized.
     });
 
@@ -80,6 +76,14 @@ jQuery(document).ready(function($){
         $('iframe').css({ 'height': newSize + 'px' });
     }
 
+    function hideDropdownMenu() {
+        if($(window).width() < 1024) {
+            $('.main-nav').hide();
+        } else {
+            $('.main-nav').show();
+        }
+    }
+
     $('.main-nav').hover(function (){
                 dropDownFixPosition($('.main-nav'),$('.drop-nav'));
             });
@@ -90,6 +94,7 @@ jQuery(document).ready(function($){
             dropdown.css('left', $(window).width()-$('.drop-nav').width() - button.offset().left + "px");
     }
 
-// Call resizeIframe when document is ready
-resizeIframe();
+
+resizeIframe(); // Call resizeIframe when document is ready
+hideDropdownMenu(); // Check if we should hide the dropdown menu
 });

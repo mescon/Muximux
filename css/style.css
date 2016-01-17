@@ -185,7 +185,6 @@ Main components
   background-color: rgba(233, 230, 202, 0.3);
 }
 
-
 .main-nav > li {
   float: left;
   font-size: 14px;
@@ -193,9 +192,10 @@ Main components
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 700;
-  background-color: #343843; /* Main nav colour */
+  /*background-color: #343843; /* Main nav colour */
   cursor: pointer;
-  line-height: 1.5;
+  line-height: 1.4;
+  background-color: transparent;
 }
 
 .main-nav li:first-child {
@@ -206,9 +206,6 @@ Main components
   clear: right;
   display: block;
 }
-
-
-
 
 .main-nav a {
   display: block;
@@ -241,6 +238,9 @@ Main components
   position: absolute;
   display: none;
   width: 150px;
+  -webkit-box-shadow: -9px 10px 13px -2px rgba(0,0,0,0.3);
+  -moz-box-shadow: -9px 10px 13px -2px rgba(0,0,0,0.3);
+  box-shadow: -9px 10px 13px -2px rgba(0,0,0,0.3);
 }
 .drop-nav li {
   border-bottom: 1px solid rgba(255,255,255,.2);
@@ -252,6 +252,9 @@ Main components
 .drop-nav > li:hover, .drop-nav > li:hover a {
   color: #f1f3f2; /* Selected text colour */
   background-color: rgba(233, 230, 202, 0.3);
+  -webkit-box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
+  -moz-box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
+  box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
 }
 
 

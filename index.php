@@ -36,12 +36,9 @@ try {
 <![endif]-->
 
 <div class="cd-tabs">
-    <nav>
-        <ul class="cd-tabs-navigation">
+
         <?php echo menuItems($config); ?>
-        <li><a id="reload" title="Double click your app in the menu, or press this button to refresh the current app."><span class="fa fa-refresh fa-lg"></span></a></li>
-        </ul>
-    </nav>
+
 
     <ul class="cd-tabs-content">
         <?php echo frameContent($config); ?>

@@ -12,15 +12,41 @@ try {
 
 
 function menuItems($config) {
-    if (empty($item)) $item = '';
+    if (empty($standardmenu)) $standardmenu = '';
+    if (empty($dropdownmenu)) $dropdownmenu = '';
+    if (empty($enabledropdown)) $enabledropdown = '';
     foreach ($config as $keyname => $section) {
-        if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
+        if(($keyname == "general")) {
+            if(isset($section["enabledropdown"]) && ($section["enabledropdown"]=="true")) { $enabledropdown = "true"; } else { $enabledropdown = "false"; }
+        }
+
+        if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true") && (!isset($section["dd"]) || $section["dd"]=="false")) {
             if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-                $item .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
             } else {
-                    $item .= "<li><a data-content=\"" . $keyname . "\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
+                    $standardmenu .= "<li><a data-content=\"" . $keyname . "\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
             }
         }
+        if(isset($section["dd"]) && ($section["dd"]=="true"))
+        {
+            $dropdownmenu .= "<li><a data-content=\"". $keyname ."\"><span class=\"". $section["icon"] ."\"></span> ". $section["name"] ."</a></li>\n";
+        } else {
+            $dropdownmenu .= "";
+        }
+    }
+
+    if($enabledropdown=="true") {
+        $item = "<ul class=\"main-nav\">
+        <li class=\"dd\">
+        <a><span class=\"fa fa-cog fa-lg\"></span></a>
+        <ul class=\"drop-nav\">" . $dropdownmenu .
+        "</ul></li></ul>\n\n\n<ul class=\"cd-tabs-navigation\"><nav>" .
+        $standardmenu .
+        "<li><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";
+    } else {
+        $item = "<nav><ul class=\"cd-tabs-navigation\">" .
+        $standardmenu .
+        "<li><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";
     }
     return $item;
 }
