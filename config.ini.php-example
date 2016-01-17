@@ -58,7 +58,7 @@ dd = "false"
 [sickbeard]
 enabled = "true"
 default = "true"
-name = "Sonarr"
+name = "Sickbeard"
 url = "http://sickbeard.com/"
 landingpage = "true"
 icon = "glyphicon glyphicon-calendar"
