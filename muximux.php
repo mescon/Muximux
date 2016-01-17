@@ -46,12 +46,11 @@ function frameContent($config) {
 
         if(!empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true")) {
             if(!empty($section["default"]) && !($section["default"]=="false") && ($section["default"]=="true")) {
-                $item .= "<li data-content=\"". $keyname . "\" class=\"selected\">";
+                $item .= "\n<li data-content=\"". $keyname . "\" class=\"selected\">\n<iframe security=\"restricted\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe>\n</li>\n";
             } else {
-                $item .= "<li data-content=\"". $keyname . "\">";
+                $item .= "\n<li data-content=\"". $keyname . "\">\n<iframe security=\"restricted\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"". $section["url"] . " src=\"". $section["url"] . "\"></iframe>\n</li>\n";
             }
 
-            $item .= "<iframe allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"". $section["url"] . "\"></iframe></li>\n";
         }
     }
     return $item;
