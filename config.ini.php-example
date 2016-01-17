@@ -57,7 +57,7 @@ dd = "false"
 
 [sickbeard]
 enabled = "true"
-default = "true"
+default = "false"
 name = "Sickbeard"
 url = "http://sickbeard.com/"
 landingpage = "true"
