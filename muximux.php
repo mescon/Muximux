@@ -39,7 +39,7 @@ function menuItems($config) {
         $item = "<ul class=\"main-nav\">
         <li class=\"dd\">
         <a><span class=\"fa fa-bars fa-lg\"></span></a>
-        <ul class=\"drop-nav\">" . $dropdownmenu .
+        <ul class=\"drop-nav\">\n" . $dropdownmenu .
         "</ul></li></ul>\n\n\n<ul class=\"cd-tabs-navigation\"><nav>" .
         $standardmenu .
         "<li><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";

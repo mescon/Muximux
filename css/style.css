@@ -171,9 +171,9 @@ Main components
   }
 }
 
-.main-nav,
-.drop-nav {
+.main-nav, .drop-nav {
   background: #343843;
+  z-index: 100002;
 }
 .main-nav {
   float: right;
@@ -181,7 +181,7 @@ Main components
 }
 
 .main-nav > li:hover {
-  color: #f1f3f2; /* Hover text colour */
+  color: #f1f3f2;
   background-color: rgba(233, 230, 202, 0.3);
 }
 
@@ -192,7 +192,6 @@ Main components
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-weight: 700;
-  /*background-color: #343843; /* Main nav colour */
   cursor: pointer;
   line-height: 1.4;
   background-color: transparent;
@@ -217,12 +216,13 @@ Main components
   color: #747b8b;
 }
 
+
 .dd {
   position: relative;
 }
 
 .dd a:hover {
-  color: #f1f3f2; /* Hover text colour */
+  color: #fff;
   background-color: rgba(233, 230, 202, 0.3);
 }
 
@@ -245,18 +245,22 @@ Main components
 .drop-nav li {
   border-bottom: 1px solid rgba(255,255,255,.2);
 }
+
 .dd:hover > .drop-nav {
   display: block;
 }
 
 .drop-nav > li:hover, .drop-nav > li:hover a {
-  color: #f1f3f2; /* Selected text colour */
+  color: #f1f3f2;
   background-color: rgba(233, 230, 202, 0.3);
   -webkit-box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
   -moz-box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
   box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
 }
 
+.dd-active {
+  color: #f1f3f2;
+}
 
 @-webkit-keyframes cd-fade-in {
   0% {
