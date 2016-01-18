@@ -46,7 +46,6 @@ Main components
   }
 }
 
-
 @media only screen and (min-width: 0px) {
   .cd-tabs nav {
     overflow: auto;
@@ -175,6 +174,7 @@ Main components
   background: #343843;
   z-index: 100002;
 }
+
 .main-nav {
   float: right;
   margin-top: 0px;
@@ -216,13 +216,12 @@ Main components
   color: #747b8b;
 }
 
-
 .dd {
   position: relative;
 }
 
 .dd a:hover {
-  color: #fff;
+  color: #f1f3f2;
   background-color: rgba(233, 230, 202, 0.3);
 }
 
@@ -234,6 +233,11 @@ Main components
   top: 38%;
   right: 12%;
 }
+
+.dd-active { /* Used by main.js to set color of parent element of hovered item */
+  color: #f1f3f2;
+}
+
 .drop-nav {
   position: absolute;
   display: none;
@@ -256,10 +260,6 @@ Main components
   -webkit-box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
   -moz-box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
   box-shadow: inset 0px 0px 13px 5px rgba(0,0,0,0.3);
-}
-
-.dd-active {
-  color: #f1f3f2;
 }
 
 @-webkit-keyframes cd-fade-in {
