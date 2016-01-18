@@ -27,7 +27,7 @@ function menuItems($config) {
                     $standardmenu .= "<li><a data-content=\"" . $keyname . "\"><span class=\"". $section["icon"] ." fa-lg\"></span> ". $section["name"] ."</a></li>\n";
             }
         }
-        if(isset($section["dd"]) && ($section["dd"]=="true"))
+        if(isset($section["dd"]) && ($section["dd"]=="true") && !empty($section["enabled"]) && !($section["enabled"]=="false") && ($section["enabled"]=="true"))
         {
             $dropdownmenu .= "<li><a data-content=\"". $keyname ."\"><span class=\"". $section["icon"] ."\"></span> ". $section["name"] ."</a></li>\n";
         } else {
