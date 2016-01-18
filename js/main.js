@@ -44,12 +44,10 @@ jQuery(document).ready(function($){
     // Keep hamburger-menu white when hovering items UNDER the hamburger menu.
     $('.drop-nav').on('mouseover', function(){
         $('.main-nav a span:first').addClass('dd-active');
-        console.log('added class');
     })
 
     $('.drop-nav').on('mouseout', function(){
         $('.main-nav a span:first').removeClass('dd-active');
-        console.log('REMOVED class');
     })
 
 
