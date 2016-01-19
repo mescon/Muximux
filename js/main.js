@@ -65,7 +65,7 @@ jQuery(document).ready(function($){
             tab.find('.cd-tabs-content').css('height', 'auto');
         });
 
-        hideDropdownMenu(); // Check if we should hide the dropdown menu.
+        //hideDropdownMenu(); // Check if we should hide the dropdown menu.
         resizeIframe(); // Resize iframes when window is resized.
     });
 
@@ -86,13 +86,13 @@ jQuery(document).ready(function($){
         $('iframe').css({ 'height': newSize + 'px' });
     }
 
-    function hideDropdownMenu() {
+    /*function hideDropdownMenu() {
         if($(window).width() < 1024) {
             $('.main-nav').hide();
         } else {
             $('.main-nav').show();
         }
-    }
+    }*/
 
     $('.main-nav').hover(function (){
                 dropDownFixPosition($('.main-nav'),$('.drop-nav'));
@@ -106,5 +106,5 @@ jQuery(document).ready(function($){
 
 
 resizeIframe(); // Call resizeIframe when document is ready
-hideDropdownMenu(); // Check if we should hide the dropdown menu
+//hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
