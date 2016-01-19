@@ -1,0 +1,39 @@
+body {
+    background:#000;
+    color: #fff;
+    font-size: 16px;
+}
+
+ul {
+    list-style: none;
+}
+
+input[type='text']{
+    width: 300px;
+    height: 25px;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    border: 1px solid dodgerblue;
+    margin: 5px 5px 5px 10px;
+    padding: 2px;
+}
+
+input.ui-button{
+    padding: .2em .5em;
+}
+
+.applicationContainer {
+    border: 1px solid #FFF;
+    width: 525px;
+    padding: 10px;
+    margin-left:auto;
+    margin-right:auto;
+}
+
+#header {
+    width: 150px;
+    font-size: 40px;
+    color: #FFf;
+    margin-left:auto;
+    margin-right:auto;
+}
