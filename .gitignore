@@ -2,3 +2,4 @@
 config.ini.php
 test.php
 tmp/*
+*.idea
