@@ -104,7 +104,27 @@ jQuery(document).ready(function($){
             dropdown.css('left', $(window).width()-$('.drop-nav').width() - button.offset().left + "px");
     }
 
+    function settings_addFalseCheckboxes(){
+        $('.applicationName').change(function(){
+            var section = $(this).attr('value');
+            $('.'+section+'-value').addClass('')
+            $('.'+section+'-value').removeClass('.'+section+'-value');
+            $('.'+section+'-value').removeAttribute("name")
+        });
 
+        $('#settingsSubmit').click(function(event){
+            event.preventDefault();
+            $('.checkbox').each(function(){
+                if(!$(this).prop('checked')){
+                    var name=$(this).attr('name');
+                    $('form').append('<input type="hidden" name="'+name+'" value="false">');
+                }
+            });
+            $('form').submit();
+        });
+
+    }
+settings_addFalseCheckboxes();
 resizeIframe(); // Call resizeIframe when document is ready
 hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
