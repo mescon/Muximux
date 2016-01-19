@@ -1,7 +1,3 @@
-<html>
-<script src="js/jquery-2.2.0.min.js"></script>
-<script src="js/main.js"></script> <!-- Resource jQuery -->
-</html>
 <?php
 /**
  * Created by PhpStorm.
@@ -34,32 +30,46 @@ function save_ini($postData,$config){
 
 function parse_ini($config)
 {
+    $pageOutput="<div id='header'>Settings</div>";
 
-    $pageOutput = "<form method='post' action='settings.php'>";
+    $pageOutput .= "<form method='post' action='settings.php'>";
 
-    $pageOutput .= "General:<br><div>Title: <input type='text' value='" . $config->get('general', 'title') . "'></div>";
+    $pageOutput .= "<div class='applicationContainer'>General:<br>Title: <input type='text' value='" . $config->get('general', 'title') . "'>";
     $pageOutput .= "Enable Dropdown: <input type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div><br><br>";
     else
         $pageOutput .= "></div><br>";
 
+    $pageOutput.="<input type='button' id='addApplication' value='Add New Application'><ul id='sortable'>";
         foreach ($config as $section => $name) {
             if (is_array($name) && $section != "settings" && $section != "general") {
-                $pageOutput .= "<br><div>Application: <input class='applicationName' type='text' value='".$section."'></div>";
+                $pageOutput .= "<br><li class='applicationContainer' id='".$section."'><div>Application: <input class='applicationName' was='".$section."' type='text' value='".$section."'><input type='button' class='saveApp' value='Update Application Name'></div>";
                 foreach ($name as $key => $val) {
                     if($key == "name" || $key == "url" || $key == "icon")
                         $pageOutput .= "<div>$key:<input class='".$section."-value' name='".$section."-".$key."' type='text' value='".$val."'></div></div>";
                     else{
-                        $pageOutput .= "<div>$key<input class='checkbox ".$section."-value' name='".$section."-".$key."' type='checkbox' ";
+                        $pageOutput .= "<div>$key:<input class='checkbox ".$section."-value' name='".$section."-".$key."' type='checkbox' ";
                         if ($val == "true")
                             $pageOutput .= " checked></div></div>";
                         else
                             $pageOutput .= "></div></div>";
                     }
                 }
+                $pageOutput.="<input type='button' class='saveButton' value='Save' id='save-".$section."'><input type='button' class='removeButton' value='Remove' id='remove-".$section."'></li>";
             }
         }
-    $pageOutput .= "<input type='submit' id='settingsSubmit' value='submit'></form>";
+    $pageOutput .= "</ul><input type='submit' id='settingsSubmit' value='submit'></form>";
     echo $pageOutput;
 }
+?>
+<html>
+<head>
+<script src="js/jquery-2.2.0.min.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/main.js"></script> <!-- Resource jQuery -->
+<link rel="stylesheet" href="css/jquery-ui.min.css">
+<link rel="stylesheet" href="css/settingsStyle.css">
+<link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css"> <!-- Font -->
+</head>
+</html>
