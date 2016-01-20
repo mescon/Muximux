@@ -159,7 +159,7 @@ jQuery(document).ready(function ($) {
             runRemove($(this).parent('li'))
         });
         function runRemove(selectedElement) {
-            var selectedEffect = "drop"
+            var selectedEffect = "drop";
             var options = {};
             $(selectedElement).effect(selectedEffect, options, 500, removeCallback(selectedElement));
         };

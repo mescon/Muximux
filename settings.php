@@ -44,7 +44,7 @@ function parse_ini($config)
     $pageOutput.="<input type='button' id='addApplication' value='Add New Application'><ul id='sortable'>";
         foreach ($config as $section => $name) {
             if (is_array($name) && $section != "settings" && $section != "general") {
-                $pageOutput .= "<br><li class='applicationContainer' id='".$section."'><div>Application: <input class='applicationName' was='".$section."' type='text' value='".$section."'><input type='button' class='saveApp' value='Update Application Name'></div>";
+                $pageOutput .= "<li class='applicationContainer' id='".$section."'><div>Application: <input class='applicationName' was='".$section."' type='text' value='".$section."'><input type='button' class='saveApp' value='Update Application Name'></div>";
                 foreach ($name as $key => $val) {
                     if($key == "name" || $key == "url" || $key == "icon")
                         $pageOutput .= "<div>$key:<input class='".$section."-value' name='".$section."-".$key."' type='text' value='".$val."'></div></div>";
