@@ -30,6 +30,7 @@ a:hover, a:visited, a:link, a:active
 iframe {
   width: 100%;
   height: 926px;
+  background-color: #fff;
 }
 
 /* --------------------------------
