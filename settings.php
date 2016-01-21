@@ -10,20 +10,21 @@ require __DIR__ . '/vendor/autoload.php';
 if (sizeof($_POST) == 0) {
     parse_ini();
 } else {
-    save_ini();
+    write_ini();
 }
 
-function save_ini()
+function write_ini()
 {
-    unlink('config.ini.php');
     $config = new Config_Lite('config.ini.php');
     foreach ($_POST as $parameter => $value) {
-        if ($parameter != "ignore") {
-            $splitParameter = explode('-', $parameter);
+        $splitParameter = explode('-', $parameter);
+        if ($splitParameter[0] != "removed") {
             if ($value == "on")
                 $value = "true";
             $config->set($splitParameter[0], $splitParameter[1], $value);
         }
+        else
+            $config->removeSection($splitParameter[1]);
     }
     // save object to file
     try {
@@ -42,11 +43,11 @@ function parse_ini()
     $pageOutput .= "<form method='post' action='settings.php'>";
 
     $pageOutput .= "<div class='applicationContainer'>General:<br>Title: <input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
-    $pageOutput .= "Enable Dropdown: <input class='general-value' name='general-enabledropdown' type='checkbox' ";
+    $pageOutput .= "<div>Enable Dropdown: <input class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
-        $pageOutput .= "checked></div><br><br>";
+        $pageOutput .= "checked></div></div><br><br>";
     else
-        $pageOutput .= "></div><br>";
+        $pageOutput .= "></div></div><br>";
 
     $pageOutput .= "<input type='hidden' class='settings-value' name='settings-enabled' value='true'>".
                    "<input type='hidden' class='settings-value' name='settings-default' value='false'>".
@@ -56,26 +57,34 @@ function parse_ini()
                    "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-server'>".
                    "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
 
-    $pageOutput .= "<div class='center' id='addApplicationButton'><input type='button' id='addApplication' value='Add New Application'></div><ul id='sortable'>";
+    $pageOutput .= "<div class='center' id='addApplicationButton'><input type='button' id='addApplication' value='Add New Application'></div><div id='sortable'>";
+    $iconVal = array('fa fa-television','fa fa-download','glyphicon glyphicon-calendar','glyphicon glyphicon-dashboard','glyphicon glyphicon-bullhorn','fa fa-server','fa fa-play-circle');
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
-            $pageOutput .= "<li class='applicationContainer' id='" . $section . "'><div>Application: <input class='applicationName' was='" . $section . "' type='text' value='" . $section . "'><input type='button' class='saveApp' value='Update Application Name'></div>";
+            $pageOutput .= "<div class='applicationContainer' id='" . $section . "'><span class='example_icon'></span><div>Application: <input class='applicationName' was='" . $section . "' type='text' value='" . $section . "'><input type='button' class='saveApp' value='Update Application Name'></div>";
             foreach ($name as $key => $val) {
-                if ($key == "name" || $key == "url" || $key == "icon")
-                    $pageOutput .= "<div>$key:<input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div></div>";
+                if ($key == "name" || $key == "url")
+                    $pageOutput .= "<div>$key:<input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                else if($key == "icon"){
+                    $pageOutput .= "<div>$key:<select class='" . $section . "-value' name='" . $section . "-" . $key . "'>";
+                    foreach($iconVal as $icon) {
+                        $pageOutput.="<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">").$icon."</option>";
+                    }
+                    $pageOutput.="</select></div>";
+                }
                 else {
                     $pageOutput .= "<div>$key:<input class='checkbox " . $section . "-value' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
-                        $pageOutput .= " checked></div></div>";
+                        $pageOutput .= " checked></div>";
                     else
-                        $pageOutput .= "></div></div>";
+                        $pageOutput .= "></div>";
                 }
             }
 
-            $pageOutput .= "<input type='button' class='removeButton' value='Remove' id='remove-" . $section . "'></li>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
+            $pageOutput .= "<input type='button' class='removeButton' value='Remove' id='remove-" . $section . "'></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
         }
     }
-    $pageOutput .= "</ul><input type='submit' id='settingsSubmit' value='Submit Changes'></form>";
+    $pageOutput .= "</div><input type='submit' id='settingsSubmit' value='Submit Changes'><div id='removed' class='hidden'></div></form>";
     echo $pageOutput;
 }
 
@@ -87,8 +96,13 @@ function parse_ini()
     <script src="js/main.js"></script>
     <!-- Resource jQuery -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
-    <link rel="stylesheet" href="css/settingsStyle.css">
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> <!-- Bootstrap (includes Glyphicons) -->
+    <link rel="stylesheet" href="css/settingsStyle.css">
+  <!-- Optional theme -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css" integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" /> <!--FontAwesome-->
+
     <!-- Font -->
 </head>
 </html>
