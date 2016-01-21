@@ -28,6 +28,7 @@ input.ui-button{
     padding: 10px;
     margin-left:auto;
     margin-right:auto;
+    margin-top: 10px;
 }
 
 #header {
@@ -36,4 +37,23 @@ input.ui-button{
     color: #FFf;
     margin-left:auto;
     margin-right:auto;
+}
+#addApplicationButton {
+    width: 200px;
+}
+
+#settingsSubmit{
+    width: 165px;
+    position: fixed;
+    top: 30px;
+    right: 30px;
+}
+
+.center {
+    margin-left:auto;
+    margin-right:auto;
+}
+
+.hidden {
+    display:none;
 }

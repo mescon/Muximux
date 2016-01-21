@@ -17,7 +17,7 @@ jQuery(document).ready(function ($) {
 
                 selectedItem.dblclick(function () {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').attr('src'));
-                })
+                });
 
                 var sifsrc = selectedContent.children('iframe').attr('src');
                 if (sifsrc === undefined || sifsrc === "") {
@@ -44,17 +44,18 @@ jQuery(document).ready(function ($) {
     // Keep hamburger-menu white when hovering items UNDER the hamburger menu.
     $('.drop-nav').on('mouseover', function () {
         $('.main-nav a span:first').addClass('dd-active');
-    })
+    });
 
     $('.drop-nav').on('mouseout', function () {
         $('.main-nav a span:first').removeClass('dd-active');
-    })
+    });
 
 
     $('#reload').on('click', function () {
-        var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
-        selectedFrame.attr('src', selectedFrame.attr('src'));
-    })
+        location.href='index.php';
+        //var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
+        //selectedFrame.attr('src', selectedFrame.attr('src'));
+    });
 
 
     $(window).on('resize', function () {
@@ -107,41 +108,46 @@ jQuery(document).ready(function ($) {
         //Defaults
         $('.applicationName').attr('disabled', 'disabled');
         $('#sortable').sortable();
-        initButtonHandlers();
+        initButtonHandlers('.saveApp','.removeButton','.saveButton');
 
 
         //Add new application button
         $('#addApplication').button().click(function () {
-            $('#addApplication').attr('disabled','disabled');
+            //Generating a random number here. So that if the user adds more than one new appliation at a time the ids/classes and names dont match.
+            var rand = Math.floor((Math.random() * 999999) + 1);
             $('#sortable').prepend(
-                '<li class="applicationContainer" id="newApplication"><div>Application: ' +
-                '<input class="applicationName" was="newApplication" type="text" value="">' +
-                '<input type="button" class="saveApp" value="Save"></div>' +
-                '<div>enabled:<input class="checkbox newApplication-value" name="newApplication-enabled" type="checkbox"></div>' +
-                '<div>default:<input class="checkbox newApplication-value" name="newApplication-default" type="checkbox"></div>' +
-                '<div>name:<input class="newApplication-value" name="newApplication-name" type="text" value=""></div>' +
-                '<div>url:<input class="newApplication-value" name="newApplication-url" type="text" value=""></div>' +
-                '<div>landingpage:<input class="checkbox newApplication-value" name="rutorrent-landingpage" type="checkbox" checked=""></div>' +
-                '<div>icon:<input class="newApplication-value" name="newApplication-icon" type="text" value="fa fa-globe"></div>' +
-                '<input type="button" class="saveButton" value="Save" id="save-newApplication">' +
-                '<input type="button" class="removeButton" value="Remove" id="remove-newApplication"></li>');
-            initButtonHandlers();
+                '<li class="applicationContainer" id="'+rand+'newApplication"><div>Application: ' +
+                '<input class="applicationName" was="'+rand+'newApplication" type="text" value="">' +
+                '<input type="button" class="saveApp" id="'+rand+'saveApp-newApplication" value="Save Application Name"></div>' +
+                '<div>name:<input class="'+rand+'newApplication-value" name="'+rand+'newApplication-name" type="text" value=""></div>' +
+                '<div>url:<input class="'+rand+'newApplication-value" name="'+rand+'newApplication-url" type="text" value=""></div>' +
+                '<div>icon:<input class="'+rand+'newApplication-value" name="'+rand+'newApplication-icon" type="text" value="fa fa-globe"></div>' +
+                '<div>enabled:<input class="checkbox '+rand+'newApplication-value" name="'+rand+'newApplication-enabled" type="checkbox"></div>' +
+                '<div>default:<input class="checkbox '+rand+'newApplication-value" name="'+rand+'newApplication-default" type="checkbox"></div>' +
+                '<div>landingpage:<input class="checkbox '+rand+'newApplication-value" name="rutorrent-landingpage" type="checkbox"></div>' +
+                '<div>dd:<input class="checkbox '+rand+'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
+
+                //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
+                '<input type="button" class="removeButton" value="Remove" id="remove-'+rand+'newApplication"></li>');
+            initButtonHandlers('#'+rand+'saveApp-newApplication','#remove-'+rand+'newApplication','#save-'+rand+'newApplication');
         });
     }
 
-    function initButtonHandlers(){
+    function initButtonHandlers(saveApplicationButton,removeButton,saveButton){
         //Update Application Name Button Handler
-        $('.saveApp').button().click(function () {
+        $(saveApplicationButton).button().click(function () {
             $('#addApplication').removeAttr('disabled');
             var applicationInput = $(this).prev();
             if ($(this).attr('value') == "Update Application Name") {
                 applicationInput.removeAttr('disabled');
-                $(this).attr('value', 'Save');
+                $(this).attr('value', 'Save Application Name');
             }
             else {
                 var section = $(this).prev().attr('was');
-                var newSection = $(this).prev().val();
+                var newSection = $(this).prev().val().split(' ').join('_');
                 applicationInput.attr('was', newSection);
+                applicationInput.val(newSection);
+                applicationInput.attr('value',newSection);
                 $('.' + section + '-value').each(function () {
                     var split = $(this).attr('name').split('-');
                     $(this).removeAttr('name')
@@ -155,7 +161,7 @@ jQuery(document).ready(function ($) {
             }
         });
         //Remove Button Handler
-        $('.removeButton').button().click(function () {
+        $(removeButton).button().click(function () {
             runRemove($(this).parent('li'))
         });
         function runRemove(selectedElement) {
@@ -169,23 +175,21 @@ jQuery(document).ready(function ($) {
             }, 1000);
         };
         //Save button handler - Add ajax
-        $('.saveButton').button();
+        $(saveButton).button();
     }
 
     function settings_addFalseCheckboxes() {
-        $('#settingsSubmit').click(function (event) {
-            event.preventDefault();
-            $('.checkbox').each(function () {
-                if (!$(this).prop('checked')) {
-                    var name = $(this).attr('name');
-                    $('form').append('<input type="hidden" name="' + name + '" value="false">');
-                }
+            $('#settingsSubmit').button().click(function (event) {
+                event.preventDefault();
+                $('.checkbox').each(function () {
+                    if (!$(this).prop('checked')) {
+                        var name = $(this).attr('name');
+                        $('form').append('<input type="hidden" name="' + name + '" value="false">');
+                    }
+                });
+                $('form').submit();
             });
-            $('form').submit();
-        });
-
     }
-
     settings_addFalseCheckboxes();
     settings_Buttons();
     resizeIframe(); // Call resizeIframe when document is ready
