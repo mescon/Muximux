@@ -1,5 +1,7 @@
 # Muximux - Lightweight HTPC portal
 
+[![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 >This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
 > https://github.com/Tenzinn3/Managethis
 
