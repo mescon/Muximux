@@ -1,5 +1,5 @@
 body {
-    background:#000;
+    background:url("../images/IehB7.png");
     color: #fff;
     font-size: 16px;
 }
@@ -18,8 +18,16 @@ input[type='text']{
     padding: 2px;
 }
 
+input[type='text'],select{
+    color: #000;
+}
+
 input.ui-button{
     padding: .2em .5em;
+}
+
+.checkbox {
+    display:inline-block;
 }
 
 .applicationContainer {
@@ -28,7 +36,13 @@ input.ui-button{
     padding: 10px;
     margin-left:auto;
     margin-right:auto;
-    margin-top: 10px;
+    margin-top: 15px;
+    background: black;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    -webkit-box-shadow: 5px 5px 5px 1px #FFFFFF;
+    box-shadow: 5px 5px 5px 1px #000;
+    color: #FFF;
 }
 
 #header {
@@ -56,4 +70,10 @@ input.ui-button{
 
 .hidden {
     display:none;
+}
+
+.example_icon {
+    position: relative;
+    top: 145px;
+    left: 305px;
 }

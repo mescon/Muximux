@@ -109,14 +109,16 @@ jQuery(document).ready(function ($) {
         $('.applicationName').attr('disabled', 'disabled');
         $('#sortable').sortable();
         initButtonHandlers('.saveApp','.removeButton','.saveButton');
-
+        $('select').each(function(){
+            $(this).parents('.applicationContainer').children('.example_icon').addClass($(this).val());
+        });
 
         //Add new application button
         $('#addApplication').button().click(function () {
             //Generating a random number here. So that if the user adds more than one new appliation at a time the ids/classes and names dont match.
             var rand = Math.floor((Math.random() * 999999) + 1);
             $('#sortable').prepend(
-                '<li class="applicationContainer" id="'+rand+'newApplication"><div>Application: ' +
+                '<div class="applicationContainer" id="'+rand+'newApplication"><div>Application: ' +
                 '<input class="applicationName" was="'+rand+'newApplication" type="text" value="">' +
                 '<input type="button" class="saveApp" id="'+rand+'saveApp-newApplication" value="Save Application Name"></div>' +
                 '<div>name:<input class="'+rand+'newApplication-value" name="'+rand+'newApplication-name" type="text" value=""></div>' +
@@ -128,7 +130,7 @@ jQuery(document).ready(function ($) {
                 '<div>dd:<input class="checkbox '+rand+'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
 
                 //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
-                '<input type="button" class="removeButton" value="Remove" id="remove-'+rand+'newApplication"></li>');
+                '<input type="button" class="removeButton" value="Remove" id="remove-'+rand+'newApplication"></div></div>');
             initButtonHandlers('#'+rand+'saveApp-newApplication','#remove-'+rand+'newApplication','#save-'+rand+'newApplication');
         });
     }
@@ -145,6 +147,7 @@ jQuery(document).ready(function ($) {
             else {
                 var section = $(this).prev().attr('was');
                 var newSection = $(this).prev().val().split(' ').join('_');
+                $('#removed').append('<input type="hidden" name="removed-'+section+'" value="Removed">');
                 applicationInput.attr('was', newSection);
                 applicationInput.val(newSection);
                 applicationInput.attr('value',newSection);
@@ -157,12 +160,14 @@ jQuery(document).ready(function ($) {
                 });
                 $(this).attr('value', 'Update Application Name');
                 applicationInput.attr('disabled', 'disabled');
-                $(this).parents('li').attr('id',newSection)
+                $(this).parents('div.applicationContainer').attr('id',newSection);
             }
         });
         //Remove Button Handler
         $(removeButton).button().click(function () {
-            runRemove($(this).parent('li'))
+            runRemove($(this).parent('div.applicationContainer'))
+            var removedApp = $(this).parent('div.applicationContainer').attr('id');
+            $('#removed').append('<input type="hidden" name="removed-'+removedApp+'" value="Removed">');
         });
         function runRemove(selectedElement) {
             var selectedEffect = "drop";
@@ -184,7 +189,7 @@ jQuery(document).ready(function ($) {
                 $('.checkbox').each(function () {
                     if (!$(this).prop('checked')) {
                         var name = $(this).attr('name');
-                        $('form').append('<input type="hidden" name="' + name + '" value="false">');
+                        $('<input type="hidden" name="' + name + '" value="false">').appendTo($(this));
                     }
                 });
                 $('form').submit();
