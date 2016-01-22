@@ -9,9 +9,9 @@ require __DIR__ . '/vendor/autoload.php';
 
 if (sizeof($_POST) == 0) {
     parse_ini();
-} else {
+} else if (sizeof($_POST) > 0)
     write_ini();
-}
+else echo "fail";
 
 function write_ini()
 {
@@ -30,16 +30,18 @@ function write_ini()
         $config->save();
     } catch (Config_Lite_Exception $e) {
         echo "\n", 'Exception Message: ', $e->getMessage();
+    } finally {
+        echo true;
     }
-    parse_ini();
 }
+
 
 function parse_ini()
 {
     $config = new Config_Lite('config.ini.php');
     $iconVal = array('fa fa-television', 'fa fa-download', 'glyphicon glyphicon-calendar', 'glyphicon glyphicon-dashboard', 'glyphicon glyphicon-bullhorn', 'fa fa-server', 'fa fa-play-circle');
 
-    $pageOutput = "<div id='header'>Settings</div><form method='post' action='settings.php'>";
+    $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer'>General:<br>Title: <input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
     $pageOutput .= "<div>Enable Dropdown: <input class='general-value' name='general-enabledropdown' type='checkbox' ";
@@ -74,11 +76,11 @@ function parse_ini()
                     }
                     $pageOutput .= "</select></div>";
                 } elseif ($key == "default") {
-                        $pageOutput .= "<div>$key:<input type='radio' class='radio ".$section."-value' name='" . $section . "-" . $key . "'";
-                    if($val == "true")
-                        $pageOutput.= " checked></div>";
+                    $pageOutput .= "<div>$key:<input type='radio' class='radio " . $section . "-value' name='" . $section . "-" . $key . "'";
+                    if ($val == "true")
+                        $pageOutput .= " checked></div>";
                     else
-                        $pageOutput.= "></div>";
+                        $pageOutput .= "></div>";
                 } else {
                     $pageOutput .= "<div>$key:<input class='checkbox " . $section . "-value' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
@@ -91,29 +93,6 @@ function parse_ini()
             $pageOutput .= "<input type='button' class='removeButton' value='Remove' id='remove-" . $section . "'></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
         }
     }
-    $pageOutput .= "</div><input type='submit' id='settingsSubmit' value='Submit Changes'><div id='removed' class='hidden'></div></form>";
-    echo $pageOutput;
+    $pageOutput .= "</div><div class='center submitContainer'><input type='submit' id='settingsSubmit' value='Submit Changes'><div id='saved'>Saved!</div></div><div id='removed' class='hidden'></div></form>";
+    return $pageOutput;
 }
-
-?>
-<html>
-<head>
-    <script src="js/jquery-2.2.0.min.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <script src="js/main.js"></script>
-    <!-- Resource jQuery -->
-    <link rel="stylesheet" href="css/jquery-ui.min.css">
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <!-- Bootstrap (includes Glyphicons) -->
-    <link rel="stylesheet" href="css/settingsStyle.css">
-    <!-- Optional theme -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap-theme.min.css"
-          integrity="sha384-fLW2N01lMqjakBkx3l/M9EahuwpSfeNvV63J5ezn3uZzapT0u7EYsXMjQV+0En5r" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
-    <!--FontAwesome-->
-
-    <!-- Font -->
-</head>
-</html>
