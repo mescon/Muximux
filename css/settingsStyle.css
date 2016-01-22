@@ -1,5 +1,5 @@
 body {
-    background:url("../images/IehB7.png");
+    background: url("../images/IehB7.png");
     color: #fff;
     font-size: 16px;
 }
@@ -8,34 +8,42 @@ ul {
     list-style: none;
 }
 
-input[type='text']{
+input[type='text'] {
     width: 300px;
     height: 25px;
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
-    border: 1px solid dodgerblue;
     margin: 5px 5px 5px 10px;
     padding: 2px;
 }
 
-input[type='text'],select{
+input[type='text'], select {
     color: #000;
 }
 
-input.ui-button{
+input.ui-button {
     padding: .2em .5em;
 }
 
+input[type="text"][disabled] {
+    color: dimgrey;
+}
+
+input[disabled]:hover {
+    background-color: darkred;
+    color: #fff;
+}
+
 .checkbox {
-    display:inline-block;
+    display: inline-block;
 }
 
 .applicationContainer {
     border: 1px solid #FFF;
-    width: 525px;
+    width: 425px;
     padding: 10px;
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
     margin-top: 15px;
     background: black;
     -webkit-border-radius: 5px 5px 5px 5px;
@@ -43,37 +51,48 @@ input.ui-button{
     -webkit-box-shadow: 5px 5px 5px 1px #FFFFFF;
     box-shadow: 5px 5px 5px 1px #000;
     color: #FFF;
+    text-align:center;
+}
+
+.saveApp {
+    width: 180px;
 }
 
 #header {
     width: 150px;
     font-size: 40px;
     color: #FFf;
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
+
 #addApplicationButton {
     width: 200px;
 }
 
-#settingsSubmit{
+#settingsSubmit {
     width: 165px;
+    height: 50px;
     position: fixed;
     top: 30px;
     right: 30px;
+    border: 2px solid #fff;
 }
 
 .center {
-    margin-left:auto;
-    margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .hidden {
-    display:none;
+    display: none;
+}
+.radio {
+    display: inline-block;
 }
 
 .example_icon {
     position: relative;
-    top: 145px;
-    left: 305px;
+    top: 95px;
+    left: 85px;
 }

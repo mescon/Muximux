@@ -104,13 +104,22 @@ jQuery(document).ready(function ($) {
         dropdown.css('left', $(window).width() - $('.drop-nav').width() - button.offset().left + "px");
     }
 
-    function settings_Buttons() {
+    function settings_Init() {
         //Defaults
-        $('.applicationName').attr('disabled', 'disabled');
+        $('.appName').attr('disabled', 'disabled');
         $('#sortable').sortable();
-        initButtonHandlers('.saveApp','.removeButton','.saveButton');
         $('select').each(function(){
             $(this).parents('.applicationContainer').children('.example_icon').addClass($(this).val());
+        });
+        $('.iconDD').change(function(){
+            $(this).parents('.applicationContainer').children('span').attr('class','').attr('class','example_icon '+$(this).val());
+        });
+        initButtonHandlers('.saveApp','.removeButton','.saveButton');
+
+        $('input[type=radio]').change(function() {
+            // When any radio button on the page is selected,
+            // then deselect all other radio buttons.
+            $('input[type=radio]:checked').not(this).prop('checked', false);
         });
 
         //Add new application button
@@ -119,7 +128,6 @@ jQuery(document).ready(function ($) {
             var rand = Math.floor((Math.random() * 999999) + 1);
             $('#sortable').prepend(
                 '<div class="applicationContainer" id="'+rand+'newApplication"><div>Application: ' +
-                '<input class="applicationName" was="'+rand+'newApplication" type="text" value="">' +
                 '<input type="button" class="saveApp" id="'+rand+'saveApp-newApplication" value="Save Application Name"></div>' +
                 '<div>name:<input class="'+rand+'newApplication-value" name="'+rand+'newApplication-name" type="text" value=""></div>' +
                 '<div>url:<input class="'+rand+'newApplication-value" name="'+rand+'newApplication-url" type="text" value=""></div>' +
@@ -131,22 +139,22 @@ jQuery(document).ready(function ($) {
 
                 //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
                 '<input type="button" class="removeButton" value="Remove" id="remove-'+rand+'newApplication"></div></div>');
-            initButtonHandlers('#'+rand+'saveApp-newApplication','#remove-'+rand+'newApplication','#save-'+rand+'newApplication');
+            initButtonHandlers('#'+rand+'saveApp-newApplication','#remove-'+rand+'newApplication');
         });
     }
 
     function initButtonHandlers(saveApplicationButton,removeButton,saveButton){
         //Update Application Name Button Handler
         $(saveApplicationButton).button().click(function () {
-            $('#addApplication').removeAttr('disabled');
-            var applicationInput = $(this).prev();
+            $(this).siblings().children('.appName').removeAttr('disabled');
+            var applicationInput = $(this).siblings().children('.appName');
             if ($(this).attr('value') == "Update Application Name") {
                 applicationInput.removeAttr('disabled');
                 $(this).attr('value', 'Save Application Name');
             }
             else {
-                var section = $(this).prev().attr('was');
-                var newSection = $(this).prev().val().split(' ').join('_');
+                var section = applicationInput.attr('was');
+                var newSection = $(this).siblings().children('.appName').val().split(' ').join('_');
                 $('#removed').append('<input type="hidden" name="removed-'+section+'" value="Removed">');
                 applicationInput.attr('was', newSection);
                 applicationInput.val(newSection);
@@ -186,17 +194,18 @@ jQuery(document).ready(function ($) {
     function settings_addFalseCheckboxes() {
             $('#settingsSubmit').button().click(function (event) {
                 event.preventDefault();
-                $('.checkbox').each(function () {
+                $('.checkbox,.radio').each(function () {
                     if (!$(this).prop('checked')) {
                         var name = $(this).attr('name');
                         $('<input type="hidden" name="' + name + '" value="false">').appendTo($(this));
                     }
                 });
+                $('.appName').removeAttr('disabled');
                 $('form').submit();
             });
     }
     settings_addFalseCheckboxes();
-    settings_Buttons();
+    settings_Init();
     resizeIframe(); // Call resizeIframe when document is ready
 //hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
