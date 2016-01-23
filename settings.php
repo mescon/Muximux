@@ -7,11 +7,10 @@
  */
 require __DIR__ . '/vendor/autoload.php';
 
-if (sizeof($_POST) == 0) {
-    parse_ini();
-} else if (sizeof($_POST) > 0)
+if (sizeof($_POST) > 0)
     write_ini();
-else echo "fail";
+else
+    parse_ini();
 
 function write_ini()
 {
@@ -49,7 +48,8 @@ function write_ini()
 function parse_ini()
 {
     $config = new Config_Lite('config.ini.php');
-    $iconVal = array('fa fa-television', 'fa fa-download', 'glyphicon glyphicon-calendar', 'glyphicon glyphicon-dashboard', 'glyphicon glyphicon-bullhorn', 'fa fa-server', 'fa fa-play-circle');
+    $iconVal = array('fa fa-television', 'fa fa-download','fa fa-server','fa fa-play-circle','fa fa-tint','fa fa-globe','glyphicon glyphicon-calendar', 'glyphicon glyphicon-dashboard',
+        'glyphicon glyphicon-bullhorn',  'glyphicon glyphicon-search','glyphicon glyphicon-headphones');
 
     $pageOutput = "<form>";
 
@@ -82,7 +82,7 @@ function parse_ini()
                 } else if ($key == "icon") {
                     $pageOutput .= "<div>$key:<select class='iconDD " . $section . "-value' name='" . $section . "-" . $key . "'>";
                     foreach ($iconVal as $icon) {
-                        $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . $icon . "</option>";
+                        $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . explode(' ',$icon)[1] . "</option>";
                     }
                     $pageOutput .= "</select></div>";
                 } elseif ($key == "default") {

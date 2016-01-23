@@ -132,6 +132,15 @@ jQuery(document).ready(function ($) {
             location.pathname = location.pathname;
         });
 
+        $('#showInstructions').click(function(){
+            $('#instructions').slideToggle(1000);
+            if($(this).val() == "Show Instructions")
+                $(this).val('Hide Instructions');
+            else
+                $(this).val('Show Instructions');
+
+        });
+
         //Add new application button
         $('#addApplication').click(function () {
             //Generating a random number here. So that if the user adds more than one new appliation at a time the ids/classes and names dont match.

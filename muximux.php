@@ -7,7 +7,7 @@
 try {
     $config = parse_ini_file('config.ini.php', true);
 } catch (Exception $e) {
-    copy('config.ini.php.example', 'config.ini.php');
+    copy('config.ini.php-example', 'config.ini.php');
 }
 try {
     $config = parse_ini_file('config.ini.php', true);

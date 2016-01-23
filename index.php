@@ -72,13 +72,51 @@ try {
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                 <h4 class="modal-title">Settings</h4>
             </div>
-            <div class="modal-body" style="background: #343843">
+            <div class="modal-body">
+                <div id="instructions">
+                    <p class="center" id="instruct-header">Instructions</p>
+                    <p>The order that you put these blocks in determine in what order they will be listed in the
+                        menu.<br>
+                        Enable or disable each block and edit the URL to point to your desired location.</p>
+
+                    <p>Please note that if Muximux is served via HTTPS, any services that are NOT served via HTTPS might
+                        be blocked by your web-browser.<br><br>
+                        Loading of unsecured content in the context of an SSL encrypted website where you see a green
+                        lock would be misleading, therefore the browser blocks it.<br>
+                        One work-around is to serve Muximux via an unsecured website, or to make sure all the
+                        services/urls you link to use https://</p>
+
+                    <p>Alternatively, if you use Chrome or Opera (or any Chromium-based browser), you can install
+                    the plugin "Ignore X-Frame headers", which<br>
+                    drops X-Frame-Options and Content-Security-Policy HTTP response headers, allowing ALL pages to be
+                    iframed (like we're doing in Muximux).</p>
+
+                    <p>See:
+                        <a href="https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe" target="_blank">https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe</a></p>
+
+                    <p>See <a href="https://github.com/mescon/Muximux/" target="_blank">https://github.com/mescon/Muximux/</a> for more information.</p>
+
+                    <p>Block configuration:<br>
+                        Just add a NEW block with your desired info if you want another item in Muximux!<br><br>
+
+                        <b>enabled</b> = "value" # true or false - used to quickly enable/disable the menu item and iframe.<br>
+                        <b>default</b> = "value" # Sets the primary window to be loaded automatically upon page load.<br>
+                        <b>name</b> = "value" # Whatever you want the name of the item to be.<br>
+                        <b>url</b> = "value" # Set the URL of your app, including http:// or https:// depending on which you use. Example: "https://my.server.com:8989/"<br>
+                        <b>landingpage</b> = "value" # true or false - if set to false, the iframe will load instantly. Use true if you're bombarded with HTTP Auth-dialogs every time you visit the website.<br>
+                        <b>icon</b> = "value" # Class name of either a Glyphicon or Font-Awesome icon.<br>
+                        <b>dd</b> = "value" # true or false - used to let Muximux know that you want this item to be in the dropdown menu. under [general], enabledropdown must also be "true".</p>
+                </div>
+                <div class="center" style="width: 140px;"><input class="center" type="button" id="showInstructions" value="Show Instructions"></div>
+
                 <?php echo parse_ini(); ?>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                 <button type="button" class="btn btn-default" id="refresh-page">Reload</button>
-                <button type='button' class="btn btn-default" id='settingsSubmit' value='Submit Changes'>Submit Changes</button>
+                <button type='button' class="btn btn-default" id='settingsSubmit' value='Submit Changes'>Submit
+                    Changes
+                </button>
 
             </div>
         </div>

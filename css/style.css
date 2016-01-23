@@ -26,6 +26,14 @@ a:hover, a:visited, a:link, a:active {
     text-decoration: none;
 }
 
+b {
+    font-weight: 700;
+}
+
+p {
+    margin: 0 0 10px;
+}
+
 iframe {
     width: 100%;
     height: 926px;
@@ -327,13 +335,32 @@ input[disabled]:hover {
     color: #fff;
 }
 
-input[type='button']{
+input[type='button'] {
     font-size: 16px;
     color: #FFF;
     background: #8b0000;
 }
-input[type='button']:hover{
+
+input[type='button']:hover {
     background: #003147;
+}
+
+.modal-body {
+    background: #343843;
+}
+
+#instructions {
+    width: 100%;
+    font-size: 14px;
+    color: #FFF;
+    display: none;
+}
+
+#instruct-header {
+    width: 120px;
+    font-size: 24px;
+    font-weight: bold;
+    text-decoration: underline;
 }
 
 .checkbox, .radio {
@@ -364,7 +391,7 @@ input[type='button']:hover{
 
 #addApplicationButton {
     width: 160px;
-    margin-top:20px;
+    margin-top: 20px;
 }
 
 .saveApp {
@@ -387,8 +414,6 @@ input[type='button']:hover{
     text-align: center;
     display: none;
 }
-
-
 
 .center {
     margin-left: auto;

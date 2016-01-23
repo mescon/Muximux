@@ -1,0 +1,129 @@
+[general]
+title = "Muximux - Application Management Console"
+enabledropdown = "true"
+
+[settings]
+name = "Settings"
+url = "settings.php"
+icon = "fa fa-server"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"
+
+[rutorrent]
+name = "RuTorrent"
+url = "https://github.com/Novik/ruTorrent"
+icon = "fa fa-globe"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[sonarr]
+name = "Sonarr"
+url = "https://sonarr.tv/"
+icon = "glyphicon glyphicon-calendar"
+enabled = "true"
+default = "true"
+landingpage = "true"
+dd = "false"
+
+[sickbeard]
+name = "Sickbeard"
+url = "http://sickbeard.com/"
+icon = "glyphicon glyphicon-calendar"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[couchpotato]
+name = "CouchPotato"
+url = "https://couchpota.to/"
+icon = "fa fa-television"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[headphones]
+name = "Headphones"
+url = "https://github.com/rembo10/headphones"
+icon = "glyphicon glyphicon-headphones"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[glances]
+name = "Glances"
+url = "https://github.com/nicolargo/glances"
+icon = "glyphicon glyphicon-dashboard"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[plexrequests]
+name = "PlexRequests"
+url = "https://github.com/lokenx/plexrequests-meteor"
+icon = "glyphicon glyphicon-bullhorn"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[nzbget]
+name = "NZBGet"
+url = "https://nzbget.net/"
+icon = "fa fa-download"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "true"
+
+[sabnzbd]
+name = "SABnzbd"
+url = "https://sabnzbd.org/"
+icon = "fa fa-download"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"
+
+[plexpy]
+name = "PlexPy"
+url = "https://github.com/drzoidberg33/plexpy"
+icon = "fa fa-server"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[nzbhydra]
+name = "NZB Hydra"
+url = "https://github.com/theotherp/nzbhydra"
+icon = "glyphicon glyphicon-search"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[deluge]
+name = "Deluge"
+url = "http://www.deluge-torrent.org/"
+icon = "fa fa-tint"
+enabled = "false"
+default = "false"
+landingpage = "true"
+dd = "false"
+
+[plex]
+name = "Plex"
+url = "https://plex.tv/"
+icon = "fa fa-play-circle"
+enabled = "true"
+default = "false"
+landingpage = "true"
+dd = "false"
