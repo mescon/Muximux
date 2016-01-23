@@ -222,6 +222,7 @@ jQuery(document).ready(function ($) {
         };
         $('#settingsSubmit').click(function (event) {
             event.preventDefault();
+            $('.newApp').remove(); //Remove new app that isn't filled out.
             $('.checkbox,.radio').each(function () {
                 if (!$(this).prop('checked')) {
                     var name = $(this).attr('name');
