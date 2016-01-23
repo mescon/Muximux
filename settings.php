@@ -15,7 +15,7 @@ else
 function write_ini()
 {
     if(isset($_POST['reorder']))
-        unlink('config.php.ini');
+        unlink('config.ini.php');
 
     $config = new Config_Lite('config.ini.php');
     foreach ($_POST as $parameter => $value) {

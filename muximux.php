@@ -7,7 +7,10 @@
 try {
     $config = parse_ini_file('config.ini.php', true);
 } catch (Exception $e) {
-    copy('config.ini.php-example', 'config.ini.php');
+    if (!is_writable('config.ini.php-example'))
+        die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx user has write permissions to this folder');
+    else
+        copy('config.ini.php-example', 'config.ini.php');
 }
 try {
     $config = parse_ini_file('config.ini.php', true);

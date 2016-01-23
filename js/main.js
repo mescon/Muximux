@@ -172,6 +172,7 @@ jQuery(document).ready(function ($) {
                 $(this).attr('value', 'Save Application Name');
             }
             else {
+                $(saveApplicationButton).parents('.applicationContainer').removeClass('newApp');
                 var section = applicationInput.attr('was');
                 if (section == undefined)
                     section = rand + "newApplication";

@@ -367,6 +367,10 @@ input[type='button']:hover {
     display: inline-block;
 }
 
+.modal {
+    z-index: 100069;
+}
+
 .applicationContainer {
     font-size: 16px;
     border: 1px solid #FFF;
