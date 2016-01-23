@@ -44,18 +44,17 @@ jQuery(document).ready(function($){
     // Keep hamburger-menu white when hovering items UNDER the hamburger menu.
     $('.drop-nav').on('mouseover', function(){
         $('.main-nav a span:first').addClass('dd-active');
-    })
+    });
 
     $('.drop-nav').on('mouseout', function(){
         $('.main-nav a span:first').removeClass('dd-active');
-    })
-
+    });
 
 
     $('#reload').on('click', function(){
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
         selectedFrame.attr('src', selectedFrame.attr('src'));
-    })
+    });
 
 
     $(window).on('resize', function(){
