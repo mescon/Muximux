@@ -77,6 +77,9 @@ try {
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-default" id="refresh-page">Reload</button>
+                <button type='button' class="btn btn-default" id='settingsSubmit' value='Submit Changes'>Submit Changes</button>
+
             </div>
         </div>
 

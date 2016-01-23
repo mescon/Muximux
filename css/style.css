@@ -319,12 +319,21 @@ input.ui-button {
 }
 
 input[type="text"][disabled] {
-    color: dimgrey;
+    color: #696969;
 }
 
 input[disabled]:hover {
-    background-color: darkred;
+    background-color: #8b0000;
     color: #fff;
+}
+
+input[type='button']{
+    font-size: 16px;
+    color: #FFF;
+    background: #8b0000;
+}
+input[type='button']:hover{
+    background: #003147;
 }
 
 .checkbox, .radio {
@@ -353,40 +362,13 @@ input[disabled]:hover {
     margin-left: 10px;
 }
 
+#addApplicationButton {
+    width: 160px;
+    margin-top:20px;
+}
+
 .saveApp {
     width: 190px;
-    background: #8b0000;
-}
-
-.removeButton {
-    background: #8b0000;
-}
-
-#addApplicationButton {
-    width: 200px;
-}
-
-#settingsSubmit {
-    width: 165px;
-    height: 50px;
-    border: 2px solid #fff;
-    background: #8b0000;
-    color: #FFF;
-    font-size: 20px;
-}
-
-.submitContainer {
-    width: 165px;
-    margin-top: 20px;
-}
-
-.center {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.hidden {
-    display: none;
 }
 
 .example_icon {
@@ -403,5 +385,16 @@ input[disabled]:hover {
     margin-left: auto;
     margin-right: auto;
     text-align: center;
+    display: none;
+}
+
+
+
+.center {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.hidden {
     display: none;
 }

@@ -15,15 +15,25 @@ else echo "fail";
 
 function write_ini()
 {
+    if(isset($_POST['reorder']))
+        unlink('config.php.ini');
+
     $config = new Config_Lite('config.ini.php');
     foreach ($_POST as $parameter => $value) {
+        if($parameter == "reorder")
+            continue;
+
         $splitParameter = explode('-', $parameter);
         if ($splitParameter[0] != "removed") {
             if ($value == "on")
                 $value = "true";
             $config->set($splitParameter[0], $splitParameter[1], $value);
         } else
-            $config->removeSection($splitParameter[1]);
+            try {
+                $config->removeSection($splitParameter[1]);
+            } catch(Config_Lite_Exception_UnexpectedValue $e)  {
+                //Ima catch it and move on because the section that was supposed to be removed is gone by this point.
+            }
     }
     // save object to file
     try {
@@ -58,7 +68,7 @@ function parse_ini()
         "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-server'>" .
         "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
 
-    $pageOutput .= "<div id='sortable'>";
+    $pageOutput .= "<div class='center' id='addApplicationButton'><input type='button' id='addApplication' value='Add New Application'></div><div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
             $pageOutput .= "<div class='applicationContainer' id='" . $section . "'>
@@ -93,6 +103,6 @@ function parse_ini()
             $pageOutput .= "<input type='button' class='removeButton' value='Remove' id='remove-" . $section . "'></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
         }
     }
-    $pageOutput .= "</div><div class='center submitContainer'><input type='submit' id='settingsSubmit' value='Submit Changes'><div id='saved'>Saved!</div></div><div id='removed' class='hidden'></div></form>";
+    $pageOutput .= "</div><div id='saved'>Saved!</div><div id='removed' class='hidden'></div></form>";
     return $pageOutput;
 }

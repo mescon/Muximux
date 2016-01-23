@@ -7,6 +7,11 @@
 try {
     $config = parse_ini_file('config.ini.php', true);
 } catch (Exception $e) {
+    copy('config.ini.php.example', 'config.ini.php');
+}
+try {
+    $config = parse_ini_file('config.ini.php', true);
+} catch (Exception $e) {
     die('<b>Unable to read config.ini.php. Did you rename it from config.ini.php-example?</b><br><br>Error message: ' . $e->getMessage());
 }
 

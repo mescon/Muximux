@@ -52,9 +52,8 @@ jQuery(document).ready(function ($) {
 
 
     $('#reload').on('click', function () {
-        location.href = 'index.php';
-        //var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
-        //selectedFrame.attr('src', selectedFrame.attr('src'));
+        var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
+        selectedFrame.attr('src', selectedFrame.attr('src'));
     });
 
 
@@ -107,29 +106,40 @@ jQuery(document).ready(function ($) {
     function settings_Init() {
         //Defaults
         $('.appName').attr('disabled', 'disabled');
-        $('#sortable').sortable();
+        $('#sortable').sortable({
+            change: function () {
+                $('form').prepend('<input type="hidden" name="reorder" value="true">');
+            }
+        });
         $('select').each(function () {
             $(this).parents('.applicationContainer').children('.example_icon').addClass($(this).val());
         });
-        $('.iconDD').change(function () {
-            $(this).parents('.applicationContainer').children('span').attr('class', '').attr('class', 'example_icon ' + $(this).val());
-        });
-        initButtonHandlers('.saveApp', '.removeButton', '.saveButton');
+        initButtonHandlers('.saveApp', '.removeButton', 0);
 
+
+        //Change handlers
         $('input[type=radio]').change(function () {
             // When any radio button on the page is selected,
             // then deselect all other radio buttons.
             $('input[type=radio]:checked').not(this).prop('checked', false);
         });
+        $('.iconDD').change(function () {
+            $(this).parents('.applicationContainer').children('span').attr('class', '').attr('class', 'example_icon ' + $(this).val());
+        });
+
+
+        $('#refresh-page').click(function () {
+            location.pathname = location.pathname;
+        });
 
         //Add new application button
-        $('#addApplication').button().click(function () {
+        $('#addApplication').click(function () {
             //Generating a random number here. So that if the user adds more than one new appliation at a time the ids/classes and names dont match.
             var rand = Math.floor((Math.random() * 999999) + 1);
             $('#sortable').prepend(
-                '<div class="applicationContainer" id="' + rand + 'newApplication"><div>Application: ' +
-                '<input type="button" class="saveApp" id="' + rand + 'saveApp-newApplication" value="Save Application Name"></div>' +
-                '<div>name:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
+                '<div class="applicationContainer newApp" id="' + rand + 'newApplication">' +
+                '<input type="button" class="saveApp" id="' + rand + 'saveApp-newApplication" value="Save Application Name">' +
+                '<div>name:<input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
                 '<div>url:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
                 '<div>icon:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" type="text" value="fa fa-globe"></div>' +
                 '<div>enabled:<input class="checkbox ' + rand + 'newApplication-value" name="' + rand + 'newApplication-enabled" type="checkbox"></div>' +
@@ -139,13 +149,13 @@ jQuery(document).ready(function ($) {
 
                     //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
                 '<input type="button" class="removeButton" value="Remove" id="remove-' + rand + 'newApplication"></div></div>');
-            initButtonHandlers('#' + rand + 'saveApp-newApplication', '#remove-' + rand + 'newApplication');
+            initButtonHandlers('#' + rand + 'saveApp-newApplication', '#remove-' + rand + 'newApplication', rand);
         });
     }
 
-    function initButtonHandlers(saveApplicationButton, removeButton, saveButton) {
+    function initButtonHandlers(saveApplicationButton, removeButton, rand) {
         //Update Application Name Button Handler
-        $(saveApplicationButton).button().click(function () {
+        $(saveApplicationButton).click(function () {
             $(this).siblings().children('.appName').removeAttr('disabled');
             var applicationInput = $(this).siblings().children('.appName');
             if ($(this).attr('value') == "Update Application Name") {
@@ -154,8 +164,12 @@ jQuery(document).ready(function ($) {
             }
             else {
                 var section = applicationInput.attr('was');
+                if (section == undefined)
+                    section = rand + "newApplication";
+                else
+                    $('#removed').append('<input type="hidden" name="removed-' + section + '" value="Removed">');
+
                 var newSection = $(this).siblings().children('.appName').val().split(' ').join('_');
-                $('#removed').append('<input type="hidden" name="removed-' + section + '" value="Removed">');
                 applicationInput.attr('was', newSection);
                 applicationInput.val(newSection);
                 applicationInput.attr('value', newSection);
@@ -172,10 +186,12 @@ jQuery(document).ready(function ($) {
             }
         });
         //Remove Button Handler
-        $(removeButton).button().click(function () {
-            runRemove($(this).parent('div.applicationContainer'))
-            var removedApp = $(this).parent('div.applicationContainer').attr('id');
-            $('#removed').append('<input type="hidden" name="removed-' + removedApp + '" value="Removed">');
+        $(removeButton).click(function () {
+            if (confirm('Are you sure?')) {
+                runRemove($(this).parent('div.applicationContainer'));
+                var removedApp = $(this).parent('div.applicationContainer').attr('id');
+                $('#removed').append('<input type="hidden" name="removed-' + removedApp + '" value="Removed">');
+            }
         });
         function runRemove(selectedElement) {
             var selectedEffect = "drop";
@@ -187,8 +203,6 @@ jQuery(document).ready(function ($) {
                 $(selectedElement).remove();
             }, 1000);
         };
-        //Save button handler - Add ajax
-        $(saveButton).button();
     }
 
     function settings_addFalseCheckboxes() {
@@ -197,7 +211,7 @@ jQuery(document).ready(function ($) {
             type: 'post',
             success: showResponse
         };
-        $('#settingsSubmit').button().click(function (event) {
+        $('#settingsSubmit').click(function (event) {
             event.preventDefault();
             $('.checkbox,.radio').each(function () {
                 if (!$(this).prop('checked')) {
