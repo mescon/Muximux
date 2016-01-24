@@ -79,9 +79,8 @@ jQuery(document).ready(function ($) {
      $('.main-nav').show();
      }
      }*/
-
-    settings_addFalseCheckboxes();
-    settings_Init();
+    settingsInit();
+    settingsPost();
     resizeIframe(); // Call resizeIframe when document is ready
     //hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
@@ -109,17 +108,14 @@ function dropDownFixPosition(button, dropdown) {
     dropdown.css('left', $(window).width() - $('.drop-nav').width() - button.offset().left + "px");
 }
 
-function settings_Init() {
+function settingsInit() {
     //Defaults
     $('#sortable').sortable();
     $('select').each(function () {
         $(this).siblings('.example_icon').addClass($(this).val());
     });
 
-    //Change handlers
     $('input[type=radio]').change(function () {
-        // When any radio button on the page is selected,
-        // then deselect all other radio buttons.
         $('input[type=radio]:checked').not(this).prop('checked', false);
     });
     $('.iconDD').change(function () {
@@ -145,7 +141,7 @@ function settings_Init() {
         if (confirm('Are you sure?')) {
             var selectedEffect = "drop";
             var options = {};
-            $(selectedElement).effect(selectedEffect, options, 500, removeCallback(selectedElement));
+            $($(this).parents('.applicationContainer')).effect(selectedEffect, options, 500, removeCallback($(this).parents('.applicationContainer')));
         }
     });
     function removeCallback(selectedElement) {
@@ -167,8 +163,6 @@ function settings_Init() {
             '<div>default:<input class="radio ' + rand + 'newApplication-value" name="' + rand + 'newApplication-default" type="radio"></div>' +
             '<div>landingpage:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-landingpage" type="checkbox"></div>' +
             '<div>dd:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
-
-                //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
             '<input type="button" class="removeButton" value="Remove" id="remove-' + rand + 'newApplication"><meta class="newAppRand" value="' + rand + '"></div></div>');
         $('.iconDD').first().children().clone().appendTo('.newApp-Icon');
     });
@@ -197,7 +191,7 @@ function settings_Init() {
     });
 }
 
-function settings_addFalseCheckboxes() {
+function settingsPost() {
     var options = {
         url: 'settings.php',
         type: 'post',
