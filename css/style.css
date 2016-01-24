@@ -16,6 +16,7 @@ Primary style
 body {
     font-size: 0px;
     font-family: "PT Sans", sans-serif;
+    overflow: hidden;
 }
 
 a {
@@ -89,6 +90,8 @@ Main components
 }
 
 .cd-tabs-navigation a, #reload {
+    margin-top: 0;
+    margin-bottom: 0;
     position: relative;
     display: block;
     height: 160px;
@@ -379,6 +382,8 @@ input[type='button']:hover {
 
 .modal {
     z-index: 100069;
+    margin: 0;
+    padding: 0;
 }
 
 .removeButton {
