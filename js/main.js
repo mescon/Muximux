@@ -233,6 +233,9 @@ jQuery(document).ready(function ($) {
                 location.pathname=location.pathname;
             },3000);
         }
+        else {
+            alert("Error!!!-"+responseText);
+        }
     }
 
     settings_addFalseCheckboxes();
