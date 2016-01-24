@@ -16,6 +16,8 @@ Primary style
 body {
     font-size: 0px;
     font-family: "PT Sans", sans-serif;
+    margin: 0px;
+    padding: 0px;
     overflow: hidden;
 }
 
@@ -53,6 +55,8 @@ Main components
 }
 
 .cd-tabs nav {
+    margin: 0;
+    padding: 0;
     overflow: hidden;
     -webkit-overflow-scrolling: touch;
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
@@ -90,8 +94,6 @@ Main components
 }
 
 .cd-tabs-navigation a, #reload {
-    margin-top: 0;
-    margin-bottom: 0;
     position: relative;
     display: block;
     height: 160px;
@@ -130,7 +132,7 @@ Main components
 
     .cd-tabs-navigation a, #reload {
         height: 40px;
-        line-height: 45px;
+        line-height: 40px;
         width: 100%;
         text-align: center;
         font-size: 18px;
@@ -170,7 +172,7 @@ Main components
 .cd-tabs-content li p {
     font-size: 18px;
     font-size: 1.6rem;
-    line-height: 1.6;
+    line-height: 1.2;
     color: #8493bf;
     margin-bottom: 2em;
 }
@@ -214,7 +216,7 @@ Main components
     -moz-osx-font-smoothing: grayscale;
     font-weight: 700;
     cursor: pointer;
-    line-height: 1.4;
+    line-height: 1.2;
     background-color: transparent;
 }
 
