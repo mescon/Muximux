@@ -141,6 +141,25 @@ jQuery(document).ready(function ($) {
 
         });
 
+        //Remove Button Handler
+        $('form').on('click','.removeButton',function () {
+            if (confirm('Are you sure?')) {
+                runRemove($(this).parent('div.applicationContainer'));
+                var removedApp = $(this).parent('div.applicationContainer').attr('id');
+                $('#removed').append('<input type="hidden" name="removed-' + removedApp + '" value="Removed">');
+            }
+        });
+        function runRemove(selectedElement) {
+            var selectedEffect = "drop";
+            var options = {};
+            $(selectedElement).effect(selectedEffect, options, 500, removeCallback(selectedElement));
+        };
+        function removeCallback(selectedElement) {
+            setTimeout(function () {
+                $(selectedElement).remove();
+            }, 1000);
+        };
+
         //Add new application button
         $('#addApplication').click(function () {
             //Generating a random number here. So that if the user adds more than one new appliation at a time the ids/classes and names dont match.
@@ -162,7 +181,7 @@ jQuery(document).ready(function ($) {
         });
     }
 
-    function initButtonHandlers(saveApplicationButton, removeButton, rand) {
+    function initButtonHandlers(saveApplicationButton, rand) {
         //Update Application Name Button Handler
         $(saveApplicationButton).click(function () {
             $(this).siblings().children('.appName').removeAttr('disabled');
@@ -195,24 +214,6 @@ jQuery(document).ready(function ($) {
                 $(this).parents('div.applicationContainer').attr('id', newSection);
             }
         });
-        //Remove Button Handler
-        $(removeButton).click(function () {
-            if (confirm('Are you sure?')) {
-                runRemove($(this).parent('div.applicationContainer'));
-                var removedApp = $(this).parent('div.applicationContainer').attr('id');
-                $('#removed').append('<input type="hidden" name="removed-' + removedApp + '" value="Removed">');
-            }
-        });
-        function runRemove(selectedElement) {
-            var selectedEffect = "drop";
-            var options = {};
-            $(selectedElement).effect(selectedEffect, options, 500, removeCallback(selectedElement));
-        };
-        function removeCallback(selectedElement) {
-            setTimeout(function () {
-                $(selectedElement).remove();
-            }, 1000);
-        };
     }
 
     function settings_addFalseCheckboxes() {
