@@ -38,6 +38,8 @@ iframe {
     width: 100%;
     height: 926px;
     background-color: #fff;
+    border: 0;
+    margin-top: 0px;
 }
 
 /* --------------------------------
@@ -92,8 +94,8 @@ Main components
     height: 160px;
     width: 30px;
     text-align: center;
-    font-size: 14px;
-    font-size: 0.75rem;
+    font-size: 18px;
+    font-size: 1.6rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 700;
@@ -128,8 +130,8 @@ Main components
         line-height: 45px;
         width: 100%;
         text-align: center;
-        font-size: 14px;
-        font-size: 0.875rem;
+        font-size: 18px;
+        font-size: 1.6rem;
         padding: 0 2em 0 2em;
     }
 
@@ -163,8 +165,8 @@ Main components
 }
 
 .cd-tabs-content li p {
-    font-size: 14px;
-    font-size: 0.875rem;
+    font-size: 18px;
+    font-size: 1.6rem;
     line-height: 1.6;
     color: #8493bf;
     margin-bottom: 2em;
@@ -180,8 +182,8 @@ Main components
     }
 
     .cd-tabs-content li p {
-        font-size: 16px;
-        font-size: 1rem;
+        font-size: 18px;
+        font-size: 1.6rem;
     }
 }
 
@@ -203,8 +205,8 @@ Main components
 
 .main-nav > li {
     float: left;
-    font-size: 14px;
-    font-size: 0.875rem;
+    font-size: 18px;
+    font-size: 1.6rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 700;
@@ -280,6 +282,12 @@ Main components
     box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
 }
 
+body ul {
+    margin-bottom: 0px;
+    margin-top: 0px;
+    padding: 0;
+}
+
 @-webkit-keyframes cd-fade-in {
     0% {
         opacity: 0;
@@ -352,22 +360,18 @@ input[type='button']:hover {
 }
 
 .modal-body {
-    background: #343843;
+    background: #fff;
 }
 
 #instructions {
-    width: 100%;
-    font-size: 14px;
-    color: #FFF;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    font-size: 16px;
+    font-size: 1.6rem;
     display: none;
 }
 
-#instruct-header {
-    width: 120px;
-    font-size: 24px;
-    font-weight: bold;
-    text-decoration: underline;
-}
 
 .checkbox, .radio {
     display: inline-block;
@@ -383,19 +387,31 @@ input[type='button']:hover {
 
 .applicationContainer {
     font-size: 16px;
+    font-size: 1.6rem;
     border: 1px solid #FFF;
-    width: 100%;
+    width: 90%;
     padding: 10px;
     margin-left: auto;
     margin-right: auto;
     margin-top: 15px;
-    background: black;
+    background: #f2f2f2;
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
     -webkit-box-shadow: 5px 5px 5px 1px #FFFFFF;
-    box-shadow: 5px 5px 5px 1px #000;
-    color: #FFF;
+    box-shadow: 5px 5px 5px 1px #e1e1e1;
+    color: #000;
     text-align: center;
+    cursor: move;
+}
+
+.applicationContainer div { cursor: default;}
+
+.applicationContainer span.bars {
+    opacity: 0.2;
+}
+
+.applicationContainer:hover span.bars {
+    opacity: 1;
 }
 
 .applicationContainer input[type='checkbox'],
@@ -406,6 +422,7 @@ input[type='button']:hover {
 #addApplicationButton {
     width: 160px;
     margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 .saveApp {
@@ -420,7 +437,7 @@ input[type='button']:hover {
 #saved {
     margin-top: 20px;
     font-size: 20px;
-    color: #FFF;
+    color: #000;
     width: 150px;
     margin-left: auto;
     margin-right: auto;
@@ -438,7 +455,7 @@ input[type='button']:hover {
 }
 
 .modal-dialog {
-    width: 90%;
+    width: 80%;
 }
 
 .applicationContainer div {

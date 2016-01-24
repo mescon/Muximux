@@ -31,17 +31,12 @@ try {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Muximux - Application Management Console">
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
+    <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
-    <!-- Bootstrap (includes Glyphicons) -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
-    <!--FontAwesome-->
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css">
-    <!-- Font -->
-    <link rel="stylesheet" href="css/reset.css">
-    <!-- CSS reset -->
-    <link rel="stylesheet" href="css/style.css">
-    <!-- Resource style -->
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> <!-- Bootstrap (includes Glyphicons) -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/> <!--FontAwesome-->
+    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css"> <!-- Font -->
+    <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script>
     <!-- Modernizr -->
@@ -70,11 +65,11 @@ try {
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Settings</h4>
+                <div class="modal-title"><h1>Settings</h1></div>
             </div>
             <div class="modal-body">
-                <div id="instructions">
-                    <p class="center" id="instruct-header">Instructions</p>
+                    <div id="instructions" class="alert alert-info">
+                    <strong>Instructions</strong>
                     <p>The order that you put these blocks in determine in what order they will be listed in the
                         menu.<br>
                         Enable or disable each block and edit the URL to point to your desired location.</p>
@@ -107,13 +102,16 @@ try {
                         <b>icon</b> = "value" # Class name of either a Glyphicon or Font-Awesome icon.<br>
                         <b>dd</b> = "value" # true or false - used to let Muximux know that you want this item to be in the dropdown menu. under [general], enabledropdown must also be "true".</p>
                 </div>
-                <div class="center" style="width: 140px;"><input class="center" type="button" id="showInstructions" value="Show Instructions"></div>
+                <div class="center" style="width: 140px;">
+                    <button type="button" class="btn btn-primary btn-block" id="showInstructions">Show Instructions</button>
+                </div>
+
 
                 <?php echo parse_ini(); ?>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type='button' class="btn btn-default" id='settingsSubmit' value='Submit Changes'>Save and Reload</button>
+                <button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload</button>
 
             </div>
         </div>

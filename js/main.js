@@ -155,15 +155,15 @@ function settingsInit() {
         //Generating a random number here. So that if the user adds more than one new application at a time the ids/classes and names don't match.
         var rand = Math.floor((Math.random() * 999999) + 1);
         $('#sortable').append(
-            '<div class="applicationContainer newApp" id="' + rand + 'newApplication">' +
-            '<div>name:<input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
-            '<div>url:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
-            '<div>icon:<select class="newApp-Icon ' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" value="fa fa-globe"></select></div>' +
-            '<div>enabled:<input class="checkbox ' + rand + 'newApplication-value" name="' + rand + 'newApplication-enabled" type="checkbox"></div>' +
-            '<div>default:<input class="radio ' + rand + 'newApplication-value" name="' + rand + 'newApplication-default" type="radio"></div>' +
-            '<div>landingpage:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-landingpage" type="checkbox"></div>' +
-            '<div>dd:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
-            '<input type="button" class="removeButton" value="Remove" id="remove-' + rand + 'newApplication"><meta class="newAppRand" value="' + rand + '"></div></div>');
+            '<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' +
+            '<div>Name:<input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
+            '<div>URL:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
+            '<div>Icon:<select class="newApp-Icon ' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" value="fa fa-globe"></select></div>' +
+            '<div>Enable:<input class="checkbox ' + rand + 'newApplication-value" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
+            '<div>Default:<input class="radio ' + rand + 'newApplication-value" name="' + rand + 'newApplication-default" type="radio"></div>' +
+            '<div>Landing page:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-landingpage" type="checkbox"></div>' +
+            '<div>Put in dropdown:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
+            '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove-' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
         $('.iconDD').first().children().clone().appendTo('.newApp-Icon');
     });
 

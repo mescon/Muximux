@@ -60,20 +60,20 @@ function parse_ini()
     $pageOutput .= "<div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
-            $pageOutput .= "<div class='applicationContainer' id='" . $section . "'>";
+            $pageOutput .= "<div class='applicationContainer' id='" . $section . "'><span class='bars fa fa-bars'></span>";
             foreach ($name as $key => $val) {
                 if ($key == "url")
-                    $pageOutput .= "<div>$key:<input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<div>URL:<input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 else if ($key == "name") {
-                    $pageOutput .= "<div>$key:<input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<div>Name:<input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div>$key:<select class='iconDD " . $section . "-value' name='" . $section . "-" . $key . "'>";
+                    $pageOutput .= "<div>Icon:<select class='iconDD " . $section . "-value' name='" . $section . "-" . $key . "'>";
                     foreach ($iconVal as $icon) {
                         $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . explode(' ',$icon)[1] . "</option>";
                     }
                     $pageOutput .= "</select><span class='example_icon'></span></div>";
                 } elseif ($key == "default") {
-                    $pageOutput .= "<div>$key:<input type='radio' class='radio " . $section . "-value' name='" . $section . "-" . $key . "'";
+                    $pageOutput .= "<div>Default:<input type='radio' class='radio " . $section . "-value' name='" . $section . "-" . $key . "'";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
@@ -87,11 +87,11 @@ function parse_ini()
                 }
             }
 
-            $pageOutput .= "<input type='button' class='removeButton' value='Remove' id='remove-" . $section . "'></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
+            $pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
         }
     }
     $pageOutput .= "</div><div class='center' id='addApplicationButton'>
-                    <input type='button' id='addApplication' value='Add New Application'></div>
+                    <button type='button' class='btn btn-primary btn-md' id='addApplication'>Add new</button>
                     <div id='saved'>Saved!</div><div id='removed' class='hidden'></div></form>";
     return $pageOutput;
 }
