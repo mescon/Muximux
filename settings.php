@@ -14,25 +14,14 @@ else
 
 function write_ini()
 {
-    if(isset($_POST['reorder']))
         unlink('config.ini.php');
 
     $config = new Config_Lite('config.ini.php');
     foreach ($_POST as $parameter => $value) {
-        if($parameter == "reorder")
-            continue;
-
         $splitParameter = explode('-', $parameter);
-        if ($splitParameter[0] != "removed") {
             if ($value == "on")
                 $value = "true";
             $config->set($splitParameter[0], $splitParameter[1], $value);
-        } else
-            try {
-                $config->removeSection($splitParameter[1]);
-            } catch(Config_Lite_Exception_UnexpectedValue $e)  {
-                //Ima catch it and move on because the section that was supposed to be removed is gone by this point.
-            }
     }
     // save object to file
     try {
