@@ -178,8 +178,6 @@ function settingsInit() {
 
         var newSection = $(this).val().split(' ').join('_');
         $(this).attr('was', newSection);
-        $(this).val(newSection);
-        $(this).attr('value', newSection);
         $('.' + section + '-value').each(function () {
             var split = $(this).attr('name').split('-');
             $(this).removeAttr('name')
