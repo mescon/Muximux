@@ -113,7 +113,7 @@ function settings_Init() {
     //Defaults
     $('#sortable').sortable();
     $('select').each(function () {
-        $(this).parents('.applicationContainer').children('.example_icon').addClass($(this).val());
+        $(this).siblings('.example_icon').addClass($(this).val());
     });
 
     //Change handlers
@@ -123,7 +123,7 @@ function settings_Init() {
         $('input[type=radio]:checked').not(this).prop('checked', false);
     });
     $('.iconDD').change(function () {
-        $(this).parents('.applicationContainer').children('span').attr('class', '').attr('class', 'example_icon ' + $(this).val());
+        $(this).siblings('span').attr('class', '').attr('class', 'example_icon ' + $(this).val());
     });
 
 

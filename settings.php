@@ -60,8 +60,7 @@ function parse_ini()
     $pageOutput .= "<div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
-            $pageOutput .= "<div class='applicationContainer' id='" . $section . "'>
-            <span class='example_icon'></span>";
+            $pageOutput .= "<div class='applicationContainer' id='" . $section . "'>";
             foreach ($name as $key => $val) {
                 if ($key == "url")
                     $pageOutput .= "<div>$key:<input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
@@ -72,7 +71,7 @@ function parse_ini()
                     foreach ($iconVal as $icon) {
                         $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . explode(' ',$icon)[1] . "</option>";
                     }
-                    $pageOutput .= "</select></div>";
+                    $pageOutput .= "</select><span class='example_icon'></span></div>";
                 } elseif ($key == "default") {
                     $pageOutput .= "<div>$key:<input type='radio' class='radio " . $section . "-value' name='" . $section . "-" . $key . "'";
                     if ($val == "true")

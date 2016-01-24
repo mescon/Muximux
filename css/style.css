@@ -322,6 +322,12 @@ input[type='text'], select {
     color: #000;
 }
 
+select {
+    margin-left: 10px;
+}
+
+
+
 input.ui-button {
     padding: .2em .5em;
 }
@@ -371,10 +377,14 @@ input[type='button']:hover {
     z-index: 100069;
 }
 
+.removeButton {
+    margin-left: 15px;
+}
+
 .applicationContainer {
     font-size: 16px;
     border: 1px solid #FFF;
-    width: 425px;
+    width: 100%;
     padding: 10px;
     margin-left: auto;
     margin-right: auto;
@@ -403,9 +413,8 @@ input[type='button']:hover {
 }
 
 .example_icon {
-    position: relative;
-    top: 95px;
-    left: 85px;
+    position:static;
+    margin-left: 10px;
 }
 
 #saved {
@@ -426,4 +435,13 @@ input[type='button']:hover {
 
 .hidden {
     display: none;
+}
+
+.modal-dialog {
+    width: 90%;
+}
+
+.applicationContainer div {
+    display:inline;
+    padding-left: 16px;
 }
