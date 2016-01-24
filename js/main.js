@@ -169,14 +169,15 @@ jQuery(document).ready(function ($) {
                 '<input type="button" class="saveApp" id="' + rand + 'saveApp-newApplication" value="Save Application Name">' +
                 '<div>name:<input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
                 '<div>url:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
-                '<div>icon:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" type="text" value="fa fa-globe"></div>' +
+                '<div>icon:<select class="newApp-Icon ' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" value="fa fa-globe"></select></div>' +
                 '<div>enabled:<input class="checkbox ' + rand + 'newApplication-value" name="' + rand + 'newApplication-enabled" type="checkbox"></div>' +
-                '<div>default:<input class="checkbox ' + rand + 'newApplication-value" name="' + rand + 'newApplication-default" type="checkbox"></div>' +
+                '<div>default:<input class="radio ' + rand + 'newApplication-value" name="' + rand + 'newApplication-default" type="radio"></div>' +
                 '<div>landingpage:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-landingpage" type="checkbox"></div>' +
                 '<div>dd:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
 
                     //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
                 '<input type="button" class="removeButton" value="Remove" id="remove-' + rand + 'newApplication"></div></div>');
+            $('.iconDD').first().children().clone().appendTo('.newApp-Icon');
             initButtonHandlers('#' + rand + 'saveApp-newApplication', '#remove-' + rand + 'newApplication', rand);
         });
     }
