@@ -161,7 +161,7 @@ jQuery(document).ready(function ($) {
         $('#addApplication').click(function () {
             //Generating a random number here. So that if the user adds more than one new appliation at a time the ids/classes and names dont match.
             var rand = Math.floor((Math.random() * 999999) + 1);
-            $('#sortable').prepend(
+            $('#sortable').append(
                 '<div class="applicationContainer newApp" id="' + rand + 'newApplication">' +
                 '<div>name:<input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
                 '<div>url:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
@@ -229,6 +229,9 @@ jQuery(document).ready(function ($) {
             setTimeout(function () {
                 $('#saved').hide(1000);
             }, 2000);
+            setTimeout(function(){
+                location.pathname=location.pathname;
+            },3000);
         }
     }
 

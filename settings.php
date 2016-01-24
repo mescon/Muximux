@@ -68,7 +68,7 @@ function parse_ini()
         "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-server'>" .
         "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
 
-    $pageOutput .= "<div class='center' id='addApplicationButton'><input type='button' id='addApplication' value='Add New Application'></div><div id='sortable'>";
+    $pageOutput .= "<div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
             $pageOutput .= "<div class='applicationContainer' id='" . $section . "'>
@@ -102,6 +102,8 @@ function parse_ini()
             $pageOutput .= "<input type='button' class='removeButton' value='Remove' id='remove-" . $section . "'></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
         }
     }
-    $pageOutput .= "</div><div id='saved'>Saved!</div><div id='removed' class='hidden'></div></form>";
+    $pageOutput .= "</div><div class='center' id='addApplicationButton'>
+                    <input type='button' id='addApplication' value='Add New Application'></div>
+                    <div id='saved'>Saved!</div><div id='removed' class='hidden'></div></form>";
     return $pageOutput;
 }
