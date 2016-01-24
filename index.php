@@ -69,11 +69,11 @@ try {
             </div>
             <div class="modal-body">
                     <div id="instructions" class="alert alert-info">
-                    <strong>Instructions</strong>
+                    <h3>Instructions</h3>
                     <p>The order that you put these blocks in determine in what order they will be listed in the
                         menu.<br>
-                        Enable or disable each block and edit the URL to point to your desired location.</p>
-
+                        Enable or disable each block and edit the URL to point to your desired location.<br/><br/></p>
+                    <h3>Running Muximux from SSL-enabled / HTTPS server</h3>
                     <p>Please note that if Muximux is served via HTTPS, any services that are NOT served via HTTPS might
                         be blocked by your web-browser.<br><br>
                         Loading of unsecured content in the context of an SSL encrypted website where you see a green
@@ -91,16 +91,6 @@ try {
 
                     <p>See <a href="https://github.com/mescon/Muximux/" target="_blank">https://github.com/mescon/Muximux/</a> for more information.</p>
 
-                    <p>Block configuration:<br>
-                        Just add a NEW block with your desired info if you want another item in Muximux!<br><br>
-
-                        <b>enabled</b> = "value" # true or false - used to quickly enable/disable the menu item and iframe.<br>
-                        <b>default</b> = "value" # Sets the primary window to be loaded automatically upon page load.<br>
-                        <b>name</b> = "value" # Whatever you want the name of the item to be.<br>
-                        <b>url</b> = "value" # Set the URL of your app, including http:// or https:// depending on which you use. Example: "https://my.server.com:8989/"<br>
-                        <b>landingpage</b> = "value" # true or false - if set to false, the iframe will load instantly. Use true if you're bombarded with HTTP Auth-dialogs every time you visit the website.<br>
-                        <b>icon</b> = "value" # Class name of either a Glyphicon or Font-Awesome icon.<br>
-                        <b>dd</b> = "value" # true or false - used to let Muximux know that you want this item to be in the dropdown menu. under [general], enabledropdown must also be "true".</p>
                 </div>
                 <div class="center" style="width: 140px;">
                     <button type="button" class="btn btn-primary btn-block" id="showInstructions">Show Instructions</button>

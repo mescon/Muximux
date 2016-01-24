@@ -42,7 +42,7 @@ function parse_ini()
 
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer'>General:<br>Title: <input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
+    $pageOutput .= "<div class='applicationContainer' style='cursor: default;'><strong>General</strong><br>Title: <input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
     $pageOutput .= "<div>Enable Dropdown: <input class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div></div><br><br>";
