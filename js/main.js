@@ -105,7 +105,6 @@ jQuery(document).ready(function ($) {
 
     function settings_Init() {
         //Defaults
-        $('.appName').attr('disabled', 'disabled');
         $('#sortable').sortable({
             change: function () {
                 $('form').prepend('<input type="hidden" name="reorder" value="true">');
@@ -114,8 +113,6 @@ jQuery(document).ready(function ($) {
         $('select').each(function () {
             $(this).parents('.applicationContainer').children('.example_icon').addClass($(this).val());
         });
-        initButtonHandlers('.saveApp', '.removeButton', 0);
-
 
         //Change handlers
         $('input[type=radio]').change(function () {
@@ -166,7 +163,6 @@ jQuery(document).ready(function ($) {
             var rand = Math.floor((Math.random() * 999999) + 1);
             $('#sortable').prepend(
                 '<div class="applicationContainer newApp" id="' + rand + 'newApplication">' +
-                '<input type="button" class="saveApp" id="' + rand + 'saveApp-newApplication" value="Save Application Name">' +
                 '<div>name:<input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
                 '<div>url:<input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
                 '<div>icon:<select class="newApp-Icon ' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" value="fa fa-globe"></select></div>' +
@@ -176,44 +172,33 @@ jQuery(document).ready(function ($) {
                 '<div>dd:<input class="checkbox ' + rand + 'newApplication-value" name="rutorrent-dd" type="checkbox"></div>' +
 
                     //'<input type="button" class="saveButton" value="Save" id="save-'+rand+'newApplication">' +
-                '<input type="button" class="removeButton" value="Remove" id="remove-' + rand + 'newApplication"></div></div>');
+                '<input type="button" class="removeButton" value="Remove" id="remove-' + rand + 'newApplication"><meta class="newAppRand" value="'+rand+'"></div></div>');
             $('.iconDD').first().children().clone().appendTo('.newApp-Icon');
-            initButtonHandlers('#' + rand + 'saveApp-newApplication', '#remove-' + rand + 'newApplication', rand);
         });
-    }
 
-    function initButtonHandlers(saveApplicationButton, rand) {
-        //Update Application Name Button Handler
-        $(saveApplicationButton).click(function () {
-            $(this).siblings().children('.appName').removeAttr('disabled');
-            var applicationInput = $(this).siblings().children('.appName');
-            if ($(this).attr('value') == "Update Application Name") {
-                applicationInput.removeAttr('disabled');
-                $(this).attr('value', 'Save Application Name');
+        //App Name Change/Addition
+        $('form').on('focusout','.appName',function(){
+            $(this).parents('.applicationContainer').removeClass('newApp');
+            var section = $(this).attr('was');
+            if (section == undefined) {
+                section = $(this).parents('.applicationContainer').children('.newAppRand').attr('value') + "newApplication";
+                $(this).parents('applicationContainer').children('.newAppRand').remove();
             }
-            else {
-                $(saveApplicationButton).parents('.applicationContainer').removeClass('newApp');
-                var section = applicationInput.attr('was');
-                if (section == undefined)
-                    section = rand + "newApplication";
-                else
-                    $('#removed').append('<input type="hidden" name="removed-' + section + '" value="Removed">');
+            else
+                $('#removed').append('<input type="hidden" name="removed-' + section + '" value="Removed">');
 
-                var newSection = $(this).siblings().children('.appName').val().split(' ').join('_');
-                applicationInput.attr('was', newSection);
-                applicationInput.val(newSection);
-                applicationInput.attr('value', newSection);
-                $('.' + section + '-value').each(function () {
-                    var split = $(this).attr('name').split('-');
-                    $(this).removeAttr('name')
-                        .prop('name', newSection + "-" + split[1])
-                        .addClass(newSection + '-value')
-                        .removeClass(section + '-value');
-                });
-                $(this).attr('value', 'Update Application Name');
-                applicationInput.attr('disabled', 'disabled');
-                $(this).parents('div.applicationContainer').attr('id', newSection);
-            }
+            var newSection = $(this).val().split(' ').join('_');
+            $(this).attr('was', newSection);
+            $(this).val(newSection);
+            $(this).attr('value', newSection);
+            $('.' + section + '-value').each(function () {
+                var split = $(this).attr('name').split('-');
+                $(this).removeAttr('name')
+                    .prop('name', newSection + "-" + split[1])
+                    .addClass(newSection + '-value')
+                    .removeClass(section + '-value');
+            });
+            $(this).parents('div.applicationContainer').attr('id', newSection);
         });
     }
 

@@ -72,7 +72,6 @@ function parse_ini()
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
             $pageOutput .= "<div class='applicationContainer' id='" . $section . "'>
-            <input type='button' class='saveApp' value='Update Application Name'>
             <span class='example_icon'></span>";
             foreach ($name as $key => $val) {
                 if ($key == "url")
