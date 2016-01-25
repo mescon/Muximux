@@ -67,11 +67,7 @@ function parse_ini()
                 else if ($key == "name") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><select class='iconDD " . $section . "-value' name='" . $section . "-" . $key . "'>";
-                    foreach ($iconVal as $icon) {
-                        $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . explode(' ', $icon)[1] . "</option>";
-                    }
-                    $pageOutput .= "</select><span class='example_icon'></span></div>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-search=\"true\" data-search-text=\"Search...\"  data-iconset=\"fontawesome\" data-icon=\"".$val."\"></button></div>";
                 } elseif ($key == "default") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
                     if ($val == "true")

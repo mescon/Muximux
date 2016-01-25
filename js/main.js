@@ -82,6 +82,7 @@ jQuery(document).ready(function ($) {
     settingsInit();
     settingsPost();
     resizeIframe(); // Call resizeIframe when document is ready
+    initIconPicker('.iconpicker');
     //hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
 
@@ -111,17 +112,10 @@ function dropDownFixPosition(button, dropdown) {
 function settingsInit() {
     //Defaults
     $('#sortable').sortable();
-    $('select').each(function () {
-        $(this).siblings('.example_icon').addClass($(this).val());
-    });
 
     $('input[type=radio]').change(function () {
         $('input[type=radio]:checked').not(this).prop('checked', false);
     });
-    $('.iconDD').change(function () {
-        $(this).siblings('span').attr('class', '').attr('class', 'example_icon ' + $(this).val());
-    });
-
 
     $('#refresh-page').click(function () {
         location.pathname = location.pathname;
@@ -150,6 +144,16 @@ function settingsInit() {
         }, 1000);
     };
 
+    //Fix for iconpicker. For some reason the arrow doesn't get disabled when it hits the minimum/maximum page number. This disables the button, so that it doesnt go into the negatives or pages above its max.
+    $('body').on('click','.btn-arrow',function(event){
+        event.preventDefault();
+        if($(this).hasClass('disabled'))
+            $(this).attr('disabled','disabled');
+        else
+            $('.btn-arrow').removeAttr('disabled');
+
+    });
+
     //Add new application button
     $('#addApplication').click(function () {
         //Generating a random number here. So that if the user adds more than one new application at a time the ids/classes and names don't match.
@@ -158,34 +162,59 @@ function settingsInit() {
             '<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' +
             '<div><label>Name:</label><input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
             '<div><label>URL:</label><input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
-            '<div><label>Icon:</label><select class="newApp-Icon ' + rand + 'newApplication-value" name="' + rand + 'newApplication-icon" value="fa fa-globe"></select></div>' +
+            '<div><label>Icon:</label><button class=\"'+rand+'newApplication-value iconpicker btn btn-default\" name="'+rand+'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
             '<div><label for="'+rand+'newApplication-enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-enabled" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
             '<div><label for="'+rand+'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
             '<div><label for="'+rand+'newApplication-landingpage">Enable Landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
             '<div><label for="'+rand+'newApplication-dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-dd" name="newApplication-dd" type="checkbox"></div>' +
             '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove-' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
-        $('.iconDD').first().children().clone().appendTo('.newApp-Icon');
+        initIconPicker('.'+rand+'newApplication-value[name='+rand+'newApplication-icon]');
     });
 
     //App Name Change/Addition
     $('form').on('focusout', '.appName', function () {
-        $(this).parents('.applicationContainer').removeClass('newApp');
-        var section = $(this).attr('was');
-        if (section == undefined) {
-            section = $(this).parents('.applicationContainer').children('.newAppRand').attr('value') + "newApplication";
-            $(this).parents('applicationContainer').children('.newAppRand').remove();
-        }
+        if($(this).val() != "") {
+            $(this).parents('.applicationContainer').removeClass('newApp');
+            var section = $(this).attr('was');
+            if (section == undefined) {
+                section = $(this).parents('.applicationContainer').children('.newAppRand').attr('value') + "newApplication";
+                $(this).parents('applicationContainer').children('.newAppRand').remove();
+            }
 
-        var newSection = $(this).val().split(' ').join('_');
-        $(this).attr('was', newSection);
-        $('.' + section + '-value').each(function () {
-            var split = $(this).attr('name').split('-');
-            $(this).removeAttr('name')
-                .prop('name', newSection + "-" + split[1])
-                .addClass(newSection + '-value')
-                .removeClass(section + '-value');
-        });
-        $(this).parents('div.applicationContainer').attr('id', newSection);
+            var newSection = $(this).val().split(' ').join('_');
+            $(this).attr('was', newSection);
+            $('.' + section + '-value').each(function () {
+                var split = $(this).attr('name').split('-');
+                if (split[1] == 'icon')
+                    $(this).children('input').prop('name', newSection + "-" + split[1]);
+                $(this).removeAttr('name')
+                    .prop('name', newSection + "-" + split[1])
+                    .addClass(newSection + '-value')
+                    .removeClass(section + '-value');
+            });
+            $(this).parents('div.applicationContainer').attr('id', newSection);
+        }
+    });
+}
+
+function initIconPicker(selectedItem){
+    $(selectedItem).iconpicker({
+        align: 'center', // Only in div tag
+        arrowClass: 'btn-danger',
+        arrowPrevIconClass: 'glyphicon glyphicon-chevron-left',
+        arrowNextIconClass: 'glyphicon glyphicon-chevron-right',
+        cols: 10,
+        footer: true,
+        header: true,
+        iconset: 'fontawesome',
+        labelHeader: '{0} of {1} pages',
+        labelFooter: '{0} - {1} of {2} icons',
+        placement: 'bottom', // Only in button tag
+        rows: 5,
+        search: true,
+        searchText: 'Search',
+        selectedClass: 'btn-success',
+        unselectedClass: ''
     });
 }
 

@@ -28,15 +28,15 @@ function menuItems($config)
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && (!isset($section["dd"]) || $section["dd"] == "false")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"" . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             } else {
-                $standardmenu .= "<li><a data-content=\"" . $keyname . "\"><span class=\"" . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#myModal'><span class=\"" . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#myModal'><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
-            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" ><span class=\"" . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" ><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else {
             $dropdownmenu .= "";
         }
