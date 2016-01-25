@@ -427,7 +427,7 @@ input[type='button']:hover {
 }
 
 #addApplicationButton {
-    width: 160px;
+    width: 80px;
     margin-top: 20px;
     margin-bottom: 10px;
 }

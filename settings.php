@@ -14,14 +14,14 @@ else
 
 function write_ini()
 {
-        unlink('config.ini.php');
+    unlink('config.ini.php');
 
     $config = new Config_Lite('config.ini.php');
     foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('-', $parameter);
-            if ($value == "on")
-                $value = "true";
-            $config->set($splitParameter[0], $splitParameter[1], $value);
+        if ($value == "on")
+            $value = "true";
+        $config->set($splitParameter[0], $splitParameter[1], $value);
     }
     // save object to file
     try {
@@ -37,13 +37,13 @@ function write_ini()
 function parse_ini()
 {
     $config = new Config_Lite('config.ini.php');
-    $iconVal = array('fa fa-television', 'fa fa-download','fa fa-server','fa fa-play-circle','fa fa-tint','fa fa-globe','glyphicon glyphicon-calendar', 'glyphicon glyphicon-dashboard',
-        'glyphicon glyphicon-bullhorn',  'glyphicon glyphicon-search','glyphicon glyphicon-headphones');
+    $iconVal = array('fa fa-television', 'fa fa-download', 'fa fa-server', 'fa fa-play-circle', 'fa fa-tint', 'fa fa-globe', 'glyphicon glyphicon-calendar', 'glyphicon glyphicon-dashboard',
+        'glyphicon glyphicon-bullhorn', 'glyphicon glyphicon-search', 'glyphicon glyphicon-headphones');
 
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer' style='cursor: default;'><strong>General</strong><br>Title: <input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
-    $pageOutput .= "<div>Enable Dropdown: <input class='general-value' name='general-enabledropdown' type='checkbox' ";
+    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><strong>General</strong><br><label>Title: </label><input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
+    $pageOutput .= "<div><label>Enable Dropdown:</label> <input class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div></div><br><br>";
     else
@@ -63,23 +63,35 @@ function parse_ini()
             $pageOutput .= "<div class='applicationContainer' id='" . $section . "'><span class='bars fa fa-bars'></span>";
             foreach ($name as $key => $val) {
                 if ($key == "url")
-                    $pageOutput .= "<div>URL:<input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >URL:</label><input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 else if ($key == "name") {
-                    $pageOutput .= "<div>Name:<input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div>Icon:<select class='iconDD " . $section . "-value' name='" . $section . "-" . $key . "'>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><select class='iconDD " . $section . "-value' name='" . $section . "-" . $key . "'>";
                     foreach ($iconVal as $icon) {
-                        $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . explode(' ',$icon)[1] . "</option>";
+                        $pageOutput .= "<option value='" . $icon . "'" . ($val == $icon ? " selected>" : ">") . explode(' ', $icon)[1] . "</option>";
                     }
                     $pageOutput .= "</select><span class='example_icon'></span></div>";
                 } elseif ($key == "default") {
-                    $pageOutput .= "<div>Default:<input type='radio' class='radio " . $section . "-value' name='" . $section . "-" . $key . "'";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
+                    if ($val == "true")
+                        $pageOutput .= " checked></div>";
+                    else
+                        $pageOutput .= "></div>";
+                } else if ($key == "enabled") {
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enabled: </label><input class='checkbox " . $section . "-value ' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    if ($val == "true")
+                        $pageOutput .= " checked></div>";
+                    else
+                        $pageOutput .= "></div>";
+                } else if ($key == "landingpage") {
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enable Landing Page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else {
-                    $pageOutput .= "<div>$key:<input class='checkbox " . $section . "-value' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='". $section . "-" . $key."' >Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
