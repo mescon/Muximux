@@ -70,12 +70,12 @@ try {
                 <div class="modal-title"><h1>Settings</h1></div>
             </div>
             <div class="modal-body">
-                    <div class="clearfix center" style="width: 140px; margin-bottom: 15px;;">
-                        <div class="btn-group">
-                            <button type="button" class="btn btn-primary btn-block" id="showInstructions">Show Instructions</button>
-                            <button type="button" class="btn btn-primary btn-block" id="showChangelog">Show Changelog</button>
-                        </div>
+                <center> <!-- because fuck css -->
+                    <div class="btn-group" role="group" aria-label="Buttons" style="margin-bottom: 15px;">
+                        <button type="button" class="btn btn-primary" id="showInstructions">Show Instructions</button>
+                        <button type="button" class="btn btn-primary" id="showChangelog">Show Changelog</button>
                     </div>
+                </center>
 
                     <div id="instructionsContainer" class="alert alert-info">
                     <h3>Instructions</h3>
