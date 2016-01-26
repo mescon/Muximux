@@ -103,7 +103,7 @@ function landingPage($config, $keyname)
     <body>
     <div class=\"login\">
         <div class=\"heading\">
-            <h2><span class=\"" . $config[$keyname]["icon"] . " fa-3x\"></span></h2>
+            <h2><span class=\"fa " . $config[$keyname]["icon"] . " fa-3x\"></span></h2>
             <section>
                 <a href=\"" . $config[$keyname]["url"] . "\" target=\"_self\" title=\"Launch " . $config[$keyname]["name"] . "!\"><button class=\"float\">Launch " . $config[$keyname]["name"] . "</button></a>
             </section>
