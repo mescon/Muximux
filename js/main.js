@@ -271,7 +271,7 @@ function getChangelog() {
       success: function(data) {
         var json = $.parseJSON(data);
         output="<p>It's been " + datediff(json[0].commit.author.date.substring(0,10)) + " days since the latest commit!</p>";
-        output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip'>download the latest zip.</a></p><br/><ul>";
+        output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><ul>";
 
 
         for (var i in json)
@@ -279,7 +279,7 @@ function getChangelog() {
           shortCommitID = json[i].sha.substring(0,6);
           shortComments = json[i].commit.message.substring(0,140).replace(/$/, "") + "...";
           shortDate = json[i].commit.author.date.substring(0,10);
-          output+="<li>"+ shortDate +" <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li>";
+          output+="<li>"+ shortDate +" <a href=\"" + json[i].html_url + "\" target=\"_blank\">" + shortCommitID + "</a>:  " + shortComments + "</li>";
         }
         output+= "</ul>";
         $('#changelog').html(output);
