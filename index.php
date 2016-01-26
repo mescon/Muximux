@@ -70,7 +70,14 @@ try {
                 <div class="modal-title"><h1>Settings</h1></div>
             </div>
             <div class="modal-body">
-                    <div id="instructions" class="alert alert-info">
+                    <div class="clearfix center" style="width: 140px; margin-bottom: 15px;;">
+                        <div class="btn-group">
+                            <button type="button" class="btn btn-primary btn-block" id="showInstructions">Show Instructions</button>
+                            <button type="button" class="btn btn-primary btn-block" id="showChangelog">Show Changelog</button>
+                        </div>
+                    </div>
+
+                    <div id="instructionsContainer" class="alert alert-info">
                     <h3>Instructions</h3>
                     <p>The order that you put these blocks in determine in what order they will be listed in the
                         menu.<br>
@@ -94,10 +101,10 @@ try {
                     <p>See <a href="https://github.com/mescon/Muximux/" target="_blank">https://github.com/mescon/Muximux/</a> for more information.</p>
 
                 </div>
-                <div class="center" style="width: 140px;">
-                    <button type="button" class="btn btn-primary btn-block" id="showInstructions">Show Instructions</button>
+                <div id="changelogContainer" class="alert alert-warning">
+                    <h3>Changelog</h3>
+                    <div id="changelog"></div>
                 </div>
-
 
                 <?php echo parse_ini(); ?>
             </div>

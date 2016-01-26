@@ -363,7 +363,7 @@ input[type='button']:hover {
     background: #fff;
 }
 
-#instructions {
+#instructionsContainer, #changelogContainer {
     width: 90%;
     margin-left: auto;
     margin-right: auto;

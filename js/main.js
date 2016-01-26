@@ -122,12 +122,21 @@ function settingsInit() {
     });
 
     $('#showInstructions').click(function () {
-        $('#instructions').slideToggle(1000);
-        if ($(this).val() == "Show Instructions")
-            $(this).val('Hide Instructions');
+        $('#instructionsContainer').slideToggle(1000);
+        if ($(this).text() == "Show Instructions")
+            $(this).text('Hide Instructions');
         else
-            $(this).val('Show Instructions');
+            $(this).text('Show Instructions');
 
+    });
+
+    $('#showChangelog').click(function () {
+        $('#changelogContainer').slideToggle(1000);
+        getChangelog();
+        if ($(this).text() == "Show Changelog")
+            $(this).text('Hide Changelog');
+        else
+            $(this).text('Show Changelog');
     });
 
     //Remove Button Handler
@@ -244,4 +253,36 @@ function showResponse(responseText, statusText) {
         location.pathname = location.pathname;
     else
         alert("Error!!!-" + responseText);
+}
+
+
+function datediff(latestDate) {
+  var rightNow = new Date();
+  var currentDate = rightNow.toISOString().substring(0,10).split('-').join('');
+  var test = latestDate.split('-').join('');
+  return currentDate-test;
+}
+
+function getChangelog() {
+  $.ajax({
+    url: "https://api.github.com/repos/mescon/Muximux/commits",
+    //force to handle it as text
+    dataType: "text",
+      success: function(data) {
+        var json = $.parseJSON(data);
+        output="<p>It's been " + datediff(json[0].commit.author.date.substring(0,10)) + " days since the latest commit!</p>";
+        output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip'>download the latest zip.</a></p><br/><ul>";
+
+
+        for (var i in json)
+        {
+          shortCommitID = json[i].sha.substring(0,6);
+          shortComments = json[i].commit.message.substring(0,140).replace(/$/, "") + "...";
+          shortDate = json[i].commit.author.date.substring(0,10);
+          output+="<li>"+ shortDate +" <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li>";
+        }
+        output+= "</ul>";
+        $('#changelog').html(output);
+      }
+  });
 }
