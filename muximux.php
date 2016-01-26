@@ -34,7 +34,7 @@ function menuItems($config)
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#myModal'><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal'><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" ><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else {

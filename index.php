@@ -60,7 +60,7 @@ try {
     </ul>
 </div>
 <!-- Modal -->
-<div id="myModal" class="modal fade" role="dialog">
+<div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
 
         <!-- Modal content-->
@@ -72,8 +72,8 @@ try {
             <div class="modal-body">
                 <center> <!-- because fuck css -->
                     <div class="btn-group" role="group" aria-label="Buttons" style="margin-bottom: 15px;">
-                        <button type="button" class="btn btn-primary" id="showInstructions">Show Instructions</button>
-                        <button type="button" class="btn btn-primary" id="showChangelog">Show Changelog</button>
+                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show Instructions</a>
+                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show Changelog</a>
                     </div>
                 </center>
 
@@ -108,15 +108,15 @@ try {
 
                 <?php echo parse_ini(); ?>
             </div>
+        </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
                 <button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload</button>
-
             </div>
         </div>
 
-    </div>
 </div>
+
 <script src="js/jquery-2.2.0.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
 <script src="js/jquery.form.min.js"></script>

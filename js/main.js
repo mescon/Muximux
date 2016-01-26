@@ -123,20 +123,20 @@ function settingsInit() {
 
     $('#showInstructions').click(function () {
         $('#instructionsContainer').slideToggle(1000);
-        if ($(this).text() == "Show Instructions")
-            $(this).text('Hide Instructions');
+        if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Instructions")
+            $(this).html('<span class=\"fa fa-book\"></span> Hide Instructions');
         else
-            $(this).text('Show Instructions');
+            $(this).html('<span class=\"fa fa-book\"></span> Show Instructions');
 
     });
 
     $('#showChangelog').click(function () {
         $('#changelogContainer').slideToggle(1000);
         getChangelog();
-        if ($(this).text() == "Show Changelog")
-            $(this).text('Hide Changelog');
+        if ($(this).html() == "<span class=\"fa fa-github\"></span> Show Changelog")
+            $(this).html('<span class=\"fa fa-github\"></span> Hide Changelog');
         else
-            $(this).text('Show Changelog');
+            $(this).html('<span class=\"fa fa-github\"></span> Show Changelog');
     });
 
     //Remove Button Handler
@@ -174,7 +174,7 @@ function settingsInit() {
             '<div><label>Icon:</label><button class=\"'+rand+'newApplication-value iconpicker btn btn-default\" name="'+rand+'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
             '<div><label for="'+rand+'newApplication-enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-enabled" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
             '<div><label for="'+rand+'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
-            '<div><label for="'+rand+'newApplication-landingpage">Enable Landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
+            '<div><label for="'+rand+'newApplication-landingpage">Enable landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
             '<div><label for="'+rand+'newApplication-dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-dd" name="newApplication-dd" type="checkbox"></div>' +
             '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove-' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
         initIconPicker('.'+rand+'newApplication-value[name='+rand+'newApplication-icon]');

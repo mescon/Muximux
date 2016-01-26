@@ -42,8 +42,8 @@ function parse_ini()
 
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><strong>General</strong><br><label>Title: </label><input type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
-    $pageOutput .= "<div><label>Enable Dropdown:</label> <input class='general-value' name='general-enabledropdown' type='checkbox' ";
+    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
+    $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div></div><br><br>";
     else
@@ -81,7 +81,7 @@ function parse_ini()
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "landingpage") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enable Landing Page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enable landing page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else

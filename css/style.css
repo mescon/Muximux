@@ -52,6 +52,7 @@ Main components
 -------------------------------- */
 .modal-title {
     font-size: 18px;
+    color: #f1f3f2;
 }
 
 .cd-tabs nav {
@@ -360,7 +361,11 @@ input[type='button']:hover {
 }
 
 .modal-body {
-    background: #fff;
+    background: #343843;
+}
+
+.modal-header, .modal-footer {
+    background: #41434f;
 }
 
 #instructionsContainer, #changelogContainer {
@@ -399,11 +404,11 @@ input[type='button']:hover {
     margin-left: auto;
     margin-right: auto;
     margin-top: 15px;
-    background: #f2f2f2;
+    background: #f5f6f7;
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
-    -webkit-box-shadow: 5px 5px 5px 1px #FFFFFF;
-    box-shadow: 5px 5px 5px 1px #e1e1e1;
+    -webkit-box-shadow: 5px 5px 5px 1px #000;
+    box-shadow: 5px 5px 5px 1px #000;
     color: #000;
     text-align: center;
     cursor: move;
