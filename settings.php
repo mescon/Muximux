@@ -59,9 +59,6 @@ function write_ini()
 function parse_ini()
 {
     $config = new Config_Lite('config.ini.php');
-    $iconVal = array('fa fa-television', 'fa fa-download', 'fa fa-server', 'fa fa-play-circle', 'fa fa-tint', 'fa fa-globe', 'glyphicon glyphicon-calendar', 'glyphicon glyphicon-dashboard',
-        'glyphicon glyphicon-bullhorn', 'glyphicon glyphicon-search', 'glyphicon glyphicon-headphones');
-
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";

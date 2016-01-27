@@ -264,7 +264,6 @@ function datediff(latestDate) {
 }
 
 function getVersionFromFile() {
-  var versionHash;
   var response = $.ajax({ type: "GET",
                           dataType: "text",
                           url: "version.txt",
@@ -291,19 +290,17 @@ function githubData() {
 
 function checkVersion() {
   var json = githubData();
-  compareURL = "https://github.com/mescon/Muximux/compare/" + getVersionFromFile() + "..." + json[0].sha;
-  difference = 0;
+  var compareURL = "https://github.com/mescon/Muximux/compare/" + getVersionFromFile() + "..." + json[0].sha;
+  var difference = 0;
   for (var i in json)
   {
     if(json[i].sha == getVersionFromFile()) {
       difference = i;
     }
   }
-  differenceDays = datediff(json[0].commit.author.date.substring(0,10));
+  var differenceDays = datediff(json[0].commit.author.date.substring(0,10));
 
-
-  var upstreamInformation = new Object();
-  upstreamInformation = { compareURL: compareURL,
+  var upstreamInformation = { compareURL: compareURL,
                         differenceCommits: difference,
                         differenceDays: differenceDays }
   return upstreamInformation;
@@ -332,9 +329,9 @@ function viewChangelog() {
         output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
         for (var i in json)
         {
-          shortCommitID = json[i].sha.substring(0,6);
-          shortComments = json[i].commit.message.substring(0,220).replace(/$/, "") + "...";
-          shortDate = json[i].commit.author.date.substring(0,10);
+          var shortCommitID = json[i].sha.substring(0,6);
+          var shortComments = json[i].commit.message.substring(0,220).replace(/$/, "") + "...";
+          var shortDate = json[i].commit.author.date.substring(0,10);
 
           output+="<li><pre>"+ shortDate +" <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
 
