@@ -73,7 +73,7 @@ try {
                 <center> <!-- because fuck css -->
                     <div class="btn-group" role="group" aria-label="Buttons" style="margin-bottom: 15px;">
                         <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show Instructions</a>
-                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show Changelog</a>
+                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show Updates</a>
                     </div>
                 </center>
 
@@ -102,7 +102,7 @@ try {
 
                 </div>
                 <div id="changelogContainer" class="alert alert-warning">
-                    <h3>Changelog</h3>
+                    <h3>Updates</h3>
                     <div id="changelog"></div>
                 </div>
 

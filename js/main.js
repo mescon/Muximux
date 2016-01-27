@@ -132,11 +132,11 @@ function settingsInit() {
 
     $('#showChangelog').click(function () {
         $('#changelogContainer').slideToggle(1000);
-        getChangelog();
-        if ($(this).html() == "<span class=\"fa fa-github\"></span> Show Changelog")
-            $(this).html('<span class=\"fa fa-github\"></span> Hide Changelog');
+        viewChangelog();
+        if ($(this).html() == "<span class=\"fa fa-github\"></span> Show Updates")
+            $(this).html('<span class=\"fa fa-github\"></span> Hide Updates');
         else
-            $(this).html('<span class=\"fa fa-github\"></span> Show Changelog');
+            $(this).html('<span class=\"fa fa-github\"></span> Show Updates');
     });
 
     //Remove Button Handler
@@ -263,23 +263,80 @@ function datediff(latestDate) {
   return currentDate-test;
 }
 
-function getChangelog() {
+function getVersionFromFile() {
+  var versionHash;
+  var response = $.ajax({ type: "GET",
+                          dataType: "text",
+                          url: "version.txt",
+                          async: false
+                        }).responseText;
+  return response.replace('$Id: ','').replace(' $','').replace('/\n/g', '').replace('\n', '').trim();
+}
+
+function githubData() {
+  var result="";
+  $.ajax({
+      async: false,
+      dataType: 'json',
+      url: "https://api.github.com/repos/mescon/Muximux/commits",
+      type: 'GET',
+        success: function(data) {
+          result = data;
+          } // Success call ends
+
+  });
+  return result;
+}
+
+function checkVersion() {
+  var json = githubData();
+  compareURL = "https://github.com/mescon/Muximux/compare/" + getVersionFromFile() + "..." + json[0].sha;
+  difference = 0;
+  for (var i in json)
+  {
+    if(json[i].sha == getVersionFromFile()) {
+      difference = i;
+    }
+  }
+  differenceDays = datediff(json[0].commit.author.date.substring(0,10));
+
+
+  var upstreamInformation = new Object();
+  upstreamInformation = { compareURL: compareURL,
+                        differenceCommits: difference,
+                        differenceDays: differenceDays }
+  return upstreamInformation;
+}
+
+function viewChangelog() {
+    var output="";
   $.ajax({
     url: "https://api.github.com/repos/mescon/Muximux/commits",
     //force to handle it as text
     dataType: "text",
       success: function(data) {
+
         var json = $.parseJSON(data);
-        output="<p>It's been " + datediff(json[0].commit.author.date.substring(0,10)) + " days since the latest commit!</p>";
-        output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><ul>";
+        var status = "up to date!";
+        if(checkVersion().differenceCommits < 0) {
+            status = checkVersion().differenceCommits + " commits ahead";
+        }
+        if(checkVersion().differenceCommits > 0) {
+            status = checkVersion().differenceCommits + " commits behind";
+        }
 
-
+        output="<p>You are currently <strong>"+ status +"</strong>!<br/>";
+        output+="The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
+        output+= "<p>The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\">here</a>.</p>";
+        output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
         for (var i in json)
         {
           shortCommitID = json[i].sha.substring(0,6);
-          shortComments = json[i].commit.message.substring(0,140).replace(/$/, "") + "...";
+          shortComments = json[i].commit.message.substring(0,220).replace(/$/, "") + "...";
           shortDate = json[i].commit.author.date.substring(0,10);
-          output+="<li>"+ shortDate +" <a href=\"" + json[i].html_url + "\" target=\"_blank\">" + shortCommitID + "</a>:  " + shortComments + "</li>";
+
+          output+="<li><pre>"+ shortDate +" <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
+
         }
         output+= "</ul>";
         $('#changelog').html(output);
