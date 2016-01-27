@@ -268,6 +268,7 @@ function getVersionFromFile() {
   var response = $.ajax({ type: "GET",
                           dataType: "text",
                           url: "version.txt",
+                          cache: false,
                           async: false
                         }).responseText;
   return response.replace('$Id: ','').replace(' $','').replace('/\n/g', '').replace('\n', '').trim();
