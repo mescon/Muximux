@@ -8,19 +8,9 @@
  */
 require __DIR__ . '/vendor/autoload.php';
 
-function fwrite_stream($fp, $string) {
-    for ($written = 0; $written < strlen($string); $written += $fwrite) {
-        $fwrite = fwrite($fp, substr($string, $written));
-        if ($fwrite === false) {
-            return $written;
-        }
-    }
-    return $written;
-}
-
 if (sizeof($_POST) > 0){
     write_ini();
-    $cache_new = "; <?php die(\"Access denied\"); ?>";
+    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
     $file = "config.ini.php"; // the file to which $cache_new gets prepended
 
     $handle = fopen($file, "r+");
