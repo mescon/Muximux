@@ -4,13 +4,45 @@
  * User: synik
  * Date: 1/18/2016
  * Time: 9:19 PM
+ * Hello CauseFX - don't touch please!
  */
 require __DIR__ . '/vendor/autoload.php';
 
-if (sizeof($_POST) > 0)
+function fwrite_stream($fp, $string) {
+    for ($written = 0; $written < strlen($string); $written += $fwrite) {
+        $fwrite = fwrite($fp, substr($string, $written));
+        if ($fwrite === false) {
+            return $written;
+        }
+    }
+    return $written;
+}
+
+if (sizeof($_POST) > 0){
     write_ini();
+    $cache_new = "; <?php die(\"Access denied\"); ?>";
+    $file = "config.ini.php"; // the file to which $cache_new gets prepended
+
+    $handle = fopen($file, "r+");
+    $len = strlen($cache_new);
+    $final_len = filesize($file) + $len;
+    $cache_old = fread($handle, $len);
+    rewind($handle);
+    $i = 1;
+    while (ftell($handle) < $final_len) {
+        fwrite($handle, $cache_new);
+        $cache_new = $cache_old;
+        $cache_old = fread($handle, $len);
+        fseek($handle, $i * $len);
+        $i++;
+    }
+ }
+
 else
     parse_ini();
+
+
+
 
 function write_ini()
 {
