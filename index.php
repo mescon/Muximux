@@ -1,4 +1,3 @@
-<!doctype html>
 <?php
 function exception_error_handler($errno, $errstr, $errfile, $errline)
 {
@@ -16,7 +15,7 @@ try {
 } catch (ErrorException $ex) {
     exit("Unable to load settings.php.");
 }
-?>
+?><!doctype html>
 <!--[if lt IE 7]>
 <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>

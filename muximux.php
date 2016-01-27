@@ -114,9 +114,25 @@ function landingPage($config, $keyname)
     return $item;
 }
 
+function command_exist($cmd) {
+    $returnVal = shell_exec("which $cmd");
+    return (empty($returnVal) ? false : true);
+}
+
 if (isset($_GET['landing'])) {
     $keyname = $_GET['landing'];
     echo landingPage($config, $keyname);
     die();
 }
+
+if (isset($_GET['git']) && $_GET['git']=='gethash') {
+    if(!command_exist('git')) {
+        $hash = 'unknown';
+    } else {
+        $hash = shell_exec('git log --pretty="%H" -n1 HEAD');
+    }
+    echo $hash;
+    die();
+}
+
 ?>

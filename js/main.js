@@ -263,7 +263,7 @@ function datediff(latestDate) {
   return currentDate-test;
 }
 
-function getVersionFromFile() {
+/*function getLocalVersion() {
   var response = $.ajax({ type: "GET",
                           dataType: "text",
                           url: "version.txt",
@@ -271,6 +271,16 @@ function getVersionFromFile() {
                           async: false
                         }).responseText;
   return response.replace('$Id: ','').replace(' $','').replace('/\n/g', '').replace('\n', '').trim();
+}*/
+
+function getLocalVersion() {
+  var response = $.ajax({ type: "GET",
+                          dataType: "text",
+                          url: "index.php?git=gethash",
+                          cache: false,
+                          async: false
+                        }).responseText;
+  return response;
 }
 
 function githubData() {
@@ -282,7 +292,7 @@ function githubData() {
       type: 'GET',
         success: function(data) {
           result = data;
-          } // Success call ends
+          }
 
   });
   return result;
@@ -290,11 +300,12 @@ function githubData() {
 
 function checkVersion() {
   var json = githubData();
-  var compareURL = "https://github.com/mescon/Muximux/compare/" + getVersionFromFile() + "..." + json[0].sha;
+  var localversion = getLocalVersion();
+  var compareURL = "https://github.com/mescon/Muximux/compare/" + getLocalVersion() + "..." + json[0].sha;
   var difference = 0;
   for (var i in json)
   {
-    if(json[i].sha == getVersionFromFile()) {
+    if(json[i].sha == localversion) {
       difference = i;
     }
   }
@@ -302,7 +313,9 @@ function checkVersion() {
 
   var upstreamInformation = { compareURL: compareURL,
                         differenceCommits: difference,
-                        differenceDays: differenceDays }
+                        differenceDays: differenceDays,
+                        latestVersion: json[0].sha,
+                        localVersion: localversion }
   return upstreamInformation;
 }
 
@@ -315,21 +328,27 @@ function viewChangelog() {
       success: function(data) {
 
         var json = $.parseJSON(data);
-        var status = "up to date";
+        var status = "up to date!";
         if(checkVersion().differenceCommits < 0) {
-            status = checkVersion().differenceCommits + " commits ahead";
+            status = checkVersion().differenceCommits + " commits ahead!";
         }
         if(checkVersion().differenceCommits > 0) {
-            status = checkVersion().differenceCommits + " commits behind";
+            status = checkVersion().differenceCommits + " commits behind!";
+        }
+        if(checkVersion().localVersion == "unknown") {
+            status = "running an unknown version.<br/>To enable this functionality, please install Muximux by typing <code>git clone https://github.com/mescon/Muximux</code> in your terminal.<br/>Please read the full <a href=\"https://github.com/mescon/Muximux#setup\" target=\"_blank\">setup instructions</a>.";
         }
 
-        output="<p>You are currently <strong>"+ status +"</strong>!<br/>";
-        output+="The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
-        output+= "<p>The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\">here</a>.</p>";
+        output="<p>Your version is currently <strong>"+ status +"</strong><br/>";
+        if(!checkVersion().localVersion == "unknown") {
+            output+= "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\">here</a>.</p>";
+        }
+
+        output+="<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
         output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
         for (var i in json)
         {
-          var shortCommitID = json[i].sha.substring(0,6);
+          var shortCommitID = json[i].sha.substring(0,7);
           var shortComments = json[i].commit.message.substring(0,220).replace(/$/, "") + "...";
           var shortDate = json[i].commit.author.date.substring(0,10);
 
