@@ -318,7 +318,7 @@ function viewChangelog() {
       success: function(data) {
 
         var json = $.parseJSON(data);
-        var status = "up to date!";
+        var status = "up to date";
         if(checkVersion().differenceCommits < 0) {
             status = checkVersion().differenceCommits + " commits ahead";
         }
