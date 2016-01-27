@@ -263,16 +263,6 @@ function datediff(latestDate) {
   return currentDate-test;
 }
 
-/*function getLocalVersion() {
-  var response = $.ajax({ type: "GET",
-                          dataType: "text",
-                          url: "version.txt",
-                          cache: false,
-                          async: false
-                        }).responseText;
-  return response.replace('$Id: ','').replace(' $','').replace('/\n/g', '').replace('\n', '').trim();
-}*/
-
 function getLocalVersion() {
   var response = $.ajax({ type: "GET",
                           dataType: "text",
@@ -340,8 +330,8 @@ function viewChangelog() {
         }
 
         output="<p>Your version is currently <strong>"+ status +"</strong><br/>";
-        if(!checkVersion().localVersion == "unknown") {
-            output+= "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\">here</a>.</p>";
+        if(checkVersion().differenceCommits > 0) {
+            output+= "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\" target=\"_blank\">here</a>.</p>";
         }
 
         output+="<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
