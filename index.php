@@ -1,4 +1,8 @@
 <?php
+define('CONFIG', 'settings.ini.php');
+define('CONFIGEXAMPLE', 'settings.ini.php-example');
+require __DIR__ . '/vendor/autoload.php';
+
 function exception_error_handler($errno, $errstr, $errfile, $errline)
 {
     throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
@@ -6,24 +10,31 @@ function exception_error_handler($errno, $errstr, $errfile, $errline)
 
 set_error_handler("exception_error_handler");
 
+if (file_exists('config.ini.php')) {
+    copy('config.ini.php', 'backup.ini.php');
+    unlink('config.ini.php');
+    $upgrade = true;
+} else
+    $upgrade = false;
+
 try {
-    $config = parse_ini_file('config.ini.php', true);
+    $config = parse_ini_file(CONFIG, true);
 } catch (Exception $e) {
-    if (!is_writable(dirname('config.ini.php-example')))
+    if (!is_writable(dirname('settings.ini.php-example')))
         die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
     else {
-        copy('config.ini.php-example', 'config.ini.php');
-        $config = parse_ini_file('config.ini.php', true);
+        copy(CONFIGEXAMPLE, CONFIG);
+        $config = parse_ini_file(CONFIG, true);
     }
 }
-    
+
 try {
-    include("muximux.php");
+    include_once("muximux.php");
 } catch (ErrorException $ex) {
     exit("Unable to load muximux.php.");
 }
 try {
-    include("settings.php");
+    include_once("settings.php");
 } catch (ErrorException $ex) {
     exit("Unable to load settings.php.");
 }
@@ -44,15 +55,13 @@ try {
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous"> <!-- Bootstap (includes Glyphicons) -->
-    <!-- Bootstrap-Iconpicker -->
+          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
     <link rel="stylesheet" href="css/bootstrap-iconpicker.min.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/> <!--FontAwesome-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
     <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css"> <!-- Font -->
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script>
-    <!-- Modernizr -->
     <title><?php echo getTitle($config); ?></title>
 </head>
 
@@ -64,7 +73,6 @@ try {
 
 <div class="cd-tabs">
     <?php echo menuItems($config); ?>
-
 
     <ul class="cd-tabs-content">
         <?php echo frameContent($config); ?>
@@ -81,14 +89,14 @@ try {
                 <div class="modal-title"><h1>Settings</h1></div>
             </div>
             <div class="modal-body">
-                <center> <!-- because fuck css -->
-                    <div class="btn-group" role="group" aria-label="Buttons" style="margin-bottom: 15px;">
-                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show Instructions</a>
-                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show Updates</a>
-                    </div>
-                </center>
+                <div class="btn-container" role="group" aria-label="Buttons">
+                    <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show
+                        Instructions</a>
+                    <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show
+                        Updates</a>
+                </div>
 
-                    <div id="instructionsContainer" class="alert alert-info">
+                <div id="instructionsContainer" class="alert alert-info">
                     <h3>Instructions</h3>
                     <p>The order that you put these blocks in determine in what order they will be listed in the
                         menu.<br>
@@ -102,39 +110,73 @@ try {
                         services/urls you link to use https://</p>
 
                     <p>Alternatively, if you use Chrome or Opera (or any Chromium-based browser), you can install
-                    the plugin "Ignore X-Frame headers", which<br>
-                    drops X-Frame-Options and Content-Security-Policy HTTP response headers, allowing ALL pages to be
-                    iframed (like we're doing in Muximux).</p>
+                        the plugin "Ignore X-Frame headers", which<br>
+                        drops X-Frame-Options and Content-Security-Policy HTTP response headers, allowing ALL pages to
+                        be
+                        iframed (like we're doing in Muximux).</p>
 
                     <p>See:
-                        <a href="https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe" target="_blank">https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe</a></p>
+                        <a href="https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe"
+                           target="_blank">https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe</a>
+                    </p>
 
-                    <p>See <a href="https://github.com/mescon/Muximux/" target="_blank">https://github.com/mescon/Muximux/</a> for more information.</p>
+                    <p>See <a href="https://github.com/mescon/Muximux/" target="_blank">https://github.com/mescon/Muximux/</a>
+                        for more information.</p>
 
                 </div>
                 <div id="changelogContainer" class="alert alert-warning">
                     <h3>Updates</h3>
                     <div id="changelog"></div>
                 </div>
+                <div id="backupiniContainer" class="alert alert-warning">
+                    <h3>Backup.ini.php Contents</h3>
+                    <div id="backupContents"><?php if (file_exists('backup.ini.php')) echo nl2br(file_get_contents('backup.ini.php')); ?></div>
+                </div>
 
                 <?php echo parse_ini(); ?>
             </div>
         </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload</button>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            <button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload
+            </button>
+        </div>
+    </div>
+</div>
+<div id="upgradeModal" class="modal fade" role="dialog">
+    <div class="modal-dialog upgradeDialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <div class="modal-title"><h1>Update Notification</h1></div>
+            </div>
+            <div class="modal-body upgradeBody">
+                <div class="alert alert-info">
+                    There has been an update. We removed <code>config.ini.php</code> and copied it into <code>backup.ini.php</code>
+                    This is the last time we will have to do this kind of change.
+                    This is due to the fact that we made major changes to the config.ini.php
+                    and it is now called settings.ini.php. Do not copy your old config into
+                    the new settings.ini.php. It needs to be written by the settings menu that
+                    can be now be found in the dropdown in the top right. Thank you for your understanding.
+                </div>
             </div>
         </div>
+        <div class="modal-footer">
+            <button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
+        </div>
+    </div>
 
-</div>
 
-<script src="js/jquery-2.2.0.min.js"></script>
-<script src="js/jquery-ui.min.js"></script>
-<script src="js/jquery.form.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>
-<script type="text/javascript" src="js/bootstrap-iconpicker.min.js"></script>
-<script src="js/main.js"></script>
-<!-- Resource jQuery -->
+    <script src="js/jquery-2.2.0.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <script src="js/jquery.form.min.js"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap-iconpicker.min.js"></script>
+    <script type="text/javascript" src="js/main.js"></script>
+    <script type="text/javascript" src="js/functions.js"></script>
+    <?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
 </body>
 </html>

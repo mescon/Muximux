@@ -6,39 +6,18 @@
  * Time: 9:19 PM
  * Hello CauseFX - don't touch please!
  */
-require __DIR__ . '/vendor/autoload.php';
 
-if (sizeof($_POST) > 0){
+if (sizeof($_POST) > 0) {
     write_ini();
-    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
-    $file = "config.ini.php"; // the file to which $cache_new gets prepended
-
-    $handle = fopen($file, "r+");
-    $len = strlen($cache_new);
-    $final_len = filesize($file) + $len;
-    $cache_old = fread($handle, $len);
-    rewind($handle);
-    $i = 1;
-    while (ftell($handle) < $final_len) {
-        fwrite($handle, $cache_new);
-        $cache_new = $cache_old;
-        $cache_old = fread($handle, $len);
-        fseek($handle, $i * $len);
-        $i++;
-    }
- }
-
-else
+} else
     parse_ini();
-
-
 
 
 function write_ini()
 {
-    unlink('config.ini.php');
+    unlink(CONFIG);
 
-    $config = new Config_Lite('config.ini.php');
+    $config = new Config_Lite(CONFIG);
     foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('-', $parameter);
         if ($value == "on")
@@ -53,12 +32,29 @@ function write_ini()
     } finally {
         echo true;
     }
+
+    $cache_new = "<?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
+    $file = CONFIG; // the file to which $cache_new gets prepended
+
+    $handle = fopen($file, "r+");
+    $len = strlen($cache_new);
+    $final_len = filesize($file) + $len;
+    $cache_old = fread($handle, $len);
+    rewind($handle);
+    $i = 1;
+    while (ftell($handle) < $final_len) {
+        fwrite($handle, $cache_new);
+        $cache_new = $cache_old;
+        $cache_old = fread($handle, $len);
+        fseek($handle, $i * $len);
+        $i++;
+    }
 }
 
 
 function parse_ini()
 {
-    $config = new Config_Lite('config.ini.php');
+    $config = new Config_Lite(CONFIG);
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
@@ -86,7 +82,7 @@ function parse_ini()
                 else if ($key == "name") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-search=\"true\" data-search-text=\"Search...\"  data-iconset=\"fontawesome\" data-icon=\"".$val."\"></button></div>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-search=\"true\" data-search-text=\"Search...\"  data-iconset=\"fontawesome\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
                     if ($val == "true")
@@ -106,7 +102,7 @@ function parse_ini()
                     else
                         $pageOutput .= "></div>";
                 } else {
-                    $pageOutput .= "<div><label for='". $section . "-" . $key."' >Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
@@ -119,7 +115,7 @@ function parse_ini()
     }
     $pageOutput .= "</div><div class='center' id='addApplicationButton'>
                     <button type='button' class='btn btn-primary btn-md' id='addApplication'>Add new</button>
-                    <div id='saved'>Saved!</div><div id='removed' class='hidden'></div></form></div>
+                    </form></div>
                     <meta id='gitData'><meta id='versionText'>";
     return $pageOutput;
 }

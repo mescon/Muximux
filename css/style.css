@@ -335,8 +335,6 @@ select {
     margin-left: 10px;
 }
 
-
-
 input.ui-button {
     padding: .2em .5em;
 }
@@ -360,12 +358,39 @@ input[type='button']:hover {
     background: #003147;
 }
 
+.checkbox, .radio {
+    display: inline-block;
+}
+
+.btn-container {
+    width: 280px;
+    margin: 0px auto 15px auto;
+}
+
+.modal {
+    z-index: 1050;
+    margin: 0;
+    padding: 0;
+}
+
+.modal-dialog {
+    width: 80%;
+}
+
 .modal-body {
     background: #343843;
 }
 
 .modal-header, .modal-footer {
     background: #41434f;
+}
+
+.upgradeBody {
+    font-size: 1.6rem;
+}
+
+.upgradeDialog {
+    width: 40%;
 }
 
 #instructionsContainer, #changelogContainer {
@@ -375,24 +400,6 @@ input[type='button']:hover {
     font-size: 16px;
     font-size: 1.6rem;
     display: none;
-}
-
-
-.checkbox, .radio {
-    display: inline-block;
-}
-
-.modal {
-    z-index: 1050;
-    margin: 0;
-    padding: 0;
-}
-.iconpicker {
-    margin-left: 10px;
-}
-
-.removeButton {
-    margin-left: 15px;
 }
 
 .applicationContainer {
@@ -414,8 +421,11 @@ input[type='button']:hover {
     cursor: move;
 }
 
-.applicationContainer div { cursor: default;}
-
+.applicationContainer div {
+    cursor: default;
+    display: inline;
+    padding-left: 16px;
+}
 .applicationContainer span.bars {
     opacity: 0.2;
 }
@@ -429,6 +439,13 @@ input[type='button']:hover {
     margin-left: 10px;
 }
 
+#backupContents {
+    font-size: 14px;
+}
+#backupiniContainer {
+    display:none;
+}
+
 #addApplicationButton {
     width: 80px;
     margin-top: 20px;
@@ -439,20 +456,12 @@ input[type='button']:hover {
     width: 190px;
 }
 
-.example_icon {
-    position:static;
+.iconpicker {
     margin-left: 10px;
 }
 
-#saved {
-    margin-top: 20px;
-    font-size: 20px;
-    color: #000;
-    width: 150px;
-    margin-left: auto;
-    margin-right: auto;
-    text-align: center;
-    display: none;
+.removeButton {
+    margin-left: 15px;
 }
 
 .center {
@@ -464,11 +473,3 @@ input[type='button']:hover {
     display: none;
 }
 
-.modal-dialog {
-    width: 80%;
-}
-
-.applicationContainer div {
-    display:inline;
-    padding-left: 16px;
-}

@@ -1,7 +1,6 @@
 <?php
 /*
 * DO NOT CHANGE THIS FILE!
-* The settings are all in config.ini.php
 */
 
 function menuItems($config)
@@ -73,9 +72,9 @@ function frameContent($config)
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"". $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"". $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             } else {
-                $item .= "\n<li data-content=\"". $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"". $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             }
 
         }
@@ -106,14 +105,16 @@ function landingPage($config, $keyname)
     return $item;
 }
 
-function command_exist($cmd) {
+function command_exist($cmd)
+{
     $returnVal = exec("which $cmd");
     return (empty($returnVal) ? false : true);
 }
 
-function exec_enabled() {
-  $disabled = explode(', ', ini_get('disable_functions'));
-  return !in_array('exec', $disabled);
+function exec_enabled()
+{
+    $disabled = explode(', ', ini_get('disable_functions'));
+    return !in_array('exec', $disabled);
 }
 
 if (isset($_GET['landing'])) {
@@ -123,23 +124,22 @@ if (isset($_GET['landing'])) {
 }
 
 
-if (isset($_GET['get']) && $_GET['get']=='cwd') {
+if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
     echo getcwd();
     die();
 }
 
-if (isset($_GET['get']) && $_GET['get']=='gitdirectory') {
-    $gitdir = getcwd()."/.git/";
-    if(is_readable($gitdir)) {
+if (isset($_GET['get']) && $_GET['get'] == 'gitdirectory') {
+    $gitdir = getcwd() . "/.git/";
+    if (is_readable($gitdir)) {
         echo "readable";
-    }
-    else {
+    } else {
         echo "unreadable";
     }
     die();
 }
 
-if (isset($_GET['get']) && $_GET['get']=='phpini') {
+if (isset($_GET['get']) && $_GET['get'] == 'phpini') {
     $inipath = php_ini_loaded_file();
 
     if ($inipath) {
@@ -150,22 +150,16 @@ if (isset($_GET['get']) && $_GET['get']=='phpini') {
     die();
 }
 
-if (isset($_GET['get']) && $_GET['get']=='hash') {
-    if(exec_enabled()==true) {
-        if(!command_exist('git')) {
+if (isset($_GET['get']) && $_GET['get'] == 'hash') {
+    if (exec_enabled() == true) {
+        if (!command_exist('git')) {
             $hash = 'unknown';
-        }
-        else
-        {
+        } else {
             $hash = exec('git log --pretty="%H" -n1 HEAD');
         }
-    }
-    else
-    {
+    } else {
         $hash = 'noexec';
     }
     echo $hash;
     die();
 }
-
-?>
