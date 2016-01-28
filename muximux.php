@@ -4,14 +4,6 @@
 * The settings are all in config.ini.php
 */
 
-try {
-    $config = parse_ini_file('config.ini.php', true);
-} catch (Exception $e) {
-    if (!is_writable(dirname('config.ini.php-example')))
-        die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
-    else
-        copy('config.ini.php-example', 'config.ini.php');
-}
 function menuItems($config)
 {
     if (empty($standardmenu)) $standardmenu = '';

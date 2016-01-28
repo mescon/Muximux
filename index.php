@@ -5,6 +5,18 @@ function exception_error_handler($errno, $errstr, $errfile, $errline)
 }
 
 set_error_handler("exception_error_handler");
+
+try {
+    $config = parse_ini_file('config.ini.php', true);
+} catch (Exception $e) {
+    if (!is_writable(dirname('config.ini.php-example')))
+        die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
+    else {
+        copy('config.ini.php-example', 'config.ini.php');
+        $config = parse_ini_file('config.ini.php', true);
+    }
+}
+    
 try {
     include("muximux.php");
 } catch (ErrorException $ex) {
