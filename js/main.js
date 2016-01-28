@@ -79,11 +79,10 @@ jQuery(document).ready(function ($) {
      $('.main-nav').show();
      }
      }*/
-    settingsInit();
-    settingsPost();
+    settingsEventHandlers();
     resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
-    githubData();
+    getGitHubData();
     getSystemData("hash");
     getSystemData("cwd");
     getSystemData("phpini");

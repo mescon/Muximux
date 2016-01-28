@@ -23,18 +23,15 @@ function dropDownFixPosition(button, dropdown) {
     dropdown.css('left', $(window).width() - $('.drop-nav').width() - button.offset().left + "px");
 }
 
-function settingsInit() {
-    //Defaults
+function settingsEventHandlers() {
     $('#sortable').sortable();
 
+    //Anytime a radio box for default is changed it unchecks the others
     $('input[type=radio]').change(function () {
         $('input[type=radio]:checked').not(this).prop('checked', false);
     });
 
-    $('#refresh-page').click(function () {
-        location.pathname = location.pathname;
-    });
-
+    //Event Handler for show/hide instructions
     $('#showInstructions').click(function () {
         $('#instructionsContainer').slideToggle(1000);
         if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Instructions")
@@ -44,6 +41,7 @@ function settingsInit() {
 
     });
 
+    //Event Handler for show/hide changelog
     $('#showChangelog').click(function () {
         $('#changelogContainer').slideToggle(1000);
         viewChangelog();
@@ -53,6 +51,7 @@ function settingsInit() {
             $(this).html('<span class=\"fa fa-github\"></span> Show Updates');
     });
 
+    //Event Handler for backup.ini show/hide button
     if ($('#backupContents').text() != "") {
         $('.btn-container').append('<a class="btn btn-primary" id="showBackup"><span class=\"fa fa-book\"></span> Show Backup INI</a>')
         $('.btn-container').css('width','425px')
@@ -65,7 +64,7 @@ function settingsInit() {
         });
     }
 
-    //Remove Button Handler
+    //Remove sortable item button handler
     $('form').on('click', '.removeButton', function () {
         if (confirm('Are you sure?')) {
             var selectedEffect = "drop";
@@ -89,7 +88,7 @@ function settingsInit() {
 
     });
 
-    //Add new application button
+    //Add new application button handler
     $('#addApplication').click(function () {
         //Generating a random number here. So that if the user adds more than one new application at a time the ids/classes and names don't match.
         var rand = Math.floor((Math.random() * 999999) + 1);
@@ -106,7 +105,7 @@ function settingsInit() {
         initIconPicker('.' + rand + 'newApplication-value[name=' + rand + 'newApplication-icon]');
     });
 
-    //App Name Change/Addition
+    //App Name Change/Addition handler
     $('form').on('focusout', '.appName', function () {
         if ($(this).val() != "") {
             $(this).parents('.applicationContainer').removeClass('newApp');
@@ -130,30 +129,8 @@ function settingsInit() {
             $(this).parents('div.applicationContainer').attr('id', newSection);
         }
     });
-}
 
-function initIconPicker(selectedItem) {
-    $(selectedItem).iconpicker({
-        align: 'center', // Only in div tag
-        arrowClass: 'btn-danger',
-        arrowPrevIconClass: 'glyphicon glyphicon-chevron-left',
-        arrowNextIconClass: 'glyphicon glyphicon-chevron-right',
-        cols: 10,
-        footer: true,
-        header: true,
-        iconset: 'fontawesome',
-        labelHeader: '{0} of {1} pages',
-        labelFooter: '{0} - {1} of {2} icons',
-        placement: 'bottom', // Only in button tag
-        rows: 5,
-        search: true,
-        searchText: 'Search',
-        selectedClass: 'btn-success',
-        unselectedClass: ''
-    });
-}
-
-function settingsPost() {
+    //On Submit handler
     var options = {
         url: 'settings.php',
         type: 'post',
@@ -161,7 +138,7 @@ function settingsPost() {
     };
     $('#settingsSubmit').click(function (event) {
         event.preventDefault();
-        $('.newApp').remove(); //Remove new app that isn't filled out.
+        $('.newApp').remove(); //Remove any new app that isn't filled out.
         $('.checkbox,.radio').each(function () {
             if (!$(this).prop('checked')) {
                 var name = $(this).attr('name');
@@ -173,78 +150,7 @@ function settingsPost() {
     });
 }
 
-// post-submit callback
-function showResponse(responseText, statusText) {
-    if (responseText == 1)
-        location.pathname = location.pathname;
-    else
-        alert("Error!!!-" + responseText);
-}
-
-
-function datediff(latestDate) {
-    var rightNow = new Date();
-    var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
-    var test = latestDate.split('-').join('');
-    return currentDate - test;
-}
-
-function getSystemData(urlparam) { // Get values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
-    $.ajax({
-        type: "GET",
-        dataType: "text",
-        url: "muximux.php?get=" + urlparam,
-        cache: false,
-        async: true,
-        success: function (data) {
-            $('body').append('<meta id="' + urlparam + '-data">');
-            $('#' + urlparam + "-data").data({data: data});
-        }
-    })
-}
-
-function githubData() {
-    $.ajax({
-        async: true,
-        dataType: 'json',
-        url: "https://api.github.com/repos/mescon/Muximux/commits",
-        type: 'GET',
-        success: function (data) {
-            $('#gitData').data(data);
-        }
-
-    });
-}
-
-function dataStore() {
-    var json = $('#gitData').data();
-    var localversion = $("#hash-data").data()['data'];
-    var cwd = $("#cwd-data").data()['data'];
-    var phpini = $("#phpini-data").data()['data'];
-    var gitdir = $("#gitdirectory-data").data()['data'];
-    var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
-    var difference = 0;
-    for (var i in json) {
-        if (json[i].sha == localversion) {
-            difference = i;
-        }
-    }
-    var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-
-    var upstreamInformation = {
-        compareURL: compareURL,
-        differenceCommits: difference,
-        differenceDays: differenceDays,
-        latestVersion: json[0].sha,
-        localVersion: localversion,
-        gitDirectory: gitdir,
-        cwd: cwd,
-        phpini: phpini
-    };
-    return upstreamInformation;
-}
-
-
+//Takes all the data we have to generate our changelog
 function viewChangelog() {
     var output = "";
     $.ajax({
@@ -290,4 +196,100 @@ function viewChangelog() {
             $('#changelog').html(output);
         }
     });
+}
+
+//Init iconpickers
+function initIconPicker(selectedItem) {
+    $(selectedItem).iconpicker({
+        align: 'center', // Only in div tag
+        arrowClass: 'btn-danger',
+        arrowPrevIconClass: 'glyphicon glyphicon-chevron-left',
+        arrowNextIconClass: 'glyphicon glyphicon-chevron-right',
+        cols: 10,
+        footer: true,
+        header: true,
+        iconset: 'fontawesome',
+        labelHeader: '{0} of {1} pages',
+        labelFooter: '{0} - {1} of {2} icons',
+        placement: 'bottom', // Only in button tag
+        rows: 5,
+        search: true,
+        searchText: 'Search',
+        selectedClass: 'btn-success',
+        unselectedClass: ''
+    });
+}
+
+// post-submit callback function
+function showResponse(responseText, statusText) {
+    if (responseText == 1)
+        location.pathname = location.pathname;
+    else
+        alert("Error!!!-" + responseText);
+}
+
+//Gets the difference between the latest commit and the commit you are on
+function datediff(latestDate) {
+    var rightNow = new Date();
+    var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
+    var test = latestDate.split('-').join('');
+    return currentDate - test;
+}
+
+// Gets values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
+function getSystemData(urlparam) {
+    $.ajax({
+        type: "GET",
+        dataType: "text",
+        url: "muximux.php?get=" + urlparam,
+        cache: false,
+        async: true,
+        success: function (data) {
+            $('body').append('<meta id="' + urlparam + '-data">');
+            $('#' + urlparam + "-data").data({data: data});
+        }
+    })
+}
+
+//Grabs muximux repo data from github api
+function getGitHubData() {
+    $.ajax({
+        async: true,
+        dataType: 'json',
+        url: "https://api.github.com/repos/mescon/Muximux/commits",
+        type: 'GET',
+        success: function (data) {
+            $('#gitData').data(data);
+        }
+
+    });
+}
+
+//Grabs data from ajax calls that were stored on elements for later use
+function dataStore() {
+    var json = $('#gitData').data();
+    var localversion = $("#hash-data").data()['data'];
+    var cwd = $("#cwd-data").data()['data'];
+    var phpini = $("#phpini-data").data()['data'];
+    var gitdir = $("#gitdirectory-data").data()['data'];
+    var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
+    var difference = 0;
+    for (var i in json) {
+        if (json[i].sha == localversion) {
+            difference = i;
+        }
+    }
+    var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
+
+    var upstreamInformation = {
+        compareURL: compareURL,
+        differenceCommits: difference,
+        differenceDays: differenceDays,
+        latestVersion: json[0].sha,
+        localVersion: localversion,
+        gitDirectory: gitdir,
+        cwd: cwd,
+        phpini: phpini
+    };
+    return upstreamInformation;
 }
