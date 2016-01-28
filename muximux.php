@@ -115,8 +115,13 @@ function landingPage($config, $keyname)
 }
 
 function command_exist($cmd) {
-    $returnVal = shell_exec("which $cmd");
+    $returnVal = exec("which $cmd");
     return (empty($returnVal) ? false : true);
+}
+
+function exec_enabled() {
+  $disabled = explode(', ', ini_get('disable_functions'));
+  return !in_array('exec', $disabled);
 }
 
 if (isset($_GET['landing'])) {
@@ -125,11 +130,47 @@ if (isset($_GET['landing'])) {
     die();
 }
 
-if (isset($_GET['git']) && $_GET['git']=='gethash') {
-    if(!command_exist('git')) {
-        $hash = 'unknown';
+
+if (isset($_GET['get']) && $_GET['get']=='cwd') {
+    echo getcwd();
+    die();
+}
+
+if (isset($_GET['get']) && $_GET['get']=='gitdirectory') {
+    $gitdir = getcwd()."/.git/";
+    if(is_readable($gitdir)) {
+        echo "readable";
+    }
+    else {
+        echo "unreadable";
+    }
+    die();
+}
+
+if (isset($_GET['get']) && $_GET['get']=='phpini') {
+    $inipath = php_ini_loaded_file();
+
+    if ($inipath) {
+        echo $inipath;
     } else {
-        $hash = shell_exec('git log --pretty="%H" -n1 HEAD');
+        echo 'php.ini';
+    }
+    die();
+}
+
+if (isset($_GET['get']) && $_GET['get']=='hash') {
+    if(exec_enabled()==true) {
+        if(!command_exist('git')) {
+            $hash = 'unknown';
+        }
+        else
+        {
+            $hash = exec('git log --pretty="%H" -n1 HEAD');
+        }
+    }
+    else
+    {
+        $hash = 'noexec';
     }
     echo $hash;
     die();
