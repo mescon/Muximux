@@ -84,10 +84,10 @@ jQuery(document).ready(function ($) {
     resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
     githubData();
-    getLocalVersion("hash");
-    getLocalVersion("cwd");
-    getLocalVersion("phpini");
-    getLocalVersion("gitdirectory");
+    getSystemData("hash");
+    getSystemData("cwd");
+    getSystemData("phpini");
+    getSystemData("gitdirectory");
     //hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
 
@@ -268,7 +268,7 @@ function datediff(latestDate) {
     return currentDate - test;
 }
 
-function getLocalVersion(urlparam) {
+function getSystemData(urlparam) { // Get values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
     $.ajax({ type: "GET",
         dataType: "text",
         url: "muximux.php?get=" + urlparam,
@@ -294,7 +294,7 @@ function githubData() {
     });
 }
 
-function checkVersion() {
+function dataStore() {
     var json = $('#gitData').data();
     var localversion = $("#hash-data").data()['data'];
     var cwd = $("#cwd-data").data()['data'];
@@ -332,28 +332,28 @@ function viewChangelog() {
 
             var json = $.parseJSON(data);
             var status = "<strong>up to date!</strong>";
-            if(checkVersion().differenceCommits < 0) {
-                status = "<strong>" + checkVersion().differenceCommits + " commits ahead!</strong>";
+            if(dataStore().differenceCommits < 0) {
+                status = "<strong>" + dataStore().differenceCommits + " commits ahead!</strong>";
             }
-            if(checkVersion().differenceCommits > 0) {
-                status = "<strong>" + checkVersion().differenceCommits + " commits behind!</strong>";
+            if(dataStore().differenceCommits > 0) {
+                status = "<strong>" + dataStore().differenceCommits + " commits behind!</strong>";
             }
-            if(!(checkVersion().gitDirectory=="readable") && (checkVersion().localVersion == "unknown") ) {
+            if(!(dataStore().gitDirectory=="readable") && (dataStore().localVersion == "unknown") ) {
                 status = "running an <strong>unknown version</strong>.<br/>We can read the <code>.git</directory> to see what version you are using, but we were unable to find the <code>git</code> command.";
             }
-            if(checkVersion().localVersion == "noexec") {
-                status = "not allowing Muximux to run the <code>git</code> command to check what version you're on.<br/>Either you can set <code>safe_mode_exec_dir "+ checkVersion().cwd +"</code>, <strong>or</strong> you can set <code>safe_mode = off</code> inside your <code>"+ checkVersion().phpini +"</code> file.";
+            if(dataStore().localVersion == "noexec") {
+                status = "not allowing Muximux to run the <code>git</code> command to check what version you're on.<br/>Either you can set <code>safe_mode_exec_dir "+ dataStore().cwd +"</code>, <strong>or</strong> you can set <code>safe_mode = off</code> inside your <code>"+ dataStore().phpini +"</code> file.";
             }
-            if(!(checkVersion().gitDirectory=="readable") && (checkVersion().localVersion == "noexec") ) {
-                status+= "<br>Also, the <code>"+ checkVersion().cwd +"/.git/</code> directory is not readable. Please make sure that the directory can be read by your webserver.";
+            if(!(dataStore().gitDirectory=="readable") && (dataStore().localVersion == "noexec") ) {
+                status+= "<br>Also, the <code>"+ dataStore().cwd +"/.git/</code> directory is not readable. Please make sure that the directory can be read by your webserver.";
             }
 
             output="<p>Your install is currently "+ status +"<br/>";
-            if(checkVersion().differenceCommits > 0) {
-                output+= "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\" target=\"_blank\">here</a>.</p>";
+            if(dataStore().differenceCommits > 0) {
+                output+= "The changes from your version to the latest version can be read <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">here</a>.</p>";
             }
 
-            output+="<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
+            output+="<p>The latest update to Muximux was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
             output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
             for (var i in json) {
                 var shortCommitID = json[i].sha.substring(0, 7);
