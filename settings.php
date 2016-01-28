@@ -11,7 +11,7 @@ require __DIR__ . '/vendor/autoload.php';
 if (sizeof($_POST) > 0){
     write_ini();
     $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
-    $file = "settings.ini.php"; // the file to which $cache_new gets prepended
+    $file = "config.ini.php"; // the file to which $cache_new gets prepended
 
     $handle = fopen($file, "r+");
     $len = strlen($cache_new);
@@ -36,9 +36,9 @@ else
 
 function write_ini()
 {
-    unlink('settings.ini.php');
+    unlink('config.ini.php');
 
-    $config = new Config_Lite('settings.ini.php');
+    $config = new Config_Lite('config.ini.php');
     foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('-', $parameter);
         if ($value == "on")
@@ -58,7 +58,7 @@ function write_ini()
 
 function parse_ini()
 {
-    $config = new Config_Lite('settings.ini.php');
+    $config = new Config_Lite('config.ini.php');
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";

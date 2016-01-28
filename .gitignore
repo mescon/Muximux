@@ -5,5 +5,3 @@ tmp/
 pydio/
 phpmyadmin/
 *.idea
-settings.ini.php
-backup.ini.php
