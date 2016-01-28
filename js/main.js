@@ -83,6 +83,8 @@ jQuery(document).ready(function ($) {
     settingsPost();
     resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
+    githubData();
+    getLocalVersion();
     //hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
 
@@ -154,10 +156,10 @@ function settingsInit() {
     };
 
     //Fix for iconpicker. For some reason the arrow doesn't get disabled when it hits the minimum/maximum page number. This disables the button, so that it doesnt go into the negatives or pages above its max.
-    $('body').on('click','.btn-arrow',function(event){
+    $('body').on('click', '.btn-arrow', function (event) {
         event.preventDefault();
-        if($(this).hasClass('disabled'))
-            $(this).attr('disabled','disabled');
+        if ($(this).hasClass('disabled'))
+            $(this).attr('disabled', 'disabled');
         else
             $('.btn-arrow').removeAttr('disabled');
 
@@ -171,18 +173,18 @@ function settingsInit() {
             '<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' +
             '<div><label>Name:</label><input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
             '<div><label>URL:</label><input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
-            '<div><label>Icon:</label><button class=\"'+rand+'newApplication-value iconpicker btn btn-default\" name="'+rand+'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
-            '<div><label for="'+rand+'newApplication-enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-enabled" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
-            '<div><label for="'+rand+'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
-            '<div><label for="'+rand+'newApplication-landingpage">Enable landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
-            '<div><label for="'+rand+'newApplication-dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-dd" name="newApplication-dd" type="checkbox"></div>' +
+            '<div><label>Icon:</label><button class=\"' + rand + 'newApplication-value iconpicker btn btn-default\" name="' + rand + 'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
+            '<div><label for="' + rand + 'newApplication-enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-enabled" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
+            '<div><label for="' + rand + 'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
+            '<div><label for="' + rand + 'newApplication-landingpage">Enable landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
+            '<div><label for="' + rand + 'newApplication-dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-dd" name="newApplication-dd" type="checkbox"></div>' +
             '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove-' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
-        initIconPicker('.'+rand+'newApplication-value[name='+rand+'newApplication-icon]');
+        initIconPicker('.' + rand + 'newApplication-value[name=' + rand + 'newApplication-icon]');
     });
 
     //App Name Change/Addition
     $('form').on('focusout', '.appName', function () {
-        if($(this).val() != "") {
+        if ($(this).val() != "") {
             $(this).parents('.applicationContainer').removeClass('newApp');
             var section = $(this).attr('was');
             if (section == undefined) {
@@ -206,7 +208,7 @@ function settingsInit() {
     });
 }
 
-function initIconPicker(selectedItem){
+function initIconPicker(selectedItem) {
     $(selectedItem).iconpicker({
         align: 'center', // Only in div tag
         arrowClass: 'btn-danger',
@@ -257,96 +259,98 @@ function showResponse(responseText, statusText) {
 
 
 function datediff(latestDate) {
-  var rightNow = new Date();
-  var currentDate = rightNow.toISOString().substring(0,10).split('-').join('');
-  var test = latestDate.split('-').join('');
-  return currentDate-test;
+    var rightNow = new Date();
+    var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
+    var test = latestDate.split('-').join('');
+    return currentDate - test;
 }
 
 function getLocalVersion() {
-  var response = $.ajax({ type: "GET",
-                          dataType: "text",
-                          url: "index.php?git=gethash",
-                          cache: false,
-                          async: false
-                        }).responseText;
-  return response;
+    return $.ajax({
+        type: "GET",
+        dataType: "text",
+        url: "muximux.php",
+        data: {git: 'gethash'},
+        cache: false,
+        async: true,
+        success: function (data) {
+            $('#versionText').data({id: data});
+        }
+    });
+
 }
 
 function githubData() {
-  var result="";
-  $.ajax({
-      async: false,
-      dataType: 'json',
-      url: "https://api.github.com/repos/mescon/Muximux/commits",
-      type: 'GET',
-        success: function(data) {
-          result = data;
-          }
+    $.ajax({
+        async: true,
+        dataType: 'json',
+        url: "https://api.github.com/repos/mescon/Muximux/commits",
+        type: 'GET',
+        success: function (data) {
+            $('#gitData').data(data);
+        }
 
-  });
-  return result;
+    });
 }
 
 function checkVersion() {
-  var json = githubData();
-  var localversion = getLocalVersion();
-  var compareURL = "https://github.com/mescon/Muximux/compare/" + getLocalVersion() + "..." + json[0].sha;
-  var difference = 0;
-  for (var i in json)
-  {
-    if(json[i].sha == localversion) {
-      difference = i;
+    var json = $('#gitData').data();
+    var localversion = $('#versionText').data()['id'];
+    var compareURL = "https://github.com/mescon/Muximux/compare/" + $('#versionText').data()['id']; + "..." + json[0].sha;
+    var difference = 0;
+    for (var i in json) {
+        if (json[i].sha == localversion) {
+            difference = i;
+        }
     }
-  }
-  var differenceDays = datediff(json[0].commit.author.date.substring(0,10));
+    var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
 
-  var upstreamInformation = { compareURL: compareURL,
-                        differenceCommits: difference,
-                        differenceDays: differenceDays,
-                        latestVersion: json[0].sha,
-                        localVersion: localversion }
-  return upstreamInformation;
+    return {
+        compareURL: compareURL,
+        differenceCommits: difference,
+        differenceDays: differenceDays,
+        latestVersion: json[0].sha,
+        localVersion: localversion
+    };
 }
 
 function viewChangelog() {
-    var output="";
-  $.ajax({
-    url: "https://api.github.com/repos/mescon/Muximux/commits",
-    //force to handle it as text
-    dataType: "text",
-      success: function(data) {
+    var output = "";
+    $.ajax({
+        url: "https://api.github.com/repos/mescon/Muximux/commits",
+        //force to handle it as text
+        dataType: "text",
+        success: function (data) {
 
-        var json = $.parseJSON(data);
-        var status = "up to date!";
-        if(checkVersion().differenceCommits < 0) {
-            status = checkVersion().differenceCommits + " commits ahead!";
-        }
-        if(checkVersion().differenceCommits > 0) {
-            status = checkVersion().differenceCommits + " commits behind!";
-        }
-        if(checkVersion().localVersion == "unknown") {
-            status = "running an unknown version.<br/>To enable this functionality, please install Muximux by typing <code>git clone https://github.com/mescon/Muximux</code> in your terminal.<br/>Please read the full <a href=\"https://github.com/mescon/Muximux#setup\" target=\"_blank\">setup instructions</a>.";
-        }
+            var json = $.parseJSON(data);
+            var status = "up to date!";
+            if (checkVersion().differenceCommits < 0) {
+                status = checkVersion().differenceCommits + " commits ahead!";
+            }
+            if (checkVersion().differenceCommits > 0) {
+                status = checkVersion().differenceCommits + " commits behind!";
+            }
+            if (checkVersion().localVersion == "unknown") {
+                status = "running an unknown version.<br/>To enable this functionality, please install Muximux by typing <code>git clone https://github.com/mescon/Muximux</code> in your terminal.<br/>Please read the full <a href=\"https://github.com/mescon/Muximux#setup\" target=\"_blank\">setup instructions</a>.";
+            }
 
-        output="<p>Your version is currently <strong>"+ status +"</strong><br/>";
-        if(checkVersion().differenceCommits > 0) {
-            output+= "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\" target=\"_blank\">here</a>.</p>";
+            output = "<p>Your version is currently <strong>" + status + "</strong><br/>";
+            if (checkVersion().differenceCommits > 0) {
+                output += "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\" target=\"_blank\">here</a>.</p>";
+            }
+
+            output += "<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
+            output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
+            for (var i in json) {
+                var shortCommitID = json[i].sha.substring(0, 7);
+                var shortComments = json[i].commit.message.substring(0, 220).replace(/$/, "") + "...";
+                var shortDate = json[i].commit.author.date.substring(0, 10);
+
+                output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
+
+            }
+            output += "</ul>";
+            $('#changelog').html(output);
         }
-
-        output+="<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
-        output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
-        for (var i in json)
-        {
-          var shortCommitID = json[i].sha.substring(0,7);
-          var shortComments = json[i].commit.message.substring(0,220).replace(/$/, "") + "...";
-          var shortDate = json[i].commit.author.date.substring(0,10);
-
-          output+="<li><pre>"+ shortDate +" <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
-
-        }
-        output+= "</ul>";
-        $('#changelog').html(output);
-      }
-  });
+    });
 }
