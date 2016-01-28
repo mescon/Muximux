@@ -84,7 +84,10 @@ jQuery(document).ready(function ($) {
     resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
     githubData();
-    getLocalVersion();
+    getLocalVersion("hash");
+    getLocalVersion("cwd");
+    getLocalVersion("phpini");
+    getLocalVersion("gitdirectory");
     //hideDropdownMenu(); // Check if we should hide the dropdown menu
 });
 
@@ -265,19 +268,17 @@ function datediff(latestDate) {
     return currentDate - test;
 }
 
-function getLocalVersion() {
-    return $.ajax({
-        type: "GET",
+function getLocalVersion(urlparam) {
+    $.ajax({ type: "GET",
         dataType: "text",
-        url: "muximux.php",
-        data: {git: 'gethash'},
+        url: "muximux.php?get=" + urlparam,
         cache: false,
         async: true,
         success: function (data) {
-            $('#versionText').data({id: data});
+            $('body').append('<meta id="'+urlparam+'-data">');
+            $('#'+urlparam+"-data").data({data: data});
         }
-    });
-
+    })
 }
 
 function githubData() {
@@ -295,24 +296,31 @@ function githubData() {
 
 function checkVersion() {
     var json = $('#gitData').data();
-    var localversion = $('#versionText').data()['id'];
-    var compareURL = "https://github.com/mescon/Muximux/compare/" + $('#versionText').data()['id']; + "..." + json[0].sha;
+    var localversion = $("#hash-data").data()['data'];
+    var cwd = $("#cwd-data").data()['data'];
+    var phpini = $("#phpini-data").data()['data'];
+    var gitdir = $("#gitdirectory-data").data()['data'];
+    var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
-    for (var i in json) {
-        if (json[i].sha == localversion) {
+    for (var i in json)
+    {
+        if(json[i].sha == localversion) {
             difference = i;
         }
     }
-    var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
+    var differenceDays = datediff(json[0].commit.author.date.substring(0,10));
 
-    return {
-        compareURL: compareURL,
+    var upstreamInformation = { compareURL: compareURL,
         differenceCommits: difference,
         differenceDays: differenceDays,
         latestVersion: json[0].sha,
-        localVersion: localversion
-    };
+        localVersion: localversion,
+        gitDirectory: gitdir,
+        cwd: cwd,
+        phpini: phpini };
+    return upstreamInformation;
 }
+
 
 function viewChangelog() {
     var output = "";
@@ -323,24 +331,30 @@ function viewChangelog() {
         success: function (data) {
 
             var json = $.parseJSON(data);
-            var status = "up to date!";
-            if (checkVersion().differenceCommits < 0) {
-                status = checkVersion().differenceCommits + " commits ahead!";
+            var status = "<strong>up to date!</strong>";
+            if(checkVersion().differenceCommits < 0) {
+                status = "<strong>" + checkVersion().differenceCommits + " commits ahead!</strong>";
             }
-            if (checkVersion().differenceCommits > 0) {
-                status = checkVersion().differenceCommits + " commits behind!";
+            if(checkVersion().differenceCommits > 0) {
+                status = "<strong>" + checkVersion().differenceCommits + " commits behind!</strong>";
             }
-            if (checkVersion().localVersion == "unknown") {
-                status = "running an unknown version.<br/>To enable this functionality, please install Muximux by typing <code>git clone https://github.com/mescon/Muximux</code> in your terminal.<br/>Please read the full <a href=\"https://github.com/mescon/Muximux#setup\" target=\"_blank\">setup instructions</a>.";
+            if(!(checkVersion().gitDirectory=="readable") && (checkVersion().localVersion == "unknown") ) {
+                status = "running an <strong>unknown version</strong>.<br/>We can read the <code>.git</directory> to see what version you are using, but we were unable to find the <code>git</code> command.";
+            }
+            if(checkVersion().localVersion == "noexec") {
+                status = "not allowing Muximux to run the <code>git</code> command to check what version you're on.<br/>Either you can set <code>safe_mode_exec_dir "+ checkVersion().cwd +"</code>, <strong>or</strong> you can set <code>safe_mode = off</code> inside your <code>"+ checkVersion().phpini +"</code> file.";
+            }
+            if(!(checkVersion().gitDirectory=="readable") && (checkVersion().localVersion == "noexec") ) {
+                status+= "<br>Also, the <code>"+ checkVersion().cwd +"/.git/</code> directory is not readable. Please make sure that the directory can be read by your webserver.";
             }
 
-            output = "<p>Your version is currently <strong>" + status + "</strong><br/>";
-            if (checkVersion().differenceCommits > 0) {
-                output += "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\" target=\"_blank\">here</a>.</p>";
+            output="<p>Your install is currently "+ status +"<br/>";
+            if(checkVersion().differenceCommits > 0) {
+                output+= "The changes from your version to the latest version can be read <a href=\"" + checkVersion().compareURL + "\" target=\"_blank\">here</a>.</p>";
             }
 
-            output += "<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
-            output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
+            output+="<p>The latest update to Muximux was uploaded to Github " + checkVersion().differenceDays + " days ago.</p>";
+            output+="<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
             for (var i in json) {
                 var shortCommitID = json[i].sha.substring(0, 7);
                 var shortComments = json[i].commit.message.substring(0, 220).replace(/$/, "") + "...";
