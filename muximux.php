@@ -1,16 +1,19 @@
 <?php
 /*
 * DO NOT CHANGE THIS FILE!
-* The settings are all in config.ini.php
+* The settings are all in settings.ini.php
 */
-
+if(file_exists('config.ini.php')){
+    copy('config.ini.php','backup.ini.php');
+    unlink('config.ini.php');
+}
 try {
-    $config = parse_ini_file('config.ini.php', true);
+    $config = parse_ini_file('settings.ini.php', true);
 } catch (Exception $e) {
-    if (!is_writable(dirname('config.ini.php-example')))
+    if (!is_writable(dirname('settings.ini.php-example')))
         die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
     else
-        copy('config.ini.php-example', 'config.ini.php');
+        copy('settings.ini.php-example', 'settings.ini.php');
 }
 function menuItems($config)
 {
@@ -175,5 +178,3 @@ if (isset($_GET['get']) && $_GET['get']=='hash') {
     echo $hash;
     die();
 }
-
-?>
