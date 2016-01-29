@@ -362,9 +362,8 @@ input[type='button']:hover {
     display: inline-block;
 }
 
-.btn-container {
-    width: 280px;
-    margin: 0px auto 15px auto;
+.btn-group {
+    margin-bottom: 15px;
 }
 
 .modal {
