@@ -1,43 +1,5 @@
 <?php
-define('CONFIG', 'settings.ini.php');
-define('CONFIGEXAMPLE', 'settings.ini.php-example');
-require __DIR__ . '/vendor/autoload.php';
-
-function exception_error_handler($errno, $errstr, $errfile, $errline)
-{
-    throw new ErrorException($errstr, $errno, 0, $errfile, $errline);
-}
-
-set_error_handler("exception_error_handler");
-
-if (file_exists('config.ini.php')) {
-    copy('config.ini.php', 'backup.ini.php');
-    unlink('config.ini.php');
-    $upgrade = true;
-} else
-    $upgrade = false;
-
-try {
-    $config = parse_ini_file(CONFIG, true);
-} catch (Exception $e) {
-    if (!is_writable(dirname('settings.ini.php-example')))
-        die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
-    else {
-        copy(CONFIGEXAMPLE, CONFIG);
-        $config = parse_ini_file(CONFIG, true);
-    }
-}
-
-try {
-    include_once("muximux.php");
-} catch (ErrorException $ex) {
-    exit("Unable to load muximux.php.");
-}
-try {
-    include_once("settings.php");
-} catch (ErrorException $ex) {
-    exit("Unable to load settings.php.");
-}
+require 'muximux.php';
 ?><!doctype html>
 <!--[if lt IE 7]>
 <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
@@ -62,7 +24,7 @@ try {
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script>
-    <title><?php echo getTitle($config); ?></title>
+    <title><?php echo getTitle(); ?></title>
 </head>
 
 <body>
@@ -72,10 +34,10 @@ try {
 <![endif]-->
 
 <div class="cd-tabs">
-    <?php echo menuItems($config); ?>
+    <?php echo menuItems(); ?>
 
     <ul class="cd-tabs-content">
-        <?php echo frameContent($config); ?>
+        <?php echo frameContent(); ?>
     </ul>
 </div>
 <!-- Modal -->

@@ -129,7 +129,7 @@ function settingsEventHandlers() {
 
     //On Submit handler
     var options = {
-        url: 'settings.php',
+        url: 'muximux.php',
         type: 'post',
         success: showResponse
     };
