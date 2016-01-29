@@ -51,7 +51,7 @@ function settingsEventHandlers() {
     //Event Handler for backup.ini show/hide button
     if ($('#backupContents').text() != "") {
         $('.btn-group').append('<a class="btn btn-primary" id="showBackup"><span class=\"fa fa-book\"></span> Show Backup INI</a>')
-        $('.btn-group').css('width','425px')
+        $('.btn-group').css('width', '425px')
         $('#showBackup').click(function () {
             $('#backupiniContainer').slideToggle(1000);
             if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Backup INI")
@@ -234,18 +234,22 @@ function datediff(latestDate) {
 }
 
 // Gets values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
-function getSystemData(urlparam) {
-    $.ajax({
-        type: "GET",
-        dataType: "text",
-        url: "muximux.php?get=" + urlparam,
-        cache: false,
-        async: true,
-        success: function (data) {
-            $('body').append('<meta id="' + urlparam + '-data">');
-            $('#' + urlparam + "-data").data({data: data});
-        }
-    })
+function getSystemData(commands) {
+    var i = 0;
+    for (var len = commands.length; i < len; i++) {
+        $.ajax({
+            type: "GET",
+            dataType: "text",
+            indexValue: i,
+            url: "muximux.php?get=" + commands[i],
+            cache: false,
+            async: true,
+            success: function (data) {
+                $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
+                $('#' + commands[this.indexValue] + "-data").data({data: data});
+            }
+        })
+    }
 }
 
 //Grabs muximux repo data from github api

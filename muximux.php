@@ -133,8 +133,7 @@ function parse_ini()
     }
     $pageOutput .= "</div><div class='center' id='addApplicationButton'>
                     <button type='button' class='btn btn-primary btn-md' id='addApplication'>Add new</button>
-                    </form></div>
-                    <meta id='gitData'><meta id='versionText'>";
+                    </form></div>";
     return $pageOutput;
 }
 

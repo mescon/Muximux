@@ -131,7 +131,7 @@ require 'muximux.php';
             <button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
         </div>
     </div>
-
+</div>
 
     <script src="js/jquery-2.2.0.min.js"></script>
     <script src="js/jquery-ui.min.js"></script>
@@ -142,5 +142,6 @@ require 'muximux.php';
     <script type="text/javascript" src="js/main.js"></script>
     <script type="text/javascript" src="js/functions.js"></script>
     <?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
+    <meta id='gitData'>
 </body>
 </html>
