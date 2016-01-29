@@ -65,7 +65,7 @@ function parse_ini()
         "<input type='hidden' class='settings-value' name='settings-name' value='Settings'>" .
         "<input type='hidden' class='settings-value' name='settings-url' value='settings.php'>" .
         "<input type='hidden' class='settings-value' name='settings-landingpage' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-server'>" .
+        "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-cog'>" .
         "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
 
     $pageOutput .= "<div id='sortable'>";
