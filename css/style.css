@@ -450,10 +450,7 @@ input[type='button']:hover {
     margin-top: 20px;
     margin-bottom: 10px;
 }
-#removeINIContainer {
-    margin: 0px auto 0px auto;
-    width: 100px;
-}
+
 .saveApp {
     width: 190px;
 }

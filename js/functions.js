@@ -50,8 +50,8 @@ function settingsEventHandlers() {
 
     //Event Handler for backup.ini show/hide button
     if ($('#backupContents').text() != "") {
-        $('.btn-group').append('<a class="btn btn-primary" id="showBackup"><span class=\"fa fa-book\"></span> Show Backup INI</a>')
-        $('.btn-group').css('width', '425px')
+        $('#topButtons').append('<a class="btn btn-primary" id="showBackup"><span class=\"fa fa-book\"></span> Show Backup INI</a>')
+        $('#topButtons').css('width', '425px')
         $('#showBackup').click(function () {
             $('#backupiniContainer').slideToggle(1000);
             if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Backup INI")
@@ -97,7 +97,7 @@ function settingsEventHandlers() {
                 if(data == "deleted");
                 $('#backupiniContainer').toggle(1000);
                 $('#showBackup').remove();
-                $('.btn-group').css('width','280px')
+                $('#topButtons').css('width','280px')
             }
 
         });

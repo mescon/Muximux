@@ -131,14 +131,14 @@ function parse_ini()
             $pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
         }
     }
-    $pageOutput .= "</div><div class='center' id='addRemoveContainer'>
-                    <button type='button' class='btn btn-primary btn-md' id='addApplication'>Add new</button>
-                    <button type='button' class='btn btn-primary btn-md' id='removeAll'>Remove All</button>
-                    </form></div>";
+    $pageOutput .= "</div>
+    <div class='text-center' style='margin-top: 15px;'>
+    <div class='btn-group' role='group' aria-label='Buttons'>
+                    <a class='btn btn-primary btn-md' id='addApplication'><span class='fa fa-plus'></span> Add new</a>
+                    <a class='btn btn-danger btn-md' id='removeAll'><span class='fa fa-trash'></span> Remove all</a>
+                    </div></div></form>";
     return $pageOutput;
 }
-
-
 
 
 function menuItems()

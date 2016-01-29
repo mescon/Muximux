@@ -52,7 +52,7 @@ require 'muximux.php';
             </div>
             <div class="modal-body">
                 <div class="text-center">
-                    <div class="btn-group" role="group" aria-label="Buttons">
+                    <div class="btn-group" role="group" aria-label="Buttons" id="topButtons">
                         <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show
                             Instructions</a>
                         <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show
@@ -93,8 +93,11 @@ require 'muximux.php';
                     <div id="changelog"></div>
                 </div>
                 <div id="backupiniContainer" class="alert alert-warning">
-                    <h3 style="text-align:center;">Backup.ini.php Contents</h3>
-                    <div id="removeINIContainer"><button type="button" class="btn btn-primary" id="removeBackup">Remove Backup INI</button></div>
+                    <h3>backup.ini.php Contents</h3>
+                    <div class="text-center">
+                        <a class="btn btn-danger" id="removeBackup"><span class="fa fa-trash"></span> Remove backup.ini.php</a>
+                    </div>
+                    <hr/>
                     <div id="backupContents"><?php if (file_exists('backup.ini.php')) echo nl2br(file_get_contents('backup.ini.php')); ?></div>
                 </div>
 
