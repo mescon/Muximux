@@ -93,7 +93,8 @@ require 'muximux.php';
                     <div id="changelog"></div>
                 </div>
                 <div id="backupiniContainer" class="alert alert-warning">
-                    <h3>Backup.ini.php Contents</h3>
+                    <h3 style="text-align:center;">Backup.ini.php Contents</h3>
+                    <div id="removeINIContainer"><button type="button" class="btn btn-primary" id="removeBackup">Remove Backup INI</button></div>
                     <div id="backupContents"><?php if (file_exists('backup.ini.php')) echo nl2br(file_get_contents('backup.ini.php')); ?></div>
                 </div>
 
@@ -133,15 +134,15 @@ require 'muximux.php';
     </div>
 </div>
 
-    <script src="js/jquery-2.2.0.min.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <script src="js/jquery.form.min.js"></script>
-    <script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>
-    <script type="text/javascript" src="js/bootstrap-iconpicker.min.js"></script>
-    <script type="text/javascript" src="js/main.js"></script>
-    <script type="text/javascript" src="js/functions.js"></script>
-    <?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
-    <meta id='gitData'>
+<script src="js/jquery-2.2.0.min.js"></script>
+<script src="js/jquery-ui.min.js"></script>
+<script src="js/jquery.form.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>
+<script type="text/javascript" src="js/bootstrap-iconpicker.min.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
+<script type="text/javascript" src="js/functions.js"></script>
+<?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
+<meta id='gitData'>
 </body>
 </html>

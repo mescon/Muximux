@@ -128,11 +128,12 @@ function parse_ini()
                 }
             }
 
-            $pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>"; //Put this back to the left when ajax is ready -- <input type='button' class='saveButton' value='Save' id='save-" . $section . "'>
+            $pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
         }
     }
-    $pageOutput .= "</div><div class='center' id='addApplicationButton'>
+    $pageOutput .= "</div><div class='center' id='addRemoveContainer'>
                     <button type='button' class='btn btn-primary btn-md' id='addApplication'>Add new</button>
+                    <button type='button' class='btn btn-primary btn-md' id='removeAll'>Remove All</button>
                     </form></div>";
     return $pageOutput;
 }
@@ -299,5 +300,11 @@ if (isset($_GET['get']) && $_GET['get'] == 'hash') {
         $hash = 'noexec';
     }
     echo $hash;
+    die();
+}
+
+if(isset($_GET['remove']) && $_GET['remove'] == "backup") {
+    unlink('backup.ini.php');
+    echo "deleted";
     die();
 }

@@ -61,6 +61,23 @@ function settingsEventHandlers() {
         });
     }
 
+    //Remove all event handler
+    $('#removeAll').click(function () {
+        if (confirm('Are you sure?')) {
+            var selectedEffect = "drop";
+            var options = {};
+            var time = 100;
+            $(this).parents('form').children('#sortable').children().each(function () {
+                var that = $(this);
+                setTimeout(function () {
+                    that.effect(selectedEffect, options, 500, removeCallback(that))
+                }, time);
+                time = time + 100;
+            });
+            $('#addApplication').click();
+        }
+    });
+
     //Remove sortable item button handler
     $('form').on('click', '.removeButton', function () {
         if (confirm('Are you sure?')) {
@@ -69,6 +86,23 @@ function settingsEventHandlers() {
             $($(this).parents('.applicationContainer')).effect(selectedEffect, options, 500, removeCallback($(this).parents('.applicationContainer')));
         }
     });
+
+    $('#removeBackup').click(function(){
+        $.ajax({
+            async: true,
+            url: "muximux.php",
+            type: 'GET',
+            data: {remove: "backup"},
+            success: function (data) {
+                if(data == "deleted");
+                $('#backupiniContainer').toggle(1000);
+                $('#showBackup').remove();
+                $('.btn-group').css('width','280px')
+            }
+
+        });
+    });
+
     function removeCallback(selectedElement) {
         setTimeout(function () {
             $(selectedElement).remove();
