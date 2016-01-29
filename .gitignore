@@ -1,6 +1,7 @@
 # Do not submit or pull configuration settings when interacting with GitHub.
 config.ini.php
 settings.ini.php
+backup.ini.php
 test.php
 tmp/
 pydio/
