@@ -15,9 +15,7 @@ if (file_exists('config.ini.php')) {
     $upgrade = false;
 }
 
-try {
-    $config = parse_ini_file(CONFIG, true);
-} catch (Exception $e) {
+if(!file_exists(CONFIG)){
     if (!is_writable(dirname('settings.ini.php-example')))
         die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
     else {
