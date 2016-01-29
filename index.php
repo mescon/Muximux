@@ -89,11 +89,13 @@ try {
                 <div class="modal-title"><h1>Settings</h1></div>
             </div>
             <div class="modal-body">
-                <div class="btn-container" role="group" aria-label="Buttons">
-                    <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show
-                        Instructions</a>
-                    <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show
-                        Updates</a>
+                <div class="text-center">
+                    <div class="btn-group" role="group" aria-label="Buttons">
+                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show
+                            Instructions</a>
+                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show
+                            Updates</a>
+                    </div>
                 </div>
 
                 <div id="instructionsContainer" class="alert alert-info">
