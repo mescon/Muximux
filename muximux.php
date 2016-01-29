@@ -1,7 +1,6 @@
 <?php
 /*
 * DO NOT CHANGE THIS FILE!
-* AND DON'T PUT A COPYRIGHT ON IT EITHER *couch* CauseFX *cough*
 */
 define('CONFIG', 'settings.ini.php');
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
