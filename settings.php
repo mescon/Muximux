@@ -1,9 +1,5 @@
 <?php
 /**
- * Created by PhpStorm.
- * User: synik
- * Date: 1/18/2016
- * Time: 9:19 PM
  * Hello CauseFX - don't touch please!
  */
 

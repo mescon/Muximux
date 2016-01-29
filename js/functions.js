@@ -1,6 +1,3 @@
-/**
- * Created by CJones on 1/28/2016.
- */
 function checkScrolling(tabs) {
     var totalTabWidth = parseInt(tabs.children('.cd-tabs-navigation').width()),
         tabsViewport = parseInt(tabs.width());
