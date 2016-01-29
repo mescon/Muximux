@@ -6,13 +6,6 @@ define('CONFIG', 'settings.ini.php');
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
 require __DIR__ . '/vendor/autoload.php';
 
-// First what we're gonna do - save or read
-if (sizeof($_POST) > 0) {
-    write_ini();
-} else {
-    parse_ini();
-}
-
 // Check if this is an old installation that needs upgrading.
 if (file_exists('config.ini.php')) {
     copy('config.ini.php', 'backup.ini.php');
@@ -21,6 +14,24 @@ if (file_exists('config.ini.php')) {
 } else {
     $upgrade = false;
 }
+
+try {
+    $config = parse_ini_file(CONFIG, true);
+} catch (Exception $e) {
+    if (!is_writable(dirname('settings.ini.php-example')))
+        die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
+    else {
+        copy(CONFIGEXAMPLE, CONFIG);
+    }
+}
+
+// First what we're gonna do - save or read
+if (sizeof($_POST) > 0) {
+    write_ini();
+} else {
+    parse_ini();
+}
+
 
 
 function write_ini()
