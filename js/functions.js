@@ -66,13 +66,13 @@ function settingsEventHandlers() {
         if (confirm('Are you sure?')) {
             var selectedEffect = "drop";
             var options = {};
-            var time = 100;
-            $(this).parents('form').children('#sortable').children().each(function () {
+            var time = 150;
+            $(this).parents('form').children('#sortable').children().reverse().each(function () {
                 var that = $(this);
                 setTimeout(function () {
-                    that.effect(selectedEffect, options, 500, removeCallback(that))
+                    that.effect(selectedEffect, options, 150, removeCallback(that))
                 }, time);
-                time = time + 100;
+                time = time + 150;
             });
             $('#addApplication').click();
         }

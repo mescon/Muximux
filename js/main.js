@@ -71,7 +71,7 @@ jQuery(document).ready(function ($) {
     $('.main-nav').hover(function () {
         dropDownFixPosition($('.main-nav'), $('.drop-nav'));
     });
-
+    jQuery.fn.reverse = [].reverse;
     /*function hideDropdownMenu() {
      if($(window).width() < 1024) {
      $('.main-nav').hide();
