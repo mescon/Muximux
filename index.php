@@ -16,11 +16,10 @@ require 'muximux.php';
     <meta name="description" content="Muximux - Application Management Console">
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"
-          integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Bootstrap 3.3.6 -->
     <link rel="stylesheet" href="css/bootstrap-iconpicker.min.css"/>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css"/>
-    <link rel="stylesheet" href="//fonts.googleapis.com/css?family=PT+Sans:400" type="text/css"> <!-- Font -->
+    <link rel="stylesheet" href="css/font-awesome.min.css"/>
+    <link rel="stylesheet" href="css/font-pt_sans.css"> <!-- Font -->
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script>
@@ -140,7 +139,7 @@ require 'muximux.php';
 <script src="js/jquery-2.2.0.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
 <script src="js/jquery.form.min.js"></script>
-<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>
 <script type="text/javascript" src="js/bootstrap-iconpicker.min.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
