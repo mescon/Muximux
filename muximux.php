@@ -81,11 +81,11 @@ function parse_ini()
 {
     $config = new Config_Lite(CONFIG);
 
-    if ($config->get('general', 'branch') == "master") {
+    if ($config->get('general', 'branch', 'master') == "master") {
         $master = "<option value=\"master\" selected>master</option>";
     } else { $master = "<option value=\"master\">master</option>"; }
 
-    if ($config->get('general', 'branch') == "develop") {
+    if ($config->get('general', 'branch', 'master') == "develop") {
         $develop = "<option value=\"develop\" selected>develop</option>";
     } else { $develop = "<option value=\"develop\">develop</option>"; }
 
@@ -291,7 +291,7 @@ if (isset($_GET['get']) && $_GET['get'] == 'secret') {
     // What branch does the user want to track?
 if (isset($_GET['get']) && $_GET['get'] == 'branch') {
     $config = new Config_Lite(CONFIG);
-    echo $config->get('general', 'branch');
+    echo $config->get('general', 'branch', 'master');
     die();
 }
 
