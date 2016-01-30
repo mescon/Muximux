@@ -145,5 +145,6 @@ require 'muximux.php';
 <?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
 <meta id='gitData'>
 <meta id='secret'>
+<meta id='branch'>
 </body>
 </html>

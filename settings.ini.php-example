@@ -1,6 +1,7 @@
 ; <?php die("Access denied"); ?>
 [general]
 title = "Muximux - Application Management Console"
+branch = "master"
 enabledropdown = "true"
 
 [settings]

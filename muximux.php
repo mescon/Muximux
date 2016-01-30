@@ -59,7 +59,7 @@ function write_ini()
         echo true;
     }
 
-    $cache_new = "; <?php ;die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
+    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
     $file = CONFIG; // the file to which $cache_new gets prepended
 
     $handle = fopen($file, "r+");
@@ -80,9 +80,19 @@ function write_ini()
 function parse_ini()
 {
     $config = new Config_Lite(CONFIG);
+
+    if ($config->get('general', 'branch') == "master") {
+        $master = "<option value=\"master\" selected>master</option>";
+    } else { $master = "<option value=\"master\">master</option>"; }
+
+    if ($config->get('general', 'branch') == "develop") {
+        $develop = "<option value=\"develop\" selected>develop</option>";
+    } else { $develop = "<option value=\"develop\">develop</option>"; }
+
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
+    $pageOutput .= "<label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
     $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div></div><br><br>";
@@ -278,6 +288,15 @@ if (isset($_GET['get']) && $_GET['get'] == 'secret') {
         die();
 }
 
+    // What branch does the user want to track?
+if (isset($_GET['get']) && $_GET['get'] == 'branch') {
+    $config = new Config_Lite(CONFIG);
+    echo $config->get('general', 'branch');
+    die();
+}
+
+
+
 
 // Things wrapped inside this are protected by a secret hash.
 if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
@@ -289,12 +308,15 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
             die();
     }
 
-
+    // Get the local path where this script is running from.
     if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
         echo getcwd();
         die();
     }
 
+
+
+    // Determine if there is a .git directory and if it's readable.
     if (isset($_GET['get']) && $_GET['get'] == 'gitdirectory') {
         $gitdir = getcwd() . "/.git/";
         if (is_readable($gitdir)) {
