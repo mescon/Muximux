@@ -42,7 +42,7 @@ require 'muximux.php';
 <!-- Modal -->
 <div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
-
+1
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
@@ -52,10 +52,8 @@ require 'muximux.php';
             <div class="modal-body">
                 <div class="text-center">
                     <div class="btn-group" role="group" aria-label="Buttons" id="topButtons">
-                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show
-                            Instructions</a>
-                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show
-                            Updates</a>
+                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show Instructions</a>
+                        <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show Updates</a>
                     </div>
                 </div>
 
