@@ -4,6 +4,7 @@
 */
 define('CONFIG', 'settings.ini.php');
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
+define('SECRET', 'secret.txt');
 require __DIR__ . '/vendor/autoload.php';
 
 // Check if this is an old installation that needs upgrading.
@@ -13,6 +14,14 @@ if (file_exists('config.ini.php')) {
     $upgrade = true;
 } else {
     $upgrade = false;
+}
+
+function createSecret() {
+    $text = uniqid("muximux-", true);
+    $file = fopen(SECRET, "w") or die("Unable to open " . SECRET);
+    fwrite($file, $text);
+    fclose($file);
+    return $text;
 }
 
 if(!file_exists(CONFIG)){
@@ -29,8 +38,6 @@ if (sizeof($_POST) > 0) {
 } else {
     parse_ini();
 }
-
-
 
 function write_ini()
 {
@@ -255,6 +262,7 @@ function exec_enabled()
 }
 
 
+
 // URL parameters
 if (isset($_GET['landing'])) {
     $keyname = $_GET['landing'];
@@ -263,48 +271,74 @@ if (isset($_GET['landing'])) {
 }
 
 
-if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
-    echo getcwd();
-    die();
+// This is where the JavaScript reads the contents of the secret file. This gets re-generated on each page load.
+if (isset($_GET['get']) && $_GET['get'] == 'secret') {
+        $secret = file_get_contents(SECRET) or die("Unable to open " . SECRET);
+        echo $secret;
+        die();
 }
 
-if (isset($_GET['get']) && $_GET['get'] == 'gitdirectory') {
-    $gitdir = getcwd() . "/.git/";
-    if (is_readable($gitdir)) {
-        echo "readable";
-    } else {
-        echo "unreadable";
+
+// Things wrapped inside this are protected by a secret hash.
+if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
+
+
+    // This lets us create a new secret when we leave the page.
+    if (isset($_GET['set']) && $_GET['set'] == 'secret') {
+            createSecret();
+            die();
     }
-    die();
-}
 
-if (isset($_GET['get']) && $_GET['get'] == 'phpini') {
-    $inipath = php_ini_loaded_file();
 
-    if ($inipath) {
-        echo $inipath;
-    } else {
-        echo 'php.ini';
+    if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
+        echo getcwd();
+        die();
     }
-    die();
-}
 
-if (isset($_GET['get']) && $_GET['get'] == 'hash') {
-    if (exec_enabled() == true) {
-        if (!command_exist('git')) {
-            $hash = 'unknown';
+    if (isset($_GET['get']) && $_GET['get'] == 'gitdirectory') {
+        $gitdir = getcwd() . "/.git/";
+        if (is_readable($gitdir)) {
+            echo "readable";
         } else {
-            $hash = exec('git log --pretty="%H" -n1 HEAD');
+            echo "unreadable";
         }
-    } else {
-        $hash = 'noexec';
+        die();
     }
-    echo $hash;
-    die();
-}
 
-if(isset($_GET['remove']) && $_GET['remove'] == "backup") {
-    unlink('backup.ini.php');
-    echo "deleted";
-    die();
+    if (isset($_GET['get']) && $_GET['get'] == 'phpini') {
+        $inipath = php_ini_loaded_file();
+
+        if ($inipath) {
+            echo $inipath;
+        } else {
+            echo 'php.ini';
+        }
+        die();
+    }
+
+    if (isset($_GET['get']) && $_GET['get'] == 'hash') {
+        if (exec_enabled() == true) {
+            if (!command_exist('git')) {
+                $hash = 'unknown';
+            } else {
+                $hash = exec('git log --pretty="%H" -n1 HEAD');
+            }
+        } else {
+            $hash = 'noexec';
+        }
+        echo $hash;
+        die();
+    }
+
+    if(isset($_GET['remove']) && $_GET['remove'] == "backup") {
+        unlink('backup.ini.php');
+        echo "deleted";
+        die();
+    }
+}
+// End protected get-calls
+
+
+if(empty($_GET)) {
+    createSecret();
 }

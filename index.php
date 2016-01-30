@@ -98,7 +98,7 @@ require 'muximux.php';
                         <a class="btn btn-danger" id="removeBackup"><span class="fa fa-trash"></span> Remove backup.ini.php</a>
                     </div>
                     <hr/>
-                    <div id="backupContents"><pre><?php if (file_exists('backup.ini.php')) echo file_get_contents('backup.ini.php'); ?></pre></div>
+                    <div id="backupContents"><pre><?php if (file_exists('backup.ini.php')) echo htmlentities(file_get_contents('backup.ini.php')); ?></pre></div>
                 </div>
 
                 <?php echo parse_ini(); ?>
@@ -147,5 +147,6 @@ require 'muximux.php';
 <script type="text/javascript" src="js/functions.js"></script>
 <?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
 <meta id='gitData'>
+<meta id='secret'>
 </body>
 </html>

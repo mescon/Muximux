@@ -14,6 +14,12 @@ function resizeIframe() {
     $('iframe').css({'height': newSize + 'px'});
 }
 
+// From https://css-tricks.com/snippets/javascript/htmlentities-for-javascript/ - don't render tags retrieved from Github
+function htmlEntities(str) {
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+
 function dropDownFixPosition(button, dropdown) {
     var dropDownTop = button.offset().top + button.outerHeight();
     dropdown.css('top', dropDownTop + "px");
@@ -88,11 +94,12 @@ function settingsEventHandlers() {
     });
 
     $('#removeBackup').click(function(){
+        var secret = $("#secret").data()['data'];
         $.ajax({
             async: true,
             url: "muximux.php",
             type: 'GET',
-            data: {remove: "backup"},
+            data: {remove: "backup", secret: secret },
             success: function (data) {
                 if(data == "deleted");
                 $('#backupiniContainer').toggle(1000);
@@ -185,7 +192,7 @@ function settingsEventHandlers() {
 function viewChangelog() {
     var output = "";
     $.ajax({
-        url: "https://api.github.com/repos/mescon/Muximux/commits",
+        url: "https://api.github.com/repos/mescon/Muximux/commits?sha=develop",
         //force to handle it as text
         dataType: "text",
         success: function (data) {
@@ -213,11 +220,11 @@ function viewChangelog() {
                 output += "The changes from your version to the latest version can be read <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">here</a>.</p>";
             }
 
-            output += "<p>The latest update to Muximux was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
+            output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
             output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog</h3><ul>";
             for (var i in json) {
                 var shortCommitID = json[i].sha.substring(0, 7);
-                var shortComments = json[i].commit.message.substring(0, 220).replace(/$/, "") + "...";
+                var shortComments = htmlEntities(json[i].commit.message.substring(0, 220).replace(/$/, "") + "...");
                 var shortDate = json[i].commit.author.date.substring(0, 10);
 
                 output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
@@ -267,15 +274,29 @@ function datediff(latestDate) {
     return currentDate - test;
 }
 
+// Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first!
+function getSecret() {
+    $.ajax({
+        async: false,
+        dataType: 'text',
+        url: "muximux.php?get=secret",
+        type: 'GET',
+        success: function (data) {
+            $('#secret').data({data: data});
+        }
+    });
+}
+
 // Gets values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
 function getSystemData(commands) {
     var i = 0;
+    var secret = $("#secret").data()['data'];
     for (var len = commands.length; i < len; i++) {
         $.ajax({
             type: "GET",
             dataType: "text",
             indexValue: i,
-            url: "muximux.php?get=" + commands[i],
+            url: "muximux.php?secret="+ secret +"&get=" + commands[i],
             cache: false,
             async: true,
             success: function (data) {
@@ -291,7 +312,7 @@ function getGitHubData() {
     $.ajax({
         async: true,
         dataType: 'json',
-        url: "https://api.github.com/repos/mescon/Muximux/commits",
+        url: "https://api.github.com/repos/mescon/Muximux/commits?sha=develop",
         type: 'GET',
         success: function (data) {
             $('#gitData').data(data);
@@ -306,6 +327,7 @@ function dataStore() {
     var localversion = $("#hash-data").data()['data'];
     var cwd = $("#cwd-data").data()['data'];
     var phpini = $("#phpini-data").data()['data'];
+    var secret = $("#secret").data()['data'];
     var gitdir = $("#gitdirectory-data").data()['data'];
     var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
@@ -324,7 +346,8 @@ function dataStore() {
         localVersion: localversion,
         gitDirectory: gitdir,
         cwd: cwd,
-        phpini: phpini
+        phpini: phpini,
+        secret: secret
     };
     return upstreamInformation;
 }

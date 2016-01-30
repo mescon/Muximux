@@ -83,7 +83,18 @@ jQuery(document).ready(function ($) {
     resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
     getGitHubData();
+    getSecret();
     var commands = ["hash","cwd","phpini","gitdirectory"];
     getSystemData(commands);
     //hideDropdownMenu(); // Check if we should hide the dropdown menu
+});
+
+// When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
+$(window).unload(function() {
+      $.ajax({
+        async: true,
+        dataType: 'text',
+        url: "muximux.php?secret=" + dataStore().secret + "&set=secret",
+        type: 'GET'
+    });
 });
