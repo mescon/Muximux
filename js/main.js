@@ -27,14 +27,14 @@ jQuery(document).ready(function ($) {
                 tabItems.find('a.selected').removeClass('selected');
                 selectedItem.addClass('selected');
                 selectedContent.addClass('selected').siblings('li').removeClass('selected');
-                //animate tabContentWrapper height when content changes
+                // animate tabContentWrapper height when content changes
                 tabContentWrapper.animate({
                     'height': selectedContentHeight
                 }, 200);
             }
         });
 
-        //hide the .cd-tabs::after element when tabbed navigation has scrolled to the end (mobile version)
+        // hide the .cd-tabs::after element when tabbed navigation has scrolled to the end (mobile version)
         checkScrolling(tabNavigation);
         tabNavigation.on('scroll', function () {
             checkScrolling($(this));

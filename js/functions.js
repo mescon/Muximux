@@ -29,12 +29,12 @@ function dropDownFixPosition(button, dropdown) {
 function settingsEventHandlers() {
     $('#sortable').sortable();
 
-    //Anytime a radio box for default is changed it unchecks the others
+    // Anytime a radio box for default is changed it unchecks the others
     $('input[type=radio]').change(function () {
         $('input[type=radio]:checked').not(this).prop('checked', false);
     });
 
-    //Event Handler for show/hide instructions
+    // Event Handler for show/hide instructions
     $('#showInstructions').click(function () {
         $('#instructionsContainer').slideToggle(1000);
         if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Instructions")
@@ -44,7 +44,7 @@ function settingsEventHandlers() {
 
     });
 
-    //Event Handler for show/hide changelog
+    // Event Handler for show/hide changelog
     $('#showChangelog').click(function () {
         $('#changelogContainer').slideToggle(1000);
         viewChangelog();
@@ -54,7 +54,7 @@ function settingsEventHandlers() {
             $(this).html('<span class=\"fa fa-github\"></span> Show Updates');
     });
 
-    //Event Handler for backup.ini show/hide button
+    // Event Handler for backup.ini show/hide button
     if ($('#backupContents').text() != "") {
         $('#topButtons').append('<a class="btn btn-primary" id="showBackup"><span class=\"fa fa-book\"></span> Show Backup INI</a>')
         $('#topButtons').css('width', '425px')
@@ -67,7 +67,7 @@ function settingsEventHandlers() {
         });
     }
 
-    //Remove all event handler
+    // Remove all event handler
     $('#removeAll').click(function () {
         if (confirm('Are you sure?')) {
             var selectedEffect = "drop";
@@ -84,7 +84,7 @@ function settingsEventHandlers() {
         }
     });
 
-    //Remove sortable item button handler
+    // Remove sortable item button handler
     $('form').on('click', '.removeButton', function () {
         if (confirm('Are you sure?')) {
             var selectedEffect = "drop";
@@ -116,7 +116,7 @@ function settingsEventHandlers() {
         }, 1000);
     };
 
-    //Fix for iconpicker. For some reason the arrow doesn't get disabled when it hits the minimum/maximum page number. This disables the button, so that it doesnt go into the negatives or pages above its max.
+    // Fix for iconpicker. For some reason the arrow doesn't get disabled when it hits the minimum/maximum page number. This disables the button, so that it doesnt go into the negatives or pages above its max.
     $('body').on('click', '.btn-arrow', function (event) {
         event.preventDefault();
         if ($(this).hasClass('disabled'))
@@ -126,9 +126,9 @@ function settingsEventHandlers() {
 
     });
 
-    //Add new application button handler
+    // Add new application button handler
     $('#addApplication').click(function () {
-        //Generating a random number here. So that if the user adds more than one new application at a time the ids/classes and names don't match.
+        // Generating a random number here. So that if the user adds more than one new application at a time the ids/classes and names don't match.
         var rand = Math.floor((Math.random() * 999999) + 1);
         $('#sortable').append(
             '<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' +
@@ -143,7 +143,7 @@ function settingsEventHandlers() {
         initIconPicker('.' + rand + 'newApplication-value[name=' + rand + 'newApplication-icon]');
     });
 
-    //App Name Change/Addition handler
+    // App Name Change/Addition handler
     $('form').on('focusout', '.appName', function () {
         if ($(this).val() != "") {
             $(this).parents('.applicationContainer').removeClass('newApp');
@@ -188,11 +188,11 @@ function settingsEventHandlers() {
     });
 }
 
-//Takes all the data we have to generate our changelog
+// Takes all the data we have to generate our changelog
 function viewChangelog() {
     var output = "";
     $.ajax({
-        url: "https://api.github.com/repos/mescon/Muximux/commits?sha=develop",
+        url: "https://api.github.com/repos/mescon/Muximux/commits",
         //force to handle it as text
         dataType: "text",
         success: function (data) {
@@ -266,7 +266,7 @@ function showResponse(responseText, statusText) {
         alert("Error!!!-" + responseText);
 }
 
-//Gets the difference between the latest commit and the commit you are on
+// Calculates the amount of days since an update was commited on Github.
 function datediff(latestDate) {
     var rightNow = new Date();
     var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
@@ -307,12 +307,12 @@ function getSystemData(commands) {
     }
 }
 
-//Grabs muximux repo data from github api
+// Grabs muximux repo data from github api
 function getGitHubData() {
     $.ajax({
         async: true,
         dataType: 'json',
-        url: "https://api.github.com/repos/mescon/Muximux/commits?sha=develop",
+        url: "https://api.github.com/repos/mescon/Muximux/commits",
         type: 'GET',
         success: function (data) {
             $('#gitData').data(data);
@@ -321,7 +321,7 @@ function getGitHubData() {
     });
 }
 
-//Grabs data from ajax calls that were stored on elements for later use
+// Grabs data from ajax calls that were stored on elements for later use
 function dataStore() {
     var json = $('#gitData').data();
     var localversion = $("#hash-data").data()['data'];
