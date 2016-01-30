@@ -217,7 +217,7 @@ function viewChangelog() {
     output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
     for (var i in json) {
         var shortCommitID = json[i].sha.substring(0, 7);
-        var shortComments = htmlEntities(json[i].commit.message.substring(0, 220).replace(/$/, "") + "...");
+        var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
         var shortDate = json[i].commit.author.date.substring(0, 10);
         output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
     }

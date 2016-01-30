@@ -42,7 +42,7 @@ require 'muximux.php';
 <!-- Modal -->
 <div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
-1
+
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-header">
