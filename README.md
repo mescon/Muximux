@@ -39,11 +39,11 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 
 - Place all files on a publically accessible webserver, either in a subdirectory called ``muximux`` or directly in the root directory of your webserver (such as ``/var/www``, ``/var/html``, ``C:\Inetpub\wwwroot`` or wherever your webserver serves files from by default).
 
+- [Read this note](#security) about securing Muximux, and [read this note](#important-note-regarding-https) about what happens if you are using HTTPS. Just do it.
+
 - Make sure that the directory where you place Muximux is [writable by the process that is running your webserver](http://lmgtfy.com/?q=how+to+make+a+directory+writable+by+my+webserver). *(i.e www-data, www-user, apache, nginx or whatever the user is called)*
 
 Example: ``chown -R www-data.www-data /var/www/muximux``
-
-- [Read this note](#security) about securing Muximux, and [read this note](#important-note-regarding-https) about what happens if you are using HTTPS. Just do it.
 
 > **Users of Muximux versions prior to v1.0**
 > *Users of Muximux 0.9.1 only need to overwrite with the new files - unfortunately, your config settings will not be transferred to Muximux v1.0. You can click "Show backup INI" under "Settings" to see the contents of your old config.*
