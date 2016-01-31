@@ -1,0 +1,140 @@
+; <?php die("Access denied"); ?>
+[general]
+title = "Muximux - Application Management Console"
+branch = "master"
+enabledropdown = "true"
+
+[settings]
+enabled = "true"
+default = "false"
+name = "Settings"
+url = "settings.php"
+landingpage = "false"
+icon = "fa fa-cog"
+dd = "true"
+
+[RuTorrent]
+name = "RuTorrent"
+url = "https://github.com/Novik/ruTorrent"
+icon = "fa-globe"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"
+
+[NZBGet]
+name = "NZBGet"
+url = "https://nzbget.net/"
+icon = "fa-download"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"
+
+[SABnzbd]
+name = "SABnzbd"
+url = "https://sabnzbd.org/"
+icon = "fa-download"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"
+
+[pydio]
+name = "Pydio"
+url = "https://pydio.com/"
+icon = "fa-cloud"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"
+
+[Sonarr]
+name = "Sonarr"
+url = "https://sonarr.tv/"
+icon = "fa-calendar"
+enabled = "true"
+default = "true"
+landingpage = "false"
+dd = "false"
+
+[Sickbeard]
+name = "SickBeard"
+url = "http://sickbeard.com/"
+icon = "fa-calendar"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[Couchpotato]
+name = "CouchPotato"
+url = "https://couchpota.to/"
+icon = "fa-film"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[Headphones]
+name = "Headphones"
+url = "https://github.com/rembo10/headphones"
+icon = "fa-headphones"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[Plexrequests]
+name = "PlexRequests"
+url = "https://github.com/lokenx/plexrequests-meteor"
+icon = "fa-bullhorn"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[PlexPy]
+name = "PlexPy"
+url = "https://github.com/drzoidberg33/plexpy"
+icon = "fa-list"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[Glances]
+name = "Glances"
+url = "https://github.com/nicolargo/glances"
+icon = "fa-eye"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[nzbhydra]
+name = "NZB Hydra"
+url = "https://github.com/theotherp/nzbhydra"
+icon = "fa-search"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[Plex]
+name = "Plex"
+url = "https://www.plex.tv/"
+icon = "fa-play-circle"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "false"
+
+[deluge]
+name = "Deluge"
+url = "http://deluge-torrent.org/"
+icon = "fa-tint"
+enabled = "true"
+default = "false"
+landingpage = "false"
+dd = "true"

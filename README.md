@@ -2,78 +2,97 @@
 
 [![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
->This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
+> This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
 > https://github.com/Tenzinn3/Managethis
 
+> If you prefer a NodeJS version with a built-in webserver, it is available at
+> https://github.com/onedr0p/manage-this-node
 
-> If you prefer a NodeJS version with a built-in webserver, it is available at https://github.com/onedr0p/manage-this-node
-
-This is a lightweight portal to manage your HTPC apps without having to run anything more than a PHP enabled webserver.
+This is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
-**Desktop screenshot**
+![Desktop screenshot](https://i.imgur.com/gqdVM6p.jpg)
+[More screenshots](#screenshots)
 
-![Desktop screenshot](http://i.imgur.com/VguPTzR.jpg)
+## Major features
+* Add, remove and rearrange your owns apps without touching any code - it's all in the settings menu!
+* A shiny new dropdown menu (top right) where you can put items you don't use that often!
+* Change or replace icons by just clicking the icon you think looks good.
+* Enable or disable a landingpage for each app (landingpages prevent you from being bombarded with login-prompts, and reduces load on your browser).
+* All menu items move to the dropdown when you access Muximux from your mobile phone or tablet!
+* Refresh button - when you click it, only the app you are looking at will be reloaded - not EVERY app inside your browser. You can also double click the item in the menu.
 
-**Mobile screenshot**
-
-![Mobile screenshot](https://i.imgur.com/a4N3TLx.jpg)
-
-#### Added features and fixes
-* No need to edit HTML pages anywhere.
-* Everything is configured in an easy config-file!
-  * *Just rename config.ini.php-example to config.ini.php and open it up in your favorite text editor!*
-  * *Your config.ini.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
-
-* You now have the possibility to easily:
-  * Enable or disable any app or site.
-  * Enable or disable a landingpage for each app (landingpages prevent you from being bombarded with login-prompts, and reduces load on your browser).
-  * Change or replace icons.
-  * Add your own apps, without having to delete, change or extend any code - it's all in the configuration file!
-
-* Added a "refresh" icon. When you click it, the app or site you are currently using will be reloaded - not every app you've configured, which is very useful if you're having temporary problems with one of your apps/sites and don't want to reload every single app you have configured.
-  * *You can also double click on the item you want to refresh in the menu*
-
-* Fixed an issue with Internet Explorer which would result in a scrollbar being present in the menu.
+### Behind the scenes features
+* Deferred loading of apps - each app only opens when you first click it. Loading time of Muximux is very fast!
+* Security token generated on each page load. To execute specific functions of Muximux you can not do it without this token - a token that changes when the user leaves the page, effectively making commands to Muximux not function if you are not a valid user of the Muximux app currently browsing it.
+* API calls to Github to look up commit history/changelog are cached and only called *once* when Muximux is loaded.
+* No HTTP requests to external servers. *Muximux fonts, icons and other resources: Google, Bootstrap, jQuery and Font-Awesome do not need to know you are hosting a server!*
 * Custom versions of minified javascript libraries that removes some of the unnecessary functions we're not using, which result in less javascript overhead and faster loading times.
 
-* Moved everything CSS-related to a CSS-file (no inline CSS in the HTML)
-
-* All the logic in a separate file called ``muximux.php`` - no need to touch it!
-
-#### The future
-* I'll be fiddling with this on and off, and when I haven't found any bugs myself, or had any bugs filed for a while I will release version 1.0. After that, I'm taking suggestions for new features! In the meantime I'm happy to accept any pull requests/merge requests.
-
-
-
 ## Setup
+
 **Requirements:** A webserver (nginx, Apache, IIS or any other webserver) configured with PHP5 support.
 `` parse_ini_file `` must be allowed in php.ini (default is allowed!)
-- To set it up, clone this repository:
-`` git clone https://github.com/mescon/Muximux `` or download the ZIP-file.
-- Place all files on a publically accessible webserver, either directly in the root, or inside a directory called ``muximux`` or whatever you want it to be called.
-- Rename ``config.ini.php-example`` to ``config.ini.php`` *(Note: Your ``config.ini.php`` will never be overwritten if you update to a new version)*
-- In your favourite text-editor open ``config.ini.php`` and read the instructions.
-  - You can enable or disable apps simply by setting ``enabled = "true"`` or ``enabled = "false"``
-  - You can change the app icons by replacing them with ones from http://bootstrapdocs.com/v3.0.0/docs/components/ or http://fontawesome.io/icons/
-- The configuration file ``config.ini.php`` can not be read by any visitor, as long as you don't remove the top part of the file.
 
- > **Important note regarding HTTPS:**
- > If you are serving Muximux from a HTTPS-enabled webserver (i.e``https://myserver.com/muximux``), all of your services must also be secured via HTTPS.
- > Any URL that does not start with https:// (such as ``http://myserver.com:5050``) will be blocked by your web-browser!
- >
- > If you can, try serving Muximux from a non-secure (HTTP) webserver instead.
- >
- > The only known workaround is for Chrome, Opera and Chromium-based webbrowsers.
- > The plugin "Ignore X-Frame headers" disables the blocking of non-secure content.
- > https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe
+- To set it up, clone this repository:
+`` git clone https://github.com/mescon/Muximux `` or [download the ZIP-file](https://github.com/mescon/Muximux/archive/master.zip). *(note: If you do not install via the git method, you will not be be able to compare your version with the latest update to Muximux)*
+
+- Place all files on a publically accessible webserver, either in a subdirectory called ``muximux`` or directly in the root directory of your webserver (such as ``/var/www``, ``/var/html``, ``C:\Inetpub\wwwroot`` or wherever your webserver serves files from by default).
+
+- [Read this note](#security) about securing Muximux, and [read this note](#important-note-regarding-https) about what happens if you are using HTTPS. Just do it.
+
+- Make sure that the directory where you place Muximux is [writable by the process that is running your webserver](http://lmgtfy.com/?q=how+to+make+a+directory+writable+by+my+webserver). *(i.e www-data, www-user, apache, nginx or whatever the user is called)*
+  - Example: ``chown -R www-data.www-data /var/www/muximux``
+
+> **Users of Muximux versions prior to v1.0**
+> *Users of Muximux 0.9.1 only need to overwrite with the new files - unfortunately, your config settings will not be transferred to Muximux v1.0. You can click "Show backup INI" under "Settings" to see the contents of your old config.*
+> *There is no need to edit either config.ini.php or settings.ini.php - in fact, we recommend you don't!*
+> *Your settings.ini.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
+
 
 ## Usage
 - Navigate to ``http://<host>/muximux`` where ``<host>`` is either the IP or hostname of your webserver. *Obviously if you put the files in the root directory of your webserver, there is no need to append ``/muximux``*
-- Access your apps by clicking on the "Launch" button. If you don't see a "Launch" button, you have ``landingpage = "false"`` configured for the app you're linking to. *(Note: This functionality was implemented to stop you from being hit by multiple login popups as soon as you start the app. It also speeds up loading time.)*
+
+- Remove the default apps (or just change the URL:s of them if you want to keep them), add your own apps by clicking in the top right corner and then click "Settings".
+
+- Under Settings, rearrange your apps with drag'n'drop - just drag an item under another item to move it it.
+
 - To reload an app, double click it in the menu, or press the refresh button in the top right bar.
 
-### Notes
+> There is no longer any need to edit config.ini.php or any file at all. In fact, we recommend you don't!
+
+### Security
 **It is strongly recommended that you secure Muximux with Basic Auth (``.htpasswd / .htaccess``)**
-Instructions for [Nginx](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04), [Apache](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04) and [Microsoft IIS](http://serverfault.com/a/272292).
+
+Read instructions for [Nginx](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04), [Apache](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04) and [Microsoft IIS](http://serverfault.com/a/272292).
+
 If you decide not to, Muximux disallows search engines from indexing your site, however, Muximux itself does not password protect your services, so you have to secure each of your applications properly (which they already should be!).
+Muximux is NOT a proxy server, and as such can not by itself secure your separate applications, and if you don't want Muximux to be open to the world, you *must* make sure that you have Basic Auth enabled on your server.
+
+### Important note regarding HTTPS
+ If you are serving Muximux from a HTTPS-enabled webserver (i.e``https://myserver.com/muximux``), all of your services must also be secured via HTTPS.
+ Any URL that does not start with https:// (such as ``http://myserver.com:5050``) will be blocked by your web-browser!
+
+ If you can, try serving Muximux from a non-secure (HTTP) webserver instead.
+ If the apps you have configured are using HTTPS, communication with them will still be encrypted.
+
+ The only known workaround is for Chrome, Opera and Chromium-based webbrowsers.
+
+ Install the plugin "[Ignore X-Frame headers](https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe)" which disables the blocking of non-secure content.
+
+
+## Screenshots
+#### Desktop screenshot
+![Desktop screenshot](https://i.imgur.com/gqdVM6p.jpg)
+
+#### Mobile screenshot - dropdown menu hidden
+![Mobile screenshot - dropdown menu hidden](https://i.imgur.com/w8WjHiO.jpg)
+
+#### Mobile screenshot - dropdown menu shown
+![Mobile screenshot - dropdown menu shown](https://i.imgur.com/vsVtrvG.jpg)
+
+#### Settings: Drag & Drop items to re-arrange them in your menu
+![Drag & Drop items to re-arrange them in your menu](https://i.imgur.com/JKZvn74.jpg)
+
+#### Settings: Pick and choose from over 500 icons
+![Pick and choose from over 500 icons](https://i.imgur.com/KsuOzH1.jpg)
