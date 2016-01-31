@@ -472,3 +472,25 @@ input[type='button']:hover {
     display: none;
 }
 
+#updateContainer {
+    background-color: #343843;
+    color: #f1f3f2;
+    display: none;
+    font-size: 14px;
+    right: 20px;
+    padding: 7px 10px;
+    position: fixed;
+    text-align: center;
+    bottom: 10px;
+    min-height: 44px;
+    width: 340px;
+    z-index: 1049;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+}
+
+#updateContainer span {
+    line-height: normal;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}

@@ -91,7 +91,22 @@ jQuery(document).ready(function ($) {
     var commands = ["hash","cwd","phpini","gitdirectory"];
     getSystemData(commands);
 
+    // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
+    if ((dataStore().gitDirectory == "readable") && (!(dataStore().localVersion == "noexec")) && (dataStore().differenceCommits > 0)) {
+        if (!getCookie('updateDismiss')) {
+            $('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button><span>You are currently <strong>"+ dataStore().differenceCommits +"</strong> commits behind!<br/>See <a href=\""+ dataStore().compareURL +"\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
+            $('#updateContainer').fadeIn("slow");
+        }
+    }
+
+    $('#updateDismiss').click(function() {
+        $('#updateContainer').fadeOut('slow');
+        // Set cookie to remember dismiss decision for 1 hour.
+        setCookie('updateDismiss', 'true', 1/24);
+    });
+
 });
+
 
 // When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
 $(window).unload(function() {

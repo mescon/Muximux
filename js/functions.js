@@ -301,7 +301,7 @@ function getSystemData(commands) {
             indexValue: i,
             url: "muximux.php?secret="+ secret +"&get=" + commands[i],
             cache: false,
-            async: true,
+            async: false, // True
             success: function (data) {
                 $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
                 $('#' + commands[this.indexValue] + "-data").data({data: data});
@@ -314,7 +314,7 @@ function getSystemData(commands) {
 function getGitHubData() {
     var branch = $("#branch").data()['data'];
     $.ajax({
-        async: true,
+        async: false, //True
         dataType: 'json',
         url: "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch,
         type: 'GET',
@@ -356,4 +356,22 @@ function dataStore() {
         branch: branch
     };
     return upstreamInformation;
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
 }

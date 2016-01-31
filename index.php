@@ -133,6 +133,7 @@ require 'muximux.php';
         </div>
     </div>
 </div>
+<div id="updateContainer"></div>
 
 <script src="js/jquery-2.2.0.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
