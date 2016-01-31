@@ -42,27 +42,28 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 - [Read this note](#security) about securing Muximux, and [read this note](#important-note-regarding-https) about what happens if you are using HTTPS. Just do it.
 
 - Make sure that the directory where you place Muximux is [writable by the process that is running your webserver](http://lmgtfy.com/?q=how+to+make+a+directory+writable+by+my+webserver). *(i.e www-data, www-user, apache, nginx or whatever the user is called)*
-
-Example: ``chown -R www-data.www-data /var/www/muximux``
+  - Example: ``chown -R www-data.www-data /var/www/muximux``
 
 > **Users of Muximux versions prior to v1.0**
 > *Users of Muximux 0.9.1 only need to overwrite with the new files - unfortunately, your config settings will not be transferred to Muximux v1.0. You can click "Show backup INI" under "Settings" to see the contents of your old config.*
+> *There is no need to edit either config.ini.php or settings.ini.php - in fact, we recommend you don't!*
 > *Your settings.ini.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
 
 
 ## Usage
 - Navigate to ``http://<host>/muximux`` where ``<host>`` is either the IP or hostname of your webserver. *Obviously if you put the files in the root directory of your webserver, there is no need to append ``/muximux``*
 
-- Remove the default apps (or just change the URL of them if you want to keep it), add your own apps by clicking in the top right corner and then click "Settings".
+- Remove the default apps (or just change the URL:s of them if you want to keep them), add your own apps by clicking in the top right corner and then click "Settings".
 
 - Under Settings, rearrange your apps with drag'n'drop - just drag an item under another item to move it it.
 
 - To reload an app, double click it in the menu, or press the refresh button in the top right bar.
 
-- There is no longer any need to edit config.ini.php or any file at all. In fact, we recommend you don't!
+> There is no longer any need to edit config.ini.php or any file at all. In fact, we recommend you don't!
 
 ### Security
 **It is strongly recommended that you secure Muximux with Basic Auth (``.htpasswd / .htaccess``)**
+
 Read instructions for [Nginx](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04), [Apache](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04) and [Microsoft IIS](http://serverfault.com/a/272292).
 
 If you decide not to, Muximux disallows search engines from indexing your site, however, Muximux itself does not password protect your services, so you have to secure each of your applications properly (which they already should be!).
