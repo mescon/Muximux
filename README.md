@@ -2,11 +2,11 @@
 
 [![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
->This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
+> This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
 > https://github.com/Tenzinn3/Managethis
 
-
-> If you prefer a NodeJS version with a built-in webserver, it is available at https://github.com/onedr0p/manage-this-node
+> If you prefer a NodeJS version with a built-in webserver, it is available at
+> https://github.com/onedr0p/manage-this-node
 
 This is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
@@ -43,7 +43,7 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 
 Example: ``chown -R www-data.www-data /var/www/muximux``
 
-- [Read this note](#security) about securing Muximux, and [read this note](#Important-note-regarding-HTTPS) about what happens if you are using HTTPS. Just do it.
+- [Read this note](#security) about securing Muximux, and [read this note](#important-note-regarding-https) about what happens if you are using HTTPS. Just do it.
 
 > **Users of Muximux versions prior to v1.0**
 > *Users of Muximux 0.9.1 only need to overwrite with the new files - unfortunately, your config settings will not be transferred to Muximux v1.0. You can click "Show backup INI" under "Settings" to see the contents of your old config.*
@@ -73,8 +73,10 @@ Muximux is NOT a proxy server, and as such can not by itself secure your separat
  Any URL that does not start with https:// (such as ``http://myserver.com:5050``) will be blocked by your web-browser!
 
  If you can, try serving Muximux from a non-secure (HTTP) webserver instead.
+ If the apps you have configured are using HTTPS, communication with them will still be encrypted.
 
  The only known workaround is for Chrome, Opera and Chromium-based webbrowsers.
+
  Install the plugin "[Ignore X-Frame headers](https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe)" which disables the blocking of non-secure content.
 
 
