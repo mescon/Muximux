@@ -214,7 +214,7 @@ function viewChangelog() {
         output += "The changes from your version to the latest version can be read <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">here</a>.</p>";
     }
     output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
-    output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
+    output += "<p>If you want to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
     for (var i in json) {
         var shortCommitID = json[i].sha.substring(0, 7);
         var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
