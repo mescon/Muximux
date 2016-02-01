@@ -5,7 +5,7 @@
 define('CONFIG', 'settings.ini.php');
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
 define('SECRET', 'secret.txt');
-require __DIR__ . '/vendor/autoload.php';
+require dirname(__FILE__) . '/vendor/autoload.php';
 
 // Check if this is an old installation that needs upgrading.
 if (file_exists('config.ini.php')) {
@@ -54,9 +54,7 @@ function write_ini()
     try {
         $config->save();
     } catch (Config_Lite_Exception $e) {
-        echo "\n", 'Exception Message: ', $e->getMessage();
-    } finally {
-        echo true;
+        echo "\n" . 'Exception Message: ' . $e->getMessage();
     }
 
     $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
