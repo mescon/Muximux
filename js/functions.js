@@ -258,10 +258,11 @@ function showResponse(responseText, statusText) {
 
 // Calculates the amount of days since an update was commited on Github.
 function datediff(latestDate) {
-    var rightNow = new Date();
-    var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
-    var test = latestDate.split('-').join('');
-    return currentDate - test;
+    var githubDate_ms = new Date(latestDate).getTime();
+    var localDate_ms = new Date().getTime();
+    var difference_ms = localDate_ms - githubDate_ms;
+    
+    return Math.round(difference_ms/86400000); 
 }
 
 // Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first!
