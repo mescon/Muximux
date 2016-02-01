@@ -54,9 +54,7 @@ function write_ini()
     try {
         $config->save();
     } catch (Config_Lite_Exception $e) {
-        echo "\n", 'Exception Message: ', $e->getMessage();
-    } finally {
-        echo true;
+        echo "\n" . 'Exception Message: ' . $e->getMessage();
     }
 
     $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
