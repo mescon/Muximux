@@ -5,7 +5,7 @@
 define('CONFIG', 'settings.ini.php');
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
 define('SECRET', 'secret.txt');
-require __DIR__ . '/vendor/autoload.php';
+require dirname(__FILE__) . '/vendor/autoload.php';
 
 // Check if this is an old installation that needs upgrading.
 if (file_exists('config.ini.php')) {
