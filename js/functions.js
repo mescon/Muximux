@@ -157,13 +157,13 @@ function settingsEventHandlers() {
             $(this).attr('was', newSection);
             $('.' + section + '-value').each(function () {
                 var split = $(this).attr('name').split('-');
-                if (split[1] == 'icon')
-                    $(this).children('input').prop('name', newSection + "-" + split[1]);
+
                 $(this).removeAttr('name')
                     .prop('name', newSection + "-" + split[1])
                     .addClass(newSection + '-value')
                     .removeClass(section + '-value');
             });
+                $('input[name="'+section+'-icon"]').prop('name', newSection + "-icon");
             $(this).parents('div.applicationContainer').attr('id', newSection);
         }
     });
