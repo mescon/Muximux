@@ -95,7 +95,7 @@ function parse_ini()
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
     $pageOutput .= "<label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
-    $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='general-value' name='general-enabledropdown' type='checkbox' ";
+    $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
