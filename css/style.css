@@ -494,3 +494,22 @@ input[type='button']:hover {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
 }
+
+.close {
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  line-height: 1;
+  color: #f1f3f2;
+  text-shadow: 0 1px 0 #fff;
+  filter: alpha(opacity=50);
+  opacity: .5;
+}
+.close:hover,
+.close:focus {
+  color: #fff;
+  text-decoration: none;
+  cursor: pointer;
+  filter: alpha(opacity=100);
+  opacity: 1;
+}

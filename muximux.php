@@ -89,13 +89,17 @@ function parse_ini()
         $develop = "<option value=\"develop\" selected>develop</option>";
     } else { $develop = "<option value=\"develop\">develop</option>"; }
 
+    if ($config->get('general', 'updatepopup', 'false') == "true") {
+        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox' checked></div>";
+    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox'></div>"; }
+
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
     $pageOutput .= "<label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
     $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
-        $pageOutput .= "checked></div></div><br><br>";
+        $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
         $pageOutput .= "></div></div><br>";
 

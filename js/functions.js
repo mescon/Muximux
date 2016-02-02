@@ -264,7 +264,7 @@ function datediff(latestDate) {
     return currentDate - test;
 }
 
-// Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first!
+// Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first.
 function getSecret() {
     $.ajax({
         async: false,
@@ -301,7 +301,7 @@ function getSystemData(commands) {
             indexValue: i,
             url: "muximux.php?secret="+ secret +"&get=" + commands[i],
             cache: false,
-            async: false, // True
+            async: false,
             success: function (data) {
                 $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
                 $('#' + commands[this.indexValue] + "-data").data({data: data});
@@ -310,11 +310,11 @@ function getSystemData(commands) {
     }
 }
 
-// Grabs muximux repo data from github api
+// Grabs Muximux repo data from github api
 function getGitHubData() {
     var branch = $("#branch").data()['data'];
     $.ajax({
-        async: false, //True
+        async: false,
         dataType: 'json',
         url: "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch,
         type: 'GET',
@@ -374,4 +374,23 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
     }
     return "";
+}
+
+// Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
+function updateBox() {
+    var updateCheck;
+    if (dataStore().differenceCommits) {
+        clearInterval(updateCheck);
+        if ((dataStore().gitDirectory == "readable") && (!(dataStore().localVersion == "noexec")) && (dataStore().differenceCommits > 0)) {
+            if (!getCookie('updateDismiss')) {
+                $('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button><span>You are currently <strong>"+ dataStore().differenceCommits +"</strong> commits behind!<br/>See <a href=\""+ dataStore().compareURL +"\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
+                $('#updateContainer').fadeIn("slow");
+            }
+        }
+        $('#updateDismiss').click(function() {
+            $('#updateContainer').fadeOut('slow');
+            // Set cookie to remember dismiss decision for 1 hour.
+            setCookie('updateDismiss', 'true', 1/24);
+        });
+    }
 }
