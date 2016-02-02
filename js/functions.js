@@ -249,7 +249,7 @@ function initIconPicker(selectedItem) {
 
 // post-submit callback function
 function showResponse(responseText, statusText) {
-    if (responseText == 1)
+    if (responseText == 1 || statusText == "success")
         location.pathname = location.pathname;
     else
         alert("Error!!!-" + responseText);
