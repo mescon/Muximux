@@ -157,13 +157,13 @@ function settingsEventHandlers() {
             $(this).attr('was', newSection);
             $('.' + section + '-value').each(function () {
                 var split = $(this).attr('name').split('-');
-                if (split[1] == 'icon')
-                    $(this).children('input').prop('name', newSection + "-" + split[1]);
+
                 $(this).removeAttr('name')
                     .prop('name', newSection + "-" + split[1])
                     .addClass(newSection + '-value')
                     .removeClass(section + '-value');
             });
+                $('input[name="'+section+'-icon"]').prop('name', newSection + "-icon");
             $(this).parents('div.applicationContainer').attr('id', newSection);
         }
     });
@@ -214,7 +214,7 @@ function viewChangelog() {
         output += "The changes from your version to the latest version can be read <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">here</a>.</p>";
     }
     output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
-    output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
+    output += "<p>If you want to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
     for (var i in json) {
         var shortCommitID = json[i].sha.substring(0, 7);
         var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
@@ -258,10 +258,11 @@ function showResponse(responseText, statusText) {
 
 // Calculates the amount of days since an update was commited on Github.
 function datediff(latestDate) {
-    var rightNow = new Date();
-    var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
-    var test = latestDate.split('-').join('');
-    return currentDate - test;
+    var githubDate_ms = new Date(latestDate).getTime();
+    var localDate_ms = new Date().getTime();
+    var difference_ms = localDate_ms - githubDate_ms;
+    
+    return Math.round(difference_ms/86400000); 
 }
 
 // Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first.
