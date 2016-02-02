@@ -93,13 +93,13 @@ function parse_ini()
 
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
+    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
     $pageOutput .= "<label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
     $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
-        $pageOutput .= "></div></div><br>";
+        $pageOutput .= "></div>$showUpdates</div><br>";
 
     $pageOutput .= "<input type='hidden' class='settings-value' name='settings-enabled' value='true'>" .
         "<input type='hidden' class='settings-value' name='settings-default' value='false'>" .
@@ -163,9 +163,7 @@ function parse_ini()
 function menuItems()
 {
     $config = new Config_Lite(CONFIG);
-    if (empty($standardmenu)) $standardmenu = '';
-    if (empty($dropdownmenu)) $dropdownmenu = '';
-    if (empty($enabledropdown)) $enabledropdown = '';
+
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
             if (isset($section["enabledropdown"]) && ($section["enabledropdown"] == "true")) {
@@ -210,8 +208,7 @@ function menuItems()
 function getTitle()
 {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'title');
-    if (empty($item)) $item = 'Muximux - Application Management Console';
+    $item = $config->get('general', 'title', 'Muximux - Application Management Console');
     return $item;
 }
 
