@@ -261,8 +261,8 @@ function datediff(latestDate) {
     var githubDate_ms = new Date(latestDate).getTime();
     var localDate_ms = new Date().getTime();
     var difference_ms = localDate_ms - githubDate_ms;
-    
-    return Math.round(difference_ms/86400000); 
+
+    return Math.round(difference_ms/86400000);
 }
 
 // Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first.
@@ -335,6 +335,7 @@ function dataStore() {
     var secret = $("#secret").data()['data'];
     var gitdir = $("#gitdirectory-data").data()['data'];
     var branch = $("#branch").data()['data'];
+    var title  = $("#title-data").data()['data'];
     var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
     for (var i in json) {
@@ -354,7 +355,8 @@ function dataStore() {
         cwd: cwd,
         phpini: phpini,
         secret: secret,
-        branch: branch
+        branch: branch,
+        title: title
     };
     return upstreamInformation;
 }
@@ -375,6 +377,15 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
     }
     return "";
+}
+
+// Set document title including title of the page as configured in settings.ini.php
+// TODO: Currently wrapped inside a document.ready function to wait for dataStore() to be populated
+function setTitle(title) {
+    $(document).ready(function ($) {
+        $(document).attr("title", title + " - " + dataStore().title);
+    })
+
 }
 
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)

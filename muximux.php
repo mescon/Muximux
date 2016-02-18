@@ -175,15 +175,15 @@ function menuItems()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && (!isset($section["dd"]) || $section["dd"] == "false")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             } else {
-                $standardmenu .= "<li><a data-content=\"" . $keyname . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal'><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal' data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
-            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" ><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else {
             $dropdownmenu .= "";
         }
@@ -224,9 +224,9 @@ function frameContent()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"" . $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             } else {
-                $item .= "\n<li data-content=\"" . $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             }
 
         }
@@ -310,6 +310,13 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
     // Get the local path where this script is running from.
     if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
         echo getcwd();
+        die();
+    }
+
+    // Get the title configured in settings.php.ini
+    if (isset($_GET['get']) && $_GET['get'] == 'title') {
+        $config = new Config_Lite(CONFIG);
+        echo $config->get('general', 'title', 'Muximux');
         die();
     }
 

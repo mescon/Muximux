@@ -1,6 +1,10 @@
 jQuery(document).ready(function ($) {
     var tabs = $('.cd-tabs');
 
+    // Set window title to the selected item on load
+    var activeTitle = $('ul.cd-tabs-navigation .selected').attr("data-title");
+    setTitle(activeTitle);
+
     tabs.each(function () {
         var tab = $(this),
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
@@ -26,6 +30,11 @@ jQuery(document).ready(function ($) {
 
                 tabItems.find('a.selected').removeClass('selected');
                 selectedItem.addClass('selected');
+
+                // Change window title after class "selected" has been added to item
+                var activeTitle = selectedItem.attr("data-title");
+                setTitle(activeTitle);
+
                 selectedContent.addClass('selected').siblings('li').removeClass('selected');
                 // animate tabContentWrapper height when content changes
                 tabContentWrapper.animate({
@@ -56,6 +65,10 @@ jQuery(document).ready(function ($) {
         selectedFrame.attr('src', selectedFrame.attr('src'));
     });
 
+    $('#settingsModal').on('hidden.bs.modal', function () {
+        var activeTitle = $('.cd-tabs-content').find('.selected').children('iframe').attr("data-title");
+        setTitle(activeTitle);
+    });
 
     $(window).on('resize', function () {
         tabs.each(function () {
@@ -72,7 +85,6 @@ jQuery(document).ready(function ($) {
     });
     jQuery.fn.reverse = [].reverse;
 
-
      // Move items to the dropdown on mobile devices
     var isMobile = false;
     if(/(android|bb\d+|meego).+mobile|avantgo|bada\/|blackberry|blazer|compal|elaine|fennec|hiptop|iemobile|ip(hone|od)|ipad|iris|kindle|Android|Silk|lge |maemo|midp|mmp|netfront|opera m(ob|in)i|palm( os)?|phone|p(ixi|re)\/|plucker|pocket|psp|series(4|6)0|symbian|treo|up\.(browser|link)|vodafone|wap|windows (ce|phone)|xda|xiino/i.test(navigator.userAgent)
@@ -88,10 +100,8 @@ jQuery(document).ready(function ($) {
     getSecret();
     getBranch();
     getGitHubData();
-    var commands = ["hash","cwd","phpini","gitdirectory"];
+    var commands = ["hash","cwd","phpini","gitdirectory", "title"];
     getSystemData(commands);
-
-
 });
 
 
