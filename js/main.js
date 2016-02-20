@@ -11,7 +11,7 @@ jQuery(document).ready(function ($) {
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
 
-        tabItems.on('click', 'a:not(#reload)', function (event) {
+        tabItems.on('click', 'a:not(#reload, #hamburger)', function (event) {
             event.preventDefault();
             var selectedItem = $(this);
             if (!selectedItem.hasClass('selected')) {
@@ -63,6 +63,10 @@ jQuery(document).ready(function ($) {
     $('#reload').on('click', function () {
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
         selectedFrame.attr('src', selectedFrame.attr('src'));
+    });
+
+    $('#settingsModal').on('show.bs.modal', function () {
+        setTitle("Settings");
     });
 
     $('#settingsModal').on('hidden.bs.modal', function () {

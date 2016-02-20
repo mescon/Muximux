@@ -192,7 +192,7 @@ function menuItems()
     if ($enabledropdown == "true") {
         $item = "<ul class=\"main-nav\">
         <li class=\"dd\">
-        <a><span class=\"fa fa-bars fa-lg\"></span></a>
+        <a id=\"hamburger\"><span class=\"fa fa-bars fa-lg\"></span></a>
         <ul class=\"drop-nav\">\n" . $dropdownmenu .
             "</ul></li></ul>\n\n\n<ul class=\"cd-tabs-navigation\"><nav>" .
             $standardmenu .
