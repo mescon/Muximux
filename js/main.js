@@ -1,8 +1,8 @@
 jQuery(document).ready(function ($) {
     var tabs = $('.cd-tabs');
 
-    // Set window title to the selected item on load
-    var activeTitle = $('ul.cd-tabs-navigation .selected').attr("data-title");
+    // Set default title to the selected item on load
+    var activeTitle = $('li .selected').attr("data-title");
     setTitle(activeTitle);
 
     tabs.each(function () {
@@ -11,7 +11,7 @@ jQuery(document).ready(function ($) {
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
 
-        tabItems.on('click', 'a', function (event) {
+        tabItems.on('click', 'a:not(#reload)', function (event) {
             event.preventDefault();
             var selectedItem = $(this);
             if (!selectedItem.hasClass('selected')) {
