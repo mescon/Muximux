@@ -87,15 +87,19 @@ function parse_ini()
         $develop = "<option value=\"develop\" selected>develop</option>";
     } else { $develop = "<option value=\"develop\">develop</option>"; }
 
+    if ($config->get('general', 'updatepopup', 'false') == "true") {
+        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox' checked></div>";
+    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox'></div>"; }
+
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title') . "'>";
+    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
     $pageOutput .= "<label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
     $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general-enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
-        $pageOutput .= "checked></div></div><br><br>";
+        $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
-        $pageOutput .= "></div></div><br>";
+        $pageOutput .= "></div>$showUpdates</div><br>";
 
     $pageOutput .= "<input type='hidden' class='settings-value' name='settings-enabled' value='true'>" .
         "<input type='hidden' class='settings-value' name='settings-default' value='false'>" .
@@ -159,9 +163,7 @@ function parse_ini()
 function menuItems()
 {
     $config = new Config_Lite(CONFIG);
-    if (empty($standardmenu)) $standardmenu = '';
-    if (empty($dropdownmenu)) $dropdownmenu = '';
-    if (empty($enabledropdown)) $enabledropdown = '';
+
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
             if (isset($section["enabledropdown"]) && ($section["enabledropdown"] == "true")) {
@@ -173,15 +175,15 @@ function menuItems()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && (!isset($section["dd"]) || $section["dd"] == "false")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             } else {
-                $standardmenu .= "<li><a data-content=\"" . $keyname . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal'><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal' data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
-            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" ><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else {
             $dropdownmenu .= "";
         }
@@ -190,7 +192,7 @@ function menuItems()
     if ($enabledropdown == "true") {
         $item = "<ul class=\"main-nav\">
         <li class=\"dd\">
-        <a><span class=\"fa fa-bars fa-lg\"></span></a>
+        <a id=\"hamburger\"><span class=\"fa fa-bars fa-lg\"></span></a>
         <ul class=\"drop-nav\">\n" . $dropdownmenu .
             "</ul></li></ul>\n\n\n<ul class=\"cd-tabs-navigation\"><nav>" .
             $standardmenu .
@@ -206,8 +208,7 @@ function menuItems()
 function getTitle()
 {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'title');
-    if (empty($item)) $item = 'Muximux - Application Management Console';
+    $item = $config->get('general', 'title', 'Muximux - Application Management Console');
     return $item;
 }
 
@@ -223,9 +224,9 @@ function frameContent()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"" . $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             } else {
-                $item .= "\n<li data-content=\"" . $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             }
 
         }
@@ -309,6 +310,13 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
     // Get the local path where this script is running from.
     if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
         echo getcwd();
+        die();
+    }
+
+    // Get the title configured in settings.php.ini
+    if (isset($_GET['get']) && $_GET['get'] == 'title') {
+        $config = new Config_Lite(CONFIG);
+        echo $config->get('general', 'title', 'Muximux');
         die();
     }
 

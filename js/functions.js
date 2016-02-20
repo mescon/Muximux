@@ -157,12 +157,13 @@ function settingsEventHandlers() {
             $(this).attr('was', newSection);
             $('.' + section + '-value').each(function () {
                 var split = $(this).attr('name').split('-');
+
                 $(this).removeAttr('name')
                     .prop('name', newSection + "-" + split[1])
                     .addClass(newSection + '-value')
                     .removeClass(section + '-value');
             });
-            $('input[name="'+section+'-icon"]').prop('name', newSection + "-icon");
+                $('input[name="'+section+'-icon"]').prop('name', newSection + "-icon");
             $(this).parents('div.applicationContainer').attr('id', newSection);
         }
     });
@@ -213,7 +214,7 @@ function viewChangelog() {
         output += "The changes from your version to the latest version can be read <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">here</a>.</p>";
     }
     output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
-    output += "<p>If you wan't to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
+    output += "<p>If you want to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog ("+ dataStore().branch +")</h3><ul>";
     for (var i in json) {
         var shortCommitID = json[i].sha.substring(0, 7);
         var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
@@ -257,13 +258,14 @@ function showResponse(responseText, statusText) {
 
 // Calculates the amount of days since an update was commited on Github.
 function datediff(latestDate) {
-    var rightNow = new Date();
-    var currentDate = rightNow.toISOString().substring(0, 10).split('-').join('');
-    var test = latestDate.split('-').join('');
-    return currentDate - test;
+    var githubDate_ms = new Date(latestDate).getTime();
+    var localDate_ms = new Date().getTime();
+    var difference_ms = localDate_ms - githubDate_ms;
+
+    return Math.round(difference_ms/86400000);
 }
 
-// Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first!
+// Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first.
 function getSecret() {
     $.ajax({
         async: false,
@@ -300,7 +302,7 @@ function getSystemData(commands) {
             indexValue: i,
             url: "muximux.php?secret="+ secret +"&get=" + commands[i],
             cache: false,
-            async: true,
+            async: false,
             success: function (data) {
                 $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
                 $('#' + commands[this.indexValue] + "-data").data({data: data});
@@ -309,11 +311,11 @@ function getSystemData(commands) {
     }
 }
 
-// Grabs muximux repo data from github api
+// Grabs Muximux repo data from github api
 function getGitHubData() {
     var branch = $("#branch").data()['data'];
     $.ajax({
-        async: true,
+        async: false,
         dataType: 'json',
         url: "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch,
         type: 'GET',
@@ -333,6 +335,7 @@ function dataStore() {
     var secret = $("#secret").data()['data'];
     var gitdir = $("#gitdirectory-data").data()['data'];
     var branch = $("#branch").data()['data'];
+    var title  = $("#title-data").data()['data'];
     var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
     for (var i in json) {
@@ -352,7 +355,54 @@ function dataStore() {
         cwd: cwd,
         phpini: phpini,
         secret: secret,
-        branch: branch
+        branch: branch,
+        title: title
     };
     return upstreamInformation;
+}
+
+function setCookie(cname, cvalue, exdays) {
+    var d = new Date();
+    d.setTime(d.getTime() + (exdays*24*60*60*1000));
+    var expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + "; " + expires;
+}
+
+function getCookie(cname) {
+    var name = cname + "=";
+    var ca = document.cookie.split(';');
+    for(var i=0; i<ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0)==' ') c = c.substring(1);
+        if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
+    }
+    return "";
+}
+
+// Set document title including title of the page as configured in settings.ini.php
+// TODO: Currently wrapped inside a document.ready function to wait for dataStore() to be populated
+function setTitle(title) {
+    $(document).ready(function ($) {
+        $(document).attr("title", title + " - " + dataStore().title);
+    })
+
+}
+
+// Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
+function updateBox() {
+    var updateCheck;
+    if (dataStore().differenceCommits) {
+        clearInterval(updateCheck);
+        if ((dataStore().gitDirectory == "readable") && (!(dataStore().localVersion == "noexec")) && (dataStore().differenceCommits > 0)) {
+            if (!getCookie('updateDismiss')) {
+                $('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button><span>You are currently <strong>"+ dataStore().differenceCommits +"</strong> commits behind!<br/>See <a href=\""+ dataStore().compareURL +"\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
+                $('#updateContainer').fadeIn("slow");
+            }
+        }
+        $('#updateDismiss').click(function() {
+            $('#updateContainer').fadeOut('slow');
+            // Set cookie to remember dismiss decision for 1 hour.
+            setCookie('updateDismiss', 'true', 1/24);
+        });
+    }
 }

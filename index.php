@@ -133,6 +133,7 @@ require 'muximux.php';
         </div>
     </div>
 </div>
+<div id="updateContainer"></div>
 
 <script src="js/jquery-2.2.0.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
@@ -143,6 +144,12 @@ require 'muximux.php';
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/functions.js"></script>
 <?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
+<?php
+$config = new Config_Lite(CONFIG);
+if ($config->get('general', 'updatepopup', 'false') == "true") {
+    echo "<script type=\"text/javascript\">$(document).ready(function ($) { var updateCheck = setInterval(updateBox(),1000); })</script>";
+}
+?>
 <meta id='gitData'>
 <meta id='secret'>
 <meta id='branch'>
