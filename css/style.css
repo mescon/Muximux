@@ -67,6 +67,7 @@ Main components
 @media only screen and (min-width: 0px) {
     .cd-tabs nav {
         overflow: auto;
+        overflow-y: hidden;
         margin: 0;
         position: relative;
         float: none;
