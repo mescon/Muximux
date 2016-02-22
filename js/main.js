@@ -1,4 +1,12 @@
 jQuery(document).ready(function ($) {
+    // Custom function to do case-insensitive selector matching
+    $.extend($.expr[":"], {
+        "containsInsensitive": function(elem, i, match, array) {
+        return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+        }
+    });
+
+
     var tabs = $('.cd-tabs');
 
     // Set default title to the selected item on load
@@ -106,6 +114,15 @@ jQuery(document).ready(function ($) {
     getGitHubData();
     var commands = ["hash","cwd","phpini","gitdirectory", "title"];
     getSystemData(commands);
+
+
+    // Load the menu item that is set in URL, for example http://site.com/#plexpy
+    if($(location).attr('hash')) {
+        var bookmarkHash = $(location).attr('hash').substr(1).replace("%20", " ").replace("_", " ");
+        var menuItem = $(document).find('a:containsInsensitive("'+bookmarkHash+'")');
+        menuItem.trigger("click");
+    }
+
 });
 
 

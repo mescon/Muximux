@@ -26,6 +26,7 @@ function dropDownFixPosition(button, dropdown) {
     dropdown.css('left', $(window).width() - $('.drop-nav').width() - button.offset().left + "px");
 }
 
+
 function settingsEventHandlers() {
     $('#sortable').sortable();
 
@@ -109,6 +110,7 @@ function settingsEventHandlers() {
 
         });
     });
+
 
     function removeCallback(selectedElement) {
         setTimeout(function () {
@@ -361,12 +363,14 @@ function dataStore() {
     return upstreamInformation;
 }
 
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     var expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
 }
+
 
 function getCookie(cname) {
     var name = cname + "=";
