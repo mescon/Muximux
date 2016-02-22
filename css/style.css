@@ -514,3 +514,8 @@ input[type='button']:hover {
   filter: alpha(opacity=100);
   opacity: 1;
 }
+
+form input {
+    background-color: #fff;
+    color: #000;
+}

@@ -62,6 +62,14 @@ require 'muximux.php';
                     <p>The order that you put these blocks in determine in what order they will be listed in the
                         menu.<br>
                         Enable or disable each block and edit the URL to point to your desired location.<br/><br/></p>
+                    <h3>Bookmarking apps contained within Muximux</h3>
+                    <p>If you want to go directly to a specific app within Muximux you can use anchors in the URL.
+                        For instance, if you have an app called "My app" you could do:<br/>
+                        <code><script>document.write(document.location)</script>#My app</code><br/><br/>
+                        This is great for when you want to bookmark specific services contained within Muximux.<br/>
+                        Please note that the anchor should be the exact same as the "Name" you have configured below.<br/>
+                        If you need to, you can replace spaces with underscores (<code>#My_app</code>).
+                        <br/><br/></p>
                     <h3>Running Muximux from SSL-enabled / HTTPS server</h3>
                     <p>Please note that if Muximux is served via HTTPS, any services that are NOT served via HTTPS might
                         be blocked by your web-browser.<br><br>
