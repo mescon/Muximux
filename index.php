@@ -36,7 +36,9 @@ require 'muximux.php';
     <?php echo menuItems(); ?>
 
     <ul class="cd-tabs-content">
-        <?php echo frameContent(); ?>
+        <div class="constrain">
+            <?php echo frameContent(); ?>
+        </div>
     </ul>
 </div>
 <!-- Modal -->

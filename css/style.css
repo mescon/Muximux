@@ -68,6 +68,10 @@ iframe {
 Main components
 
 -------------------------------- */
+.constrain {
+    overflow: hidden;
+}
+
 .modal-title {
     font-size: 18px;
     color: #f1f3f2;
