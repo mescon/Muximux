@@ -73,14 +73,18 @@ jQuery(document).ready(function ($) {
         selectedFrame.attr('src', selectedFrame.attr('src'));
     });
 
+    // When settings modal is open, set title to "Settings"
     $('#settingsModal').on('show.bs.modal', function () {
         setTitle("Settings");
     });
 
+    // When settings modal closes, set title to the previous title used
     $('#settingsModal').on('hidden.bs.modal', function () {
         var activeTitle = $('.cd-tabs-content').find('.selected').children('iframe').attr("data-title");
         setTitle(activeTitle);
     });
+
+
 
     $(window).on('resize', function () {
         tabs.each(function () {
@@ -90,6 +94,7 @@ jQuery(document).ready(function ($) {
         });
 
         resizeIframe(); // Resize iframes when window is resized.
+        scaleFrames(); // Scale frames when window is resized.
     });
 
     $('.main-nav').hover(function () {
@@ -108,6 +113,7 @@ jQuery(document).ready(function ($) {
 
     settingsEventHandlers();
     resizeIframe(); // Call resizeIframe when document is ready
+    scaleFrames();
     initIconPicker('.iconpicker');
     getSecret();
     getBranch();
