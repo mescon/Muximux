@@ -126,7 +126,7 @@ function parse_ini()
                 else if ($key == "name") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-search=\"true\" data-search-text=\"Search...\"  data-iconset=\"fontawesome\" data-icon=\"" . $val . "\"></button></div>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
                     if ($val == "true")
@@ -145,8 +145,8 @@ function parse_ini()
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-                } else {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                } else if ($key == "dd") {
+                    $pageOutput .= "<div><label for='" . $section . "-dd'>Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-dd' name='" . $section . "-dd' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
@@ -154,10 +154,10 @@ function parse_ini()
                 }
             }
             $pageOutput .= "
-            <label for='" . $section . "-scale'>Zoom: </label>
+            <div style=\"margin-left:5px;\"><label for='" . $section . "-scale'>Zoom: </label>
             <select id='" . $section . "-scale' name='" . $section . "-scale'>";
 
-            $pageOutput .= $scaleRange ."</select>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+            $pageOutput .= $scaleRange ."</select></div>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
         }
     }
     $pageOutput .= "</div>
