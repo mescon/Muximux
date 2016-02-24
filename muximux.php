@@ -77,6 +77,13 @@ function write_ini()
 
 function parse_ini()
 {
+    $i=10;
+    $scaleRange = "";
+    while($i<251) {
+        $pr = $i / 100;
+        $scaleRange .= "<option value='" . $pr ."'>". $i ."%</option>";
+        $i++;
+    }
     $config = new Config_Lite(CONFIG);
 
     if ($config->get('general', 'branch', 'master') == "master") {
@@ -106,7 +113,7 @@ function parse_ini()
         "<input type='hidden' class='settings-value' name='settings-name' value='Settings'>" .
         "<input type='hidden' class='settings-value' name='settings-url' value='muximux.php'>" .
         "<input type='hidden' class='settings-value' name='settings-landingpage' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-cog'>" .
+        "<input type='hidden' class='settings-value' name='settings-icon' value='fa-cog'>" .
         "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
 
     $pageOutput .= "<div id='sortable'>";
@@ -116,9 +123,9 @@ function parse_ini()
             foreach ($name as $key => $val) {
                 if ($key == "url")
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >URL:</label><input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
-                elseif ($key == "name") {
+                else if ($key == "name") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
-                } elseif ($key == "icon") {
+                } else if ($key == "icon") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-search=\"true\" data-search-text=\"Search...\"  data-iconset=\"fontawesome\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
@@ -126,23 +133,22 @@ function parse_ini()
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-                } elseif ($key == "enabled") {
+                } else if ($key == "enabled") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enabled: </label><input class='checkbox " . $section . "-value ' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-                } elseif ($key == "landingpage") {
+                } else if ($key == "landingpage") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enable landing page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-
-                } elseif ($key == "dd") {
-                    $pageOutput .= "\n\n<div><label for='" . $section . "-dd'>Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-dd' name='" . $section . "-dd' type='checkbox' ";
+                } else {
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
-                        $pageOutput .= " checked></div>\n\n";
+                        $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 }
@@ -150,13 +156,8 @@ function parse_ini()
             $pageOutput .= "
             <label for='" . $section . "-scale'>Zoom: </label>
             <select id='" . $section . "-scale' name='" . $section . "-scale'>";
-            $i=10;
-            while($i<251) {
-                $pr = $i / 100;
-                $pageOutput .= "<option value='" . $pr ."'>". $i ."%</option>\n";
-                $i++;
-            }
-            $pageOutput .= "</select>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+
+            $pageOutput .= $scaleRange ."</select>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
         }
     }
     $pageOutput .= "</div>
