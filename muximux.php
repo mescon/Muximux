@@ -173,6 +173,8 @@ function parse_ini()
 function menuItems()
 {
     $config = new Config_Lite(CONFIG);
+    $standardmenu = "";
+    $dropdownmenu = "";
 
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
@@ -191,7 +193,7 @@ function menuItems()
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal' data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else {

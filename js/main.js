@@ -20,6 +20,7 @@ jQuery(document).ready(function ($) {
             tabNavigation = tab.find('nav');
 
         tabItems.on('click', 'a:not(#reload, #hamburger)', function (event) {
+            resizeIframe(); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
             if (!selectedItem.hasClass('selected')) {
@@ -112,8 +113,8 @@ jQuery(document).ready(function ($) {
     }
 
     settingsEventHandlers();
-    resizeIframe(); // Call resizeIframe when document is ready
     scaleFrames();
+    resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
     getSecret();
     getBranch();

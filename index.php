@@ -1,4 +1,5 @@
 <?php
+error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 require 'muximux.php';
 ?><!doctype html>
 <!--[if lt IE 7]>
