@@ -26,6 +26,7 @@ function dropDownFixPosition(button, dropdown) {
     dropdown.css('left', $(window).width() - $('.drop-nav').width() - button.offset().left + "px");
 }
 
+
 function settingsEventHandlers() {
     $('#sortable').sortable();
 
@@ -109,6 +110,7 @@ function settingsEventHandlers() {
 
         });
     });
+
 
     function removeCallback(selectedElement) {
         setTimeout(function () {
@@ -326,6 +328,7 @@ function getGitHubData() {
     });
 }
 
+
 // Grabs data from ajax calls that were stored on elements for later use
 function dataStore() {
     var json = $('#gitData').data();
@@ -361,12 +364,14 @@ function dataStore() {
     return upstreamInformation;
 }
 
+
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
     d.setTime(d.getTime() + (exdays*24*60*60*1000));
     var expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
 }
+
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -385,7 +390,6 @@ function setTitle(title) {
     $(document).ready(function ($) {
         $(document).attr("title", title + " - " + dataStore().title);
     })
-
 }
 
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
@@ -405,4 +409,37 @@ function updateBox() {
             setCookie('updateDismiss', 'true', 1/24);
         });
     }
+}
+
+function scaleContent(content, scale) {
+    var newWidth = $(window).width() / scale;
+    var newHeight = (($(window).height() / scale) - ($('nav').height() / scale));
+
+    $('.cd-tabs-content').find('li[data-content="' + content + '"]').children('iframe').css({
+        '-ms-transform': 'scale('+scale+')',
+        '-moz-transform': 'scale('+scale+')',
+        '-o-transform': 'scale('+scale+')',
+        '-webkit-transform': 'scale('+scale+')',
+        'transform': 'scale('+scale+')',
+        'height': '' + newHeight + 'px',
+        'width': '' + newWidth + 'px',
+    });
+}
+
+
+
+// Find apps with a scale setting that is more or less than 100%, then re-scale it to the desired setting using scaleContent(selector, scale)
+function scaleFrames() {
+    $('.cd-tabs-content').find('li').each(function (value) {
+        content = $(this).attr('data-content');
+        scale = $(this).attr('data-scale');
+
+        // Mark the scale we are currently using, on the settings modal
+        $('#'+content+'-scale option[value="'+scale+'"]').attr('selected','selected');
+
+        // If scale is set to something other than 1, rescale it to what's stored in settings.
+        if(scale !== "1") {
+            scaleContent(content, scale);
+        }
+    })
 }

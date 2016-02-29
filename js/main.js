@@ -1,4 +1,12 @@
 jQuery(document).ready(function ($) {
+    // Custom function to do case-insensitive selector matching
+    $.extend($.expr[":"], {
+        "containsInsensitive": function(elem, i, match, array) {
+        return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
+        }
+    });
+
+
     var tabs = $('.cd-tabs');
 
     // Set default title to the selected item on load
@@ -12,6 +20,7 @@ jQuery(document).ready(function ($) {
             tabNavigation = tab.find('nav');
 
         tabItems.on('click', 'a:not(#reload, #hamburger)', function (event) {
+            resizeIframe(); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
             if (!selectedItem.hasClass('selected')) {
@@ -65,14 +74,18 @@ jQuery(document).ready(function ($) {
         selectedFrame.attr('src', selectedFrame.attr('src'));
     });
 
+    // When settings modal is open, set title to "Settings"
     $('#settingsModal').on('show.bs.modal', function () {
         setTitle("Settings");
     });
 
+    // When settings modal closes, set title to the previous title used
     $('#settingsModal').on('hidden.bs.modal', function () {
         var activeTitle = $('.cd-tabs-content').find('.selected').children('iframe').attr("data-title");
         setTitle(activeTitle);
     });
+
+
 
     $(window).on('resize', function () {
         tabs.each(function () {
@@ -82,6 +95,7 @@ jQuery(document).ready(function ($) {
         });
 
         resizeIframe(); // Resize iframes when window is resized.
+        scaleFrames(); // Scale frames when window is resized.
     });
 
     $('.main-nav').hover(function () {
@@ -99,6 +113,7 @@ jQuery(document).ready(function ($) {
     }
 
     settingsEventHandlers();
+    scaleFrames();
     resizeIframe(); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
     getSecret();
@@ -106,6 +121,15 @@ jQuery(document).ready(function ($) {
     getGitHubData();
     var commands = ["hash","cwd","phpini","gitdirectory", "title"];
     getSystemData(commands);
+
+
+    // Load the menu item that is set in URL, for example http://site.com/#plexpy
+    if($(location).attr('hash')) {
+        var bookmarkHash = $(location).attr('hash').substr(1).replace("%20", " ").replace("_", " ");
+        var menuItem = $(document).find('a:containsInsensitive("'+bookmarkHash+'")');
+        menuItem.trigger("click");
+    }
+
 });
 
 

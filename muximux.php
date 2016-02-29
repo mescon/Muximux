@@ -77,6 +77,13 @@ function write_ini()
 
 function parse_ini()
 {
+    $i=10;
+    $scaleRange = "";
+    while($i<251) {
+        $pr = $i / 100;
+        $scaleRange .= "<option value='" . $pr ."'>". $i ."%</option>";
+        $i++;
+    }
     $config = new Config_Lite(CONFIG);
 
     if ($config->get('general', 'branch', 'master') == "master") {
@@ -106,7 +113,7 @@ function parse_ini()
         "<input type='hidden' class='settings-value' name='settings-name' value='Settings'>" .
         "<input type='hidden' class='settings-value' name='settings-url' value='muximux.php'>" .
         "<input type='hidden' class='settings-value' name='settings-landingpage' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-icon' value='fa fa-cog'>" .
+        "<input type='hidden' class='settings-value' name='settings-icon' value='fa-cog'>" .
         "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
 
     $pageOutput .= "<div id='sortable'>";
@@ -119,7 +126,7 @@ function parse_ini()
                 else if ($key == "name") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-search=\"true\" data-search-text=\"Search...\"  data-iconset=\"fontawesome\" data-icon=\"" . $val . "\"></button></div>";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
                     if ($val == "true")
@@ -138,16 +145,19 @@ function parse_ini()
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-                } else {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                } else if ($key == "dd") {
+                    $pageOutput .= "<div><label for='" . $section . "-dd'>Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-dd' name='" . $section . "-dd' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 }
             }
+            $pageOutput .= "
+            <div style=\"margin-left:5px;\"><label for='" . $section . "-scale'>Zoom: </label>
+            <select id='" . $section . "-scale' name='" . $section . "-scale'>";
 
-            $pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+            $pageOutput .= $scaleRange ."</select></div>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
         }
     }
     $pageOutput .= "</div>
@@ -163,6 +173,8 @@ function parse_ini()
 function menuItems()
 {
     $config = new Config_Lite(CONFIG);
+    $standardmenu = "";
+    $dropdownmenu = "";
 
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
@@ -181,7 +193,7 @@ function menuItems()
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle='modal' data-target='#settingsModal' data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "<li><a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
         } else {
@@ -222,11 +234,15 @@ function frameContent()
             $section["url"] = "?landing=" . $keyname;
         }
 
+        if (empty($section["scale"]) or ($section["scale"] == "false")) {
+            $section["scale"] = "1";
+        }
+
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"" . $keyname . "\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             } else {
-                $item .= "\n<li data-content=\"" . $keyname . "\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             }
 
         }

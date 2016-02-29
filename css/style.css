@@ -42,7 +42,25 @@ iframe {
     height: 926px;
     background-color: #fff;
     border: 0;
+    padding: 0;
+    margin: 0;
     margin-top: 0px;
+    filter: none;
+    -webkit-filter: blur(0px);
+    -moz-filter': blur(0px);
+    -ms-filter: blur(0px);
+    -o-filter: blur(0px);
+    filter: progid:DXImageTransform.Microsoft.Blur(PixelRadius='0');
+
+    -webkit-transform: translate3d(0,0,0);
+    -webkit-perspective: 1000;
+
+    -ms-transform-origin: 0 0;
+    -moz-transform-origin: 0 0;
+    -o-transform-origin: 0 0;
+    -webkit-transform-origin: 0 0;
+    transform-origin: 0 0;
+
 }
 
 /* --------------------------------
@@ -50,6 +68,10 @@ iframe {
 Main components
 
 -------------------------------- */
+.constrain {
+    overflow: hidden;
+}
+
 .modal-title {
     font-size: 18px;
     color: #f1f3f2;
@@ -67,6 +89,7 @@ Main components
 @media only screen and (min-width: 0px) {
     .cd-tabs nav {
         overflow: auto;
+        overflow-y: hidden;
         margin: 0;
         position: relative;
         float: none;
@@ -512,4 +535,9 @@ input[type='button']:hover {
   cursor: pointer;
   filter: alpha(opacity=100);
   opacity: 1;
+}
+
+form input {
+    background-color: #fff;
+    color: #000;
 }
