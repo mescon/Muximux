@@ -235,7 +235,7 @@ function frameContent()
         }
 
         if (empty($section["scale"]) or ($section["scale"] == "false")) {
-            $section["scale"] = "1";
+            $section["scale"] = 1;
         }
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
