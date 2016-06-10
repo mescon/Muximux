@@ -8,3 +8,6 @@ tmp/
 pydio/
 phpmyadmin/
 *.idea
+.vscode/
+plexredirect/
+recent/
