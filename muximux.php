@@ -16,20 +16,33 @@ if (file_exists('config.ini.php')) {
     $upgrade = false;
 }
 
+function openFile($file, $mode) {
+    if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable. 
+        printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
+        if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
+            printf("<br>Current permission mode of %s: %d", $file, decoct(fileperms($file) & 0777));
+            printf("<br>Current owner of %s: %s", $file, posix_getpwuid(fileowner($filename))['name']);
+            printf("<br>Refer to the README on instructions how to change permissions on the aforementioned files.");
+        } else if (PHP_SHLIB_SUFFIX === "dll") {
+            printf("<br>Detected Windows system, refer to guides on how to set appropriate permissions."); //Can't get fileowner in a trivial manner.
+        }
+        
+        exit;
+    } 
+
+    return fopen($file, $mode);
+}
+
 function createSecret() {
     $text = uniqid("muximux-", true);
-    $file = fopen(SECRET, "w") or die("Unable to open " . SECRET);
+    $file = openFile(SECRET, "w");
     fwrite($file, $text);
     fclose($file);
     return $text;
 }
 
 if(!file_exists(CONFIG)){
-    if (!is_writable(dirname('settings.ini.php-example')))
-        die('The directory Muximux is installed in does not have write permissions. Please make sure your apache/nginx/IIS/lightHttpd user has write permissions to this folder');
-    else {
-        copy(CONFIGEXAMPLE, CONFIG);
-    }
+    copy(CONFIGEXAMPLE, CONFIG);
 }
 
 // First what we're gonna do - save or read
@@ -60,7 +73,7 @@ function write_ini()
     $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
     $file = CONFIG; // the file to which $cache_new gets prepended
 
-    $handle = fopen($file, "r+");
+    $handle = openFile($file, "r+");
     $len = strlen($cache_new);
     $final_len = filesize($file) + $len;
     $cache_old = fread($handle, $len);
