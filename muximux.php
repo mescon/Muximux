@@ -17,7 +17,7 @@ if (file_exists('config.ini.php')) {
 }
 
 function openFile($file, $mode) {
-    if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable. 
+    if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable.
         printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
         if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
             printf("<br>Current permission mode of %s: %d", $file, decoct(fileperms($file) & 0777));
@@ -26,9 +26,9 @@ function openFile($file, $mode) {
         } else if (PHP_SHLIB_SUFFIX === "dll") {
             printf("<br>Detected Windows system, refer to guides on how to set appropriate permissions."); //Can't get fileowner in a trivial manner.
         }
-        
+
         exit;
-    } 
+    }
 
     return fopen($file, $mode);
 }
@@ -253,9 +253,9 @@ function frameContent()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             } else {
-                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
             }
 
         }
@@ -370,6 +370,12 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         } else {
             echo 'php.ini';
         }
+        die();
+    }
+
+    if (isset($_GET['get']) && $_GET['get'] == 'greeting') {
+        $config = new Config_Lite(CONFIG);
+        echo $config->get('general', 'greeting', 'false');
         die();
     }
 

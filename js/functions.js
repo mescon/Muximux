@@ -339,6 +339,7 @@ function dataStore() {
     var gitdir = $("#gitdirectory-data").data()['data'];
     var branch = $("#branch").data()['data'];
     var title  = $("#title-data").data()['data'];
+    var greeting  = $("#greeting-data").data()['data'];
     var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
     for (var i in json) {
@@ -359,7 +360,8 @@ function dataStore() {
         phpini: phpini,
         secret: secret,
         branch: branch,
-        title: title
+        title: title,
+        greeting: greeting
     };
     return upstreamInformation;
 }
