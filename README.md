@@ -49,6 +49,24 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 > *There is no need to edit either config.ini.php or settings.ini.php - in fact, we recommend you don't!*
 > *Your settings.ini.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
 
+## Docker Setup
+
+1. Install [Docker](https://www.docker.com/)
+
+2. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
+```bash
+docker run -d -p 80:80 \
+--name="Muximux" \
+--restart="always" \
+nathanthegr8/muximux
+```
+## Port Conflicts
+If you run into a port conflict trying to run on 80, it is simple to modify the port forwarding:
+
+```bash
+-p 81:80
+```
+
 
 ## Usage
 - Navigate to ``http://<host>/muximux`` where ``<host>`` is either the IP or hostname of your webserver. *Obviously if you put the files in the root directory of your webserver, there is no need to append ``/muximux``*
