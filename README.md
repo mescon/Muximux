@@ -58,7 +58,7 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 docker run -d -p 80:80 \
 --name="Muximux" \
 --restart="always" \
-nathanthegr8/muximux
+mescon/muximux
 ```
 ## Port Conflicts
 If you run into a port conflict trying to run on 80, it is simple to modify the port forwarding:

@@ -119,7 +119,7 @@ jQuery(document).ready(function ($) {
     getSecret();
     getBranch();
     getGitHubData();
-    var commands = ["hash","cwd","phpini","gitdirectory", "title"];
+    var commands = ["hash","cwd","phpini","gitdirectory", "title", "greeting"];
     getSystemData(commands);
 
 
