@@ -57,14 +57,14 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 ```bash
 mkdir muximux
 cd muximux
-wget https://raw.githubusercontent.com/mescon/Muximux/master/settings.ini.php-example
+curl -O https://raw.githubusercontent.com/mescon/Muximux/master/settings.ini.php-example settings.ini.php-example
 ```
 2. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
 ```bash
 docker run -d -p 80:80 \
 --name="muximux" \
 --restart="always" \
---v settings.ini.php-example:/config \
+-v settings.ini.php-example:/config \
 nathanthegr8/muximux
 ```
 
