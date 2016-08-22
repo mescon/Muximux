@@ -10,7 +10,7 @@ WORKDIR /var/www/html
 
 VOLUME /config
 
-RUN ln -sf /config/settings.ini.php /var/www/html/settings.ini.php
+RUN ln -s /config/settings.ini.php /var/www/html/settings.ini.php
 
 EXPOSE 80
 
