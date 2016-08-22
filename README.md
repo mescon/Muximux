@@ -53,14 +53,26 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 
 1. Install [Docker](https://www.docker.com/)
 
+2. Make directory to store Muximux config files. Navigate to that directory and download the sample config.
+```bash
+mkdir muximux
+cd muximux
+wget https://raw.githubusercontent.com/mescon/Muximux/master/settings.ini.php-example
+```
 2. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
 ```bash
 docker run -d -p 80:80 \
---name="Muximux" \
+--name="muximux" \
 --restart="always" \
+--v settings.ini.php-example:/config \
 nathanthegr8/muximux
 ```
-## Port Conflicts
+
+# Config File
+```--v settings.ini.php-example:/config \```
+That is the relaitve path to the file assuming your are in the same directory as it. If you are not adjsut the relative path or use and absoulte path.
+
+# Port Conflicts
 If you run into a port conflict trying to run on 80, it is simple to modify the port forwarding:
 
 ```bash
