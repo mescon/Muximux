@@ -65,14 +65,16 @@ docker run -d -p 80:80 \
 --name="muximux" \
 -v $(pwd):/config \
 --restart="always" \
-mescon/Muximux
+mescon/muximux
 ```
 
-# Config File
-```-v $(pwd):/config \```
+### Config File
+```
+-v $(pwd):/config \
+```
 That will give the absoulte path to your muximux folder. It will be linked to your config in the contatiner so that if you need to rebuild the container you will retain your configuration.
 
-# Port Conflicts
+### Port Conflicts
 If you run into a port conflict trying to run on 80, it is simple to modify the port forwarding:
 
 ```bash
