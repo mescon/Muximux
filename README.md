@@ -59,20 +59,22 @@ mkdir muximux
 curl -O https://raw.githubusercontent.com/mescon/Muximux/master/settings.ini.php-example muximux/settings.ini.php
 cd muximux
 ```
-2. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
+3. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
 ```bash
 docker run -d -p 80:80 \
 --name="muximux" \
 -v $(pwd):/config \
 --restart="always" \
-mescon/Muximux
+mescon/muximux
 ```
 
-# Config File
-```-v $(pwd):/config \```
+### Config File
+```
+-v $(pwd):/config \
+```
 That will give the absoulte path to your muximux folder. It will be linked to your config in the contatiner so that if you need to rebuild the container you will retain your configuration.
 
-# Port Conflicts
+### Port Conflicts
 If you run into a port conflict trying to run on 80, it is simple to modify the port forwarding:
 
 ```bash
