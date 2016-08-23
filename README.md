@@ -59,7 +59,7 @@ mkdir muximux
 curl -O https://raw.githubusercontent.com/mescon/Muximux/master/settings.ini.php-example muximux/settings.ini.php
 cd muximux
 ```
-2. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
+3. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
 ```bash
 docker run -d -p 80:80 \
 --name="muximux" \
