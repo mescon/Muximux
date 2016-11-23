@@ -91,6 +91,8 @@ If you run into a port conflict trying to run on 80, it is simple to modify the 
 
 - To reload an app, double click it in the menu, or press the refresh button in the top right bar.
 
+- If you want to bookmark a specific service - or just quickly go to a service you've set up - use ``https://<host>/muximux/#service_name``. For instance, ``https://myserver.com/muximux/#couchpotato`` which will load Muximux and automatically load my Couchpotato tab. Replace spaces with underscore.
+
 > There is no longer any need to edit config.ini.php or any file at all. In fact, we recommend you don't!
 
 ### Security
