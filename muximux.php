@@ -21,7 +21,7 @@ function openFile($file, $mode) {
         printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
         if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
             printf("<br>Current permission mode of %s: %d", $file, decoct(fileperms($file) & 0777));
-            printf("<br>Current owner of %s: %s", $file, posix_getpwuid(fileowner($filename))['name']);
+            printf("<br>Current owner of %s: %s", $file, posix_getpwuid(fileowner($file))['name']);
             printf("<br>Refer to the README on instructions how to change permissions on the aforementioned files.");
         } else if (PHP_SHLIB_SUFFIX === "dll") {
             printf("<br>Detected Windows system, refer to guides on how to set appropriate permissions."); //Can't get fileowner in a trivial manner.
