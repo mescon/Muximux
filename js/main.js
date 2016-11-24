@@ -1,3 +1,4 @@
+var isMobile;
 jQuery(document).ready(function ($) {
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -129,11 +130,7 @@ jQuery(document).ready(function ($) {
 
      // Move items to the dropdown on mobile devices
     muximuxMobileResize();
-	if($( window ).width() < 800) {
-        var isMobile = true;
-    } else {
-        var isMobile = false;     
-    }
+    
 	console.log(isMobile);
     settingsEventHandlers();
     scaleFrames();
@@ -171,12 +168,12 @@ $( window ).resize(muximuxMobileResize);
 // Declare this outside the function and it should stick?
 function muximuxMobileResize() {
     if($( window ).width() < 800) {
-        var isMobile = true;
+        isMobile = true;
         $('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
         var menuHeight = $( window ).height() * .80;
         $('.drop-nav').css('max-height', menuHeight+'px');
     } else {
-        var isMobile = false;
+        isMobile = false;
         $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
         $('.drop-nav').css('max-height', '');
     }
