@@ -1,3 +1,4 @@
+var isMobile;
 jQuery(document).ready(function ($) {
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -12,6 +13,8 @@ jQuery(document).ready(function ($) {
     // Set default title to the selected item on load
     var activeTitle = $('li .selected').attr("data-title");
     setTitle(activeTitle);
+	//get appropriate CSS3 box-shadow property
+	var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
 
     tabs.each(function () {
         var tab = $(this),
@@ -23,6 +26,11 @@ jQuery(document).ready(function ($) {
             resizeIframe(); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
+	    var color = selectedItem.attr("data-color");
+	    console.log("Color is " + color);
+			
+			
+			
             if (!selectedItem.hasClass('selected')) {
                 var selectedTab = selectedItem.data('content'),
                     selectedContent = tabContentWrapper.find('li[data-content="' + selectedTab + '"]'),
@@ -36,7 +44,7 @@ jQuery(document).ready(function ($) {
                 if (sifsrc === undefined || sifsrc === "") {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').data('src'));
                 }
-
+		$(".selected").css("Box-Shadow","");
                 tabItems.find('a.selected').removeClass('selected');
                 selectedItem.addClass('selected');
 
@@ -46,6 +54,7 @@ jQuery(document).ready(function ($) {
 
                 selectedContent.addClass('selected').siblings('li').removeClass('selected');
                 // animate tabContentWrapper height when content changes
+		$(".selected").css("Box-Shadow","inset 0 5px 0 " + color + "");
                 tabContentWrapper.animate({
                     'height': selectedContentHeight
                 }, 200);
@@ -68,6 +77,22 @@ jQuery(document).ready(function ($) {
         $('.main-nav a span:first').removeClass('dd-active');
     });
 
+	$('.drop-nav').on('click', function () {
+		if (isMobile == true) {
+			console.log("DropNav clicked.");
+			
+			
+			
+		}
+    });
+	function getsupportedprop(proparray){
+    var root=document.documentElement //reference root element of document
+    for (var i=0; i<proparray.length; i++){ //loop through possible properties
+        if (proparray[i] in root.style){ //if property exists on element (value will be string, empty string if not set)
+            return proparray[i] //return that string
+        }
+    }
+}
 
     $('#reload').on('click', function () {
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
@@ -105,7 +130,8 @@ jQuery(document).ready(function ($) {
 
      // Move items to the dropdown on mobile devices
     muximuxMobileResize();
-
+    
+	console.log(isMobile);
     settingsEventHandlers();
     scaleFrames();
     resizeIframe(); // Call resizeIframe when document is ready
@@ -139,14 +165,15 @@ $(window).unload(function() {
 
 $( window ).resize(muximuxMobileResize);
 
+// Declare this outside the function and it should stick?
 function muximuxMobileResize() {
     if($( window ).width() < 800) {
-        // isMobile = true;
+        isMobile = true;
         $('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
         var menuHeight = $( window ).height() * .80;
         $('.drop-nav').css('max-height', menuHeight+'px');
     } else {
-        // isMobile = false;
+        isMobile = false;
         $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
         $('.drop-nav').css('max-height', '');
     }
