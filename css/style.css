@@ -358,16 +358,9 @@ body ul {
 
 /*Settings*/
 
-input[type='text']:not(.appName) {
-    width: 300px;
-    height: 25px;
-    -webkit-border-radius: 5px 5px 5px 5px;
-    border-radius: 5px 5px 5px 5px;
-    margin: 5px 5px 5px 10px;
-    padding: 2px;
-}
-input[type='text']:(.appName) {
-    width: 200px;
+input[type='text'] {
+	max-width: 300px;
+    width: 90%;
     height: 25px;
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
@@ -430,7 +423,8 @@ input[type='button']:hover {
 }
 
 .modal-dialog {
-    width: 80%;
+    width: 90%;
+	max-width: 550px;
 }
 
 .modal-body {
@@ -462,6 +456,7 @@ input[type='button']:hover {
     font-size: 16px;
     font-size: 1.6rem;
     border: 1px solid #FFF;
+    max-width: 500px;
     width: 90%;
     padding: 10px;
     margin-left: auto;

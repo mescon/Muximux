@@ -1,4 +1,5 @@
 var isMobile;
+var color;
 jQuery(document).ready(function ($) {
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -12,6 +13,7 @@ jQuery(document).ready(function ($) {
 
     // Set default title to the selected item on load
     var activeTitle = $('li .selected').attr("data-title");
+    muximuxMobileResize();
     setTitle(activeTitle);
     //get appropriate CSS3 box-shadow property
     var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
@@ -24,10 +26,19 @@ jQuery(document).ready(function ($) {
             tabNavigation = tab.find('nav');
 
         tabItems.on('click', 'a:not(#reload, #hamburger)', function (event) {
+			
+            // Set up menu for desktip view
+			
+	    if (!isMobile) {
+		$('.drop-nav').addClass('hide-nav');
+		$('.drop-nav').removeClass('show-nav');	
+		$('.main-nav a span:first').removeClass('dd-active');
+	    }
+			
             resizeIframe(); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
-	    var color = selectedItem.attr("data-color");
+	    color = selectedItem.attr("data-color");
             if (!selectedItem.hasClass('selected')) {
                 var selectedTab = selectedItem.data('content'),
                     selectedContent = tabContentWrapper.find('li[data-content="' + selectedTab + '"]'),
@@ -41,20 +52,23 @@ jQuery(document).ready(function ($) {
                 if (sifsrc === undefined || sifsrc === "") {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').data('src'));
                 }
-		$(".selected").css("Box-Shadow","");
-                tabItems.find('a.selected').removeClass('selected');
-                selectedItem.addClass('selected');
+				
+				// Fix issue with color not resetting on settings close
+				if (!(selectedItem.attr("data-title") == "Settings")) {
+					clearColors();
+					tabItems.find('a.selected').removeClass('selected');
+					selectedItem.addClass('selected');
+					setSelectedColor();
+					// Change window title after class "selected" has been added to item
+					var activeTitle = selectedItem.attr("data-title");
+					setTitle(activeTitle);
 
-                // Change window title after class "selected" has been added to item
-                var activeTitle = selectedItem.attr("data-title");
-                setTitle(activeTitle);
-
-                selectedContent.addClass('selected').siblings('li').removeClass('selected');
-                // animate tabContentWrapper height when content changes
-		$(".selected").css("Box-Shadow","inset 0 5px 0 " + color + "");
-                tabContentWrapper.animate({
-                    'height': selectedContentHeight
-                }, 200);
+					selectedContent.addClass('selected').siblings('li').removeClass('selected');
+					// animate tabContentWrapper height when content changes
+					tabContentWrapper.animate({
+						'height': selectedContentHeight
+					}, 200);
+				}
             }
         });
 
@@ -64,15 +78,7 @@ jQuery(document).ready(function ($) {
             checkScrolling($(this));
         });
     });
-
-    // Keep hamburger-menu white when hovering items UNDER the hamburger menu.
-    $('.drop-nav').on('mouseover', function () {
-        $('.main-nav a span:first').addClass('dd-active');
-    });
-
-    $('.drop-nav').on('mouseout', function () {
-        $('.main-nav a span:first').removeClass('dd-active');
-    });
+  
 	
 	$('li.dd').on('click', function () {
 		toggleClasses();
@@ -124,8 +130,7 @@ jQuery(document).ready(function ($) {
     jQuery.fn.reverse = [].reverse;
 
      // Move items to the dropdown on mobile devices
-    muximuxMobileResize();
-
+    
     settingsEventHandlers();
     scaleFrames();
     resizeIframe(); // Call resizeIframe when document is ready
@@ -170,6 +175,8 @@ function muximuxMobileResize() {
         $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
         $('.drop-nav').css('max-height', '');
     }
+	clearColors();
+	setSelectedColor();
 }
 
 // Simple method to toggle show/hide classes in navigation
@@ -177,4 +184,26 @@ function muximuxMobileResize() {
 function toggleClasses() {
 	$('.drop-nav').toggleClass('hide-nav');
 	$('.drop-nav').toggleClass('show-nav');
+	$('.main-nav a span:first').toggleClass('dd-active');
+}
+// Clear color values from tabs
+
+function clearColors() {
+	
+	$(".selected").children("span").css("color","");
+	$(".selected").css("color","");
+	$(".selected").css("Box-Shadow","");
+
+}
+// Add relevant color value to tabs
+
+function setSelectedColor() {
+	
+	color = $('li .selected').attr("data-color");
+	if (isMobile) {
+		$(".selected").children("span").css("color","" + color + "");
+		$(".selected").css("color","" + color + "");
+    } else {
+		$(".selected").css("Box-Shadow","inset 0 5px 0 " + color + "");
+    }
 }
