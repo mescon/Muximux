@@ -225,7 +225,7 @@ Main components
 
 .main-nav > li:hover {
     color: #f1f3f2;
-    background-color: rgba(233, 230, 202, 0.3);
+    
 }
 
 .main-nav > li {
@@ -304,6 +304,11 @@ Main components
 
 .dd:hover > .drop-nav {
     display: block;
+}
+
+*/
+.drop-nav:hide-nav {
+	display: none;
 }
 
 .drop-nav > li:hover, .drop-nav > li:hover a {

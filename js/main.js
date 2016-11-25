@@ -71,6 +71,17 @@ jQuery(document).ready(function ($) {
     $('.drop-nav').on('mouseout', function () {
         $('.main-nav a span:first').removeClass('dd-active');
     });
+	
+	$('li.dd').on('click', function () {
+        console.log("Nav: Click");
+		 if ($('.drop-nav').hasClass('.open')) {
+			$('.drop-nav').css('display','none');
+			$('.drop-nav').removeClass('.open');
+		 } else {
+			 $('.drop-nav').css('display','block');
+			$('.drop-nav').addClass('.open');
+		 }
+    });
 
 	// This fetches the broweser-appropriate box-shadow value so we can set it
 	
