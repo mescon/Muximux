@@ -12,6 +12,8 @@ jQuery(document).ready(function ($) {
     // Set default title to the selected item on load
     var activeTitle = $('li .selected').attr("data-title");
     setTitle(activeTitle);
+	//get appropriate CSS3 box-shadow property
+	var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
 
     tabs.each(function () {
         var tab = $(this),
@@ -23,6 +25,7 @@ jQuery(document).ready(function ($) {
             resizeIframe(); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
+	    var color = selectedItem.attr("data-color");
             if (!selectedItem.hasClass('selected')) {
                 var selectedTab = selectedItem.data('content'),
                     selectedContent = tabContentWrapper.find('li[data-content="' + selectedTab + '"]'),
@@ -36,7 +39,7 @@ jQuery(document).ready(function ($) {
                 if (sifsrc === undefined || sifsrc === "") {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').data('src'));
                 }
-
+		$(".selected").css("Box-Shadow","");
                 tabItems.find('a.selected').removeClass('selected');
                 selectedItem.addClass('selected');
 
@@ -46,6 +49,7 @@ jQuery(document).ready(function ($) {
 
                 selectedContent.addClass('selected').siblings('li').removeClass('selected');
                 // animate tabContentWrapper height when content changes
+		$(".selected").css("Box-Shadow","inset 0 5px 0 " + color + "");
                 tabContentWrapper.animate({
                     'height': selectedContentHeight
                 }, 200);
@@ -68,6 +72,16 @@ jQuery(document).ready(function ($) {
         $('.main-nav a span:first').removeClass('dd-active');
     });
 
+	// This fetches the broweser-appropriate box-shadow value so we can set it
+	
+	function getsupportedprop(proparray){
+    var root=document.documentElement //reference root element of document
+    for (var i=0; i<proparray.length; i++){ //loop through possible properties
+        if (proparray[i] in root.style){ //if property exists on element (value will be string, empty string if not set)
+            return proparray[i] //return that string
+        }
+    }
+}
 
     $('#reload').on('click', function () {
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');

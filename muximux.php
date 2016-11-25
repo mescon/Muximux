@@ -138,6 +138,8 @@ function parse_ini()
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >URL:</label><input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
                 else if ($key == "name") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                } else if ($key == "color") {
+                    $pageOutput .= "<br><br><div><label for='" . $section . "-" . $key . "'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "-color' value='" . $val . "' name='" . $section . "-color'></div>";
                 } else if ($key == "icon") {
                     $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
@@ -153,7 +155,7 @@ function parse_ini()
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "landingpage") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enable landing page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Landing page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
@@ -167,7 +169,7 @@ function parse_ini()
                 }
             }
             $pageOutput .= "
-            <div style=\"margin-left:5px;\"><label for='" . $section . "-scale'>Zoom: </label>
+            <br><div style=\"margin-left:5px;\"><label for='" . $section . "-scale'>Zoom: </label>
             <select id='" . $section . "-scale' name='" . $section . "-scale'>";
 
             $pageOutput .= $scaleRange ."</select></div>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
@@ -200,9 +202,9 @@ function menuItems()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && (!isset($section["dd"]) || $section["dd"] == "false")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             } else {
-                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
