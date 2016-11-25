@@ -12,9 +12,10 @@ jQuery(document).ready(function ($) {
     // Set default title to the selected item on load
     var activeTitle = $('li .selected').attr("data-title");
     setTitle(activeTitle);
-	//get appropriate CSS3 box-shadow property
-	var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
-
+    //get appropriate CSS3 box-shadow property
+    var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
+    //Hide the nav to start	
+    $('.drop-nav').toggleClass('hide-nav');
     tabs.each(function () {
         var tab = $(this),
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
@@ -73,14 +74,7 @@ jQuery(document).ready(function ($) {
     });
 	
 	$('li.dd').on('click', function () {
-        console.log("Nav: Click");
-		 if ($('.drop-nav').hasClass('.open')) {
-			$('.drop-nav').css('display','none');
-			$('.drop-nav').removeClass('.open');
-		 } else {
-			 $('.drop-nav').css('display','block');
-			$('.drop-nav').addClass('.open');
-		 }
+		toggleClasses();
     });
 
 	// This fetches the broweser-appropriate box-shadow value so we can set it
@@ -175,4 +169,11 @@ function muximuxMobileResize() {
         $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
         $('.drop-nav').css('max-height', '');
     }
+}
+
+// Simple method to toggle show/hide classes in navigation
+
+function toggleClasses() {
+	$('.drop-nav').toggleClass('hide-nav');
+	$('.drop-nav').toggleClass('show-nav');
 }
