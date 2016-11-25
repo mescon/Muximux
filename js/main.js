@@ -1,3 +1,4 @@
+var isMobile;
 jQuery(document).ready(function ($) {
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -160,12 +161,12 @@ $( window ).resize(muximuxMobileResize);
 
 function muximuxMobileResize() {
     if($( window ).width() < 800) {
-        // isMobile = true;
+        isMobile = true;
         $('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
         var menuHeight = $( window ).height() * .80;
         $('.drop-nav').css('max-height', menuHeight+'px');
     } else {
-        // isMobile = false;
+        isMobile = false;
         $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
         $('.drop-nav').css('max-height', '');
     }
