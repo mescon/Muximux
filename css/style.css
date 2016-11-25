@@ -40,7 +40,7 @@ p {
 iframe {
     width: 100%;
     height: 926px;
-    background-color: #fff;
+    background-color: #000;
     border: 0;
     padding: 0;
     margin: 0;
@@ -127,7 +127,7 @@ Main components
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 700;
-    color: #747b8b;
+    color: #818181;
     padding-top: 32px;
 }
 
@@ -141,7 +141,7 @@ Main components
 }
 
 .cd-tabs-navigation a.selected:not(#reload) {
-    background-color: #41434f !important; /* Selected tab colour */
+    background-color: #3f3f3f !important; /* Selected tab colour */
     color: #f1f3f2; /* Selected text colour */
 }
 
@@ -149,7 +149,7 @@ Main components
     .cd-tabs-navigation {
         /* tabbed on top of devices */
         width: 100%;
-        background-color: #343843; /* Main nav colour */
+        background-color: #222222; /* Main nav colour */
         box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
     }
 
@@ -213,7 +213,7 @@ Main components
 }
 
 .main-nav, .drop-nav {
-    background: #343843;
+    background: #222222;
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
     z-index: 100002;
 }
@@ -255,7 +255,7 @@ Main components
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-weight: 700;
-    color: #747b8b;
+    color: #818181;
 }
 
 .dd {
@@ -428,11 +428,11 @@ input[type='button']:hover {
 }
 
 .modal-body {
-    background: #343843;
+    background: #222222;
 }
 
 .modal-header, .modal-footer {
-    background: #41434f;
+    background: #3f3f3f;
 }
 
 .upgradeBody {
@@ -525,7 +525,7 @@ input[type='button']:hover {
 }
 
 #updateContainer {
-    background-color: #343843;
+    background-color: #222222;
     color: #f1f3f2;
     display: none;
     font-size: 14px;
