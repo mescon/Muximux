@@ -200,34 +200,83 @@ function menuItems()
             }
         }
 
-        if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && (!isset($section["dd"]) || $section["dd"] == "false")) {
+        if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && ((!isset($section["dd"]) || $section["dd"] == "false") || ($enabledropdown != "true"))) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "
+				<li class='cd-tab'>
+					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\">
+						<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+					</a>
+				</li>";
             } else {
-                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "
+				<li class='cd-tab'>
+					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\">
+						<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+					</a>
+				</li>";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
-        } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
-            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "
+				<li>
+					<a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
+						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
+					</a>
+				</li>";
+        } else if (($enabledropdown == "true") && isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
+            $dropdownmenu .= "
+				<li>
+					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
+						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
+					</a>
+				</li>";
         } else {
             $dropdownmenu .= "";
         }
     }
 
     if ($enabledropdown == "true") {
-        $item = "<ul class=\"main-nav\">
-        <li class=\"dd\">
-        <a id=\"hamburger\"><span class=\"fa fa-bars fa-lg\"></span></a>
-        <ul class=\"drop-nav\">\n" . $dropdownmenu .
-            "</ul></li></ul>\n\n\n<ul class=\"cd-tabs-navigation\"><nav>" .
-            $standardmenu .
-            "<li class='cd-tab'><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";
+        $item = "
+	<ul class=\"main-nav\">
+		<li class='cd-tab'>
+			<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
+				<span class=\"fa fa-refresh fa-lg\"></span>
+			</a>
+		</li>
+		<li class=\"dd\">
+			<a id=\"hamburger\">
+				<span class=\"fa fa-bars fa-lg\"></span>
+			</a>
+			<ul class=\"drop-nav\">" . 
+					$dropdownmenu ."
+			</ul>
+		</li>
+	</ul>\n\n\n
+	<ul class=\"cd-tabs-navigation\">
+		<nav>" .
+			$standardmenu ."
+			</ul>
+		</nav>";
     } else {
-        $item = "<nav><ul class=\"cd-tabs-navigation\">" .
-            $standardmenu .
-            "<li class='cd-tab'><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";
+        $item = "
+	<ul class=\"main-nav\">
+		<li class='cd-tab'>
+			<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
+				<span class=\"fa fa-refresh fa-lg\"></span>
+			</a>
+		</li>
+		<li class='cd-tab'>
+			<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
+				<span class=\"fa fa-gear fa-lg\"></span>
+			</a>
+		</li>
+	</ul>
+	<ul class=\"cd-tabs-navigation\">
+	<nav>" .
+		$standardmenu . "
+		</ul>
+	</nav>";
     }
     return $item;
 }

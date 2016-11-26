@@ -32,7 +32,7 @@ jQuery(document).ready(function ($) {
 	    if (!isMobile) {
 		$('.drop-nav').addClass('hide-nav');
 		$('.drop-nav').removeClass('show-nav');	
-		$('.main-nav a span:first').removeClass('dd-active');
+		$('.main-nav #hamburger span:first').removeClass('dd-active');
 	    }
 			
             resizeIframe(); // Call resizeIframe when document is ready
@@ -68,7 +68,6 @@ jQuery(document).ready(function ($) {
 					tabContentWrapper.animate({
 						'height': selectedContentHeight
 					}, 200);
-				}
             }
         });
 
@@ -124,8 +123,8 @@ jQuery(document).ready(function ($) {
         scaleFrames(); // Scale frames when window is resized.
     });
 
-    $('.main-nav').hover(function () {
-        dropDownFixPosition($('.main-nav'), $('.drop-nav'));
+    $('.dd').hover(function () {
+        dropDownFixPosition($('.dd'), $('.drop-nav'));
     });
     jQuery.fn.reverse = [].reverse;
 
@@ -184,7 +183,7 @@ function muximuxMobileResize() {
 function toggleClasses() {
 	$('.drop-nav').toggleClass('hide-nav');
 	$('.drop-nav').toggleClass('show-nav');
-	$('.main-nav a span:first').toggleClass('dd-active');
+	$('.main-nav #hamburger span:first').toggleClass('dd-active');
 }
 // Clear color values from tabs
 

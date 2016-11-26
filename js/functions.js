@@ -134,11 +134,12 @@ function settingsEventHandlers() {
         var rand = Math.floor((Math.random() * 999999) + 1);
         $('#sortable').append(
             '<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' +
-            '<div><label>Name:</label><input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
-            '<div><label>URL:</label><input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
-            '<div><label>Icon:</label><button class=\"' + rand + 'newApplication-value iconpicker btn btn-default\" name="' + rand + 'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
+            '<div><br><label>Name:</label><input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
+            '<div><br><label>URL:</label><input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
+            '<div><br><label>Icon:</label><button class=\"' + rand + 'newApplication-value iconpicker btn btn-default\" name="' + rand + 'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
+            '<div><label>Color:</label><input type=\"color\" class=\"appsColor '+ rand +'-color\" value=\"#ffffff\" name=\"' + rand + '-color\"></div>' +
             '<div><label for="' + rand + 'newApplication-enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-enabled" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
-            '<div><label for="' + rand + 'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
+            '<div><br><label for="' + rand + 'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
             '<div><label for="' + rand + 'newApplication-landingpage">Enable landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
             '<div><label for="' + rand + 'newApplication-dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-dd" name="newApplication-dd" type="checkbox"></div>' +
             '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove-' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
