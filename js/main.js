@@ -225,7 +225,7 @@ function clearColors() {
 function setSelectedColor() {
 	
 	color = $('li .selected').attr("data-color");
-	if (isMobile) {
+	if (isMobile && !overrideMobile) {
 		$(".selected").children("span").css("color","" + color + "");
 		$(".selected").css("color","" + color + "");
     } else {
