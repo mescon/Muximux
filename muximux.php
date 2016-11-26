@@ -166,13 +166,19 @@ function parse_ini()
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-                }
+                } else if ($key == "scale") {
+					$scaleRange2 = "0";
+					$scaleRange2 = buildScale($val);
+					$pageOutput .= "<br><div style=\"margin-left:5px;\">
+											<label for='" . $section . "_-_scale'>Zoom: </label>
+											<select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange2 ."</select>
+										</div>";
+					
+				}
+				
             }
-            $pageOutput .= "
-            <br><div style=\"margin-left:5px;\"><label for='" . $section . "_-_scale'>Zoom: </label>
-            <select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>";
-
-            $pageOutput .= $scaleRange ."</select></div>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+			$pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+            
         }
     }
     $pageOutput .= "</div>
@@ -184,6 +190,26 @@ function parse_ini()
     return $pageOutput;
 }
 
+// Build a custom scale using our set value, show it as selected
+function buildScale($selectValue) 
+{
+	$f=10;
+    $scaleRange = "";
+    while($f<251) {
+        $pra = $f / 100;
+		if ($pra == $selectValue) {
+			
+			$scaleRange .= "<option value='" . $pra ."' selected>". $f ."%</option>\n";
+			$f++;
+		} else {
+			
+			$scaleRange .= "<option value='" . $pra ."'>". $f ."%</option>\n";
+			$f++;
+		}
+    }
+	return $scaleRange;
+
+}
 
 function menuItems()
 {
