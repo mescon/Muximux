@@ -68,6 +68,7 @@ jQuery(document).ready(function ($) {
 					tabContentWrapper.animate({
 						'height': selectedContentHeight
 					}, 200);
+				} 
             }
         });
 
@@ -110,8 +111,7 @@ jQuery(document).ready(function ($) {
         setTitle(activeTitle);
     });
 
-
-
+	
     $(window).on('resize', function () {
         tabs.each(function () {
             var tab = $(this);
