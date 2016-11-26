@@ -58,7 +58,7 @@ function write_ini()
 
     $config = new Config_Lite(CONFIG);
     foreach ($_POST as $parameter => $value) {
-        $splitParameter = explode('-', $parameter);
+        $splitParameter = explode('_-_', $parameter);
         if ($value == "on")
             $value = "true";
         $config->set($splitParameter[0], $splitParameter[1], $value);
@@ -108,26 +108,26 @@ function parse_ini()
     } else { $develop = "<option value=\"develop\">develop</option>"; }
 
     if ($config->get('general', 'updatepopup', 'false') == "true") {
-        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox' checked></div>";
-    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox'></div>"; }
+        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' checked></div>";
+    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox'></div>"; }
 
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
-    $pageOutput .= "<br><label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
-    $pageOutput .= "<br><div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general-enabledropdown' type='checkbox' ";
+    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
+    $pageOutput .= "<br><label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general_-_branch'>$master $develop</select>";
+    $pageOutput .= "<br><div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
         $pageOutput .= "></div>$showUpdates</div><br>";
 
-    $pageOutput .= "<input type='hidden' class='settings-value' name='settings-enabled' value='true'>" .
-        "<input type='hidden' class='settings-value' name='settings-default' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-name' value='Settings'>" .
-        "<input type='hidden' class='settings-value' name='settings-url' value='muximux.php'>" .
-        "<input type='hidden' class='settings-value' name='settings-landingpage' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-icon' value='fa-cog'>" .
-        "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
+    $pageOutput .= "<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_url' value='muximux.php'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>";
 
     $pageOutput .= "<div id='sortable'>";
     foreach ($config as $section => $name) {
@@ -135,33 +135,33 @@ function parse_ini()
             $pageOutput .= "<div class='applicationContainer' id='" . $section . "'><span class='bars fa fa-bars'></span>";
             foreach ($name as $key => $val) {
                 if ($key == "url")
-                    $pageOutput .= "<br><div><label for='" . $section . "-" . $key . "' >URL:</label><input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >URL:</label><input class='" . $section . "_-_value' name='" . $section . "_-_" . $key . "' type='text' value='" . $val . "'></div>";
                 else if ($key == "name") {
-                    $pageOutput .= "<br><div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Name:</label><input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_" . $key . "' type='text' value='" . $val . "'></div>";
                 } else if ($key == "color") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "-color' value='" . $val . "' name='" . $section . "-color'></div>";
+                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $val . "' name='" . $section . "_-_color'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<br><div><label for='" . $section . "-" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
-                    $pageOutput .= "<br><div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "'";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "enabled") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enabled: </label><input class='checkbox " . $section . "-value ' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "' >Enabled: </label><input class='checkbox " . $section . "_-_value ' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "landingpage") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Landing page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "' >Landing page: </label><input class='checkbox " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "dd") {
-                    $pageOutput .= "<div><label for='" . $section . "-dd'>Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-dd' name='" . $section . "-dd' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "_-_dd'>Put in dropdown: </label><input class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
@@ -169,8 +169,8 @@ function parse_ini()
                 }
             }
             $pageOutput .= "
-            <br><div style=\"margin-left:5px;\"><label for='" . $section . "-scale'>Zoom: </label>
-            <select id='" . $section . "-scale' name='" . $section . "-scale'>";
+            <br><div style=\"margin-left:5px;\"><label for='" . $section . "_-_scale'>Zoom: </label>
+            <select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>";
 
             $pageOutput .= $scaleRange ."</select></div>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
         }
