@@ -1,5 +1,4 @@
-var isMobile;
-var color;
+var isMobile, overrideMobile, color;
 jQuery(document).ready(function ($) {
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -14,6 +13,12 @@ jQuery(document).ready(function ($) {
     // Set default title to the selected item on load
     var activeTitle = $('li .selected').attr("data-title");
     muximuxMobileResize();
+	if (isMobile) {
+		$('#override').css('display','block');
+	} else {
+		$('#override').css('display','none');
+	}
+	overrideMobile=false;
     setTitle(activeTitle);
     //get appropriate CSS3 box-shadow property
     var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
@@ -25,7 +30,7 @@ jQuery(document).ready(function ($) {
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
 
-        tabItems.on('click', 'a:not(#reload, #hamburger)', function (event) {
+        tabItems.on('click', 'a:not(#reload, #hamburger, #override)', function (event) {
 			
             // Set up menu for desktip view
 			
@@ -68,8 +73,8 @@ jQuery(document).ready(function ($) {
 					tabContentWrapper.animate({
 						'height': selectedContentHeight
 					}, 200);
-				} 
-            }
+				}
+			}
         });
 
         // hide the .cd-tabs::after element when tabbed navigation has scrolled to the end (mobile version)
@@ -98,6 +103,18 @@ jQuery(document).ready(function ($) {
     $('#reload').on('click', function () {
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
         selectedFrame.attr('src', selectedFrame.attr('src'));
+    });
+
+// Detect click on override button, fire resize
+	
+	$('#override').on('click', function () {
+        overrideMobile = !overrideMobile;
+		muximuxMobileResize();
+		if (overrideMobile && isMobile) {
+			$('#override').addClass('or-active');
+		} else {
+			$('#override').removeClass('or-active');
+		}
     });
 
     // When settings modal is open, set title to "Settings"
@@ -166,14 +183,23 @@ $( window ).resize(muximuxMobileResize);
 function muximuxMobileResize() {
     if($( window ).width() < 800) {
         isMobile = true;
-        $('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
-        var menuHeight = $( window ).height() * .80;
-        $('.drop-nav').css('max-height', menuHeight+'px');
     } else {
         isMobile = false;
-        $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
-        $('.drop-nav').css('max-height', '');
     }
+	if (isMobile) {
+		$('#override').css('display','block');
+	} else {
+		$('#override').css('display','none');
+	}
+	if (isMobile && !overrideMobile) {
+		console.log("Resize called, rendering mobile.");
+		$('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
+        	var menuHeight = $( window ).height() * .80;
+        	$('.drop-nav').css('max-height', menuHeight+'px');
+	} else {
+		$(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
+        	$('.drop-nav').css('max-height', '');
+	}
 	clearColors();
 	setSelectedColor();
 }

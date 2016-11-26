@@ -112,7 +112,7 @@ Main components
     float: left;
 }
 
-.cd-tabs-navigation a, #reload, #settings {
+.cd-tabs-navigation a, #reload, #settings, #override {
     position: relative;
     display: block;
     height: 35px;
@@ -131,7 +131,7 @@ Main components
     cursor: pointer;
 }
 
-.no-touch .cd-tabs-navigation a:hover, #reload:hover, #settings:hover {
+.cd-tabs-navigation a:hover, #reload:hover, #settings:hover {
     color: #f1f3f2; /* Hover text colour */
     background-color: rgba(233, 230, 202, 0.3);
 }
@@ -275,6 +275,15 @@ Main components
 .dd-active {
     /* Used by main.js to set color of parent element of hovered item */
     color: #f1f3f2;
+}
+
+.or-active {
+    background-color: rgba(233, 230, 202, 0.3);
+}
+
+.or-active > span {
+	color: #ffffff; /* Hover text colour */
+    
 }
 
 .drop-nav {

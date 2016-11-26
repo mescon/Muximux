@@ -108,9 +108,14 @@ function parse_ini()
     } else { $develop = "<option value=\"develop\">develop</option>"; }
 
     if ($config->get('general', 'updatepopup', 'false') == "true") {
-        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' checked></div>";
-    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox'></div>"; }
+        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' checked></div><br>";
+    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox'></div><br>"; }
 
+	if ($config->get('general', 'mobileoverride', 'false') == "true") {
+        $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' checked></div>";
+    } else { $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox'></div>"; }
+
+	
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
@@ -224,6 +229,11 @@ function menuItems()
             } else {
                 $enabledropdown = "false";
             }
+	    if (isset($section["mobileoverride"]) && ($section["mobileoverride"] == "true")) {
+                $mobileoverride = "true";
+            } else {
+                $mobileoverride = "false";
+            }
         }
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && ((!isset($section["dd"]) || $section["dd"] == "false") || ($enabledropdown != "true"))) {
@@ -261,16 +271,29 @@ function menuItems()
             $dropdownmenu .= "";
         }
     }
+	
+	if ($mobileoverride == "true") {
+		$moButton = "
+		<li class='cd-tab navbtn'>
+			<a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
+				<span class=\"fa fa-mobile fa-lg\"></span>
+			</a>
+		</li>
+		";
+	} else {
+		$moButton = "";
+	}
 
     if ($enabledropdown == "true") {
         $item = "
-	<ul class=\"main-nav\">
-		<li class='cd-tab'>
+	<ul class=\"main-nav\">" .
+		$moButton ."
+		<li class='cd-tab navbtn'>
 			<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
 				<span class=\"fa fa-refresh fa-lg\"></span>
 			</a>
 		</li>
-		<li class=\"dd\">
+		<li class='dd navbtn'>
 			<a id=\"hamburger\">
 				<span class=\"fa fa-bars fa-lg\"></span>
 			</a>
@@ -286,13 +309,14 @@ function menuItems()
 		</nav>";
     } else {
         $item = "
-	<ul class=\"main-nav\">
-		<li class='cd-tab'>
+	<ul class=\"main-nav\">" .
+		$moButton ."
+		<li class='cd-tab navbtn'>
 			<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
 				<span class=\"fa fa-refresh fa-lg\"></span>
 			</a>
 		</li>
-		<li class='cd-tab'>
+		<li class='cd-tab navbtn'>
 			<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
 				<span class=\"fa fa-gear fa-lg\"></span>
 			</a>

@@ -3,6 +3,7 @@
 title = "Muximux - Application Management Console"
 branch = "master"
 enabledropdown = "true"
+mobileoverride = "false"
 
 [settings]
 enabled = "true"
