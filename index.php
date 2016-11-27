@@ -24,7 +24,7 @@ require 'muximux.php';
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <link rel="stylesheet" href="css/spectrum.min.css">
-    <script src="js/modernizr-2.8.3-respond-1.4.2.min.js"></script>
+    <script src="js/modernizr-3.3.1-respond.min.js"></script>
     <title><?php echo getTitle(); ?></title>
 </head>
 
@@ -148,7 +148,7 @@ require 'muximux.php';
 </div>
 <div id="updateContainer"></div>
 
-<script src="js/jquery-2.2.0.min.js"></script>
+<script src="js/jquery-2.2.4.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
 <script src="js/jquery.form.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
