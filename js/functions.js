@@ -9,11 +9,21 @@ function checkScrolling(tabs) {
 }
 
 // Measure viewport and subtract the height the navigation tabs, then resize the iframes.
-function resizeIframe() {
+// drawer is just a boolean value as to whether or not we have the drawer.
+// If we do, then we need to make the iframe taller than bar height.
+function resizeIframe(drawer) {
+	if (drawer) {
+		var newSize = $(window).height() - 5;
+		$('iframe').css({
+			'height': newSize + 'px'
+		});
+	} else {
     var newSize = $(window).height() - $('nav').height();
-    $('iframe').css({'height': newSize + 'px'});
+		$('iframe').css({
+			'height': newSize + 'px'
+		});
 }
-
+}
 // From https://css-tricks.com/snippets/javascript/htmlentities-for-javascript/ - don't render tags retrieved from Github
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -445,4 +455,18 @@ function scaleFrames() {
             scaleContent(content, scale);
         }
     })
+}
+// Like the name implies, it changes the favicon to whatever
+// url is passed to it
+function changeFavicon(src) {
+	document.head = document.head || document.getElementsByTagName('head')[0];
+	var link = document.createElement('link'),
+	oldLink = document.getElementById('dynamic-favicon');
+	link.id = 'dynamic-favicon';
+	link.rel = 'shortcut icon';
+	link.href = src;
+	if (oldLink) {
+		document.head.removeChild(oldLink);
+	}
+	document.head.appendChild(link);
 }

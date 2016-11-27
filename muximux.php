@@ -115,6 +115,9 @@ function parse_ini()
         $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' checked></div>";
     } else { $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox'></div>"; }
 
+	if ($config->get('general', 'autohide', 'false') == "true") {
+        $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' checked></div>";
+    } else { $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox'></div>"; }
 	
     $pageOutput = "<form>";
 
@@ -224,6 +227,11 @@ function menuItems()
 
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
+		if (isset($section["autohide"]) && ($section["autohide"] == "true")) {
+            $autohide = "true";
+        } else {
+            $autohide = "false";
+        }
             if (isset($section["enabledropdown"]) && ($section["enabledropdown"] == "true")) {
                 $enabledropdown = "true";
             } else {
@@ -284,8 +292,19 @@ function menuItems()
 		$moButton = "";
 	}
 
+	if ($autohide == "true") {
+			$drawerdiv .= "
+			<div class='canary drawer'></div>
+			<div class='cd-tabs-bar drawer'>
+		";
+	} else {
+			$drawerdiv .= "
+			<div class='canary'></div>
+			<div class='cd-tabs-bar'>
+			";
+	}
     if ($enabledropdown == "true") {
-        $item = "
+        $item = $drawerdiv . "
 	<ul class=\"main-nav\">" .
 		$moButton ."
 		<li class='cd-tab navbtn'>
@@ -305,10 +324,13 @@ function menuItems()
 	<ul class=\"cd-tabs-navigation\">
 		<nav>" .
 			$standardmenu ."
+		</nav>
 			</ul>
-		</nav>";
+</div>
+</div>
+		";
     } else {
-        $item = "
+        $item =  $drawerdiv . "
 	<ul class=\"main-nav\">" .
 		$moButton ."
 		<li class='cd-tab navbtn'>
@@ -325,8 +347,10 @@ function menuItems()
 	<ul class=\"cd-tabs-navigation\">
 	<nav>" .
 		$standardmenu . "
+		</nav>
 		</ul>
-	</nav>";
+</div>
+	";
     }
     return $item;
 }

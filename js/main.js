@@ -1,4 +1,4 @@
-var isMobile, overrideMobile, color;
+var isMobile, overrideMobile, hasDrawer, color;
 jQuery(document).ready(function ($) {
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -9,7 +9,11 @@ jQuery(document).ready(function ($) {
 
 
     var tabs = $('.cd-tabs');
-
+	if ($('.cd-tabs-bar').hasClass('drawer')) {
+		hasDrawer = "true";
+	} else {
+		hasDrawer = "false";
+	}
     // Set default title to the selected item on load
     var activeTitle = $('li .selected').attr("data-title");
     muximuxMobileResize();
@@ -40,7 +44,7 @@ jQuery(document).ready(function ($) {
 		$('.main-nav #hamburger span:first').removeClass('dd-active');
 	    }
 			
-            resizeIframe(); // Call resizeIframe when document is ready
+			resizeIframe(hasDrawer); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
 	    color = selectedItem.attr("data-color");
@@ -54,9 +58,13 @@ jQuery(document).ready(function ($) {
                 });
 
                 var sifsrc = selectedContent.children('iframe').attr('src');
+				var srcUrl = selectedContent.children('iframe').data('src');
                 if (sifsrc === undefined || sifsrc === "") {
-                    selectedContent.children('iframe').attr('src', selectedContent.children('iframe').data('src'));
+					selectedContent.children('iframe').attr('src', srcUrl);
                 }
+				// This doesn't work often, but it's a nice surprise when it does
+				// Work on a way to do this with PHP that isn't taxing
+				changeFavicon('http://api.byi.pw/favicon?url=' + srcUrl);
 				
 				// Fix issue with color not resetting on settings close
 				if (!(selectedItem.attr("data-title") == "Settings")) {
@@ -136,20 +144,37 @@ jQuery(document).ready(function ($) {
             tab.find('.cd-tabs-content').css('height', 'auto');
         });
 
-        resizeIframe(); // Resize iframes when window is resized.
+		resizeIframe(hasDrawer); // Resize iframes when window is resized.
         scaleFrames(); // Scale frames when window is resized.
     });
 
-    $('.dd').hover(function () {
+	$('.dd').click(function() {
         dropDownFixPosition($('.dd'), $('.drop-nav'));
     });
+	$('#autohideCheckbox').click(function() {
+		console.log("Check1");
+		$('#mobileoverrideCheckbox').prop('checked',false);
+	});
+	$('#mobileoverrideCheckbox').click(function() {
+		console.log("Check2");
+		$('#autohideCheckbox').prop('checked',false);
+	});
+	// This triggers a menu close when mouse has left the drop nav.
+	$('.dd').mouseout(function() {
+		if (!($('.drop-nav:hover').length != 0 || $('.dd:hover').length != 0)) {
+			timeoutId = setTimeout(function() {
+				$('.drop-nav').addClass('hide-nav');
+				$('.drop-nav').removeClass('show-nav');
+			}, 500);
+		}
+	});
     jQuery.fn.reverse = [].reverse;
 
      // Move items to the dropdown on mobile devices
     
     settingsEventHandlers();
     scaleFrames();
-    resizeIframe(); // Call resizeIframe when document is ready
+	resizeIframe(hasDrawer); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
     getSecret();
     getBranch();
@@ -221,14 +246,19 @@ function clearColors() {
 
 }
 // Add relevant color value to tabs
-
+// Refactor to a more appropriate name
 function setSelectedColor() {
 	
 	color = $('li .selected').attr("data-color");
 	if (isMobile && !overrideMobile) {
+		$(".cd-tabs-bar").removeClass("drawer");
 		$(".selected").children("span").css("color","" + color + "");
 		$(".selected").css("color","" + color + "");
     } else {
 		$(".selected").css("Box-Shadow","inset 0 5px 0 " + color + "");
+		// Super hacky, but we're refrencing a placeholder div to quickly see if we have a drawer
+		if ($('.canary').hasClass('drawer')) {
+			$(".cd-tabs-bar").addClass("drawer");
     }
+	}
 }

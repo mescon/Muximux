@@ -76,7 +76,22 @@ Main components
     font-size: 18px;
     color: #f1f3f2;
 }
-
+.cd-tabs-bar.drawer, .cd-tabs-bar.drawer .cd-tab, .cd-tabs-bar.drawer .navbtn {
+	max-height: 7px;
+	-webkit-transition: max-height 1s;
+	-moz-transition: max-height 1s;
+	-ms-transition: max-height 1s;
+	-o-transition: max-height 1s;
+	transition: max-height 1s;
+	-webkit-transition-timing-function: ease-in-out; /* Safari and Chrome */
+    	transition-timing-function: ease-in-out;
+}
+.cd-tabs-bar.drawer:hover, .cd-tabs-bar.drawer .cd-tab:hover, .cd-tabs-bar.drawer .navbtn:hover {
+	max-height: 200px;
+}
+.cd-tabs-bar.drawer .navbtn:hover > .cd-tab, .cd-tabs-bar.drawer {
+	max-height: 200px;
+}
 .cd-tabs nav {
     margin: 0;
     padding: 0;
