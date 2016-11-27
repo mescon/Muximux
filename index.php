@@ -34,8 +34,8 @@ require 'muximux.php';
     your browser</a> to improve your experience.</p>
 <![endif]-->
 
-<div class="cd-tabs">
-    <?php echo menuItems(); ?>
+	<div class="cd-tabs">
+		<?php echo menuItems(); ?>
 
     <ul class="cd-tabs-content">
         <div class="constrain">
@@ -43,6 +43,7 @@ require 'muximux.php';
         </div>
     </ul>
 </div>
+
 <!-- Modal -->
 <div id="settingsModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -156,15 +157,14 @@ require 'muximux.php';
 <script type="text/javascript" src="js/main.js"></script>
 <script type="text/javascript" src="js/functions.js"></script>
 <script type="text/javascript" src="js/spectrum.min.js"></script>
-<?php if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
 <?php
-$config = new Config_Lite(CONFIG);
-if ($config->get('general', 'updatepopup', 'false') == "true") {
-    echo "<script type=\"text/javascript\">$(document).ready(function ($) { var updateCheck = setInterval(updateBox(),1000); })</script>";
-}
-?>
+
+if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
+<?php
+
+echo metaTags(); ?>
 <meta id='gitData'>
 <meta id='secret'>
-<meta id='branch'>
+
 </body>
 </html>

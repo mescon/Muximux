@@ -247,18 +247,18 @@ function menuItems()
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && ((!isset($section["dd"]) || $section["dd"] == "false") || ($enabledropdown != "true"))) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
                 $standardmenu .= "
-				<li class='cd-tab'>
-					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\">
-						<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
-					</a>
-				</li>";
+					<li class='cd-tab'>
+						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\">
+							<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+						</a>
+					</li>";
             } else {
                 $standardmenu .= "
-				<li class='cd-tab'>
-					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\">
-						<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
-					</a>
-				</li>";
+					<li class='cd-tab'>
+						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\">
+							<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+						</a>
+					</li>";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
@@ -294,63 +294,62 @@ function menuItems()
 
 	if ($autohide == "true") {
 			$drawerdiv .= "
-			<div class='canary drawer'></div>
-			<div class='cd-tabs-bar drawer'>
-		";
+		<div class='cd-tabs-bar drawer'>
+";
 	} else {
 			$drawerdiv .= "
-			<div class='canary'></div>
-			<div class='cd-tabs-bar'>
+				<div class='canary'></div>
+				<div class='cd-tabs-bar'>
 			";
 	}
     if ($enabledropdown == "true") {
-        $item = $drawerdiv . "
-	<ul class=\"main-nav\">" .
-		$moButton ."
-		<li class='cd-tab navbtn'>
-			<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
-				<span class=\"fa fa-refresh fa-lg\"></span>
-			</a>
-		</li>
-		<li class='dd navbtn'>
-			<a id=\"hamburger\">
-				<span class=\"fa fa-bars fa-lg\"></span>
-			</a>
-			<ul class=\"drop-nav\">" . 
-					$dropdownmenu ."
+		$item = $drawerdiv . "
+			<ul class=\"main-nav\">" .
+			$moButton ."
+				<li class='cd-tab navbtn'>
+					<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
+						<span class=\"fa fa-refresh fa-lg\"></span>
+					</a>
+				</li>
+				<li class='dd navbtn'>
+					<a id=\"hamburger\">
+						<span class=\"fa fa-bars fa-lg\"></span>
+					</a>
+					<ul class=\"drop-nav\">" . 
+							$dropdownmenu ."
+					</ul>
+				</li>
 			</ul>
-		</li>
-	</ul>\n\n\n
-	<ul class=\"cd-tabs-navigation\">
-		<nav>" .
-			$standardmenu ."
-		</nav>
+			
+			<ul class=\"cd-tabs-navigation\">
+				<nav>" .
+					$standardmenu ."
+				</nav>
 			</ul>
-</div>
-</div>
-		";
+		</div>
+	
+			";
     } else {
-        $item =  $drawerdiv . "
-	<ul class=\"main-nav\">" .
-		$moButton ."
-		<li class='cd-tab navbtn'>
-			<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
-				<span class=\"fa fa-refresh fa-lg\"></span>
-			</a>
-		</li>
-		<li class='cd-tab navbtn'>
-			<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
-				<span class=\"fa fa-gear fa-lg\"></span>
-			</a>
-		</li>
-	</ul>
-	<ul class=\"cd-tabs-navigation\">
-	<nav>" .
-		$standardmenu . "
-		</nav>
-		</ul>
-</div>
-	";
+		$item =  $drawerdiv . "
+			<ul class=\"main-nav\">" .
+			$moButton ."
+				<li class='cd-tab navbtn'>
+					<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
+						<span class=\"fa fa-refresh fa-lg\"></span>
+					</a>
+				</li>
+				<li class='cd-tab navbtn'>
+					<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
+						<span class=\"fa fa-gear fa-lg\"></span>
+					</a>
+				</li>
+			</ul>
+			<ul class=\"cd-tabs-navigation\">
+			<nav>" .
+				$standardmenu . "
+				</nav>
+				</ul>
+		";
     }
     return $item;
 }
@@ -362,6 +361,54 @@ function getTitle()
     return $item;
 }
 
+function metaTags() 
+{
+	$config = new Config_Lite(CONFIG);
+    $standardmenu = "";
+    $dropdownmenu = "";
+    foreach ($config as $keyname => $section) {
+        if (($keyname == "general")) {
+			if (isset($section["autohide"]) && ($section["autohide"] == "true")) {
+				$autohide = "true";
+			} else {
+				$autohide = "false";
+			}
+			if (isset($section["branch"])) {
+				$branch = $section["branch"];
+				$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+				curl_setopt($ch, CURLOPT_URL, $branchUrl);
+				$result = curl_exec($ch);
+				curl_close($ch);
+			} else {
+				$branch = "";
+				$branchData = "";
+				$result = "";
+			}
+			if (isset($section["updatepopup"])) {
+				$popupdate = $section["updatepopup"];
+			} else {
+				$popupdate = "";
+			}
+			if (isset($section["title"])) {
+				$maintitle = $section["title"];
+			} else {
+				$maintitle = "";
+			}
+		}
+	}
+$tags .= "
+<meta id='branch' data='". $branch . "'>
+<meta id='popupdate' data='". $popupdate . "'>
+<meta id='drawer' data='". $autohide . "'>
+<meta id='maintitle' data='". $maintitle . "'>
+<meta id='gitData' data='". $result . "'>
+";
+	return $tags;
+}
 
 function frameContent()
 {
@@ -378,9 +425,18 @@ function frameContent()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "
+			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">
+				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
+				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>
+			</li>";
             } else {
-                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "
+			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
+				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
+				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>
+			</li>
+";
             }
 
         }

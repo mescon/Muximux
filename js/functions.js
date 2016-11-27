@@ -281,7 +281,7 @@ function datediff(latestDate) {
 // Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first.
 function getSecret() {
     $.ajax({
-        async: false,
+	async: true,
         dataType: 'text',
         url: "muximux.php?get=secret",
         type: 'GET',
@@ -290,19 +290,7 @@ function getSecret() {
         }
     });
 }
-
-// Gets the current branch the user tracks. This is then appended to Github API calls.
-function getBranch() {
-    $.ajax({
-        async: false,
-        dataType: 'text',
-        url: "muximux.php?get=branch",
-        type: 'GET',
-        success: function (data) {
-            $('#branch').data({data: data});
-        }
-    });
-}
+	
 
 // Gets values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
 function getSystemData(commands) {
@@ -315,7 +303,7 @@ function getSystemData(commands) {
             indexValue: i,
             url: "muximux.php?secret="+ secret +"&get=" + commands[i],
             cache: false,
-            async: false,
+			async: true,
             success: function (data) {
                 $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
                 $('#' + commands[this.indexValue] + "-data").data({data: data});
@@ -324,26 +312,10 @@ function getSystemData(commands) {
     }
 }
 
-// Grabs Muximux repo data from github api
-function getGitHubData() {
-    var branch = $("#branch").data()['data'];
-    $.ajax({
-        async: false,
-        dataType: 'json',
-        url: "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch,
-        type: 'GET',
-        success: function (data) {
-            $('#gitData').data(data);
-        }
-
-    });
-}
-
-
 // Grabs data from ajax calls that were stored on elements for later use
 function dataStore() {
     var json = $('#gitData').data();
-    var localversion = $("#hash-data").data()['data'];
+	var localversion = $("#branch").attr('data');
     var cwd = $("#cwd-data").data()['data'];
     var phpini = $("#phpini-data").data()['data'];
     var secret = $("#secret").data()['data'];
@@ -359,7 +331,6 @@ function dataStore() {
         }
     }
     var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-
     var upstreamInformation = {
         compareURL: compareURL,
         differenceCommits: difference,
@@ -401,7 +372,7 @@ function getCookie(cname) {
 // TODO: Currently wrapped inside a document.ready function to wait for dataStore() to be populated
 function setTitle(title) {
     $(document).ready(function ($) {
-        $(document).attr("title", title + " - " + dataStore().title);
+		$(document).attr("title", title + " - " + $('#maintitle').attr('data'));
     })
 }
 

@@ -7,7 +7,10 @@ jQuery(document).ready(function ($) {
         }
     });
 
-
+	if ($('#popupdate').attr('data') == 'true') {
+		var updateCheck = setInterval(updateBox(),1000);
+	}
+	getSecret();
     var tabs = $('.cd-tabs');
 	if ($('.cd-tabs-bar').hasClass('drawer')) {
 		hasDrawer = "true";
@@ -176,9 +179,6 @@ jQuery(document).ready(function ($) {
     scaleFrames();
 	resizeIframe(hasDrawer); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
-    getSecret();
-    getBranch();
-    getGitHubData();
     var commands = ["hash","cwd","phpini","gitdirectory", "title", "greeting"];
     getSystemData(commands);
 
@@ -257,7 +257,7 @@ function setSelectedColor() {
     } else {
 		$(".selected").css("Box-Shadow","inset 0 5px 0 " + color + "");
 		// Super hacky, but we're refrencing a placeholder div to quickly see if we have a drawer
-		if ($('.canary').hasClass('drawer')) {
+		if ($('#drawer').attr('data') == 'true') {
 			$(".cd-tabs-bar").addClass("drawer");
     }
 	}
