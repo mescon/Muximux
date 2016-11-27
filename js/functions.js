@@ -9,11 +9,21 @@ function checkScrolling(tabs) {
 }
 
 // Measure viewport and subtract the height the navigation tabs, then resize the iframes.
-function resizeIframe() {
+// drawer is just a boolean value as to whether or not we have the drawer.
+// If we do, then we need to make the iframe taller than bar height.
+function resizeIframe(drawer) {
+	if (drawer) {
+		var newSize = $(window).height() - 5;
+		$('iframe').css({
+			'height': newSize + 'px'
+		});
+	} else {
     var newSize = $(window).height() - $('nav').height();
-    $('iframe').css({'height': newSize + 'px'});
+		$('iframe').css({
+			'height': newSize + 'px'
+		});
 }
-
+}
 // From https://css-tricks.com/snippets/javascript/htmlentities-for-javascript/ - don't render tags retrieved from Github
 function htmlEntities(str) {
     return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -134,11 +144,12 @@ function settingsEventHandlers() {
         var rand = Math.floor((Math.random() * 999999) + 1);
         $('#sortable').append(
             '<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' +
-            '<div><label>Name:</label><input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
-            '<div><label>URL:</label><input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
-            '<div><label>Icon:</label><button class=\"' + rand + 'newApplication-value iconpicker btn btn-default\" name="' + rand + 'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
+            '<div><br><label>Name:</label><input class="appName ' + rand + 'newApplication-value" name="' + rand + 'newApplication-name" type="text" value=""></div>' +
+            '<div><br><label>URL:</label><input class="' + rand + 'newApplication-value" name="' + rand + 'newApplication-url" type="text" value=""></div>' +
+            '<div><br><label>Icon:</label><button class=\"' + rand + 'newApplication-value iconpicker btn btn-default\" name="' + rand + 'newApplication-icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' +
+            '<div><label>Color:</label><input type=\"color\" class=\"appsColor '+ rand +'-color\" value=\"#ffffff\" name=\"' + rand + '-color\"></div>' +
             '<div><label for="' + rand + 'newApplication-enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-enabled" name="' + rand + 'newApplication-enabled" type="checkbox" checked></div>' +
-            '<div><label for="' + rand + 'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
+            '<div><br><label for="' + rand + 'newApplication-default">Default:</label><input class="radio ' + rand + 'newApplication-value" id="' + rand + 'newApplication-default" name="' + rand + 'newApplication-default" type="radio"></div>' +
             '<div><label for="' + rand + 'newApplication-landingpage">Enable landing page:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-landingpage" name="newApplication-landingpage" type="checkbox"></div>' +
             '<div><label for="' + rand + 'newApplication-dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication-value" id="' + rand + 'newApplication-dd" name="newApplication-dd" type="checkbox"></div>' +
             '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove-' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
@@ -270,7 +281,7 @@ function datediff(latestDate) {
 // Gets the secret key that was generated on load. This AJAX call can not be async - other functions rely on this property to be set first.
 function getSecret() {
     $.ajax({
-        async: false,
+	async: true,
         dataType: 'text',
         url: "muximux.php?get=secret",
         type: 'GET',
@@ -279,19 +290,7 @@ function getSecret() {
         }
     });
 }
-
-// Gets the current branch the user tracks. This is then appended to Github API calls.
-function getBranch() {
-    $.ajax({
-        async: false,
-        dataType: 'text',
-        url: "muximux.php?get=branch",
-        type: 'GET',
-        success: function (data) {
-            $('#branch').data({data: data});
-        }
-    });
-}
+	
 
 // Gets values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
 function getSystemData(commands) {
@@ -304,7 +303,7 @@ function getSystemData(commands) {
             indexValue: i,
             url: "muximux.php?secret="+ secret +"&get=" + commands[i],
             cache: false,
-            async: false,
+			async: true,
             success: function (data) {
                 $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
                 $('#' + commands[this.indexValue] + "-data").data({data: data});
@@ -313,26 +312,10 @@ function getSystemData(commands) {
     }
 }
 
-// Grabs Muximux repo data from github api
-function getGitHubData() {
-    var branch = $("#branch").data()['data'];
-    $.ajax({
-        async: false,
-        dataType: 'json',
-        url: "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch,
-        type: 'GET',
-        success: function (data) {
-            $('#gitData').data(data);
-        }
-
-    });
-}
-
-
 // Grabs data from ajax calls that were stored on elements for later use
 function dataStore() {
     var json = $('#gitData').data();
-    var localversion = $("#hash-data").data()['data'];
+	var localversion = $("#branch").attr('data');
     var cwd = $("#cwd-data").data()['data'];
     var phpini = $("#phpini-data").data()['data'];
     var secret = $("#secret").data()['data'];
@@ -348,7 +331,6 @@ function dataStore() {
         }
     }
     var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-
     var upstreamInformation = {
         compareURL: compareURL,
         differenceCommits: difference,
@@ -390,7 +372,7 @@ function getCookie(cname) {
 // TODO: Currently wrapped inside a document.ready function to wait for dataStore() to be populated
 function setTitle(title) {
     $(document).ready(function ($) {
-        $(document).attr("title", title + " - " + dataStore().title);
+		$(document).attr("title", title + " - " + $('#maintitle').attr('data'));
     })
 }
 
@@ -444,4 +426,18 @@ function scaleFrames() {
             scaleContent(content, scale);
         }
     })
+}
+// Like the name implies, it changes the favicon to whatever
+// url is passed to it
+function changeFavicon(src) {
+	document.head = document.head || document.getElementsByTagName('head')[0];
+	var link = document.createElement('link'),
+	oldLink = document.getElementById('dynamic-favicon');
+	link.id = 'dynamic-favicon';
+	link.rel = 'shortcut icon';
+	link.href = src;
+	if (oldLink) {
+		document.head.removeChild(oldLink);
+	}
+	document.head.appendChild(link);
 }

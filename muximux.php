@@ -58,7 +58,7 @@ function write_ini()
 
     $config = new Config_Lite(CONFIG);
     foreach ($_POST as $parameter => $value) {
-        $splitParameter = explode('-', $parameter);
+        $splitParameter = explode('_-_', $parameter);
         if ($value == "on")
             $value = "true";
         $config->set($splitParameter[0], $splitParameter[1], $value);
@@ -108,26 +108,34 @@ function parse_ini()
     } else { $develop = "<option value=\"develop\">develop</option>"; }
 
     if ($config->get('general', 'updatepopup', 'false') == "true") {
-        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox' checked></div>";
-    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general-value' name='general-updatepopup' type='checkbox'></div>"; }
+        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' checked></div><br>";
+    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox'></div><br>"; }
 
+	if ($config->get('general', 'mobileoverride', 'false') == "true") {
+        $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' checked></div>";
+    } else { $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox'></div>"; }
+
+	if ($config->get('general', 'autohide', 'false') == "true") {
+        $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' checked></div>";
+    } else { $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox'></div>"; }
+	
     $pageOutput = "<form>";
 
-    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general-value' name='general-title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
-    $pageOutput .= "<label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general-branch'>$master $develop</select>";
-    $pageOutput .= "<div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general-enabledropdown' type='checkbox' ";
+    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
+    $pageOutput .= "<br><label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general_-_branch'>$master $develop</select>";
+    $pageOutput .= "<br><div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ";
     if ($config->get('general', 'enabledropdown') == true)
         $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
         $pageOutput .= "></div>$showUpdates</div><br>";
 
-    $pageOutput .= "<input type='hidden' class='settings-value' name='settings-enabled' value='true'>" .
-        "<input type='hidden' class='settings-value' name='settings-default' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-name' value='Settings'>" .
-        "<input type='hidden' class='settings-value' name='settings-url' value='muximux.php'>" .
-        "<input type='hidden' class='settings-value' name='settings-landingpage' value='false'>" .
-        "<input type='hidden' class='settings-value' name='settings-icon' value='fa-cog'>" .
-        "<input type='hidden' class='settings-value' name='settings-dd' value='true'>";
+    $pageOutput .= "<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_url' value='muximux.php'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>" .
+        "<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>";
 
     $pageOutput .= "<div id='sortable'>";
     foreach ($config as $section => $name) {
@@ -135,42 +143,50 @@ function parse_ini()
             $pageOutput .= "<div class='applicationContainer' id='" . $section . "'><span class='bars fa fa-bars'></span>";
             foreach ($name as $key => $val) {
                 if ($key == "url")
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >URL:</label><input class='" . $section . "-value' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >URL:</label><input class='" . $section . "_-_value' name='" . $section . "_-_" . $key . "' type='text' value='" . $val . "'></div>";
                 else if ($key == "name") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Name:</label><input class='appName " . $section . "-value' was='" . $section . "' name='" . $section . "-" . $key . "' type='text' value='" . $val . "'></div>";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Name:</label><input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_" . $key . "' type='text' value='" . $val . "'></div>";
+                } else if ($key == "color") {
+                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $val . "' name='" . $section . "_-_color'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "-" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
                 } elseif ($key == "default") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "'";
+                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "'";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "enabled") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enabled: </label><input class='checkbox " . $section . "-value ' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "' >Enabled: </label><input class='checkbox " . $section . "_-_value ' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "landingpage") {
-                    $pageOutput .= "<div><label for='" . $section . "-" . $key . "' >Enable landing page: </label><input class='checkbox " . $section . "-value' id='" . $section . "-" . $key . "' name='" . $section . "-" . $key . "' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "' >Landing page: </label><input class='checkbox " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
                 } else if ($key == "dd") {
-                    $pageOutput .= "<div><label for='" . $section . "-dd'>Put in dropdown: </label><input class='checkbox " . $section . "-value' id='" . $section . "-dd' name='" . $section . "-dd' type='checkbox' ";
+                    $pageOutput .= "<div><label for='" . $section . "_-_dd'>Put in dropdown: </label><input class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd' type='checkbox' ";
                     if ($val == "true")
                         $pageOutput .= " checked></div>";
                     else
                         $pageOutput .= "></div>";
-                }
+                } else if ($key == "scale") {
+					$scaleRange2 = "0";
+					$scaleRange2 = buildScale($val);
+					$pageOutput .= "<br><div style=\"margin-left:5px;\">
+											<label for='" . $section . "_-_scale'>Zoom: </label>
+											<select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange2 ."</select>
+										</div>";
+					
+				}
+				
             }
-            $pageOutput .= "
-            <div style=\"margin-left:5px;\"><label for='" . $section . "-scale'>Zoom: </label>
-            <select id='" . $section . "-scale' name='" . $section . "-scale'>";
-
-            $pageOutput .= $scaleRange ."</select></div>\n<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+			$pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+            
         }
     }
     $pageOutput .= "</div>
@@ -182,6 +198,26 @@ function parse_ini()
     return $pageOutput;
 }
 
+// Build a custom scale using our set value, show it as selected
+function buildScale($selectValue) 
+{
+	$f=10;
+    $scaleRange = "";
+    while($f<251) {
+        $pra = $f / 100;
+		if ($pra == $selectValue) {
+			
+			$scaleRange .= "<option value='" . $pra ."' selected>". $f ."%</option>\n";
+			$f++;
+		} else {
+			
+			$scaleRange .= "<option value='" . $pra ."'>". $f ."%</option>\n";
+			$f++;
+		}
+    }
+	return $scaleRange;
+
+}
 
 function menuItems()
 {
@@ -191,41 +227,129 @@ function menuItems()
 
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
+		if (isset($section["autohide"]) && ($section["autohide"] == "true")) {
+            $autohide = "true";
+        } else {
+            $autohide = "false";
+        }
             if (isset($section["enabledropdown"]) && ($section["enabledropdown"] == "true")) {
                 $enabledropdown = "true";
             } else {
                 $enabledropdown = "false";
             }
+	    if (isset($section["mobileoverride"]) && ($section["mobileoverride"] == "true")) {
+                $mobileoverride = "true";
+            } else {
+                $mobileoverride = "false";
+            }
         }
 
-        if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && (!isset($section["dd"]) || $section["dd"] == "false")) {
+        if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && ((!isset($section["dd"]) || $section["dd"] == "false") || ($enabledropdown != "true"))) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" class=\"selected\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "
+					<li class='cd-tab'>
+						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\">
+							<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+						</a>
+					</li>";
             } else {
-                $standardmenu .= "<li class='cd-tab'><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "</a></li>\n";
+                $standardmenu .= "
+					<li class='cd-tab'>
+						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\">
+							<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+						</a>
+					</li>";
             }
         }
         if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
-            $dropdownmenu .= "<li><a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
-        } else if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
-            $dropdownmenu .= "<li><a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\"><span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "</a></li>\n";
+            $dropdownmenu .= "
+				<li>
+					<a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
+						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
+					</a>
+				</li>";
+        } else if (($enabledropdown == "true") && isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
+            $dropdownmenu .= "
+				<li>
+					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
+						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
+					</a>
+				</li>";
         } else {
             $dropdownmenu .= "";
         }
     }
+	
+	if ($mobileoverride == "true") {
+		$moButton = "
+		<li class='cd-tab navbtn'>
+			<a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
+				<span class=\"fa fa-mobile fa-lg\"></span>
+			</a>
+		</li>
+		";
+	} else {
+		$moButton = "";
+	}
 
+	if ($autohide == "true") {
+			$drawerdiv .= "
+		<div class='cd-tabs-bar drawer'>
+";
+	} else {
+			$drawerdiv .= "
+				<div class='canary'></div>
+				<div class='cd-tabs-bar'>
+			";
+	}
     if ($enabledropdown == "true") {
-        $item = "<ul class=\"main-nav\">
-        <li class=\"dd\">
-        <a id=\"hamburger\"><span class=\"fa fa-bars fa-lg\"></span></a>
-        <ul class=\"drop-nav\">\n" . $dropdownmenu .
-            "</ul></li></ul>\n\n\n<ul class=\"cd-tabs-navigation\"><nav>" .
-            $standardmenu .
-            "<li class='cd-tab'><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";
+		$item = $drawerdiv . "
+			<ul class=\"main-nav\">" .
+			$moButton ."
+				<li class='cd-tab navbtn'>
+					<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
+						<span class=\"fa fa-refresh fa-lg\"></span>
+					</a>
+				</li>
+				<li class='dd navbtn'>
+					<a id=\"hamburger\">
+						<span class=\"fa fa-bars fa-lg\"></span>
+					</a>
+					<ul class=\"drop-nav\">" . 
+							$dropdownmenu ."
+					</ul>
+				</li>
+			</ul>
+			
+			<ul class=\"cd-tabs-navigation\">
+				<nav>" .
+					$standardmenu ."
+				</nav>
+			</ul>
+		</div>
+	
+			";
     } else {
-        $item = "<nav><ul class=\"cd-tabs-navigation\">" .
-            $standardmenu .
-            "<li class='cd-tab'><a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\"><span class=\"fa fa-refresh fa-lg\"></span></a></li></ul></nav>";
+		$item =  $drawerdiv . "
+			<ul class=\"main-nav\">" .
+			$moButton ."
+				<li class='cd-tab navbtn'>
+					<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
+						<span class=\"fa fa-refresh fa-lg\"></span>
+					</a>
+				</li>
+				<li class='cd-tab navbtn'>
+					<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
+						<span class=\"fa fa-gear fa-lg\"></span>
+					</a>
+				</li>
+			</ul>
+			<ul class=\"cd-tabs-navigation\">
+			<nav>" .
+				$standardmenu . "
+				</nav>
+				</ul>
+		";
     }
     return $item;
 }
@@ -237,6 +361,54 @@ function getTitle()
     return $item;
 }
 
+function metaTags() 
+{
+	$config = new Config_Lite(CONFIG);
+    $standardmenu = "";
+    $dropdownmenu = "";
+    foreach ($config as $keyname => $section) {
+        if (($keyname == "general")) {
+			if (isset($section["autohide"]) && ($section["autohide"] == "true")) {
+				$autohide = "true";
+			} else {
+				$autohide = "false";
+			}
+			if (isset($section["branch"])) {
+				$branch = $section["branch"];
+				$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
+				$ch = curl_init();
+				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+				curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
+				curl_setopt($ch, CURLOPT_URL, $branchUrl);
+				$result = curl_exec($ch);
+				curl_close($ch);
+			} else {
+				$branch = "";
+				$branchData = "";
+				$result = "";
+			}
+			if (isset($section["updatepopup"])) {
+				$popupdate = $section["updatepopup"];
+			} else {
+				$popupdate = "";
+			}
+			if (isset($section["title"])) {
+				$maintitle = $section["title"];
+			} else {
+				$maintitle = "";
+			}
+		}
+	}
+$tags .= "
+<meta id='branch' data='". $branch . "'>
+<meta id='popupdate' data='". $popupdate . "'>
+<meta id='drawer' data='". $autohide . "'>
+<meta id='maintitle' data='". $maintitle . "'>
+<meta id='gitData' data='". $result . "'>
+";
+	return $tags;
+}
 
 function frameContent()
 {
@@ -253,9 +425,18 @@ function frameContent()
 
         if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "
+			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">
+				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
+				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>
+			</li>";
             } else {
-                $item .= "\n<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">\n<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>\n</li>\n";
+                $item .= "
+			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
+				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
+				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>
+			</li>
+";
             }
 
         }
