@@ -42,15 +42,15 @@ jQuery(document).ready(function ($) {
             // Set up menu for desktip view
 			
 	    if (!isMobile) {
-		$('.drop-nav').addClass('hide-nav');
-		$('.drop-nav').removeClass('show-nav');	
-		$('.main-nav #hamburger span:first').removeClass('dd-active');
+			$('.drop-nav').addClass('hide-nav');
+			$('.drop-nav').removeClass('show-nav');	
+			$('.main-nav #hamburger span:first').removeClass('dd-active');
 	    }
 			
 			resizeIframe(hasDrawer); // Call resizeIframe when document is ready
             event.preventDefault();
             var selectedItem = $(this);
-	    color = selectedItem.attr("data-color");
+			color = selectedItem.attr("data-color");
             if (!selectedItem.hasClass('selected')) {
                 var selectedTab = selectedItem.data('content'),
                     selectedContent = tabContentWrapper.find('li[data-content="' + selectedTab + '"]'),

@@ -24,7 +24,7 @@ require 'muximux.php';
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <link rel="stylesheet" href="css/spectrum.min.css">
-    <script src="js/modernizr-3.3.1-respond.min.js"></script>
+    <script src="js/modernizr-custom-3.3.1.min.js"></script>
     <title><?php echo getTitle(); ?></title>
 </head>
 

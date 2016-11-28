@@ -149,7 +149,11 @@ function parse_ini()
                 } else if ($key == "color") {
                     $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $val . "' name='" . $section . "_-_color'></div>";
                 } else if ($key == "icon") {
-                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
+					$pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
+					if (empty($name["color"])) {
+						$pageOutput .= "<div><label for='" . $section . "_-_color'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "_-_color' value='#000000' name='" . $section . "_-_color'></div>";
+					}
+			
                 } elseif ($key == "default") {
                     $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "'";
                     if ($val == "true")
