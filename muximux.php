@@ -365,6 +365,9 @@ function getTitle()
     return $item;
 }
 
+// This little gem helps us replace a whome bunch of AJAX calls by sorting out the info and 
+// writing it to meta-tags at the bottom of the page.  Might want to look at calling this via one AJAX call.
+
 function metaTags() 
 {
 	$config = new Config_Lite(CONFIG);
@@ -377,16 +380,11 @@ function metaTags()
 			} else {
 				$autohide = "false";
 			}
+			$greeting = $config->get('general', 'greeting', 'false');
 			if (isset($section["branch"])) {
 				$branch = $section["branch"];
 				$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
-				$ch = curl_init();
-				curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-				curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-				curl_setopt($ch,CURLOPT_USERAGENT,'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.1.13) Gecko/20080311 Firefox/2.0.0.13');
-				curl_setopt($ch, CURLOPT_URL, $branchUrl);
-				$result = curl_exec($ch);
-				curl_close($ch);
+				
 			} else {
 				$branch = "";
 				$branchData = "";
@@ -404,16 +402,55 @@ function metaTags()
 			}
 		}
 	}
+	
+	$gitdir = getcwd() . "/.git/";
+	    if (is_readable($gitdir)) {
+            $gitdir = "readable";
+        } else {
+            $gitdir = "unreadable";
+        }
+        		
+	$inipath = php_ini_loaded_file();
+
+        if ($inipath) {
+            $inipath;
+        } else {
+            $inipath = "php.ini";
+        }
+		
+	$created = filectime(CONFIG);
+	
+	if (exec_enabled() == true) {
+            if (!command_exist('git')) {
+                $hash = 'unknown';
+            } else {
+                $hash = exec('git log --pretty="%H" -n1 HEAD');
+            }
+        } else {
+            $hash = 'noexec';
+        }
+        
+	
 $tags .= "
-<meta id='branch' data='". $branch . "'>
+<meta id='branch-data' data='". $branch . "'>
 <meta id='popupdate' data='". $popupdate . "'>
 <meta id='drawer' data='". $autohide . "'>
+<meta id='git-data' data='0'>
 <meta id='maintitle' data='". $maintitle . "'>
-<meta id='gitData' data='". $result . "'>
+<meta id='gitdirectory-data' data='". $gitdir . "'>
+<meta id='cwd-data' data='". getcwd() . "'>
+<meta id='phpini-data' data='". $inipath . "'>
+<meta id='title-data' data='". $maintitle . "'>
+<meta id='greeting-data' data='". $greeting . "'>
+<meta id='created-data' data='". $created . "'>
+<meta id='hash-data' data='". $hash . "'>
+
+
 ";
 	return $tags;
 }
 
+// Set up the actual iFrame contents, as the name implies.
 function frameContent()
 {
     $config = new Config_Lite(CONFIG);
@@ -448,7 +485,7 @@ function frameContent()
     return $item;
 }
 
-
+// Build a landing page.
 function landingPage($keyname)
 {
     $config = new Config_Lite(CONFIG);
@@ -520,48 +557,11 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
             createSecret();
             die();
     }
-
-    // Get the local path where this script is running from.
-    if (isset($_GET['get']) && $_GET['get'] == 'cwd') {
-        echo getcwd();
-        die();
-    }
-
-    // Get the title configured in settings.php.ini
-    if (isset($_GET['get']) && $_GET['get'] == 'title') {
-        $config = new Config_Lite(CONFIG);
-        echo $config->get('general', 'title', 'Muximux');
-        die();
-    }
-
-
-
-    // Determine if there is a .git directory and if it's readable.
-    if (isset($_GET['get']) && $_GET['get'] == 'gitdirectory') {
-        $gitdir = getcwd() . "/.git/";
-        if (is_readable($gitdir)) {
-            echo "readable";
-        } else {
-            echo "unreadable";
-        }
-        die();
-    }
-
-    if (isset($_GET['get']) && $_GET['get'] == 'phpini') {
-        $inipath = php_ini_loaded_file();
-
-        if ($inipath) {
-            echo $inipath;
-        } else {
-            echo 'php.ini';
-        }
-        die();
-    }
+      
 
     if (isset($_GET['get']) && $_GET['get'] == 'greeting') {
         $config = new Config_Lite(CONFIG);
-        echo $config->get('general', 'greeting', 'false');
-        die();
+                die();
     }
 
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {

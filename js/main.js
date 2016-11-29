@@ -6,12 +6,19 @@ jQuery(document).ready(function ($) {
         return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
         }
     });
-
-	if ($('#popupdate').attr('data') == 'true') {
-		var updateCheck = setInterval(updateBox(),1000);
-	}
+	var branch = $("#branch-data").attr('data');
+	console.log("Branch: " + branch);
+	
+	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(myjson){
+		$('#git-data').attr('data',JSON.stringify(myjson));
+		console.log(JSON.stringify(myjson));
+		
+	});
+	console.log($('#git-data').attr('data'));
+	
 	getSecret();
-    var tabs = $('.cd-tabs');
+    
+	var tabs = $('.cd-tabs');
 	if ($('.cd-tabs-bar').hasClass('drawer')) {
 		hasDrawer = "true";
 	} else {
@@ -104,12 +111,12 @@ jQuery(document).ready(function ($) {
 	
 	function getsupportedprop(proparray){
     var root=document.documentElement //reference root element of document
-    for (var i=0; i<proparray.length; i++){ //loop through possible properties
-        if (proparray[i] in root.style){ //if property exists on element (value will be string, empty string if not set)
-            return proparray[i] //return that string
-        }
-    }
-}
+		for (var i=0; i<proparray.length; i++){ //loop through possible properties
+			if (proparray[i] in root.style){ //if property exists on element (value will be string, empty string if not set)
+				return proparray[i] //return that string
+			}
+		}
+	}
 
     $('#reload').on('click', function () {
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
@@ -192,6 +199,12 @@ jQuery(document).ready(function ($) {
 
 });
 
+window
+$(window).load(function() {
+	if ($('#popupdate').attr('data') == 'true') {
+		var updateCheck = setInterval(updateBox(),1000);
+	}
+});	
 
 // When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
 $(window).unload(function() {

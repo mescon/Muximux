@@ -1,7 +1,26 @@
 <?php
 error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
+define('CONFIG', 'settings.ini.php');
+define('CONFIGEXAMPLE', 'settings.ini.php-example');
+define('SECRET', 'secret.txt');
+require dirname(__FILE__) . '/vendor/autoload.php';
+$config = new Config_Lite(CONFIG);
 require 'muximux.php';
-?><!doctype html>
+if ($config->get('general', 'authenticate', 'false') == "true") {
+
+	session_start(); 
+	define('DS',  TRUE); // used to protect includes
+	define('USERNAME', $_SESSION['username']);
+	define('SELF',  $_SERVER['PHP_SELF'] );
+
+	if (!USERNAME or isset($_GET['logout']))
+		include('login.php');
+	
+}
+
+?>
+
+<!doctype html>
 <!--[if lt IE 7]>
 <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
 <!--[if IE 7]>
@@ -147,7 +166,9 @@ require 'muximux.php';
     </div>
 </div>
 <div id="updateContainer"></div>
+<?php
 
+echo metaTags(); ?>
 <script src="js/jquery-2.2.4.min.js"></script>
 <script src="js/jquery-ui.min.js"></script>
 <script src="js/jquery.form.min.js"></script>
@@ -160,10 +181,7 @@ require 'muximux.php';
 <?php
 
 if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>
-<?php
 
-echo metaTags(); ?>
-<meta id='gitData'>
 <meta id='secret'>
 
 </body>
