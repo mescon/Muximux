@@ -47,13 +47,20 @@ if(!file_exists(CONFIG)){
 
 // First what we're gonna do - save or read
 if (sizeof($_POST) > 0) {
-    write_ini();
+	
+    if("" == trim($_POST['username'])){
+		
+		write_ini();
+		
+	}
+	
 } else {
     parse_ini();
 }
 
 function write_ini()
 {
+	$oldHash = getPassHash();
     unlink(CONFIG);
 
     $config = new Config_Lite(CONFIG);
@@ -61,6 +68,11 @@ function write_ini()
         $splitParameter = explode('_-_', $parameter);
         if ($value == "on")
             $value = "true";
+		if ($splitParameter[1] == "password") {
+			if ($value != $oldHash) {
+				$value = password_hash($value, PASSWORD_BCRYPT);
+			}
+		}
         $config->set($splitParameter[0], $splitParameter[1], $value);
     }
     // save object to file
@@ -86,6 +98,11 @@ function write_ini()
         fseek($handle, $i * $len);
         $i++;
     }
+	session_start();
+	session_destroy();
+	
+	
+	
 }
 
 function parse_ini()
@@ -112,12 +129,43 @@ function parse_ini()
     } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox'></div><br>"; }
 
 	if ($config->get('general', 'mobileoverride', 'false') == "true") {
-        $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' checked></div>";
-    } else { $showUpdates .= "<div><label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox'></div>"; }
+        $showUpdates .= "
+		<div>
+			<label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' checked>
+		</div>";
+    } else { $showUpdates .= "
+		<div>
+			<label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox'>
+		</div>"; }
 
 	if ($config->get('general', 'autohide', 'false') == "true") {
         $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' checked></div>";
     } else { $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox'></div>"; }
+	
+	if ($config->get('general', 'authentication', 'false') == "true") {
+        $showUpdates .= "
+		<div>
+			<label for='authenticateCheckbox'>Enable authentication:</label> <input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' checked>
+		</div><br>
+		<div class='userinput'>
+			<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
+		</div><br>
+		<div class='userinput'>
+			<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
+		</div>
+		";
+    } else { $showUpdates .= "
+	<div>
+		<label for='authenticationCheckbox'>Enable authentication:</label> <input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox'>
+	</div><br>
+	<div class='userinput hidden'>
+		<label for='userNameInput'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
+	</div><br>
+	<div class='userinput hidden'>
+		<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
+	</div>
+	
+	"; }
 	
     $pageOutput = "<form>";
 
@@ -362,6 +410,13 @@ function getTitle()
 {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'title', 'Muximux - Application Management Console');
+    return $item;
+}
+
+function getPassHash()
+{
+    $config = new Config_Lite(CONFIG);
+    $item = $config->get('general', 'password', 'foo');
     return $item;
 }
 

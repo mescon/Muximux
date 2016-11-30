@@ -378,7 +378,7 @@ body ul {
 
 /*Settings*/
 
-input[type='text'] {
+input[type='text']:not .userinput {
 	max-width: 300px;
     width: 90%;
     height: 25px;
@@ -544,6 +544,10 @@ input[type='button']:hover {
 
 .hidden {
     display: none;
+}
+
+.userinput {
+	width:200px;
 }
 
 #updateContainer {

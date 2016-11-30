@@ -315,9 +315,9 @@ function getSystemData(commands) {
 
 // Grabs data from ajax calls that were stored on elements for later use
 function dataStore() {
-	var json=$('#git-data').attr('data');
-	var json = jQuery.parseJSON(json);
-	var localversion = $("#hash-data").attr('data');
+    var json=$('#git-data').attr('data');
+    var json = jQuery.parseJSON(json);
+    var localversion = $("#hash-data").attr('data');
     var cwd = $("#cwd-data").attr('data');
     var phpini = $("#phpini-data").attr('data');
     var secret = $("#secret").data()['data'];
@@ -379,9 +379,7 @@ function setTitle(title) {
 
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox() {
-	console.log("UpdateBox fired.");
     var updateCheck;
-	console.log("DIFFERENCEDDMMMSS" + dataStore().differenceCommits);
     if (dataStore().differenceCommits) {
         clearInterval(updateCheck);
         if ((dataStore().gitDirectory == "readable") && (!(dataStore().localVersion == "noexec")) && (dataStore().differenceCommits > 0)) {

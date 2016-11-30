@@ -1,13 +1,14 @@
 <?php
-error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 define('CONFIG', 'settings.ini.php');
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
 define('SECRET', 'secret.txt');
 require dirname(__FILE__) . '/vendor/autoload.php';
 $config = new Config_Lite(CONFIG);
 require 'muximux.php';
-if ($config->get('general', 'authenticate', 'false') == "true") {
 
+
+if ($config->get('general', 'authentication', 'false') == "true") {
+	
 	session_start(); 
 	define('DS',  TRUE); // used to protect includes
 	define('USERNAME', $_SESSION['username']);
@@ -16,7 +17,10 @@ if ($config->get('general', 'authenticate', 'false') == "true") {
 	if (!USERNAME or isset($_GET['logout']))
 		include('login.php');
 	
+} else {
+	session_abort();
 }
+error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 
 ?>
 

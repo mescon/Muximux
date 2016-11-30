@@ -6,6 +6,9 @@ enabledropdown = "true"
 updatepopup = "false"
 mobileoverride = "false"
 autohide = "false"
+authentication = "false"
+userNameInput = "admin"
+password = "muximux"
 
 [settings]
 enabled = "true"

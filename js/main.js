@@ -7,14 +7,11 @@ jQuery(document).ready(function ($) {
         }
     });
 	var branch = $("#branch-data").attr('data');
-	console.log("Branch: " + branch);
 	
 	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(myjson){
 		$('#git-data').attr('data',JSON.stringify(myjson));
-		console.log(JSON.stringify(myjson));
 		
 	});
-	console.log($('#git-data').attr('data'));
 	
 	getSecret();
     
@@ -134,6 +131,16 @@ jQuery(document).ready(function ($) {
 			$('#override').removeClass('or-active');
 		}
     });
+	
+	$("#authenticationCheckbox").click(function() {
+    // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
+    if($(this).is(":checked")) // "this" refers to the element that fired the event
+    {
+        $('.userinput').removeClass('hidden');
+    } else {
+		$('.userinput').addClass('hidden');
+	}
+});
 
     // When settings modal is open, set title to "Settings"
     $('#settingsModal').on('show.bs.modal', function () {
@@ -162,11 +169,9 @@ jQuery(document).ready(function ($) {
         dropDownFixPosition($('.dd'), $('.drop-nav'));
     });
 	$('#autohideCheckbox').click(function() {
-		console.log("Check1");
 		$('#mobileoverrideCheckbox').prop('checked',false);
 	});
 	$('#mobileoverrideCheckbox').click(function() {
-		console.log("Check2");
 		$('#autohideCheckbox').prop('checked',false);
 	});
 	// This triggers a menu close when mouse has left the drop nav.
@@ -230,7 +235,6 @@ function muximuxMobileResize() {
 		$('#override').css('display','none');
 	}
 	if (isMobile && !overrideMobile) {
-		console.log("Resize called, rendering mobile.");
 		$('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
         	var menuHeight = $( window ).height() * .80;
         	$('.drop-nav').css('max-height', menuHeight+'px');
