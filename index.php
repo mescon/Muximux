@@ -18,6 +18,7 @@ if ($config->get('general', 'authentication', 'false') == "true") {
 		include('login.php');
 	
 } else {
+	session_start();
 	session_abort();
 }
 error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
