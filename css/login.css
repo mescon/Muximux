@@ -13,15 +13,26 @@ body {
 	font-size: 24px;
 	display: none;
 }
+@media only screen and (min-width: 0px) {
+.login-block {
+	width: 90%;
+	max-width: 90%;
 
+}
+}
+
+.login0, .login1, .login2, .login3 {
+	display: none;
+}
 .login-block {
 	width: 90%;
 	max-width: 320px;
 	transition: top 1s linear;
 	padding: 20px;
 	border-radius: 5px;
+	height: 250px;
 	position: absolute;
-	top: -400px;
+	top: -590px;
 	margin: 0 auto;
 	left: 0;
 	right: 0;

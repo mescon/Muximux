@@ -1,30 +1,4 @@
-<?php
 
-define('CONFIGEXAMPLE', 'settings.ini.php-example');
-define('SECRET', 'secret.txt');
-require dirname(__FILE__) . '/vendor/autoload.php';
-define('CONFIG', 'settings.ini.php');
-$config = new Config_Lite(CONFIG);
-require 'muximux.php';
-
-
-if ($config->get('general', 'authentication', 'false') == "true") {
-	
-	session_start(); 
-	define('DS',  TRUE); // used to protect includes
-	define('USERNAME', $_SESSION['username']);
-	define('SELF',  $_SERVER['PHP_SELF'] );
-
-	if (!USERNAME or isset($_GET['logout']))
-		include('login.php');
-	
-} else {
-	session_start();
-	session_destroy();
-}
-error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
-
-?>
 
 <!doctype html>
 <!--[if lt IE 7]>
@@ -41,13 +15,42 @@ error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Muximux - Application Management Console">
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
+	<script src="js/jquery-2.2.4.min.js"></script>
+	<script src="js/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="css/jquery-ui.min.css">
+	<?php
+
+		define('CONFIGEXAMPLE', 'settings.ini.php-example');
+		define('SECRET', 'secret.txt');
+		require dirname(__FILE__) . '/vendor/autoload.php';
+		define('CONFIG', 'settings.ini.php');
+		$config = new Config_Lite(CONFIG);
+		require 'muximux.php';
+
+
+		if ($config->get('general', 'authentication', 'false') == "true") {
+			
+			session_start(); 
+			define('DS',  TRUE); // used to protect includes
+			define('USERNAME', $_SESSION['username']);
+			define('SELF',  $_SERVER['PHP_SELF'] );
+
+			if (!USERNAME or isset($_GET['logout']))
+				include('login.php');
+			
+		} else {
+			session_start();
+			session_destroy();
+		}
+		error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
+
+	?>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
     <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Bootstrap 3.3.6 -->
     <link rel="stylesheet" href="css/bootstrap-iconpicker.min.css"/>
     <link rel="stylesheet" href="css/font-awesome.min.css"/>
     <link rel="stylesheet" href="css/font-pt_sans.css"> <!-- Font -->
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
-    <link rel="stylesheet" href="css/jquery-ui.min.css">
     <link rel="stylesheet" href="css/spectrum.min.css">
     <link rel="stylesheet" href="css/theme/<?php echo getTheme(); ?>.css">
     <script src="js/modernizr-custom-3.3.1.min.js"></script>
@@ -176,8 +179,7 @@ error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 <?php
 
 echo metaTags(); ?>
-<script src="js/jquery-2.2.4.min.js"></script>
-<script src="js/jquery-ui.min.js"></script>
+
 <script src="js/jquery.form.min.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>

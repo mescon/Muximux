@@ -172,7 +172,13 @@ function parse_ini()
         $pageOutput .= "checked></div>$showUpdates</div><br><br>";
     else
         $pageOutput .= "></div>$showUpdates</div><br>";
-
+	if ($config->get('settings', 'sha', '0') == "0") {
+		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".fetchSHA()."'>";
+	} else {
+		$mySha = $config->get('settings', 'sha', '0');
+		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>";
+	}
+	
     $pageOutput .= "<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>" .
