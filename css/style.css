@@ -74,7 +74,7 @@ Main components
 .modal-title {
     font-size: 18px;
 }
-.cd-tabs-bar.drawer, .cd-tabs-bar.drawer .cd-tab, .cd-tabs-bar.drawer .navbtn {
+.drawerItem {
 	max-height: 7px;
 	-webkit-transition: max-height 1s;
 	-moz-transition: max-height 1s;
@@ -84,12 +84,13 @@ Main components
 	-webkit-transition-timing-function: ease-in-out; /* Safari and Chrome */
     	transition-timing-function: ease-in-out;
 }
-.cd-tabs-bar.drawer:hover, .cd-tabs-bar.drawer .cd-tab:hover, .cd-tabs-bar.drawer .navbtn:hover {
+
+.drawerItem.full  {
 	max-height: 200px;
 }
-.cd-tabs-bar.drawer .navbtn:hover > .cd-tab, .cd-tabs-bar.drawer {
-	max-height: 200px;
-}
+
+
+
 .cd-tabs nav {
     margin: 0;
     padding: 0;

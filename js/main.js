@@ -18,6 +18,12 @@ jQuery(document).ready(function ($) {
 	var tabs = $('.cd-tabs');
 	if ($('.cd-tabs-bar').hasClass('drawer')) {
 		hasDrawer = "true";
+		$('.cd-tab').addClass('drawerItem');
+		$('.navbtn').addClass('drawerItem');
+		$('.cd-tabs-bar').addClass('drawerItem');
+		$('.cd-tab').addClass('drawerItem2');
+		$('.navbtn').addClass('drawerItem2');
+		$('.cd-tabs-bar').addClass('drawerItem2');
 	} else {
 		hasDrawer = "false";
 	}
@@ -184,6 +190,14 @@ jQuery(document).ready(function ($) {
 		}
 	});
     jQuery.fn.reverse = [].reverse;
+	
+	$('.drawerItem').mouseleave(function() {
+		$('.drawerItem').removeClass('full');
+	});
+	
+	$('.drawerItem').mouseenter(function() {
+		$('.drawerItem').addClass('full');
+	});
 
      // Move items to the dropdown on mobile devices
     
