@@ -291,64 +291,6 @@ function getSecret() {
         }
     });
 }
-	
-
-// Gets values from PHP, save objects as meta tags in body for later retrieval without doing new AJAX calls.
-function getSystemData(commands) {
-    var i = 0;
-    var secret = $("#secret").data()['data'];
-    for (var len = commands.length; i < len; i++) {
-        $.ajax({
-            type: "GET",
-            dataType: "text",
-            indexValue: i,
-            url: "muximux.php?secret="+ secret +"&get=" + commands[i],
-            cache: false,
-			async: true,
-            success: function (data) {
-                $('body').append('<meta id="' + commands[this.indexValue] + '-data">');
-                $('#' + commands[this.indexValue] + "-data").data({data: data});
-            }
-        })
-    }
-}
-
-// Grabs data from ajax calls that were stored on elements for later use
-function dataStore() {
-    var json=$('#git-data').attr('data');
-    var json = jQuery.parseJSON(json);
-    var localversion = $("#hash-data").attr('data');
-    var cwd = $("#cwd-data").attr('data');
-    var phpini = $("#phpini-data").attr('data');
-    var secret = $("#secret").data()['data'];
-    var gitdir = $("#gitdirectory-data").attr('data');
-    var title  = $("#title-data").attr('data');
-    var greeting  = $("#greeting-data").attr('data');
-    var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
-    var difference = 0;
-    for (var i in json) {
-        if (json[i].sha == localversion) {
-            difference = i;
-        }
-    }
-    var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-    var upstreamInformation = {
-        compareURL: compareURL,
-        differenceCommits: difference,
-        differenceDays: differenceDays,
-        latestVersion: json[0].sha,
-        localVersion: localversion,
-        gitDirectory: gitdir,
-        cwd: cwd,
-        phpini: phpini,
-        secret: secret,
-        branch: branch,
-        title: title,
-        greeting: greeting
-    };
-    return upstreamInformation;
-}
-
 
 function setCookie(cname, cvalue, exdays) {
     var d = new Date();
@@ -356,7 +298,6 @@ function setCookie(cname, cvalue, exdays) {
     var expires = "expires="+d.toUTCString();
     document.cookie = cname + "=" + cvalue + "; " + expires;
 }
-
 
 function getCookie(cname) {
     var name = cname + "=";
@@ -379,21 +320,43 @@ function setTitle(title) {
 
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox() {
-    var updateCheck;
-    if (dataStore().differenceCommits) {
-        clearInterval(updateCheck);
-        if ((dataStore().gitDirectory == "readable") && (!(dataStore().localVersion == "noexec")) && (dataStore().differenceCommits > 0)) {
-            if (!getCookie('updateDismiss')) {
-                $('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button><span>You are currently <strong>"+ dataStore().differenceCommits +"</strong> commits behind!<br/>See <a href=\""+ dataStore().compareURL +"\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
-                $('#updateContainer').fadeIn("slow");
-            }
-        }
-        $('#updateDismiss').click(function() {
-            $('#updateContainer').fadeOut('slow');
-            // Set cookie to remember dismiss decision for 1 hour.
-            setCookie('updateDismiss', 'true', 1/24);
-        });
-    }
+	
+	var branch = $("#branch-data").attr('data');
+	var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
+	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(result){
+		
+		var localversion = $("#hash-data").attr('data');
+		var cwd = $("#cwd-data").attr('data');
+		var phpini = $("#phpini-data").attr('data');
+		var secret = $("#secret").data()['data'];
+		var gitdir = $("#gitdirectory-data").attr('data');
+		var title  = $("#title-data").attr('data');
+		var difference = 0;
+		var json = result;
+		for (var i in json) {
+			if (json[i].sha == localversion) {
+				difference = i;
+			}
+		}
+		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
+		var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
+		    
+		var updateCheck;
+		if (difference) {
+			clearInterval(updateCheck);
+			if ((gitdir == "readable") && (!(localversion == "noexec")) && (difference == 0)) {
+				if (!getCookie('updateDismiss')) {
+					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button><span>You are currently <strong>"+ dataStore().differenceCommits +"</strong> commits behind!<br/>See <a href=\""+ dataStore().compareURL +"\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
+					$('#updateContainer').fadeIn("slow");
+				}
+			}
+			$('#updateDismiss').click(function() {
+				$('#updateContainer').fadeOut('slow');
+				// Set cookie to remember dismiss decision for 1 hour.
+				setCookie('updateDismiss', 'true', 1/24);
+			});
+		}
+	});
 }
 
 function scaleContent(content, scale) {

@@ -43,6 +43,7 @@ function createSecret() {
 
 if(!file_exists(CONFIG)){
     copy(CONFIGEXAMPLE, CONFIG);
+    checksetSHA();
 }
 
 // First what we're gonna do - save or read
@@ -101,16 +102,14 @@ function write_ini()
 	session_start();
 	session_destroy();
 	
-	
-	
 }
 
 function parse_ini()
 {
-    $i=10;
     
     $config = new Config_Lite(CONFIG);
-
+    checksetSHA();
+	
     if ($config->get('general', 'branch', 'master') == "master") {
         $master = "<option value=\"master\" selected>master</option>";
     } else { $master = "<option value=\"master\">master</option>"; }
@@ -446,37 +445,107 @@ function getBranch()
 	return $branch;
 }
 
-// Fetch a list of branches from github, along with their current SHA
-function listBranches()
-
+// Reads for "branches" from settings.  If not found, fetches list from github, saves, parses, and returns
+function getBranches()
 {
-	$curl_handle=curl_init();
-	curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
-	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
-	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-	curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Muximux');
-	$json = curl_exec($curl_handle);
-	curl_close($curl_handle);
-	$array = json_decode($json,true);
-	foreach ($array as $value) {
-		foreach ($value as $key => $value2) {
-			if ($key == "name") {
-					$outP .= $value2.":";
-				
-			} else {
-				foreach ($value2 as $key2 => $value3) {
-					if ($key2 == "sha" ) {
-						$outP .= $value3."\n";
+	$config = new Config_Lite(CONFIG);
+	$branches = $config->get('settings', 'branches', '0');
+	if ($branches == "0") {
+		fetchBranches();
+	}
+	$branches = $config->get('settings', 'branches', '0');
+	return $branches;
+}
+
+// Fetch a list of branches from github, along with their current SHA
+function fetchBranches()
+{
+	$config = new Config_Lite(CONFIG);
+	$last = $config->get('settings', 'last_check', "0");
+	if (time() >= $last + (60 * 3)) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
+		$curl_handle=curl_init();
+		curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
+		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Muximux');
+		$json = curl_exec($curl_handle);
+		curl_close($curl_handle);
+		$array = json_decode($json,true);
+		$i = 0;
+		$names = array();
+		$shas = array();
+		foreach ($array as $value) {
+			foreach ($value as $key => $value2) {
+				if ($key == "name") {
+						array_push($names,$value2);
+					
+				} else {
+					foreach ($value2 as $key2 => $value3) {
+						if ($key2 == "sha" ) {
+							$shaVal = $value3;
+							array_push($shas,$value3);
+						}
 					}
 				}
 			}
-				
-			
+		}
+
+		$outP = array_combine($names,$shas);
+		$config ->set('settings','branches',$outP);
+		$config ->set('settings','last_check',time());
+		try {
+			$config->save();
+		} catch (Config_Lite_Exception $e) {
+			echo "\n" . 'Exception Message: ' . $e->getMessage();
 		}
 	}
 	return $outP;
 }
 
+// We run this when parsing settings to make sure that we have a SHA saved just as 
+// soon as we know we'll need it (on install or new settings).  This is how we track whether or not 
+// we need to update.  
+
+function checksetSHA() 
+{
+	$config = new Config_Lite(CONFIG);
+	if ($config ->get('settings','sha','0') == "0") {
+		$config ->set('settings','sha',fetchSHA());
+		try {
+			$config->save();
+		} catch (Config_Lite_Exception $e) {
+			echo "\n" . 'Exception Message: ' . $e->getMessage();
+		}
+	}
+}
+
+// Read SHA from settings and return it's value.
+
+function getSHA()
+{
+    $config = new Config_Lite(CONFIG);
+    $item = $config->get('settings', 'sha', '0');
+    return $item;
+}
+
+// This reads our array of branches, finds our selected branch in settings,
+// and returns the corresponding SHA value.  We need this to set the initial
+// SHA value on setup/load, as well as to compare for update checking.
+function fetchSHA() 
+{
+	$branchArray = getBranches();
+	$myBranch = getBranch();
+	foreach ($branchArray as $branchName => $shaVal) {
+		if ($branchName==$myBranch) {
+				$shaOut = $shaVal;
+		}
+		
+	}
+	return $shaOut;
+	
+}
+
+// Retrieve password hash from settings and return it for "stuff".
 function getPassHash()
 {
     $config = new Config_Lite(CONFIG);
@@ -538,33 +607,19 @@ function metaTags()
         }
 		
 	$created = filectime(CONFIG);
-	
-	if (exec_enabled() == true) {
-            if (!command_exist('git')) {
-                $hash = 'unknown';
-            } else {
-                $hash = exec('git log --pretty="%H" -n1 HEAD');
-            }
-        } else {
-            $hash = 'noexec';
-        }
-        
+       
 	
 $tags .= "
 <meta id='branch-data' data='". $branch . "'>
 <meta id='popupdate' data='". $popupdate . "'>
 <meta id='drawer' data='". $autohide . "'>
-<meta id='git-data' data='0'>
 <meta id='maintitle' data='". $maintitle . "'>
 <meta id='gitdirectory-data' data='". $gitdir . "'>
 <meta id='cwd-data' data='". getcwd() . "'>
 <meta id='phpini-data' data='". $inipath . "'>
 <meta id='title-data' data='". $maintitle . "'>
-<meta id='greeting-data' data='". $greeting . "'>
 <meta id='created-data' data='". $created . "'>
-<meta id='hash-data' data='". $hash . "'>
-<meta id='branches-data' data='". listBranches() ."'>
-
+<meta id='sha-data' data='". getSHA() . "'>
 
 ";
 	return $tags;
@@ -658,16 +713,6 @@ if (isset($_GET['get']) && $_GET['get'] == 'secret') {
         die();
 }
 
-    // What branch does the user want to track?
-if (isset($_GET['get']) && $_GET['get'] == 'branch') {
-    $config = new Config_Lite(CONFIG);
-    echo $config->get('general', 'branch', 'master');
-    die();
-}
-
-
-
-
 // Things wrapped inside this are protected by a secret hash.
 if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 
@@ -676,12 +721,6 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
     if (isset($_GET['set']) && $_GET['set'] == 'secret') {
             createSecret();
             die();
-    }
-      
-
-    if (isset($_GET['get']) && $_GET['get'] == 'greeting') {
-        $config = new Config_Lite(CONFIG);
-                die();
     }
 
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {

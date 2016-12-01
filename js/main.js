@@ -198,6 +198,7 @@ jQuery(document).ready(function ($) {
 	$('.drawerItem').mouseenter(function() {
 		$('.drawerItem').addClass('full');
 	});
+	
 
      // Move items to the dropdown on mobile devices
     
@@ -205,9 +206,7 @@ jQuery(document).ready(function ($) {
     scaleFrames();
 	resizeIframe(hasDrawer); // Call resizeIframe when document is ready
     initIconPicker('.iconpicker');
-    var commands = ["hash","cwd","phpini","gitdirectory", "title", "greeting"];
-    getSystemData(commands);
-
+   
 
     // Load the menu item that is set in URL, for example http://site.com/#plexpy
     if($(location).attr('hash')) {
