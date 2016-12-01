@@ -9,6 +9,7 @@ autohide = "false"
 authentication = "false"
 userNameInput = "admin"
 password = "muximux"
+theme= "classic"
 
 [settings]
 enabled = "true"

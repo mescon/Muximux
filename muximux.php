@@ -108,12 +108,7 @@ function write_ini()
 function parse_ini()
 {
     $i=10;
-    $scaleRange = "";
-    while($i<251) {
-        $pr = $i / 100;
-        $scaleRange .= "<option value='" . $pr ."'>". $i ."%</option>";
-        $i++;
-    }
+    
     $config = new Config_Lite(CONFIG);
 
     if ($config->get('general', 'branch', 'master') == "master") {
@@ -152,7 +147,7 @@ function parse_ini()
 		</div><br>
 		<div class='userinput'>
 			<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
-		</div>
+		</div><br>
 		";
     } else { $showUpdates .= "
 	<div>
@@ -163,10 +158,12 @@ function parse_ini()
 	</div><br>
 	<div class='userinput hidden'>
 		<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
-	</div>
+	</div><br>
 	
 	"; }
-	
+	$themes = listThemes();
+    $showUpdates .= "<div><label for='theme'>Theme: </label> <select id='theme' class='general_-_value' name='general_-_theme'>". listThemes() ."</select></div>";
+    
     $pageOutput = "<form>";
 
     $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
@@ -269,6 +266,34 @@ function buildScale($selectValue)
     }
 	return $scaleRange;
 
+}
+
+function getTheme()
+{
+    $config = new Config_Lite(CONFIG);
+    $item = $config->get('general', 'theme', 'classic');
+    return $item;
+}
+
+function listThemes() {
+	$dir    = './css/theme';
+	$themes = scandir($dir);
+	$themeCurrent = getTheme();
+	foreach($themes as $value){ 
+        $splitName = explode('.', $value);
+		if  (!empty($splitName[0])) {
+		if ($splitName[0] == getTheme()) {
+			$themelist .="
+			<option value='".$splitName[0]."' selected>".$splitName[0]."</option>
+";
+		} else {
+			$themelist .="
+			<option value='".$splitName[0]."'>".$splitName[0]."</option>
+";
+		}
+		}
+	}
+	return $themelist;
 }
 
 function menuItems()

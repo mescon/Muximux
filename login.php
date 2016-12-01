@@ -27,6 +27,7 @@ if(isset($_POST['username'])) {
 echo '
 <link rel="stylesheet" href="css/font-awesome.min.css"/>
 <link rel="stylesheet" href="css/login.css"> 
+<link rel="stylesheet" href="css/theme/'.getTheme().'.css">
 <script src="js/jquery-2.2.4.min.js"></script>
 <script>
 $(document).ready(function() {

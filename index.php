@@ -1,8 +1,9 @@
 <?php
-define('CONFIG', 'settings.ini.php');
+
 define('CONFIGEXAMPLE', 'settings.ini.php-example');
 define('SECRET', 'secret.txt');
 require dirname(__FILE__) . '/vendor/autoload.php';
+define('CONFIG', 'settings.ini.php');
 $config = new Config_Lite(CONFIG);
 require 'muximux.php';
 
@@ -19,7 +20,7 @@ if ($config->get('general', 'authentication', 'false') == "true") {
 	
 } else {
 	session_start();
-	session_abort();
+	session_destroy();
 }
 error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 
@@ -48,6 +49,7 @@ error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
     <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <link rel="stylesheet" href="css/spectrum.min.css">
+    <link rel="stylesheet" href="css/theme/<?php echo getTheme(); ?>.css">
     <script src="js/modernizr-custom-3.3.1.min.js"></script>
     <title><?php echo getTitle(); ?></title>
 </head>
