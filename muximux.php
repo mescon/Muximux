@@ -438,6 +438,45 @@ function getTitle()
     return $item;
 }
 
+// Quickie fetch of the current selected branch
+function getBranch()
+{
+	$config = new Config_Lite(CONFIG);
+	$branch = $config->get('general', 'branch', 'master');
+	return $branch;
+}
+
+// Fetch a list of branches from github, along with their current SHA
+function listBranches()
+
+{
+	$curl_handle=curl_init();
+	curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
+	curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
+	curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Muximux');
+	$json = curl_exec($curl_handle);
+	curl_close($curl_handle);
+	$array = json_decode($json,true);
+	foreach ($array as $value) {
+		foreach ($value as $key => $value2) {
+			if ($key == "name") {
+					$outP .= $value2.":";
+				
+			} else {
+				foreach ($value2 as $key2 => $value3) {
+					if ($key2 == "sha" ) {
+						$outP .= $value3."\n";
+					}
+				}
+			}
+				
+			
+		}
+	}
+	return $outP;
+}
+
 function getPassHash()
 {
     $config = new Config_Lite(CONFIG);
@@ -524,6 +563,7 @@ $tags .= "
 <meta id='greeting-data' data='". $greeting . "'>
 <meta id='created-data' data='". $created . "'>
 <meta id='hash-data' data='". $hash . "'>
+<meta id='branches-data' data='". listBranches() ."'>
 
 
 ";
@@ -669,4 +709,20 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 
 if(empty($_GET)) {
     createSecret();
+}
+
+// This will download the latest zip from the current selected branch and extract it wherever specified
+function downloadUpdate() {
+	$f = file_put_contents("my-zip.zip", fopen("https://github.com/mescon/Muximux/archive/". getBranch() .".zip", 'r'), LOCK_EX);
+	if(FALSE === $f)
+		die("Couldn't write to file.");
+	$zip = new ZipArchive;
+	$res = $zip->open('my-zip.zip');
+	if ($res === TRUE) {
+	  $zip->extractTo('./test');
+	  $zip->close();
+	  //
+	} else {
+	  //
+	}
 }
