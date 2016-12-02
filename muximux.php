@@ -2,9 +2,9 @@
 /*
 * DO NOT CHANGE THIS FILE!
 */
-define('CONFIG', 'settings.ini.php');
-define('CONFIGEXAMPLE', 'settings.ini.php-example');
-define('SECRET', 'secret.txt');
+defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
+defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
+defined("SECRET") ? null : define('SECRET', 'secret.txt');
 require dirname(__FILE__) . '/vendor/autoload.php';
 
 // Check if this is an old installation that needs upgrading.
@@ -163,7 +163,7 @@ function parse_ini()
 							<input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' ".($config->getBool('general', 'autohide', false) ? 'checked' : '').">
 						</div>
 						<div>
-							<label for='authenticateCheckbox'>Enable authentication:</label>
+							<label for='authenticationCheckbox'>Enable authentication:</label>
 							<input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' ".($config->getBool('general', 'authentication', false) ? 'checked' : '').">
 						</div><br>
 						<div class='userinput ".($config->getBool('general', 'authentication', false) ? '' : 'hidden')."'>
@@ -769,4 +769,10 @@ function downloadUpdate() {
 	} else {
 	  //
 	}
+}
+
+function console_log( $data ){
+	echo '<script>';
+	echo 'console.log('. json_encode( $data ) .')';
+	echo '</script>';
 }

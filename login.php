@@ -1,4 +1,7 @@
 <?php defined('DS') OR die('No direct access allowed.');
+defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
+defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
+defined("SECRET") ? null : define('SECRET', 'secret.txt');
 require dirname(__FILE__) . '/vendor/autoload.php';
 $config = new Config_Lite(CONFIG);
 $hash = $config->get('general', 'password', '0');

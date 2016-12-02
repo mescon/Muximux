@@ -22,28 +22,29 @@
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <?php
-
-        require dirname(__FILE__) . '/vendor/autoload.php';
-        define('CONFIG', 'settings.ini.php');
-        $config = new Config_Lite(CONFIG);
+	defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
+	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
+	defined("SECRET") ? null : define('SECRET', 'secret.txt');
+	require dirname(__FILE__) . '/vendor/autoload.php';
         require 'muximux.php';
+	$config = new Config_Lite(CONFIG);
+        
 
+	if ($config->get('general', 'authentication', 'false') == "true") {
 
-        if ($config->get('general', 'authentication', 'false') == "true") {
+	session_start();
+	define('DS',  TRUE); // used to protect includes
+	define('USERNAME', $_SESSION['username']);
+	define('SELF',  $_SERVER['PHP_SELF'] );
 
-            session_start();
-            define('DS',  TRUE); // used to protect includes
-            define('USERNAME', $_SESSION['username']);
-            define('SELF',  $_SERVER['PHP_SELF'] );
+	if (!USERNAME or isset($_GET['logout']))
+	        include('login.php');
 
-            if (!USERNAME or isset($_GET['logout']))
-                include('login.php');
-
-        } else {
-            session_start();
-            session_destroy();
-        }
-        error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
+	} else {
+	    session_start();
+	    session_destroy();
+	}
+	error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 
     ?>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
