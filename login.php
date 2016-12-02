@@ -1,5 +1,4 @@
 <?php defined('DS') OR die('No direct access allowed.');
-define('CONFIG', 'settings.ini.php');
 require dirname(__FILE__) . '/vendor/autoload.php';
 $config = new Config_Lite(CONFIG);
 $hash = $config->get('general', 'password', '0');
@@ -19,20 +18,7 @@ if(isset($_POST['username'])) {
             header("Location: " . "http://" . $_SERVER['HTTP_HOST']);
 
     } else {
-        echo '
-		<script>
-		function shakeForm() {
-			var l = 20;  
-			for( var i = 0; i < 10; i++ )   
-			$( ".login-block" ).animate( { 
-				\'margin-left\': "+=" + ( l = -l ) + \'px\',
-				\'margin-right\': "-=" + l + \'px\'
-			}, 50);  
-
-		}
-		shakeForm();
-		</script>
-		';
+       
 		
     }
 }

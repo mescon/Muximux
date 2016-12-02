@@ -23,8 +23,6 @@
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <?php
 
-        define('CONFIGEXAMPLE', 'settings.ini.php-example');
-        define('SECRET', 'secret.txt');
         require dirname(__FILE__) . '/vendor/autoload.php';
         define('CONFIG', 'settings.ini.php');
         $config = new Config_Lite(CONFIG);

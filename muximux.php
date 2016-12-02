@@ -82,8 +82,15 @@ function write_ini()
     } catch (Config_Lite_Exception $e) {
         echo "\n" . 'Exception Message: ' . $e->getMessage();
     }
+	rewrite_config_header();
+    
+	session_start();
+	session_destroy();
+	
+}
 
-    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
+function rewrite_config_header() {
+	$cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
     $file = CONFIG; // the file to which $cache_new gets prepended
 
     $handle = openFile($file, "r+");
@@ -99,9 +106,6 @@ function write_ini()
         fseek($handle, $i * $len);
         $i++;
     }
-	session_start();
-	session_destroy();
-	
 }
 
 function parse_ini()
@@ -112,7 +116,8 @@ function parse_ini()
     checksetSHA();
 	$myBranch = getBranch();
 	$branchArray = getBranches();
-	$pageOutput .= "<div>". implode($branchArray)."</div>";
+	$branchList = "";
+	$pageOutput = "<div>". implode($branchArray)."</div>";
 	foreach ($branchArray as $branchName => $shaSum ) {
 		
 		$branchlist .= "<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
@@ -289,6 +294,7 @@ function getTheme()
 
 function listThemes() {
 	$dir    = './css/theme';
+	$themelist ="";
 	$themes = scandir($dir);
 	$themeCurrent = getTheme();
 	foreach($themes as $value){ 
@@ -506,6 +512,7 @@ function fetchBranches() {
 		} catch (Config_Lite_Exception $e) {
 			echo "\n" . 'Exception Message: ' . $e->getMessage();
 		}
+		rewrite_config_header();
 	} 
 	
 }
@@ -523,6 +530,7 @@ function checksetSHA() {
 		} catch (Config_Lite_Exception $e) {
 			echo "\n" . 'Exception Message: ' . $e->getMessage();
 		}
+		rewrite_config_header();
 	}
 }
 
