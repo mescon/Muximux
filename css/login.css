@@ -5,6 +5,8 @@ body {
 
 .logo {
     height: 207px;
+	top: -15px;
+	position: relative;
 	margin-left:auto;
 	margin-right:auto;
     text-align: center;

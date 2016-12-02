@@ -9,6 +9,7 @@ $title = $config->get('general', 'title', '0');
 $username = $config->get('general', 'userNameInput', '0');
 if(isset($_GET['logout'])) {
     $_SESSION['username'] = '';
+	session_destroy();
     header('Location:  ' . $_SERVER['PHP_SELF']);
 }
 

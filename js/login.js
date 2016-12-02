@@ -1,5 +1,4 @@
 $(document).ready(function() {
-		$("#muximux-logo").css("fill", "#F00");
 		$('.wrapper').animate({top: "5%"}, 100, 'easeInOutElastic', function() {
             $('.logo').delay(1200).slideDown(400,'easeInOutElastic');
             $('.login0').delay(1000).slideDown(400,'easeInOutElastic');

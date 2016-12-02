@@ -22,6 +22,7 @@
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <?php
+session_start();
 	defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 	defined("SECRET") ? null : define('SECRET', 'secret.txt');
@@ -41,8 +42,8 @@
 	        include('login.php');
 
 	} else {
-	    session_start();
-	    session_destroy();
+				
+				
 	}
 	error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
 
