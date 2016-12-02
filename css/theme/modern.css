@@ -1,44 +1,44 @@
 
 
 body {
-	background: #222222;
+    background: #222222;
 }
 
 .logo {
-	color: #ffffff;
+    color: #ffffff;
 }
 
 .login-block {
-	background: #3f3f3f;
-	border-top: 5px solid #FF0000;
+    background: #3f3f3f;
+    border-top: 5px solid #31ac63;
 }
 
 .login-block h1 {
-	color: #fff;
+    color: #fff;
 }
 
 .login-block input {
-	border: 1px solid #8A8A8A;
+    border: 1px solid #8A8A8A;
 }
 
 .login-block input:active, .login-block input:focus {
-	border: 1px solid #ff656c;
+    border: 1px solid #ff656c;
 }
 
 .login-block button {
-	background: #ff656c;
-	border: 1px solid #e15960;
-	color: #fff;
+    background: #ff656c;
+    border: 1px solid #e15960;
+    color: #fff;
 }
 
 .login-block button:hover {
-	background: #ff7b81;
+    background: #ff7b81;
 }
 
- 
+
 
 iframe {
-	background-color: #000;
+    background-color: #000;
 }
 
 .modal-title {
@@ -51,7 +51,7 @@ iframe {
 
 .cd-tabs-navigation a, #reload, #settings, #override {
     color: #818181;
-    
+
 }
 
 .cd-tabs-navigation a:hover, #reload:hover, #settings:hover {
@@ -93,7 +93,7 @@ iframe {
 .main-nav > li:hover {
     color: #f1f3f2;
     background-color: rgba(233, 230, 202, 0.3);
-    
+
 }
 
 .main-nav a {
@@ -115,8 +115,8 @@ iframe {
 }
 
 .or-active > span {
-	color: #ffffff; /* Hover text colour */
-    
+    color: #ffffff; /* Hover text colour */
+
 }
 
 .drop-nav {
@@ -182,7 +182,7 @@ input[type='button']:hover {
 }
 
 .close {
-  color: #f1f3f2;  
+  color: #f1f3f2;
 }
 
 .close:hover,

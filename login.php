@@ -29,7 +29,7 @@ echo '
     <link rel="stylesheet" href="css/login.css">
     <link rel="stylesheet" href="css/theme/'.getTheme().'.css">
     <link rel="stylesheet" href="css/font-awesome.min.css"/>
-
+    <title>Login to '.getTitle().'</title>
     <script>
     $(document).ready(function() {
         $(\'.login-block\').animate({top: "30%"}, 100, \'easeInOutElastic\', function() {
