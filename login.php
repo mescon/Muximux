@@ -15,11 +15,24 @@ if(isset($_POST['username'])) {
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
 
             $_SESSION['username'] = $_POST['username'];
+			echo $_SERVER['HTTP_HOST'];
             header("Location: " . "http://" . $_SERVER['HTTP_HOST']);
 
     } else {
-        //invalid login
-        echo "<p>error logging in</p>";
+        echo '
+		function shakeForm() {
+			var l = 20;  
+			for( var i = 0; i < 10; i++ )   
+			$( ".login-block" ).animate( { 
+				\'margin-left\': "+=" + ( l = -l ) + \'px\',
+				\'margin-right\': "-=" + l + \'px\'
+			}, 50);  
+
+		}
+		shakeForm();
+		</script>
+		';
+		
     }
 }
 
@@ -47,7 +60,7 @@ echo '
 <body>
     <div class="logo"><img src="images/muximux.png" alt="Muximux" width="235" height="128" /></div>
     <div class="login-block" id="slide">
-        <form method="post" action="index.php">
+		<form method="post" id=login action="index.php">
         <h1 class="login0">Login</h1>
             <input type="text" class="login1" value="" placeholder="Username" id="username" name="username" value="" />
             <input type="password" class="login2" value="" placeholder="Password" id="password"  name="password" value="" />
