@@ -45,7 +45,7 @@ echo '
     </script>
 </head>
 <body>
-    <div class="logo">'. $title .'</div>
+    <div class="logo"><img src="images/muximux.png" alt="Muximux" width="235" height="128" /></div>
     <div class="login-block" id="slide">
         <form method="post" action="index.php">
         <h1 class="login0">Login</h1>
