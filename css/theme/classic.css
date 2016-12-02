@@ -8,9 +8,15 @@ body {
 	color: #ffffff;
 }
 
+.logo path {
+	fill: #31ac63;
+}
+
 .login-block {
 	background: #36363b;
 	border-top: 5px solid #31ac63;
+.colorgrab {
+	color:#31ac63;
 }
 
 .login-block h1 {

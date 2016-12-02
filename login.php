@@ -33,22 +33,15 @@ echo '
     <link rel="stylesheet" href="css/theme/'.getTheme().'.css">
     <link rel="stylesheet" href="css/font-awesome.min.css"/>
     <title>Login to '.getTitle().'</title>
-    <script>
-    $(document).ready(function() {
-        $(\'.login-block\').animate({top: "30%"}, 100, \'easeInOutElastic\', function() {
-            $(\'.logo\').delay(1200).slideDown(400,\'easeInOutElastic\');
-            $(\'.login0\').delay(1000).slideDown(400,\'easeInOutElastic\');
-            $(\'.login1\').delay(1100).slideDown(400,\'easeInOutElastic\');
-            $(\'.login2\').delay(1200).slideDown(400,\'easeInOutElastic\');
-            $(\'.login3\').delay(1300).slideDown(400,\'easeInOutElastic\');
-        // Animation complete.
-        });
-
-    });
-    </script>
+    <script src="js/login.js"></script>
 </head>
 <body>
-    <div class="logo"><img src="images/muximux.png" alt="Muximux" width="235" height="128" /></div>
+<div class="wrapper">
+    <div class="logo">
+		'.
+	file_get_contents("images/muximux-white.svg")
+		
+	.'</div>
     <div class="login-block" id="slide">
 		<form method="post" id=login action="index.php">
         <h1 class="login0">Login</h1>
@@ -57,6 +50,7 @@ echo '
             <input type="submit" class="login3" name="submit" value="Login" class="button"/></p>
         </form>
     </div>
+	</div>
 </body>
 ';
 exit;
