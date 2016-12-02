@@ -1,5 +1,3 @@
-
-
 <!doctype html>
 <!--[if lt IE 7]>
 <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
@@ -14,42 +12,42 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Muximux - Application Management Console">
-	<meta name="theme-color" class="theme" content="#DFDFDF" />;
-	<meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />;
-	<meta name="apple-mobile-web-app-capable" content="yes">
-	<meta name="apple-mobile-web-app-status-bar-style" class="theme" content="#DFDFDF" />;
-	<meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />;
+    <meta name="theme-color" class="theme" content="#DFDFDF" />
+    <meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" class="theme" content="#DFDFDF" />
+    <meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
-	<script src="js/jquery-2.2.4.min.js"></script>
-	<script src="js/jquery-ui.min.js"></script>
-	<link rel="stylesheet" href="css/jquery-ui.min.css">
-	<?php
+    <script src="js/jquery-2.2.4.min.js"></script>
+    <script src="js/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="css/jquery-ui.min.css">
+    <?php
 
-		define('CONFIGEXAMPLE', 'settings.ini.php-example');
-		define('SECRET', 'secret.txt');
-		require dirname(__FILE__) . '/vendor/autoload.php';
-		define('CONFIG', 'settings.ini.php');
-		$config = new Config_Lite(CONFIG);
-		require 'muximux.php';
+        define('CONFIGEXAMPLE', 'settings.ini.php-example');
+        define('SECRET', 'secret.txt');
+        require dirname(__FILE__) . '/vendor/autoload.php';
+        define('CONFIG', 'settings.ini.php');
+        $config = new Config_Lite(CONFIG);
+        require 'muximux.php';
 
 
-		if ($config->get('general', 'authentication', 'false') == "true") {
-			
-			session_start(); 
-			define('DS',  TRUE); // used to protect includes
-			define('USERNAME', $_SESSION['username']);
-			define('SELF',  $_SERVER['PHP_SELF'] );
+        if ($config->get('general', 'authentication', 'false') == "true") {
 
-			if (!USERNAME or isset($_GET['logout']))
-				include('login.php');
-			
-		} else {
-			session_start();
-			session_destroy();
-		}
-		error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
+            session_start();
+            define('DS',  TRUE); // used to protect includes
+            define('USERNAME', $_SESSION['username']);
+            define('SELF',  $_SERVER['PHP_SELF'] );
 
-	?>
+            if (!USERNAME or isset($_GET['logout']))
+                include('login.php');
+
+        } else {
+            session_start();
+            session_destroy();
+        }
+        error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
+
+    ?>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
     <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Bootstrap 3.3.6 -->
     <link rel="stylesheet" href="css/bootstrap-iconpicker.min.css"/>
@@ -68,8 +66,8 @@
     your browser</a> to improve your experience.</p>
 <![endif]-->
 
-	<div class="cd-tabs">
-		<?php echo menuItems(); ?>
+    <div class="cd-tabs">
+        <?php echo menuItems(); ?>
 
     <ul class="cd-tabs-content">
         <div class="constrain">
