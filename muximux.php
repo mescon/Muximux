@@ -470,7 +470,7 @@ function getBranches() {
 function fetchBranches() {
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
-	if (time() >= $last + (60 * 3)) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
+	if (time() >= $last + 3600) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
 		$curl_handle=curl_init();
 		curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
