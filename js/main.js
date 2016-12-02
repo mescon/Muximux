@@ -21,9 +21,7 @@ jQuery(document).ready(function ($) {
 		$('.cd-tab').addClass('drawerItem');
 		$('.navbtn').addClass('drawerItem');
 		$('.cd-tabs-bar').addClass('drawerItem');
-		$('.cd-tab').addClass('drawerItem2');
-		$('.navbtn').addClass('drawerItem2');
-		$('.cd-tabs-bar').addClass('drawerItem2');
+		
 	} else {
 		hasDrawer = "false";
 	}
@@ -41,13 +39,13 @@ jQuery(document).ready(function ($) {
     var boxshadowprop=getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow']) 
     //Hide the nav to start	
     $('.drop-nav').toggleClass('hide-nav');
-    tabs.each(function () {
-        var tab = $(this),
+	
+	tabs.each(function () {
+		var tab = $(this),
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
-
-        tabItems.on('click', 'a:not(#reload, #hamburger, #override)', function (event) {
+			tabItems.on('click', 'a:not(#reload, #hamburger, #override)', function (event) {
 			
             // Set up menu for desktip view
 			
@@ -77,7 +75,7 @@ jQuery(document).ready(function ($) {
                 }
 				// This doesn't work often, but it's a nice surprise when it does
 				// Work on a way to do this with PHP that isn't taxing
-				changeFavicon('http://api.byi.pw/favicon?url=' + srcUrl);
+				//changeFavicon('http://api.byi.pw/favicon?url=' + srcUrl);
 				
 				// Fix issue with color not resetting on settings close
 				if (!(selectedItem.attr("data-title") == "Settings")) {
@@ -189,7 +187,7 @@ jQuery(document).ready(function ($) {
 			}, 500);
 		}
 	});
-    jQuery.fn.reverse = [].reverse;
+	jQuery.fn.reverse = [].reverse;
 	
 	$('.drawerItem').mouseleave(function() {
 		$('.drawerItem').removeClass('full');
@@ -254,6 +252,21 @@ function muximuxMobileResize() {
 	} else {
 		$(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
         	$('.drop-nav').css('max-height', '');
+			var listWidth = 0;
+		$('.cd-tab').each(function(){
+			var myWidth = $(this).width();
+			if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
+				$(this).appendTo(".drop-nav");
+				console.log("Bigger??");
+			} else {
+				$(this).appendTo('.cd-tabs-navigation nav');
+			}
+			listWidth = listWidth + $(this).width();
+			
+			console.log($(this).width());
+			console.log("Window: " + $(window).width() + " versus " + listWidth);
+		});
+			
 	}
 	clearColors();
 	setSelectedColor();
@@ -280,8 +293,14 @@ function clearColors() {
 function setSelectedColor() {
 	
 	color = $('li .selected').attr("data-color");
+	if (isMobile) {
+		$('.theme').replaceWith('<meta name="theme-color" class="theme" content="' + color + '" />');
+	}
 	if (isMobile && !overrideMobile) {
 		$(".cd-tabs-bar").removeClass("drawer");
+		$('.cd-tab').removeClass('drawerItem');
+		$('.navbtn').removeClass('drawerItem');
+		$('.cd-tabs-bar').removeClass('drawerItem');
 		$(".selected").children("span").css("color","" + color + "");
 		$(".selected").css("color","" + color + "");
     } else {
@@ -289,6 +308,9 @@ function setSelectedColor() {
 		// Super hacky, but we're refrencing a placeholder div to quickly see if we have a drawer
 		if ($('#drawer').attr('data') == 'true') {
 			$(".cd-tabs-bar").addClass("drawer");
+			$('.cd-tab').addClass('drawerItem');
+			$('.navbtn').addClass('drawerItem');
+			$('.cd-tabs-bar').addClass('drawerItem');
     }
 	}
 }

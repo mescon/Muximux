@@ -14,6 +14,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Muximux - Application Management Console">
+	<meta name="theme-color" class="theme" content="#DFDFDF" />;
+	<meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />;
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" class="theme" content="#DFDFDF" />;
+	<meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />;
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
 	<script src="js/jquery-2.2.4.min.js"></script>
 	<script src="js/jquery-ui.min.js"></script>

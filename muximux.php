@@ -108,70 +108,69 @@ function parse_ini()
 {
     
     $config = new Config_Lite(CONFIG);
+	fetchBranches();
     checksetSHA();
+	$myBranch = getBranch();
+	$branchArray = getBranches();
+	$pageOutput .= "<div>". implode($branchArray)."</div>";
+	foreach ($branchArray as $branchName => $shaSum ) {
+		
+		$branchlist .= "<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
+	}
 	
-    if ($config->get('general', 'branch', 'master') == "master") {
-        $master = "<option value=\"master\" selected>master</option>";
-    } else { $master = "<option value=\"master\">master</option>"; }
-
-    if ($config->get('general', 'branch', 'master') == "develop") {
-        $develop = "<option value=\"develop\" selected>develop</option>";
-    } else { $develop = "<option value=\"develop\">develop</option>"; }
-
-    if ($config->get('general', 'updatepopup', 'false') == "true") {
-        $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' checked></div><br>";
-    } else { $showUpdates = "<div><label for='updatepopupCheckbox'>Enable update poups:</label> <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox'></div><br>"; }
-
-	if ($config->get('general', 'mobileoverride', 'false') == "true") {
-        $showUpdates .= "
-		<div>
-			<label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' checked>
-		</div>";
-    } else { $showUpdates .= "
-		<div>
-			<label for='mobileoverrideCheckbox'>Enable mobile override:</label> <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox'>
-		</div>"; }
-
-	if ($config->get('general', 'autohide', 'false') == "true") {
-        $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' checked></div>";
-    } else { $showUpdates .= "<div><label for='autohideCheckbox'>Enable auto-hide:</label> <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox'></div>"; }
-	
-	if ($config->get('general', 'authentication', 'false') == "true") {
-        $showUpdates .= "
-		<div>
-			<label for='authenticateCheckbox'>Enable authentication:</label> <input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' checked>
-		</div><br>
-		<div class='userinput'>
-			<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
-		</div><br>
-		<div class='userinput'>
-			<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
-		</div><br>
-		";
-    } else { $showUpdates .= "
-	<div>
-		<label for='authenticationCheckbox'>Enable authentication:</label> <input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox'>
-	</div><br>
-	<div class='userinput hidden'>
-		<label for='userNameInput'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
-	</div><br>
-	<div class='userinput hidden'>
-		<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
-	</div><br>
-	
-	"; }
-	$themes = listThemes();
-    $showUpdates .= "<div><label for='theme'>Theme: </label> <select id='theme' class='general_-_value' name='general_-_theme'>". listThemes() ."</select></div>";
+	$title = $config->get('general', 'title', 'Muximux - Application Management Console');
+    $pageOutput .= "
+					<form>
+						<div class='applicationContainer' style='cursor:default;'>
+						<h2>General</h2>
+						<div>
+							<label for='titleInput'>Title: </label>
+							<input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $title . "'>
+						</div>
+						<div>
+							<label for='theme'>Theme: </label>
+							<select id='theme' class='general_-_value' name='general_-_theme'>". 
+								listThemes() ."
+							</select>
+						</div>
+						<div>
+							<label for='branch'>Branch tracking: </label>
+							<select id='branch' name='general_-_branch'>".
+								$branchList ."
+							</select>
+						</div>
+						<br>
+						<div>
+							<label for='dropdownCheckbox'>Enable Dropdown:</label>
+							<input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ". ($config->getBool('general', 'enabledropdown', false) ? 'checked' : '') ."
+						</div>
+						<div>
+							<label for='updatepopupCheckbox'>Enable update poups:</label> 
+							<input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' ".($config->getBool('general', 'updatepopup', false) ? 'checked' : '') .">
+						</div>
+						
+						<div>
+							<label for='mobileoverrideCheckbox'>Enable mobile override:</label> 
+								<input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' ".($config->getBool('general', 'mobileoverride', false) ? 'checked' : '').">
+						</div><br>
+						<div>
+							<label for='autohideCheckbox'>Enable auto-hide:</label>
+							<input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' ".($config->getBool('general', 'autohide', false) ? 'checked' : '').">
+						</div>
+						<div>
+							<label for='authenticateCheckbox'>Enable authentication:</label>
+							<input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' ".($config->getBool('general', 'authentication', false) ? 'checked' : '').">
+						</div><br>
+						<div class='userinput ".($config->getBool('general', 'authentication', false) ? '' : 'hidden')."'>
+							<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
+						</div><br>
+						<div class='userinput ".($config->getBool('general', 'authentication', false) ? '' : 'hidden')."'>
+							<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
+						</div>
+					</div>
+				</div>
+					";
     
-    $pageOutput = "<form>";
-
-    $pageOutput .= "<div class='applicationContainer' style='cursor:default;'><h2>General</h2><label for='titleInput'>Title: </label><input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $config->get('general', 'title', 'Muximux - Application Management Console') . "'>";
-    $pageOutput .= "<br><label for=\"branch\">Branch tracking:</label><select id=\"branch\" name='general_-_branch'>$master $develop</select>";
-    $pageOutput .= "<br><div><label for='dropdownCheckbox'>Enable Dropdown:</label> <input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ";
-    if ($config->get('general', 'enabledropdown') == true)
-        $pageOutput .= "checked></div>$showUpdates</div><br><br>";
-    else
-        $pageOutput .= "></div>$showUpdates</div><br>";
 	if ($config->get('settings', 'sha', '0') == "0") {
 		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".fetchSHA()."'>";
 	} else {
@@ -187,68 +186,76 @@ function parse_ini()
         "<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>";
 
-    $pageOutput .= "<div id='sortable'>";
+    $pageOutput .= "
+<div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
-            $pageOutput .= "<div class='applicationContainer' id='" . $section . "'><span class='bars fa fa-bars'></span>";
-            foreach ($name as $key => $val) {
-                if ($key == "url")
-                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >URL:</label><input class='" . $section . "_-_value' name='" . $section . "_-_" . $key . "' type='text' value='" . $val . "'></div>";
-                else if ($key == "name") {
-                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Name:</label><input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_" . $key . "' type='text' value='" . $val . "'></div>";
-                } else if ($key == "color") {
-                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $val . "' name='" . $section . "_-_color'></div>";
-                } else if ($key == "icon") {
-					$pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Icon: </label><button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_" . $key . "' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $val . "\"></button></div>";
-					if (empty($name["color"])) {
-						$pageOutput .= "<div><label for='" . $section . "_-_color'>Color: </label><input type='color' id='custom' class='appsColor " . $section . "_-_color' value='#000000' name='" . $section . "_-_color'></div>";
-					}
-			
-                } elseif ($key == "default") {
-                    $pageOutput .= "<br><div><label for='" . $section . "_-_" . $key . "' >Default:</label><input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "'";
-                    if ($val == "true")
-                        $pageOutput .= " checked></div>";
-                    else
-                        $pageOutput .= "></div>";
-                } else if ($key == "enabled") {
-                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "' >Enabled: </label><input class='checkbox " . $section . "_-_value ' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "' type='checkbox' ";
-                    if ($val == "true")
-                        $pageOutput .= " checked></div>";
-                    else
-                        $pageOutput .= "></div>";
-                } else if ($key == "landingpage") {
-                    $pageOutput .= "<div><label for='" . $section . "_-_" . $key . "' >Landing page: </label><input class='checkbox " . $section . "_-_value' id='" . $section . "_-_" . $key . "' name='" . $section . "_-_" . $key . "' type='checkbox' ";
-                    if ($val == "true")
-                        $pageOutput .= " checked></div>";
-                    else
-                        $pageOutput .= "></div>";
-                } else if ($key == "dd") {
-                    $pageOutput .= "<div><label for='" . $section . "_-_dd'>Put in dropdown: </label><input class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd' type='checkbox' ";
-                    if ($val == "true")
-                        $pageOutput .= " checked></div>";
-                    else
-                        $pageOutput .= "></div>";
-                } else if ($key == "scale") {
-					$scaleRange2 = "0";
-					$scaleRange2 = buildScale($val);
-					$pageOutput .= "<br><div style=\"margin-left:5px;\">
-											<label for='" . $section . "_-_scale'>Zoom: </label>
-											<select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange2 ."</select>
-										</div>";
-					
-				}
-				
-            }
-			$pageOutput .= "<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button></div>";
+			$name = $config->get($section, 'name', '');
+			$url = $config->get($section, 'url', 'http://www.plex.com');
+			$color = $config->get($section, 'color', '#000');
+			$icon = $config->get($section, 'icon', '');
+			$scale = $config->get($section, 'scale', '');
+			$default = $config->getBool($section, 'default', false);
+			$enabled = $config->getBool($section, 'enabled', true);
+			$landingpage = $config->getBool($section, 'landingpage', true);
+			$dd = $config->getBool($section, 'dd', true);
+			$scaleRange = "0";
+			$scaleRange = buildScale($scale);
+       
+			$pageOutput .= "
+	<div class='applicationContainer' id='" . $section . "'>
+		<span class='bars fa fa-bars'></span>
+		<div>
+			<label for='" . $section . "_-_name' >Name: </label>
+			<input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
+		</div>
+		<div>
+			<label for='" . $section . "_-_url' >URL: </label>
+			<input class='" . $section . "_-_value' name='" . $section . "_-_url' type='text' value='" . $url . "'>
+		</div>
+		<div>
+			<label for='" . $section . "_-_enabled' >Enabled: </label>
+			<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_enabled' name='" . $section . "_-_enabled'".($enabled ? 'checked' : '') .">
+		</div>
+		<div>
+			<label for='" . $section . "_-_landingpage' >Landing page: </label>
+			<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_landingpage' name='" . $section . "_-_landingpage'".($landingpage ? 'checked' : '') .">
+		</div>
+		<div>
+			<label for='" . $section . "_-_dd' >Put in dropdown: </label>
+			<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
+		</div>
+		<div>
+			<label for='" . $section . "_-_default' >Default: </label>
+			<input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_default' name='" . $section . "_-_default'".($default ? 'checked' : '') .">
+		</div>
+		<br><div>
+			<label for='" . $section . "_-_icon' >Icon: </label>
+			<button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\">
+			</button>
+		</div>
+		<div>
+			<label for='" . $section . "_-_color'>Color: </label>
+			<input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
+		</div>
+		<div style=\"margin-left:5px;\">
+			<label for='" . $section . "_-_scale'>Zoom: </label>
+			<select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange ."</select>
+		</div>
+		<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
+	</div>";
             
-        }
-    }
+        
+		}
+	}
     $pageOutput .= "</div>
     <div class='text-center' style='margin-top: 15px;'>
-    <div class='btn-group' role='group' aria-label='Buttons'>
-                    <a class='btn btn-primary btn-md' id='addApplication'><span class='fa fa-plus'></span> Add new</a>
-                    <a class='btn btn-danger btn-md' id='removeAll'><span class='fa fa-trash'></span> Remove all</a>
-                    </div></div></form>";
+		<div class='btn-group' role='group' aria-label='Buttons'>
+			<a class='btn btn-primary btn-md' id='addApplication'><span class='fa fa-plus'></span> Add new</a>
+            <a class='btn btn-danger btn-md' id='removeAll'><span class='fa fa-trash'></span> Remove all</a>
+		</div>
+	</div>
+</form>";
     return $pageOutput;
 }
 
@@ -287,22 +294,19 @@ function listThemes() {
 	foreach($themes as $value){ 
         $splitName = explode('.', $value);
 		if  (!empty($splitName[0])) {
-		if ($splitName[0] == getTheme()) {
-			$themelist .="
-			<option value='".$splitName[0]."' selected>".$splitName[0]."</option>
-";
-		} else {
-			$themelist .="
-			<option value='".$splitName[0]."'>".$splitName[0]."</option>
-";
-		}
+			if ($splitName[0] == getTheme()) {
+				$themelist .="
+								<option value='".$splitName[0]."' selected>".$splitName[0]."</option>";
+			} else {
+				$themelist .="
+								<option value='".$splitName[0]."'>".$splitName[0]."</option>";
+			}
 		}
 	}
 	return $themelist;
 }
 
-function menuItems()
-{
+function menuItems() {
     $config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
@@ -364,7 +368,7 @@ function menuItems()
 	
 	if ($mobileoverride == "true") {
 		$moButton = "
-		<li class='cd-tab navbtn'>
+		<li class='navbtn'>
 			<a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
 				<span class=\"fa fa-mobile fa-lg\"></span>
 			</a>
@@ -388,7 +392,7 @@ function menuItems()
 		$item = $drawerdiv . "
 			<ul class=\"main-nav\">" .
 			$moButton ."
-				<li class='cd-tab navbtn'>
+				<li class='navbtn'>
 					<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
 						<span class=\"fa fa-refresh fa-lg\"></span>
 					</a>
@@ -436,36 +440,34 @@ function menuItems()
     return $item;
 }
 
-function getTitle()
-{
+function getTitle() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'title', 'Muximux - Application Management Console');
     return $item;
 }
 
 // Quickie fetch of the current selected branch
-function getBranch()
-{
+function getBranch() {
 	$config = new Config_Lite(CONFIG);
 	$branch = $config->get('general', 'branch', 'master');
 	return $branch;
 }
 
 // Reads for "branches" from settings.  If not found, fetches list from github, saves, parses, and returns
-function getBranches()
-{
+function getBranches() {
 	$config = new Config_Lite(CONFIG);
-	$branches = $config->get('settings', 'branches', '0');
-	if ($branches == "0") {
+	$branches = [];
+	$branches = $config->get('settings', 'branches');
+	if ($branches == []) {
 		fetchBranches();
+	} else {
+		$branches = $config->get('settings', 'branches');
 	}
-	$branches = $config->get('settings', 'branches', '0');
 	return $branches;
 }
 
 // Fetch a list of branches from github, along with their current SHA
-function fetchBranches()
-{
+function fetchBranches() {
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
 	if (time() >= $last + (60 * 3)) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
@@ -504,16 +506,15 @@ function fetchBranches()
 		} catch (Config_Lite_Exception $e) {
 			echo "\n" . 'Exception Message: ' . $e->getMessage();
 		}
-	}
-	return $outP;
+	} 
+	
 }
 
 // We run this when parsing settings to make sure that we have a SHA saved just as 
 // soon as we know we'll need it (on install or new settings).  This is how we track whether or not 
 // we need to update.  
 
-function checksetSHA() 
-{
+function checksetSHA() {
 	$config = new Config_Lite(CONFIG);
 	if ($config ->get('settings','sha','0') == "0") {
 		$config ->set('settings','sha',fetchSHA());
@@ -527,8 +528,7 @@ function checksetSHA()
 
 // Read SHA from settings and return it's value.
 
-function getSHA()
-{
+function getSHA() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('settings', 'sha', '0');
     return $item;
@@ -537,8 +537,7 @@ function getSHA()
 // This reads our array of branches, finds our selected branch in settings,
 // and returns the corresponding SHA value.  We need this to set the initial
 // SHA value on setup/load, as well as to compare for update checking.
-function fetchSHA() 
-{
+function fetchSHA() {
 	$branchArray = getBranches();
 	$myBranch = getBranch();
 	foreach ($branchArray as $branchName => $shaVal) {
@@ -552,8 +551,7 @@ function fetchSHA()
 }
 
 // Retrieve password hash from settings and return it for "stuff".
-function getPassHash()
-{
+function getPassHash() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'password', 'foo');
     return $item;
@@ -562,8 +560,7 @@ function getPassHash()
 // This little gem helps us replace a whome bunch of AJAX calls by sorting out the info and 
 // writing it to meta-tags at the bottom of the page.  Might want to look at calling this via one AJAX call.
 
-function metaTags() 
-{
+function metaTags() {
 	$config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
@@ -632,8 +629,7 @@ $tags .= "
 }
 
 // Set up the actual iFrame contents, as the name implies.
-function frameContent()
-{
+function frameContent() {
     $config = new Config_Lite(CONFIG);
     if (empty($item)) $item = '';
     foreach ($config as $keyname => $section) {
@@ -667,8 +663,7 @@ function frameContent()
 }
 
 // Build a landing page.
-function landingPage($keyname)
-{
+function landingPage($keyname) {
     $config = new Config_Lite(CONFIG);
     $item = "
     <html lang=\"en\">
@@ -690,19 +685,15 @@ function landingPage($keyname)
     return $item;
 }
 
-function command_exist($cmd)
-{
+function command_exist($cmd) {
     $returnVal = exec("which $cmd");
     return (empty($returnVal) ? false : true);
 }
 
-function exec_enabled()
-{
+function exec_enabled() {
     $disabled = explode(', ', ini_get('disable_functions'));
     return !in_array('exec', $disabled);
 }
-
-
 
 // URL parameters
 if (isset($_GET['landing'])) {
