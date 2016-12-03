@@ -318,48 +318,32 @@ function menuItems() {
 
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
-		if (isset($section["autohide"]) && ($section["autohide"] == "true")) {
-            $autohide = "true";
-        } else {
-            $autohide = "false";
-        }
-            if (isset($section["enabledropdown"]) && ($section["enabledropdown"] == "true")) {
-                $enabledropdown = "true";
-            } else {
-                $enabledropdown = "false";
-            }
-	    if (isset($section["mobileoverride"]) && ($section["mobileoverride"] == "true")) {
-                $mobileoverride = "true";
-            } else {
-                $mobileoverride = "false";
-            }
-        }
+			$autohide = $config->getBool('general', 'autohide', true);
+			$enabledropdown = $config->getBool('general', 'enabledropdown', false);
+			$mobileoverride = $config->getBool('general', 'mobileoverride', false);
+			
 
-        if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && ((!isset($section["dd"]) || $section["dd"] == "false") || ($enabledropdown != "true"))) {
-            if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $standardmenu .= "
-					<li class='cd-tab'>
-						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\" class=\"selected\">
-							<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
-						</a>
-					</li>";
             } else {
+			$dropdown = $config->getBool($keyname, 'dd', false);
+			$enabled = $config->getBool($keyname, 'enabled', true);
+			$default = $config->getBool($keyname, 'default', true);
+        if ($enabled && !$dropdown) {
                 $standardmenu .= "
 					<li class='cd-tab'>
-						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\" data-color=\"" . $section["color"] . "\">
-							<span class=\"fa " . $section["icon"] . " fa-lg\"></span> " . $section["name"] . "
+						<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
+							<span class='fa " . $section["icon"] . " fa-lg'></span> " . $section["name"] . "
 						</a>
 					</li>";
-            }
+            
         }
-        if (isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true") && $section['name'] == "Settings") {
+        if ($dropdown && $enabled && $section['name'] == "Settings") {
             $dropdownmenu .= "
 				<li>
 					<a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
 						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
 					</a>
 				</li>";
-        } else if (($enabledropdown == "true") && isset($section["dd"]) && ($section["dd"] == "true") && !empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
+        } else if ($enabledropdown && $dropdown && $enabled) {
             $dropdownmenu .= "
 				<li>
 					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
@@ -368,6 +352,7 @@ function menuItems() {
 				</li>";
         } else {
             $dropdownmenu .= "";
+        }
         }
     }
 	
