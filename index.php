@@ -43,7 +43,7 @@
 
 	if ($config->get('general', 'authentication', 'false') == "true") {
 
-	session_start();
+	if ( is_session_started() === FALSE ) session_start();
 	define('DS',  TRUE); // used to protect includes
 	define('USERNAME', $_SESSION['username']);
 	define('SELF',  $_SERVER['PHP_SELF'] );

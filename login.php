@@ -18,7 +18,6 @@ if(isset($_POST['username'])) {
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
 
             $_SESSION['username'] = $_POST['username'];
-			echo $_SERVER['HTTP_HOST'];
             header("Location: " . "http://" . $_SERVER['HTTP_HOST']);
 
     } else {
