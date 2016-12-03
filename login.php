@@ -23,7 +23,7 @@ if(isset($_POST['username'])) {
             header("Location: " . "http://" . $_SERVER['HTTP_HOST']);
 			session_start();
     } else {
-			console_log('Error validating login of ' . $username . ' with password of ' . $password);
+			console_log('Error validating login of ' . $username . ' with password of ' . $_POST['password']);
 		
     }
 	console_log('Got username');
