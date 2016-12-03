@@ -52,7 +52,7 @@ echo '
         <h1 class="login0">Login</h1>
             <input type="text" class="login1" value="" placeholder="Username" id="username" name="username" value="" />
             <input type="password" class="login2" value="" placeholder="Password" id="password"  name="password" value="" />
-            <input type="submit" class="login3" name="submit" value="Login" class="button"/></p>
+			<button type="submit" class="login3 button" form="login" value="Submit">Login</button>
         </form>
     </div>
 	</div>
