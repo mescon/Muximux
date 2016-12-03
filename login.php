@@ -9,8 +9,10 @@ $title = $config->get('general', 'title', '0');
 $username = $config->get('general', 'userNameInput', '0');
 if(isset($_GET['logout'])) {
     $_SESSION['username'] = '';
+	if (!is_session_started()) session_start();
 	session_destroy();
     header('Location:  ' . $_SERVER['PHP_SELF']);
+	console_log('Destroying session for logout');
 }
 
 if(isset($_POST['username'])) {
@@ -19,11 +21,14 @@ if(isset($_POST['username'])) {
 
             $_SESSION['username'] = $_POST['username'];
             header("Location: " . "http://" . $_SERVER['HTTP_HOST']);
-
+			session_start();
     } else {
-       
+			console_log('Error validating login of ' . $username . ' with password of ' . $password);
 		
     }
+	console_log('Got username');
+} else {
+	console_log('Post received, but username is not set');
 }
 
 echo '

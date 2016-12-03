@@ -1,3 +1,17 @@
+<?php
+function is_session_started() {
+	if ( php_sapi_name() !== 'cli' ) {
+		if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+			return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+		} else {
+			return session_id() === '' ? FALSE : TRUE;
+		}
+	}
+	return FALSE;
+}
+if (is_session_started()) session_destroy();
+session_start();
+?>
 <!doctype html>
 <!--[if lt IE 7]>
 <html class="no-js lt-ie9 lt-ie8 lt-ie7" lang="en"> <![endif]-->
@@ -21,18 +35,6 @@
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <?php
-	function is_session_started()
-	{
-		if ( php_sapi_name() !== 'cli' ) {
-			if ( version_compare(phpversion(), '5.4.0', '>=') ) {
-				return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
-			} else {
-				return session_id() === '' ? FALSE : TRUE;
-			}
-		}
-		return FALSE;
-	}
-	if ( is_session_started() === FALSE ) session_start();
 	defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 	defined("SECRET") ? null : define('SECRET', 'secret.txt');
@@ -43,7 +45,6 @@
 
 	if ($config->get('general', 'authentication', 'false') == "true") {
 
-	if ( is_session_started() === FALSE ) session_start();
 	define('DS',  TRUE); // used to protect includes
 	define('USERNAME', $_SESSION['username']);
 	define('SELF',  $_SERVER['PHP_SELF'] );
