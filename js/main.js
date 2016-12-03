@@ -10,16 +10,9 @@ jQuery(document).ready(function($) {
 	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(myjson) {
 		$('#git-data').attr('data', JSON.stringify(myjson));
 	});
+	hasDrawer = ($('#drawer').attr('data') == 'true');
 	getSecret();
 	var tabs = $('.cd-tabs');
-	if ($('.cd-tabs-bar').hasClass('drawer')) {
-		hasDrawer = "true";
-		$('.cd-tab').addClass('drawerItem');
-		$('.navbtn').addClass('drawerItem');
-		$('.cd-tabs-bar').addClass('drawerItem');
-	} else {
-		hasDrawer = "false";
-	}
 	// Set default title to the selected item on load
 	var activeTitle = $('li .selected').attr("data-title");
 	muximuxMobileResize();
@@ -259,11 +252,14 @@ function setSelectedColor() {
 	} else {
 		$(".selected").css("Box-Shadow", "inset 0 5px 0 " + color + "");
 		// Super hacky, but we're refrencing a placeholder div to quickly see if we have a drawer
-		if ($('#drawer').attr('data') == 'true') {
-			$(".cd-tabs-bar").addClass("drawer");
+		if (hasDrawer) {
 			$('.cd-tab').addClass('drawerItem');
 			$('.navbtn').addClass('drawerItem');
 			$('.cd-tabs-bar').addClass('drawerItem');
+		} else {
+			$('.cd-tab').removeClass('drawerItem');
+			$('.navbtn').removeClass('drawerItem');
+			$('.cd-tabs-bar').removeClass('drawerItem');
 		}
 	}
 }
