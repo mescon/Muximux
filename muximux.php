@@ -84,7 +84,6 @@ function write_ini()
     }
 	rewrite_config_header();
     
-	if (is_session_started()) session_destroy();
 	
 }
 
