@@ -12,17 +12,27 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="description" content="Muximux - Application Management Console">
-    <meta name="theme-color" class="theme" content="#DFDFDF" />
-    <meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />
     <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" class="theme" content="#DFDFDF" />
-    <meta name="msapplication-navbutton-color" class="theme" content="#DFDFDF" />
+    <meta name="theme-color" class="droidtheme" content="#DFDFDF" />
+    <meta name="msapplication-navbutton-color" class="mstheme" content="#DFDFDF" />
+    <meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="#DFDFDF" />
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
     <script src="js/jquery-2.2.4.min.js"></script>
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <?php
-session_start();
+	function is_session_started()
+	{
+		if ( php_sapi_name() !== 'cli' ) {
+			if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+				return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+			} else {
+				return session_id() === '' ? FALSE : TRUE;
+			}
+		}
+		return FALSE;
+	}
+	if ( is_session_started() === FALSE ) session_start();
 	defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 	defined("SECRET") ? null : define('SECRET', 'secret.txt');

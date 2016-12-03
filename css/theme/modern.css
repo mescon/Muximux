@@ -9,16 +9,16 @@ body {
 }
 
 .logo path {
-	fill: #e15960;
+	fill: #ff4c4d;
 }
 
 .login-block {
     background: #3f3f3f;
-    border-top: 5px solid #e15960;
+    border-top: 5px solid #ff4c4d;
 }
 
 .colorgrab {
-	color:#ff656c;
+	color:#ff4c4d;
 }
 
 .login-block h1 {
@@ -98,7 +98,7 @@ iframe {
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
 }
 
-.main-nav > li:hover {
+.main-nav > li:hover.notouch {
     color: #f1f3f2;
     background-color: rgba(233, 230, 202, 0.3);
 
@@ -116,6 +116,7 @@ iframe {
 .dd-active {
     /* Used by main.js to set color of parent element of hovered item */
     color: #f1f3f2;
+	background-color: rgba(233, 230, 202, 0.3);
 }
 
 .or-active {

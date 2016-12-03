@@ -144,7 +144,7 @@ jQuery(document).ready(function($) {
 		$('#autohideCheckbox').prop('checked', false);
 	});
 	// This triggers a menu close when mouse has left the drop nav.
-	$('.dd').mouseout(function() {
+	$('.dd').mouseleave(function() {
 		if (!($('.drop-nav:hover').length != 0 || $('.dd:hover').length != 0)) {
 			timeoutId = setTimeout(function() {
 				$('.drop-nav').addClass('hide-nav');
@@ -239,9 +239,10 @@ function clearColors() {
 // Refactor to a more appropriate name
 function setSelectedColor() {
 	color = $('li .selected').attr("data-color");
-	if (isMobile) {
-		$('.theme').replaceWith('<meta name="theme-color" class="theme" content="' + color + '" />');
-	}
+	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
+	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
+	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
+		   
 	if (isMobile && !overrideMobile) {
 		$(".cd-tabs-bar").removeClass("drawer");
 		$('.cd-tab').removeClass('drawerItem');

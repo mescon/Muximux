@@ -10,26 +10,26 @@ $(document).ready(function() {
 		// Animation complete.
 	});
 });
-jQuery('img.svg').each(function() {
-	var $img = jQuery(this);
-	var imgID = $img.attr('id');
-	var imgClass = $img.attr('class');
-	var imgURL = $img.attr('src');
-	jQuery.get(imgURL, function(data) {
-		// Get the SVG tag, ignore the rest
-		var $svg = jQuery(data).find('svg');
-		// Add replaced image's ID to the new SVG
-		if (typeof imgID !== 'undefined') {
-			$svg = $svg.attr('id', imgID);
+
+
+function setBarColors() {
+	var color = rgb2hex($('.logo path').css("fill"));
+	console.log('Color is ' + color);
+	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
+	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
+	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
+}setTimeout(setBarColors, 1650);
+
+
+function rgb2hex(rgb) {
+     if (  rgb.search("rgb") == -1 ) {
+          return rgb;
+     } else {
+          rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+          function hex(x) {
+               return ("0" + parseInt(x).toString(16)).slice(-2);
 		}
-		// Add replaced image's classes to the new SVG
-		if (typeof imgClass !== 'undefined') {
-			$svg = $svg.attr('class', imgClass + ' replaced-svg');
+          return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]); 
 		}
-		// Remove any invalid XML tags as per http://validator.w3.org
-		$svg = $svg.removeAttr('xmlns:a');
-		// Replace image with new SVG
-		$img.replaceWith($svg);
-	}, 'xml');
-});
+}
 

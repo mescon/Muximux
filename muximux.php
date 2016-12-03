@@ -118,8 +118,7 @@ function parse_ini()
 	$branchList = "";
 	$pageOutput = "<div>". implode($branchArray)."</div>";
 	foreach ($branchArray as $branchName => $shaSum ) {
-		
-		$branchlist .= "<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
+		$branchList .= "<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>\n";
 	}
 	
 	$title = $config->get('general', 'title', 'Muximux - Application Management Console');
