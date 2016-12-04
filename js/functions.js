@@ -1,3 +1,15 @@
+var branch = $("#branch-data").attr('data');
+var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
+var localversion = $("#sha-data").attr('data');
+var cwd = $("#cwd-data").attr('data');
+var phpini = $("#phpini-data").attr('data');
+var gitdir = $("#gitdirectory-data").attr('data');
+var title = $("#title-data").attr('data');
+var branch = $("#branch-data").attr('data');
+var secret = $("#secret").attr('data');
+var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
+var difference = 0;
+var differenceDays;
 function checkScrolling(tabs) {
 	var totalTabWidth = parseInt(tabs.children('.cd-tabs-navigation').width()),
 		tabsViewport = parseInt(tabs.width());
@@ -164,31 +176,32 @@ function settingsEventHandlers() {
 }
 // Takes all the data we have to generate our changelog
 function viewChangelog() {
-	var output = "";
-	var json = htmlDecode($('#gitData').attr('data'));
-	json = JSON.parse(json);
+	var json;
+	$.getJSON(commitURL, function(result) {
+		json = result;
+		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
+		difference = 0;
+		for (var i in json) {
+			if (json[i].sha == localversion) {
+				difference = i;
+			}
+		}
+		differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
+		console.log('Data dump - difference: ' + difference + " " + differenceDays)
+	
 	var status = "<strong>up to date!</strong>";
-	if (dataStore().differenceCommits < 0) {
-		status = "<strong>" + dataStore().differenceCommits + " commits ahead!</strong>";
+	if (difference < 0) {
+		status = "<strong>" + difference + " commits ahead!</strong>";
 	}
-	if (dataStore().differenceCommits > 0) {
-		status = "<strong>" + dataStore().differenceCommits + " commits behind!</strong>";
-	}
-	if (!(dataStore().gitDirectory == "readable") && (dataStore().localVersion == "unknown")) {
-		status = "running an <strong>unknown version</strong>.<br/>We can read the <code>.git</directory> to see what version you are using, but we were unable to find the <code>git</code> command.";
-	}
-	if (dataStore().localVersion == "noexec") {
-		status = "not allowing Muximux to run the <code>git</code> command to check what version you're on.<br/>Either you can set <code>safe_mode_exec_dir " + dataStore().cwd + "</code>, <strong>or</strong> you can set <code>safe_mode = off</code> inside your <code>" + dataStore().phpini + "</code> file.";
-	}
-	if (!(dataStore().gitDirectory == "readable") && (dataStore().localVersion == "noexec")) {
-		status += "<br>Also, the <code>" + dataStore().cwd + "/.git/</code> directory is not readable. Please make sure that the directory can be read by your webserver.";
+	if (difference > 0) {
+		status = "<strong>" + difference + " commits behind!</strong>";
 	}
 	output = "<p>Your install is currently " + status + "<br/>";
-	if (dataStore().differenceCommits > 0) {
-		output += "The changes from your version to the latest version can be read <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">here</a>.</p>";
+	if (difference > 0) {
+		output += "The changes from your version to the latest version can be read <a href=\"" + compareURL + "\" target=\"_blank\">here</a>.</p>";
 	}
-	output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + dataStore().differenceDays + " days ago.</p>";
-	output += "<p>If you want to update, please do <code>git pull</code> in your terminal, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog (" + dataStore().branch + ")</h3><ul>";
+	output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + (differenceDays == 0 ? 'today' : differenceDays + " days ago" ) + ".</p>";
+	output += "<p><button id='downloadUpdate'>Click here to install</button>, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog (" + branch + ")</h3><ul>";
 	for (var i in json) {
 		var shortCommitID = json[i].sha.substring(0, 7);
 		var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
@@ -197,6 +210,31 @@ function viewChangelog() {
 	}
 	output += "</ul>";
 	$('#changelog').html(output);
+	$('#downloadUpdate').click(function(){
+	console.log('Download clicked');
+	if (confirm('Would you like to download and install updates now?')) {
+		
+        $.ajax({
+            async: true,
+            url: "muximux.php",
+            type: 'GET',
+            data: {action: "update", secret: secret },
+            success: function (data) {
+                if(data == "deleted");
+                $('#backupiniContainer').toggle(1000);
+                $('#showBackup').remove();
+                $('#topButtons').css('width','280px')
+            }
+
+        });
+    
+	   // Save it!
+	} else {
+		console.log('Update cancelled.');
+	}
+	});
+
+	});
 }
 //Init iconpickers
 function initIconPicker(selectedItem) {
@@ -270,17 +308,9 @@ function setTitle(title) {
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox() {
-	var branch = $("#branch-data").attr('data');
-	var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
 	var json;
-	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(result) {
-		var localversion = $("#sha-data").attr('data');
-		var cwd = $("#cwd-data").attr('data');
-		var phpini = $("#phpini-data").attr('data');
-		var secret = $("#secret").data()['data'];
-		var gitdir = $("#gitdirectory-data").attr('data');
-		var title = $("#title-data").attr('data');
-    		json = result;
+	$.getJSON(commitURL, function(result) {
+		json = result;
 		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
 		var difference = 0;
 		for (var i in json) {
@@ -291,9 +321,11 @@ function updateBox() {
 		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
 		var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
 		var updateCheck;
+		console.log('Data dump: ' + difference + ' days: ' + differenceDays + ' localversion:' + localversion + ' GitDate: ' + json[0].commit.author.date);
+		console.log("data dump2: " + compareURL);
 		if (difference) {
 			clearInterval(updateCheck);
-			if ((gitdir == "readable") && (!(localversion == "noexec")) && (difference == 0)) {
+			if ((gitdir == "readable") && (!(localversion == "noexec")) && (difference != 0)) {
 				if (!getCookie('updateDismiss')) {
 					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
 					"<span>You are currently <strong>" + difference + "</strong> commits behind!<br/>" +
@@ -350,6 +382,7 @@ function changeFavicon(src) {
 	}
 	document.head.appendChild(link);
 }
+
 // Wrap a html-encoded string in a div (in-memory) and read it back, unencoded.
 function htmlDecode(value) {
 	return $('<div/>').html(value).text();

@@ -63,10 +63,9 @@ function write_ini()
 {
 	$oldHash = getPassHash();
     	$oldBranch = getBranch();
-    unlink(CONFIG);
-
-    $config = new Config_Lite(CONFIG);
-    foreach ($_POST as $parameter => $value) {
+	unlink(CONFIG);
+	$config = new Config_Lite(CONFIG);
+	foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('_-_', $parameter);
         if ($value == "on")
             $value = "true";
@@ -92,7 +91,6 @@ function write_ini()
         echo "\n" . 'Exception Message: ' . $e->getMessage();
     }
 	rewrite_config_header();
-    
 	
 }
 
@@ -312,7 +310,7 @@ function buildScale($selectValue)
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'theme', 'classic');
+    $item = $config->get('general', 'theme', 'Classic');
     return $item;
 }
 
@@ -347,12 +345,13 @@ function menuItems() {
 			$enabledropdown = $config->getBool('general', 'enabledropdown', false);
 			$mobileoverride = $config->getBool('general', 'mobileoverride', false);
 			$authentication = $config->getBool('general', 'authentication', false);
-
-            } else {
+        
+        } else {
 			$dropdown = $config->getBool($keyname, 'dd', false);
 			$enabled = $config->getBool($keyname, 'enabled', true);
 			$default = $config->getBool($keyname, 'default', true);
         if ($enabled && !$dropdown) {
+            
                 $standardmenu .= "
 					<li class='cd-tab'>
 						<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
@@ -378,16 +377,16 @@ function menuItems() {
         } else {
             $dropdownmenu .= "";
         }
-        }
-    }
+	}
+}
 	
 	if ($mobileoverride == "true") {
 		$moButton = "
-		<li class='navbtn'>
-			<a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
-				<span class=\"fa fa-mobile fa-lg\"></span>
-			</a>
-		</li>
+				<li class='navbtn'>
+					<a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
+						<span class=\"fa fa-mobile fa-lg\"></span>
+					</a>
+				</li>
 		";
 	} else {
 		$moButton = "";
@@ -483,7 +482,7 @@ function getBranch() {
 function getBranches() {
 	$config = new Config_Lite(CONFIG);
 	$branches = [];
-	$branches = $config->get('settings', 'branches');
+	$branches = $config->get('settings', 'branches',$branches);
 	if ($branches == []) {
 		fetchBranches();
 	} else {
@@ -496,7 +495,7 @@ function getBranches() {
 function fetchBranches() {
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
-	if (time() >= $last + 3600) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
+	if (time() >= $last + 1800) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
 		$curl_handle=curl_init();
 		curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
@@ -557,7 +556,7 @@ function checksetSHA() {
 // Read SHA from settings and return it's value.
 
 function getSHA() {
-    $config = new Config_Lite(CONFIG);
+	$config = new Config_Lite(CONFIG);
     $item = $config->get('settings', 'sha', '00');
     return $item;
 }
@@ -566,7 +565,7 @@ function getSHA() {
 // and returns the corresponding SHA value.  We need this to set the initial
 // SHA value on setup/load, as well as to compare for update checking.
 function fetchSHA() {
-	$branchArray = getBranches();
+    $branchArray = getBranches();
 	$myBranch = getBranch();
 	foreach ($branchArray as $branchName => $shaVal) {
 		if ($branchName==$myBranch) {
@@ -636,9 +635,9 @@ function metaTags() {
         } else {
             $inipath = "php.ini";
         }
-		
 	$created = filectime(CONFIG);
-    	$branchChanged = (checkBranchChanged() ? 'true' : 'false');
+    $branchChanged = (checkBranchChanged() ? 'true' : 'false');
+	$secret = file_get_contents(SECRET);
 	
 $tags .= "
 <meta id='branch-data' data='". $branch . "'>
@@ -652,6 +651,7 @@ $tags .= "
 <meta id='title-data' data='". $maintitle . "'>
 <meta id='created-data' data='". $created . "'>
 <meta id='sha-data' data='". getSHA() . "'>
+<meta id='secret' data='". $secret . "'>
 
 ";
 	return $tags;
@@ -678,6 +678,7 @@ function frameContent() {
 				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>
 			</li>";
             } else {
+            
                 $item .= "
 			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
 				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
@@ -768,6 +769,10 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         echo "deleted";
         die();
     }
+	if(isset($_GET['action']) && $_GET['action'] == "update") {
+        downloadUpdate();
+		die();
+    }
 }
 // End protected get-calls
 
@@ -778,17 +783,21 @@ if(empty($_GET)) {
 
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate() {
-	$f = file_put_contents("my-zip.zip", fopen("https://github.com/mescon/Muximux/archive/". getBranch() .".zip", 'r'), LOCK_EX);
+	$branch = getBranch();
+	$zipFile = "Muximux-".$branch. ".zip";
+	$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $branch .".zip", 'r'), LOCK_EX);
 	if(FALSE === $f)
 		die("Couldn't write to file.");
 	$zip = new ZipArchive;
-	$res = $zip->open('my-zip.zip');
+	$res = $zip->open($zipFile);
 	if ($res === TRUE) {
-	  $zip->extractTo('./test');
+	  $zip->extractTo('./stage');
 	  $zip->close();
+	  cpy("./stage/Muximux-".$branch, "./");
+	  deleteDir("./stage");
 	  //
 	} else {
-	  //
+	  console_log('Error extracting update.');
 	}
 }
 
@@ -796,4 +805,43 @@ function console_log( $data ){
 	echo '<script>';
 	echo 'console.log('. json_encode( $data ) .')';
 	echo '</script>';
+}
+
+function cpy($source, $dest){
+    if(is_dir($source)) {
+        $dir_handle=opendir($source);
+        while($file=readdir($dir_handle)){
+            if($file!="." && $file!=".."){
+                if(is_dir($source."/".$file)){
+                    if(!is_dir($dest."/".$file)){
+                        mkdir($dest."/".$file);
+                    }
+                    cpy($source."/".$file, $dest."/".$file);
+                } else {
+                    copy($source."/".$file, $dest."/".$file);
+                }
+            }
+        }
+        closedir($dir_handle);
+    } else {
+        copy($source, $dest);
+    }
+}
+
+function deleteDir($dirPath) {
+    if (! is_dir($dirPath)) {
+        throw new InvalidArgumentException("$dirPath must be a directory");
+    }
+    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
+        $dirPath .= '/';
+    }
+    $files = glob($dirPath . '*', GLOB_MARK);
+    foreach ($files as $file) {
+        if (is_dir($file)) {
+            self::deleteDir($file);
+        } else {
+            unlink($file);
+        }
+    }
+    rmdir($dirPath);
 }
