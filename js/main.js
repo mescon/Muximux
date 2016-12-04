@@ -116,7 +116,6 @@ jQuery(document).ready(function($) {
 		}
 	});
 	$("#logout").click(function() {
-		console.log('logout clicked');
 		 window.location.href = '?logout';
 	});
 	// When settings modal is open, set title to "Settings"
@@ -219,13 +218,10 @@ function muximuxMobileResize() {
 			var myWidth = $(this).width();
 			if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
 				$(this).appendTo(".drop-nav");
-				console.log("Bigger??");
 			} else {
 				$(this).appendTo('.cd-tabs-navigation nav');
 			}
 			listWidth = listWidth + $(this).width();
-			console.log($(this).width());
-			console.log("Window: " + $(window).width() + " versus " + listWidth);
 		});
 	}
 	clearColors();

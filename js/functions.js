@@ -272,15 +272,17 @@ function setTitle(title) {
 function updateBox() {
 	var branch = $("#branch-data").attr('data');
 	var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
+	var json;
 	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(result) {
-		var localversion = $("#hash-data").attr('data');
+		var localversion = $("#sha-data").attr('data');
 		var cwd = $("#cwd-data").attr('data');
 		var phpini = $("#phpini-data").attr('data');
 		var secret = $("#secret").data()['data'];
 		var gitdir = $("#gitdirectory-data").attr('data');
 		var title = $("#title-data").attr('data');
+    		json = result;
+		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
 		var difference = 0;
-		var json = result;
 		for (var i in json) {
 			if (json[i].sha == localversion) {
 				difference = i;
@@ -293,7 +295,9 @@ function updateBox() {
 			clearInterval(updateCheck);
 			if ((gitdir == "readable") && (!(localversion == "noexec")) && (difference == 0)) {
 				if (!getCookie('updateDismiss')) {
-					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button><span>You are currently <strong>" + dataStore().differenceCommits + "</strong> commits behind!<br/>See <a href=\"" + dataStore().compareURL + "\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
+					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
+					"<span>You are currently <strong>" + difference + "</strong> commits behind!<br/>" +
+					"See <a href=\"" + compareURL + "\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
 					$('#updateContainer').fadeIn("slow");
 				}
 			}

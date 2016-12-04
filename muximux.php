@@ -62,6 +62,7 @@ if (sizeof($_POST) > 0) {
 function write_ini()
 {
 	$oldHash = getPassHash();
+    	$oldBranch = getBranch();
     unlink(CONFIG);
 
     $config = new Config_Lite(CONFIG);
@@ -72,6 +73,14 @@ function write_ini()
 		if ($splitParameter[1] == "password") {
 			if ($value != $oldHash) {
 				$value = password_hash($value, PASSWORD_BCRYPT);
+			}
+		}
+		if ($splitParameter[1] == "branch") {
+			if ($value != $oldBranch) {
+				$config->set('settings','branch_changed',true);
+				$config->set('settings','sha','00');
+			} else {
+				$config->set('settings','branch_changed',false);
 			}
 		}
         $config->set($splitParameter[0], $splitParameter[1], $value);
@@ -259,6 +268,24 @@ function parse_ini()
 	</div>
 </form>";
     return $pageOutput;
+}
+// Check if the user changes tracking branch, which will change the SHA and trigger an update notification
+function checkBranchChanged() {
+	$config = new Config_Lite(CONFIG);
+	if ($config->getBool('settings', 'branch_changed', false)) {
+		console_log("Branch change detected.");
+		$config->set("settings","sha","00");
+		$config->set("settings","branch_changed",false);
+		try {
+			$config->save();
+		} catch (Config_Lite_Exception $e) {
+			echo "\n" . 'Exception Message: ' . $e->getMessage();
+		}
+		rewrite_config_header();
+		return true;
+	} else {
+		return false;
+	}
 }
 
 // Build a custom scale using our set value, show it as selected
@@ -516,7 +543,7 @@ function fetchBranches() {
 
 function checksetSHA() {
 	$config = new Config_Lite(CONFIG);
-	if ($config ->get('settings','sha','0') == "0") {
+	if (getSHA() == '00') {
 		$config ->set('settings','sha',fetchSHA());
 		try {
 			$config->save();
@@ -531,7 +558,7 @@ function checksetSHA() {
 
 function getSHA() {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('settings', 'sha', '0');
+    $item = $config->get('settings', 'sha', '00');
     return $item;
 }
 
@@ -611,10 +638,11 @@ function metaTags() {
         }
 		
 	$created = filectime(CONFIG);
-       
+    	$branchChanged = (checkBranchChanged() ? 'true' : 'false');
 	
 $tags .= "
 <meta id='branch-data' data='". $branch . "'>
+<meta id='branch-changed' data='". $branchChanged . "'>
 <meta id='popupdate' data='". $popupdate . "'>
 <meta id='drawer' data='". $autohide . "'>
 <meta id='maintitle' data='". $maintitle . "'>
