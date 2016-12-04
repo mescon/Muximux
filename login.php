@@ -20,7 +20,9 @@ if(isset($_POST['username'])) {
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
 
             $_SESSION['username'] = $_POST['username'];
-            header("Location: " . "http://" . $_SERVER['HTTP_HOST']);
+			$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https'?'https':'http';
+			$protocol = isset($_SERVER["HTTPS"]) ? 'https' : 'http';
+            header("Location: " . $protocol . $_SERVER['HTTP_HOST']);
 			session_start();
     } else {
 			console_log('Error validating login of ' . $username . ' with password of ' . $_POST['password']);
