@@ -329,8 +329,11 @@ function updateBox() {
 				if (!getCookie('updateDismiss')) {
 					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
 					"<span>You are currently <strong>" + difference + "</strong> commits behind!<br/>" +
-					"See <a href=\"" + compareURL + "\" target=\"_blank\">changelog</a> or do <code>git pull</code> in your terminal.</span>");
+					"See <a href=\"" + compareURL + "\" target=\"_blank\">changelog</a> or <div id='downloadModal'><code>click here</code></div> to install now.</span>");
 					$('#updateContainer').fadeIn("slow");
+					$('#downloadModal').click(function(){
+						downloadUpdate();
+					});
 				}
 			}
 			$('#updateDismiss').click(function() {
@@ -355,6 +358,31 @@ function scaleContent(content, scale) {
 		'width': '' + newWidth + 'px',
 	});
 }
+
+function downloadUpdate() {
+	console.log('Download clicked');
+	if (confirm('Would you like to download and install updates now?')) {
+		
+        $.ajax({
+            async: true,
+            url: "muximux.php",
+            type: 'GET',
+            data: {action: "update", secret: secret },
+            success: function (data) {
+                if(data == "deleted");
+                $('#backupiniContainer').toggle(1000);
+                $('#showBackup').remove();
+                $('#topButtons').css('width','280px')
+            }
+
+        });
+    
+	   // Save it!
+	} else {
+		console.log('Update cancelled.');
+	}
+	}
+
 // Find apps with a scale setting that is more or less than 100%, then re-scale it to the desired setting using scaleContent(selector, scale)
 function scaleFrames() {
 	$('.cd-tabs-content').find('li').each(function(value) {

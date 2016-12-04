@@ -144,6 +144,10 @@ Main components
     cursor: pointer;
 }
 
+#downloadModal {
+	display: inline-block;
+	cursor: pointer;
+}
 @media only screen and (min-width: 0px) {
     .cd-tabs-navigation {
         /* tabbed on top of devices */

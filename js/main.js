@@ -176,7 +176,7 @@ jQuery(document).ready(function($) {
 window
 $(window).load(function() {
 	if ($('#popupdate').attr('data') == 'true') {
-		var updateCheck = setInterval(updateBox(), 1000);
+		var updateCheck = setInterval(updateBox(), 10000);
 	}
 });
 // Close modal on escape key
