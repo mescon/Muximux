@@ -14,7 +14,6 @@ $(document).ready(function() {
 
 function setBarColors() {
 	var color = rgb2hex($('.logo path').css("fill"));
-	console.log('Color is ' + color);
 	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
 	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
 	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');

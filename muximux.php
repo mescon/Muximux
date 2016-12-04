@@ -284,7 +284,6 @@ function parse_ini()
 function checkBranchChanged() {
 	$config = new Config_Lite(CONFIG);
 	if ($config->getBool('settings', 'branch_changed', false)) {
-		console_log("Branch change detected.");
 		$config->set("settings","sha","00");
 		$config->set("settings","branch_changed",false);
 		try {

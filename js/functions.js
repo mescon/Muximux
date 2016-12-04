@@ -10,6 +10,8 @@ var secret = $("#secret").attr('data');
 var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
 var difference = 0;
 var differenceDays;
+	
+    	
 function checkScrolling(tabs) {
 	var totalTabWidth = parseInt(tabs.children('.cd-tabs-navigation').width()),
 		tabsViewport = parseInt(tabs.width());
@@ -187,7 +189,7 @@ function viewChangelog() {
 			}
 		}
 		differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-		console.log('Data dump - difference: ' + difference + " " + differenceDays)
+		
 	
 	var status = "<strong>up to date!</strong>";
 	if (difference > 0) {
@@ -197,7 +199,7 @@ function viewChangelog() {
 	if (difference > 0) {
 		output += "The changes from your version to the latest version can be read <a href=\"" + compareURL + "\" target=\"_blank\">here</a>.</p>";
 	}
-	output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + (differenceDays == 0 ? 'today' : differenceDays + (differenceDays == 1 ? ' day ago' : ' days ago') ) + ".</p>";
+	output += "<p>Updates to your version of <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> were uploaded to Github " + (differenceDays == 0 ? 'today' : differenceDays + (differenceDays == 1 ? ' day ago' : ' days ago') ) + ".</p>";
 	output += "<div class='btn-group' role='group' aria-label='Buttons' id='topButtons'>";
 	if (difference > 0) {
 		output +="<a class='btn btn-primary' id='downloadUpdate'><span class='fa fa-arrow-circle-down'></span> Install Now</a>";
@@ -206,16 +208,17 @@ function viewChangelog() {
                     "</div>" +
 	"<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>the latest zip here.</a></p>";
 	output += "<h3>Changelog (" + branch + ")</h3><ul>";
-	for (var i in json) {
+	var i=0;
+	do {
 		var shortCommitID = json[i].sha.substring(0, 7);
 		var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
 		var shortDate = json[i].commit.author.date.substring(0, 10);
 		output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
-	}
+		i++;
+	} while (i != difference);
 	output += "</ul>";
 	$('#changelog').html(output);
 	$('#downloadUpdate').click(function(){
-	console.log('Download clicked');
 	if (confirm('Would you like to download and install updates now?')) {
 		
         $.ajax({
@@ -288,6 +291,9 @@ function getSecret() {
 	});
 }
 
+
+
+
 function setCookie(cname, cvalue, exdays) {
 	var d = new Date();
 	d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -325,8 +331,6 @@ function updateBox() {
 		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
 		var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
 		var updateCheck;
-		console.log('Data dump: ' + difference + ' days: ' + differenceDays + ' localversion:' + localversion + ' GitDate: ' + json[0].commit.author.date);
-		console.log("data dump2: " + compareURL);
 		if (difference) {
 			clearInterval(updateCheck);
 			if ((gitdir == "readable") && (!(localversion == "noexec")) && (difference != 0)) {
@@ -347,6 +351,8 @@ function updateBox() {
 			});
 		}
 	});
+	
+	
 }
 
 function scaleContent(content, scale) {
@@ -364,7 +370,6 @@ function scaleContent(content, scale) {
 }
 
 function downloadUpdate() {
-	console.log('Download clicked');
 	if (confirm('Would you like to download and install updates now?')) {
 		
         $.ajax({
@@ -414,6 +419,7 @@ function changeFavicon(src) {
 	}
 	document.head.appendChild(link);
 }
+
 
 // Wrap a html-encoded string in a div (in-memory) and read it back, unencoded.
 function htmlDecode(value) {

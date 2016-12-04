@@ -12,7 +12,7 @@ if(isset($_GET['logout'])) {
 	if (!is_session_started()) session_start();
 	session_destroy();
     header('Location:  ' . $_SERVER['PHP_SELF']);
-	console_log('Destroying session for logout');
+	
 }
 
 if(isset($_POST['username'])) {
@@ -26,7 +26,7 @@ if(isset($_POST['username'])) {
 			console_log('Error validating login of ' . $username . ' with password of ' . $_POST['password']);
 		
     }
-	console_log('Got username');
+	
 } else {
 	console_log('Post received, but username is not set');
 }
