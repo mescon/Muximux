@@ -30,24 +30,15 @@ session_start();
 	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 	defined("SECRET") ? null : define('SECRET', 'secret.txt');
 	require dirname(__FILE__) . '/vendor/autoload.php';
-	$config = new Config_Lite(CONFIG);
-        
-
-	if ($config->get('general', 'authentication', 'false') == "true") {
-
-	define('DS',  TRUE); // used to protect includes
-	define('USERNAME', $_SESSION['username']);
-	define('SELF',  $_SERVER['PHP_SELF'] );
-
-	if (!USERNAME or isset($_GET['logout']))
-	        include('login.php');
-
-	} else {
-				
-				
+    $config = new Config_Lite(CONFIG);
+    if ($config->get('general', 'authentication', 'false') == "true") {
+		define('DS',  TRUE); // used to protect includes
+		define('USERNAME', $_SESSION['username']);
+		define('SELF',  $_SERVER['PHP_SELF'] );
+		if (!USERNAME or isset($_GET['logout']))
+				include('login.php');
 	}
 	error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
-
     ?>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
     <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Bootstrap 3.3.6 -->
@@ -133,7 +124,8 @@ session_start();
                 </div>
                 <div id="changelogContainer" class="alert alert-warning">
                     <h3>Updates</h3>
-                    <div id="changelog"></div>
+					<div id="changelog"></div>
+					
                 </div>
                 <div id="backupiniContainer" class="alert alert-warning">
                     <h3>backup.ini.php Contents</h3>

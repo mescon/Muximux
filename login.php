@@ -12,21 +12,13 @@ if(isset($_GET['logout'])) {
 	if (!is_session_started()) session_start();
 	session_destroy();
     header('Location:  ' . $_SERVER['PHP_SELF']);
-	
 }
-
 if(isset($_POST['username'])) {
-
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
-            $_SESSION['username'] = $_POST['username'];
+		$_SESSION['username'] = $_POST['username'];
 		header('Location:  ' . $_SERVER['PHP_SELF']);
-		
     }
-	
-}
-
-
-
+} 
 echo '
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -41,7 +33,6 @@ echo '
     <div class="logo">
 		'.
 	file_get_contents("images/muximux-white.svg")
-		
 	.'</div>
     <div class="login-block" id="slide">
 		<form method="post" id=login action="index.php">

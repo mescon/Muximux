@@ -6,7 +6,6 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 defined("SECRET") ? null : define('SECRET', 'secret.txt');
 require dirname(__FILE__) . '/vendor/autoload.php';
-
 // Check if this is an old installation that needs upgrading.
 if (file_exists('config.ini.php')) {
     copy('config.ini.php', 'backup.ini.php');
@@ -15,7 +14,6 @@ if (file_exists('config.ini.php')) {
 } else {
     $upgrade = false;
 }
-
 function openFile($file, $mode) {
     if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable.
         printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
@@ -26,13 +24,10 @@ function openFile($file, $mode) {
         } else if (PHP_SHLIB_SUFFIX === "dll") {
             printf("<br>Detected Windows system, refer to guides on how to set appropriate permissions."); //Can't get fileowner in a trivial manner.
         }
-
         exit;
     }
-
     return fopen($file, $mode);
 }
-
 function createSecret() {
     $text = uniqid("muximux-", true);
     $file = openFile(SECRET, "w");
@@ -40,30 +35,25 @@ function createSecret() {
     fclose($file);
     return $text;
 }
-
 if(!file_exists(CONFIG)){
     copy(CONFIGEXAMPLE, CONFIG);
     checksetSHA();
 }
-
 // First what we're gonna do - save or read
 if (sizeof($_POST) > 0) {
 	
     if("" == trim($_POST['username'])){
 		
 		write_ini();
-		
 	}
-	
 } else {
     parse_ini();
 }
-
 function write_ini()
 {
 	$config = new Config_Lite(CONFIG);
 	$oldHash = getPassHash();
-    	$oldBranch = getBranch();
+    $oldBranch = getBranch();
 	$terminate = false;
 	$authentication = $config->getBool('general','authentication',false);
 	unlink(CONFIG);
@@ -104,13 +94,10 @@ function write_ini()
 		session_start();
 		session_destroy();
 	}
-	
 }
-
 function rewrite_config_header() {
 	$cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
     $file = CONFIG; // the file to which $cache_new gets prepended
-
     $handle = openFile($file, "r+");
     $len = strlen($cache_new);
     $final_len = filesize($file) + $len;
@@ -125,12 +112,10 @@ function rewrite_config_header() {
         $i++;
     }
 }
-
 function parse_ini()
 {
-    
     $config = new Config_Lite(CONFIG);
-    checksetSHA();
+	checksetSHA();
 	$myBranch = getBranch();
 	fetchBranches(false);
 	$branchArray = getBranches();
@@ -139,7 +124,6 @@ function parse_ini()
 	foreach ($branchArray as $branchName => $shaSum ) {
 		$branchList .= "<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>\n";
 	}
-	
 	$title = $config->get('general', 'title', 'Muximux - Application Management Console');
     $pageOutput .= "
 					<form>
@@ -192,14 +176,12 @@ function parse_ini()
 					</div>
 				</div>
 					";
-    
 	if ($config->get('settings', 'sha', '0') == "0") {
 		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".fetchSHA()."'>";
 	} else {
 		$mySha = $config->get('settings', 'sha', '0');
 		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>";
 	}
-	
     $pageOutput .= "<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>" .
@@ -207,7 +189,6 @@ function parse_ini()
         "<input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>" .
         "<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>";
-
     $pageOutput .= "
 <div id='sortable'>";
     foreach ($config as $section => $name) {
@@ -223,7 +204,6 @@ function parse_ini()
 			$dd = $config->getBool($section, 'dd', true);
 			$scaleRange = "0";
 			$scaleRange = buildScale($scale);
-       
 			$pageOutput .= "
 	<div class='applicationContainer' id='" . $section . "'>
 		<span class='bars fa fa-bars'></span>
@@ -266,8 +246,6 @@ function parse_ini()
 		</div>
 		<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
 	</div>";
-            
-        
 		}
 	}
     $pageOutput .= "</div>
@@ -297,7 +275,6 @@ function checkBranchChanged() {
 		return false;
 	}
 }
-
 // Build a custom scale using our set value, show it as selected
 function buildScale($selectValue) 
 {
@@ -306,26 +283,21 @@ function buildScale($selectValue)
     while($f<251) {
         $pra = $f / 100;
 		if ($pra == $selectValue) {
-			
 			$scaleRange .= "<option value='" . $pra ."' selected>". $f ."%</option>\n";
 			$f++;
 		} else {
-			
 			$scaleRange .= "<option value='" . $pra ."'>". $f ."%</option>\n";
 			$f++;
 		}
     }
 	return $scaleRange;
-
 }
-
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'theme', 'Classic');
     return $item;
 }
-
 function listThemes() {
 	$dir    = './css/theme';
 	$themelist ="";
@@ -345,25 +317,21 @@ function listThemes() {
 	}
 	return $themelist;
 }
-
 function menuItems() {
     $config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
-
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
 			$autohide = $config->getBool('general', 'autohide', true);
 			$enabledropdown = $config->getBool('general', 'enabledropdown', false);
 			$mobileoverride = $config->getBool('general', 'mobileoverride', false);
 			$authentication = $config->getBool('general', 'authentication', false);
-        
         } else {
 			$dropdown = $config->getBool($keyname, 'dd', false);
 			$enabled = $config->getBool($keyname, 'enabled', true);
 			$default = $config->getBool($keyname, 'default', true);
         if ($enabled && !$dropdown) {
-            
                 $standardmenu .= "
 					<li class='cd-tab'>
 						<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
@@ -391,7 +359,6 @@ function menuItems() {
         }
 	}
 }
-	
 	if ($mobileoverride == "true") {
 		$moButton = "
 				<li class='navbtn'>
@@ -450,7 +417,6 @@ function menuItems() {
 				</nav>
 			</ul>
 		</div>
-	
 			";
     } else {
 		$item =  $drawerdiv . "
@@ -476,20 +442,17 @@ function menuItems() {
     }
     return $item;
 }
-
 function getTitle() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'title', 'Muximux - Application Management Console');
     return $item;
 }
-
 // Quickie fetch of the current selected branch
 function getBranch() {
 	$config = new Config_Lite(CONFIG);
 	$branch = $config->get('general', 'branch', 'master');
 	return $branch;
 }
-
 // Reads for "branches" from settings.  If not found, fetches list from github, saves, parses, and returns
 function getBranches() {
 	$config = new Config_Lite(CONFIG);
@@ -502,7 +465,6 @@ function getBranches() {
 	}
 	return $branches;
 }
-
 // Fetch a list of branches from github, along with their current SHA
 function fetchBranches($skip) {
 	console_log('Fetch Branches called.');
@@ -520,43 +482,39 @@ function fetchBranches($skip) {
 			console_log('JSON error fetching branches');
 		} else {
 			$array = json_decode($json,true);
-		$i = 0;
-		$names = array();
-		$shas = array();
-		foreach ($array as $value) {
-			foreach ($value as $key => $value2) {
-				if ($key == "name") {
-						array_push($names,$value2);
-					
-				} else {
-					foreach ($value2 as $key2 => $value3) {
-						if ($key2 == "sha" ) {
-							$shaVal = $value3;
-							array_push($shas,$value3);
+			$i = 0;
+			$names = array();
+			$shas = array();
+			foreach ($array as $value) {
+				foreach ($value as $key => $value2) {
+					if ($key == "name") {
+							array_push($names,$value2);
+					} else {
+						foreach ($value2 as $key2 => $value3) {
+							if ($key2 == "sha" ) {
+								$shaVal = $value3;
+								array_push($shas,$value3);
+							}
 						}
 					}
 				}
 			}
-		}
-
-		$outP = array_combine($names,$shas);
-		$config ->set('settings','branches',$outP);
-		$config ->set('settings','last_check',time());
-		try {
-			$config->save();
-		} catch (Config_Lite_Exception $e) {
-			echo "\n" . 'Exception Message: ' . $e->getMessage();
-		}
-		rewrite_config_header();
+			$outP = array_combine($names,$shas);
+			$config ->set('settings','branches',$outP);
+			$config ->set('settings','last_check',time());
+			try {
+				$config->save();
+			} catch (Config_Lite_Exception $e) {
+				echo "\n" . 'Exception Message: ' . $e->getMessage();
+			}
+			rewrite_config_header();
 		}
 	} 
 	
 }
-
 // We run this when parsing settings to make sure that we have a SHA saved just as 
 // soon as we know we'll need it (on install or new settings).  This is how we track whether or not 
 // we need to update.  
-
 function checksetSHA() {
 	$config = new Config_Lite(CONFIG);
 	if (getSHA() == '00') {
@@ -569,15 +527,12 @@ function checksetSHA() {
 		rewrite_config_header();
 	}
 }
-
 // Read SHA from settings and return it's value.
-
 function getSHA() {
 	$config = new Config_Lite(CONFIG);
     $item = $config->get('settings', 'sha', '00');
     return $item;
 }
-
 // This reads our array of branches, finds our selected branch in settings,
 // and returns the corresponding SHA value.  We need this to set the initial
 // SHA value on setup/load, as well as to compare for update checking.
@@ -588,22 +543,17 @@ function fetchSHA() {
 		if ($branchName==$myBranch) {
 				$shaOut = $shaVal;
 		}
-		
 	}
 	return $shaOut;
-	
 }
-
 // Retrieve password hash from settings and return it for "stuff".
 function getPassHash() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'password', 'foo');
     return $item;
 }
-
 // This little gem helps us replace a whome bunch of AJAX calls by sorting out the info and 
 // writing it to meta-tags at the bottom of the page.  Might want to look at calling this via one AJAX call.
-
 function metaTags() {
 	$config = new Config_Lite(CONFIG);
     $standardmenu = "";
@@ -637,25 +587,21 @@ function metaTags() {
 			}
 		}
 	}
-	
 	$gitdir = getcwd() . "/.git/";
 	    if (is_readable($gitdir)) {
             $gitdir = "readable";
         } else {
             $gitdir = "unreadable";
         }
-        		
 	$inipath = php_ini_loaded_file();
-
         if ($inipath) {
             $inipath;
         } else {
             $inipath = "php.ini";
         }
 	$created = filectime(CONFIG);
-    $branchChanged = (checkBranchChanged() ? 'true' : 'false');
+    	$branchChanged = (checkBranchChanged() ? 'true' : 'false');
 	$secret = file_get_contents(SECRET);
-	
 $tags .= "
 <meta id='branch-data' data='". $branch . "'>
 <meta id='branch-changed' data='". $branchChanged . "'>
@@ -669,11 +615,9 @@ $tags .= "
 <meta id='created-data' data='". $created . "'>
 <meta id='sha-data' data='". getSHA() . "'>
 <meta id='secret' data='". $secret . "'>
-
 ";
 	return $tags;
 }
-
 // Set up the actual iFrame contents, as the name implies.
 function frameContent() {
     $config = new Config_Lite(CONFIG);
@@ -695,7 +639,6 @@ function frameContent() {
 				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>
 			</li>";
             } else {
-            
                 $item .= "
 			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
 				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
@@ -703,12 +646,10 @@ function frameContent() {
 			</li>
 ";
             }
-
         }
     }
     return $item;
 }
-
 // Build a landing page.
 function landingPage($keyname) {
     $config = new Config_Lite(CONFIG);
@@ -731,42 +672,33 @@ function landingPage($keyname) {
     if (empty($item)) $item = '';
     return $item;
 }
-
 function command_exist($cmd) {
     $returnVal = exec("which $cmd");
     return (empty($returnVal) ? false : true);
 }
-
 function exec_enabled() {
     $disabled = explode(', ', ini_get('disable_functions'));
     return !in_array('exec', $disabled);
 }
-
 // URL parameters
 if (isset($_GET['landing'])) {
     $keyname = $_GET['landing'];
     echo landingPage($keyname);
     die();
 }
-
-
 // This is where the JavaScript reads the contents of the secret file. This gets re-generated on each page load.
 if (isset($_GET['get']) && $_GET['get'] == 'secret') {
         $secret = file_get_contents(SECRET) or die("Unable to open " . SECRET);
         echo $secret;
         die();
 }
-
 // Things wrapped inside this are protected by a secret hash.
 if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
-
-
     // This lets us create a new secret when we leave the page.
     if (isset($_GET['set']) && $_GET['set'] == 'secret') {
             createSecret();
             die();
     }
-
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {
         if (exec_enabled() == true) {
             if (!command_exist('git')) {
@@ -780,7 +712,6 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         echo $hash;
         die();
     }
-
     if(isset($_GET['remove']) && $_GET['remove'] == "backup") {
         unlink('backup.ini.php');
         echo "deleted";
@@ -792,12 +723,9 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
     }
 }
 // End protected get-calls
-
-
 if(empty($_GET)) {
     createSecret();
 }
-
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate() {
 	$branch = getBranch();
@@ -830,13 +758,11 @@ function downloadUpdate() {
 	  console_log('Error extracting update.');
 	}
 }
-
 function console_log( $data ){
 	echo '<script>';
 	echo 'console.log('. json_encode( $data ) .')';
 	echo '</script>';
 }
-
 function cpy($source, $dest){
     if(is_dir($source)) {
         $dir_handle=opendir($source);
@@ -857,7 +783,6 @@ function cpy($source, $dest){
         copy($source, $dest);
     }
 }
-
 function deleteDir($dirPath) {
     if (! is_dir($dirPath)) {
         throw new InvalidArgumentException("$dirPath must be a directory");
