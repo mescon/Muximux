@@ -190,9 +190,6 @@ function viewChangelog() {
 		console.log('Data dump - difference: ' + difference + " " + differenceDays)
 	
 	var status = "<strong>up to date!</strong>";
-	if (difference < 0) {
-		status = "<strong>" + difference + " commits ahead!</strong>";
-	}
 	if (difference > 0) {
 		status = "<strong>" + difference + " commits behind!</strong>";
 	}
@@ -200,8 +197,15 @@ function viewChangelog() {
 	if (difference > 0) {
 		output += "The changes from your version to the latest version can be read <a href=\"" + compareURL + "\" target=\"_blank\">here</a>.</p>";
 	}
-	output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + (differenceDays == 0 ? 'today' : differenceDays + " days ago" ) + ".</p>";
-	output += "<p><button id='downloadUpdate'>Click here to install</button>, or <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>download the latest zip.</a></p><br/><h3>Changelog (" + branch + ")</h3><ul>";
+	output += "<p>The latest update to <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> was uploaded to Github " + (differenceDays == 0 ? 'today' : differenceDays + (differenceDays == 1 ? ' day ago' : ' days ago') ) + ".</p>";
+	output += "<div class='btn-group' role='group' aria-label='Buttons' id='topButtons'>";
+	if (difference > 0) {
+		output +="<a class='btn btn-primary' id='downloadUpdate'><span class='fa fa-arrow-circle-down'></span> Install Now</a>";
+	}
+	output +="<a class='btn btn-primary' id='refreshUpdate'><span class='fa fa-rotate-right'></span> Refresh Updates</a>" + 
+                    "</div>" +
+	"<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>the latest zip here.</a></p>";
+	output += "<h3>Changelog (" + branch + ")</h3><ul>";
 	for (var i in json) {
 		var shortCommitID = json[i].sha.substring(0, 7);
 		var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");

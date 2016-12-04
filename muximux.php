@@ -61,8 +61,11 @@ if (sizeof($_POST) > 0) {
 
 function write_ini()
 {
+	$config = new Config_Lite(CONFIG);
 	$oldHash = getPassHash();
     	$oldBranch = getBranch();
+	$terminate = false;
+	$authentication = $config->getBool('general','authentication',false);
 	unlink(CONFIG);
 	$config = new Config_Lite(CONFIG);
 	foreach ($_POST as $parameter => $value) {
@@ -72,6 +75,12 @@ function write_ini()
 		if ($splitParameter[1] == "password") {
 			if ($value != $oldHash) {
 				$value = password_hash($value, PASSWORD_BCRYPT);
+				$terminate = true;
+			}
+		}
+		if ($splitParameter[1] == "authentication") {
+			if ($value != $authentication) {
+				$terminate = true;
 			}
 		}
 		if ($splitParameter[1] == "branch") {
@@ -91,6 +100,10 @@ function write_ini()
         echo "\n" . 'Exception Message: ' . $e->getMessage();
     }
 	rewrite_config_header();
+	if ($terminate) {
+		session_start();
+		session_destroy();
+	}
 	
 }
 
@@ -800,6 +813,19 @@ function downloadUpdate() {
 	  $zip->close();
 	  cpy("./stage/Muximux-".$branch, "./");
 	  deleteDir("./stage");
+	  $branchArray = getBranches();
+	  foreach ($branchArray as $branchName => $shaSum ) {
+		if ($branchName == $branch) {
+			$config = new Config_Lite(CONFIG);
+			$config->set('settings','sha','$shaSum');	
+			try {
+				$config->save();
+			} catch (Config_Lite_Exception $e) {
+				echo "\n" . 'Exception Message: ' . $e->getMessage();
+			}
+			rewrite_config_header();
+		}
+	  }
 	  //
 	} else {
 	  console_log('Error extracting update.');
@@ -849,4 +875,14 @@ function deleteDir($dirPath) {
         }
     }
     rmdir($dirPath);
+}
+function is_session_started() {
+	if ( php_sapi_name() !== 'cli' ) {
+		if ( version_compare(phpversion(), '5.4.0', '>=') ) {
+			return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
+		} else {
+			return session_id() === '' ? FALSE : TRUE;
+		}
+	}
+	return FALSE;
 }

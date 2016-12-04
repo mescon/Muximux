@@ -1,14 +1,5 @@
 <?php
-function is_session_started() {
-	if ( php_sapi_name() !== 'cli' ) {
-		if ( version_compare(phpversion(), '5.4.0', '>=') ) {
-			return session_status() === PHP_SESSION_ACTIVE ? TRUE : FALSE;
-		} else {
-			return session_id() === '' ? FALSE : TRUE;
-		}
-	}
-	return FALSE;
-}
+require 'muximux.php';
 if (is_session_started()) session_destroy();
 session_start();
 ?>
@@ -39,7 +30,6 @@ session_start();
 	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 	defined("SECRET") ? null : define('SECRET', 'secret.txt');
 	require dirname(__FILE__) . '/vendor/autoload.php';
-        require 'muximux.php';
 	$config = new Config_Lite(CONFIG);
         
 
@@ -100,7 +90,7 @@ session_start();
             <div class="modal-body">
                 <div class="text-center">
                     <div class="btn-group" role="group" aria-label="Buttons" id="topButtons">
-                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show Instructions</a>
+                        <a class="btn btn-primary" id="showInstructions"><span class="fa fa-book"></span> Show Guide</a>
                         <a class="btn btn-primary" id="showChangelog"><span class="fa fa-github"></span> Show Updates</a>
                     </div>
                 </div>
