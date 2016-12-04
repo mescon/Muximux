@@ -319,7 +319,7 @@ function menuItems() {
 			$autohide = $config->getBool('general', 'autohide', true);
 			$enabledropdown = $config->getBool('general', 'enabledropdown', false);
 			$mobileoverride = $config->getBool('general', 'mobileoverride', false);
-			
+			$authentication = $config->getBool('general', 'authentication', false);
 
             } else {
 			$dropdown = $config->getBool($keyname, 'dd', false);
@@ -365,6 +365,17 @@ function menuItems() {
 	} else {
 		$moButton = "";
 	}
+	if ($authentication == "true") {
+		$outButton = "
+				<li class='navbtn'>
+					<a id='logout' title='Click this button to log out of Muximux.'>
+						<span class=\"fa fa-sign-out fa-lg\"></span>
+					</a>
+				</li>
+		";
+	} else {
+		$outButton = "";
+	}
 
 	if ($autohide == "true") {
 			$drawerdiv .= "
@@ -372,7 +383,6 @@ function menuItems() {
 ";
 	} else {
 			$drawerdiv .= "
-				<div class='canary'></div>
 				<div class='cd-tabs-bar'>
 			";
 	}
@@ -384,7 +394,8 @@ function menuItems() {
 					<a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
 						<span class=\"fa fa-refresh fa-lg\"></span>
 					</a>
-				</li>
+				</li>". 
+				$outButton ."
 				<li class='dd navbtn'>
 					<a id=\"hamburger\">
 						<span class=\"fa fa-bars fa-lg\"></span>

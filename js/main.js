@@ -32,12 +32,11 @@ jQuery(document).ready(function($) {
 			tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
 			tabContentWrapper = tab.children('ul.cd-tabs-content'),
 			tabNavigation = tab.find('nav');
-		tabItems.on('click', 'a:not(#reload, #hamburger, #override)', function(event) {
+		tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout)', function(event) {
 			// Set up menu for desktip view
 			if (!isMobile) {
 				$('.drop-nav').addClass('hide-nav');
 				$('.drop-nav').removeClass('show-nav');
-				$('.main-nav #hamburger span:first').removeClass('dd-active');
 			}
 			resizeIframe(hasDrawer); // Call resizeIframe when document is ready
 			event.preventDefault();
@@ -116,6 +115,10 @@ jQuery(document).ready(function($) {
 			$('.userinput').addClass('hidden');
 		}
 	});
+	$("#logout").click(function() {
+		console.log('logout clicked');
+		 window.location.href = '?logout';
+	});
 	// When settings modal is open, set title to "Settings"
 	$('#settingsModal').on('show.bs.modal', function() {
 		setTitle("Settings");
@@ -177,6 +180,11 @@ $(window).load(function() {
 		var updateCheck = setInterval(updateBox(), 1000);
 	}
 });
+// Close modal on escape key
+$("html").on("keyup", function(e) {
+	if(e.keyCode === 27 && !($('#modal-dialog').hasClass("no-display")))
+	$('.close').trigger("click");
+});
 // When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
 $(window).unload(function() {
 	$.ajax({
@@ -227,7 +235,6 @@ function muximuxMobileResize() {
 function toggleClasses() {
 	$('.drop-nav').toggleClass('hide-nav');
 	$('.drop-nav').toggleClass('show-nav');
-	$('.main-nav #hamburger span:first').toggleClass('dd-active');
 }
 // Clear color values from tabs
 function clearColors() {

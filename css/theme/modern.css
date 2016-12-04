@@ -43,8 +43,6 @@ body {
     background: #ff7b81;
 }
 
-
-
 iframe {
     background-color: #000;
 }
@@ -57,17 +55,16 @@ iframe {
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
 }
 
-.cd-tabs-navigation a, #reload, #settings, #override {
+.cd-tabs-navigation a {
     color: #818181;
-
 }
 
-.cd-tabs-navigation a:hover, #reload:hover, #settings:hover {
+.cd-tabs-navigation a:hover {
     color: #f1f3f2; /* Hover text colour */
     background-color: rgba(233, 230, 202, 0.3);
 }
 
-.cd-tabs-navigation a.selected:not(#reload) {
+.cd-tabs-navigation a.selected {
     background-color: #3f3f3f !important; /* Selected tab colour */
     color: #f1f3f2; /* Selected text colour */
 }
@@ -79,7 +76,7 @@ iframe {
     }
 
 
-    .cd-tabs-navigation a.selected:not(#reload) {
+    .cd-tabs-navigation a.selected {
         box-shadow: inset 0 5px 0 #36363b; /* Selected tab marker colour */
     }
 
@@ -98,11 +95,12 @@ iframe {
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
 }
 
-.main-nav > li:hover.notouch {
-    color: #f1f3f2;
-    background-color: rgba(233, 230, 202, 0.3);
 
+.main-nav > li:hover {
+	color: #f1f3f2;
+	background-color: rgba(233, 230, 202, 0.3);
 }
+
 
 .main-nav a {
     color: #818181;
@@ -113,19 +111,16 @@ iframe {
     background-color: rgba(233, 230, 202, 0.3);
 }
 
-.dd-active {
-    /* Used by main.js to set color of parent element of hovered item */
+.navbtn a:hover {
     color: #f1f3f2;
-	background-color: rgba(233, 230, 202, 0.3);
+    background-color: rgba(233, 230, 202, 0.3);
 }
-
 .or-active {
     background-color: rgba(233, 230, 202, 0.3);
 }
 
 .or-active > span {
     color: #ffffff; /* Hover text colour */
-
 }
 
 .drop-nav {
@@ -141,10 +136,10 @@ iframe {
 .drop-nav > li:hover, .drop-nav > li:hover a {
     color: #f1f3f2;
     background-color: rgba(233, 230, 202, 0.3);
-    -webkit-box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
-    -moz-box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
-    box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
+    
 }
+
+
 
 input[type='text'], select {
     color: #000;

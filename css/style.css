@@ -126,7 +126,7 @@ Main components
     float: left;
 }
 
-.cd-tabs-navigation a, #reload, #settings, #override {
+.cd-tabs-navigation a, #settings {
     position: relative;
     display: block;
     height: 35px;
