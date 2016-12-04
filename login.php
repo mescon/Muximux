@@ -20,9 +20,7 @@ if(isset($_POST['username'])) {
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
 
             $_SESSION['username'] = $_POST['username'];
-			$protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https'?'https':'http';
-			$protocol = isset($_SERVER["HTTPS"]) ? 'https' : 'http';
-            header("Location: " . $protocol . $_SERVER['HTTP_HOST']);
+			redirect($_SERVER['PHP_SELF']);
 			session_start();
     } else {
 			console_log('Error validating login of ' . $username . ' with password of ' . $_POST['password']);
@@ -31,6 +29,13 @@ if(isset($_POST['username'])) {
 	
 } else {
 	console_log('Post received, but username is not set');
+}
+
+function redirect($url) {
+    ob_start();
+    header('Location: '.$url);
+    ob_end_flush();
+    die();
 }
 
 echo '
