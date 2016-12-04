@@ -2,6 +2,18 @@
 require 'muximux.php';
 if (is_session_started()) session_destroy();
 session_start();
+defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
+	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
+	defined("SECRET") ? null : define('SECRET', 'secret.txt');
+	require dirname(__FILE__) . '/vendor/autoload.php';
+    $config = new Config_Lite(CONFIG);
+    if ($config->get('general', 'authentication', 'false') == "true") {
+		define('DS',  TRUE); // used to protect includes
+		define('USERNAME', $_SESSION['username']);
+		define('SELF',  $_SERVER['PHP_SELF'] );
+		if (!USERNAME or isset($_GET['logout']))
+				include('login.php');
+	}
 ?>
 <!doctype html>
 <!--[if lt IE 7]>
@@ -26,18 +38,7 @@ session_start();
     <script src="js/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="css/jquery-ui.min.css">
     <?php
-	defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
-	defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
-	defined("SECRET") ? null : define('SECRET', 'secret.txt');
-	require dirname(__FILE__) . '/vendor/autoload.php';
-    $config = new Config_Lite(CONFIG);
-    if ($config->get('general', 'authentication', 'false') == "true") {
-		define('DS',  TRUE); // used to protect includes
-		define('USERNAME', $_SESSION['username']);
-		define('SELF',  $_SERVER['PHP_SELF'] );
-		if (!USERNAME or isset($_GET['logout']))
-				include('login.php');
-	}
+	
 	error_reporting (E_ALL ^ E_NOTICE); /* Turn off notice errors */
     ?>
     <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
