@@ -117,9 +117,9 @@ function parse_ini()
 {
     
     $config = new Config_Lite(CONFIG);
-	fetchBranches();
     checksetSHA();
 	$myBranch = getBranch();
+	fetchBranches(false);
 	$branchArray = getBranches();
 	$branchList = "";
 	$pageOutput = "<div>". implode($branchArray)."</div>";
@@ -484,7 +484,7 @@ function getBranches() {
 	$branches = [];
 	$branches = $config->get('settings', 'branches',$branches);
 	if ($branches == []) {
-		fetchBranches();
+		fetchBranches(true);
 	} else {
 		$branches = $config->get('settings', 'branches');
 	}
@@ -492,10 +492,11 @@ function getBranches() {
 }
 
 // Fetch a list of branches from github, along with their current SHA
-function fetchBranches() {
+function fetchBranches($skip) {
+	console_log('Fetch Branches called.');
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
-	if (time() >= $last + 1800) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
+	if ((time() >= $last + 3600) || $skip) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
 		$curl_handle=curl_init();
 		curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
 		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
@@ -503,7 +504,10 @@ function fetchBranches() {
 		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Muximux');
 		$json = curl_exec($curl_handle);
 		curl_close($curl_handle);
-		$array = json_decode($json,true);
+		if ($json == false) {
+			console_log('JSON error fetching branches');
+		} else {
+			$array = json_decode($json,true);
 		$i = 0;
 		$names = array();
 		$shas = array();
@@ -532,6 +536,7 @@ function fetchBranches() {
 			echo "\n" . 'Exception Message: ' . $e->getMessage();
 		}
 		rewrite_config_header();
+		}
 	} 
 	
 }
