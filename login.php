@@ -20,23 +20,14 @@ if(isset($_POST['username'])) {
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
 
             $_SESSION['username'] = $_POST['username'];
-			redirect($_SERVER['PHP_SELF']);
+		header('Location:  ' . $_SERVER['PHP_SELF']);
 			session_start();
-    } else {
-			console_log('Error validating login of ' . $username . ' with password of ' . $_POST['password']);
 		
     }
 	
-} else {
-	console_log('Post received, but username is not set');
 }
 
-function redirect($url) {
-    ob_start();
-    header('Location: '.$url);
-    ob_end_flush();
-    die();
-}
+
 
 echo '
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
