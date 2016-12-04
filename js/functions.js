@@ -57,8 +57,8 @@ function settingsEventHandlers() {
 	// Event Handler for show/hide instructions
 	$('#showInstructions').click(function() {
 		$('#instructionsContainer').slideToggle(1000);
-		if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Instructions") $(this).html('<span class=\"fa fa-book\"></span> Hide Instructions');
-		else $(this).html('<span class=\"fa fa-book\"></span> Show Instructions');
+		if ($(this).html() == "<span class=\"fa fa-book\"></span> Show Guide") $(this).html('<span class=\"fa fa-book\"></span> Hide Guide');
+		else $(this).html('<span class=\"fa fa-book\"></span> Show Guide');
 	});
 	// Event Handler for show/hide changelog
 	$('#showChangelog').click(function() {
