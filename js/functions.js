@@ -26,7 +26,7 @@ function checkScrolling(tabs) {
 // If we do, then we need to make the iframe taller than bar height.
 function resizeIframe(drawer, isMobile) {
 	if (drawer && !isMobile) {
-		var newSize = $('.cd-tabs-navigation').height() - 5;
+		var newSize = $(window).height() - 5;
 		$('iframe').css({
 			'height': newSize + 'px'
 		});
