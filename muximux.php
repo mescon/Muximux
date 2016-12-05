@@ -160,6 +160,10 @@ function parse_ini()
 								<input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' ".($config->getBool('general', 'mobileoverride', false) ? 'checked' : '').">
 						</div><br>
 						<div>
+							<label for='tabcolorCheckbox'>Enable tab colors:</label>
+							<input id='tabcolorCheckbox' class='general_-_value' name='general_-_tabcolor' type='checkbox' ".($config->getBool('general', 'tabcolor', false) ? 'checked' : '').">
+						</div>
+						<div>
 							<label for='autohideCheckbox'>Enable auto-hide:</label>
 							<input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' ".($config->getBool('general', 'autohide', false) ? 'checked' : '').">
 						</div>
@@ -171,7 +175,7 @@ function parse_ini()
 							<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
 						</div><br>
 						<div class='userinput ".($config->getBool('general', 'authentication', false) ? '' : 'hidden')."'>
-							<label for='password'>Password: </label><input id='passwordInput' type='password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
+							<label for='password'>Password: </label><input id='passwordInput' type='password' autocomplete='new-password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
 						</div>
 					</div>
 				</div>
@@ -558,41 +562,13 @@ function metaTags() {
 	$config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
-    foreach ($config as $keyname => $section) {
-        if (($keyname == "general")) {
-			if (isset($section["autohide"]) && ($section["autohide"] == "true")) {
-				$autohide = "true";
-			} else {
-				$autohide = "false";
-			}
-			$greeting = $config->get('general', 'greeting', 'false');
-			if (isset($section["branch"])) {
-				$branch = $section["branch"];
+	$autohide = var_export($config->getBool('general', 'autohide', false),true);
+	$greeting = $config->get('general', 'greeting', 'Hello.');
+	$branch = $config->get('general', 'branch', 'master');
 				$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
-				
-			} else {
-				$branch = "";
-				$branchData = "";
-				$result = "";
-			}
-			if (isset($section["updatepopup"])) {
-				$popupdate = $section["updatepopup"];
-			} else {
-				$popupdate = "";
-			}
-			if (isset($section["title"])) {
-				$maintitle = $section["title"];
-			} else {
-				$maintitle = "";
-			}
-		}
-	}
-	$gitdir = getcwd() . "/.git/";
-	    if (is_readable($gitdir)) {
-            $gitdir = "readable";
-        } else {
-            $gitdir = "unreadable";
-        }
+	$popupdate = var_export($config->getBool('general', 'updatepopup', true),true);
+	$maintitle = $config->get('general', 'title', 'Muximux');
+	$tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
 	$inipath = php_ini_loaded_file();
         if ($inipath) {
             $inipath;
@@ -607,6 +583,7 @@ $tags .= "
 <meta id='branch-changed' data='". $branchChanged . "'>
 <meta id='popupdate' data='". $popupdate . "'>
 <meta id='drawer' data='". $autohide . "'>
+<meta id='tabcolor' data='". $tabcolor . "'>
 <meta id='maintitle' data='". $maintitle . "'>
 <meta id='gitdirectory-data' data='". $gitdir . "'>
 <meta id='cwd-data' data='". getcwd() . "'>

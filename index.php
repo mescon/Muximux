@@ -172,6 +172,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
         </div>
     </div>
 </div>
+<div class="colorgrab"></div>
 <div id="updateContainer"></div>
 <?php
 

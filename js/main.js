@@ -1,4 +1,4 @@
-var isMobile, overrideMobile, hasDrawer, color;
+var tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor;
 jQuery(document).ready(function($) {
 	// Custom function to do case-insensitive selector matching
 	$.extend($.expr[":"], {
@@ -11,6 +11,8 @@ jQuery(document).ready(function($) {
 		$('#git-data').attr('data', JSON.stringify(myjson));
 	});
 	hasDrawer = ($('#drawer').attr('data') == 'true');
+	tabColor = ($("#tabcolor").attr('data') == 'true');
+	themeColor = rgb2hex($('.colorgrab').css("color"));
 	getSecret();
 	var tabs = $('.cd-tabs');
 	// Set default title to the selected item on load
@@ -38,10 +40,14 @@ jQuery(document).ready(function($) {
 				$('.drop-nav').addClass('hide-nav');
 				$('.drop-nav').removeClass('show-nav');
 			}
-			resizeIframe(hasDrawer); // Call resizeIframe when document is ready
+			resizeIframe(hasDrawer, isMobile); // Call resizeIframe when document is ready
 			event.preventDefault();
 			var selectedItem = $(this);
+			if (tabColor) {
 			color = selectedItem.attr("data-color");
+			} else {
+				color = themeColor;
+			}
 			if (!selectedItem.hasClass('selected')) {
 				var selectedTab = selectedItem.data('content'),
 					selectedContent = tabContentWrapper.find('li[data-content="' + selectedTab + '"]'),
@@ -133,7 +139,7 @@ jQuery(document).ready(function($) {
 			checkScrolling(tab.find('nav'));
 			tab.find('.cd-tabs-content').css('height', 'auto');
 		});
-		resizeIframe(hasDrawer); // Resize iframes when window is resized.
+		resizeIframe(hasDrawer, isMobile); // Resize iframes when window is resized.
 		scaleFrames(); // Scale frames when window is resized.
 	});
 	$('.dd').click(function() {
@@ -164,7 +170,7 @@ jQuery(document).ready(function($) {
 	// Move items to the dropdown on mobile devices
 	settingsEventHandlers();
 	scaleFrames();
-	resizeIframe(hasDrawer); // Call resizeIframe when document is ready
+	resizeIframe(hasDrawer, isMobile); // Call resizeIframe when document is ready
 	initIconPicker('.iconpicker');
 	// Load the menu item that is set in URL, for example http://site.com/#plexpy
 	if ($(location).attr('hash')) {
@@ -176,7 +182,8 @@ jQuery(document).ready(function($) {
 window
 $(window).load(function() {
 	if ($('#popupdate').attr('data') == 'true') {
-		var updateCheck = setInterval(updateBox(), 10000);
+		updateBox();
+		var updateCheck = setInterval(updateBox(), 1000 * 60 * 10);
 	}
 });
 // Close modal on escape key
@@ -241,7 +248,12 @@ function clearColors() {
 // Add relevant color value to tabs
 // Refactor to a more appropriate name
 function setSelectedColor() {
+	if (tabColor) {
 	color = $('li .selected').attr("data-color");
+	} else {
+		color = themeColor;
+	}
+	console.log('Using color of: ' + color);
 	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
 	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
 	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');

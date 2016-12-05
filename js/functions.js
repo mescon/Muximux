@@ -24,14 +24,14 @@ function checkScrolling(tabs) {
 // Measure viewport and subtract the height the navigation tabs, then resize the iframes.
 // drawer is just a boolean value as to whether or not we have the drawer.
 // If we do, then we need to make the iframe taller than bar height.
-function resizeIframe(drawer) {
-	if (drawer) {
-		var newSize = $(window).height() - 5;
+function resizeIframe(drawer, isMobile) {
+	if (drawer && !isMobile) {
+		var newSize = $('.cd-tabs-navigation').height() - 5;
 		$('iframe').css({
 			'height': newSize + 'px'
 		});
 	} else {
-		var newSize = $(window).height() - $('nav').height();
+		var newSize = $(window).height() - $('.cd-tabs-navigation').height();
 		$('iframe').css({
 			'height': newSize + 'px'
 		});
@@ -424,4 +424,15 @@ function changeFavicon(src) {
 // Wrap a html-encoded string in a div (in-memory) and read it back, unencoded.
 function htmlDecode(value) {
 	return $('<div/>').html(value).text();
+}
+function rgb2hex(rgb) {
+     if (  rgb.search("rgb") == -1 ) {
+          return rgb;
+     } else {
+          rgb = rgb.match(/^rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*(\d+))?\)$/);
+          function hex(x) {
+               return ("0" + parseInt(x).toString(16)).slice(-2);
+		}
+          return "#" + hex(rgb[1]) + hex(rgb[2]) + hex(rgb[3]); 
+		}
 }
