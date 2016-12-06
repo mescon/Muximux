@@ -7,9 +7,9 @@ var gitdir = $("#gitdirectory-data").attr('data');
 var title = $("#title-data").attr('data');
 var branch = $("#branch-data").attr('data');
 var secret = $("#secret").attr('data');
-var commitURL = "https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch;
 var difference = 0;
 var differenceDays;
+var json;
 	
     	
 function checkScrolling(tabs) {
@@ -320,9 +320,17 @@ function setTitle(title) {
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox() {
-	var json;
+	if (!sessionStorage.getItem('JSONData')) {
 	$.getJSON(commitURL, function(result) {
 		json = result;
+			sessionStorage.setItem('JSONData',json,0.00694444);
+			console.log('Storage set: ' + JSON.stringify(json));
+		});
+	} else {
+		json = sessionStorage.getItem('JSONData');
+		json = JSON.parse(json);
+		console.log('Cookie read: ' + JSON.stringify(json));
+	}
 		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
 		var difference = 0;
 		for (var i in json) {
@@ -352,7 +360,7 @@ function updateBox() {
 				setCookie('updateDismiss', 'true', 1 / 24);
 			});
 		}
-	});
+	
 	
 	
 }

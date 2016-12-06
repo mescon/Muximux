@@ -7,9 +7,6 @@ jQuery(document).ready(function($) {
 		}
 	});
 	var branch = $("#branch-data").attr('data');
-	$.getJSON("https://api.github.com/repos/mescon/Muximux/commits?sha=" + branch, function(myjson) {
-		$('#git-data').attr('data', JSON.stringify(myjson));
-	});
 	hasDrawer = ($('#drawer').attr('data') == 'true');
 	tabColor = ($("#tabcolor").attr('data') == 'true');
 	themeColor = rgb2hex($('.colorgrab').css("color"));
@@ -60,9 +57,6 @@ jQuery(document).ready(function($) {
 				if (sifsrc === undefined || sifsrc === "") {
 					selectedContent.children('iframe').attr('src', srcUrl);
 				}
-				// This doesn't work often, but it's a nice surprise when it does
-				// Work on a way to do this with PHP that isn't taxing
-				//changeFavicon('http://api.byi.pw/favicon?url=' + srcUrl);
 				// Fix issue with color not resetting on settings close
 				if (!(selectedItem.attr("data-title") == "Settings")) {
 					clearColors();
@@ -182,7 +176,6 @@ jQuery(document).ready(function($) {
 window
 $(window).load(function() {
 	if ($('#popupdate').attr('data') == 'true') {
-		updateBox();
 		var updateCheck = setInterval(updateBox(), 1000 * 60 * 10);
 	}
 });
@@ -253,7 +246,6 @@ function setSelectedColor() {
 	} else {
 		color = themeColor;
 	}
-	console.log('Using color of: ' + color);
 	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
 	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
 	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
