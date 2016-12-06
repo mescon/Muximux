@@ -144,7 +144,7 @@ Main components
     cursor: pointer;
 }
 
-#downloadModal {
+#downloadModal, #reloadModal {
 	display: inline-block;
 	cursor: pointer;
 }

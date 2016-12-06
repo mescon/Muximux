@@ -223,7 +223,7 @@ function viewChangelog() {
 	}
 	$('#changelog').html(output);
 	$('#downloadUpdate').click(function(){
-		downloadUpdate();
+		downloadUpdate(json[0].sha);
 	});
 	$('#refreshUpdate').click(function(){
 		refreshBranches();
@@ -294,8 +294,6 @@ function getSecret() {
 }
 
 
-
-
 function setCookie(cname, cvalue, exdays) {
 	var d = new Date();
 	d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -321,48 +319,41 @@ function setTitle(title) {
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox() {
 	if (!sessionStorage.getItem('JSONData')) {
-	$.getJSON(commitURL, function(result) {
-		json = result;
-			sessionStorage.setItem('JSONData',json,0.00694444);
-			console.log('Storage set: ' + JSON.stringify(json));
+		$.getJSON(commitURL, function(result) {
+			jsonString = JSON.stringify(result);
+			json = result;
+			sessionStorage.setItem('JSONData',jsonString,0.00694444);			
 		});
-	} else {
-		json = sessionStorage.getItem('JSONData');
-		json = JSON.parse(json);
-		console.log('Cookie read: ' + JSON.stringify(json));
+	} 
+	json = JSON.parse(sessionStorage.getItem('JSONData'));
+	var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
+	var difference = 0;
+	for (var i in json) {
+		if (json[i].sha == localversion) {
+			difference = i;
+		}
 	}
-		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
-		var difference = 0;
-		for (var i in json) {
-			if (json[i].sha == localversion) {
-				difference = i;
+	var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
+	var updateCheck;
+	if (difference) {
+		clearInterval(updateCheck);
+		if (difference != 0) {
+			if (!getCookie('updateDismiss')) {
+				$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
+				"<span>You are currently <strong>" + difference + "</strong> "+ ((difference > 1) ? 'commits' : 'commit')+" behind!<br/>" +
+				"See <a href=\"" + compareURL + "\" target=\"_blank\">changelog</a> or <div id='downloadModal'><code>click here</code></div> to install now.</span>");
+				$('#updateContainer').fadeIn("slow");
+				$('#downloadModal').click(function(){
+					downloadUpdate(json[0].sha);
+				});
 			}
 		}
-		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
-		var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-		var updateCheck;
-		if (difference) {
-			clearInterval(updateCheck);
-			if (difference != 0) {
-				if (!getCookie('updateDismiss')) {
-					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
-					"<span>You are currently <strong>" + difference + "</strong> commits behind!<br/>" +
-					"See <a href=\"" + compareURL + "\" target=\"_blank\">changelog</a> or <div id='downloadModal'><code>click here</code></div> to install now.</span>");
-					$('#updateContainer').fadeIn("slow");
-					$('#downloadModal').click(function(){
-						downloadUpdate();
-					});
-				}
-			}
-			$('#updateDismiss').click(function() {
-				$('#updateContainer').fadeOut('slow');
-				// Set cookie to remember dismiss decision for 1 hour.
-				setCookie('updateDismiss', 'true', 1 / 24);
-			});
-		}
-	
-	
-	
+		$('#updateDismiss').click(function() {
+			$('#updateContainer').fadeOut('slow');
+			// Set cookie to remember dismiss decision for 1 hour.
+			setCookie('updateDismiss', 'true', 1 / 24);
+		});
+	}
 }
 
 function scaleContent(content, scale) {
@@ -379,14 +370,14 @@ function scaleContent(content, scale) {
 	});
 }
 
-function downloadUpdate() {
+function downloadUpdate($sha) {
 	if (confirm('Would you like to download and install updates now?')) {
 		
         $.ajax({
             async: true,
             url: "muximux.php",
             type: 'GET',
-            data: {action: "update", secret: secret },
+            data: {action: "update", secret: secret, sha: $sha},
             success: function (data) {
                 console.log('DownloadResult: ' + data);
 				if(data) {
@@ -409,6 +400,12 @@ function setStatus($message) {
 					"<span>" + $message + "<br/>" +
 					"<div id='reloadModal'><code>Click to reload</code></div></span>");
 	$('#updateContainer').fadeIn("slow");
+	$('#reloadModal').click(function() {
+		location.reload();
+	});
+	$('#updateDismiss').click(function() {
+		$('#updateContainer').fadeOut('slow');
+	});
 }
 
 
@@ -445,6 +442,7 @@ function changeFavicon(src) {
 function htmlDecode(value) {
 	return $('<div/>').html(value).text();
 }
+
 function rgb2hex(rgb) {
      if (  rgb.search("rgb") == -1 ) {
           return rgb;

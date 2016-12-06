@@ -699,7 +699,8 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         die();
     }
 	if(isset($_GET['action']) && $_GET['action'] == "update") {
-        $results = downloadUpdate();
+		$sha = $_GET['sha'];
+        	$results = downloadUpdate($sha);
 		echo $results;
 		die();
     }
@@ -714,11 +715,10 @@ if(empty($_GET)) {
     createSecret();
 }
 // This will download the latest zip from the current selected branch and extract it wherever specified
-function downloadUpdate() {
-	$branch = getBranch();
+function downloadUpdate($sha) {
 	$result = false;
-	$zipFile = "Muximux-".$branch. ".zip";
-	$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $branch .".zip", 'r'), LOCK_EX);
+	$zipFile = "Muximux-".$sha. ".zip";
+	$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $sha .".zip", 'r'), LOCK_EX);
 	if(FALSE === $f) {
 		$result = false;
 	} else {
@@ -727,21 +727,16 @@ function downloadUpdate() {
 		if ($res === TRUE) {
 			$zip->extractTo('./stage');
 			$zip->close();
-			cpy("./stage/Muximux-".$branch, "./");
+			cpy("./stage/Muximux-".$sha, "./");
 			deleteDir("./stage");
-			$branchArray = getBranches();
 			$config = new Config_Lite(CONFIG);
-			foreach ($branchArray as $branchName => $shaSum ) {
-				if ($branchName == $branch) {
-					$config->set('settings','sha',$shaSum);	
+			$config->set('settings','sha',$sha);	
 					try {
 						$config->save();
 					} catch (Config_Lite_Exception $e) {
 						echo "\n" . 'Exception Message: ' . $e->getMessage();
 					}
 					rewrite_config_header();
-				}
-			}
 		}
 	$result = $res;
 	}
