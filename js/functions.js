@@ -382,9 +382,9 @@ function downloadUpdate() {
             success: function (data) {
                 console.log('DownloadResult: ' + data);
 				if(data) {
-					setSuccessStatus();
+					setStatus('Update installed successfully!');
 				} else {
-					setFailStatus();
+					setStatus('An error has occurred.  Please reload and try again.');
 				}
                
             }
@@ -395,17 +395,14 @@ function downloadUpdate() {
 	}
 }
 
-function setSuccessStatus() {
-	$('#updateContainer').fadeOut('slow');
+function setStatus($message) {
+	$('#updateContainer').hide();
 	$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
-					"<span>Update installed successfully!<br/>" +
-					"<div id='reloadModal'><code>click here</code></div> to refresh now.</span>");
+					"<span>" + $message + "<br/>" +
+					"<div id='reloadModal'><code>Click to reload</code></div></span>");
 	$('#updateContainer').fadeIn("slow");
 }
 
-function setFailStatus() {
-	
-}
 
 // Find apps with a scale setting that is more or less than 100%, then re-scale it to the desired setting using scaleContent(selector, scale)
 function scaleFrames() {
