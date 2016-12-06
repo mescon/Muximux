@@ -44,7 +44,7 @@ jQuery(document).ready(function($) {
 			event.preventDefault();
 			var selectedItem = $(this);
 			if (tabColor) {
-			color = selectedItem.attr("data-color");
+				color = selectedItem.attr("data-color");
 			} else {
 				color = themeColor;
 			}

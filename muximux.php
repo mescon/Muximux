@@ -471,7 +471,6 @@ function getBranches() {
 }
 // Fetch a list of branches from github, along with their current SHA
 function fetchBranches($skip) {
-	console_log('Fetch Branches called.');
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
 	if ((time() >= $last + 3600) || $skip) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
@@ -483,7 +482,7 @@ function fetchBranches($skip) {
 		$json = curl_exec($curl_handle);
 		curl_close($curl_handle);
 		if ($json == false) {
-			console_log('JSON error fetching branches');
+			exit();
 		} else {
 			$array = json_decode($json,true);
 			$i = 0;
@@ -565,7 +564,7 @@ function metaTags() {
 	$autohide = var_export($config->getBool('general', 'autohide', false),true);
 	$greeting = $config->get('general', 'greeting', 'Hello.');
 	$branch = $config->get('general', 'branch', 'master');
-				$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
+	$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
 	$popupdate = var_export($config->getBool('general', 'updatepopup', true),true);
 	$maintitle = $config->get('general', 'title', 'Muximux');
 	$tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
@@ -732,7 +731,7 @@ function downloadUpdate() {
 	  }
 	  //
 	} else {
-	  console_log('Error extracting update.');
+		exit();
 	}
 }
 function console_log( $data ){
