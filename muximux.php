@@ -482,7 +482,7 @@ function fetchBranches($skip) {
 		$json = curl_exec($curl_handle);
 		curl_close($curl_handle);
 		if ($json == false) {
-			exit();
+			$result = false;
 		} else {
 			$array = json_decode($json,true);
 			$i = 0;
@@ -511,8 +511,13 @@ function fetchBranches($skip) {
 				echo "\n" . 'Exception Message: ' . $e->getMessage();
 			}
 			rewrite_config_header();
+			$result = true;
 		}
+		
+	} else {
+		$result = false;
 	} 
+	return $result;
 	
 }
 // We run this when parsing settings to make sure that we have a SHA saved just as 
@@ -694,7 +699,13 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         die();
     }
 	if(isset($_GET['action']) && $_GET['action'] == "update") {
-        downloadUpdate();
+        $results = downloadUpdate();
+		echo $results;
+		die();
+    }
+	if(isset($_GET['action']) && $_GET['action'] == "branches") {
+        $results = fetchBranches(true);
+		echo $results;
 		die();
     }
 }
@@ -705,34 +716,36 @@ if(empty($_GET)) {
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate() {
 	$branch = getBranch();
+	$result = false;
 	$zipFile = "Muximux-".$branch. ".zip";
 	$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $branch .".zip", 'r'), LOCK_EX);
-	if(FALSE === $f)
-		die("Couldn't write to file.");
-	$zip = new ZipArchive;
-	$res = $zip->open($zipFile);
-	if ($res === TRUE) {
-	  $zip->extractTo('./stage');
-	  $zip->close();
-	  cpy("./stage/Muximux-".$branch, "./");
-	  deleteDir("./stage");
-	  $branchArray = getBranches();
-	  foreach ($branchArray as $branchName => $shaSum ) {
-		if ($branchName == $branch) {
-			$config = new Config_Lite(CONFIG);
-			$config->set('settings','sha','$shaSum');	
-			try {
-				$config->save();
-			} catch (Config_Lite_Exception $e) {
-				echo "\n" . 'Exception Message: ' . $e->getMessage();
-			}
-			rewrite_config_header();
-		}
-	  }
-	  //
+	if(FALSE === $f) {
+		$result = false;
 	} else {
-		exit();
+		$zip = new ZipArchive;
+		$res = $zip->open($zipFile);
+		if ($res === TRUE) {
+			$zip->extractTo('./stage');
+			$zip->close();
+			cpy("./stage/Muximux-".$branch, "./");
+			deleteDir("./stage");
+			$branchArray = getBranches();
+			$config = new Config_Lite(CONFIG);
+			foreach ($branchArray as $branchName => $shaSum ) {
+				if ($branchName == $branch) {
+					$config->set('settings','sha',$shaSum);	
+					try {
+						$config->save();
+					} catch (Config_Lite_Exception $e) {
+						echo "\n" . 'Exception Message: ' . $e->getMessage();
+					}
+					rewrite_config_header();
+				}
+			}
+		}
+	$result = $res;
 	}
+	return $result;
 }
 function console_log( $data ){
 	echo '<script>';

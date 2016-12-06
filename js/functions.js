@@ -178,6 +178,7 @@ function settingsEventHandlers() {
 }
 // Takes all the data we have to generate our changelog
 function viewChangelog() {
+	$('#changelog').html("");
 	var json;
 	$.getJSON(commitURL, function(result) {
 		json = result;
@@ -205,44 +206,45 @@ function viewChangelog() {
 		output +="<a class='btn btn-primary' id='downloadUpdate'><span class='fa fa-arrow-circle-down'></span> Install Now</a>";
 	}
 	output +="<a class='btn btn-primary' id='refreshUpdate'><span class='fa fa-rotate-right'></span> Refresh Updates</a>" + 
-                    "</div>" +
-	"<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>the latest zip here.</a></p>";
-	output += "<h3>Changelog (" + branch + ")</h3><ul>";
-	var i=0;
-	do {
-		var shortCommitID = json[i].sha.substring(0, 7);
-		var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
-		var shortDate = json[i].commit.author.date.substring(0, 10);
-		output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
-		i++;
-	} while (i != difference);
-	output += "</ul>";
+                    "</div>";
+	if (difference > 0) {
+		
+		output += "<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>the latest zip here.</a></p>";
+		output += "<h3>Changelog (" + branch + ")</h3><ul>";
+		var i=0;
+		do {
+			var shortCommitID = json[i].sha.substring(0, 7);
+			var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
+			var shortDate = json[i].commit.author.date.substring(0, 10);
+			output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
+			i++;
+		} while (i != difference);
+		output += "</ul>";
+	}
 	$('#changelog').html(output);
 	$('#downloadUpdate').click(function(){
-	if (confirm('Would you like to download and install updates now?')) {
-		
-        $.ajax({
-            async: true,
-            url: "muximux.php",
-            type: 'GET',
-            data: {action: "update", secret: secret },
-            success: function (data) {
-                if(data == "deleted");
-                $('#backupiniContainer').toggle(1000);
-                $('#showBackup').remove();
-                $('#topButtons').css('width','280px')
-            }
-
-        });
-    
-	   // Save it!
-	} else {
-		console.log('Update cancelled.');
-	}
+		downloadUpdate();
+	});
+	$('#refreshUpdate').click(function(){
+		refreshBranches();
 	});
 
 	});
 }
+
+function refreshBranches() {
+	$.ajax({
+            async: true,
+            url: "muximux.php",
+            type: 'GET',
+            data: {action: "branches", secret: secret },
+            success: function (data) {
+                viewChangelog();
+            }
+
+        });
+}
+
 //Init iconpickers
 function initIconPicker(selectedItem) {
 	$(selectedItem).iconpicker({
@@ -333,7 +335,7 @@ function updateBox() {
 		var updateCheck;
 		if (difference) {
 			clearInterval(updateCheck);
-			if ((gitdir == "readable") && (!(localversion == "noexec")) && (difference != 0)) {
+			if (difference != 0) {
 				if (!getCookie('updateDismiss')) {
 					$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
 					"<span>You are currently <strong>" + difference + "</strong> commits behind!<br/>" +
@@ -378,19 +380,32 @@ function downloadUpdate() {
             type: 'GET',
             data: {action: "update", secret: secret },
             success: function (data) {
-                if(data == "deleted");
-                $('#backupiniContainer').toggle(1000);
-                $('#showBackup').remove();
-                $('#topButtons').css('width','280px')
+                console.log('DownloadResult: ' + data);
+				if(data) {
+					setSuccessStatus();
+				} else {
+					setFailStatus();
+				}
+               
             }
 
         });
-    
-	   // Save it!
 	} else {
 		console.log('Update cancelled.');
 	}
-	}
+}
+
+function setSuccessStatus() {
+	$('#updateContainer').fadeOut('slow');
+	$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
+					"<span>Update installed successfully!<br/>" +
+					"<div id='reloadModal'><code>click here</code></div> to refresh now.</span>");
+	$('#updateContainer').fadeIn("slow");
+}
+
+function setFailStatus() {
+	
+}
 
 // Find apps with a scale setting that is more or less than 100%, then re-scale it to the desired setting using scaleContent(selector, scale)
 function scaleFrames() {
