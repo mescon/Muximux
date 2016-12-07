@@ -63,8 +63,10 @@ function settingsEventHandlers() {
 	// Event Handler for show/hide changelog
 	$('#showChangelog').click(function() {
 		$('#changelogContainer').slideToggle(1000);
-		viewChangelog();
-		if ($(this).html() == "<span class=\"fa fa-github\"></span> Show Updates") $(this).html('<span class=\"fa fa-github\"></span> Hide Updates');
+		if ($(this).html() == "<span class=\"fa fa-github\"></span> Show Updates") {
+			$(this).html('<span class=\"fa fa-github\"></span> Hide Updates');
+			viewChangelog();
+		}
 		else $(this).html('<span class=\"fa fa-github\"></span> Show Updates');
 	});
 	// Event Handler for backup.ini show/hide button
@@ -189,7 +191,10 @@ function settingsEventHandlers() {
 // Takes all the data we have to generate our changelog
 function viewChangelog() {
 	$('#changelog').html("");
-	var json;
+	if (!sessionStorage.getItem('JSONData')) {
+		updateJson();
+	} 
+	json = JSON.parse(sessionStorage.getItem('JSONData'));
 	$.getJSON(commitURL, function(result) {
 		json = result;
 		var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
