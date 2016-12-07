@@ -120,6 +120,23 @@ function parse_ini()
 	fetchBranches(false);
 	$branchArray = getBranches();
 	$branchList = "";
+	if ($config->get('settings', 'sha', '0') == "0") {
+		$mySha = fetchSha();
+	} else {
+		$mySha = $config->get('settings', 'sha', '0');
+	}
+	$css = './css/theme/' . getTheme() . '.css';
+	$tabColorEnabled = $config->getBool('general', 'tabcolor', false);
+	$enableDropDown = $config->getBool('general', 'enabledropdown', false);
+	$updatePopup = $config->getBool('general', 'updatepopup', false);
+	$mobileOverride = $config->getBool('general', 'mobileoverride', false);
+	$cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
+	$themeColor = $config->get('general','color',$cssColor);
+	$autoHide = $config->getBool('general', 'autohide', false);
+	$userName = $config->get('general', 'userNameInput', 'admin');
+	$passHash = $config->get('general', 'password', 'Muximux');
+	$authentication = $config->getBool('general', 'authentication', false);
+	
 	foreach ($branchArray as $branchName => $shaSum ) {
 		$branchList .= "
 								<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
@@ -148,34 +165,40 @@ function parse_ini()
 						<br>
 						<div>
 							<label for='dropdownCheckbox'>Enable Dropdown:</label>
-							<input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ". ($config->getBool('general', 'enabledropdown', false) ? 'checked' : '') ."
+							<input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ". ($enableDropDown ? 'checked' : '') ."
 						</div>
 						<div>
 							<label for='updatepopupCheckbox'>Enable update poups:</label> 
-							<input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' ".($config->getBool('general', 'updatepopup', false) ? 'checked' : '') .">
+							<input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
 						</div>
 						
 						<div>
 							<label for='mobileoverrideCheckbox'>Enable mobile override:</label> 
-								<input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' ".($config->getBool('general', 'mobileoverride', false) ? 'checked' : '').">
+								<input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' ".($mobileOverride ? 'checked' : '').">
 						</div><br>
+						<div class='generalColor'>
+							<label for='general_-_color'>Color: </label>
+							<input type='color' id='general_-_default' class='generalColor general_-_color' value='".$themeColor."' name='general_-_color'>
+						</div>
 						<div>
-							<label for='tabcolorCheckbox'>Enable tab colors:</label>
-							<input id='tabcolorCheckbox' class='general_-_value' name='general_-_tabcolor' type='checkbox' ".($config->getBool('general', 'tabcolor', false) ? 'checked' : '').">
+							<label for='tabcolorCheckbox'>Enable per-tab colors:</label>
+							<input id='tabcolorCheckbox' class='general_-_value' name='general_-_tabcolor' type='checkbox' " . ($tabColorEnabled ? 'checked' : '').">
 						</div>
 						<div>
 							<label for='autohideCheckbox'>Enable auto-hide:</label>
-							<input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' ".($config->getBool('general', 'autohide', false) ? 'checked' : '').">
+							<input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' ".($autoHide ? 'checked' : '').">
 						</div>
 						<div>
 							<label for='authenticationCheckbox'>Enable authentication:</label>
-							<input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' ".($config->getBool('general', 'authentication', false) ? 'checked' : '').">
+							<input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' ".($authentication ? 'checked' : '').">
 						</div><br>
-						<div class='userinput ".($config->getBool('general', 'authentication', false) ? '' : 'hidden')."'>
-							<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $config->get('general', 'userNameInput', 'admin') . "'>
-						</div><br>
-						<div class='userinput ".($config->getBool('general', 'authentication', false) ? '' : 'hidden')."'>
-							<label for='password'>Password: </label><input id='passwordInput' type='password' autocomplete='new-password' class='general_-_value userinput' name='general_-_password' value='" . $config->get('general', 'password', 'muximux') . "'>
+						<div class='inputdiv'>
+							<div class='userinput'>
+								<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $userName . "'>
+							</div><br>
+							<div class='userinput'>
+								<label for='password'>Password: </label><input id='passwordInput' type='password' autocomplete='new-password' class='general_-_value userinput' name='general_-_password' value='" . $passHash . "'>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -228,14 +251,15 @@ function parse_ini()
 							<label for='" . $section . "_-_default' >Default: </label>
 							<input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_default' name='" . $section . "_-_default'".($default ? 'checked' : '') .">
 						</div>
-						<br><div>
+						<br>
+						<div class='appsColor'>
+							<label for='" . $section . "_-_color'>Color: </label>
+							<input type='color' id='" . $section . "_-_color' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
+						</div>
+						<div>
 							<label for='" . $section . "_-_icon' >Icon: </label>
 							<button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\">
 							</button>
-						</div>
-						<div class='appsColor'>
-							<label for='" . $section . "_-_color'>Color: </label>
-							<input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
 						</div>
 						<div style=\"margin-left:5px;\">
 							<label for='" . $section . "_-_scale'>Zoom: </label>
@@ -506,7 +530,7 @@ function fetchBranches($skip) {
 // we need to update.  
 function checksetSHA() {
 	$config = new Config_Lite(CONFIG);
-	if (getSHA() == '00') {
+	if ((getSHA() == '00') || (getSHA() == '')) {
 		$config ->set('settings','sha',fetchSHA());
 		try {
 			$config->save();
@@ -551,6 +575,7 @@ function metaTags() {
 	$config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
+	$authentication = $config->getBool('general', 'authentication', false);
 	$autohide = var_export($config->getBool('general', 'autohide', false),true);
 	$greeting = $config->get('general', 'greeting', 'Hello.');
 	$branch = $config->get('general', 'branch', 'master');
@@ -558,6 +583,9 @@ function metaTags() {
 	$popupdate = var_export($config->getBool('general', 'updatepopup', true),true);
 	$maintitle = $config->get('general', 'title', 'Muximux');
 	$tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
+	$css = './css/theme/' . getTheme() . '.css';
+	$cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
+	$themeColor = $config->get('general','color',$cssColor);
 	$inipath = php_ini_loaded_file();
         if ($inipath) {
             $inipath;
@@ -581,6 +609,8 @@ $tags = "
 	<meta id='created-data' data='". $created . "'>
 	<meta id='sha-data' data='". getSHA() . "'>
 	<meta id='secret' data='". $secret . "'>
+	<meta id='themeColor-data' data='". $themeColor . "'>
+	<meta id='authentication-data' data='". $authentication . "'>
 ";
 	return $tags;
 }
@@ -780,4 +810,29 @@ function is_session_started() {
 		}
 	}
 	return FALSE;
+}
+
+// This might be excessive for just grabbing one theme value from CSS,
+// but if we ever wanted to make a full theme editor, it could be handy.
+
+function parseCSS($file,$searchSelector,$searchAttribute){
+    $css = file_get_contents($file);
+    preg_match_all( '/(?ims)([a-z0-9\s\.\:#_\-@,]+)\{([^\}]*)\}/', $css, $arr);
+    $result = false;
+    foreach ($arr[0] as $i => $x){
+        $selector = trim($arr[1][$i]);
+		if ($selector == $searchSelector) {
+			$rules = explode(';', trim($arr[2][$i]));
+			$rules_arr = array();
+			foreach ($rules as $strRule){
+				if (!empty($strRule)){
+					$rule = explode(":", $strRule);
+					if (trim($rule[0]) == $searchAttribute) {
+						$result = trim($rule[1]);
+					} 
+				} 
+			}
+		}
+    }
+    return $result;
 }

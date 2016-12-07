@@ -165,8 +165,6 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 			</div>
 		</div>
 	</div>
-	<!-- Style this using our theme's CSS so we can grab it and use it in scripts-->
-	<div class="colorgrab"></div>
 	<div id="updateContainer"></div>
 	<?php echo metaTags(); ?>
 

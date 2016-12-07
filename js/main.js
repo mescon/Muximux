@@ -9,12 +9,14 @@ jQuery(document).ready(function($) {
 	branch = $("#branch-data").attr('data');
 	hasDrawer = ($('#drawer').attr('data') == 'true');
 	tabColor = ($("#tabcolor").attr('data') == 'true');
-	themeColor = rgb2hex($('.colorgrab').css("color"));
+	themeColor = $('#themeColor-data').attr("data");
+	authentication = $('#authentication-data').attr("data");
 	tabs = $('.cd-tabs');
 	activeTitle = $('li .selected').attr("data-title");
 	getSecret();
 	muximuxMobileResize();
 	$('#override').css('display', (isMobile ? 'block' : 'none'));
+	$('.inputdiv').css('display',(authentication ? 'block' : 'none'));
 	overrideMobile = false;
 	setTitle(activeTitle);
 	//get appropriate CSS3 box-shadow property
@@ -105,9 +107,9 @@ jQuery(document).ready(function($) {
 		// this function will get executed every time the #home element is clicked (or tab-spacebar changed)
 		if ($(this).is(":checked")) // "this" refers to the element that fired the event
 		{
-			$('.userinput').removeClass('hidden');
+			$('.inputdiv').slideDown('fast');
 		} else {
-			$('.userinput').addClass('hidden');
+			$('.inputdiv').slideUp('fast');
 		}
 	});
 	$("#logout").click(function() {
@@ -168,9 +170,11 @@ jQuery(document).ready(function($) {
 		menuItem.trigger("click");
 	}
 	if ($('#tabcolorCheckbox').prop('checked')) {
-		$('.appsColor').removeClass('hidden');
+		$('.appsColor').show();
+		$('.generalColor').hide();
 	} else {
-		$('.appsColor').addClass('hidden');
+		$('.appsColor').hide();
+		$('.generalColor').show();
 	}
 		
 	
