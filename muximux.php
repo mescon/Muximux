@@ -240,7 +240,7 @@ function parse_ini()
 			<button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\">
 			</button>
 		</div>
-		<div>
+		<div class='appsColor'>
 			<label for='" . $section . "_-_color'>Color: </label>
 			<input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
 		</div>
@@ -325,6 +325,7 @@ function menuItems() {
     $config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
+	$int = 0;
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
 			$autohide = $config->getBool('general', 'autohide', true);
@@ -337,12 +338,12 @@ function menuItems() {
 			$default = $config->getBool($keyname, 'default', true);
         if ($enabled && !$dropdown) {
                 $standardmenu .= "
-					<li class='cd-tab'>
+					<li class='cd-tab' data-index='".$int."'>
 						<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
 							<span class='fa " . $section["icon"] . " fa-lg'></span> " . $section["name"] . "
 						</a>
 					</li>";
-            
+			$int++;    
         }
         if ($dropdown && $enabled && $section['name'] == "Settings") {
             $dropdownmenu .= "

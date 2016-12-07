@@ -175,6 +175,14 @@ function settingsEventHandlers() {
 		$('.appName').removeAttr('disabled');
 		$("form").ajaxSubmit(options);
 	});
+	$('#tabcolorCheckbox').click(function(event) {
+		if ($(this).prop('checked')) {
+			$('.appsColor').removeClass('hidden');
+		} else {
+			$('.appsColor').addClass('hidden');
+		}
+		
+	});
 }
 // Takes all the data we have to generate our changelog
 function viewChangelog() {
@@ -312,18 +320,13 @@ function getCookie(cname) {
 	return "";
 }
 // Set document title including title of the page as configured in settings.ini.php
-// TODO: Currently wrapped inside a document.ready function to wait for dataStore() to be populated
 function setTitle(title) {
 	$(document).attr("title", title + " - " + $('#maintitle').attr('data'));
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox() {
 	if (!sessionStorage.getItem('JSONData')) {
-		$.getJSON(commitURL, function(result) {
-			jsonString = JSON.stringify(result);
-			json = result;
-			sessionStorage.setItem('JSONData',jsonString,0.00694444);			
-		});
+		updateJson();
 	} 
 	json = JSON.parse(sessionStorage.getItem('JSONData'));
 	var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
@@ -354,6 +357,13 @@ function updateBox() {
 			setCookie('updateDismiss', 'true', 1 / 24);
 		});
 	}
+}
+
+function updateJson() {
+	$.getJSON(commitURL, function(result) {
+			jsonString = JSON.stringify(result);
+			sessionStorage.setItem('JSONData',jsonString,0.00694444);			
+		});
 }
 
 function scaleContent(content, scale) {

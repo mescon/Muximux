@@ -172,6 +172,13 @@ jQuery(document).ready(function($) {
 		var menuItem = $(document).find('a:containsInsensitive("' + bookmarkHash + '")');
 		menuItem.trigger("click");
 	}
+	if ($('#tabcolorCheckbox').prop('checked')) {
+		$('.appsColor').removeClass('hidden');
+	} else {
+		$('.appsColor').addClass('hidden');
+	}
+		
+	
 });
 window
 $(window).load(function() {
@@ -186,10 +193,11 @@ $("html").on("keyup", function(e) {
 });
 // When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
 $(window).unload(function() {
+	var secret = $("#secret").attr('data');
 	$.ajax({
 		async: true,
 		dataType: 'text',
-		url: "muximux.php?secret=" + dataStore().secret + "&set=secret",
+		url: "muximux.php?secret=" + secret + "&set=secret",
 		type: 'GET'
 	});
 });
@@ -215,11 +223,12 @@ function muximuxMobileResize() {
 		$('.drop-nav').css('max-height', '');
 		var listWidth = 0;
 		$('.cd-tab').each(function() {
+			var myIndex = $(this).attr('data-index');
 			var myWidth = $(this).width();
 			if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
-				$(this).appendTo(".drop-nav");
+				$(".drop-nav").insertAt(myIndex,this);
 			} else {
-				$(this).appendTo('.cd-tabs-navigation nav');
+				$('.cd-tabs-navigation nav').insertAt(myIndex,this);
 			}
 			listWidth = listWidth + $(this).width();
 		});
@@ -227,6 +236,20 @@ function muximuxMobileResize() {
 	clearColors();
 	setSelectedColor();
 }
+
+// Insert an element at a specific point in a div.
+jQuery.fn.insertAt = function(index, element) {
+  var lastIndex = this.children().size()
+  if (index < 0) {
+    index = Math.max(0, lastIndex + 1 + index)
+  }
+  this.append(element)
+  if (index < lastIndex) {
+    this.children().eq(index).before(this.children().last())
+  }
+  return this;
+}
+
 // Simple method to toggle show/hide classes in navigation
 function toggleClasses() {
 	$('.drop-nav').toggleClass('hide-nav');
