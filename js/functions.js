@@ -217,7 +217,7 @@ function viewChangelog() {
                     "</div>";
 	if (difference > 0) {
 		
-		output += "<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/master.zip' target='_blank'>the latest zip here.</a></p>";
+		output += "<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/" + branch + ".zip' target='_blank'>the latest zip here.</a></p>";
 		output += "<h3>Changelog (" + branch + ")</h3><ul>";
 		var i=0;
 		do {

@@ -120,9 +120,9 @@ function parse_ini()
 	fetchBranches(false);
 	$branchArray = getBranches();
 	$branchList = "";
-	$pageOutput = "<div>". implode($branchArray)."</div>";
 	foreach ($branchArray as $branchName => $shaSum ) {
-		$branchList .= "<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>\n";
+		$branchList .= "
+								<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
 	}
 	$title = $config->get('general', 'title', 'Muximux - Application Management Console');
     $pageOutput .= "
@@ -179,22 +179,15 @@ function parse_ini()
 						</div>
 					</div>
 				</div>
-					";
-	if ($config->get('settings', 'sha', '0') == "0") {
-		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".fetchSHA()."'>";
-	} else {
-		$mySha = $config->get('settings', 'sha', '0');
-		$pageOutput .="<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>";
-	}
-    $pageOutput .= "<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>" .
-        "<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>" .
-        "<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>" .
-        "<input type='hidden' class='settings_-_value' name='settings_-_url' value='muximux.php'>" .
-        "<input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>" .
-        "<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>" .
-        "<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>";
-    $pageOutput .= "
-<div id='sortable'>";
+				<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>
+				<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>
+				<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>
+				<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>
+				<input type='hidden' class='settings_-_value' name='settings_-_url' value='muximux.php'>
+				<input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>
+				<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>
+				<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>
+				<div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
 			$name = $config->get($section, 'name', '');
@@ -209,57 +202,59 @@ function parse_ini()
 			$scaleRange = "0";
 			$scaleRange = buildScale($scale);
 			$pageOutput .= "
-	<div class='applicationContainer' id='" . $section . "'>
-		<span class='bars fa fa-bars'></span>
-		<div>
-			<label for='" . $section . "_-_name' >Name: </label>
-			<input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
-		</div>
-		<div>
-			<label for='" . $section . "_-_url' >URL: </label>
-			<input class='" . $section . "_-_value' name='" . $section . "_-_url' type='text' value='" . $url . "'>
-		</div>
-		<div>
-			<label for='" . $section . "_-_enabled' >Enabled: </label>
-			<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_enabled' name='" . $section . "_-_enabled'".($enabled ? 'checked' : '') .">
-		</div>
-		<div>
-			<label for='" . $section . "_-_landingpage' >Landing page: </label>
-			<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_landingpage' name='" . $section . "_-_landingpage'".($landingpage ? 'checked' : '') .">
-		</div>
-		<div>
-			<label for='" . $section . "_-_dd' >Put in dropdown: </label>
-			<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
-		</div>
-		<div>
-			<label for='" . $section . "_-_default' >Default: </label>
-			<input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_default' name='" . $section . "_-_default'".($default ? 'checked' : '') .">
-		</div>
-		<br><div>
-			<label for='" . $section . "_-_icon' >Icon: </label>
-			<button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\">
-			</button>
-		</div>
-		<div class='appsColor'>
-			<label for='" . $section . "_-_color'>Color: </label>
-			<input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
-		</div>
-		<div style=\"margin-left:5px;\">
-			<label for='" . $section . "_-_scale'>Zoom: </label>
-			<select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange ."</select>
-		</div>
-		<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
-	</div>";
+					<div class='applicationContainer' id='" . $section . "'>
+						<span class='bars fa fa-bars'></span>
+						<div>
+							<label for='" . $section . "_-_name' >Name: </label>
+							<input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
+						</div>
+						<div>
+							<label for='" . $section . "_-_url' >URL: </label>
+							<input class='" . $section . "_-_value' name='" . $section . "_-_url' type='text' value='" . $url . "'>
+						</div>
+						<div>
+							<label for='" . $section . "_-_enabled' >Enabled: </label>
+							<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_enabled' name='" . $section . "_-_enabled'".($enabled ? 'checked' : '') .">
+						</div>
+						<div>
+							<label for='" . $section . "_-_landingpage' >Landing page: </label>
+							<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_landingpage' name='" . $section . "_-_landingpage'".($landingpage ? 'checked' : '') .">
+						</div>
+						<div>
+							<label for='" . $section . "_-_dd' >Put in dropdown: </label>
+							<input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
+						</div>
+						<div>
+							<label for='" . $section . "_-_default' >Default: </label>
+							<input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_default' name='" . $section . "_-_default'".($default ? 'checked' : '') .">
+						</div>
+						<br><div>
+							<label for='" . $section . "_-_icon' >Icon: </label>
+							<button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\">
+							</button>
+						</div>
+						<div class='appsColor'>
+							<label for='" . $section . "_-_color'>Color: </label>
+							<input type='color' id='custom' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
+						</div>
+						<div style=\"margin-left:5px;\">
+							<label for='" . $section . "_-_scale'>Zoom: </label>
+							<select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange ."
+							</select>
+						</div>
+						<button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
+					</div>";
 		}
 	}
-    $pageOutput .= "</div>
-    <div class='text-center' style='margin-top: 15px;'>
-		<div class='btn-group' role='group' aria-label='Buttons'>
-			<a class='btn btn-primary btn-md' id='addApplication'><span class='fa fa-plus'></span> Add new</a>
-            <a class='btn btn-danger btn-md' id='removeAll'><span class='fa fa-trash'></span> Remove all</a>
-		</div>
-	</div>
-</form>";
+    $pageOutput .= "
+				</div>
+				<div class='text-center' style='margin-top: 15px;'>
+					<div class='btn-group' role='group' aria-label='Buttons'>
+						<a class='btn btn-primary btn-md' id='addApplication'><span class='fa fa-plus'></span> Add new</a>
+						<a class='btn btn-danger btn-md' id='removeAll'><span class='fa fa-trash'></span> Remove all</a>
+					</div>
+				</div>
+			</form>";
     return $pageOutput;
 }
 // Check if the user changes tracking branch, which will change the SHA and trigger an update notification
@@ -286,22 +281,21 @@ function buildScale($selectValue)
     $scaleRange = "";
     while($f<251) {
         $pra = $f / 100;
-		if ($pra == $selectValue) {
-			$scaleRange .= "<option value='" . $pra ."' selected>". $f ."%</option>\n";
-			$f++;
-		} else {
-			$scaleRange .= "<option value='" . $pra ."'>". $f ."%</option>\n";
-			$f++;
-		}
+		$scaleRange .= "
+								<option value='" . $pra ."' ".(($pra == $selectValue ? 'selected' : '')).">". $f ."%</option>";
+		$f++;
+		
     }
 	return $scaleRange;
 }
+
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'theme', 'Classic');
     return $item;
 }
+
 function listThemes() {
 	$dir    = './css/theme';
 	$themelist ="";
@@ -310,17 +304,13 @@ function listThemes() {
 	foreach($themes as $value){ 
         $splitName = explode('.', $value);
 		if  (!empty($splitName[0])) {
-			if ($splitName[0] == getTheme()) {
-				$themelist .="
-								<option value='".$splitName[0]."' selected>".$splitName[0]."</option>";
-			} else {
-				$themelist .="
-								<option value='".$splitName[0]."'>".$splitName[0]."</option>";
-			}
+			$themelist .="
+								<option value='".$splitName[0]."' ".(($splitName[0] == getTheme()) ? 'selected' : '').">".$splitName[0]."</option>";
 		}
 	}
 	return $themelist;
 }
+
 function menuItems() {
     $config = new Config_Lite(CONFIG);
     $standardmenu = "";
@@ -345,57 +335,45 @@ function menuItems() {
 					</li>";
 			$int++;    
         }
+		
         if ($dropdown && $enabled && $section['name'] == "Settings") {
             $dropdownmenu .= "
-				<li>
-					<a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
-						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
-					</a>
-				</li>";
+					<li>
+						<a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
+							<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
+						</a>
+					</li>";
         } else if ($enabledropdown && $dropdown && $enabled) {
             $dropdownmenu .= "
-				<li>
-					<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
-						<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
-					</a>
-				</li>";
+					<li>
+						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
+							<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
+						</a>
+					</li>";
         } else {
             $dropdownmenu .= "";
         }
 	}
 }
-	if ($mobileoverride == "true") {
-		$moButton = "
-				<li class='navbtn'>
+	
+	$moButton = "
+				<li class='navbtn ".(($mobileoverride == "true") ? '' : 'hidden')."'>
 					<a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
 						<span class=\"fa fa-mobile fa-lg\"></span>
 					</a>
 				</li>
-		";
-	} else {
-		$moButton = "";
-	}
-	if ($authentication == "true") {
-		$outButton = "
-				<li class='navbtn'>
+	";
+	$outButton = "
+				<li class='navbtn ".(($authentication == "true") ? '' : 'hidden')."'>
 					<a id='logout' title='Click this button to log out of Muximux.'>
 						<span class=\"fa fa-sign-out fa-lg\"></span>
 					</a>
 				</li>
-		";
-	} else {
-		$outButton = "";
-	}
+	";
+	
 
-	if ($autohide == "true") {
-			$drawerdiv .= "
-		<div class='cd-tabs-bar drawer'>
-";
-	} else {
-			$drawerdiv .= "
-				<div class='cd-tabs-bar'>
-			";
-	}
+	$drawerdiv .= "<div class='cd-tabs-bar ".(($autohide == "true")? 'drawer' : '')."'>";
+	
     if ($enabledropdown == "true") {
 		$item = $drawerdiv . "
 			<ul class=\"main-nav\">" .
@@ -411,18 +389,17 @@ function menuItems() {
 						<span class=\"fa fa-bars fa-lg\"></span>
 					</a>
 					<ul class=\"drop-nav\">" . 
-							$dropdownmenu ."
+								$dropdownmenu ."
 					</ul>
 				</li>
 			</ul>
-			
 			<ul class=\"cd-tabs-navigation\">
 				<nav>" .
 					$standardmenu ."
 				</nav>
 			</ul>
 		</div>
-			";
+		";
     } else {
 		$item =  $drawerdiv . "
 			<ul class=\"main-nav\">" .
@@ -439,18 +416,20 @@ function menuItems() {
 				</li>
 			</ul>
 			<ul class=\"cd-tabs-navigation\">
-			<nav>" .
-				$standardmenu . "
+				<nav>" .
+					$standardmenu . "
 				</nav>
-				</ul>
-		";
+			</ul>
+			";
     }
     return $item;
 }
+
 function getTitle() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'title', 'Muximux - Application Management Console');
     return $item;
+
 }
 // Quickie fetch of the current selected branch
 function getBranch() {
@@ -458,6 +437,7 @@ function getBranch() {
 	$branch = $config->get('general', 'branch', 'master');
 	return $branch;
 }
+
 // Reads for "branches" from settings.  If not found, fetches list from github, saves, parses, and returns
 function getBranches() {
 	$config = new Config_Lite(CONFIG);
@@ -536,12 +516,14 @@ function checksetSHA() {
 		rewrite_config_header();
 	}
 }
+
 // Read SHA from settings and return it's value.
 function getSHA() {
 	$config = new Config_Lite(CONFIG);
     $item = $config->get('settings', 'sha', '00');
     return $item;
 }
+
 // This reads our array of branches, finds our selected branch in settings,
 // and returns the corresponding SHA value.  We need this to set the initial
 // SHA value on setup/load, as well as to compare for update checking.
@@ -555,12 +537,14 @@ function fetchSHA() {
 	}
 	return $shaOut;
 }
+
 // Retrieve password hash from settings and return it for "stuff".
 function getPassHash() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'password', 'foo');
     return $item;
 }
+
 // This little gem helps us replace a whome bunch of AJAX calls by sorting out the info and 
 // writing it to meta-tags at the bottom of the page.  Might want to look at calling this via one AJAX call.
 function metaTags() {
@@ -583,20 +567,20 @@ function metaTags() {
 	$created = filectime(CONFIG);
     	$branchChanged = (checkBranchChanged() ? 'true' : 'false');
 	$secret = file_get_contents(SECRET);
-$tags .= "
-<meta id='branch-data' data='". $branch . "'>
-<meta id='branch-changed' data='". $branchChanged . "'>
-<meta id='popupdate' data='". $popupdate . "'>
-<meta id='drawer' data='". $autohide . "'>
-<meta id='tabcolor' data='". $tabcolor . "'>
-<meta id='maintitle' data='". $maintitle . "'>
-<meta id='gitdirectory-data' data='". $gitdir . "'>
-<meta id='cwd-data' data='". getcwd() . "'>
-<meta id='phpini-data' data='". $inipath . "'>
-<meta id='title-data' data='". $maintitle . "'>
-<meta id='created-data' data='". $created . "'>
-<meta id='sha-data' data='". getSHA() . "'>
-<meta id='secret' data='". $secret . "'>
+$tags = "
+	<meta id='branch-data' data='". $branch . "'>
+	<meta id='branch-changed' data='". $branchChanged . "'>
+	<meta id='popupdate' data='". $popupdate . "'>
+	<meta id='drawer' data='". $autohide . "'>
+	<meta id='tabcolor' data='". $tabcolor . "'>
+	<meta id='maintitle' data='". $maintitle . "'>
+	<meta id='gitdirectory-data' data='". $gitdir . "'>
+	<meta id='cwd-data' data='". getcwd() . "'>
+	<meta id='phpini-data' data='". $inipath . "'>
+	<meta id='title-data' data='". $maintitle . "'>
+	<meta id='created-data' data='". $created . "'>
+	<meta id='sha-data' data='". getSHA() . "'>
+	<meta id='secret' data='". $secret . "'>
 ";
 	return $tags;
 }
@@ -605,15 +589,13 @@ function frameContent() {
     $config = new Config_Lite(CONFIG);
     if (empty($item)) $item = '';
     foreach ($config as $keyname => $section) {
-        if (!empty($section["landingpage"]) && !($section["landingpage"] == "false") && ($section["landingpage"] == "true")) {
-            $section["url"] = "?landing=" . $keyname;
-        }
-
-        if (empty($section["scale"]) or ($section["scale"] == "false")) {
-            $section["scale"] = 1;
-        }
-
-        if (!empty($section["enabled"]) && !($section["enabled"] == "false") && ($section["enabled"] == "true")) {
+		$landingpage = $config->getBool($section,'landingpage',false);
+		$enabled = $config->getBool($section,'enabled',true);
+		$default = $config->getBool($section,'default',false);
+		$scale = $config->get($section,'scale',1);
+        if ($landingpage) $section["url"] = "?landing=" . $keyname;
+        
+		if ($enabled) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
                 $item .= "
 			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">
@@ -622,11 +604,11 @@ function frameContent() {
 			</li>";
             } else {
                 $item .= "
-			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
-				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
-				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>
-			</li>
-";
+				<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
+					<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
+					allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>
+				</li>
+				";
             }
         }
     }
@@ -681,6 +663,7 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
             createSecret();
             die();
     }
+	
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {
         if (exec_enabled() == true) {
             if (!command_exist('git')) {
@@ -694,17 +677,20 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         echo $hash;
         die();
     }
+	
     if(isset($_GET['remove']) && $_GET['remove'] == "backup") {
         unlink('backup.ini.php');
         echo "deleted";
         die();
     }
+	
 	if(isset($_GET['action']) && $_GET['action'] == "update") {
 		$sha = $_GET['sha'];
         	$results = downloadUpdate($sha);
 		echo $results;
 		die();
     }
+	
 	if(isset($_GET['action']) && $_GET['action'] == "branches") {
         $results = fetchBranches(true);
 		echo $results;
@@ -726,18 +712,18 @@ function downloadUpdate($sha) {
 		$zip = new ZipArchive;
 		$res = $zip->open($zipFile);
 		if ($res === TRUE) {
-			$zip->extractTo('./stage');
-			$zip->close();
-			cpy("./stage/Muximux-".$sha, "./");
-			deleteDir("./stage");
+			//$zip->extractTo('./stage');
+			//$zip->close();
+			//cpy("./stage/Muximux-".$sha, "./");
+			//deleteDir("./stage");
 			$config = new Config_Lite(CONFIG);
 			$config->set('settings','sha',$sha);	
-					try {
-						$config->save();
-					} catch (Config_Lite_Exception $e) {
-						echo "\n" . 'Exception Message: ' . $e->getMessage();
-					}
-					rewrite_config_header();
+			try {
+				$config->save();
+			} catch (Config_Lite_Exception $e) {
+				echo "\n" . 'Exception Message: ' . $e->getMessage();
+			}
+			rewrite_config_header();			
 		}
 	$result = $res;
 	}

@@ -1,4 +1,4 @@
-var tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor;
+var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle;
 jQuery(document).ready(function($) {
 	// Custom function to do case-insensitive selector matching
 	$.extend($.expr[":"], {
@@ -6,24 +6,19 @@ jQuery(document).ready(function($) {
 			return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
 		}
 	});
-	var branch = $("#branch-data").attr('data');
+	branch = $("#branch-data").attr('data');
 	hasDrawer = ($('#drawer').attr('data') == 'true');
 	tabColor = ($("#tabcolor").attr('data') == 'true');
 	themeColor = rgb2hex($('.colorgrab').css("color"));
+	tabs = $('.cd-tabs');
+	activeTitle = $('li .selected').attr("data-title");
 	getSecret();
-	var tabs = $('.cd-tabs');
-	// Set default title to the selected item on load
-	var activeTitle = $('li .selected').attr("data-title");
 	muximuxMobileResize();
-	if (isMobile) {
-		$('#override').css('display', 'block');
-	} else {
-		$('#override').css('display', 'none');
-	}
+	$('#override').css('display', (isMobile ? 'block' : 'none'));
 	overrideMobile = false;
 	setTitle(activeTitle);
 	//get appropriate CSS3 box-shadow property
-	var boxshadowprop = getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow'])
+	boxshadowprop = getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow'])
 		//Hide the nav to start	
 	$('.drop-nav').toggleClass('hide-nav');
 	tabs.each(function() {
@@ -204,16 +199,8 @@ $(window).unload(function() {
 $(window).resize(muximuxMobileResize);
 
 function muximuxMobileResize() {
-	if ($(window).width() < 800) {
-		isMobile = true;
-	} else {
-		isMobile = false;
-	}
-	if (isMobile) {
-		$('#override').css('display', 'block');
-	} else {
-		$('#override').css('display', 'none');
-	}
+	isMobile = ($(window).width() < 800);
+	$('#override').css('display', (isMobile ? 'block' : 'none'));
 	if (isMobile && !overrideMobile) {
 		$('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
 		var menuHeight = $(window).height() * .80;
@@ -264,11 +251,7 @@ function clearColors() {
 // Add relevant color value to tabs
 // Refactor to a more appropriate name
 function setSelectedColor() {
-	if (tabColor) {
-	color = $('li .selected').attr("data-color");
-	} else {
-		color = themeColor;
-	}
+	color = (tabColor ? $('li .selected').attr("data-color") : themeColor);
 	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
 	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
 	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
