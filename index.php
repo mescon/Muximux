@@ -73,7 +73,9 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 			<div class="modal-content">
 				<div class="modal-header">
 					<button type="button" class="close" data-dismiss="modal">&times;</button>
-					<div class="modal-title"><h1>Settings</h1></div>
+					<div class="modal-title"><div class='logo smallLogo' id='settingsLogo'>
+							<?php echo file_get_contents("images/muximux-white.svg")?>
+						</div><h1>Settings</h1></div>
 				</div>
 				<div class="modal-body">
 					<div class="text-center">

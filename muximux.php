@@ -142,12 +142,12 @@ function parse_ini()
 								<option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
 	}
 	$title = $config->get('general', 'title', 'Muximux - Application Management Console');
-    $pageOutput .= "
+    $pageOutput = "
 					<form>
-						<div class='applicationContainer' style='cursor:default;'>
-						<h2>General</h2>
+						<div class='applicationContainer generalContainer' style='cursor:default;'>
+						<h2>Settings</h2>
 						<div>
-							<label for='titleInput'>Title: </label>
+							<label for='titleInput'>Main Title: </label>
 							<input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $title . "'>
 						</div>
 						<div>
@@ -195,7 +195,7 @@ function parse_ini()
 						<div class='inputdiv'>
 							<div class='userinput'>
 								<label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $userName . "'>
-							</div><br>
+							</div>
 							<div class='userinput'>
 								<label for='password'>Password: </label><input id='passwordInput' type='password' autocomplete='new-password' class='general_-_value userinput' name='general_-_password' value='" . $passHash . "'>
 							</div>
@@ -479,13 +479,17 @@ function fetchBranches($skip) {
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
 	if ((time() >= $last + 3600) || $skip) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
-		$curl_handle=curl_init();
-		curl_setopt($curl_handle, CURLOPT_URL,'https://api.github.com/repos/mescon/Muximux/branches');
-		curl_setopt($curl_handle, CURLOPT_CONNECTTIMEOUT, 2);
-		curl_setopt($curl_handle, CURLOPT_RETURNTRANSFER, 1);
-		curl_setopt($curl_handle, CURLOPT_USERAGENT, 'Muximux');
-		$json = curl_exec($curl_handle);
-		curl_close($curl_handle);
+		$url = 'https://api.github.com/repos/mescon/Muximux/branches';
+			$options = array(
+		  'http'=>array(
+			'method'=>"GET",
+			'header'=>"Accept-language: en\r\n" .
+					  "User-Agent: Mozilla/5.0 (iPad; U; CPU OS 3_2 like Mac OS X; en-us) AppleWebKit/531.21.10 (KHTML, like Gecko) Version/4.0.4 Mobile/7B334b Safari/531.21.102011-10-16 20:23:10\r\n" // i.e. An iPad 
+		  )
+		);
+
+		$context = stream_context_create($options);
+		$json = file_get_contents($url,false,$context);
 		if ($json == false) {
 			$result = false;
 		} else {
@@ -525,6 +529,14 @@ function fetchBranches($skip) {
 	return $result;
 	
 }
+
+function console_log( $data ) {
+  $output  = "<script>console.log( 'PHP debugger: ";
+  $output .= json_encode(print_r($data, true));
+  $output .= "' );</script>";
+  echo $output;
+}
+
 // We run this when parsing settings to make sure that we have a SHA saved just as 
 // soon as we know we'll need it (on install or new settings).  This is how we track whether or not 
 // we need to update.  
@@ -742,10 +754,13 @@ function downloadUpdate($sha) {
 		$zip = new ZipArchive;
 		$res = $zip->open($zipFile);
 		if ($res === TRUE) {
-			//$zip->extractTo('./stage');
-			//$zip->close();
-			//cpy("./stage/Muximux-".$sha, "./");
-			//deleteDir("./stage");
+			$extracted = $zip->extractTo('./.stage');
+			$zip->close();
+			cpy("./stage/Muximux-".$sha, "./");
+			deleteDir("./stage");
+			if ($extracted === TRUE) {
+				$gone = unlink($zipFile);
+			}
 			$config = new Config_Lite(CONFIG);
 			$config->set('settings','sha',$sha);	
 			try {
@@ -759,11 +774,7 @@ function downloadUpdate($sha) {
 	}
 	return $result;
 }
-function console_log( $data ){
-	echo '<script>';
-	echo 'console.log('. json_encode( $data ) .')';
-	echo '</script>';
-}
+
 function cpy($source, $dest){
     if(is_dir($source)) {
         $dir_handle=opendir($source);

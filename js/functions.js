@@ -243,6 +243,7 @@ function viewChangelog() {
 	$('#refreshUpdate').click(function(){
 		refreshBranches();
 	});
+	
 
 	});
 }
@@ -347,7 +348,8 @@ function updateBox() {
 	var updateCheck;
 	if (difference) {
 		clearInterval(updateCheck);
-		if (difference != 0) {
+		if (difference > 0) {
+	
 			if (!getCookie('updateDismiss')) {
 				$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
 				"<span>You are currently <strong>" + difference + "</strong> "+ ((difference > 1) ? 'commits' : 'commit')+" behind!<br/>" +

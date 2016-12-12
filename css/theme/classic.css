@@ -1,7 +1,7 @@
 
 
 body {
-	background: #747b8b;
+	background: #41434f;
 }
 
 .logo {
@@ -16,12 +16,13 @@ body {
 	background: #36363b;
 	border-top: 5px solid #31ac63;
 }
+
 .colorgrab {
 	color:#31ac63;
 }
 
 .login-block h1 {
-	color: #fff;
+	color: #41434f;
 }
 
 .login-block input {
@@ -45,7 +46,7 @@ body {
 
 
 iframe {
-    background-color: #fff;
+    background-color: #41434f;
 }
 
 .modal-title {
@@ -67,7 +68,7 @@ iframe {
 }
 
 .cd-tabs-navigation a.selected {
-    background-color: #3f3f3f !important; /* Selected tab colour */
+    background-color: #535358	!important; /* Selected tab colour */
     color: #f1f3f2; /* Selected text colour */
 }
 
@@ -87,6 +88,7 @@ iframe {
 .cd-tabs-content {
     background: #36363b; /* Content background colour */
 }
+
 .cd-tabs-content li p {
     color: #8493bf;
 }
@@ -96,10 +98,10 @@ iframe {
     box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
 }
 
-	.main-nav > li:hover {
-    color: #f1f3f2;
-    background-color: rgba(233, 230, 202, 0.3);
-    
+
+.main-nav > li:hover {
+	color: #f1f3f2;
+	background-color: rgba(233, 230, 202, 0.3);
 }
 
 .main-nav a {

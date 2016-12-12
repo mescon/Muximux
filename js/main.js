@@ -176,6 +176,10 @@ jQuery(document).ready(function($) {
 		$('.appsColor').hide();
 		$('.generalColor').show();
 	}
+	
+	$('#settingsLogo').click(function(){
+		window.open('https://github.com/mescon/Muximux', '_blank');
+	});
 		
 	
 });

@@ -73,6 +73,7 @@ Main components
 
 .modal-title {
     font-size: 18px;
+    text-align: center;
 }
 .drawerItem {
 	max-height: 7px;
@@ -148,6 +149,7 @@ Main components
 	display: inline-block;
 	cursor: pointer;
 }
+
 @media only screen and (min-width: 0px) {
     .cd-tabs-navigation {
         /* tabbed on top of devices */
@@ -327,7 +329,7 @@ body ul {
 
 /*Settings*/
 
-input[type='text']:not .userinput {
+input[type='text']:not .userinput, #titleInput {
     max-width: 300px;
     width: 90%;
     height: 25px;
@@ -392,10 +394,21 @@ input[type='button'] {
 #instructionsContainer, #changelogContainer {
     width: 90%;
     margin: auto;
-    text-align: center;
+    text-align: left;
     font-size: 16px;
     font-size: 1.6rem;
     display: none;
+}
+
+#changelog, #changelogContainer h3 {
+	margin-left: auto;
+	margin-right: auto;
+	text-align: center;
+	max-width: 80%;
+}
+
+#changelog ul {
+	text-align: left;
 }
 
 .applicationContainer {
@@ -410,6 +423,11 @@ input[type='button'] {
     margin-top: 15px;
     text-align: center;
     cursor: move;
+}
+
+.generalContainer {
+	max-width: 100%;
+	padding: 0px;
 }
 
 .applicationContainer div {
@@ -466,6 +484,20 @@ input[type='button'] {
 
 .userinput {
 	width:200px;
+	margin-left: 10px;
+	
+}
+
+.smallLogo {
+	width: 210px;
+	height: 100px;
+	margin-left:auto;
+	margin-right: auto;
+	  cursor: pointer;
+}
+.smallLogo svg {
+	width: 200px;
+	height: auto;
 }
 
 #updateContainer {
