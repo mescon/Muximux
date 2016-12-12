@@ -380,7 +380,7 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
      * if the option is not set, this is practical when dealing with
      * editable files, to keep an application stable with default settings.
      *
-     * @param string $sec     Section|null - null to get global option
+     * @param string $sec     Section|null - null,$key to get global option
      * @param string $key     Key
      * @param mixed  $default return default value if is $key is not set
      *
@@ -392,9 +392,9 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
      */
     public function get($sec = null, $key = null, $default = null)
     {
-        // handle get without parameters, because we can
+        // handle get without parameters
         if ((null === $sec) && (null === $key) && (null === $default)) {
-            return $this; // arrayaccess or $this->sections;
+            return $this->sections;
         }
         if ((null !== $sec) && array_key_exists($sec, $this->sections)
             && isset($this->sections[$sec][$key])
@@ -409,10 +409,7 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
         if ((null === $key) && array_key_exists($sec, $this->sections)) {
             return $this->sections[$sec];
         }
-        // all sections
-        if (null === $sec && array_key_exists($sec, $this->sections)) {
-            return $this->sections;
-        }
+
         if (null !== $default) {
             return $default;
         }
