@@ -754,11 +754,12 @@ function downloadUpdate($sha) {
 		$zip = new ZipArchive;
 		$res = $zip->open($zipFile);
 		if ($res === TRUE) {
-			$extracted = $zip->extractTo('./.stage');
+			$result = $zip->extractTo('./.stage');
 			$zip->close();
-			cpy("./.stage/Muximux-".$sha, "./");
-			deleteDir("./.stage");
-			if ($extracted === TRUE) {
+			
+			if ($result === TRUE) {
+				cpy("./.stage/Muximux-".$sha, "./");
+				deleteContent("./.stage");
 				$gone = unlink($zipFile);
 			}
 			$config = new Config_Lite(CONFIG);
@@ -770,7 +771,6 @@ function downloadUpdate($sha) {
 			}
 			rewrite_config_header();			
 		}
-	$result = $res;
 	}
 	return $result;
 }
@@ -795,23 +795,26 @@ function cpy($source, $dest){
         copy($source, $dest);
     }
 }
-function deleteDir($dirPath) {
-    if (! is_dir($dirPath)) {
-        throw new InvalidArgumentException("$dirPath must be a directory");
-    }
-    if (substr($dirPath, strlen($dirPath) - 1, 1) != '/') {
-        $dirPath .= '/';
-    }
-    $files = glob($dirPath . '*', GLOB_MARK);
-    foreach ($files as $file) {
-        if (is_dir($file)) {
-            $this->deleteDir($file);
-        } else {
-            unlink($file);
-        }
-    }
-    rmdir($dirPath);
+function deleteContent($path){
+	try{
+		$iterator = new DirectoryIterator($path);
+		foreach ( $iterator as $fileinfo ) {
+		if($fileinfo->isDot())continue;
+		if($fileinfo->isDir()){
+			if(deleteContent($fileinfo->getPathname()))
+				@rmdir($fileinfo->getPathname());
+			}
+			if($fileinfo->isFile()){
+				@unlink($fileinfo->getPathname());
+          		}
+		}
+	} catch ( Exception $e ){
+		// write log
+		return false;
+	}
+	return true;
 }
+
 function is_session_started() {
 	if ( php_sapi_name() !== 'cli' ) {
 		if ( version_compare(phpversion(), '5.4.0', '>=') ) {
