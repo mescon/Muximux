@@ -756,8 +756,8 @@ function downloadUpdate($sha) {
 		if ($res === TRUE) {
 			$extracted = $zip->extractTo('./.stage');
 			$zip->close();
-			cpy("./stage/Muximux-".$sha, "./");
-			deleteDir("./stage");
+			cpy("./.stage/Muximux-".$sha, "./");
+			deleteDir("./.stage");
 			if ($extracted === TRUE) {
 				$gone = unlink($zipFile);
 			}
