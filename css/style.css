@@ -399,6 +399,19 @@ input[type='button'] {
     font-size: 1.6rem;
     display: none;
 }
+#logContainer {
+    width: 90%;
+    margin: auto;
+    padding: 10px 10px;
+    text-align: left;
+    font-size: 16px;
+    font-size: 1.6rem;
+    display: block;
+}
+
+.logLine {
+	display: block;
+}
 
 #changelog, #changelogContainer h3 {
 	margin-left: auto;

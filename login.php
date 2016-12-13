@@ -9,6 +9,7 @@ $title = $config->get('general', 'title', '0');
 $username = $config->get('general', 'userNameInput', '0');
 if(isset($_GET['logout'])) {
     $_SESSION['username'] = '';
+	write_log('Successfully logged out.');
 	if (!is_session_started()) session_start();
 	session_destroy();
     header('Location:  ' . $_SERVER['PHP_SELF']);
@@ -17,8 +18,11 @@ if(isset($_POST['username'])) {
     if ($_POST['username'] == $username && password_verify($_POST['password'],$hash)) {
 		$_SESSION['username'] = $_POST['username'];
 		header('Location:  ' . $_SERVER['PHP_SELF']);
+		write_log('Successfully logged in.');
 		exit();
-    }
+    } else {
+		write_log('Error logging in.','E');
+	}
 } 
 echo '
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">

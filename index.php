@@ -167,6 +167,25 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 			</div>
 		</div>
 	</div>
+	<div id="logModal" class="modal fade" role="dialog">
+		<div class="modal-dialog logDialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<div class="modal-header">
+					<button type="button" class="close" data-dismiss="modal">&times;</button>
+					<div class="modal-title"><h1>Muximux Log</h1></div>
+				</div>
+				<div class="modal-body logBody">
+					<div id="logContainer" class="alert alert-info">
+						<?php echo log_contents(); ?>
+					</div>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
+			</div>
+		</div>
+	</div>
 	<div id="updateContainer"></div>
 	<?php echo metaTags(); ?>
 

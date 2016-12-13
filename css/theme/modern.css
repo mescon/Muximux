@@ -139,8 +139,6 @@ iframe {
     
 }
 
-
-
 input[type='text'], select {
     color: #000;
 }
@@ -169,6 +167,18 @@ input[type='button']:hover {
 
 .modal-header, .modal-footer {
     background: #3f3f3f;
+}
+
+.redLine {
+	color: #ff0000;
+}
+
+.greenLine {
+	color: #00b300;
+}
+
+.blackLine {
+	color: #000000;
 }
 
 .applicationContainer {

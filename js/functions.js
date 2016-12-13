@@ -414,6 +414,18 @@ function downloadUpdate($sha) {
 	}
 }
 
+function write_log($text,$lvl) {
+		
+	$.ajax({
+		async: true,
+		url: "muximux.php",
+		type: 'GET',
+		data: {action: "writeLog", secret: secret, msg: $text,lvl: $lvl},
+    });
+	
+}
+
+
 function setStatus($message) {
 	$('#updateContainer').hide();
 	$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +

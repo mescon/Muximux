@@ -11,12 +11,14 @@ if (file_exists('config.ini.php')) {
     copy('config.ini.php', 'backup.ini.php');
     unlink('config.ini.php');
     $upgrade = true;
+    write_log('Converting configuration file from previous Muximux installation.');
 } else {
     $upgrade = false;
 }
 function openFile($file, $mode) {
     if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable.
         printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
+	write_log('Error writing to file ' . $file);
         if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
             printf("<br>Current permission mode of %s: %d", $file, decoct(fileperms($file) & 0777));
             printf("<br>Current owner of %s: %s", $file, posix_getpwuid(fileowner($file))['name']);
@@ -64,6 +66,7 @@ function write_ini()
             $value = "true";
 		if ($splitParameter[1] == "password") {
 			if ($value != $oldHash) {
+				write_log('Successfully updated password.');
 				$value = password_hash($value, PASSWORD_BCRYPT);
 				$terminate = true;
 			}
@@ -88,7 +91,8 @@ function write_ini()
         $config->save();
     } catch (Config_Lite_Exception $e) {
         echo "\n" . 'Exception Message: ' . $e->getMessage();
-    }
+	write_log('Error saving configuration.','E');
+    } 
 	rewrite_config_header();
 	if ($terminate) {
 		session_start();
@@ -366,7 +370,13 @@ function menuItems() {
 						<a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
 							<span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
 						</a>
-					</li>";
+					</li>
+					<li>
+						<a data-toggle=\"modal\" data-target=\"#logModal\" data-title=\"Log Viewer\">
+							<span class=\"fa fa-file-text-o\"></span> Log
+						</a>
+					</li>
+					";
         } else if ($enabledropdown && $dropdown && $enabled) {
             $dropdownmenu .= "
 					<li>
@@ -434,6 +444,11 @@ function menuItems() {
 					</a>
 				</li>
 				<li class='cd-tab navbtn'>
+					<a id=\"log\" data-toggle=\"modal\" data-target=\"#logModal\" data-title=\"Log Fiewer\">
+						<span class=\"fa fa-file-text-o fa-lg\"></span>
+					</a>
+				</li>
+				<li class='cd-tab navbtn'>
 					<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
 						<span class=\"fa fa-gear fa-lg\"></span>
 					</a>
@@ -479,6 +494,11 @@ function fetchBranches($skip) {
 	$config = new Config_Lite(CONFIG);
 	$last = $config->get('settings', 'last_check', "0");
 	if ((time() >= $last + 3600) || $skip) { // Check to make sure we haven't checked in an hour or so, to avoid making GitHub mad
+		if (time() >= $last + 3600) {
+			write_log('Refreshing branches from github - automatically triggered.');
+		} else {
+			write_log('Refreshing branches from github - manually triggered.');
+		}
 		$url = 'https://api.github.com/repos/mescon/Muximux/branches';
 			$options = array(
 		  'http'=>array(
@@ -491,6 +511,7 @@ function fetchBranches($skip) {
 		$context = stream_context_create($options);
 		$json = file_get_contents($url,false,$context);
 		if ($json == false) {
+			write_log('Error fetching JSON from Github.','E');
 			$result = false;
 		} else {
 			$array = json_decode($json,true);
@@ -738,6 +759,17 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 		echo $results;
 		die();
     }
+	
+	if(isset($_GET['action']) && $_GET['action'] == "writeLog") {
+        $msg = $_GET['msg'];
+		if(isset($_GET['lvl'])) {
+			$lvl = $_GET['lvl'];
+			write_log($msg,$lvl);
+		} else {
+			write_log($msg);
+		}
+		die();
+    }
 }
 // End protected get-calls
 if(empty($_GET)) {
@@ -772,6 +804,7 @@ function downloadUpdate($sha) {
 			rewrite_config_header();			
 		}
 	}
+	write_log('Update ' . (($result === true) ? 'succeeded.' : 'failed.'));
 	return $result;
 }
 
@@ -850,3 +883,61 @@ function parseCSS($file,$searchSelector,$searchAttribute){
     }
     return $result;
 }
+
+// Appends lines to file and makes sure the file doesn't grow too much
+// You can supply a level, which should be a one-letter code (E for error, D for debug)
+// If a level is not supplied, it will be assumed to be Informative.
+
+function write_log($text,$level=null) {
+	if ($level === null) {
+		$level = 'I';
+	}
+	$filename = 'muximux.log';
+	$text = $level .'/'. date(DATE_RFC2822) . ': ' . $text . PHP_EOL;
+	if (!file_exists($filename)) { touch($filename); chmod($filename, 0666); }
+	if (filesize($filename) > 2*1024*1024) {
+		$filename2 = "$filename.old";
+		if (file_exists($filename2)) unlink($filename2);
+		rename($filename, $filename2);
+		touch($filename); chmod($filename,0666);
+	}
+	if (!is_writable($filename)) die("<p>\nCannot open log file ($filename)");
+	if (!$handle = fopen($filename, 'a')) die("<p>\nCannot open file ($filename)");
+	if (fwrite($handle, $text) === FALSE) die("<p>\nCannot write to file ($filename)");
+	fclose($handle);
+}
+
+function log_contents() {
+	$out = '<ul>
+	';
+	$filename = 'muximux.log';
+	$handle = fopen($filename, "r");
+	if ($handle) {
+		while (($line = fgets($handle)) !== false) {
+			$lvl = substr($line,0,1);
+			if ($lvl === 'E') {
+				$color = 'redLine';
+			}
+			if ($lvl === 'D') {
+				$color = 'greenLine';
+			}
+			if ($lvl === 'I') {
+				$color = 'blackLine';
+			}
+			$out .='
+						<li class="logLine '.$color.'">'.
+							substr($line,2).'
+						</li>';
+			
+		}
+		fclose($handle);
+	} 
+	$out .= '</ul>
+	';
+	return $out;
+}
+
+function begins_with($haystack, $needle) {
+    return substr($haystack, 0, 1) === $needle;
+}
+

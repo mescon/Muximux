@@ -43,8 +43,6 @@ body {
 	background: #31ac63;
 }
 
-
-
 iframe {
     background-color: #41434f;
 }
@@ -171,6 +169,18 @@ input[type='button']:hover {
 
 .modal-header, .modal-footer {
     background: #41434f;
+}
+
+.redLine {
+	color: #ff0000;
+}
+
+.greenLine {
+	color: #00b300;
+}
+
+.blackLine {
+	color: #000000;
 }
 
 .applicationContainer {
