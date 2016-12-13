@@ -242,6 +242,7 @@ function viewChangelog() {
 	});
 	$('#refreshUpdate').click(function(){
 		refreshBranches();
+		updateBox(true);
 	});
 	
 
@@ -332,8 +333,8 @@ function setTitle(title) {
 	$(document).attr("title", title + " - " + $('#maintitle').attr('data'));
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
-function updateBox() {
-	if (!sessionStorage.getItem('JSONData')) {
+function updateBox($force) {
+	if ((!sessionStorage.getItem('JSONData')) || ($force === true)) {
 		updateJson();
 	} 
 	json = JSON.parse(sessionStorage.getItem('JSONData'));
@@ -351,9 +352,9 @@ function updateBox() {
 		if (difference > 0) {
 	
 			if (!getCookie('updateDismiss')) {
-				$('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
+				$('#updateContainer').html("<button type='button' id='updateDismiss' class='close pull-right'>&times;</button>" +
 				"<span>You are currently <strong>" + difference + "</strong> "+ ((difference > 1) ? 'commits' : 'commit')+" behind!<br/>" +
-				"See <a href=\"" + compareURL + "\" target=\"_blank\">changelog</a> or <div id='downloadModal'><code>click here</code></div> to install now.</span>");
+				"See <a href='" + compareURL + "' target='_blank'>changelog</a> or <div id='downloadModal'><code>click here</code></div> to install now.</span>");
 				$('#updateContainer').fadeIn("slow");
 				$('#downloadModal').click(function(){
 					downloadUpdate(json[0].sha);

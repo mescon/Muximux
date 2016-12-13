@@ -90,6 +90,10 @@ jQuery(document).ready(function($) {
 		}
 	}
 	$('#reload').on('click', function() {
+		$('.fa-refresh').addClass('fa-spin');
+		setTimeout(function() {
+			$('.fa-refresh').removeClass('fa-spin');
+		}, 3900);
 		var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
 		selectedFrame.attr('src', selectedFrame.attr('src'));
 	});
@@ -186,7 +190,7 @@ jQuery(document).ready(function($) {
 window
 $(window).load(function() {
 	if ($('#popupdate').attr('data') == 'true') {
-		var updateCheck = setInterval(updateBox(), 1000 * 60 * 10);
+		var updateCheck = setInterval(updateBox(false), 1000 * 60 * 10);
 	}
 });
 // Close modal on escape key
