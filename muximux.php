@@ -445,11 +445,6 @@ function menuItems() {
 						<span class=\"fa fa-file-text-o fa-lg\"></span>
 					</a>
 				</li>
-				<li class='cd-tab navbtn'>
-					<a id=\"settings\" data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
-						<span class=\"fa fa-gear fa-lg\"></span>
-					</a>
-				</li>
 			</ul>
 			<ul class=\"cd-tabs-navigation\">
 				<nav>" .
@@ -651,24 +646,25 @@ function frameContent() {
     $config = new Config_Lite(CONFIG);
     if (empty($item)) $item = '';
     foreach ($config as $keyname => $section) {
-		$landingpage = $config->getBool($section,'landingpage',false);
-		$enabled = $config->getBool($section,'enabled',true);
-		$default = $config->getBool($section,'default',false);
-		$scale = $config->get($section,'scale',1);
-        if ($landingpage) $section["url"] = "?landing=" . $keyname;
+	$landingpage = $config->getBool($keyname,'landingpage',false);
+	$enabled = $config->getBool($keyname,'enabled',true);
+	$default = $config->getBool($keyname,'default',false);
+	$scale = $config->get($keyname,'scale',1);
+	$url = $section["url"];
+        $url=($landingpage ? "?landing=" . $keyname: $url);
         
 		if ($enabled) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
                 $item .= "
 			<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">
 				<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
-				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $section["url"] . "\"></iframe>
+				allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $url . "\"></iframe>
 			</li>";
             } else {
                 $item .= "
 				<li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
 					<iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\" 
-					allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $section["url"] . "\"></iframe>
+					allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $url . "\"></iframe>
 				</li>
 				";
             }
