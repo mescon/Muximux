@@ -110,7 +110,7 @@
 			
 		// Send Content-Type
 		header ("Content-Type: text/" . $type);
-		
+		header('Expires: '.gmdate('D, d M Y H:i:s \G\M\T', time() + (60 * 60 * 24 * 360))); // 30 days
 		if (isset($encoding) && $encoding != 'none') 
 		{
 			// Send compressed contents
