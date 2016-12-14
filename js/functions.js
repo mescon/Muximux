@@ -469,10 +469,17 @@ function changeFavicon(src) {
 	document.head.appendChild(link);
 }
 
-
 // Wrap a html-encoded string in a div (in-memory) and read it back, unencoded.
 function htmlDecode(value) {
 	return $('<div/>').html(value).text();
 }
 
-
+// This fetches the browser-appropriate box-shadow value so we can set it
+	function getsupportedprop(proparray) {
+		var root = document.documentElement //reference root element of document
+		for (var i = 0; i < proparray.length; i++) { //loop through possible properties
+			if (proparray[i] in root.style) { //if property exists on element (value will be string, empty string if not set)
+				return proparray[i] //return that string
+			}
+		}
+	}

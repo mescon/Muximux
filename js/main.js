@@ -80,15 +80,7 @@ jQuery(document).ready(function($) {
 	$('li.dd').on('click', function() {
 		toggleClasses();
 	});
-	// This fetches the broweser-appropriate box-shadow value so we can set it
-	function getsupportedprop(proparray) {
-		var root = document.documentElement //reference root element of document
-		for (var i = 0; i < proparray.length; i++) { //loop through possible properties
-			if (proparray[i] in root.style) { //if property exists on element (value will be string, empty string if not set)
-				return proparray[i] //return that string
-			}
-		}
-	}
+	
 	$('#reload').on('click', function() {
 		$('.fa-refresh').addClass('fa-spin');
 		setTimeout(function() {
@@ -187,7 +179,7 @@ jQuery(document).ready(function($) {
 		
 	
 });
-window
+
 $(window).load(function() {
 	if ($('#popupdate').attr('data') == 'true') {
 		var updateCheck = setInterval(updateBox(false), 1000 * 60 * 10);

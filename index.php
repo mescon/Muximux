@@ -37,16 +37,9 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
     <script src="js/jquery-2.2.4.min.js"></script>
     <script src="js/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="css/jquery-ui.min.css">
-    <link rel="stylesheet" type="text/css" href="css/cssreset.min.css"> <!-- Yahoo YUI HTML5 CSS reset -->
-    <link rel="stylesheet" href="css/bootstrap.min.css"> <!-- Bootstrap 3.3.6 -->
-    <link rel="stylesheet" href="css/bootstrap-iconpicker.min.css"/>
-    <link rel="stylesheet" href="css/font-awesome.min.css"/>
-    <link rel="stylesheet" href="css/font-pt_sans.css"> <!-- Font -->
-    <link rel="stylesheet" href="css/style.css"> <!-- Resource style -->
-    <link rel="stylesheet" href="css/spectrum.min.css">
-    <link rel="stylesheet" href="css/theme/<?php echo getTheme(); ?>.css">
     <script src="js/modernizr-custom-3.3.1.min.js"></script>
+    <link rel="stylesheet" href="combineify?type=css&files=jquery-ui.min.css,cssreset.min.css,bootstrap.min.css,bootstrap-iconpicker.min.css,font-awesome.min.css,font-pt_sans.css,style.css,spectrum.min.css">
+    <link rel="stylesheet" href="css/theme/<?php echo getTheme(); ?>.css">
     <title><?php echo getTitle(); ?></title>
 </head>
 
