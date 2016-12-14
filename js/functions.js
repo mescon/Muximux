@@ -334,7 +334,8 @@ function setTitle(title) {
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox($force) {
-	if ((!sessionStorage.getItem('JSONData')) || ($force === true)) {
+	if ((!getCookie('hasJSON')) || ($force === true)) {
+		
 		updateJson();
 	} 
 	json = JSON.parse(sessionStorage.getItem('JSONData'));
@@ -372,7 +373,8 @@ function updateBox($force) {
 function updateJson() {
 	$.getJSON(commitURL, function(result) {
 			jsonString = JSON.stringify(result);
-			sessionStorage.setItem('JSONData',jsonString,0.00694444);			
+			sessionStorage.setItem('JSONData',jsonString);
+			setCookie('hasJSON', 'true', 0.00694444);			
 		});
 }
 
