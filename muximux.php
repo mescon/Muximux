@@ -614,6 +614,7 @@ function metaTags() {
 	$branch = $config->get('general', 'branch', 'master');
 	$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
 	$popupdate = var_export($config->getBool('general', 'updatepopup', true),true);
+	$enabledropdown = var_export($config->getBool('general', 'enabledropdown', true),true);
 	$maintitle = $config->get('general', 'title', 'Muximux');
 	$tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
 	$css = './css/theme/' . getTheme() . '.css';
@@ -629,6 +630,7 @@ function metaTags() {
     	$branchChanged = (checkBranchChanged() ? 'true' : 'false');
 	$secret = file_get_contents(SECRET);
 $tags = "
+	<meta id='dropdown-data' data='".$enabledropdown."'>
 	<meta id='branch-data' data='". $branch . "'>
 	<meta id='branch-changed' data='". $branchChanged . "'>
 	<meta id='popupdate' data='". $popupdate . "'>

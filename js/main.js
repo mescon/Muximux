@@ -9,6 +9,7 @@ jQuery(document).ready(function($) {
 	branch = $("#branch-data").attr('data');
 	hasDrawer = ($('#drawer').attr('data') == 'true');
 	tabColor = ($("#tabcolor").attr('data') == 'true');
+	dropDown = ($("#dropdown-data").attr('data') == 'true');
 	themeColor = $('#themeColor-data').attr("data");
 	authentication = $('#authentication-data').attr("data");
 	tabs = $('.cd-tabs');
@@ -220,19 +221,22 @@ function muximuxMobileResize() {
 		var menuHeight = $(window).height() * .80;
 		$('.drop-nav').css('max-height', menuHeight + 'px');
 	} else {
-		$(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
-		$('.drop-nav').css('max-height', '');
-		var listWidth = 0;
-		$('.cd-tab').each(function() {
-			var myIndex = $(this).attr('data-index');
-			var myWidth = $(this).width();
-			if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
-				$(".drop-nav").insertAt(myIndex,this);
-			} else {
-				$('.cd-tabs-navigation nav').insertAt(myIndex,this);
-			}
-			listWidth = listWidth + $(this).width();
-		});
+		if (dropDown) {
+			$(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
+			$(".cd-tabs-navigation nav").children('.navbtn').appendTo('.main-nav');
+			$('.drop-nav').css('max-height', '');
+			var listWidth = 0;
+			$('.cd-tab').each(function() {
+				var myIndex = $(this).attr('data-index');
+				var myWidth = $(this).width();
+				if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
+					$(".drop-nav").insertAt(myIndex,this);
+				} else {
+					$('.cd-tabs-navigation nav').insertAt(myIndex,this);
+				}
+				listWidth = listWidth + $(this).width();
+			});
+		}
 	}
 	clearColors();
 	setSelectedColor();
