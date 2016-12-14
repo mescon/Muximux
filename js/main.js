@@ -115,6 +115,16 @@ jQuery(document).ready(function($) {
 	$('#settingsModal').on('show.bs.modal', function() {
 		setTitle("Settings");
 	});
+	$('#logModal').on('show.bs.modal', function() {
+		setTitle("Log");
+		refresh_log();
+		
+	});
+	$('#refreshLog').on('click', function() {
+		$('#logContainer').slideToggle();
+		refresh_log();
+			
+	});
 	// When settings modal closes, set title to the previous title used
 	$('.modal').on('hidden.bs.modal', function() {
 		var activeTitle = $('.cd-tabs-content').find('.selected').children('iframe').attr("data-title");

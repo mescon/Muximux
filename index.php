@@ -35,7 +35,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <meta name="msapplication-navbutton-color" class="mstheme" content="#DFDFDF" />
     <meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="#DFDFDF" />
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
-	<link rel="stylesheet" href="combineify?type=css&files=css/jquery-ui.min.css,css/cssreset.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
+	<link rel="stylesheet" href="combineify.php?type=css&files=css/jquery-ui.min.css,css/cssreset.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
 	<title><?php echo getTitle(); ?></title>
 </head>
 
@@ -166,18 +166,19 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 				</div>
 				<div class="modal-body logBody">
 					<div id="logContainer" class="alert alert-info">
-						<?php echo log_contents(); ?>
+						
 					</div>
 				</div>
 			</div>
 			<div class="modal-footer">
+				<button type='button' class="btn btn-primary" id="logRefresh">Refresh</button>
 				<button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
 			</div>
 		</div>
 	</div>
 	<div id="updateContainer"></div>
 	<?php echo metaTags(); ?>
-	<script type="text/javascript" src="combineify?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-fontawesome-4.2.0.min.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js"></script>
+	<script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-fontawesome-4.2.0.min.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js"></script>
 	
     
 <?php

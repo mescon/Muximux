@@ -100,7 +100,9 @@ function settingsEventHandlers() {
 		if (confirm('Are you sure?')) {
 			var selectedEffect = "drop";
 			var options = {};
+			var remID = $(this).attr("id").split('-');
 			$($(this).parents('.applicationContainer')).effect(selectedEffect, options, 500, removeCallback($(this).parents('.applicationContainer')));
+			write_log('Removed application named ' + remID[1]);
 		}
 	});
 	$('#removeBackup').click(function() {
@@ -335,7 +337,7 @@ function setTitle(title) {
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox($force) {
 	if ((!getCookie('hasJSON')) || ($force === true)) {
-		
+		write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
 		updateJson();
 	} 
 	json = JSON.parse(sessionStorage.getItem('JSONData'));
@@ -366,6 +368,7 @@ function updateBox($force) {
 			$('#updateContainer').fadeOut('slow');
 			// Set cookie to remember dismiss decision for 1 hour.
 			setCookie('updateDismiss', 'true', 1 / 24);
+			write_log('Update notification dismissed for one hour.');
 		});
 	}
 }
@@ -427,6 +430,19 @@ function write_log($text,$lvl) {
 	
 }
 
+function refresh_log() {
+	var secret = $("#secret").attr('data');
+		$.ajax({
+			async: true,
+			dataType: 'text',
+			url: "muximux.php?secret=" + secret + "&action=log",
+			type: 'GET',
+			success: function(html) {
+				$('#logContainer').replaceWith(html);
+				$('#logContainer').slideToggle();
+			}
+		});
+}
 
 function setStatus($message) {
 	$('#updateContainer').hide();

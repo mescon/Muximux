@@ -760,6 +760,11 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 		die();
     }
 	
+	if(isset($_GET['action']) && $_GET['action'] == "log") {
+        echo log_contents();
+		die();
+    }
+	
 	if(isset($_GET['action']) && $_GET['action'] == "writeLog") {
         $msg = $_GET['msg'];
 		if(isset($_GET['lvl'])) {
@@ -909,6 +914,7 @@ function write_log($text,$level=null) {
 
 function log_contents() {
 	$out = '<ul>
+				<div id="logContainer" class="alert alert-info">
 	';
 	$filename = 'muximux.log';
 	$handle = fopen($filename, "r");
@@ -932,7 +938,8 @@ function log_contents() {
 		}
 		fclose($handle);
 	} 
-	$out .= '</ul>
+	$out .= '</div>
+			</ul>
 	';
 	return $out;
 }

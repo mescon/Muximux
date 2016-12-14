@@ -21,7 +21,7 @@ if(isset($_POST['username'])) {
 		write_log('Successfully logged in.');
 		exit();
     } else {
-		write_log('Error logging in.','E');
+		write_log('Error logging in with username of '+ $_POST['username'] +'.','E');
 	}
 } 
 echo '

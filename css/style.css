@@ -376,7 +376,7 @@ input[type='button'] {
     text-align: left;
     font-size: 16px;
     font-size: 1.6rem;
-    display: block;
+    display: none;
 }
 
 .logLine {
