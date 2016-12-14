@@ -168,9 +168,6 @@ function parse_ini()
 						</div>
 						<br>
 						<div>
-							<label for='dropdownCheckbox'>Enable Dropdown:</label>
-							<input id='dropdownCheckbox' class='checkbox general-value' name='general_-_enabledropdown' type='checkbox' ". ($enableDropDown ? 'checked' : '') ."
-						</div>
 						<div>
 							<label for='updatepopupCheckbox'>Enable update poups:</label> 
 							<input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
@@ -347,7 +344,7 @@ function menuItems() {
     foreach ($config as $keyname => $section) {
         if (($keyname == "general")) {
 			$autohide = $config->getBool('general', 'autohide', true);
-			$enabledropdown = $config->getBool('general', 'enabledropdown', false);
+			$enabledropdown = $config->getBool('settings', 'enabledropdown', true);
 			$mobileoverride = $config->getBool('general', 'mobileoverride', false);
 			$authentication = $config->getBool('general', 'authentication', false);
         } else {
@@ -377,7 +374,7 @@ function menuItems() {
 						</a>
 					</li>
 					";
-        } else if ($enabledropdown && $dropdown && $enabled) {
+        } else if ($dropdown && $enabled) {
             $dropdownmenu .= "
 					<li>
 						<a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
@@ -614,7 +611,7 @@ function metaTags() {
 	$branch = $config->get('general', 'branch', 'master');
 	$branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
 	$popupdate = var_export($config->getBool('general', 'updatepopup', true),true);
-	$enabledropdown = var_export($config->getBool('general', 'enabledropdown', true),true);
+	$enabledropdown = var_export($config->getBool('settings', 'enabledropdown', true),true);
 	$maintitle = $config->get('general', 'title', 'Muximux');
 	$tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
 	$css = './css/theme/' . getTheme() . '.css';
