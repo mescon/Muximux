@@ -1,283 +1,176 @@
 var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle;
-jQuery(document).ready(function($) {
-	// Custom function to do case-insensitive selector matching
-	$.extend($.expr[":"], {
-		"containsInsensitive": function(elem, i, match, array) {
-			return (elem.textContent || elem.innerText || "").toLowerCase().indexOf((match[3] || "").toLowerCase()) >= 0;
-		}
-	});
-	branch = $("#branch-data").attr('data');
-	hasDrawer = ($('#drawer').attr('data') == 'true');
-	tabColor = ($("#tabcolor").attr('data') == 'true');
-	themeColor = $('#themeColor-data').attr("data");
-	authentication = $('#authentication-data').attr("data");
-	tabs = $('.cd-tabs');
-	activeTitle = $('li .selected').attr("data-title");
-	getSecret();
-	muximuxMobileResize();
-	$('#override').css('display', (isMobile ? 'block' : 'none'));
-	$('.inputdiv').css('display',(authentication ? 'block' : 'none'));
-	overrideMobile = false;
-	setTitle(activeTitle);
-	//get appropriate CSS3 box-shadow property
-	boxshadowprop = getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow'])
-		//Hide the nav to start	
-	$('.drop-nav').toggleClass('hide-nav');
-	tabs.each(function() {
-		var tab = $(this),
-			tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
-			tabContentWrapper = tab.children('ul.cd-tabs-content'),
-			tabNavigation = tab.find('nav');
-		tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout)', function(event) {
-			// Set up menu for desktip view
-			if (!isMobile) {
-				$('.drop-nav').addClass('hide-nav');
-				$('.drop-nav').removeClass('show-nav');
-			}
-			resizeIframe(hasDrawer, isMobile); // Call resizeIframe when document is ready
-			event.preventDefault();
-			var selectedItem = $(this);
-			if (tabColor) {
-				color = selectedItem.attr("data-color");
-			} else {
-				color = themeColor;
-			}
-			if (!selectedItem.hasClass('selected')) {
-				var selectedTab = selectedItem.data('content'),
-					selectedContent = tabContentWrapper.find('li[data-content="' + selectedTab + '"]'),
-					selectedContentHeight = selectedContent.innerHeight();
-				selectedItem.dblclick(function() {
-					selectedContent.children('iframe').attr('src', selectedContent.children('iframe').attr('src'));
-				});
-				var sifsrc = selectedContent.children('iframe').attr('src');
-				var srcUrl = selectedContent.children('iframe').data('src');
-				if (sifsrc === undefined || sifsrc === "") {
-					selectedContent.children('iframe').attr('src', srcUrl);
-				}
-				// Fix issue with color not resetting on settings close
-				if (!(selectedItem.attr("data-title") == "Settings")) {
-					clearColors();
-					tabItems.find('a.selected').removeClass('selected');
-					selectedItem.addClass('selected');
-					setSelectedColor();
-					// Change window title after class "selected" has been added to item
-					var activeTitle = selectedItem.attr("data-title");
-					setTitle(activeTitle);
-					selectedContent.addClass('selected').siblings('li').removeClass('selected');
-					// animate tabContentWrapper height when content changes
-					tabContentWrapper.animate({
-						'height': selectedContentHeight
-					}, 200);
-				}
-			}
-		});
-		// hide the .cd-tabs::after element when tabbed navigation has scrolled to the end (mobile version)
-		checkScrolling(tabNavigation);
-		tabNavigation.on('scroll', function() {
-			checkScrolling($(this));
-		});
-	});
-	$('li.dd').on('click', function() {
-		toggleClasses();
-	});
-	
-	$('#reload').on('click', function() {
-		$('.fa-refresh').addClass('fa-spin');
-		setTimeout(function() {
-			$('.fa-refresh').removeClass('fa-spin');
-		}, 3900);
-		var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
-		selectedFrame.attr('src', selectedFrame.attr('src'));
-	});
-	// Detect click on override button, fire resize
-	$('#override').on('click', function() {
-		overrideMobile = !overrideMobile;
-		muximuxMobileResize();
-		if (overrideMobile && isMobile) {
-			$('#override').addClass('or-active');
-		} else {
-			$('#override').removeClass('or-active');
-		}
-	});
-	$("#authenticationCheckbox").click(function() {
-		// this function will get executed every time the #home element is clicked (or tab-spacebar changed)
-		if ($(this).is(":checked")) // "this" refers to the element that fired the event
-		{
-			$('.inputdiv').slideDown('fast');
-		} else {
-			$('.inputdiv').slideUp('fast');
-		}
-	});
-	$("#logout").click(function() {
-		 window.location.href = '?logout';
-	});
-	// When settings modal is open, set title to "Settings"
-	$('#settingsModal').on('show.bs.modal', function() {
-		setTitle("Settings");
-	});
-	// When settings modal closes, set title to the previous title used
-	$('#settingsModal').on('hidden.bs.modal', function() {
-		var activeTitle = $('.cd-tabs-content').find('.selected').children('iframe').attr("data-title");
-		setTitle(activeTitle);
-	});
-	$(window).on('resize', function() {
-		tabs.each(function() {
-			var tab = $(this);
-			checkScrolling(tab.find('nav'));
-			tab.find('.cd-tabs-content').css('height', 'auto');
-		});
-		resizeIframe(hasDrawer, isMobile); // Resize iframes when window is resized.
-		scaleFrames(); // Scale frames when window is resized.
-	});
-	$('.dd').click(function() {
-		dropDownFixPosition($('.dd'), $('.drop-nav'));
-	});
-	$('#autohideCheckbox').click(function() {
-		$('#mobileoverrideCheckbox').prop('checked', false);
-	});
-	$('#mobileoverrideCheckbox').click(function() {
-		$('#autohideCheckbox').prop('checked', false);
-	});
-	// This triggers a menu close when mouse has left the drop nav.
-	$('.dd').mouseleave(function() {
-		if (!($('.drop-nav:hover').length != 0 || $('.dd:hover').length != 0)) {
-			timeoutId = setTimeout(function() {
-				$('.drop-nav').addClass('hide-nav');
-				$('.drop-nav').removeClass('show-nav');
-			}, 500);
-		}
-	});
-	jQuery.fn.reverse = [].reverse;
-	$('.drawerItem').mouseleave(function() {
-		$('.drawerItem').removeClass('full');
-	});
-	$('.drawerItem').mouseenter(function() {
-		$('.drawerItem').addClass('full');
-	});
-	// Move items to the dropdown on mobile devices
-	settingsEventHandlers();
-	scaleFrames();
-	resizeIframe(hasDrawer, isMobile); // Call resizeIframe when document is ready
-	initIconPicker('.iconpicker');
-	// Load the menu item that is set in URL, for example http://site.com/#plexpy
-	if ($(location).attr('hash')) {
-		var bookmarkHash = $(location).attr('hash').substr(1).replace("%20", " ").replace("_", " ");
-		var menuItem = $(document).find('a:containsInsensitive("' + bookmarkHash + '")');
-		menuItem.trigger("click");
-	}
-	if ($('#tabcolorCheckbox').prop('checked')) {
-		$('.appsColor').show();
-		$('.generalColor').hide();
-	} else {
-		$('.appsColor').hide();
-		$('.generalColor').show();
-	}
-	
-	$('#settingsLogo').click(function(){
-		window.open('https://github.com/mescon/Muximux', '_blank');
-	});
-		
-	
+jQuery(document).ready(function(a) {
+  a.extend(a.expr[":"], {containsInsensitive:function(a, c, e, k) {
+    return 0 <= (a.textContent || a.innerText || "").toLowerCase().indexOf((e[3] || "").toLowerCase());
+  }});
+  branch = a("#branch-data").attr("data");
+  hasDrawer = "true" == a("#drawer").attr("data");
+  tabColor = "true" == a("#tabcolor").attr("data");
+  themeColor = a("#themeColor-data").attr("data");
+  authentication = a("#authentication-data").attr("data");
+  tabs = a(".cd-tabs");
+  activeTitle = a("li .selected").attr("data-title");
+  getSecret();
+  muximuxMobileResize();
+  a("#override").css("display", isMobile ? "block" : "none");
+  a(".inputdiv").css("display", authentication ? "block" : "none");
+  overrideMobile = !1;
+  setTitle(activeTitle);
+  boxshadowprop = getsupportedprop(["boxShadow", "MozBoxShadow", "WebkitBoxShadow"]);
+  a(".drop-nav").toggleClass("hide-nav");
+  tabs.each(function() {
+    var b = a(this), c = b.find("ul.cd-tabs-navigation, .main-nav"), e = b.children("ul.cd-tabs-content"), b = b.find("nav");
+    c.on("click", "a:not(#reload, #hamburger, #override, #logout,#log)", function(b) {
+      isMobile || (a(".drop-nav").addClass("hide-nav"), a(".drop-nav").removeClass("show-nav"));
+      resizeIframe(hasDrawer, isMobile);
+      b.preventDefault();
+      b = a(this);
+      color = tabColor ? b.attr("data-color") : themeColor;
+      if (!b.hasClass("selected")) {
+        var f = b.data("content"), d = e.find('li[data-content="' + f + '"]'), f = d.innerHeight();
+        b.dblclick(function() {
+          d.children("iframe").attr("src", d.children("iframe").attr("src"));
+        });
+        var g = d.children("iframe").attr("src"), h = d.children("iframe").data("src");
+        void 0 !== g && "" !== g || d.children("iframe").attr("src", h);
+        "Settings" != b.attr("data-title") && (clearColors(), c.find("a.selected").removeClass("selected"), b.addClass("selected"), setSelectedColor(), b = b.attr("data-title"), setTitle(b), d.addClass("selected").siblings("li").removeClass("selected"), e.animate({height:f}, 200));
+      }
+    });
+    checkScrolling(b);
+    b.on("scroll", function() {
+      checkScrolling(a(this));
+    });
+  });
+  a("li.dd").on("click", function() {
+    toggleClasses();
+  });
+  a("#reload").on("click", function() {
+    a(".fa-refresh").addClass("fa-spin");
+    setTimeout(function() {
+      a(".fa-refresh").removeClass("fa-spin");
+    }, 3900);
+    var b = a(".cd-tabs-content").find(".selected").children("iframe");
+    b.attr("src", b.attr("src"));
+  });
+  a("#override").on("click", function() {
+    overrideMobile = !overrideMobile;
+    muximuxMobileResize();
+    overrideMobile && isMobile ? a("#override").addClass("or-active") : a("#override").removeClass("or-active");
+  });
+  a("#authenticationCheckbox").click(function() {
+    a(this).is(":checked") ? a(".inputdiv").slideDown("fast") : a(".inputdiv").slideUp("fast");
+  });
+  a("#logout").click(function() {
+    window.location.href = "?logout";
+  });
+  a("#settingsModal").on("show.bs.modal", function() {
+    setTitle("Settings");
+  });
+  a("#settingsModal").on("hidden.bs.modal", function() {
+    var b = a(".cd-tabs-content").find(".selected").children("iframe").attr("data-title");
+    setTitle(b);
+  });
+  a("#logModal").on("hidden.bs.modal", function() {
+    var b = a(".cd-tabs-content").find(".selected").children("iframe").attr("data-title");
+    setTitle(b);
+  });
+  a(window).on("resize", function() {
+    tabs.each(function() {
+      var b = a(this);
+      checkScrolling(b.find("nav"));
+      b.find(".cd-tabs-content").css("height", "auto");
+    });
+    resizeIframe(hasDrawer, isMobile);
+    scaleFrames();
+  });
+  a(".dd").click(function() {
+    dropDownFixPosition(a(".dd"), a(".drop-nav"));
+  });
+  a("#autohideCheckbox").click(function() {
+    a("#mobileoverrideCheckbox").prop("checked", !1);
+  });
+  a("#mobileoverrideCheckbox").click(function() {
+    a("#autohideCheckbox").prop("checked", !1);
+  });
+  a(".dd").mouseleave(function() {
+    0 == a(".drop-nav:hover").length && 0 == a(".dd:hover").length && (timeoutId = setTimeout(function() {
+      a(".drop-nav").addClass("hide-nav");
+      a(".drop-nav").removeClass("show-nav");
+    }, 500));
+  });
+  jQuery.fn.reverse = [].reverse;
+  a(".drawerItem").mouseleave(function() {
+    a(".drawerItem").removeClass("full");
+  });
+  a(".drawerItem").mouseenter(function() {
+    a(".drawerItem").addClass("full");
+  });
+  settingsEventHandlers();
+  scaleFrames();
+  resizeIframe(hasDrawer, isMobile);
+  initIconPicker(".iconpicker");
+  if (a(location).attr("hash")) {
+    var c = a(location).attr("hash").substr(1).replace("%20", " ").replace("_", " ");
+    a(document).find('a:containsInsensitive("' + c + '")').trigger("click");
+  }
+  a("#tabcolorCheckbox").prop("checked") ? (a(".appsColor").show(), a(".generalColor").hide()) : (a(".appsColor").hide(), a(".generalColor").show());
+  a("#settingsLogo").click(function() {
+    window.open("https://github.com/mescon/Muximux", "_blank");
+  });
 });
-
 $(window).load(function() {
-	if ($('#popupdate').attr('data') == 'true') {
-		var updateCheck = setInterval(updateBox(false), 1000 * 60 * 10);
-	}
+  "true" == $("#popupdate").attr("data") && setInterval(updateBox(!1), 6E5);
 });
-// Close modal on escape key
-$("html").on("keyup", function(e) {
-	if(e.keyCode === 27 && !($('#modal-dialog').hasClass("no-display")))
-	$('.close').trigger("click");
+$("html").on("keyup", function(a) {
+  27 !== a.keyCode || $("#modal-dialog").hasClass("no-display") || $(".close").trigger("click");
 });
-// When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
 $(window).unload(function() {
-	var secret = $("#secret").attr('data');
-	$.ajax({
-		async: true,
-		dataType: 'text',
-		url: "muximux.php?secret=" + secret + "&set=secret",
-		type: 'GET'
-	});
+  var a = $("#secret").attr("data");
+  $.ajax({async:!0, dataType:"text", url:"muximux.php?secret=" + a + "&set=secret", type:"GET"});
 });
 $(window).resize(muximuxMobileResize);
-
 function muximuxMobileResize() {
-	isMobile = ($(window).width() < 800);
-	$('#override').css('display', (isMobile ? 'block' : 'none'));
-	if (isMobile && !overrideMobile) {
-		$('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
-		var menuHeight = $(window).height() * .80;
-		$('.drop-nav').css('max-height', menuHeight + 'px');
-	} else {
-		$(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
-		$('.drop-nav').css('max-height', '');
-		var listWidth = 0;
-		$('.cd-tab').each(function() {
-			var myIndex = $(this).attr('data-index');
-			var myWidth = $(this).width();
-			if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
-				$(".drop-nav").insertAt(myIndex,this);
-			} else {
-				$('.cd-tabs-navigation nav').insertAt(myIndex,this);
-			}
-			listWidth = listWidth + $(this).width();
-		});
-	}
-	clearColors();
-	setSelectedColor();
+  isMobile = 800 > $(window).width();
+  $("#override").css("display", isMobile ? "block" : "none");
+  if (isMobile && !overrideMobile) {
+    $(".cd-tabs-navigation nav").children().appendTo(".drop-nav");
+    var a = .8 * $(window).height();
+    $(".drop-nav").css("max-height", a + "px");
+  } else {
+    $(".drop-nav").children(".cd-tab").appendTo(".cd-tabs-navigation nav");
+    $(".drop-nav").css("max-height", "");
+    var c = 0;
+    $(".cd-tab").each(function() {
+      var a = $(this).attr("data-index");
+      $(this).width() + c > $(window).width() - $(".main-nav").width() ? $(".drop-nav").insertAt(a, this) : $(".cd-tabs-navigation nav").insertAt(a, this);
+      c += $(this).width();
+    });
+  }
+  clearColors();
+  setSelectedColor();
 }
-
-// Insert an element at a specific point in a div.
-jQuery.fn.insertAt = function(index, element) {
-  var lastIndex = this.children().size()
-  if (index < 0) {
-    index = Math.max(0, lastIndex + 1 + index)
-  }
-  this.append(element)
-  if (index < lastIndex) {
-    this.children().eq(index).before(this.children().last())
-  }
+jQuery.fn.insertAt = function(a, c) {
+  var b = this.children().size();
+  0 > a && (a = Math.max(0, b + 1 + a));
+  this.append(c);
+  a < b && this.children().eq(a).before(this.children().last());
   return this;
-}
-
-// Simple method to toggle show/hide classes in navigation
+};
 function toggleClasses() {
-	$('.drop-nav').toggleClass('hide-nav');
-	$('.drop-nav').toggleClass('show-nav');
+  $(".drop-nav").toggleClass("hide-nav");
+  $(".drop-nav").toggleClass("show-nav");
 }
-// Clear color values from tabs
 function clearColors() {
-	$(".selected").children("span").css("color", "");
-	$(".selected").css("color", "");
-	$(".selected").css("Box-Shadow", "");
+  $(".selected").children("span").css("color", "");
+  $(".selected").css("color", "");
+  $(".selected").css("Box-Shadow", "");
 }
-// Add relevant color value to tabs
-// Refactor to a more appropriate name
 function setSelectedColor() {
-	color = (tabColor ? $('li .selected').attr("data-color") : themeColor);
-	$('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
-	$('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
-	$('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
-		   
-	if (isMobile && !overrideMobile) {
-		$(".cd-tabs-bar").removeClass("drawer");
-		$('.cd-tab').removeClass('drawerItem');
-		$('.navbtn').removeClass('drawerItem');
-		$('.cd-tabs-bar').removeClass('drawerItem');
-		$(".selected").children("span").css("color", "" + color + "");
-		$(".selected").css("color", "" + color + "");
-	} else {
-		$(".selected").css("Box-Shadow", "inset 0 5px 0 " + color + "");
-		// Super hacky, but we're refrencing a placeholder div to quickly see if we have a drawer
-		if (hasDrawer) {
-			$('.cd-tab').addClass('drawerItem');
-			$('.navbtn').addClass('drawerItem');
-			$('.cd-tabs-bar').addClass('drawerItem');
-		} else {
-			$('.cd-tab').removeClass('drawerItem');
-			$('.navbtn').removeClass('drawerItem');
-			$('.cd-tabs-bar').removeClass('drawerItem');
-		}
-	}
+  color = tabColor ? $("li .selected").attr("data-color") : themeColor;
+  $(".droidtheme").replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
+  $(".mstheme").replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
+  $(".iostheme").replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
+  isMobile && !overrideMobile ? ($(".cd-tabs-bar").removeClass("drawer"), $(".cd-tab").removeClass("drawerItem"), $(".navbtn").removeClass("drawerItem"), $(".cd-tabs-bar").removeClass("drawerItem"), $(".selected").children("span").css("color", "" + color + ""), $(".selected").css("color", "" + color + "")) : ($(".selected").css("Box-Shadow", "inset 0 5px 0 " + color + ""), hasDrawer ? ($(".cd-tab").addClass("drawerItem"), $(".navbtn").addClass("drawerItem"), $(".cd-tabs-bar").addClass("drawerItem")) : 
+  ($(".cd-tab").removeClass("drawerItem"), $(".navbtn").removeClass("drawerItem"), $(".cd-tabs-bar").removeClass("drawerItem")));
 }
+;
