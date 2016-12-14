@@ -35,12 +35,8 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <meta name="msapplication-navbutton-color" class="mstheme" content="#DFDFDF" />
     <meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="#DFDFDF" />
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
-    <script src="js/jquery-2.2.4.min.js"></script>
-    <script src="js/jquery-ui.min.js"></script>
-    <script src="js/modernizr-custom-3.3.1.min.js"></script>
-    <link rel="stylesheet" href="combineify?type=css&files=jquery-ui.min.css,cssreset.min.css,bootstrap.min.css,bootstrap-iconpicker.min.css,font-awesome.min.css,font-pt_sans.css,style.css,spectrum.min.css">
-    <link rel="stylesheet" href="css/theme/<?php echo getTheme(); ?>.css">
-    <title><?php echo getTitle(); ?></title>
+	<link rel="stylesheet" href="combineify?type=css&files=css/jquery-ui.min.css,css/cssreset.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
+	<title><?php echo getTitle(); ?></title>
 </head>
 
 <body>
@@ -181,14 +177,9 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 	</div>
 	<div id="updateContainer"></div>
 	<?php echo metaTags(); ?>
-
-	<script src="js/jquery.form.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="js/iconset-fontawesome-4.2.0.min.js"></script>
-	<script type="text/javascript" src="js/bootstrap-iconpicker.min.js"></script>
-	<script type="text/javascript" src="js/main.js"></script>
-	<script type="text/javascript" src="js/functions.js"></script>
-	<script type="text/javascript" src="js/spectrum.min.js"></script>
+	<script type="text/javascript" src="combineify?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-fontawesome-4.2.0.min.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js"></script>
+	
+    
 <?php
 
 if ($upgrade) echo "<script type=\"text/javascript\">$('#upgradeModal').modal();</script>"; ?>

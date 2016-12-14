@@ -2,6 +2,7 @@
 config.ini.php
 settings.ini.php
 backup.ini.php
+muximux.log
 test.php
 secret.txt
 tmp/
@@ -13,3 +14,4 @@ plexredirect/
 recent/
 keeweb/
 api/
+cache/

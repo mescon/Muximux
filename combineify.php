@@ -1,48 +1,18 @@
 <?php
-
+	require dirname(__FILE__) . '/vendor/autoload.php';
+	use MatthiasMullie\Minify;
 	/************************************************************************
-	 * CSS and Javascript Combinator 0.5
+	 * CSS and Javascript Combinator 0.6
 	 * Copyright 2006 by Niels Leenheer
-	 *
-	 * Permission is hereby granted, free of charge, to any person obtaining
-	 * a copy of this software and associated documentation files (the
-	 * "Software"), to deal in the Software without restriction, including
-	 * without limitation the rights to use, copy, modify, merge, publish,
-	 * distribute, sublicense, and/or sell copies of the Software, and to
-	 * permit persons to whom the Software is furnished to do so, subject to
-	 * the following conditions:
-	 * 
-	 * The above copyright notice and this permission notice shall be
-	 * included in all copies or substantial portions of the Software.
-	 *
-	 * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-	 * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-	 * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
-	 * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
-	 * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION
-	 * OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION
-	 * WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+	 * Updated 2016 - d8ahazard
 	 */
-	 
-
-
+	
+	
 	$cache 	  = true;
 	$cachedir = dirname(__FILE__) . '/cache';
-	$cssdir   = dirname(__FILE__) . '/css';
-	$jsdir    = dirname(__FILE__) . '/js';
-
-	// Determine the directory and type we should use
-	switch ($_GET['type']) {
-		case 'css':
-			$base = realpath($cssdir);
-			break;
-		case 'javascript':
-			$base = realpath($jsdir);
-			break;
-		default:
-			header ("HTTP/1.0 503 Not Implemented");
-			exit;
-	};
+	if ((!file_exists($cachedir)) && $cache) {
+		mkdir($cachedir, 0777, true);
+	}
 
 	$type = $_GET['type'];
 	$elements = explode(',', $_GET['files']);
@@ -50,7 +20,7 @@
 	// Determine last modification date of the files
 	$lastmodified = 0;
 	while (list(,$element) = each($elements)) {
-		$path = realpath($base . '/' . $element);
+		$path = realpath($element);
 	
 		if (($type == 'javascript' && substr($path, -3) != '.js') || 
 			($type == 'css' && substr($path, -4) != '.css')) {
@@ -58,7 +28,7 @@
 			exit;	
 		}
 	
-		if (substr($path, 0, strlen($base)) != $base || !file_exists($path)) {
+		if (!file_exists($path)) {
 			header ("HTTP/1.0 404 Not Found");
 			exit;
 		}
@@ -124,10 +94,18 @@
 		// Get contents of the files
 		$contents = '';
 		reset($elements);
-		while (list(,$element) = each($elements)) {
-			$path = realpath($base . '/' . $element);
-			$contents .= "\n\n" . file_get_contents($path);
+		if ($type == 'css') {
+			$minifier = new Minify\CSS();	
 		}
+		if ($type =='javascript') {
+			$minifier = new Minify\JS();	
+		}
+		while (list(,$element) = each($elements)) {
+			$path = realpath($element);
+			$minifier->add($path);
+		}
+					
+		$contents = $minifier->minify();
 		
 			
 		// Send Content-Type
@@ -157,14 +135,3 @@
 		}
 	}	
 	
-
-/**
- * =======================================================
- *  CSS MINIFIER
- * =======================================================
- * -- CODE: ----------------------------------------------
- *
- *    echo minify_css(file_get_contents('test.css'));
- *
- * -------------------------------------------------------
- */
