@@ -116,7 +116,7 @@ jQuery(document).ready(function($) {
 		setTitle("Settings");
 	});
 	// When settings modal closes, set title to the previous title used
-	$('#settingsModal').on('hidden.bs.modal', function() {
+	$('.modal').on('hidden.bs.modal', function() {
 		var activeTitle = $('.cd-tabs-content').find('.selected').children('iframe').attr("data-title");
 		setTitle(activeTitle);
 	});
