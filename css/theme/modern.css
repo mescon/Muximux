@@ -9,7 +9,7 @@ body {
 }
 
 .logo path {
-	fill: #ff4c4d;
+    fill: #ff4c4d;
 }
 
 .login-block {
@@ -18,7 +18,7 @@ body {
 }
 
 .colorgrab {
-	color:#ff4c4d;
+    color:#ff4c4d;
 }
 
 .login-block h1 {
@@ -97,8 +97,8 @@ iframe {
 
 
 .main-nav > li:hover {
-	color: #f1f3f2;
-	background-color: rgba(233, 230, 202, 0.3);
+    color: #f1f3f2;
+    background-color: rgba(233, 230, 202, 0.3);
 }
 
 
@@ -136,7 +136,7 @@ iframe {
 .drop-nav > li:hover, .drop-nav > li:hover a {
     color: #f1f3f2;
     background-color: rgba(233, 230, 202, 0.3);
-    
+
 }
 
 input[type='text'], select {
@@ -170,15 +170,15 @@ input[type='button']:hover {
 }
 
 .redLine {
-	color: #ff0000;
+    color: #ff0000;
 }
 
 .greenLine {
-	color: #00b300;
+    color: #00b300;
 }
 
 .blackLine {
-	color: #000000;
+    color: #000000;
 }
 
 .applicationContainer {

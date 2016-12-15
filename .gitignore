@@ -3,6 +3,8 @@ config.ini.php
 settings.ini.php
 backup.ini.php
 muximux.log
+stage/
+.stage/
 test.php
 secret.txt
 tmp/
