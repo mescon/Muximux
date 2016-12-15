@@ -159,13 +159,13 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <div id="logModal" class="modal fade" role="dialog">
         <div class="modal-dialog logDialog">
             <!-- Modal content-->
-            <div class="modal-content">
+            <div class="modal-content logContent" role="document">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                     <div class="modal-title"><h1>Muximux Log</h1></div>
                 </div>
                 <div class="modal-body logBody">
-                    <div id="logContainer" class="alert alert-info">
+                    <div id="logContainer">
 
                     </div>
                 </div>
@@ -175,6 +175,24 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
                 <button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
             </div>
         </div>
+    </div>
+	<div id="splashModal" class="modal" role="dialog" data-keyboard="true">
+        <div class="modal-dialog splashDialog">
+            <!-- Modal content-->
+                <div class="modal-header splashHeader">
+                    <button type="button" class="close splashClose" data-dismiss="modal">&times;</button>
+					<div class="logo smallLogo">
+						<div class="modal-title"><?php echo file_get_contents("images/muximux-white.svg") ?></div>
+					</div>
+                </div>
+                
+                <div id="splashContainer" class="alert">
+				<?php echo splashScreen() ?>
+		        
+                </div>
+            
+        </div>
+	<div id="splashBg"></div>
     </div>
     <div id="updateContainer"></div>
     <?php echo metaTags(); ?>

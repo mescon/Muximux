@@ -1,5 +1,6 @@
 var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle;
 jQuery(document).ready(function($) {
+	$('.cd-tabs-bar').show();
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
         "containsInsensitive": function(elem, i, match, array) {
@@ -8,13 +9,18 @@ jQuery(document).ready(function($) {
     });
     branch = $("#branch-data").attr('data');
     hasDrawer = ($('#drawer').attr('data') == 'true');
+	showSplash = ($('#splashScreen-data').attr('data') == 'true');
     tabColor = ($("#tabcolor").attr('data') == 'true');
     dropDown = ($("#dropdown-data").attr('data') == 'true');
     themeColor = $('#themeColor-data').attr("data");
     authentication = $('#authentication-data').attr("data");
     tabs = $('.cd-tabs');
+	splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
     getSecret();
+	if (showSplash) {
+		$('#splashModal').modal('show');
+	}
     muximuxMobileResize();
     $('#override').css('display', (isMobile ? 'block' : 'none'));
     $('.inputdiv').css('display',(authentication ? 'block' : 'none'));
@@ -24,6 +30,15 @@ jQuery(document).ready(function($) {
     boxshadowprop = getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow'])
         //Hide the nav to start
     $('.drop-nav').toggleClass('hide-nav');
+	$('.splashBtn').on('click', function(event) {
+		var selectedBtn = $(this).data('content');
+		var selectedBtnTab = $('.cd-tabs-navigation').find('a[data-content="' + selectedBtn + '"]');
+		console.log('Splash: ' + selectedBtn);
+		selectedBtnTab.click();
+		$('#splashModal').modal('hide');
+		
+		
+	});
     tabs.each(function() {
         var tab = $(this),
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),

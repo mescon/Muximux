@@ -137,6 +137,7 @@ function parse_ini()
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
     $themeColor = $config->get('general','color',$cssColor);
     $autoHide = $config->getBool('general', 'autohide', false);
+    $splashScreen = $config->getBool('general', 'splashscreen', false);
     $userName = $config->get('general', 'userNameInput', 'admin');
     $passHash = $config->get('general', 'password', 'Muximux');
     $authentication = $config->getBool('general', 'authentication', false);
@@ -168,6 +169,10 @@ function parse_ini()
                         </div>
                         <br>
                         <div>
+			<div>
+                            <label for='splashscreenCheckbox'>Start with splash screen:</label>
+                            <input id='splashscreenCheckbox' class='general_-_value' name='general_-_splashscreen' type='checkbox' ".($splashScreen ? 'checked' : '') .">
+                        </div>
                         <div>
                             <label for='updatepopupCheckbox'>Enable update poups:</label>
                             <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
@@ -282,6 +287,31 @@ function parse_ini()
             </form>";
     return $pageOutput;
 }
+
+function splashScreen() {
+	$config = new Config_Lite(CONFIG);
+   $splash = "";
+    
+    foreach ($config as $keyname => $section) {
+		if (($keyname != "general") && ($keyname != "settings")) {
+			$splash .= "
+									<div class='btnWrap'>
+										<div class='well splashBtn' data-content=\"" . $keyname . "\">
+										
+											<a class='panel-heading' data-title=\"" . $section["name"] . "\">
+												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$section["color"]."'></i><br>
+												<p style='color:#ddd'>".$section["name"]."</p>
+											</a>
+										</div>
+									</div>";
+		}
+	}
+	$splash .= "
+	";
+	
+	return $splash;
+}
+
 // Check if the user changes tracking branch, which will change the SHA and trigger an update notification
 function checkBranchChanged() {
     $config = new Config_Lite(CONFIG);
@@ -609,6 +639,7 @@ function metaTags() {
     $enabledropdown = var_export($config->getBool('settings', 'enabledropdown', true),true);
     $maintitle = $config->get('general', 'title', 'Muximux');
     $tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
+    $splashScreen = var_export($config->getBool('general', 'splashscreen', false),true);
     $css = './css/theme/' . getTheme() . '.css';
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
     $themeColor = $config->get('general','color',$cssColor);
@@ -637,6 +668,7 @@ $tags = "
     <meta id='sha-data' data='". getSHA() . "'>
     <meta id='secret' data='". $secret . "'>
     <meta id='themeColor-data' data='". $themeColor . "'>
+    <meta id='splashScreen-data' data='". $splashScreen . "'>
     <meta id='authentication-data' data='". $authentication . "'>
 ";
     return $tags;
@@ -909,7 +941,7 @@ function write_log($text,$level=null) {
 
 function log_contents() {
     $out = '<ul>
-                <div id="logContainer" class="alert alert-info">
+                <div id="logContainer">
     ';
     $filename = 'muximux.log';
     $handle = fopen($filename, "r");
@@ -917,13 +949,13 @@ function log_contents() {
         while (($line = fgets($handle)) !== false) {
             $lvl = substr($line,0,1);
             if ($lvl === 'E') {
-                $color = 'redLine';
+                $color = 'alert alert-danger';
             }
             if ($lvl === 'D') {
-                $color = 'greenLine';
+                $color = 'alert alert-warning';
             }
             if ($lvl === 'I') {
-                $color = 'blackLine';
+                $color = 'alert alert-success';
             }
             $out .='
                         <li class="logLine '.$color.'">'.
