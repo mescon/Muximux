@@ -48,9 +48,8 @@ if (sizeof($_POST) > 0) {
 
         write_ini();
     }
-} else {
-    parse_ini();
-}
+} 
+
 function write_ini()
 {
     $config = new Config_Lite(CONFIG);
@@ -120,15 +119,24 @@ function parse_ini()
 {
     $config = new Config_Lite(CONFIG);
     checksetSHA();
-    $myBranch = getBranch();
+    
     fetchBranches(false);
     $branchArray = getBranches();
     $branchList = "";
-    if ($config->get('settings', 'sha', '0') == "0") {
-        $mySha = fetchSha();
-    } else {
-        $mySha = $config->get('settings', 'sha', '0');
-    }
+    	if ((exec_enabled() == true) && (has_git()) && (file_exists('.git'))) {
+			$mySha = exec('git rev-parse HEAD');
+			$myBranch = exec('git rev-parse --abbrev-ref HEAD');
+			            
+		} else { 
+			console_log('No .git here!');
+			if ($config->get('settings', 'sha', '0') == "0") {
+				$mySha = fetchSha();
+			} else {
+				$mySha = $config->get('settings', 'sha', '0');
+				$myBranch = getBranch();
+			}
+		}
+    
     $css = './css/theme/' . getTheme() . '.css';
     $tabColorEnabled = $config->getBool('general', 'tabcolor', false);
     $enableDropDown = $config->getBool('general', 'enabledropdown', false);
@@ -726,9 +734,19 @@ function landingPage($keyname) {
     if (empty($item)) $item = '';
     return $item;
 }
-function command_exist($cmd) {
-    $returnVal = exec("which $cmd");
-    return (empty($returnVal) ? false : true);
+
+
+function has_git()
+{
+	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
+	exec($whereIsCommand . ' git', $output);
+	$git = file_exists($line = trim(current($output))) ? $line : 'git';
+	unset($output);
+	exec($git . ' --version', $output);
+	preg_match('#^(git version)#', current($output), $matches);
+	console_log((empty($matches[0]) ? 'installed' : 'nope'));
+	return (empty($matches[0]) ? true : false);
+	
 }
 function exec_enabled() {
     $disabled = explode(', ', ini_get('disable_functions'));
@@ -756,7 +774,7 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {
         if (exec_enabled() == true) {
-            if (!command_exist('git')) {
+            if (has_git()) {
                 $hash = 'unknown';
             } else {
                 $hash = exec('git log --pretty="%H" -n1 HEAD');
@@ -809,33 +827,46 @@ if(empty($_GET)) {
 }
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate($sha) {
-    $result = false;
-    $zipFile = "Muximux-".$sha. ".zip";
-    $f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $sha .".zip", 'r'), LOCK_EX);
-    if(FALSE === $f) {
-        $result = false;
-    } else {
-        $zip = new ZipArchive;
-        $res = $zip->open($zipFile);
-        if ($res === TRUE) {
-            $result = $zip->extractTo('./.stage');
-            $zip->close();
+	if ((exec_enabled() == true) && (has_git()) && (file_exists('.git'))) {
+		$result = exec('git pull');
+		$mySha = exec('git rev-parse HEAD');
+		$config = new Config_Lite(CONFIG);
+		$config->set('settings','sha',$sha);
+		try {
+			$config->save();
+		} catch (Config_Lite_Exception $e) {
+			echo "\n" . 'Exception Message: ' . $e->getMessage();
+		}
+		rewrite_config_header();
+	} else {
+		$result = false;
+		$zipFile = "Muximux-".$sha. ".zip";
+		$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $sha .".zip", 'r'), LOCK_EX);
+		if(FALSE === $f) {
+			$result = false;
+		} else {
+			$zip = new ZipArchive;
+			$res = $zip->open($zipFile);
+			if ($res === TRUE) {
+				$result = $zip->extractTo('./.stage');
+				$zip->close();
 
-            if ($result === TRUE) {
-                cpy("./.stage/Muximux-".$sha, "./");
-                deleteContent("./.stage");
-                $gone = unlink($zipFile);
-            }
-            $config = new Config_Lite(CONFIG);
-            $config->set('settings','sha',$sha);
-            try {
-                $config->save();
-            } catch (Config_Lite_Exception $e) {
-                echo "\n" . 'Exception Message: ' . $e->getMessage();
-            }
-            rewrite_config_header();
-        }
-    }
+				if ($result === TRUE) {
+					cpy("./.stage/Muximux-".$sha, "./");
+					deleteContent("./.stage");
+					$gone = unlink($zipFile);
+				}
+				$config = new Config_Lite(CONFIG);
+				$config->set('settings','sha',$sha);
+				try {
+					$config->save();
+				} catch (Config_Lite_Exception $e) {
+					echo "\n" . 'Exception Message: ' . $e->getMessage();
+				}
+				rewrite_config_header();
+			}
+		}
+	}
     write_log('Update ' . (($result === true) ? 'succeeded.' : 'failed.'));
     return $result;
 }
