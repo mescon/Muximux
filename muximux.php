@@ -856,7 +856,11 @@ function downloadUpdate($sha) {
 		if ($result) {
 			$mySha = exec('git rev-parse HEAD');
 			$config = new Config_Lite(CONFIG);
-			$config->set('settings','sha',$sha);
+			if (!preg_match('/about a specific subcommand/',$mySha)) { // Something went wrong with the command to get our SHA, fall back to using the passed value.
+				$config->set('settings','sha',$mySha);
+			} else {
+				$config->set('settings','sha',$sha);
+			}
 			try {
 				$config->save();
 			} catch (Config_Lite_Exception $e) {
