@@ -221,7 +221,7 @@ function viewChangelog() {
     if (difference > 0) {
         output += "The changes from your version to the latest version can be read <a href=\"" + compareURL + "\" target=\"_blank\">here</a>.</p>";
     }
-    output += "<p>Updates to your version of <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> were uploaded to Github " + (differenceDays == 0 ? 'today' : differenceDays + (differenceDays == 1 ? ' day ago' : ' days ago') ) + ".</p>";
+    output += "<p>Updates to your version of <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> were uploaded to Github " + (differenceDays == 1 ? 'today' : differenceDays - 1 + (differenceDays == 2 ? ' day ago' : ' days ago') ) + ".</p>";
     output += "<div class='btn-group' role='group' aria-label='Buttons' id='topButtons'>";
     if (difference > 0) {
         output +="<a class='btn btn-primary' id='downloadUpdate'><span class='fa fa-arrow-circle-down'></span> Install Now</a>";
