@@ -581,12 +581,12 @@ input[type='button'] {
     font-size: 14px;
     right: 20px;
     padding: 7px 10px;
-    position: fixed;
+    position: absolute;
     text-align: center;
     bottom: 10px;
     min-height: 44px;
     width: 340px;
-    z-index: 1049;
+    z-index: 10000;
     -webkit-border-radius: 5px 5px 5px 5px;
     border-radius: 5px 5px 5px 5px;
 }

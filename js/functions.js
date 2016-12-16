@@ -407,6 +407,7 @@ function downloadUpdate($sha) {
             async: true,
             url: "muximux.php",
             type: 'GET',
+			dataType:'json',
             data: {action: "update", secret: secret, sha: $sha},
         })
 		.done(function(res) {
@@ -418,7 +419,8 @@ function downloadUpdate($sha) {
 
 		})
 		.fail(function(res) {
-			setStatus('An error has occurred.  Please check the log to determine why.',false);
+			response=JSON.parse(res["responseText"]);
+			setStatus('INSTALL FAILED: ' + response["message"],false);
 		});
 
     } else {

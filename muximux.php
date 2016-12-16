@@ -800,9 +800,17 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 
     if(isset($_GET['action']) && $_GET['action'] == "update") {
         $sha = $_GET['sha'];
-            $results = downloadUpdate($sha);
-        echo $results;
-        die();
+        $results = downloadUpdate($sha);
+		if ($results === true) {
+			echo $results;
+			die();
+		} else {
+			$data = array('type' => 'error', 'message' => $results);
+			header('HTTP/1.1 400 Bad Request');
+			header('Content-Type: application/json; charset=UTF-8');
+			echo json_encode($data);
+			die();
+		}
     }
 
     if(isset($_GET['action']) && $_GET['action'] == "branches") {
@@ -834,7 +842,14 @@ if(empty($_GET)) {
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate($sha) {
 	$git = has_git();
-	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
+	if ((exec_enabled() == true) && ($git !== false) && (file_exists('./.git'))) {
+		$result = exec('git status');
+		$result = (preg_match('/working directory clean/',$result));
+		if ($result !== true) {
+			$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again.';
+			write_log($result ,'E');
+			return $result;
+		}
 		$result = exec('git pull');
 		write_log('Updating via git, command result is ' . $result,'D');
 		$result = (preg_match('/Updating/',$result));
@@ -848,13 +863,15 @@ function downloadUpdate($sha) {
 				echo "\n" . 'Exception Message: ' . $e->getMessage();
 			}
 			rewrite_config_header();
+		} else {
+			$result = 'Install Failed!  An unknown error occurred attempting to update.  Please manually check git status and fix.';
 		}
 	} else {
 		$result = false;
 		$zipFile = "Muximux-".$sha. ".zip";
 		$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $sha .".zip", 'r'), LOCK_EX);
 		if(FALSE === $f) {
-			$result = false;
+			$result = 'Install Failed!  An error occurred saving the update.  Please check directory permissions and try again.';
 		} else {
 			$zip = new ZipArchive;
 			$res = $zip->open($zipFile);
@@ -866,6 +883,8 @@ function downloadUpdate($sha) {
 					cpy("./.stage/Muximux-".$sha, "./");
 					deleteContent("./.stage");
 					$gone = unlink($zipFile);
+				} else {
+					$result = 'Install Failed!  Unable to extract zip file.  Please check directory permissions and try again.';
 				}
 				$config = new Config_Lite(CONFIG);
 				$config->set('settings','sha',$sha);
@@ -875,10 +894,17 @@ function downloadUpdate($sha) {
 					echo "\n" . 'Exception Message: ' . $e->getMessage();
 				}
 				rewrite_config_header();
+			} else {
+				$result = 'Install Failed!  Unable to open zip file.  Check directory permissions and try again.';
 			}
 		}
 	}
-    write_log('Update ' . (($result) ? 'succeeded.' : 'failed.'),(($result) ? 'I' : 'E'));
+	if ($result === true) {
+		write_log('Update Succeeded.','I');
+	} else {
+		write_log($result ,'E');
+	}
+    
     return $result;
 }
 
