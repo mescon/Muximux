@@ -368,7 +368,7 @@ function listThemes() {
     foreach($themes as $value){
         $splitName = explode('.', $value);
 		if  (!empty($splitName[0])) {
-			$name = ucfirst($splitName[0])
+			$name = ucfirst($splitName[0]);
             $themelist .="
                                 <option value='".$name."' ".(($name == getTheme()) ? 'selected' : '').">".$name."</option>";
         }
