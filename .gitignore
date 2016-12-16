@@ -5,6 +5,9 @@ backup.ini.php
 muximux.log
 stage/
 .stage/
+css/theme/
+!css/theme/Modern.css
+!css/theme/Classic.css
 test.php
 secret.txt
 tmp/
