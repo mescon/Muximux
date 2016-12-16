@@ -123,9 +123,11 @@ function parse_ini()
     fetchBranches(false);
     $branchArray = getBranches();
     $branchList = "";
-    	if ((exec_enabled() == true) && (has_git()) && (file_exists('.git'))) {
-			$mySha = exec('git rev-parse HEAD');
-			$myBranch = exec('git rev-parse --abbrev-ref HEAD');
+    $git = has_git();
+	
+    	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
+			$mySha = exec(has_git() . ' rev-parse HEAD');
+			$myBranch = exec(has_git() . ' rev-parse --abbrev-ref HEAD');
 			            
 		} else { 
 			console_log('No .git here!');
@@ -738,16 +740,17 @@ function landingPage($keyname) {
 
 function has_git()
 {
-	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where' : 'which';
-	exec($whereIsCommand . ' git', $output);
+	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git';
+	exec($whereIsCommand, $output);
 	$git = file_exists($line = trim(current($output))) ? $line : 'git';
 	unset($output);
 	exec($git . ' --version', $output);
 	preg_match('#^(git version)#', current($output), $matches);
 	console_log((empty($matches[0]) ? 'installed' : 'nope'));
-	return (empty($matches[0]) ? true : false);
+	return (empty($matches[0]) ? $git : false);
 	
 }
+
 function exec_enabled() {
     $disabled = explode(', ', ini_get('disable_functions'));
     return !in_array('exec', $disabled);
@@ -774,10 +777,11 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {
         if (exec_enabled() == true) {
-            if (has_git()) {
+		$git = has_git();
+            if ($git !== false) {
                 $hash = 'unknown';
             } else {
-                $hash = exec('git log --pretty="%H" -n1 HEAD');
+                $hash = exec($git . ' log --pretty="%H" -n1 HEAD');
             }
         } else {
             $hash = 'noexec';
@@ -827,8 +831,11 @@ if(empty($_GET)) {
 }
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate($sha) {
-	if ((exec_enabled() == true) && (has_git()) && (file_exists('.git'))) {
-		$result = exec('git pull');
+	$git = has_git();
+	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
+		$result = exec($git . ' pull 2>&1');
+		console_log("Tried to pull from git, result is " . $result . " Git Command is " . $git);
+		$result = (preg_match(getBranch(),$result));
 		$mySha = exec('git rev-parse HEAD');
 		$config = new Config_Lite(CONFIG);
 		$config->set('settings','sha',$sha);
