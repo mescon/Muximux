@@ -836,7 +836,6 @@ function downloadUpdate($sha) {
 	$git = has_git();
 	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
 		$result = exec('git pull');
-		console_log("Tried to pull from git, result is " . $result . " Git Command is git pull");
 		$result = (preg_match(getBranch(),$result));
 		$mySha = exec('git rev-parse HEAD');
 		$config = new Config_Lite(CONFIG);
