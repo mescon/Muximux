@@ -336,7 +336,7 @@ function setTitle(title) {
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox($force) {
-    if ((!getCookie('hasJSON')) || ($force === true)) {
+    if ((!getCookie('hasJSON')) || ($force === true) || (!sessionStorage['JSONData'])) {
         write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
         updateJson();
     }
