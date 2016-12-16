@@ -126,6 +126,7 @@ function parse_ini()
     $git = has_git();
 	
     	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
+			console_log('Seems like a valid git installation.');
 			$mySha = exec(has_git() . ' rev-parse HEAD');
 			$myBranch = exec(has_git() . ' rev-parse --abbrev-ref HEAD');
 			            
@@ -740,15 +741,16 @@ function landingPage($keyname) {
 
 function has_git()
 {
-	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git';
-	exec($whereIsCommand, $output);
-	$git = file_exists($line = trim(current($output))) ? $line : 'git';
-	unset($output);
-	exec($git . ' --version', $output);
-	preg_match('#^(git version)#', current($output), $matches);
-	console_log((empty($matches[0]) ? 'installed' : 'nope'));
-	return (empty($matches[0]) ? $git : false);
 	
+	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git'; // Establish the command for our OS
+	$gitPath = shell_exec($whereIsCommand); // Find where git is
+	$git = (empty($gitPath) ? false : true); // Make sure we have a path
+	if ($git) {										// Double-check git is here and executable
+		exec($gitPath . ' --version', $output);
+		preg_match('#^(git version)#', current($output), $matches);
+		$git = (empty($matches[0]) ? $gitPath : false);  // If so, return path.  If not, return false.
+	}
+	return $git;
 }
 
 function exec_enabled() {
