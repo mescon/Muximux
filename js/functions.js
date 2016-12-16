@@ -7,7 +7,9 @@ var gitdir = $("#gitdirectory-data").attr('data');
 var title = $("#title-data").attr('data');
 var branch = $("#branch-data").attr('data');
 var secret = $("#secret").attr('data');
+var jsonString;
 var difference = 0;
+var n = 15;
 var differenceDays;
 var json;
 
@@ -338,9 +340,10 @@ function setTitle(title) {
 function updateBox($force) {
     if ((!getCookie('hasJSON')) || ($force === true) || (!sessionStorage['JSONData'])) {
         write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
-        updateJson();
-    }
-    json = JSON.parse(sessionStorage.getItem('JSONData'));
+        json = updateJson();
+    } else {
+		json = JSON.parse(sessionStorage.getItem('JSONData'));
+	}
     var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
     for (var i in json) {
@@ -379,6 +382,7 @@ function updateJson() {
             sessionStorage.setItem('JSONData',jsonString);
             setCookie('hasJSON', 'true', 0.00694444);
         });
+		return jsonString;
 }
 
 function scaleContent(content, scale) {
@@ -397,28 +401,45 @@ function scaleContent(content, scale) {
 
 function downloadUpdate($sha) {
     if (confirm('Would you like to download and install updates now?')) {
-
         $.ajax({
             async: true,
             url: "muximux.php",
             type: 'GET',
             data: {action: "update", secret: secret, sha: $sha},
-            success: function (data) {
-                console.log('DownloadResult: ' + data);
-                if(data) {
-                    setStatus('Update installed successfully!');
-                } else {
-                    setStatus('An error has occurred.  Please reload and try again.');
-                }
+        })
+		.done(function(res) {
+			setStatus('Update installed successfully!',true);
+			delete_cookie('hasJSON');
+			sessionStorage.removeItem('JSONData');
+			n = 15;
+			var tm = setInterval(reloadTimer,1000);
 
-            }
+		})
+		.fail(function(res) {
+			setStatus('An error has occurred.  Please check the log to determine why.',false);
+		});
 
-        });
     } else {
         console.log('Update cancelled.');
     }
 }
 
+// A little countdown function to reload and tell the user why
+function reloadTimer() {
+	n--;
+	$('#countBox').html("Page will be reloaded in " + n + " seconds.");
+	if(n == 0){
+		location.reload();
+		clearInterval(tm);
+	}
+}
+
+//delete a cooke
+function delete_cookie(name) {
+	document.cookie = name + '=; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+}
+ 
+//writes to log
 function write_log($text,$lvl) {
 
     $.ajax({
@@ -444,15 +465,11 @@ function refresh_log() {
         });
 }
 
-function setStatus($message) {
+function setStatus(message,showcounter) {
     $('#updateContainer').hide();
     $('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
-                    "<span>" + $message + "<br/>" +
-                    "<div id='reloadModal'><code>Click to reload</code></div></span>");
+    "<span>" + message + "<br/><p id='countBox'</p></span>");
     $('#updateContainer').fadeIn("slow");
-    $('#reloadModal').click(function() {
-        location.reload();
-    });
     $('#updateDismiss').click(function() {
         $('#updateContainer').fadeOut('slow');
     });

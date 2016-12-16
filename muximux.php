@@ -836,16 +836,18 @@ function downloadUpdate($sha) {
 	$git = has_git();
 	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
 		$result = exec('git pull');
-		$result = (preg_match(getBranch(),$result));
-		$mySha = exec('git rev-parse HEAD');
-		$config = new Config_Lite(CONFIG);
-		$config->set('settings','sha',$sha);
-		try {
-			$config->save();
-		} catch (Config_Lite_Exception $e) {
-			echo "\n" . 'Exception Message: ' . $e->getMessage();
+		$result = (preg_match('/Updating/',$result));
+		if ($result) {
+			$mySha = exec('git rev-parse HEAD');
+			$config = new Config_Lite(CONFIG);
+			$config->set('settings','sha',$sha);
+			try {
+				$config->save();
+			} catch (Config_Lite_Exception $e) {
+				echo "\n" . 'Exception Message: ' . $e->getMessage();
+			}
+			rewrite_config_header();
 		}
-		rewrite_config_header();
 	} else {
 		$result = false;
 		$zipFile = "Muximux-".$sha. ".zip";
@@ -875,7 +877,7 @@ function downloadUpdate($sha) {
 			}
 		}
 	}
-    write_log('Update ' . (($result === true) ? 'succeeded.' : 'failed.'));
+    write_log('Update ' . (($result) ? 'succeeded.' : 'failed.'),(($result) ? 'I' : 'E'));
     return $result;
 }
 
