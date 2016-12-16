@@ -836,6 +836,7 @@ function downloadUpdate($sha) {
 	$git = has_git();
 	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
 		$result = exec('git pull');
+		write_log('Updating via git, command result is ' . $result,'D');
 		$result = (preg_match('/Updating/',$result));
 		if ($result) {
 			$mySha = exec('git rev-parse HEAD');

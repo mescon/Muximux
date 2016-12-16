@@ -195,10 +195,12 @@ function settingsEventHandlers() {
 // Takes all the data we have to generate our changelog
 function viewChangelog() {
     $('#changelog').html("");
-    if (!sessionStorage.getItem('JSONData')) {
+    if ((!getCookie('hasJSON')) || (!sessionStorage['JSONData'])) {
+        write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
         updateJson();
-    }
-    json = JSON.parse(sessionStorage.getItem('JSONData'));
+    } 
+		json = JSON.parse(sessionStorage.getItem('JSONData'));
+	
     $.getJSON(commitURL, function(result) {
         json = result;
         var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
@@ -340,10 +342,10 @@ function setTitle(title) {
 function updateBox($force) {
     if ((!getCookie('hasJSON')) || ($force === true) || (!sessionStorage['JSONData'])) {
         write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
-        json = updateJson();
-    } else {
-		json = JSON.parse(sessionStorage.getItem('JSONData'));
-	}
+        updateJson();
+    } 
+	json = JSON.parse(sessionStorage.getItem('JSONData'));
+	
     var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
     var difference = 0;
     for (var i in json) {
@@ -382,7 +384,7 @@ function updateJson() {
             sessionStorage.setItem('JSONData',jsonString);
             setCookie('hasJSON', 'true', 0.00694444);
         });
-		return jsonString;
+		
 }
 
 function scaleContent(content, scale) {
