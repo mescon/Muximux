@@ -32,9 +32,18 @@ jQuery(document).ready(function($) {
     $('.drop-nav').toggleClass('hide-nav');
 	$('.splashBtn').on('click', function(event) {
 		var selectedBtn = $(this).data('content');
-		var selectedBtnTab = $('.cd-tabs-navigation').find('a[data-content="' + selectedBtn + '"]');
+		if (isMobile) {
+			var selectedBtnTab = $('.drop-nav').find('a[data-content="' + selectedBtn + '"]');
+		} else {
+			var selectedBtnTab = $('.cd-tabs-navigation').find('a[data-content="' + selectedBtn + '"]');	
+		}
+		
 		console.log('Splash: ' + selectedBtn);
 		selectedBtnTab.click();
+		if (isMobile) {
+			$('.drop-nav').toggleClass('hide-nav');
+			$('.drop-nav').toggleClass('show-nav');
+		}
 		$('#splashModal').modal('hide');
 		
 		
@@ -213,8 +222,9 @@ $(window).load(function() {
 });
 // Close modal on escape key
 $("html").on("keyup", function(e) {
-    if(e.keyCode === 27 && !($('#modal-dialog').hasClass("no-display")))
-    $('.close').trigger("click");
+    if(e.keyCode === 27) {
+		$('.keyModal').modal('hide');
+	}
 });
 // When user closes the page, create new unique ID in secret.txt so that the token is no longer valid if used after page load.
 $(window).unload(function() {

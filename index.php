@@ -56,7 +56,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     </div>
 
     <!-- Modal -->
-    <div id="settingsModal" class="modal fade" role="dialog">
+    <div id="settingsModal" class="modal fade keyModal" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
@@ -156,7 +156,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
             </div>
         </div>
     </div>
-    <div id="logModal" class="modal fade" role="dialog">
+    <div id="logModal" class="modal fade keyModal" role="dialog">
         <div class="modal-dialog logDialog">
             <!-- Modal content-->
             <div class="modal-content logContent" role="document">
@@ -176,7 +176,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
             </div>
         </div>
     </div>
-	<div id="splashModal" class="modal" role="dialog" data-keyboard="true">
+	<div id="splashModal" class="modal keyModal" role="dialog" data-keyboard="true">
         <div class="modal-dialog splashDialog">
             <!-- Modal content-->
                 <div class="modal-header splashHeader">
