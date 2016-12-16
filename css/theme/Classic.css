@@ -182,7 +182,11 @@ input[type='button']:hover {
 }
 
 #splashBg {
-	background-color: #000;
+    background: #777b82; /* Old browsers */
+    background: -moz-linear-gradient(-45deg, #777b82 0%, #343843 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, #777b82 0%,#343843 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(135deg, #777b82 0%,#343843 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777b82', endColorstr='#343843',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
 	
 }
 
