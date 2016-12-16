@@ -123,23 +123,7 @@ function parse_ini()
     fetchBranches(false);
     $branchArray = getBranches();
     $branchList = "";
-    $git = has_git();
-	
-    	if ((exec_enabled() == true) && ($git !== false) && (file_exists('.git'))) {
-			console_log('Seems like a valid git installation.');
-			$mySha = exec(has_git() . ' rev-parse HEAD');
-			$myBranch = exec(has_git() . ' rev-parse --abbrev-ref HEAD');
-			            
-		} else { 
-			console_log('No .git here!');
-			if ($config->get('settings', 'sha', '0') == "0") {
-				$mySha = fetchSha();
-			} else {
-				$mySha = $config->get('settings', 'sha', '0');
-				$myBranch = getBranch();
-			}
-		}
-    
+        
     $css = './css/theme/' . getTheme() . '.css';
     $tabColorEnabled = $config->getBool('general', 'tabcolor', false);
     $enableDropDown = $config->getBool('general', 'enabledropdown', false);
@@ -594,11 +578,38 @@ function console_log( $data ) {
 // We run this when parsing settings to make sure that we have a SHA saved just as
 // soon as we know we'll need it (on install or new settings).  This is how we track whether or not
 // we need to update.
+
 function checksetSHA() {
     $config = new Config_Lite(CONFIG);
-    if ((getSHA() == '00') || (getSHA() == '')) {
-        $config ->set('settings','sha',fetchSHA());
-        try {
+	$shaIn = $config->get('settings','sha','0');
+	$branchIn = getBranch();
+	$shaCheck = (bool) preg_match('/^[0-9a-f]{40}$/i', $shaIn);
+	$git = can_git();
+	if ($git !== false) {
+		$shaOut = exec('git rev-parse HEAD');
+		$branchOut = exec('git rev-parse --abbrev-ref HEAD');
+	} else {
+		if (!$shaCheck) {
+			$branchArray = getBranches();
+			$branchOut = $branchIn();
+			foreach ($branchArray as $branchName => $shaVal) {
+				if ($branchName==$branchOut) {
+					$shaOut = $shaVal;
+				}
+			}
+		} 
+	}
+	$changed = false;
+	if ($branchIn != $branchOut) {
+		$config->set('settings', 'branch', $branchOut);
+		$changed = true;
+	}
+	if ($shaIn != $shaOut) {
+		$config->set('settings', 'sha', $shaOut);
+		$changed = true;
+	}
+	if ($changed) {
+		try {
             $config->save();
         } catch (Config_Lite_Exception $e) {
             echo "\n" . 'Exception Message: ' . $e->getMessage();
@@ -612,20 +623,6 @@ function getSHA() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('settings', 'sha', '00');
     return $item;
-}
-
-// This reads our array of branches, finds our selected branch in settings,
-// and returns the corresponding SHA value.  We need this to set the initial
-// SHA value on setup/load, as well as to compare for update checking.
-function fetchSHA() {
-    $branchArray = getBranches();
-    $myBranch = getBranch();
-    foreach ($branchArray as $branchName => $shaVal) {
-        if ($branchName==$myBranch) {
-                $shaOut = $shaVal;
-        }
-    }
-    return $shaOut;
 }
 
 // Retrieve password hash from settings and return it for "stuff".
@@ -739,16 +736,19 @@ function landingPage($keyname) {
 }
 
 
-function has_git()
+function can_git()
 {
-	
-	$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git'; // Establish the command for our OS
-	$gitPath = shell_exec($whereIsCommand); // Find where git is
-	$git = (empty($gitPath) ? false : true); // Make sure we have a path
-	if ($git) {										// Double-check git is here and executable
-		exec($gitPath . ' --version', $output);
-		preg_match('#^(git version)#', current($output), $matches);
-		$git = (empty($matches[0]) ? $gitPath : false);  // If so, return path.  If not, return false.
+	if ((exec_enabled() == true) && (file_exists('.git'))) {
+		$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git'; // Establish the command for our OS
+		$gitPath = shell_exec($whereIsCommand); // Find where git is
+		$git = (empty($gitPath) ? false : true); // Make sure we have a path
+		if ($git) {										// Double-check git is here and executable
+			exec($gitPath . ' --version', $output);
+			preg_match('#^(git version)#', current($output), $matches);
+			$git = (empty($matches[0]) ? $gitPath : false);  // If so, return path.  If not, return false.
+		}
+	} else {
+		$git = false;
 	}
 	return $git;
 }
@@ -779,7 +779,7 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
 
     if (isset($_GET['get']) && $_GET['get'] == 'hash') {
         if (exec_enabled() == true) {
-		$git = has_git();
+		$git = can_git();
             if ($git !== false) {
                 $hash = 'unknown';
             } else {
@@ -841,8 +841,8 @@ if(empty($_GET)) {
 }
 // This will download the latest zip from the current selected branch and extract it wherever specified
 function downloadUpdate($sha) {
-	$git = has_git();
-	if ((exec_enabled() == true) && ($git !== false) && (file_exists('./.git'))) {
+	$git = can_git();
+	if ($git !== false) {
 		$result = exec('git status');
 		$result = (preg_match('/working directory clean/',$result));
 		if ($result !== true) {
