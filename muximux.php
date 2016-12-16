@@ -6,19 +6,35 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 defined("CONFIGEXAMPLE") ? null : define('CONFIGEXAMPLE', 'settings.ini.php-example');
 defined("SECRET") ? null : define('SECRET', 'secret.txt');
 require dirname(__FILE__) . '/vendor/autoload.php';
+
 // Check if this is an old installation that needs upgrading.
 if (file_exists('config.ini.php')) {
     copy('config.ini.php', 'backup.ini.php');
     unlink('config.ini.php');
     $upgrade = true;
-    write_log('Converting configuration file from previous Muximux installation.');
+    write_log('Converting configuration file from previous Muximux installation.','D');
 } else {
     $upgrade = false;
 }
+
+// Check if this is our first run and do some things.
+if(!file_exists(CONFIG)){
+    copy(CONFIGEXAMPLE, CONFIG);
+    checksetSHA();
+}
+
+// First what we're gonna do - save or read
+if (sizeof($_POST) > 0) {
+    if("" == trim($_POST['username'])){
+        write_ini();
+    }
+} 
+
+// Check if we can open a file.
 function openFile($file, $mode) {
     if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable.
         printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
-    write_log('Error writing to file ' . $file);
+    write_log('Error writing to file ' . $file,'E');
         if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
             printf("<br>Current permission mode of %s: %d", $file, decoct(fileperms($file) & 0777));
             printf("<br>Current owner of %s: %s", $file, posix_getpwuid(fileowner($file))['name']);
@@ -30,6 +46,8 @@ function openFile($file, $mode) {
     }
     return fopen($file, $mode);
 }
+
+// Create a secret for communication to the server
 function createSecret() {
     $text = uniqid("muximux-", true);
     $file = openFile(SECRET, "w");
@@ -37,19 +55,8 @@ function createSecret() {
     fclose($file);
     return $text;
 }
-if(!file_exists(CONFIG)){
-    copy(CONFIGEXAMPLE, CONFIG);
-    checksetSHA();
-}
-// First what we're gonna do - save or read
-if (sizeof($_POST) > 0) {
 
-    if("" == trim($_POST['username'])){
-
-        write_ini();
-    }
-} 
-
+// Save our settings on submit
 function write_ini()
 {
     $config = new Config_Lite(CONFIG);
@@ -61,11 +68,10 @@ function write_ini()
     $config = new Config_Lite(CONFIG);
     foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('_-_', $parameter);
-        if ($value == "on")
-            $value = "true";
+        $value = (($value == "on") ? "true" : $value );
         if ($splitParameter[1] == "password") {
             if ($value != $oldHash) {
-                write_log('Successfully updated password.');
+                write_log('Successfully updated password.','I');
                 $value = password_hash($value, PASSWORD_BCRYPT);
                 $terminate = true;
             }
@@ -86,35 +92,14 @@ function write_ini()
         $config->set($splitParameter[0], $splitParameter[1], $value);
     }
     // save object to file
-    try {
-        $config->save();
-    } catch (Config_Lite_Exception $e) {
-        echo "\n" . 'Exception Message: ' . $e->getMessage();
-    write_log('Error saving configuration.','E');
-    }
-    rewrite_config_header();
+    saveConfig($config);
     if ($terminate) {
         session_start();
         session_destroy();
     }
 }
-function rewrite_config_header() {
-    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
-    $file = CONFIG; // the file to which $cache_new gets prepended
-    $handle = openFile($file, "r+");
-    $len = strlen($cache_new);
-    $final_len = filesize($file) + $len;
-    $cache_old = fread($handle, $len);
-    rewind($handle);
-    $i = 1;
-    while (ftell($handle) < $final_len) {
-        fwrite($handle, $cache_new);
-        $cache_new = $cache_old;
-        $cache_old = fread($handle, $len);
-        fseek($handle, $i * $len);
-        $i++;
-    }
-}
+
+// Parse settings.php and create the Muximux elements
 function parse_ini()
 {
     $config = new Config_Lite(CONFIG);
@@ -283,6 +268,7 @@ function parse_ini()
     return $pageOutput;
 }
 
+// Generate our splash screen contents (basically a very little version of parse_ini).
 function splashScreen() {
 	$config = new Config_Lite(CONFIG);
    $splash = "";
@@ -292,7 +278,6 @@ function splashScreen() {
 			$splash .= "
 									<div class='btnWrap'>
 										<div class='well splashBtn' data-content=\"" . $keyname . "\">
-										
 											<a class='panel-heading' data-title=\"" . $section["name"] . "\">
 												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$section["color"]."'></i><br>
 												<p style='color:#ddd'>".$section["name"]."</p>
@@ -301,29 +286,56 @@ function splashScreen() {
 									</div>";
 		}
 	}
-	$splash .= "
-	";
-	
 	return $splash;
 }
+
+// Generate the contents of the log
+function log_contents() {
+    $out = '<ul>
+                <div id="logContainer">
+    ';
+    $filename = 'muximux.log';
+	$file = file($filename);
+	$file = array_reverse($file);
+	foreach($file as $line){
+		$lvl = substr($line,0,1);
+        if ($lvl === 'E') {
+            $color = 'alert alert-danger';
+        }
+        if ($lvl === 'D') {
+            $color = 'alert alert-warning';
+        }
+        if ($lvl === 'I') {
+            $color = 'alert alert-success';
+		}
+        $out .='
+                        <li class="logLine '.$color.'">'.
+                            substr($line,2).'
+                        </li>';
+
+        
+        
+    }
+    $out .= '</div>
+            </ul>
+    ';
+    return $out;
+}
+
 
 // Check if the user changes tracking branch, which will change the SHA and trigger an update notification
 function checkBranchChanged() {
     $config = new Config_Lite(CONFIG);
     if ($config->getBool('settings', 'branch_changed', false)) {
-        $config->set("settings","sha","00");
+        $config->set("settings","sha","0");
         $config->set("settings","branch_changed",false);
-        try {
-            $config->save();
-        } catch (Config_Lite_Exception $e) {
-            echo "\n" . 'Exception Message: ' . $e->getMessage();
-        }
-        rewrite_config_header();
+        saveConfig($config);
         return true;
     } else {
         return false;
     }
 }
+
 // Build a custom scale using our set value, show it as selected
 function buildScale($selectValue)
 {
@@ -339,6 +351,7 @@ function buildScale($selectValue)
     return $scaleRange;
 }
 
+// Quickie to get the theme from settings
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
@@ -346,6 +359,7 @@ function getTheme()
     return $item;
 }
 
+// List all available themes in directory
 function listThemes() {
     $dir    = './css/theme';
     $themelist ="";
@@ -353,14 +367,16 @@ function listThemes() {
     $themeCurrent = getTheme();
     foreach($themes as $value){
         $splitName = explode('.', $value);
-        if  (!empty($splitName[0])) {
+		if  (!empty($splitName[0])) {
+			$name = ucfirst($splitName[0])
             $themelist .="
-                                <option value='".$splitName[0]."' ".(($splitName[0] == getTheme()) ? 'selected' : '').">".$splitName[0]."</option>";
+                                <option value='".$name."' ".(($name == getTheme()) ? 'selected' : '').">".$name."</option>";
         }
     }
     return $themelist;
 }
 
+// Build the contents of our menu
 function menuItems() {
     $config = new Config_Lite(CONFIG);
     $standardmenu = "";
@@ -481,6 +497,7 @@ function menuItems() {
     return $item;
 }
 
+// Quickie fetch the main title
 function getTitle() {
     $config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'title', 'Muximux - Application Management Console');
@@ -552,12 +569,7 @@ function fetchBranches($skip) {
             $outP = array_combine($names,$shas);
             $config ->set('settings','branches',$outP);
             $config ->set('settings','last_check',time());
-            try {
-                $config->save();
-            } catch (Config_Lite_Exception $e) {
-                echo "\n" . 'Exception Message: ' . $e->getMessage();
-            }
-            rewrite_config_header();
+            saveConfig($config);
             $result = true;
         }
 
@@ -568,6 +580,7 @@ function fetchBranches($skip) {
 
 }
 
+// Echos php information to the java console
 function console_log( $data ) {
   $output  = "<script>console.log( 'PHP debugger: ";
   $output .= json_encode(print_r($data, true));
@@ -575,10 +588,8 @@ function console_log( $data ) {
   echo $output;
 }
 
-// We run this when parsing settings to make sure that we have a SHA saved just as
-// soon as we know we'll need it (on install or new settings).  This is how we track whether or not
-// we need to update.
-
+// This checks whether we have a SHA, and if not, whether we are using git or zip updates and stores
+// the data accordingly
 function checksetSHA() {
     $config = new Config_Lite(CONFIG);
 	$shaIn = $config->get('settings','sha','0');
@@ -609,13 +620,9 @@ function checksetSHA() {
 		$changed = true;
 	}
 	if ($changed) {
-		try {
-            $config->save();
-        } catch (Config_Lite_Exception $e) {
-            echo "\n" . 'Exception Message: ' . $e->getMessage();
-        }
-        rewrite_config_header();
-    }
+		saveConfig($config);
+        
+	}
 }
 
 // Read SHA from settings and return it's value.
@@ -658,7 +665,7 @@ function metaTags() {
             $inipath = "php.ini";
         }
     $created = filectime(CONFIG);
-        $branchChanged = (checkBranchChanged() ? 'true' : 'false');
+	$branchChanged = (checkBranchChanged() ? 'true' : 'false');
     $secret = file_get_contents(SECRET);
 $tags = "
     <meta id='dropdown-data' data='".$enabledropdown."'>
@@ -681,6 +688,7 @@ $tags = "
 ";
     return $tags;
 }
+
 // Set up the actual iFrame contents, as the name implies.
 function frameContent() {
     $config = new Config_Lite(CONFIG);
@@ -735,17 +743,17 @@ function landingPage($keyname) {
     return $item;
 }
 
-
+// This method checks whether we can execute, if the directory is a git, and if git is installed
 function can_git()
 {
 	if ((exec_enabled() == true) && (file_exists('.git'))) {
-		$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git'; // Establish the command for our OS
-		$gitPath = shell_exec($whereIsCommand); // Find where git is
-		$git = (empty($gitPath) ? false : true); // Make sure we have a path
-		if ($git) {										// Double-check git is here and executable
+		$whereIsCommand = (PHP_OS == 'WINNT') ? 'where git' : 'which git'; 	// Establish the command for our OS
+		$gitPath = shell_exec($whereIsCommand); 							// Find where git is
+		$git = (empty($gitPath) ? false : true); 							// Make sure we have a path
+		if ($git) {															// Double-check git is here and executable
 			exec($gitPath . ' --version', $output);
 			preg_match('#^(git version)#', current($output), $matches);
-			$git = (empty($matches[0]) ? $gitPath : false);  // If so, return path.  If not, return false.
+			$git = (empty($matches[0]) ? $gitPath : false);  				// If so, return path.  If not, return false.
 		}
 	} else {
 		$git = false;
@@ -753,16 +761,12 @@ function can_git()
 	return $git;
 }
 
+// Can we execute commands?
 function exec_enabled() {
     $disabled = explode(', ', ini_get('disable_functions'));
     return !in_array('exec', $disabled);
 }
-// URL parameters
-if (isset($_GET['landing'])) {
-    $keyname = $_GET['landing'];
-    echo landingPage($keyname);
-    die();
-}
+
 // This is where the JavaScript reads the contents of the secret file. This gets re-generated on each page load.
 if (isset($_GET['get']) && $_GET['get'] == 'secret') {
         $secret = file_get_contents(SECRET) or die("Unable to open " . SECRET);
@@ -835,11 +839,13 @@ if(isset($_GET['secret']) && $_GET['secret'] == file_get_contents(SECRET)) {
         die();
     }
 }
+
 // End protected get-calls
 if(empty($_GET)) {
     createSecret();
 }
-// This will download the latest zip from the current selected branch and extract it wherever specified
+
+// This downloads updates from git if available and able, otherwise, from zip.
 function downloadUpdate($sha) {
 	$git = can_git();
 	if ($git !== false) {
@@ -861,12 +867,7 @@ function downloadUpdate($sha) {
 			} else {
 				$config->set('settings','sha',$sha);
 			}
-			try {
-				$config->save();
-			} catch (Config_Lite_Exception $e) {
-				echo "\n" . 'Exception Message: ' . $e->getMessage();
-			}
-			rewrite_config_header();
+			saveConfig($config);
 		} else {
 			$result = 'Install Failed!  An unknown error occurred attempting to update.  Please manually check git status and fix.';
 		}
@@ -892,12 +893,7 @@ function downloadUpdate($sha) {
 				}
 				$config = new Config_Lite(CONFIG);
 				$config->set('settings','sha',$sha);
-				try {
-					$config->save();
-				} catch (Config_Lite_Exception $e) {
-					echo "\n" . 'Exception Message: ' . $e->getMessage();
-				}
-				rewrite_config_header();
+				saveConfig($config);
 			} else {
 				$result = 'Install Failed!  Unable to open zip file.  Check directory permissions and try again.';
 			}
@@ -912,6 +908,7 @@ function downloadUpdate($sha) {
     return $result;
 }
 
+// Copy a directory recursively - used to move updates after extraction
 function cpy($source, $dest){
     if(is_dir($source)) {
         $dir_handle=opendir($source);
@@ -932,6 +929,8 @@ function cpy($source, $dest){
         copy($source, $dest);
     }
 }
+
+// Recursively delete the contents of a directory
 function deleteContent($path){
     try{
         $iterator = new DirectoryIterator($path);
@@ -952,6 +951,7 @@ function deleteContent($path){
     return true;
 }
 
+// This is used by our login script to determine session state 
 function is_session_started() {
     if ( php_sapi_name() !== 'cli' ) {
         if ( version_compare(phpversion(), '5.4.0', '>=') ) {
@@ -989,7 +989,7 @@ function parseCSS($file,$searchSelector,$searchAttribute){
 }
 
 // Appends lines to file and makes sure the file doesn't grow too much
-// You can supply a level, which should be a one-letter code (E for error, D for debug)
+// You can supply a level, which should be a one-letter code (E for error, D for debug, I for information)
 // If a level is not supplied, it will be assumed to be Informative.
 
 function write_log($text,$level=null) {
@@ -1011,39 +1011,27 @@ function write_log($text,$level=null) {
     fclose($handle);
 }
 
-function log_contents() {
-    $out = '<ul>
-                <div id="logContainer">
-    ';
-    $filename = 'muximux.log';
-    $handle = fopen($filename, "r");
-    if ($handle) {
-        while (($line = fgets($handle)) !== false) {
-            $lvl = substr($line,0,1);
-            if ($lvl === 'E') {
-                $color = 'alert alert-danger';
-            }
-            if ($lvl === 'D') {
-                $color = 'alert alert-warning';
-            }
-            if ($lvl === 'I') {
-                $color = 'alert alert-success';
-            }
-            $out .='
-                        <li class="logLine '.$color.'">'.
-                            substr($line,2).'
-                        </li>';
-
-        }
-        fclose($handle);
+// Try to save our config and rewrite the header
+function saveConfig($inConfig) {
+    try {
+        $inConfig->save();
+    } catch (Config_Lite_Exception $e) {
+        echo "\n" . 'Exception Message: ' . $e->getMessage();
+    write_log('Error saving configuration.','E');
     }
-    $out .= '</div>
-            </ul>
-    ';
-    return $out;
+    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
+    $file = CONFIG; // the file to which $cache_new gets prepended
+    $handle = openFile($file, "r+");
+    $len = strlen($cache_new);
+    $final_len = filesize($file) + $len;
+    $cache_old = fread($handle, $len);
+    rewind($handle);
+    $i = 1;
+    while (ftell($handle) < $final_len) {
+        fwrite($handle, $cache_new);
+        $cache_new = $cache_old;
+        $cache_old = fread($handle, $len);
+        fseek($handle, $i * $len);
+        $i++;
+    }
 }
-
-function begins_with($haystack, $needle) {
-    return substr($haystack, 0, 1) === $needle;
-}
-
