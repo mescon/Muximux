@@ -471,10 +471,10 @@ function refresh_log() {
 
 function setStatus(message,showcounter) {
     $('#updateContainer').hide();
-    $('#updateContainer').html("<button type=\"button\" id=\"updateDismiss\" class=\"close pull-right\">&times;</button>" +
+    $('#updateContainer').html("<button type=\"button\" id=\"updateClose\" class=\"close pull-right\">&times;</button>" +
     "<span>" + message + "<br/><p id='countBox'</p></span>");
     $('#updateContainer').fadeIn("slow");
-    $('#updateDismiss').click(function() {
+    $('#updateClose').click(function() {
         $('#updateContainer').fadeOut('slow');
     });
 }
