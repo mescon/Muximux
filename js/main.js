@@ -133,7 +133,9 @@ jQuery(document).ready(function($) {
 		$('#logModal').modal('show');
     });
 	$("#splashSettings").click(function() {
-		$('#settingsModal').modal('show');
+		setTimeout(function () {
+			$('#settingsModal').modal('show');
+		}, 100);
     });
 	$("#splashLogout").click(function() {
         window.location.href = '?logout';
