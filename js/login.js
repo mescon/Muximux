@@ -1,4 +1,9 @@
 $(document).ready(function() {
+	var themeColor = $('#themeColor-data').attr("data");
+    	$('.logo').find('path').css('fill',themeColor);
+	$('.login3').css('background',themeColor);
+	$('.login3').css('border', '1px solid ' + themeColor);
+	$('.login-block').css('border-top','5px solid ' + themeColor);
     $('.wrapper').animate({
         top: "10%"
     }, 300, 'easeInOutElastic', function() {

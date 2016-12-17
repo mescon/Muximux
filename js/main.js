@@ -18,6 +18,7 @@ jQuery(document).ready(function($) {
 	splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
     getSecret();
+	$('.logo').find('path').css('fill',themeColor);
 	if (showSplash) {
 		$('#splashModal').modal('show');
 	}
@@ -129,6 +130,13 @@ jQuery(document).ready(function($) {
             $('.inputdiv').slideUp('fast');
         }
     });
+	$(".main-nav").find("li").click(function(e) { 
+		$(this).css("background-color",e.type === "mouseenter"?themeColor:"transparent") 
+	})
+	
+	$(".splashNavBtn").hover(function(e) { 
+		$(this).css("background-color",e.type === "mouseenter"?themeColor:"transparent") 
+	})
 	$("#splashLog").click(function() {
 		$('#logModal').modal('show');
     });
@@ -209,10 +217,8 @@ jQuery(document).ready(function($) {
     }
     if ($('#tabcolorCheckbox').prop('checked')) {
         $('.appsColor').show();
-        $('.generalColor').hide();
     } else {
         $('.appsColor').hide();
-        $('.generalColor').show();
     }
 
     $('#settingsLogo').click(function(){

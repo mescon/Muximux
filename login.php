@@ -7,6 +7,9 @@ $config = new Config_Lite(CONFIG);
 $hash = $config->get('general', 'password', '0');
 $title = $config->get('general', 'title', '0');
 $username = $config->get('general', 'userNameInput', '0');
+$cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
+$themeColor = $config->get('general','color',$cssColor);
+    
 if(isset($_GET['logout'])) {
     $_SESSION['username'] = '';
 	write_log('Successfully logged out.');
@@ -42,6 +45,8 @@ echo '
     <script src="js/login.js"></script>
 </head>
 <body>
+<meta id="themeColor-data" data="'.$themeColor.'">
+
 <div class="wrapper">
     <div class="logo">
 		'.

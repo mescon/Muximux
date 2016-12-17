@@ -64,7 +64,15 @@ function write_ini()
     $oldBranch = getBranch();
     $terminate = false;
     $authentication = $config->getBool('general','authentication',false);
-    unlink(CONFIG);
+	
+    // Double check that a username post didn't sneak through
+    foreach ($_POST as $parameter => $value) {
+    	$splitParameter = explode('_-_', $parameter);
+	if ($splitParameter[1] == "username") {
+	    die;
+	}
+    }
+	unlink(CONFIG);
     $config = new Config_Lite(CONFIG);
     foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('_-_', $parameter);
@@ -109,7 +117,7 @@ function parse_ini()
     $branchArray = getBranches();
     $branchList = "";
         
-    $css = './css/theme/' . getTheme() . '.css';
+    $css = getThemeFile();
     $tabColorEnabled = $config->getBool('general', 'tabcolor', false);
     $enableDropDown = $config->getBool('general', 'enabledropdown', false);
     $updatePopup = $config->getBool('general', 'updatepopup', false);
@@ -121,6 +129,7 @@ function parse_ini()
     $userName = $config->get('general', 'userNameInput', 'admin');
     $passHash = $config->get('general', 'password', 'Muximux');
     $authentication = $config->getBool('general', 'authentication', false);
+    $myBranch = getBranch();
 
     foreach ($branchArray as $branchName => $shaSum ) {
         $branchList .= "
@@ -163,7 +172,7 @@ function parse_ini()
                                 <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' ".($mobileOverride ? 'checked' : '').">
                         </div><br>
                         <div class='generalColor'>
-                            <label for='general_-_color'>Color: </label>
+                            <label for='general_-_color'>Theme Color: </label>
                             <input type='color' id='general_-_default' class='generalColor general_-_color' value='".$themeColor."' name='general_-_color'>
                         </div>
                         <div>
@@ -203,7 +212,7 @@ function parse_ini()
             $url = $config->get($section, 'url', 'http://www.plex.com');
             $color = $config->get($section, 'color', '#000');
             $icon = $config->get($section, 'icon', '');
-            $scale = $config->get($section, 'scale', '');
+            $scale = $config->get($section, 'scale', '1');
             $default = $config->getBool($section, 'default', false);
             $enabled = $config->getBool($section, 'enabled', true);
             $landingpage = $config->getBool($section, 'landingpage', true);
@@ -270,16 +279,22 @@ function parse_ini()
 
 // Generate our splash screen contents (basically a very little version of parse_ini).
 function splashScreen() {
-	$config = new Config_Lite(CONFIG);
-   $splash = "";
+    $config = new Config_Lite(CONFIG);
+    $css = getThemeFile();
+    $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
+    $themeColor = $config->get('general','color',$cssColor);
+    $tabColor = $config->getBool('general','tabcolor',false);
+    
+    $splash = "";
     
     foreach ($config as $keyname => $section) {
-		if (($keyname != "general") && ($keyname != "settings")) {
+	if (($keyname != "general") && ($keyname != "settings")) {
+    	    $color = ($tabColor===true ? $section["color"] : $themeColor);
 			$splash .= "
 									<div class='btnWrap'>
 										<div class='well splashBtn' data-content=\"" . $keyname . "\">
 											<a class='panel-heading' data-title=\"" . $section["name"] . "\">
-												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$section["color"]."'></i><br>
+												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$color."'></i><br>
 												<p class='splashBtnTitle' style='color:#ddd'>".$section["name"]."</p>
 											</a>
 										</div>
@@ -355,8 +370,32 @@ function buildScale($selectValue)
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'theme', 'Classic');
-    return $item;
+    $item = $config->get('general', 'theme', 'classic');
+	return $item;
+}
+
+function getThemeFile() {
+	$config = new Config_Lite(CONFIG);
+    $item = $config->get('general', 'theme', 'classic');
+	$item = $item . '.css';
+	if (!file_exists('css/theme/'.$item)) {
+		$item=ucfirst($item);
+	}
+	if (!file_exists('css/theme/'.$item)) {
+		$item=strtolower($item);
+	}
+	if (!file_exists('css/theme/'.$item)) {
+		$item=strtoupper($item);
+	}	
+	if (!file_exists('css/theme/'.$item)) {
+		$item='theme_default.css';
+	}
+	if ($item='theme_default.css') {
+		$item = 'css/theme_default.css';
+	} else {
+		$item = 'css/theme/' . $item;
+	}
+	return $item;
 }
 
 // List all available themes in directory
@@ -655,7 +694,7 @@ function metaTags() {
     $maintitle = $config->get('general', 'title', 'Muximux');
     $tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
     $splashScreen = var_export($config->getBool('general', 'splashscreen', false),true);
-    $css = './css/theme/' . getTheme() . '.css';
+    $css = getThemeFile();
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
     $themeColor = $config->get('general','color',$cssColor);
     $inipath = php_ini_loaded_file();

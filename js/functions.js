@@ -183,11 +183,9 @@ function settingsEventHandlers() {
     });
     $('#tabcolorCheckbox').click(function(event) {
         if ($(this).prop('checked')) {
-            $('.appsColor').toggle('slide', {direction: 'left'}, 200);
-            $('.generalColor').toggle('slide', {direction: 'left'}, 200);
+            $('.appsColor').toggle('slide', {direction: 'left'}, 200);            
         } else {
-            $('.appsColor').toggle('slide', {direction: 'left'}, 200);
-            $('.generalColor').toggle('slide', {direction: 'left'}, 200);
+            $('.appsColor').toggle('slide', {direction: 'left'}, 200);            
         }
 
     });
