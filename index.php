@@ -180,12 +180,17 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
         <div class="modal-dialog splashDialog">
             <!-- Modal content-->
                 <div class="modal-header splashHeader">
-                    <button type="button" class="close splashClose" data-dismiss="modal">&times;</button>
-					<div class="logo smallLogo">
-						<div class="modal-title"><?php echo file_get_contents("images/muximux-white.svg") ?></div>
+						<div class="logo smallLogo">
+							<div class="modal-title"><?php echo file_get_contents("images/muximux-white.svg") ?></div>
+						</div>
+						<div id="splashNav">
+							<button type="button" id="splashSettings" class="splashNavBtn btn btn-primary btn-lg" data-dismiss="modal"><span class="fa fa-cog icon-4x"></span></button>
+							<button type="button" id="splashLog" class="splashNavBtn btn btn-primary btn-lg" data-dismiss="modal"><span class="fa fa-file-text-o icon-4x"></span></button>
+							<button type="button" id="splashLogout" class="splashNavBtn btn btn-primary btn-lg"><span class="fa fa-sign-out icon-4x"></span></button>	
+						</div>
+						
 					</div>
-                </div>
-                
+				
                 <div id="splashContainer" class="alert">
 				<?php echo splashScreen() ?>
 		        

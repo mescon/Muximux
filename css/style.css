@@ -394,30 +394,49 @@ input[type='button'] {
 	
 }
 
-#splashModal {
-	height: 100%;
-	width: 100%;
-}
-
 .splashHeader {
-	height: 100%;
 	width:250px;
     border-radius: 5px;
+	position: relative;
 }
 
 #splashContainer {
     width: 100%;
-    max-width: 1000px;
     height: 100%;
     margin: auto;
-    padding: 10px 10px 30px 10px;
+    padding: 30px 10px 10px 10px;
     text-align: center;
     font-size: 16px;
     font-size: 1.6rem;
-    display: flex;
-    flex-wrap: wrap;
     align-content: center;
+	overflow-y: auto;
 	
+	
+}
+
+.splashBtnTitle {
+	margin-top: 10px;
+}
+
+#splashNav {
+    position: absolute;
+	bottom:35px;
+	left:0;
+    width: 100%;
+	margin-top:10px; 
+	margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+}
+
+#headerWrapper {
+	position:fixed;
+	top: 0;
+	left 0;
+}
+
+.splashNavBtn {
+	margin-right: 5px;
 }
 
 @media screen and (max-width:800px) {
@@ -427,13 +446,14 @@ input[type='button'] {
     }
 	
     #splashContainer {
-	padding: 170px 10px 30px 10px;
+	padding: 30px 10px 30px 10px;
+	
     }
 }
 
 .splashDialog {
-    width: 100%;
-	height: 100%;
+	height:100%;
+	width: 100%;
     margin-left: auto;
     margin-right: auto;
     max-width: 100%;
@@ -459,13 +479,14 @@ input[type='button'] {
 }
 
 #splashBg {
-	height:100%;
-	width: 100%;
-	background-color: #000;
-	position: fixed;
-	top: 0;
+	 height: 200%;
+    width: 200%;
+    position: fixed;
+    top: 0;
+    left: 0;
     z-index: -99;
     display: block;
+
 }
 
 .logLine {
@@ -642,3 +663,21 @@ iframe {
 
 }
 
+#splashModal {
+	height: 100%;
+	width: 100%;
+	padding-left:0px !important;
+	left: -100%;
+		-webkit-transition: opacity 0.3s linear, left 0.3s ease-out;
+		   -moz-transition: opacity 0.3s linear, left 0.3s ease-out;
+		     -o-transition: opacity 0.3s linear, left 0.3s ease-out;
+		        transition: opacity 0.3s linear, left 0.3s ease-out;
+	
+}
+#splashModal.in {
+	left: 0;
+}
+#splashModal:not(.in) {
+    -webkit-transform: translate3d(-25%, 0, 0);
+    transform: translate3d(-25%, 0, 0);
+}

@@ -9,16 +9,16 @@ body {
 }
 
 .logo path {
-    fill: #ff4c4d;
+    fill: #ff3333;
 }
 
 .login-block {
     background: #3f3f3f;
-    border-top: 5px solid #ff4c4d;
+    border-top: 5px solid #ff3333;
 }
 
 .colorgrab {
-    color:#ff4c4d;
+    color:#ff3333;
 }
 
 .login-block h1 {
@@ -169,14 +169,29 @@ input[type='button']:hover {
  background: #3f3f3f;
 }
 .splashHeader {
-	border-right: 1px solid #e3e3e3;
+	border-right: 1px solid rgba(71, 41, 41, 0.83);
 }
-   
 
+.splashNavBtn {
+	background: #5c5d5c;
+	border-color: rgba(71, 41, 41, 0.83);
+}   
+
+.splashNavBtn:hover {
+	background: #ff3333;
+}
 .well {
 	background-color: #3f3f3f;
+	border: 1px solid rgba(71, 41, 41, 0.83);
+	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
 	
 }
+
+.well:hover {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+
 
 #splashBg {
 	background: #7d7e7d; /* Old browsers */

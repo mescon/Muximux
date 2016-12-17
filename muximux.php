@@ -280,7 +280,7 @@ function splashScreen() {
 										<div class='well splashBtn' data-content=\"" . $keyname . "\">
 											<a class='panel-heading' data-title=\"" . $section["name"] . "\">
 												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$section["color"]."'></i><br>
-												<p style='color:#ddd'>".$section["name"]."</p>
+												<p class='splashBtnTitle' style='color:#ddd'>".$section["name"]."</p>
 											</a>
 										</div>
 									</div>";

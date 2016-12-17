@@ -32,11 +32,7 @@ jQuery(document).ready(function($) {
     $('.drop-nav').toggleClass('hide-nav');
 	$('.splashBtn').on('click', function(event) {
 		var selectedBtn = $(this).data('content');
-		if (isMobile) {
-			var selectedBtnTab = $('.drop-nav').find('a[data-content="' + selectedBtn + '"]');
-		} else {
-			var selectedBtnTab = $('.cd-tabs-navigation').find('a[data-content="' + selectedBtn + '"]');	
-		}
+		var selectedBtnTab = $('.cd-tabs-bar').find('a[data-content="' + selectedBtn + '"]');
 		
 		console.log('Splash: ' + selectedBtn);
 		selectedBtnTab.click();
@@ -132,6 +128,15 @@ jQuery(document).ready(function($) {
         } else {
             $('.inputdiv').slideUp('fast');
         }
+    });
+	$("#splashLog").click(function() {
+		$('#logModal').modal('show');
+    });
+	$("#splashSettings").click(function() {
+		$('#settingsModal').modal('show');
+    });
+	$("#splashLogout").click(function() {
+        window.location.href = '?logout';
     });
     $("#logout").click(function() {
          window.location.href = '?logout';
