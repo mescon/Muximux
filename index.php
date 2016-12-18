@@ -35,11 +35,30 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <meta name="msapplication-navbutton-color" class="mstheme" content="#DFDFDF" />
     <meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="#DFDFDF" />
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
-    <link rel="stylesheet" href="combineify.php?type=css&files=css/jquery-ui.min.css,css/cssreset.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
-    <title><?php echo getTitle(); ?></title>
+    <link rel="stylesheet" href="css/loader.css"/>
+	<link rel="stylesheet" href="combineify.php?type=css&files=css/jquery-ui.min.css,css/cssreset.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
+    
+	<title><?php echo getTitle(); ?></title>
+	
 </head>
 
 <body>
+<div class="loader" id="pleaseWaitDialog" data-backdrop="static" data-keyboard="false" data-show="true" aria-labelledby="mySmallModalLabel" aria-hidden="false">
+	<div class="cssload-loader">
+		<div class="cssload-flipper">
+			<div class="cssload-front"></div>
+			<div class="cssload-back"></div>
+		</div>
+	</div>
+    <div class="loader-header">
+        <h4>Muximux is loading...</h4>
+    </div>
+    <div class="loader-body">
+        <div class="loader">
+            <div class="bar" style="width: 100%;"></div>
+        </div>
+    </div>
+</div>
 <!--[if lt IE 8]>
 <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade
     your browser</a> to improve your experience.</p>

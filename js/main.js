@@ -1,5 +1,11 @@
 var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle;
 jQuery(document).ready(function($) {
+	$('#pleaseWaitDialog').animate({
+		opacity: .25,
+		left: "+=300px"
+    }, 1200, function() {
+    $('#pleaseWaitDialog').hide();
+  });
 	$('.cd-tabs-bar').show();
     // Custom function to do case-insensitive selector matching
     $.extend($.expr[":"], {
@@ -13,13 +19,14 @@ jQuery(document).ready(function($) {
     tabColor = ($("#tabcolor").attr('data') == 'true');
     dropDown = ($("#dropdown-data").attr('data') == 'true');
     themeColor = $('#themeColor-data').attr("data");
-    authentication = $('#authentication-data').attr("data");
+    authentication = ($('#authentication-data').attr("data")== 'true');
     tabs = $('.cd-tabs');
 	splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
     getSecret();
 	$('.logo').find('path').css('fill',themeColor);
 	if (showSplash) {
+		if (!authentication) {$('#splashLogout').addClass('hidden');}
 		$('#splashModal').modal('show');
 	}
     muximuxMobileResize();
