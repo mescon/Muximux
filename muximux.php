@@ -25,7 +25,7 @@ if(!file_exists(CONFIG)){
 
 // First what we're gonna do - save or read
 if (sizeof($_POST) > 0) {
-    if("" == trim($_POST['username'])){
+    if(!isset($_POST['username'])){
         write_ini();
     }
 } 
@@ -233,9 +233,9 @@ function parse_ini()
             $icon = $config->get($section, 'icon', '');
             $scale = $config->get($section, 'scale', '1');
             $default = $config->getBool($section, 'default', false);
-            $enabled = $config->getBool($section, 'enabled', true);
-            $landingpage = $config->getBool($section, 'landingpage', true);
-            $dd = $config->getBool($section, 'dd', true);
+            $enabled = $config->getBool($section, 'enabled', false);
+            $landingpage = $config->getBool($section, 'landingpage', false);
+            $dd = $config->getBool($section, 'dd', false);
             $scaleRange = "0";
             $scaleRange = buildScale($scale);
             $pageOutput .= "
@@ -262,7 +262,7 @@ function parse_ini()
 							<div class='appDiv form-group'>
 								<label for='" . $section . "_-_icon' class='col-xs-4 control-label right-label'>Icon: </label>
 								<div class='col-xs-7 col-md-5'>
-									<button role=\"iconpicker\" class=\"form-control form-control-sm iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\"></button>
+									<button role='iconpicker' class='form-control form-control-sm iconpicker btn btn-default' name='" . $section . "_-_icon' data-rows='4' data-cols='6' data-search='true' data-search-text='Search...' data-iconset='fontawesome' data-placement='left' data-icon='" . $icon . "'></button>
 								</div>	
 							</div>
 							<div class='appDiv form-group colorDiv'>
@@ -321,12 +321,13 @@ function splashScreen() {
     $splash = "";
     
     foreach ($config as $keyname => $section) {
-	if (($keyname != "general") && ($keyname != "settings")) {
+	$enabled = $config->getBool($keyname,'enabled',false);
+	if (($keyname != "general") && ($keyname != "settings") && $enabled) {
     	    $color = ($tabColor===true ? $section["color"] : $themeColor);
 			$splash .= "
 									<div class='btnWrap'>
-										<div class='well splashBtn' data-content=\"" . $keyname . "\">
-											<a class='panel-heading' data-title=\"" . $section["name"] . "\">
+										<div class='well splashBtn' data-content='" . $keyname . "'>
+											<a class='panel-heading' data-title='" . $section["name"] . "'>
 												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$color."'></i><br>
 												<p class='splashBtnTitle' style='color:#ddd'>".$section["name"]."</p>
 											</a>
@@ -451,120 +452,109 @@ function listThemes() {
 // Build the contents of our menu
 function menuItems() {
     $config = new Config_Lite(CONFIG);
-    $standardmenu = "";
-    $dropdownmenu = "";
+    $standardmenu = "<ul class='cd-tabs-navigation'>
+                <nav>";
+    $dropdownmenu = "
+							<li>
+								<a data-toggle='modal' data-target='#settingsModal' data-title='Settings'>
+									<span class='fa fa-cog'></span>Settings
+								</a>
+							</li>
+							<li>
+								<a data-toggle='modal' data-target='#logModal' data-title='Log Viewer'>
+									<span class='fa fa-file-text-o'></span> Log
+								</a>
+							</li>";
     $int = 0;
-    foreach ($config as $keyname => $section) {
-        if (($keyname == "general")) {
-            $autohide = $config->getBool('general', 'autohide', true);
-            $enabledropdown = $config->getBool('settings', 'enabledropdown', true);
-            $mobileoverride = $config->getBool('general', 'mobileoverride', false);
-            $authentication = $config->getBool('general', 'authentication', false);
-        } else {
-            $dropdown = $config->getBool($keyname, 'dd', false);
-            $enabled = $config->getBool($keyname, 'enabled', true);
-            $default = $config->getBool($keyname, 'default', true);
-        if ($enabled && !$dropdown) {
-                $standardmenu .= "
-                    <li class='cd-tab' data-index='".$int."'>
-                        <a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
-                            <span class='fa " . $section["icon"] . " fa-lg'></span> " . $section["name"] . "
-                        </a>
-                    </li>";
-            $int++;
-        }
-
-        if ($dropdown && $enabled && $section['name'] == "Settings") {
-            $dropdownmenu .= "
-                    <li>
-                        <a data-toggle=\"modal\" data-target=\"#settingsModal\" data-title=\"Settings\">
-                            <span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
-                        </a>
-                    </li>
-                    <li>
-                        <a data-toggle=\"modal\" data-target=\"#logModal\" data-title=\"Log Viewer\">
-                            <span class=\"fa fa-file-text-o\"></span> Log
-                        </a>
-                    </li>
-                    ";
-        } else if ($dropdown && $enabled) {
-            $dropdownmenu .= "
-                    <li>
-                        <a data-content=\"" . $keyname . "\" data-title=\"" . $section["name"] . "\">
-                            <span class=\"fa " . $section["icon"] . "\"></span> " . $section["name"] . "
-                        </a>
-                    </li>";
-        } else {
-            $dropdownmenu .= "";
-        }
-    }
-}
+	$autohide = $config->getBool('general', 'autohide', false);
+	$dropdown = $config->getBool('general', 'enabledropdown', true);
+	$mobileoverride = $config->getBool('general', 'mobileoverride', false);
+	$authentication = $config->getBool('general', 'authentication', false);
+    
+	foreach ($config as $keyname => $section) {
+        if (($keyname != "general") && ($keyname != "settings")) {
+            $name = $config->get($keyname, 'name', '');
+            $url = $config->get($keyname, 'url', 'http://www.plex.com');
+            $color = $config->get($keyname, 'color', '#000');
+            $icon = $config->get($keyname, 'icon', '');
+            $scale = $config->get($keyname, 'scale', '1');
+            $default = $config->getBool($keyname, 'default', false);
+            $enabled = $config->getBool($keyname, 'enabled', false);
+            $landingpage = $config->getBool($keyname, 'landingpage', false);
+            $dd = $config->getBool($keyname, 'dd', false);
+			        
+			if ($enabled) {
+				if ($dropdown) {
+					if (!$dd) {
+						$standardmenu .= "
+							<li class='cd-tab' data-index='".$int."'>
+								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
+									<span class='fa " . $section["icon"] . " fa-lg'></span> " . $section["name"] . "
+								</a>
+							</li>";
+						$int++;
+					} else {
+						$dropdownmenu .= "
+							<li>
+								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "'>
+									<span class='fa " . $section["icon"] . "'></span> " . $section["name"] . "
+								</a>
+							</li>";
+					}
+				}
+			}
+		}	
+	}
+	$standardmenu .= "</nav>
+            </ul>";
 
     $moButton = "
+			<ul class='main-nav'>
                 <li class='navbtn ".(($mobileoverride == "true") ? '' : 'hidden')."'>
-                    <a id=\"override\" title=\"Click this button to disable mobile scaling on tablets or other large-resolution devices.\">
-                        <span class=\"fa fa-mobile fa-lg\"></span>
+                    <a id='override' title='Click this button to disable mobile scaling on tablets or other large-resolution devices.'>
+                        <span class='fa fa-mobile fa-lg'></span>
                     </a>
                 </li>
-    ";
-    $outButton = "
+    
                 <li class='navbtn ".(($authentication == "true") ? '' : 'hidden')."'>
                     <a id='logout' title='Click this button to log out of Muximux.'>
-                        <span class=\"fa fa-sign-out fa-lg\"></span>
+                        <span class='fa fa-sign-out fa-lg'></span>
                     </a>
                 </li>
+				<li class='navbtn'>
+                    <a id='reload' title='Double click your app in the menu, or press this button to refresh the current app.'>
+                        <span class='fa fa-refresh fa-lg'></span>
+                    </a>
+                </li>
+				
+			
     ";
 
 
     $drawerdiv .= "<div class='cd-tabs-bar ".(($autohide == "true")? 'drawer' : '')."'>";
 
-    if ($enabledropdown == "true") {
-        $item = $drawerdiv . "
-            <ul class=\"main-nav\">" .
+    if ($dropdown == "true") {
+        $item = 
+			$drawerdiv . 
             $moButton ."
-                <li class='navbtn'>
-                    <a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
-                        <span class=\"fa fa-refresh fa-lg\"></span>
-                    </a>
-                </li>".
-                $outButton ."
                 <li class='dd navbtn'>
-                    <a id=\"hamburger\">
-                        <span class=\"fa fa-bars fa-lg\"></span>
+                    <a id='hamburger'>
+                        <span class='fa fa-bars fa-lg'></span>
                     </a>
-                    <ul class=\"drop-nav\">" .
+                    <ul class='drop-nav'>" .
                                 $dropdownmenu ."
                     </ul>
                 </li>
-            </ul>
-            <ul class=\"cd-tabs-navigation\">
-                <nav>" .
-                    $standardmenu ."
-                </nav>
-            </ul>
+            </ul>".
+            $standardmenu ."
+                
         </div>
         ";
     } else {
-        $item =  $drawerdiv . "
-            <ul class=\"main-nav\">" .
-            $moButton ."
-                <li class='cd-tab navbtn'>
-                    <a id=\"reload\" title=\"Double click your app in the menu, or press this button to refresh the current app.\">
-                        <span class=\"fa fa-refresh fa-lg\"></span>
-                    </a>
-                </li>
-                <li class='cd-tab navbtn'>
-                    <a id=\"log\" data-toggle=\"modal\" data-target=\"#logModal\" data-title=\"Log Fiewer\">
-                        <span class=\"fa fa-file-text-o fa-lg\"></span>
-                    </a>
-                </li>
-            </ul>
-            <ul class=\"cd-tabs-navigation\">
-                <nav>" .
-                    $standardmenu . "
-                </nav>
-            </ul>
-            ";
+        $item =  
+			$drawerdiv . 
+            		$moButton .
+			$standardmenu;
     }
     return $item;
 }
@@ -717,16 +707,15 @@ function metaTags() {
     $config = new Config_Lite(CONFIG);
     $standardmenu = "";
     $dropdownmenu = "";
-    $authentication = $config->getBool('general', 'authentication', false);
-    $autohide = var_export($config->getBool('general', 'autohide', false),true);
-    $greeting = $config->get('general', 'greeting', 'Hello.');
+    $authentication = ($config->getBool('general', 'authentication', false) ? 'true' : 'false');
+    $autohide = ($config->getBool('general', 'autohide', false) ? 'true' : 'false');
     $branch = $config->get('general', 'branch', 'master');
     $branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
-    $popupdate = var_export($config->getBool('general', 'updatepopup', true),true);
-    $enabledropdown = var_export($config->getBool('settings', 'enabledropdown', true),true);
+    $popupdate = ($config->getBool('general', 'updatepopup', false) ? 'true' : 'false');
+    $enabledropdown = ($config->getBool('settings', 'enabledropdown', true) ? 'true' : 'false');
     $maintitle = $config->get('general', 'title', 'Muximux');
-    $tabcolor = var_export($config->getBool('general', 'tabcolor', false),true);
-    $splashScreen = var_export($config->getBool('general', 'splashscreen', false),true);
+    $tabcolor = ($config->getBool('general', 'tabcolor', false) ? 'true' : 'false');
+    $splashScreen = ($config->getBool('general', 'splashscreen', false) ? 'true' : 'false');
     $css = getThemeFile();
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
     $themeColor = $config->get('general','color',$cssColor);
@@ -776,15 +765,15 @@ function frameContent() {
         if ($enabled) {
             if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
                 $item .= "
-            <li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\" class=\"selected\">
-                <iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\"
-                allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" src=\"" . $url . "\"></iframe>
+            <li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."' class='selected'>
+                <iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation'
+                allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' src='" . $url . "'></iframe>
             </li>";
             } else {
                 $item .= "
-                <li data-content=\"" . $keyname . "\" data-scale=\"" . $section["scale"] ."\">
-                    <iframe sandbox=\"allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation\"
-                    allowfullscreen=\"true\" webkitallowfullscreen=\"true\" mozallowfullscreen=\"true\" scrolling=\"auto\" data-title=\"" . $section["name"] . "\" data-src=\"" . $url . "\"></iframe>
+                <li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."'>
+                    <iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation'
+                    allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' data-src='" . $url . "'></iframe>
                 </li>
                 ";
             }
@@ -796,17 +785,17 @@ function frameContent() {
 function landingPage($keyname) {
     $config = new Config_Lite(CONFIG);
     $item = "
-    <html lang=\"en\">
+    <html lang='en'>
     <head>
     <title>" . $config->get($keyname, 'name') . "</title>
-    <link rel=\"stylesheet\" href=\"css/landing.css\">
+    <link rel='stylesheet' href='css/landing.css'>
     </head>
     <body>
-    <div class=\"login\">
-        <div class=\"heading\">
-            <h2><span class=\"fa " . $config->get($keyname, 'icon') . " fa-3x\"></span></h2>
+    <div class='login'>
+        <div class='heading'>
+            <h2><span class='fa " . $config->get($keyname, 'icon') . " fa-3x'></span></h2>
             <section>
-                <a href=\"" . $config->get($keyname, 'url') . "\" target=\"_self\" title=\"Launch " . $config->get($keyname, 'name') . "!\"><button class=\"float\">Launch " . $config->get($keyname, 'name') . "</button></a>
+                <a href='" . $config->get($keyname, 'url') . "' target='_self' title='Launch " . $config->get($keyname, 'name') . "!'><button class='float'>Launch " . $config->get($keyname, 'name') . "</button></a>
             </section>
         </div>
      </div>
@@ -1091,7 +1080,7 @@ function saveConfig($inConfig) {
         echo "\n" . 'Exception Message: ' . $e->getMessage();
     write_log('Error saving configuration.','E');
     }
-    $cache_new = "; <?php die(\"Access denied\"); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
+    $cache_new = "; <?php die('Access denied'); ?>"; // Adds this to the top of the config so that PHP kills the execution if someone tries to request the config-file remotely.
     $file = CONFIG; // the file to which $cache_new gets prepended
     $handle = openFile($file, "r+");
     $len = strlen($cache_new);

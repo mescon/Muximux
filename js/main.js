@@ -19,16 +19,21 @@ jQuery(document).ready(function($) {
     tabColor = ($("#tabcolor").attr('data') == 'true');
     dropDown = ($("#dropdown-data").attr('data') == 'true');
     themeColor = $('#themeColor-data').attr("data");
-    authentication = $('#authentication-data').attr("data");
+    authentication = ($('#authentication-data').attr("data") == 'true');
     tabs = $('.cd-tabs');
 	splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
     getSecret();
-	$('.logo').find('path').css('fill',themeColor);
-	if (showSplash) {
-		if (!authentication) {$('#splashLogout').addClass('hidden');}
-		$('#splashModal').modal('show');
-	}
+    $('.logo').find('path').css('fill',themeColor);
+    if (showSplash) {
+	if (!authentication) {$('#splashLogout').addClass('hidden');}
+    $('#splashModal').modal('show');
+    }
+    if (tabColor) {
+        $('.colorDiv').show();
+    } else {
+        $('.colorDiv').hide();
+    }
     muximuxMobileResize();
     $('#override').css('display', (isMobile ? 'block' : 'none'));
     $('.inputdiv').css('display',(authentication ? 'block' : 'none'));
@@ -223,18 +228,14 @@ jQuery(document).ready(function($) {
         var menuItem = $(document).find('a:containsInsensitive("' + bookmarkHash + '")');
         menuItem.trigger("click");
     }
-    if ($('#e3	Checkbox').prop('checked')) {
-        $('.sp-replacer').show();
-    } else {
-        $('.sp-replacer').hide();
-    }
-
+    
     $('#settingsLogo').click(function(){
         window.open('https://github.com/mescon/Muximux', '_blank');
     });
 	$(".appsColor").spectrum({
 		showInput: true,
 		showPalette: true,
+		preferredFormat: "hex",
 		palette: [
         ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
         ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
