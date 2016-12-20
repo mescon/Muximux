@@ -136,76 +136,95 @@ function parse_ini()
                                 <option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
     }
     $title = $config->get('general', 'title', 'Muximux - Application Management Console');
-    $pageOutput = "
-                    <form>
-                        <div class='applicationContainer generalContainer' style='cursor:default;'>
-                        <h2>Settings</h2>
-                        <div>
-                            <label for='titleInput'>Main Title: </label>
-                            <input id='titleInput' type='text' class='general_-_value' name='general_-_title' value='" . $title . "'>
+    $pageOutput = "<form class='form-inline'>
+	
+						<div class='applicationContainer row generalContainer' style='cursor:default;'>
+                        <h2>General</h2>
+                        <div class='appDiv form-group'>
+                            <label for='titleInput' class='col-xs-4 control-label right-label'>Main Title: </label>
+							<div class='col-xs-7 col-md-8'>
+								<input id='titleInput' type='text' class='form-control' general_-_value' name='general_-_title' value='" . $title . "'>
+							</div>
                         </div>
-                        <div>
-                            <label for='theme'>Theme: </label>
-                            <select id='theme' class='general_-_value' name='general_-_theme'>".
-                                listThemes() ."
-                            </select>
+                        <div class='appDiv form-group'>
+							<label for='branch'  class='col-xs-4 col-md-5 control-label right-label'>Git branch: </label>
+							<div class='col-xs-7 col-md-2'>
+								<select id='branch' class='form-control form-control-sm custom-select' name='general_-_branch'>".
+									$branchList ."
+								</select>
+							</div>
                         </div>
-                        <div>
-                            <label for='branch'>Branch tracking: </label>
-                            <select id='branch' name='general_-_branch'>".
-                                $branchList ."
-                            </select>
+						<div class='appDiv form-group'>
+							<label for='theme' class='col-xs-4 control-label right-label'>Theme: </label>
+							<div class='col-xs-7 col-md-2'>
+								<select id='theme' class='form-control form-control-sm custom-select general_-_value' name='general_-_theme'>".
+									listThemes() ."
+								</select>
+							</div>
+						</div>
+                        <div class='appDiv form-group'>
+							<label for='general_-_color' class='col-xs-4 control-label right-label'>Color: </label>
+							<div class='col-xs-7 col-md-7'>
+								<input type='text' id='general_-_default' class='appsColor generalColor general_-_color' value='".$themeColor."' name='general_-_color'>
+							</div>
                         </div>
-                        <br>
-                        <div>
-			<div>
-                            <label for='splashscreenCheckbox'>Start with splash screen:</label>
-                            <input id='splashscreenCheckbox' class='general_-_value' name='general_-_splashscreen' type='checkbox' ".($splashScreen ? 'checked' : '') .">
+						<br>
+                        <div class='appDiv form-group'>
+                            <label for='updatepopupCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Update alerts:
+								<input id='updatepopupCheckbox' class='form-check-input form-control general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
+							</label>
                         </div>
-                        <div>
-                            <label for='updatepopupCheckbox'>Enable update poups:</label>
-                            <input id='updatepopupCheckbox' class='general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
+						<div class='appDiv form-group'>
+                            <label for='splashscreenCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Splash screen:
+								<input id='splashscreenCheckbox' class='form-check-input form-control general_-_value' name='general_-_splashscreen' type='checkbox' ".($splashScreen ? 'checked' : '') .">
+							</label>
                         </div>
-
-                        <div>
-                            <label for='mobileoverrideCheckbox'>Enable mobile override:</label>
-                                <input id='mobileoverrideCheckbox' class='general_-_value' name='general_-_mobileoverride' type='checkbox' ".($mobileOverride ? 'checked' : '').">
+                        <div class='appDiv form-group'>
+                            <label for='mobileoverrideCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Mobile override:
+                                <input id='mobileoverrideCheckbox' class='form-check-input form-control general_-_value' name='general_-_mobileoverride' type='checkbox' ".($mobileOverride ? 'checked' : '').">
+							</label>
+                        </div>
+                        <div class='appDiv form-group'>
+                            <label for='tabcolorCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Per-tab colors:
+								<input id='tabcolorCheckbox' class='form-check-input form-control general_-_value' name='general_-_tabcolor' type='checkbox' " . ($tabColorEnabled ? 'checked' : '').">
+							</label>
+                        </div>
+                        <div class='appDiv form-group'>
+                            <label for='autohideCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Auto-hide navbar:
+								<input id='autohideCheckbox' class='form-check-input form-control general_-_value' name='general_-_autohide' type='checkbox' ".($autoHide ? 'checked' : '').">
+							</label>
+						</div>
+                        <div class='appDiv form-group'>
+                            <label for='authenticationCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Authentication:
+								<input id='authenticationCheckbox' class='form-check-input form-control general_-_value' name='general_-_authentication' type='checkbox' ".($authentication ? 'checked' : '').">
+							</label>
                         </div><br>
-                        <div class='generalColor'>
-                            <label for='general_-_color'>Theme Color: </label>
-                            <input type='color' id='general_-_default' class='generalColor general_-_color' value='".$themeColor."' name='general_-_color'>
-                        </div>
-                        <div>
-                            <label for='tabcolorCheckbox'>Enable per-tab colors:</label>
-                            <input id='tabcolorCheckbox' class='general_-_value' name='general_-_tabcolor' type='checkbox' " . ($tabColorEnabled ? 'checked' : '').">
-                        </div>
-                        <div>
-                            <label for='autohideCheckbox'>Enable auto-hide:</label>
-                            <input id='autohideCheckbox' class='general_-_value' name='general_-_autohide' type='checkbox' ".($autoHide ? 'checked' : '').">
-                        </div>
-                        <div>
-                            <label for='authenticationCheckbox'>Enable authentication:</label>
-                            <input id='authenticationCheckbox' class='general_-_value' name='general_-_authentication' type='checkbox' ".($authentication ? 'checked' : '').">
-                        </div><br>
-                        <div class='inputdiv'>
-                            <div class='userinput'>
-                                <label for='userName'>Username: </label><input id='userNameInput' type='text' class='general_-_value userinput' name='general_-_userNameInput' value='" . $userName . "'>
-                            </div>
-                            <div class='userinput'>
-                                <label for='password'>Password: </label><input id='passwordInput' type='password' autocomplete='new-password' class='general_-_value userinput' name='general_-_password' value='" . $passHash . "'>
-                            </div>
+                        <div class='inputdiv appDiv form-group'>
+							<div class='userinput appDiv form-group'>
+								<label for='userName' class='col-xs-4 control-label right-label'>Username: </label>
+								<div class='col-xs-7 col-md-8'>
+									<input id='userNameInput' type='text' class='form-control' general_-_value' name='general_-_userNameInput' value='" . $userName . "'>
+								</div>
+							</div>
+							<div class='userinput appDiv form-group'>
+								<label for='password' class='col-xs-4 control-label right-label'>Password: </label>
+								<div class='col-xs-7 col-md-8'>
+									<input id='passwordInput' type='password' autocomplete='new-password' class='form-control' general_-_value' name='general_-_password' value='" . $passHash . "'>
+								</div>
+							</div>
+                            
                         </div>
                     </div>
-                </div>
-                <input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>
-                <input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>
-                <input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>
-                <input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>
-                <input type='hidden' class='settings_-_value' name='settings_-_url' value='muximux.php'>
-                <input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>
-                <input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>
-                <input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>
-                <div id='sortable'>";
+                
+					<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>
+					<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>
+					<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>
+					<input type='hidden' class='settings_-_value' name='settings_-_name' value='Settings'>
+					<input type='hidden' class='settings_-_value' name='settings_-_url' value='muximux.php'>
+					<input type='hidden' class='settings_-_value' name='settings_-_landingpage' value='false'>
+					<input type='hidden' class='settings_-_value' name='settings_-_icon' value='fa-cog'>
+					<input type='hidden' class='settings_-_value' name='settings_-_dd' value='true'>
+					<div id='sortable'>";
     foreach ($config as $section => $name) {
         if (is_array($name) && $section != "settings" && $section != "general") {
             $name = $config->get($section, 'name', '');
@@ -220,49 +239,63 @@ function parse_ini()
             $scaleRange = "0";
             $scaleRange = buildScale($scale);
             $pageOutput .= "
-                    <div class='applicationContainer' id='" . $section . "'>
-                        <span class='bars fa fa-bars'></span>
-                        <div>
-                            <label for='" . $section . "_-_name' >Name: </label>
-                            <input class='appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
-                        </div>
-                        <div>
-                            <label for='" . $section . "_-_url' >URL: </label>
-                            <input class='" . $section . "_-_value' name='" . $section . "_-_url' type='text' value='" . $url . "'>
-                        </div>
-                        <div>
-                            <label for='" . $section . "_-_enabled' >Enabled: </label>
-                            <input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_enabled' name='" . $section . "_-_enabled'".($enabled ? 'checked' : '') .">
-                        </div>
-                        <div>
-                            <label for='" . $section . "_-_landingpage' >Landing page: </label>
-                            <input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_landingpage' name='" . $section . "_-_landingpage'".($landingpage ? 'checked' : '') .">
-                        </div>
-                        <div>
-                            <label for='" . $section . "_-_dd' >Put in dropdown: </label>
-                            <input type='checkbox' class='checkbox " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
-                        </div>
-                        <div>
-                            <label for='" . $section . "_-_default' >Default: </label>
-                            <input type='radio' class='radio " . $section . "_-_value' id='" . $section . "_-_default' name='" . $section . "_-_default'".($default ? 'checked' : '') .">
-                        </div>
-                        <br>
-                        <div class='appsColor'>
-                            <label for='" . $section . "_-_color'>Color: </label>
-                            <input type='color' id='" . $section . "_-_color' class='appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
-                        </div>
-                        <div>
-                            <label for='" . $section . "_-_icon' >Icon: </label>
-                            <button role=\"iconpicker\" class=\"iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\">
-                            </button>
-                        </div>
-                        <div style=\"margin-left:5px;\">
-                            <label for='" . $section . "_-_scale'>Zoom: </label>
-                            <select id='" . $section . "_-_scale' name='" . $section . "_-_scale'>". $scaleRange ."
-                            </select>
-                        </div>
-                        <button type='button' class='removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
-                    </div>";
+						<div class='applicationContainer' id='" . $section . "'>
+							<span class='bars fa fa-bars'></span>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_name' class='col-xs-4 col-md-4 control-label right-label'>Name: </label>
+								<div class='col-xs-7 col-md-8'>
+									<input class='form-control form-control-sm appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
+								</div>
+							</div>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_url' class='col-xs-4 control-label right-label'>URL: </label>
+								<div class='col-xs-7 col-md-8'>
+									<input class='form-control form-control-sm " . $section . "_-_value' name='" . $section . "_-_url' type='text' value='" . $url . "'>
+								</div>
+							</div>
+							<div  class='appDiv form-group'>
+								<label for='" . $section . "_-_scale' class='col-xs-4 col-md-5 control-label col-form-label right-label'>Zoom: </label>
+								<div class='col-xs-7 col-md-5'>
+									<select id='" . $section . "_-_scale' class='form-control custom-select form-control-sm ' name='" . $section . "_-_scale'>". $scaleRange ."</select>
+								</div>
+							</div>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_icon' class='col-xs-4 control-label right-label'>Icon: </label>
+								<div class='col-xs-7 col-md-5'>
+									<button role=\"iconpicker\" class=\"form-control form-control-sm iconpicker btn btn-default\" name='" . $section . "_-_icon' data-rows=\"4\" data-cols=\"6\" data-search=\"true\" data-search-text=\"Search...\" data-iconset=\"fontawesome\" data-placement=\"left\" data-icon=\"" . $icon . "\"></button>
+								</div>	
+							</div>
+							<div class='appDiv form-group colorDiv'>
+								<label for='" . $section . "_-_color' class='col-xs-4 control-label right-label color-label'>Color: </label>
+								<div class='col-xs-7'>
+									<input type='text' id='" . $section . "_-_color' class='form-control form-control-sm appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
+								</div>
+							</div>
+							<br>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_enabled' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Enabled:
+									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_enabled' name='" . $section . "_-_enabled'".($enabled ? 'checked' : '') .">
+								</label>
+							</div>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_landingpage' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Landing page:
+									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_landingpage' name='" . $section . "_-_landingpage'".($landingpage ? 'checked' : '') .">
+								</label>
+							</div>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_dd' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Dropdown Item:
+									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
+								</label>
+							</div>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_default' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Default:
+									<input type='radio' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_default' name='" . $section . "_-_default'".($default ? 'checked' : '') .">
+								</label>
+							</div>
+
+								<button type='button' class='form-control form-control-sm removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
+							
+						</div>";
         }
     }
     $pageOutput .= "

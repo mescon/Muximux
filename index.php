@@ -81,9 +81,14 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <div class="modal-title"><div class='logo smallLogo' id='settingsLogo'>
-                            <?php echo file_get_contents("images/muximux-white.svg")?>
-                        </div><h1>Settings</h1></div>
+                    <div class="modal-title">
+						<div class='logo smallLogo' id='settingsLogo'>
+                            <?php 
+							echo file_get_contents("images/muximux-white.svg")
+							?>
+						</div>
+						<h1>Settings</h1>
+					</div>
                 </div>
                 <div class="modal-body">
                     <div class="text-center">
@@ -145,9 +150,10 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
                 </div>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
-                <button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload
-                </button>
+				<div class='btn-group' role='group' aria-label='Buttons'>
+					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+					<button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload</button>
+				</div>
             </div>
         </div>
     </div>
@@ -171,7 +177,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
                 </div>
             </div>
             <div class="modal-footer">
-                <button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
+                <button type='button' class="btn btn-primary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
@@ -190,8 +196,10 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
                 </div>
             </div>
             <div class="modal-footer">
-                <button type='button' class="btn btn-default" id="logRefresh">Refresh</button>
-                <button type='button' class="btn btn-primary" data-dismiss="modal">Okay</button>
+				<div class='btn-group' role='group' aria-label='Buttons'>
+                    <button type='button' class="btn btn-default" id="logRefresh">Refresh</button>
+					<button type='button' class="btn btn-primary" data-dismiss="modal">Close</button>
+				</div>
             </div>
         </div>
     </div>
@@ -218,7 +226,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
         </div>
 	<div id="splashBg"></div>
     </div>
-    <div id="updateContainer"></div>
+	<div id="updateContainer"></div>
     <?php echo metaTags(); ?>
     <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-fontawesome-4.2.0.min.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js"></script>
 
