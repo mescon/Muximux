@@ -246,6 +246,7 @@ function parse_ini()
 								<div class='col-xs-7 col-md-8'>
 									<input class='form-control form-control-sm appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
 								</div>
+								
 							</div>
 							<div class='appDiv form-group'>
 								<label for='" . $section . "_-_url' class='col-xs-4 control-label right-label'>URL: </label>
@@ -760,23 +761,13 @@ function frameContent() {
     $default = $config->getBool($keyname,'default',false);
     $scale = $config->get($keyname,'scale',1);
     $url = $section["url"];
-        $url=($landingpage ? "?landing=" . $keyname: $url);
-
-        if ($enabled) {
-            if (!empty($section["default"]) && !($section["default"] == "false") && ($section["default"] == "true")) {
-                $item .= "
-            <li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."' class='selected'>
-                <iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation'
-                allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' src='" . $url . "'></iframe>
-            </li>";
-            } else {
-                $item .= "
-                <li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."'>
-                    <iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation'
-                    allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' data-src='" . $url . "'></iframe>
-                </li>
-                ";
-            }
+    $url=($landingpage ? "?landing=" . $keyname: $url);
+    if ($enabled && ($keyname != 'settings') && ($keyname != 'general')) {
+		$item .= "
+				<li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."' ".($default ? "class='selected'" : '').">
+					<iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation'
+					allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' ".($default ? 'src' : 'data-src')."='" . $url . "'></iframe>
+				</li>";
         }
     }
     return $item;
@@ -961,6 +952,7 @@ function downloadUpdate($sha) {
 		}
 	}
 	if ($result === true) {
+		deleteContent(./cache);
 		write_log('Update Succeeded.','I');
 	} else {
 		write_log($result ,'E');

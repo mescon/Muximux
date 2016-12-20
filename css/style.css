@@ -263,7 +263,8 @@ p {
 }
 
 label {
-	padding-top: 5px;
+	height: 33px;
+	padding: 6px 12px;
 }
 
 body ul {
@@ -358,6 +359,7 @@ input[type='button'] {
 
 .checkbox, .radio {
 	display: inline-block;
+	padding: 6px 12px;
 }
 
 .btn-group {

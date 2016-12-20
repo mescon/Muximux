@@ -228,7 +228,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     </div>
 	<div id="updateContainer"></div>
     <?php echo metaTags(); ?>
-    <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-fontawesome-4.2.0.min.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js"></script>
+    <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-fontawesome-4.2.0.min.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js,js/jquery.ui.touch-punch.min.js"></script>
 
 
 <?php

@@ -1,4 +1,4 @@
-var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle;
+var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle, splashNavBtnColor;
 jQuery(document).ready(function($) {
 	$('#pleaseWaitDialog').animate({
 		opacity: .25,
@@ -20,6 +20,8 @@ jQuery(document).ready(function($) {
     dropDown = ($("#dropdown-data").attr('data') == 'true');
     themeColor = $('#themeColor-data').attr("data");
     authentication = ($('#authentication-data').attr("data") == 'true');
+    splashNavBtnColor = $('.splashNavBtn').css('background');
+    overrideMobile = false;
     tabs = $('.cd-tabs');
 	splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
@@ -37,7 +39,6 @@ jQuery(document).ready(function($) {
     muximuxMobileResize();
     $('#override').css('display', (isMobile ? 'block' : 'none'));
     $('.inputdiv').css('display',(authentication ? 'block' : 'none'));
-    overrideMobile = false;
     setTitle(activeTitle);
     //get appropriate CSS3 box-shadow property
     boxshadowprop = getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow'])
@@ -46,8 +47,6 @@ jQuery(document).ready(function($) {
 	$('.splashBtn').on('click', function(event) {
 		var selectedBtn = $(this).data('content');
 		var selectedBtnTab = $('.cd-tabs-bar').find('a[data-content="' + selectedBtn + '"]');
-		
-		console.log('Splash: ' + selectedBtn);
 		selectedBtnTab.click();
 		if (isMobile) {
 			$('.drop-nav').toggleClass('hide-nav');
@@ -143,12 +142,13 @@ jQuery(document).ready(function($) {
             $('.inputdiv').slideUp('fast');
         }
     });
+
 	$(".main-nav").find("li").click(function(e) { 
-		$(this).css("background-color",e.type === "mouseenter"?themeColor:"transparent") 
+		$(this).css("background-color",e.type === "mouseenter"? themeColor : 'transparent') 
 	})
 	
 	$(".splashNavBtn").hover(function(e) { 
-		$(this).css("background-color",e.type === "mouseenter"?themeColor:"transparent") 
+		$(this).css("background-color",e.type === "mouseenter"? themeColor : splashNavBtnColor) 
 	})
 	$("#splashLog").click(function() {
 		$('#logModal').modal('show');
@@ -210,13 +210,7 @@ jQuery(document).ready(function($) {
             }, 500);
         }
     });
-    jQuery.fn.reverse = [].reverse;
-    $('.drawerItem').mouseleave(function() {
-        $('.drawerItem').removeClass('full');
-    });
-    $('.drawerItem').mouseenter(function() {
-        $('.drawerItem').addClass('full');
-    });
+    
     // Move items to the dropdown on mobile devices
     settingsEventHandlers();
     scaleFrames();
@@ -277,9 +271,9 @@ $(window).unload(function() {
 $(window).resize(muximuxMobileResize);
 
 function muximuxMobileResize() {
-    isMobile = ($(window).width() < 800);
+	isMobile = ($(window).width() < 800);
     $('#override').css('display', (isMobile ? 'block' : 'none'));
-    if (isMobile && !overrideMobile) {
+	if (isMobile && !overrideMobile) {
         $('.cd-tabs-navigation nav').children().appendTo(".drop-nav");
         var menuHeight = $(window).height() * .80;
         $('.drop-nav').css('max-height', menuHeight + 'px');
@@ -288,21 +282,33 @@ function muximuxMobileResize() {
             $(".drop-nav").children('.cd-tab').appendTo('.cd-tabs-navigation nav');
             $(".cd-tabs-navigation nav").children('.navbtn').appendTo('.main-nav');
             $('.drop-nav').css('max-height', '');
-            var listWidth = 0;
-            $('.cd-tab').each(function() {
-                var myIndex = $(this).attr('data-index');
+            var listWidth = $(".main-nav").width() + 10;
+			var barFull = false;
+			var barArray = getSorted('.cd-tab','data-index');
+			barArray.each(function() {
+				var myIndex = $(this).attr('data-index');
                 var myWidth = $(this).width();
-                if (myWidth + listWidth > $(window).width() - $(".main-nav").width()) {
-                    $(".drop-nav").insertAt(myIndex,this);
+				
+                if ((myWidth + listWidth > $(window).width()) || barFull) {
+					barFull = true;
+			        $(".drop-nav").insertAt(myIndex,this);
                 } else {
-                    $('.cd-tabs-navigation nav').insertAt(myIndex,this);
-                }
-                listWidth = listWidth + $(this).width();
-            });
+            		$('.cd-tabs-navigation nav').insertAt(myIndex,this);
+					listWidth = listWidth + $(this).width();
+			    }
+			});
         }
     }
     clearColors();
     setSelectedColor();
+}
+
+function getSorted(selector, attrName) {
+    return $($(selector).toArray().sort(function(a, b){
+        var aVal = parseInt(a.getAttribute(attrName)),
+            bVal = parseInt(b.getAttribute(attrName));
+        return aVal - bVal;
+    }));
 }
 
 // Insert an element at a specific point in a div.
@@ -356,5 +362,12 @@ function setSelectedColor() {
             $('.navbtn').removeClass('drawerItem');
             $('.cd-tabs-bar').removeClass('drawerItem');
         }
+		jQuery.fn.reverse = [].reverse;
+    $('.drawerItem').mouseleave(function() {
+		$('.drawerItem').removeClass('full');
+    });
+    $('.drawerItem').mouseenter(function() {
+		$('.drawerItem').addClass('full');
+    });
     }
 }
