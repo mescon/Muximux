@@ -952,7 +952,7 @@ function downloadUpdate($sha) {
 		}
 	}
 	if ($result === true) {
-		deleteContent(./cache);
+		deleteContent('./cache');
 		write_log('Update Succeeded.','I');
 	} else {
 		write_log($result ,'E');
