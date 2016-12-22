@@ -141,68 +141,68 @@ function parse_ini()
 						<div class='applicationContainer row generalContainer' style='cursor:default;'>
                         <h2>General</h2>
                         <div class='appDiv form-group'>
-                            <label for='titleInput' class='col-xs-4 control-label right-label'>Main Title: </label>
-							<div class='col-xs-7 col-md-8'>
-								<input id='titleInput' type='text' class='form-control' general_-_value' name='general_-_title' value='" . $title . "'>
+                            <label for='titleInput' class='col-xs-6 col-sm-4 col-md-4 control-label left-label'>Main Title: </label>
+							<div class='col-xs-6 col-sm-8 col-md-8'>
+								<input id='titleInput' type='text' class='form-control form-control-sm' general_-_value' name='general_-_title' value='" . $title . "'>
 							</div>
                         </div>
                         <div class='appDiv form-group'>
-							<label for='branch'  class='col-xs-4 col-md-5 control-label right-label'>Git branch: </label>
-							<div class='col-xs-7 col-md-2'>
+							<label for='branch'  class='col-xs-6 col-sm-5 col-md-5 control-label left-label'>Git branch: </label>
+							<div class='col-xs-6 col-sm-2 col-md-2'>
 								<select id='branch' class='form-control form-control-sm custom-select' name='general_-_branch'>".
 									$branchList ."
 								</select>
 							</div>
                         </div>
 						<div class='appDiv form-group'>
-							<label for='theme' class='col-xs-4 control-label right-label'>Theme: </label>
-							<div class='col-xs-7 col-md-2'>
+							<label for='theme' class='col-xs-6 col-sm-4 col-md-4 control-label left-label'>Theme: </label>
+							<div class='col-xs-6 col-sm-2 col-md-2'>
 								<select id='theme' class='form-control form-control-sm custom-select general_-_value' name='general_-_theme'>".
 									listThemes() ."
 								</select>
 							</div>
 						</div>
                         <div class='appDiv form-group'>
-							<label for='general_-_color' class='col-xs-4 control-label right-label'>Color: </label>
-							<div class='col-xs-7 col-md-7'>
+							<label for='general_-_color' class='col-xs-6 col-sm-4 col-md-5 control-label left-label'>Color: </label>
+							<div class='col-xs-6 col-sm-7 col-md-7'>
 								<input type='text' id='general_-_default' class='appsColor generalColor general_-_color' value='".$themeColor."' name='general_-_color'>
 							</div>
                         </div>
 						<br>
                         <div class='appDiv form-group'>
-                            <label for='updatepopupCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Update alerts:
+                            <label for='updatepopupCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Update alerts:
 								<input id='updatepopupCheckbox' class='form-check-input form-control general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
 							</label>
                         </div>
 						<div class='appDiv form-group'>
-                            <label for='splashscreenCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Splash screen:
+                            <label for='splashscreenCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Splash screen:
 								<input id='splashscreenCheckbox' class='form-check-input form-control general_-_value' name='general_-_splashscreen' type='checkbox' ".($splashScreen ? 'checked' : '') .">
 							</label>
                         </div>
-                        <div class='appDiv form-group'>
-                            <label for='mobileoverrideCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Mobile override:
+						<div class='appDiv form-group'>
+                            <label for='mobileoverrideCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Dropdown override:
                                 <input id='mobileoverrideCheckbox' class='form-check-input form-control general_-_value' name='general_-_mobileoverride' type='checkbox' ".($mobileOverride ? 'checked' : '').">
 							</label>
                         </div>
                         <div class='appDiv form-group'>
-                            <label for='tabcolorCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Per-tab colors:
+                            <label for='tabcolorCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Application colors:
 								<input id='tabcolorCheckbox' class='form-check-input form-control general_-_value' name='general_-_tabcolor' type='checkbox' " . ($tabColorEnabled ? 'checked' : '').">
 							</label>
                         </div>
-                        <div class='appDiv form-group'>
-                            <label for='autohideCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Auto-hide navbar:
+						<div class='appDiv form-group'>
+                            <label for='autohideCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Auto-hide navbar:
 								<input id='autohideCheckbox' class='form-check-input form-control general_-_value' name='general_-_autohide' type='checkbox' ".($autoHide ? 'checked' : '').">
 							</label>
 						</div>
                         <div class='appDiv form-group'>
-                            <label for='authenticationCheckbox' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Authentication:
+                            <label for='authenticationCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>User Authentication:
 								<input id='authenticationCheckbox' class='form-check-input form-control general_-_value' name='general_-_authentication' type='checkbox' ".($authentication ? 'checked' : '').">
 							</label>
-                        </div><br>
-                        <div class='inputdiv appDiv form-group'>
+                        </div><br><br>
+						<div class='inputdiv appDiv form-group'>
 							<div class='userinput appDiv form-group'>
-								<label for='userName' class='col-xs-4 control-label right-label'>Username: </label>
-								<div class='col-xs-7 col-md-8'>
+								<label for='userName' class='col-xs-4 col-sm-3 col-md-4 control-label right-label'>Username: </label>
+									<div class='col-xs-7 col-sm-5 col-md-8'>
 									<input id='userNameInput' type='text' class='form-control' general_-_value' name='general_-_userNameInput' value='" . $userName . "'>
 								</div>
 							</div>
@@ -267,7 +267,7 @@ function parse_ini()
 								</div>	
 							</div>
 							<div class='appDiv form-group colorDiv'>
-								<label for='" . $section . "_-_color' class='col-xs-4 control-label right-label color-label'>Color: </label>
+								<label for='" . $section . "_-_color' class='col-xs-4 col-md-5 control-label color-label'>Color: </label>
 								<div class='col-xs-7'>
 									<input type='text' id='" . $section . "_-_color' class='form-control form-control-sm appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
 								</div>
@@ -279,12 +279,12 @@ function parse_ini()
 								</label>
 							</div>
 							<div class='appDiv form-group'>
-								<label for='" . $section . "_-_landingpage' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Landing page:
+								<label for='" . $section . "_-_landingpage' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Landing:
 									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_landingpage' name='" . $section . "_-_landingpage'".($landingpage ? 'checked' : '') .">
 								</label>
 							</div>
 							<div class='appDiv form-group'>
-								<label for='" . $section . "_-_dd' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Dropdown Item:
+								<label for='" . $section . "_-_dd' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Dropdown:
 									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
 								</label>
 							</div>

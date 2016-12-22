@@ -1,3 +1,4 @@
+
 /* --------------------------------
 
 Primary style
@@ -25,6 +26,12 @@ body {
 a {
 	text-decoration: none;
 }
+
+input[type=checkbox], input[type=radio] {
+    margin: auto;
+}
+
+
 
 a:hover, a:visited, a:link, a:active {
 	text-decoration: none;
@@ -258,13 +265,16 @@ p {
 	display: block;
 }
 
+.control-label {
+	padding-top: 5px;
+}
+
 .right-label {
 	text-align: right;
 }
 
-label {
-	height: 33px;
-	padding: 6px 12px;
+.left-label {
+	text-align: left;
 }
 
 body ul {
@@ -355,11 +365,6 @@ input.ui-button {
 
 input[type='button'] {
 	font-size: 16px;
-}
-
-.checkbox, .radio {
-	display: inline-block;
-	padding: 6px 12px;
 }
 
 .btn-group {
@@ -559,8 +564,12 @@ input[type='button'] {
 	opacity: 1;
 }
 
-.applicationContainer input[type='checkbox'], .applicationContainer input[type='radio'] {
-	margin-left: 10px;
+.form-check-inline {
+	margin-bottom: 5px;
+	margin-top: 5px;
+}
+
+checkbox, radio {
 	margin-bottom: 5px;
 }
 

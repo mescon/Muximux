@@ -36,7 +36,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="#DFDFDF" />
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
     <link rel="stylesheet" href="css/loader.css"/>
-	<link rel="stylesheet" href="combineify.php?type=css&files=css/jquery-ui.min.css,css/cssreset.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
+    <link rel="stylesheet" href="combineify.php?type=css&files=css/cssreset.min.css,css/jquery-ui.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/theme/<?php echo getTheme(); ?>.css">
     
 	<title><?php echo getTitle(); ?></title>
 	
