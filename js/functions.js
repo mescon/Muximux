@@ -142,8 +142,75 @@ function settingsEventHandlers() {
     $('#addApplication').click(function() {
         // Generating a random number here. So that if the user adds more than one new application at a time the ids/classes and names don't match.
         var rand = Math.floor((Math.random() * 999999) + 1);
-        $('#sortable').append('<div class="applicationContainer newApp" id="' + rand + 'newApplication"><span class="bars fa fa-bars"></span>' + '<div><br><label>Name:</label><input class="appName ' + rand + 'newApplication_-_value" name="' + rand + 'newApplication_-_name" type="text" value=""></div>' + '<div><br><label>URL:</label><input class="' + rand + 'newApplication_-_value" name="' + rand + 'newApplication_-_url" type="text" value=""></div>' + '<div><br><label>Icon:</label><button class=\"' + rand + 'newApplication_-_value iconpicker btn btn-default\" name="' + rand + 'newApplication_-_icon"  data-iconset=\"fontawesome\" data-icon=\"\"></button></div>' + '<div><label>Color:</label><input type=\"color\" class=\"appsColor ' + rand + 'newApplication_-_color\" value=\"#ffffff\" name=\"' + rand + 'newApplication_-_color\"></div>' + '<div><label for="' + rand + 'newApplication_-_enabled">Enable:</label><input class="checkbox ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_enabled" name="' + rand + 'newApplication_-_enabled" type="checkbox" checked></div>' + '<div><br><label for="' + rand + 'newApplication_-_default">Default:</label><input class="radio ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_default" name="' + rand + 'newApplication_-_default" type="radio"></div>' + '<div><label for="' + rand + 'newApplication_-_landingpage">Enable landing page:</label><input class="checkbox ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_landingpage" name="' + rand + 'newApplication_-_landingpage" type="checkbox"></div>' + '<div><label for="' + rand + 'newApplication_-_dd">Put in dropdown:</label><input class="checkbox ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_dd" name="' + rand + 'newApplication_-_dd" type="checkbox"></div>' + '<button type="button" class="removeButton btn btn-danger btn-xs" value="Remove" id="remove_-_' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button><meta class="newAppRand" value="' + rand + '"></div></div>');
-        initIconPicker('.' + rand + 'newApplication_-_value[name=' + rand + 'newApplication_-_icon]');
+        $('#sortable').append(
+		'<div class="applicationContainer newApp" id="' + rand + 'newApplication">' +
+			'<span class="bars fa fa-bars"></span>' +
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_name" class="col-xs-4 control-label right-label">Name: </label>' +
+				'<div class="col-xs-7 col-md-8">' +
+					'<input class="form-control form-control-sm appName ' + rand + 'newApplication_-_value" name="' + rand + 'newApplication_-_name" type="text" value="">' + 
+				'</div>' +
+			'</div>' + 
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_value" class="col-xs-4 control-label right-label">URL: </label>' +
+				'<div class="col-xs-7 col-md-8">' +
+					'<input class="form-control form-control-sm ' + rand + 'newApplication_-_value" name="' + rand + 'newApplication_-_url" type="text" value="">' + 
+				'</div>' +
+			'</div><br>' + 
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_icon" class="col-xs-4 control-label right-label">Icon: </label>' +
+				'<div class="col-xs-7 col-md-5">' +
+					'<button role="iconpicker" class="form-control form-control-sm iconpicker btn btn-default ' + rand + 'newApplication_-_icon" name="' + rand + 'newApplication_-_icon" id="' + rand + 'newApplication_-_iconPicker" data-rows="4" data-cols="6" data-search="true" data-search-text="Search..." data-iconset="muximux" data-placement="left">' + 
+				'</div>' +
+			'</div>' + 
+			'<div class="appdiv form-group colorDiv">' +
+				'<label for="' + rand + 'newApplication_-_color" class="col-xs-4 col-md-5 control-label color-label">Color: </label>' +
+				'<div class="col-xs-7">' +
+					'<input type="text" id="' + rand + 'newApplication_-_color" class="form-control form-control-sm appsColor ' + rand + 'newApplication_-_color" name="' + rand + 'newApplication_-_color" style="display:none;" value="">' + 
+				'</div>' +
+			'</div>' +
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_enabled" class="col-xs-6 col-md-12 control-label col-form-label form-check-inline">Enabled: ' +
+					'<input type="checkbox" class="form-check-input form-control ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_enabled" name="' + rand + 'newApplication_-_enabled" checked>' + 
+				'</label>' +
+			'</div>' +
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_enabled" class="col-xs-6 col-md-12 control-label col-form-label form-check-inline">Landing: ' +
+					'<input type="checkbox" class="form-check-input form-control ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_landingpage" name="' + rand + 'newApplication_-_landingpage">' + 
+				'</label>' +
+			'</div>' +
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_dd" class="col-xs-6 col-md-12 control-label col-form-label form-check-inline">Dropdown: ' +
+					'<input type="checkbox" class="form-check-input form-control ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_dd" name="' + rand + 'newApplication_-_dd">' + 
+				'</label>' +
+			'</div>' +
+			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_default" class="col-xs-6 col-md-12 control-label col-form-label form-check-inline">Default: ' +
+					'<input type="radio" class="form-check-input form-control ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_default" name="' + rand + 'newApplication_-_default">' + 
+				'</label>' +
+			'</div>' + 
+
+			'<button type="button" class="form-control form-control-sm removeButton btn btn-danger btn-xs" value="Remove" id="remove_-_' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button>' +
+			'<meta class="newAppRand" value="' + rand + '">' +
+		'</div>');
+        initIconPicker('#' + rand + 'newApplication_-_iconPicker');
+		$('.' + rand + 'newApplication_-_color').spectrum({
+		showInput: true,
+		showPalette: true,
+		preferredFormat: "hex",
+		palette: [
+        ["#000","#444","#666","#999","#ccc","#eee","#f3f3f3","#fff"],
+        ["#f00","#f90","#ff0","#0f0","#0ff","#00f","#90f","#f0f"],
+        ["#f4cccc","#fce5cd","#fff2cc","#d9ead3","#d0e0e3","#cfe2f3","#d9d2e9","#ead1dc"],
+        ["#ea9999","#f9cb9c","#ffe599","#b6d7a8","#a2c4c9","#9fc5e8","#b4a7d6","#d5a6bd"],
+        ["#e06666","#f6b26b","#ffd966","#93c47d","#76a5af","#6fa8dc","#8e7cc3","#c27ba0"],
+        ["#c00","#e69138","#f1c232","#6aa84f","#45818e","#3d85c6","#674ea7","#a64d79"],
+        ["#900","#b45f06","#bf9000","#38761d","#134f5c","#0b5394","#351c75","#741b47"],
+        ["#600","#783f04","#7f6000","#274e13","#0c343d","#073763","#20124d","#4c1130"]
+    ]
+	});
+		$('.sp-replacer').addClass(' form-control');
+		$('.sp-replacer').addClass('form-control-sm');
     });
     // App Name Change/Addition handler
     $('form').on('focusout', '.appName', function() {
@@ -277,7 +344,7 @@ function initIconPicker(selectedItem) {
         cols: 10,
         footer: true,
         header: true,
-        iconset: 'fontawesome',
+        iconset: 'muximux',
         labelHeader: '{0} of {1} pages',
         labelFooter: '{0} - {1} of {2} icons',
         placement: 'bottom', // Only in button tag

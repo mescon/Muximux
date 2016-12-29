@@ -116,7 +116,6 @@ function parse_ini()
     fetchBranches(false);
     $branchArray = getBranches();
     $branchList = "";
-        
     $css = getThemeFile();
     $tabColorEnabled = $config->getBool('general', 'tabcolor', false);
     $enableDropDown = $config->getBool('general', 'enabledropdown', false);
@@ -231,7 +230,8 @@ function parse_ini()
             $url = $config->get($section, 'url', 'http://www.plex.com');
             $color = $config->get($section, 'color', '#000');
             $icon = $config->get($section, 'icon', '');
-            $scale = $config->get($section, 'scale', '1');
+	    $icon = str_replace('fa-','muximux-',$icon);
+	    $scale = $config->get($section, 'scale', '1');
             $default = $config->getBool($section, 'default', false);
             $enabled = $config->getBool($section, 'enabled', false);
             $landingpage = $config->getBool($section, 'landingpage', false);
@@ -263,7 +263,7 @@ function parse_ini()
 							<div class='appDiv form-group'>
 								<label for='" . $section . "_-_icon' class='col-xs-4 control-label right-label'>Icon: </label>
 								<div class='col-xs-7 col-md-5'>
-									<button role='iconpicker' class='form-control form-control-sm iconpicker btn btn-default' name='" . $section . "_-_icon' data-rows='4' data-cols='6' data-search='true' data-search-text='Search...' data-iconset='fontawesome' data-placement='left' data-icon='" . $icon . "'></button>
+									<button role='iconpicker' class='form-control form-control-sm iconpicker btn btn-default' name='" . $section . "_-_icon' data-rows='4' data-cols='6' data-search='true' data-search-text='Search...' data-iconset='muximux' data-placement='left' data-icon='" . $icon . "'></button>
 								</div>	
 							</div>
 							<div class='appDiv form-group colorDiv'>
@@ -325,6 +325,9 @@ function splashScreen() {
 	$enabled = $config->getBool($keyname,'enabled',false);
 	if (($keyname != "general") && ($keyname != "settings") && $enabled) {
     	    $color = ($tabColor===true ? $section["color"] : $themeColor);
+	    $icon = $section["icon"];
+	    $icon = str_replace('fa-','muximux-',$icon);
+			
 			$splash .= "
 									<div class='btnWrap'>
 										<div class='well splashBtn' data-content='" . $keyname . "'>
@@ -478,7 +481,8 @@ function menuItems() {
             $url = $config->get($keyname, 'url', 'http://www.plex.com');
             $color = $config->get($keyname, 'color', '#000');
             $icon = $config->get($keyname, 'icon', '');
-            $scale = $config->get($keyname, 'scale', '1');
+	    $icon = str_replace('fa-','muximux-',$icon);
+	    $scale = $config->get($keyname, 'scale', '1');
             $default = $config->getBool($keyname, 'default', false);
             $enabled = $config->getBool($keyname, 'enabled', false);
             $landingpage = $config->getBool($keyname, 'landingpage', false);
@@ -490,7 +494,7 @@ function menuItems() {
 						$standardmenu .= "
 							<li class='cd-tab' data-index='".$int."'>
 								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
-									<span class='fa " . $section["icon"] . " fa-lg'></span> " . $section["name"] . "
+									<span class='fa " . $icon . " fa-lg'></span> " . $section["name"] . "
 								</a>
 							</li>";
 						$int++;
@@ -498,7 +502,7 @@ function menuItems() {
 						$dropdownmenu .= "
 							<li>
 								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "'>
-									<span class='fa " . $section["icon"] . "'></span> " . $section["name"] . "
+									<span class='fa " . $icon . "'></span> " . $section["name"] . "
 								</a>
 							</li>";
 					}
@@ -1033,6 +1037,33 @@ function parseCSS($file,$searchSelector,$searchAttribute){
                     $rule = explode(":", $strRule);
                     if (trim($rule[0]) == $searchAttribute) {
                         $result = trim($rule[1]);
+                    }
+                }
+            }
+        }
+    }
+    return $result;
+}
+
+
+// Currently just used outside of the project to generate the iconset names
+// In the future, consider using this to dynamically update the actual .js file that 
+// icon picker uses.
+
+function mapIcons($file,$classSelector){
+    $css = file_get_contents($file);
+    preg_match_all( '/(?ims)([a-z0-9\s\.\:#_\-@,]+)\{([^\}]*)\}/', $css, $arr);
+    $result = array();
+    foreach ($arr[0] as $i => $x){
+        $selector = trim($arr[1][$i]);
+        if (strpos($selector, $classSelector) !== false) {
+            $rules = explode(';', trim($arr[2][$i]));
+            $rules_arr = array();
+            foreach ($rules as $strRule){
+                if (!empty($strRule)){
+                    $rule = explode(":", $strRule);
+                    if (trim($rule[0]) == 'content') {
+                        $result[$selector] = trim($rule[1]);
                     }
                 }
             }

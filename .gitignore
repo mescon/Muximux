@@ -12,7 +12,7 @@ test.php
 secret.txt
 tmp/
 pydio/
-phpmyadmin
+phpmyadmin/
 *.idea
 .vscode/
 plexredirect/
