@@ -339,11 +339,13 @@ function clearColors() {
 // Refactor to a more appropriate name
 function setSelectedColor() {
     color = (tabColor ? $('li .selected').attr("data-color") : themeColor);
+    var isddItem = $('li .selected').parents('ul.drop-nav').length;
+    console.log('Main: dd is ' + isddItem);
     $('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
     $('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
     $('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');
 
-    if (isMobile && !overrideMobile) {
+    if ((isMobile && !overrideMobile) || isddItem) {
         $(".cd-tabs-bar").removeClass("drawer");
         $('.cd-tab').removeClass('drawerItem');
         $('.navbtn').removeClass('drawerItem');
