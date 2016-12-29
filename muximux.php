@@ -350,22 +350,49 @@ function log_contents() {
     $filename = 'muximux.log';
 	$file = file($filename);
 	$file = array_reverse($file);
+	$lineOut = "";
+	$concat = false;
 	foreach($file as $line){
-		$lvl = substr($line,0,1);
-        if ($lvl === 'E') {
-            $color = 'alert alert-danger';
-        }
-        if ($lvl === 'D') {
-            $color = 'alert alert-warning';
-        }
-        if ($lvl === 'I') {
-            $color = 'alert alert-success';
+		$lvl = substr($line,0,2);
+		if (substr($lvl,1,1) == "/") {
+			switch ($lvl) {
+				case "E/":
+					$color = 'alert alert-danger';
+					break;
+				case "D/":
+					$color = 'alert alert-warning';
+					break;
+				case "I/":
+					$color = 'alert alert-success';
+					break;
+				case "":
+					$color = 'alert alert-info';
+					break;
+			}
+			if ($concat === true) {
+			$out .='
+                        <li class="logLine alert alert-info">'.
+                            $lineOut.'
+                        </li>';
+			}
+
+		
+		
+			$lineOut = substr($line,2);
+			$concat = false;
+		
+		} else {
+			$lineOut .= $line;
+			$concat = true;
 		}
-        $out .='
+		if ($concat === false) {
+			$out .='
                         <li class="logLine '.$color.'">'.
-                            substr($line,2).'
+                            $lineOut.'
                         </li>';
 
+		}
+        
         
         
     }
@@ -661,13 +688,12 @@ function checksetSHA() {
     $config = new Config_Lite(CONFIG);
 	$shaIn = $config->get('settings','sha','0');
 	$branchIn = getBranch();
-	$shaCheck = (bool) preg_match('/^[0-9a-f]{40}$/i', $shaIn);
 	$git = can_git();
 	if ($git !== false) {
 		$shaOut = exec('git rev-parse HEAD');
 		$branchOut = exec('git rev-parse --abbrev-ref HEAD');
 	} else {
-		if (!$shaCheck) {
+		if (shaIn ==	 '0') {
 			$branchArray = getBranches();
 			$branchOut = $branchIn();
 			foreach ($branchArray as $branchName => $shaVal) {
@@ -905,11 +931,13 @@ if(empty($_GET)) {
 function downloadUpdate($sha) {
 	$git = can_git();
 	if ($git !== false) {
-		$result = exec('git status');
-		$result = (preg_match('/working directory clean/',$result));
+		$resultshort = exec('git status');
+		$result = (preg_match('/working directory clean/',$resultshort));
 		if ($result !== true) {
-			$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again.';
+			$resultmsg = shell_exec('git status');
+			$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again. Result message: "' . $resultmsg.'"';
 			write_log($result ,'E');
+			$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again. See log for details.';
 			return $result;
 		}
 		$result = exec('git pull');
@@ -1078,7 +1106,7 @@ function mapIcons($file,$classSelector){
 
 function write_log($text,$level=null) {
     if ($level === null) {
-        $level = 'I';
+        $level = 'I';	
     }
     $filename = 'muximux.log';
     $text = $level .'/'. date(DATE_RFC2822) . ': ' . htmlspecialchars($text) . PHP_EOL;
