@@ -465,7 +465,7 @@ function menuItems() {
 								</a>
 							</li>
 							<li>
-								<a data-toggle='modal' data-target='#logModal' data-title='Log Viewer'>
+								<a id='logModalBtn' data-toggle='modal' data-target='#logModal' data-title='Log Viewer'>
 									<span class='fa fa-file-text-o'></span> Log
 								</a>
 							</li>";

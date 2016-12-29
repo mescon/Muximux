@@ -61,7 +61,7 @@ jQuery(document).ready(function($) {
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
-        tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout)', function(event) {
+            tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout, #logModalBtn)', function(event) {
             // Set up menu for desktip view
             if (!isMobile) {
                 $('.drop-nav').addClass('hide-nav');
