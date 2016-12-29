@@ -541,6 +541,7 @@ input[type='button'] {
 	font-size: 1.6rem;
 	border: 1px solid #FFF;
 	padding: 10px;
+	width: 90%;
 	margin-top: 15px;
 	cursor: move;
 	margin-left: auto;
