@@ -153,6 +153,10 @@ p {
 	background-color: rgba(119, 119, 119, 0.18);
 }
 
+div.entryTitle a {
+	color: #f3f3f3;
+}
+
 .feed {
 	padding-top: 15px;
 }
@@ -333,6 +337,7 @@ p {
 
 .control-label {
 	padding-top: 5px;
+	white-space: nowrap;
 }
 
 .right-label {
