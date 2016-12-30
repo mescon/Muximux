@@ -22,8 +22,9 @@ jQuery(document).ready(function($) {
     authentication = ($('#authentication-data').attr("data") == 'true');
     splashNavBtnColor = $('.splashNavBtn').css('background');
     overrideMobile = false;
+    //setupFeed();
     tabs = $('.cd-tabs');
-	splashBtn = $('.splashBtn');
+    splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
     getSecret();
     $('.logo').find('path').css('fill',themeColor);
@@ -42,7 +43,7 @@ jQuery(document).ready(function($) {
     setTitle(activeTitle);
     //get appropriate CSS3 box-shadow property
     boxshadowprop = getsupportedprop(['boxShadow', 'MozBoxShadow', 'WebkitBoxShadow'])
-        //Hide the nav to start
+    //Hide the nav to start
     $('.drop-nav').toggleClass('hide-nav');
 	$('.splashBtn').on('click', function(event) {
 		var selectedBtn = $(this).data('content');
@@ -53,10 +54,9 @@ jQuery(document).ready(function($) {
 			$('.drop-nav').toggleClass('show-nav');
 		}
 		$('#splashModal').modal('hide');
-		
-		
 	});
-    tabs.each(function() {
+    
+	tabs.each(function() {
         var tab = $(this),
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
@@ -176,7 +176,7 @@ jQuery(document).ready(function($) {
     $('#refreshLog').on('click', function() {
         $('#logContainer').slideToggle();
         refresh_log();
-
+			
     });
     // When settings modal closes, set title to the previous title used
     $('.modal').on('hidden.bs.modal', function() {

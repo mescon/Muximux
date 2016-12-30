@@ -8,7 +8,7 @@
      */
 
 
-    $cache    = true;
+    $cache = true;
     $cachedir = dirname(__FILE__) . '/cache';
     if ((!file_exists($cachedir)) && $cache) {
         mkdir($cachedir, 0777, true);
@@ -128,10 +128,23 @@
 
         // Store cache
         if ($cache) {
-            if ($fp = fopen($cachedir . '/' . $cachefile, 'wb')) {
+			$cacheString = $cachedir."/*".$type.".gzip";
+			foreach (glob($cacheString) as $file) {	
+				unlink($file);
+			}
+			
+			if ($fp = fopen($cachedir . '/' . $cachefile, 'wb')) {
                 fwrite($fp, $contents);
                 fclose($fp);
             }
         }
     }
+	
+// Echos php information to the java console
 
+function console_log( $data ) {
+  $output  = "<script>console.log( 'PHP debugger: ";
+  $output .= json_encode(print_r($data, true));
+  $output .= "' );</script>";
+  echo $output;
+}

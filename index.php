@@ -239,7 +239,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
                 </div>
             </div>
             <div class="modal-footer">
-				<div class='btn-group' role='group' aria-label='Buttons'>
+				<div class='btn-group settingsBtnGrp' role='group' aria-label='Buttons'>
 					<button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
 					<button type='button' class="btn btn-primary" id='settingsSubmit' value='Submit Changes'>Save and Reload</button>
 				</div>
@@ -299,6 +299,10 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 						<div class="logo smallLogo">
 							<div class="modal-title"><?php echo file_get_contents("images/muximux-white.svg") ?></div>
 						</div>
+						<div class="feedWrapper">
+							<div id="feed"></div>
+						</div>
+
 						<div id="splashNav">
 							<button type="button" id="splashSettings" class="splashNavBtn btn btn-primary btn-lg" data-dismiss="modal"><span class="fa fa-cog icon-4x"></span></button>
 							<button type="button" id="splashLog" class="splashNavBtn btn btn-primary btn-lg" data-dismiss="modal"><span class="fa fa-file-text-o icon-4x"></span></button>
@@ -317,7 +321,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     </div>
 	<div id="updateContainer"></div>
     <?php echo metaTags(); ?>
-    <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-muximux.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js,js/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-muximux.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js,js/jquery.ui.touch-punch.min.js,js/yrss.min.js"></script>
 
 
 <?php

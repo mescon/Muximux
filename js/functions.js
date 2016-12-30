@@ -545,7 +545,6 @@ function setStatus(message,showcounter) {
     });
 }
 
-
 // Find apps with a scale setting that is more or less than 100%, then re-scale it to the desired setting using scaleContent(selector, scale)
 function scaleFrames() {
     $('.cd-tabs-content').find('li').each(function(value) {
@@ -587,4 +586,28 @@ function getsupportedprop(proparray) {
             return proparray[i] //return that string
         }
     }
+}
+
+
+// Shhh, we just won't mention this is here for now
+function setupFeed() {
+	var feed1 = 'https://www.wired.com/feed/';
+$('#feed').rssfeed(feed1, {
+    ssl: false,
+    limit: 20,
+    showerror: true,
+    errormsg: '',
+    tags: true,
+    date: true,
+    dateformat: 'spellmonth',
+    titletag: 'h4',
+    content: true,
+    image: true,
+    snippet: true,
+    snippetlimit: 120,
+    linktarget: '_blank'
+}, function () {
+    // optional callback function
+});
+
 }
