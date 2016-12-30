@@ -6,6 +6,7 @@ muximux.log
 stage/
 .stage/
 css/theme/
+js/iconset-muximux.js
 !css/theme/Modern.css
 !css/theme/Classic.css
 test.php

@@ -114,6 +114,7 @@ function parse_ini()
     checksetSHA();
     
     fetchBranches(false);
+    mapIcons('css/font-muximux.css','.muximux-');
     $branchArray = getBranches();
     $branchList = "";
     $css = getThemeFile();
@@ -1099,23 +1100,19 @@ function parseCSS($file,$searchSelector,$searchAttribute){
 function mapIcons($file,$classSelector){
     $css = file_get_contents($file);
     preg_match_all( '/(?ims)([a-z0-9\s\.\:#_\-@,]+)\{([^\}]*)\}/', $css, $arr);
-    $result = array();
-    foreach ($arr[0] as $i => $x){
+    $result = '"",';
+	foreach ($arr[0] as $i => $x){
         $selector = trim($arr[1][$i]);
-        if (strpos($selector, $classSelector) !== false) {
-            $rules = explode(';', trim($arr[2][$i]));
-            $rules_arr = array();
-            foreach ($rules as $strRule){
-                if (!empty($strRule)){
-                    $rule = explode(":", $strRule);
-                    if (trim($rule[0]) == 'content') {
-                        $result[$selector] = trim($rule[1]);
-                    }
-                }
-            }
-        }
+		if (strpos($selector, $classSelector) !== false) {
+			$selector = str_replace($classSelector,'',$selector);
+			$selector = str_replace(':before','',$selector);
+			$result .='"'.$selector.'", ';
+		}
     }
-    return $result;
+	$result = substr_replace($result ,"",-2);
+	$result = '!function($){$.iconset_muximux={iconClass:"muximux",iconClassFix:"muximux-",icons:['.$result.']}}(jQuery);';
+	$file = openFile('js/iconset-muximux.js', "w");
+    fwrite($file, $result);
 }
 
 // Appends lines to file and makes sure the file doesn't grow too much
