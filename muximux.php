@@ -128,6 +128,8 @@ function parse_ini()
     $userName = $config->get('general', 'userNameInput', 'admin');
     $passHash = $config->get('general', 'password', 'Muximux');
     $authentication = $config->getBool('general', 'authentication', false);
+    $rss = $config->getBool('general', 'rss', false);
+    $rssUrl = $config->get('general','rssUrl','https://www.wired.com/feed/');
     $myBranch = getBranch();
 
     foreach ($branchArray as $branchName => $shaSum ) {
@@ -167,7 +169,9 @@ function parse_ini()
 								<input type='text' id='general_-_default' class='appsColor generalColor general_-_color' value='".$themeColor."' name='general_-_color'>
 							</div>
                         </div>
-						<br>
+						<div class='hidden-xl-up'>
+							<br>
+						</div>
                         <div class='appDiv form-group'>
                             <label for='updatepopupCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Update alerts:
 								<input id='updatepopupCheckbox' class='form-check-input form-control general_-_value' name='general_-_updatepopup' type='checkbox' ".($updatePopup ? 'checked' : '') .">
@@ -179,40 +183,50 @@ function parse_ini()
 							</label>
                         </div>
 						<div class='appDiv form-group'>
-                            <label for='mobileoverrideCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Dropdown override:
+                            <label for='mobileoverrideCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Mobile override:
                                 <input id='mobileoverrideCheckbox' class='form-check-input form-control general_-_value' name='general_-_mobileoverride' type='checkbox' ".($mobileOverride ? 'checked' : '').">
 							</label>
                         </div>
                         <div class='appDiv form-group'>
-                            <label for='tabcolorCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Application colors:
+                            <label for='tabcolorCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>App colors:
 								<input id='tabcolorCheckbox' class='form-check-input form-control general_-_value' name='general_-_tabcolor' type='checkbox' " . ($tabColorEnabled ? 'checked' : '').">
 							</label>
                         </div>
 						<div class='appDiv form-group'>
-                            <label for='autohideCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Auto-hide navbar:
+                            <label for='autohideCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Auto-hide bar:
 								<input id='autohideCheckbox' class='form-check-input form-control general_-_value' name='general_-_autohide' type='checkbox' ".($autoHide ? 'checked' : '').">
 							</label>
 						</div>
                         <div class='appDiv form-group'>
-                            <label for='authenticationCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>User Authentication:
+                            <label for='authenticationCheckbox' class='col-xs-6 col-sm-12 control-label col-form-label form-check-inline'>Authentication:
 								<input id='authenticationCheckbox' class='form-check-input form-control general_-_value' name='general_-_authentication' type='checkbox' ".($authentication ? 'checked' : '').">
 							</label>
-                        </div><br><br>
+                        </div>
+						<div class='appDiv form-group rssGroup'>
+							<label for='rssCheckbox' class='col-xs-12 col-sm-12 control-label col-form-label form-check-inline'>Splash RSS:
+								<input id='rssCheckbox' class='form-check-input form-control general_-_value' name='general_-_rss' type='checkbox' ".($rss ? 'checked' : '').">
+							</label>
+						</div>
+						<div class='userinput appDiv form-group rssGroup'>
+							<label for='rssUrlInput' class='col-xs-4	 control-label right-label'>Feed Url: </label>
+								<div class='col-xs-7 col-sm-5 col-md-8'>
+								<input id='rssUrlInput' type='text' class='form-control' general_-_value' name='general_-_rssUrl' value='" . $rssUrl . "'>
+							</div>
+						</div>
 						<div class='inputdiv appDiv form-group'>
 							<div class='userinput appDiv form-group'>
-								<label for='userName' class='col-xs-4 col-sm-3 col-md-4 control-label right-label'>Username: </label>
+								<label for='userName' class='col-xs-4 control-label right-label'>Username: </label>
 									<div class='col-xs-7 col-sm-5 col-md-8'>
 									<input id='userNameInput' type='text' class='form-control' general_-_value' name='general_-_userNameInput' value='" . $userName . "'>
 								</div>
 							</div>
 							<div class='userinput appDiv form-group'>
 								<label for='password' class='col-xs-4 control-label right-label'>Password: </label>
-								<div class='col-xs-7 col-md-8'>
+								<div class='col-xs-7 col-sm-5 col-md-8'>
 									<input id='passwordInput' type='password' autocomplete='new-password' class='form-control' general_-_value' name='general_-_password' value='" . $passHash . "'>
 								</div>
 							</div>
-                            
-                        </div>
+						</div>
                     </div>
                 
 					<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>
@@ -272,7 +286,9 @@ function parse_ini()
 									<input type='text' id='" . $section . "_-_color' class='form-control form-control-sm appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
 								</div>
 							</div>
-							<br>
+							<div class='hidden-xl-up'>
+								<br>
+							</div>
 							<div class='appDiv form-group'>
 								<label for='" . $section . "_-_enabled' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Enabled:
 									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_enabled' name='" . $section . "_-_enabled'".($enabled ? 'checked' : '') .">
@@ -393,8 +409,6 @@ function log_contents() {
 
 		}
         
-        
-        
     }
     $out .= '</div>
             </ul>
@@ -435,13 +449,13 @@ function buildScale($selectValue)
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'theme', 'classic');
+    $item = $config->get('general', 'theme', 'Classic');
 	return $item;
 }
 
 function getThemeFile() {
 	$config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'theme', 'classic');
+    	$item = $config->get('general', 'theme', 'Classic');
 	$item = $item . '.css';
 	if (!file_exists('css/theme/'.$item)) {
 		$item=ucfirst($item);
@@ -750,6 +764,8 @@ function metaTags() {
     $css = getThemeFile();
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
     $themeColor = $config->get('general','color',$cssColor);
+    $rss = ($config->getBool('general', 'rss', false) ? 'true' : 'false');
+    $rssUrl = $config->get('general','rssUrl','https://trace.corrupt-net.org/live.php');
     $inipath = php_ini_loaded_file();
         if ($inipath) {
             $inipath;
@@ -777,6 +793,8 @@ $tags = "
     <meta id='themeColor-data' data='". $themeColor . "'>
     <meta id='splashScreen-data' data='". $splashScreen . "'>
     <meta id='authentication-data' data='". $authentication . "'>
+    <meta id='rss-data' data='". $rss . "'>
+    <meta id='rssUrl-data' data='". $rssUrl . "'>
 ";
     return $tags;
 }

@@ -1,4 +1,4 @@
-var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle, splashNavBtnColor;
+var boxshadowprop, branch, tabColor, isMobile, overrideMobile, hasDrawer, color, themeColor, tabs, activeTitle, splashNavBtnColor, rss, rssUrl;
 jQuery(document).ready(function($) {
 	$('#pleaseWaitDialog').animate({
 		opacity: .25,
@@ -20,9 +20,17 @@ jQuery(document).ready(function($) {
     dropDown = ($("#dropdown-data").attr('data') == 'true');
     themeColor = $('#themeColor-data').attr("data");
     authentication = ($('#authentication-data').attr("data") == 'true');
-    splashNavBtnColor = $('.splashNavBtn').css('background');
+    rss = ($('#rss-data').attr("data") == 'true');
+	if (rss) {
+		console.log("Rss is enabled.");
+		rssUrl = $('#rssUrl-data').attr("data");
+		setupFeed(rssUrl);
+	} else {
+		console.log("Rss is not enabled.");
+	}
+    
+	splashNavBtnColor = $('.splashNavBtn').css('background');
     overrideMobile = false;
-    //setupFeed();
     tabs = $('.cd-tabs');
     splashBtn = $('.splashBtn');
     activeTitle = $('li .selected').attr("data-title");
@@ -30,6 +38,8 @@ jQuery(document).ready(function($) {
     $('.logo').find('path').css('fill',themeColor);
     if (showSplash) {
 	if (!authentication) {$('#splashLogout').addClass('hidden');}
+	if (!($("#splashscreenCheckbox").is(":checked"))) {$('.rssGroup').addClass('hidden');}
+	
     $('#splashModal').modal('show');
     }
     if (tabColor) {
@@ -140,6 +150,15 @@ jQuery(document).ready(function($) {
             $('.inputdiv').slideDown('fast');
         } else {
             $('.inputdiv').slideUp('fast');
+        }
+    });
+	$("#splashscreenCheckbox").click(function() {
+        // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
+        if ($(this).is(":checked")) // "this" refers to the element that fired the event
+        {
+            $('.rssGroup').slideDown('fast');
+        } else {
+            $('.rssGroup').slideUp('fast');
         }
     });
 

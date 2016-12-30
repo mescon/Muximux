@@ -590,9 +590,9 @@ function getsupportedprop(proparray) {
 
 
 // Shhh, we just won't mention this is here for now
-function setupFeed() {
-	var feed1 = 'https://www.wired.com/feed/';
-$('#feed').rssfeed(feed1, {
+function setupFeed(url) {
+	
+$('#feed').rssfeed(url, {
     ssl: false,
     limit: 20,
     showerror: true,
