@@ -22,11 +22,8 @@ jQuery(document).ready(function($) {
     authentication = ($('#authentication-data').attr("data") == 'true');
     rss = ($('#rss-data').attr("data") == 'true');
 	if (rss) {
-		console.log("Rss is enabled.");
 		rssUrl = $('#rssUrl-data').attr("data");
 		setupFeed(rssUrl);
-	} else {
-		console.log("Rss is not enabled.");
 	}
     
 	splashNavBtnColor = $('.splashNavBtn').css('background');
@@ -359,7 +356,6 @@ function clearColors() {
 function setSelectedColor() {
     color = (tabColor ? $('li .selected').attr("data-color") : themeColor);
     var isddItem = $('li .selected').parents('ul.drop-nav').length;
-    console.log('Main: dd is ' + isddItem);
     $('.droidtheme').replaceWith('<meta name="theme-color" class="droidtheme" content="' + color + '" />');
     $('.mstheme').replaceWith('<meta name="msapplication-navbutton-color" class="mstheme" content="' + color + '" />');
     $('.iostheme').replaceWith('<meta name="apple-mobile-web-app-status-bar-style" class="iostheme" content="' + color + '" />');

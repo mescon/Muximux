@@ -489,9 +489,7 @@ function downloadUpdate($sha) {
 			setStatus('INSTALL FAILED: ' + response["message"],false);
 		});
 
-    } else {
-        console.log('Update cancelled.');
-    }
+    } 
 }
 
 // A little countdown function to reload and tell the user why
