@@ -1098,21 +1098,29 @@ function parseCSS($file,$searchSelector,$searchAttribute){
 // icon picker uses.
 
 function mapIcons($file,$classSelector){
-    $css = file_get_contents($file);
-    preg_match_all( '/(?ims)([a-z0-9\s\.\:#_\-@,]+)\{([^\}]*)\}/', $css, $arr);
-    $result = '"",';
-	foreach ($arr[0] as $i => $x){
-        $selector = trim($arr[1][$i]);
-		if (strpos($selector, $classSelector) !== false) {
-			$selector = str_replace($classSelector,'',$selector);
-			$selector = str_replace(':before','',$selector);
-			$result .='"'.$selector.'", ';
+	$iconHash = md5_file($file);
+	$config = new Config_Lite(CONFIG);
+	$fileName = basename($file);
+	$storedHash = $config->get('settings','hash_'.$fileName,'');
+    if ($iconHash !== $storedHash) {
+		$css = file_get_contents($file);
+		preg_match_all( '/(?ims)([a-z0-9\s\.\:#_\-@,]+)\{([^\}]*)\}/', $css, $arr);
+		$result = '"",';
+		foreach ($arr[0] as $i => $x){
+			$selector = trim($arr[1][$i]);
+			if (strpos($selector, $classSelector) !== false) {
+				$selector = str_replace($classSelector,'',$selector);
+				$selector = str_replace(':before','',$selector);
+				$result .='"'.$selector.'", ';
+			}
 		}
-    }
-	$result = substr_replace($result ,"",-2);
-	$result = '!function($){$.iconset_muximux={iconClass:"muximux",iconClassFix:"muximux-",icons:['.$result.']}}(jQuery);';
-	$file = openFile('js/iconset-muximux.js', "w");
-    fwrite($file, $result);
+		$result = substr_replace($result ,"",-2);
+		$result = '!function($){$.iconset_muximux={iconClass:"muximux",iconClassFix:"muximux-",icons:['.$result.']}}(jQuery);';
+		$file = openFile('js/iconset-muximux.js', "w");
+		fwrite($file, $result);
+		$config->set('settings','hash_'.$fileName,$iconHash);
+        saveConfig($config);
+	}
 }
 
 // Appends lines to file and makes sure the file doesn't grow too much
