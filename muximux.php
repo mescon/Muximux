@@ -77,26 +77,32 @@ function write_ini()
     foreach ($_POST as $parameter => $value) {
         $splitParameter = explode('_-_', $parameter);
         $value = (($value == "on") ? "true" : $value );
-        if ($splitParameter[1] == "password") {
-            if ($value != $oldHash) {
-                write_log('Successfully updated password.','I');
-                $value = password_hash($value, PASSWORD_BCRYPT);
-                $terminate = true;
-            }
-        }
-        if ($splitParameter[1] == "authentication") {
-            if ($value != $authentication) {
-                $terminate = true;
-            }
-        }
-        if ($splitParameter[1] == "branch") {
-            if ($value != $oldBranch) {
-                $config->set('settings','branch_changed',true);
-                $config->set('settings','sha','00');
-            } else {
-                $config->set('settings','branch_changed',false);
-            }
-        }
+		switch ($splitParameter[1]) {
+			case "password":
+				if ($value != $oldHash) {
+					write_log('Successfully updated password.','I');
+					$value = password_hash($value, PASSWORD_BCRYPT);
+					$terminate = true;
+				}
+			break;
+			case "authentication":
+			    if ($value != $authentication) {
+					$terminate = true;
+				}
+			break;
+			case "theme":
+			    $value = strtolower($value);
+			break;
+			case "branch":
+				if ($value != $oldBranch) {
+					$config->set('settings','branch_changed',true);
+					$config->set('settings','sha','00');
+				} else {
+					$config->set('settings','branch_changed',false);
+				}
+			break;
+		}
+        
         $config->set($splitParameter[0], $splitParameter[1], $value);
     }
     // save object to file
@@ -110,11 +116,10 @@ function write_ini()
 // Parse settings.php and create the Muximux elements
 function parse_ini()
 {
+	mapIcons('css/font-muximux.css','.muximux-');
     $config = new Config_Lite(CONFIG);
-    checksetSHA();
-    
+	checksetSHA();
     fetchBranches(false);
-    mapIcons('css/font-muximux.css','.muximux-');
     $branchArray = getBranches();
     $branchList = "";
     $css = getThemeFile();
@@ -450,32 +455,33 @@ function buildScale($selectValue)
 function getTheme()
 {
     $config = new Config_Lite(CONFIG);
-    $item = $config->get('general', 'theme', 'Classic');
-	return $item;
+    $item = $config->get('general', 'theme', 'classic');
+	return strtolower($item);
 }
 
 function getThemeFile() {
 	$config = new Config_Lite(CONFIG);
-    	$item = $config->get('general', 'theme', 'Classic');
-	$item = $item . '.css';
-	if (!file_exists('css/theme/'.$item)) {
-		$item=ucfirst($item);
-	}
-	if (!file_exists('css/theme/'.$item)) {
+    $item = $config->get('general', 'theme', 'classic');
+	if (file_exists()) {
+		return 'css/theme/'.$item.'.css';
+		die;
+	} else {
 		$item=strtolower($item);
 	}
-	if (!file_exists('css/theme/'.$item)) {
-		$item=strtoupper($item);
-	}	
-	if (!file_exists('css/theme/'.$item)) {
-		$item='theme_default.css';
-	}
-	if ($item='theme_default.css') {
-		$item = 'css/theme_default.css';
+	if (file_exists('css/theme/'.$item.'.css')) {
+		return 'css/theme/'.$item.'.css';
+		die;
 	} else {
-		$item = 'css/theme/' . $item;
+		$item=ucfirst($item);
 	}
-	return $item;
+	if (file_exists('css/theme/'.$item.'.css')) {
+		return 'css/theme/'.$item.'.css';
+		die;
+	} else {
+		$item='theme_default.css';
+		return 'css/'.$item.'.css';
+		die;
+	}	
 }
 
 // List all available themes in directory
@@ -489,7 +495,7 @@ function listThemes() {
 		if  (!empty($splitName[0])) {
 			$name = ucfirst($splitName[0]);
             $themelist .="
-                                <option value='".$name."' ".(($name == getTheme()) ? 'selected' : '').">".$name."</option>";
+                                <option value='".$name."' ".(($name == ucfirst(getTheme())) ? 'selected' : '').">".$name."</option>";
         }
     }
     return $themelist;
@@ -1118,8 +1124,8 @@ function mapIcons($file,$classSelector){
 		$result = '!function($){$.iconset_muximux={iconClass:"muximux",iconClassFix:"muximux-",icons:['.$result.']}}(jQuery);';
 		$file = openFile('js/iconset-muximux.js', "w");
 		fwrite($file, $result);
-		$config->set('settings','hash_'.$fileName,$iconHash);
-        saveConfig($config);
+		//$config->set('settings','hash_'.$fileName,$iconHash);
+        //saveConfig($config);
 	}
 }
 
