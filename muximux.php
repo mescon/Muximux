@@ -33,15 +33,16 @@ if (sizeof($_POST) > 0) {
 // Check if we can open a file.
 function openFile($file, $mode) {
     if ((file_exists($file) && (!is_writable(dirname($file)) || !is_writable($file))) || !is_writable(dirname($file))) { // If file exists, check both file and directory writeable, else check that the directory is writeable.
-        printf('Either the file %s and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.', $file);
-    write_log('Error writing to file ' . $file,'E');
-        if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
-            printf("<br>Current permission mode of %s: %d", $file, decoct(fileperms($file) & 0777));
-            printf("<br>Current owner of %s: %s", $file, posix_getpwuid(fileowner($file))['name']);
-            printf("<br>Refer to the README on instructions how to change permissions on the aforementioned files.");
+        $message = 'Either the file '. $file .' and/or it\'s parent directory is not writable by the PHP process. Check the permissions & ownership and try again.';
+	if (PHP_SHLIB_SUFFIX === "so") { //Check for POSIX systems.
+            $message .= "  Current permission mode of ". $file. " is " .decoct(fileperms($file) & 0777);
+            $message .= "  Current owner of " . $file . " is ". posix_getpwuid(fileowner($file))['name'];
+            $message .= "  Refer to the README on instructions how to change permissions on the aforementioned files.";
         } else if (PHP_SHLIB_SUFFIX === "dll") {
-            printf("<br>Detected Windows system, refer to guides on how to set appropriate permissions."); //Can't get fileowner in a trivial manner.
+            $message .= "  Detected Windows system, refer to guides on how to set appropriate permissions."; //Can't get fileowner in a trivial manner.
         }
+	    write_log($message,'E');
+	    setStatus($message);
         exit;
     }
     return fopen($file, $mode);
@@ -135,9 +136,9 @@ function parse_ini()
     $passHash = $config->get('general', 'password', 'Muximux');
     $authentication = $config->getBool('general', 'authentication', false);
     $rss = $config->getBool('general', 'rss', false);
-    $rssUrl = $config->get('general','rssUrl','https://www.wired.com/feed/');
+	$rssUrl = $config->get('general','rssUrl','https://www.wired.com/feed/');
     $myBranch = getBranch();
-
+	
     foreach ($branchArray as $branchName => $shaSum ) {
         $branchList .= "
                                 <option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
@@ -462,7 +463,7 @@ function getTheme()
 function getThemeFile() {
 	$config = new Config_Lite(CONFIG);
     $item = $config->get('general', 'theme', 'classic');
-	if (file_exists()) {
+	if (file_exists('css/theme/'.$item.'.css')) {
 		return 'css/theme/'.$item.'.css';
 		die;
 	} else {
