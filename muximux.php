@@ -209,12 +209,12 @@ function parse_ini()
 								<input id='authenticationCheckbox' class='form-check-input form-control general_-_value' name='general_-_authentication' type='checkbox' ".($authentication ? 'checked' : '').">
 							</label>
                         </div>
-						<div class='appDiv form-group rssGroup'>
+						<div class='appDiv form-group rssGroup ".($splashScreen ? '' : 'hidden')."'>
 							<label for='rssCheckbox' class='col-xs-12 col-sm-12 control-label col-form-label form-check-inline'>Splash RSS:
 								<input id='rssCheckbox' class='form-check-input form-control general_-_value' name='general_-_rss' type='checkbox' ".($rss ? 'checked' : '').">
 							</label>
 						</div>
-						<div class='userinput appDiv form-group rssUrlGroup'>
+						<div class='userinput appDiv form-group rssUrlGroup ".($rss ? '' : 'hidden')."'>
 							<label for='rssUrlInput' class='col-xs-4	 control-label right-label'>Feed Url: </label>
 								<div class='col-xs-7 col-sm-5 col-md-8'>
 								<input id='rssUrlInput' type='text' class='form-control' general_-_value' name='general_-_rssUrl' value='" . $rssUrl . "'>
