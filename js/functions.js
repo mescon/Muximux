@@ -591,7 +591,7 @@ function getsupportedprop(proparray) {
 function setupFeed(url) {
 	
 $('#feed').rssfeed(url, {
-    ssl: false,
+    ssl: true,
     limit: 20,
     showerror: true,
     errormsg: '',
