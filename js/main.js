@@ -142,12 +142,6 @@ jQuery(document).ready(function($) {
         }
     });
 	
-	$('#showSplash').on('click', function() {
-            $('#splashModal').modal('show');
-   
-        
-    });
-	
 	$("#authenticationCheckbox").click(function() {
         // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
         if ($(this).is(":checked")) // "this" refers to the element that fired the event
