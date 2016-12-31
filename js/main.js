@@ -36,6 +36,7 @@ jQuery(document).ready(function($) {
     if (showSplash) {
 	if (!authentication) {$('#splashLogout').addClass('hidden');}
 	if (!($("#splashscreenCheckbox").is(":checked"))) {$('.rssGroup').addClass('hidden');}
+	if (!($("#rssCheckbox").is(":checked"))) {$('.rssUrlGroup').addClass('hidden');}
 	
     $('#splashModal').modal('show');
     }
@@ -156,6 +157,16 @@ jQuery(document).ready(function($) {
             $('.rssGroup').slideDown('fast');
         } else {
             $('.rssGroup').slideUp('fast');
+        }
+    });
+	
+	$("#rssCheckbox").click(function() {
+        // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
+        if ($(this).is(":checked")) // "this" refers to the element that fired the event
+        {
+            $('.rssUrlGroup').slideDown('fast');
+        } else {
+            $('.rssUrlGroup').slideUp('fast');
         }
     });
 

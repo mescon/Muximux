@@ -214,7 +214,7 @@ function parse_ini()
 								<input id='rssCheckbox' class='form-check-input form-control general_-_value' name='general_-_rss' type='checkbox' ".($rss ? 'checked' : '').">
 							</label>
 						</div>
-						<div class='userinput appDiv form-group rssGroup'>
+						<div class='userinput appDiv form-group rssUrlGroup'>
 							<label for='rssUrlInput' class='col-xs-4	 control-label right-label'>Feed Url: </label>
 								<div class='col-xs-7 col-sm-5 col-md-8'>
 								<input id='rssUrlInput' type='text' class='form-control' general_-_value' name='general_-_rssUrl' value='" . $rssUrl . "'>
