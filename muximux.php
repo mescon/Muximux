@@ -250,11 +250,11 @@ function parse_ini()
             $name = $config->get($section, 'name', '');
             $url = $config->get($section, 'url', 'http://www.plex.com');
             $color = $config->get($section, 'color', '#000');
-            $icon = $config->get($section, 'icon', '');
+            $icon = $config->get($section, 'icon', 'muximux-play');
 	    $icon = str_replace('fa-','muximux-',$icon);
 	    $scale = $config->get($section, 'scale', '1');
             $default = $config->getBool($section, 'default', false);
-            $enabled = $config->getBool($section, 'enabled', false);
+            $enabled = $config->getBool($section, 'enabled', true);
             $landingpage = $config->getBool($section, 'landingpage', false);
             $dd = $config->getBool($section, 'dd', false);
             $scaleRange = "0";
@@ -347,15 +347,15 @@ function splashScreen() {
     foreach ($config as $keyname => $section) {
 	$enabled = $config->getBool($keyname,'enabled',false);
 	if (($keyname != "general") && ($keyname != "settings") && $enabled) {
-    	    $color = ($tabColor===true ? $section["color"] : $themeColor);
-	    $icon = $section["icon"];
-	    $icon = str_replace('fa-','muximux-',$icon);
+    	$color = ($tabColor===true ? $section["color"] : $themeColor);
+	$icon = $config->get($keyname,'icon','fa-play');
+	$icon = str_replace('fa-','muximux-',$icon);
 			
 			$splash .= "
 									<div class='btnWrap'>
 										<div class='well splashBtn' data-content='" . $keyname . "'>
 											<a class='panel-heading' data-title='" . $section["name"] . "'>
-												<br><i class='fa fa-5x " . $section["icon"] . "' style='color:".$color."'></i><br>
+												<br><i class='fa fa-5x " . $icon . "' style='color:".$color."'></i><br>
 												<p class='splashBtnTitle' style='color:#ddd'>".$section["name"]."</p>
 											</a>
 										</div>
@@ -529,7 +529,7 @@ function menuItems() {
             $name = $config->get($keyname, 'name', '');
             $url = $config->get($keyname, 'url', 'http://www.plex.com');
             $color = $config->get($keyname, 'color', '#000');
-            $icon = $config->get($keyname, 'icon', '');
+            $icon = $config->get($keyname, 'icon', 'fa-play');
 	    $icon = str_replace('fa-','muximux-',$icon);
 	    $scale = $config->get($keyname, 'scale', '1');
             $default = $config->getBool($keyname, 'default', false);
