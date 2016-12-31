@@ -288,7 +288,7 @@ function parse_ini()
 								</div>	
 							</div>
 							<div class='appDiv form-group colorDiv'>
-								<label for='" . $section . "_-_color' class='col-xs-4 col-md-5 control-label color-label'>Color: </label>
+								<label for='" . $section . "_-_color' class='col-xs-4 col-md-5 control-label color-label right-label'>Color: </label>
 								<div class='col-xs-7'>
 									<input type='text' id='" . $section . "_-_color' class='form-control form-control-sm appsColor " . $section . "_-_color' value='" . $color . "' name='" . $section . "_-_color'>
 								</div>
@@ -1176,4 +1176,10 @@ function saveConfig($inConfig) {
         fseek($handle, $i * $len);
         $i++;
     }
+}
+
+// Echo a message to the user
+function setStatus($message) {
+	$scriptBlock = "<script language='javascript'>alert(\"" . $message . "\");</script>";
+	echo $scriptBlock;
 }

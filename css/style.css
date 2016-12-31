@@ -99,11 +99,8 @@ p {
 	}
 	
 	select {
-		-webkit-appearance: none;
-		-moz-appearance: none;
-		text-indent: 1px;
-		text-overflow: '';
 		text-align: center;
+		text-align-last: center;
 	}
 	
 	.sp-preview {
