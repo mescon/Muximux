@@ -561,23 +561,29 @@ function menuItems() {
 	}
 	$standardmenu .= "</nav>
             </ul>";
-
+	$splashScreen = $config->getBool('general', 'splashscreen', false);
+    
     $moButton = "
 			<ul class='main-nav'>
                 <li class='navbtn ".(($mobileoverride == "true") ? '' : 'hidden')."'>
                     <a id='override' title='Click this button to disable mobile scaling on tablets or other large-resolution devices.'>
-                        <span class='fa fa-mobile fa-lg'></span>
+                        <span class='fa muximux-mobile fa-lg'></span>
+                    </a>
+                </li>
+                <li class='navbtn ".(($splashScreen == "true") ? '' : 'hidden')."'>
+                    <a id='showSplash' title='Click this to display the splash screen.'>
+                        <span class='fa muximux-home4 fa-lg'></span>
                     </a>
                 </li>
     
                 <li class='navbtn ".(($authentication == "true") ? '' : 'hidden')."'>
                     <a id='logout' title='Click this button to log out of Muximux.'>
-                        <span class='fa fa-sign-out fa-lg'></span>
+                        <span class='fa muximux-sign-out fa-lg'></span>
                     </a>
                 </li>
 				<li class='navbtn'>
                     <a id='reload' title='Double click your app in the menu, or press this button to refresh the current app.'>
-                        <span class='fa fa-refresh fa-lg'></span>
+                        <span class='fa muximux-refresh fa-lg'></span>
                     </a>
                 </li>
 				

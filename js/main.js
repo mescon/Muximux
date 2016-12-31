@@ -69,7 +69,7 @@ jQuery(document).ready(function($) {
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
-            tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout, #logModalBtn)', function(event) {
+            tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout, #logModalBtn, #showSplash)', function(event) {
             // Set up menu for desktip view
             if (!isMobile) {
                 $('.drop-nav').addClass('hide-nav');
@@ -139,6 +139,12 @@ jQuery(document).ready(function($) {
         } else {
             $('#override').removeClass('or-active');
         }
+    });
+	
+	$('#showSplash').on('click', function() {
+            $('#splashModal').modal('show');
+   
+        
     });
 	
 	$("#authenticationCheckbox").click(function() {
