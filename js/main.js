@@ -157,7 +157,10 @@ jQuery(document).ready(function($) {
         {
             $('.rssGroup').removeClass('hidden');
         } else {
+	    $('#rssCheckbox').attr('checked', false);
             $('.rssGroup').addClass('hidden');
+	    $('.rssUrlGroup').addClass('hidden');
+			
         }
     });
 	
