@@ -192,15 +192,16 @@ jQuery(document).ready(function($) {
 		rss = ($('#rss-data').attr("data") == 'true');
 		if (rss) {
 			rssUrl = $('#rssUrl-data').attr("data");
-				setupFeed(rssUrl, isMobile);
+			$('.tickercontainer').wrap('<div id="feed"/>').contents().unwrap();
+			$('#feed').empty();
+			setupFeed(rssUrl, isMobile);
 		}
 	});
 	
 	$('#splashModal').on('hidden.bs.modal', function () {
 		rss = ($('#rss-data').attr("data") == 'true');
 		if (rss) {
-			$('.tickercontainer').wrap('<div id="feed"/>').contents().unwrap();
-			$('#feed').empty();
+			
 			
 		}
 	});
