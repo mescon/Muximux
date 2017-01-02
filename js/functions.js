@@ -621,13 +621,13 @@ function setupMobileTicker() {
 		//$('#feed .entryTitle').contents().unwrap();
 		$('#feed .entryWrapper').wrap('<li/>').contents().unwrap();
 		$('#feed').wrap('<ul id="webTicker"/>').contents().unwrap();
-		var adjustWidth = $(window).width() - $('#splashNav').width();
-		$('#webTicker').width(adjustWidth);
-		$('.ti_wrapper').width(adjustWidth);
 		$('#webTicker').webTicker({
 			height:'40px', 
 			duplicate:true, 
 			rssfrequency:0, 
 			startEmpty:true
-		}); 
+		});
+		var adjustWidth = $(window).width() - $('#splashNav').width();
+		$('#webTicker').width(adjustWidth);
+		$('.ti_wrapper').width(adjustWidth);		
 }
