@@ -37,6 +37,7 @@ jQuery(document).ready(function($) {
     }
     muximuxMobileResize();
 	if (showSplash) {
+		$('.rssGroup').show();
 		if (!authentication) {$('#splashLogout').addClass('hidden');}
 		if (!($("#splashscreenCheckbox").is(":checked"))) {$('.rssGroup').addClass('hidden');}
 		if (!($("#splashscreenCheckbox").is(":checked"))) {$('.rssUrlGroup').addClass('hidden');}
@@ -46,9 +47,13 @@ jQuery(document).ready(function($) {
 		if (rss) {
 			rssUrl = $('#rssUrl-data').attr("data");
 			setupFeed(rssUrl, isMobile);
-				
+			$('.rssUrlGroup').show();
+		} else {
+			$('.rssUrlGroup').hide();
 		}
-    }
+    	} else {
+		$('.rssGroup').hide();
+	}
 	
     $('#override').css('display', (isMobile ? 'block' : 'none'));
     $('.inputdiv').css('display',(authentication ? 'block' : 'none'));
@@ -158,11 +163,11 @@ jQuery(document).ready(function($) {
         // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
         if ($(this).is(":checked")) // "this" refers to the element that fired the event
         {
-            $('.rssGroup').removeClass('hidden');
+            $('.rssGroup').slideDown('fast');
         } else {
 	    $('#rssCheckbox').attr('checked', false);
-            $('.rssGroup').addClass('hidden');
-	    $('.rssUrlGroup').addClass('hidden');
+            $('.rssGroup').slideUp('fast');
+	    $('.rssUrlGroup').slideUp('fast');
 			
         }
     });
@@ -171,9 +176,9 @@ jQuery(document).ready(function($) {
         // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
         if ($(this).is(":checked")) // "this" refers to the element that fired the event
         {
-            $('.rssUrlGroup').removeClass('hidden');
+            $('.rssUrlGroup').slideDown('fast');
         } else {
-            $('.rssUrlGroup').addClass('hidden');
+            $('.rssUrlGroup').slideUp('fast');
         }
     });
 

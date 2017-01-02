@@ -250,9 +250,9 @@ function settingsEventHandlers() {
     });
     $('#tabcolorCheckbox').click(function(event) {
         if ($(this).prop('checked')) {
-            $('.colorDiv').toggle('slide', {direction: 'right'}, 200);            
+            $('.colorDiv').slideDown('fast');    
         } else {
-            $('.colorDiv').toggle('slide', {direction: 'right'}, 200);            
+            $('.colorDiv').slideUp('fast');     
         }
 
     });
