@@ -127,9 +127,9 @@ jQuery(document).ready(function($) {
     });
 
     $('#reload').on('click', function() {
-        $('.fa-refresh').addClass('fa-spin');
+        $('.muximux-refresh').addClass('fa-spin');
         setTimeout(function() {
-            $('.fa-refresh').removeClass('fa-spin');
+            $('.muximux-refresh').removeClass('fa-spin');
         }, 3900);
         var selectedFrame = $('.cd-tabs-content').find('.selected').children('iframe');
         selectedFrame.attr('src', selectedFrame.attr('src'));
@@ -198,13 +198,7 @@ jQuery(document).ready(function($) {
 		}
 	});
 	
-	$('#splashModal').on('hidden.bs.modal', function () {
-		rss = ($('#rss-data').attr("data") == 'true');
-		if (rss) {
-			
-			
-		}
-	});
+	
 			
 	$("#splashSettings").click(function() {
 		setTimeout(function () {
