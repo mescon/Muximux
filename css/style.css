@@ -531,12 +531,86 @@ input[type='button'] {
 
 @media screen and (max-width: 800px) {
 	.splashHeader {
-		height: 100%;
+		width: 100%;
+		border-radius: 5px;
+		height: 40px;
+		padding: 0px;
+		position: absolute;
+	}
+	
+	.feedWrapper {
+		padding: 0px;
+		height: 40px;
+		
+	}
+	
+	.TickerNews {
+		width: 100%;
+		height: 50px;
+		line-height: 48px;
+	}
+	
+	.ti_wrapper {
+		width: 100%;
+		float: left;
+		height: 40px;
+		position: relative;
+		overflow: hidden;
+	}
+	
+	.ti_slide{
+		width: 100%;
+		position: relative;
+		left: 0;
+		top: 0;
+	}
+	
+	.ti_content{
+		width: 8000px;
+		position: relative;
+		float:left;
+		height: 40px;
+		
+	}
+		
+	.splashHeader .logo {
 		display: none;
 	}
+	
 	#splashContainer {
-		padding: 30px 10px 30px 10px;
+		padding: 42px 10px 30px 10px;
 	}
+	
+	.TickerNews {
+		width: 70%;
+		
+	}
+	
+	#splashNav {
+		position: relative;
+		display: inline-block;
+		margin: 0;
+		width: auto;
+		bottom: 40px;
+		float: right;
+	}
+		
+	.btn-lg {
+		padding: 6px 12px !important;
+	}
+
+}
+
+@keyframes slide {
+  0% {
+    margin-left: 0px;
+  }
+  50% {
+    margin-left: -100px;
+  }
+  100% {
+    margin-left: -200px;
+  }
 }
 
 .splashDialog {

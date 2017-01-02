@@ -37,8 +37,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <link rel="shortcut icon" href="favicon.ico" type="image/ico"/>
     <link rel="stylesheet" href="css/loader.css"/>
     <link rel="stylesheet" href="combineify.php?type=css&files=css/cssreset.min.css,css/jquery-ui.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-muximux.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,<?php echo getThemeFile();?>">
-    
-	<title><?php echo getTitle(); ?></title>
+    <title><?php echo getTitle(); ?></title>
 	
 </head>
 
@@ -299,8 +298,9 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
 						<div class="logo smallLogo">
 							<div class="modal-title"><?php echo file_get_contents("images/muximux-white.svg") ?></div>
 						</div>
-						<div class="feedWrapper">
-							<div id="feed"></div>
+						<div class="webTicker"></div>
+						<div class="feedWrapper ti_wrapper">
+						    <div id="feed"></div>
 						</div>
 
 						<div id="splashNav">
@@ -321,7 +321,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     </div>
 	<div id="updateContainer"></div>
     <?php echo metaTags(); ?>
-    <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-muximux.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js,js/jquery.ui.touch-punch.min.js,js/yrss.min.js"></script>
+    <script type="text/javascript" src="combineify.php?type=javascript&files=js/jquery-2.2.4.min.js,js/jquery-ui.min.js,js/jquery.form.min.js,js/bootstrap.min.js,js/iconset-muximux.js,js/bootstrap-iconpicker.min.js,js/main.js,js/functions.js,js/spectrum.min.js,js/modernizr-custom-3.3.1.min.js,js/jquery.ui.touch-punch.min.js,js/yrss.min.js,js/jquery.webticker.min.js"></script>
 
 
 <?php

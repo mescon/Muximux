@@ -574,7 +574,6 @@ function changeFavicon(src) {
 function htmlDecode(value) {
     return $('<div/>').html(value).text();
 }
-
 // This fetches the browser-appropriate box-shadow value so we can set it
 function getsupportedprop(proparray) {
     var root = document.documentElement //reference root element of document
@@ -587,24 +586,48 @@ function getsupportedprop(proparray) {
 
 
 // Shhh, we just won't mention this is here for now
-function setupFeed(url) {
+function setupFeed(url, isMobile) {
+	$('#feed').rssfeed(url, {
+		ssl: true,
+		limit: 20,
+		showerror: true,
+		errormsg: '',
+		tags: true,
+		date: true,
+		dateformat: 'spellmonth',
+		titletag: 'h4',
+		content: (isMobile ? false : true),
+		image: (isMobile ? false : true),
+		snippet: true,
+		snippetlimit: 120,
+		linktarget: '_blank'
+	}, function () {
+		isMobile = ($(window).width() < 800);
+		if (isMobile) {
+			setupMobileTicker();
+		} else {
+			$('#webTicker').removeAttr('style');
+			$('.ti_wrapper').removeAttr('style');
+		}
+			
+	});
 	
-$('#feed').rssfeed(url, {
-    ssl: true,
-    limit: 20,
-    showerror: true,
-    errormsg: '',
-    tags: true,
-    date: true,
-    dateformat: 'spellmonth',
-    titletag: 'h4',
-    content: true,
-    image: true,
-    snippet: true,
-    snippetlimit: 120,
-    linktarget: '_blank'
-}, function () {
-    // optional callback function
-});
+}
 
+// Convert the classes created by our RSS plugin to be usable by the ticker plugin
+function setupMobileTicker() {
+	$('.entryWrapper').addClass('ti_news');
+		$('#feed').addClass('ti_content');
+		//$('#feed .entryTitle').contents().unwrap();
+		$('#feed .entryWrapper').wrap('<li/>').contents().unwrap();
+		$('#feed').wrap('<ul id="webTicker"/>').contents().unwrap();
+		var adjustWidth = $(window).width() - $('#splashNav').width();
+		$('#webTicker').width(adjustWidth);
+		$('.ti_wrapper').width(adjustWidth);
+		$('#webTicker').webTicker({
+			height:'40px', 
+			duplicate:true, 
+			rssfrequency:0, 
+			startEmpty:true
+		}); 
 }
