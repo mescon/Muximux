@@ -2,170 +2,148 @@
 [general]
 title = "Muximux - Application Management Console"
 branch = "master"
-enabledropdown = "true"
-updatepopup = "false"
+theme = "classic"
+color = "#31ac63"
 splashscreen = "true"
-mobileoverride = "false"
-autohide = "false"
-authentication = "false"
+tabcolor = "true"
+autohide = "true"
+rss = "true"
+rssUrl = "https://www.wired.com/feed/"
 userNameInput = "admin"
 password = "muximux"
-theme= "Classic"
 
 [settings]
+branch_changed = ""
 enabled = "true"
 default = "false"
 name = "Settings"
-url = "settings.php"
+url = "muximux.php"
 landingpage = "false"
-icon = "fa fa-cog"
+icon = "muximux-cog"
 dd = "true"
 
 [Plex]
 name = "Plex"
 url = "https://www.plex.tv/"
-icon = "fa-play-circle"
+scale = 1
+icon = "muximux-plex"
 color = "#f9be03"
 enabled = "true"
 default = "true"
-landingpage = "false"
-dd = "false"
 
 [Couchpotato]
 name = "CouchPotato"
 url = "https://couchpota.to/"
-icon = "fa-film"
+scale = 1
+icon = "muximux-couchpotato"
 color = "#f85c22"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [Sonarr]
 name = "Sonarr"
 url = "https://sonarr.tv/"
-icon = "fa-calendar"
+scale = 1
+icon = "muximux-sonarr"
 color = "#35c5f4"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [Sickbeard]
 name = "SickBeard"
 url = "http://sickbeard.com/"
-icon = "fa-calendar"
+scale = 1
+icon = "muximux-sickbeard"
 color = "#b6f000"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [Diskstation]
 name = "Diskstation"
 url = "http://localhost:5000"
-icon = "fa-hdd-o"
-color="#3d6fae"
+scale = 1
+icon = "muximux-synology"
+color = "#3d6fae"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [RuTorrent]
 name = "RuTorrent"
 url = "https://github.com/Novik/ruTorrent"
-icon = "fa-globe"
-color="#1a1bfe"
+scale = 1
+icon = "muximux-rutorrent"
+color = "#1a1bfe"
 enabled = "true"
-default = "false"
-landingpage = "false"
 dd = "true"
 
 [NZBGet]
 name = "NZBGet"
 url = "https://nzbget.net/"
-icon = "fa-download"
-color="#3f8927"
+scale = 1
+icon = "muximux-download"
+color = "#3f8927"
 enabled = "true"
-default = "false"
-landingpage = "false"
 dd = "true"
 
 [SABnzbd]
 name = "SABnzbd"
 url = "https://sabnzbd.org/"
-icon = "fa-download"
+scale = 1
+icon = "muximux-arrow-down"
+color = "#f5b907"
 enabled = "true"
-default = "false"
-landingpage = "false"
 dd = "true"
 
 [pydio]
 name = "Pydio"
 url = "https://pydio.com/"
-icon = "fa-cloud"
-color = "#FF796B"
+scale = 1
+icon = "muximux-cloud"
+color = "#cc6156"
 enabled = "true"
-default = "false"
-landingpage = "false"
 dd = "true"
 
 [Headphones]
 name = "Headphones"
 url = "https://github.com/rembo10/headphones"
-icon = "fa-headphones"
-color = "#444444"
+scale = 1
+icon = "muximux-headphones"
+color = "#000000"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
-[Plexrequests]
-name = "PlexRequests"
-url = "https://github.com/lokenx/plexrequests-meteor"
-icon = "fa-bullhorn"
+[Ombi]
+name = "Ombi"
+url = "http://www.ombi.io/"
+scale = 1
+icon = "muximux-plex"
 color = "#df691a"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [PlexPy]
 name = "PlexPy"
-url = "https://github.com/drzoidberg33/plexpy"
-icon = "fa-list"
-color = "#ba8e36"
+url = "https://jonnywong16.github.io/plexpy/"
+scale = 1
+icon = "muximux-plexivity"
+color = "#cc7b19"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [Glances]
 name = "Glances"
-url = "https://github.com/nicolargo/glances"
-icon = "fa-eye"
+url = "https://nicolargo.github.io/glances/"
+scale = 1
+icon = "muximux-eye"
 color = "#59D16C"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [nzbhydra]
 name = "NZB Hydra"
 url = "https://github.com/theotherp/nzbhydra"
-icon = "fa-search"
+scale = 1
+icon = "muximux-nzbhydra"
 color = "#108f34"
 enabled = "true"
-default = "false"
-landingpage = "false"
-dd = "false"
 
 [deluge]
 name = "Deluge"
 url = "http://deluge-torrent.org/"
-icon = "fa-tint"
-color = "#D1DAE5"
+scale = 1
+icon = "muximux-deluge"
+color = "#304663"
 enabled = "true"
-default = "false"
-landingpage = "false"
 dd = "true"
