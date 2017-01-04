@@ -881,6 +881,13 @@ function exec_enabled() {
     return !in_array('exec', $disabled);
 }
 
+// URL parameters
+if (isset($_GET['landing'])) {
+    $keyname = $_GET['landing'];
+    echo landingPage($keyname);
+    die();
+}
+
 // This is where the JavaScript reads the contents of the secret file. This gets re-generated on each page load.
 if (isset($_GET['get']) && $_GET['get'] == 'secret') {
         $secret = file_get_contents(SECRET) or die("Unable to open " . SECRET);
