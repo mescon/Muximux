@@ -763,7 +763,7 @@ checkbox, radio {
 	bottom: 10px;
 	min-height: 44px;
 	width: 340px;
-	z-index: 1048;
+	z-index: 1051;
 	-webkit-border-radius: 5px 5px 5px 5px;
 	border-radius: 5px 5px 5px 5px;
 }

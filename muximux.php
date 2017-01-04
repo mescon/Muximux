@@ -428,9 +428,8 @@ function log_contents() {
 function checkBranchChanged() {
     $config = new Config_Lite(CONFIG);
     if ($config->getBool('settings', 'branch_changed', false)) {
-        $config->set("settings","sha","0");
-        $config->set("settings","branch_changed",false);
         saveConfig($config);
+	checksetSHA();
         return true;
     } else {
         return false;
@@ -721,7 +720,7 @@ function checksetSHA() {
 		$shaOut = exec('git rev-parse HEAD');
 		$branchOut = exec('git rev-parse --abbrev-ref HEAD');
 	} else {
-		if (shaIn ==	 '0') {
+		if (shaIn == '0') {
 			$branchArray = getBranches();
 			$branchOut = $branchIn();
 			foreach ($branchArray as $branchName => $shaVal) {
@@ -970,29 +969,58 @@ if(empty($_GET)) {
 function downloadUpdate($sha) {
 	$git = can_git();
 	if ($git !== false) {
-		$resultshort = exec('git status');
-		$result = (preg_match('/working directory clean/',$resultshort));
-		if ($result !== true) {
-			$resultmsg = shell_exec('git status');
-			$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again. Result message: "' . $resultmsg.'"';
-			write_log($result ,'E');
-			$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again. See log for details.';
-			return $result;
-		}
-		$result = exec('git pull');
-		write_log('Updating via git, command result is ' . $result,'D');
-		$result = (preg_match('/Updating/',$result));
-		if ($result) {
-			$mySha = exec('git rev-parse HEAD');
-			$config = new Config_Lite(CONFIG);
-			if (!preg_match('/about a specific subcommand/',$mySha)) { // Something went wrong with the command to get our SHA, fall back to using the passed value.
-				$config->set('settings','sha',$mySha);
-			} else {
-				$config->set('settings','sha',$sha);
+		$branch = getBranch();
+		if ($sha == $branch) {
+			$resultshort = exec('git status');
+			$result = (preg_match('/clean/',$resultshort));
+				if ($result !== true) {
+				$resultmsg = shell_exec('git status');
+				$result ='Install Failed!  Local instance has files that will interfer with branch change - please manually stash changes and try again. Result message: "' . $resultshort.'"';
+				write_log($result ,'E');
+				$result ='Install Failed!  Local instance has files that will interfer with branch changed - please manually stash changes and try again. See log for details.';
+				return $result;
 			}
-			saveConfig($config);
+			$result = exec('git checkout '. $branch);
+			write_log('Changing git branch, command result is ' . $result,'D');
+			$result = (preg_match('/up-to-date/',$result));
+			if ($result) {
+				$mySha = exec('git rev-parse HEAD');
+				$config = new Config_Lite(CONFIG);
+				if (!preg_match('/about a specific subcommand/',$mySha)) { // Something went wrong with the command to get our SHA, fall back to using the passed value.
+					$config->set('settings','sha',$mySha);
+					$config->set("settings","branch_changed",false);
+					saveConfig($config);
+				} else {
+					$config->set('settings','sha',$sha);
+				}
+				saveConfig($config);
+			} else {
+				$result = 'Branch change failed!  An unknown error occurred attempting to update.  Please manually check git status and fix.';
+			}
 		} else {
-			$result = 'Install Failed!  An unknown error occurred attempting to update.  Please manually check git status and fix.';
+			$resultshort = exec('git status');
+			$result = (preg_match('/clean/',$resultshort));
+			if ($result !== true) {
+				$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again. Result message: "' . $resultshort.'"';
+				write_log($result ,'E');
+				$result ='Install Failed!  Local instance has files that will interfer with git pull - please manually stash changes and try again. See log for details.';
+				return $result;
+			}
+			$result = exec('git pull');
+			write_log('Updating via git, command result is ' . $result,'D');
+			$result = (preg_match('/Updating/',$result));
+			if ($result) {
+				$mySha = exec('git rev-parse HEAD');
+				$config = new Config_Lite(CONFIG);
+				if (!preg_match('/about a specific subcommand/',$mySha)) { // Something went wrong with the command to get our SHA, fall back to using the passed value.
+					$config->set('settings','sha',$mySha);
+				} else {
+					$config->set('settings','sha',$sha);
+				}
+				saveConfig($config);
+			} else {
+				$result = 'Install Failed!  An unknown error occurred attempting to update.  Please manually check git status and fix.';
+			}
 		}
 	} else {
 		$result = false;

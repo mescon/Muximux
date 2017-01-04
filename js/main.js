@@ -151,7 +151,6 @@ jQuery(document).ready(function($) {
     });
 	
 	$("#authenticationCheckbox").click(function() {
-        // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
         if ($(this).is(":checked")) // "this" refers to the element that fired the event
         {
             $('.inputdiv').slideDown('fast');
@@ -160,7 +159,6 @@ jQuery(document).ready(function($) {
         }
     });
 	$("#splashscreenCheckbox").click(function() {
-        // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
         if ($(this).is(":checked")) // "this" refers to the element that fired the event
         {
             $('.rssGroup').slideDown('fast');
@@ -173,7 +171,6 @@ jQuery(document).ready(function($) {
     });
 	
 	$("#rssCheckbox").click(function() {
-        // this function will get executed every time the #home element is clicked (or tab-spacebar changed)
         if ($(this).is(":checked")) // "this" refers to the element that fired the event
         {
             $('.rssUrlGroup').slideDown('fast');
@@ -296,6 +293,18 @@ jQuery(document).ready(function($) {
 		$('.sp-replacer').addClass(' form-control');
 		$('.sp-replacer').addClass('form-control-sm');
     
+	if ($('#branch-changed').attr('data') == 'true') {
+		$('#updateContainer').html("<button type='button' id='updateDismiss' class='close pull-right'>&times;</button>" +
+                "<span>Branch changed detected. Would you like to install the latest version now?" +
+                "<div id='downloadModal'><code>Click here</code></div> to install.</span>");
+                $('#updateContainer').fadeIn("slow");
+                $('#downloadModal').click(function(){
+					branch = $("#branch-data").attr('data');
+                    downloadUpdate(branch);
+		$('#updateDismiss').click(function(){
+				$('#updateContainer').fadeOut("slow");	
+                });
+	}
 
 });
 
