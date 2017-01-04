@@ -8,6 +8,9 @@
      */
 
 
+    if (ini_get('max_execution_time')) {
+	ini_set('max_execution_time', '300');
+    }
     $cache = true;
     $cachedir = dirname(__FILE__) . '/cache';
     if ((!file_exists($cachedir)) && $cache) {
