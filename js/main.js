@@ -301,9 +301,10 @@ jQuery(document).ready(function($) {
                 $('#downloadModal').click(function(){
 					branch = $("#branch-data").attr('data');
                     downloadUpdate(branch);
-		$('#updateDismiss').click(function(){
-				$('#updateContainer').fadeOut("slow");	
-                });
+				});
+				$('#updateDismiss').click(function(){
+					$('#updateContainer').fadeOut("slow");	
+				});
 	}
 
 });
