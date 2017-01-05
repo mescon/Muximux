@@ -261,7 +261,6 @@ function settingsEventHandlers() {
 function viewChangelog() {
     $('#changelog').html("");
     if ((!getCookie('hasJSON')) || (!sessionStorage['JSONData'])) {
-        write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
         updateJson();
     } 
 		json = JSON.parse(sessionStorage.getItem('JSONData'));
