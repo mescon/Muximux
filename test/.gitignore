@@ -1,0 +1,24 @@
+# Do not submit or pull configuration settings when interacting with GitHub.
+config.ini.php
+settings.ini.php
+backup.ini.php
+muximux.log
+stage/
+.stage/
+css/theme/
+js/iconset-muximux.js
+!css/theme/Modern.css
+!css/theme/Classic.css
+test.php
+secret.txt
+tmp/
+pydio/
+phpmyadmin/
+*.idea
+.vscode/
+plexredirect/
+recent/
+keeweb/
+api/
+cache/
+test/
