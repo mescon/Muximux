@@ -631,3 +631,19 @@ function setupMobileTicker() {
 		});
 		
 }
+
+// Parses passed url and looks for the form 'https://:34343/something'. If after double slash after protocol there is no host present, a local host is assumed and is placed before port part.
+// The url from the example will be transformed into 'https://somehost:34343/something', where somehost is the host at which the muximux was accessed.
+function parseRelativeUrlWithPortIfPresent(url) {
+    var parts = /^(http|https|ftp):\/\/:(\d+)(.*)$/.exec(url),
+        fullUrl;
+    if(parts) {
+        var protocol = parts[1],
+            port = parts[2],
+            relativePath = parts[3];
+        fullUrl = protocol + '://' + window.location.hostname + ':' + port + relativePath;
+    } else {
+        fullUrl = url;
+    }
+    return fullUrl; 
+}
