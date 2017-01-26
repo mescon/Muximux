@@ -100,7 +100,7 @@ jQuery(document).ready(function($) {
                     selectedContent.children('iframe').attr('src', selectedContent.children('iframe').attr('src'));
                 });
                 var sifsrc = selectedContent.children('iframe').attr('src');
-                var srcUrl = selectedContent.children('iframe').data('src');
+                var srcUrl = parseRelativeUrlWithPortIfPresent(selectedContent.children('iframe').data('src'));
                 if (sifsrc === undefined || sifsrc === "") {
                     selectedContent.children('iframe').attr('src', srcUrl);
                 }
