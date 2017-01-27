@@ -78,6 +78,10 @@ jQuery(document).ready(function($) {
             tabItems = tab.find('ul.cd-tabs-navigation, .main-nav'),
             tabContentWrapper = tab.children('ul.cd-tabs-content'),
             tabNavigation = tab.find('nav');
+            $(tab).find('iframe').each(function(i, iframe) { 
+                // pre-process each src in iframe, in case of default tab
+                $(iframe).attr('src', parseRelativeUrlWithPortIfPresent($(iframe).attr('src'))); 
+            });
             tabItems.on('click', 'a:not(#reload, #hamburger, #override, #logout, #logModalBtn, #showSplash)', function(event) {
             // Set up menu for desktip view
             if (!isMobile) {
