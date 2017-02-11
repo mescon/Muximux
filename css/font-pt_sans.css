@@ -3,11 +3,11 @@
   font-family: 'PT Sans';
   font-style: normal;
   font-weight: 400;
-  src: url('../fonts/PT_Sans-Web-Regular.eot'); /* IE9 Compat Modes */
+  src: url('fonts/PT_Sans-Web-Regular.eot'); /* IE9 Compat Modes */
   src: local('PT Sans'), local('PTSans-Regular'),
-  url('../fonts/PT_Sans-Web-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
-  url('../fonts/PT_Sans-400-latin.woff2') format('woff2'), /* Modern browsers */
-  url('../fonts/PT_Sans-400-latin.woff') format('woff'), /* Older browsers */
-  url('../fonts/PT_Sans-Web-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
+  url('fonts/PT_Sans-Web-Regular.eot?#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('fonts/PT_Sans-400-latin.woff2') format('woff2'), /* Modern browsers */
+  url('fonts/PT_Sans-400-latin.woff') format('woff'), /* Older browsers */
+  url('fonts/PT_Sans-Web-Regular.ttf') format('truetype'); /* Safari, Android, iOS */
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }

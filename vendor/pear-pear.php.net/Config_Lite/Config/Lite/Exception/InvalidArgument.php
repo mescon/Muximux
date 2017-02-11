@@ -25,7 +25,7 @@
  * @author    Patrick C. Engel <pce@php.net>
  * @copyright 2010-2011 <pce@php.net>
  * @license   http://www.gnu.org/copyleft/lesser.html  LGPL License 2.1
- * @version   Release: 0.2.4
+ * @version   Release: 0.2.5
  * @link      https://github.com/pce/config_lite
  */
 class Config_Lite_Exception_InvalidArgument

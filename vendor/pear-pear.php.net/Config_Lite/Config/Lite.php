@@ -1,5 +1,8 @@
 <?php
 /**
+ * DO NOT REPLACE THIS FILE
+ * THIS HAS BEEN EDITED BEYOND THE STOCK VERSION
+ * DO NOT REPLACE UNTIL A PULL REQUEST HAS BEEN SUBMITTED
  * Config_Lite (Config/Lite.php)
  *
  * PHP version 5
@@ -380,7 +383,7 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
      * if the option is not set, this is practical when dealing with
      * editable files, to keep an application stable with default settings.
      *
-     * @param string $sec     Section|null - null to get global option
+     * @param string $sec     Section|null - null,$key to get global option
      * @param string $key     Key
      * @param mixed  $default return default value if is $key is not set
      *
@@ -392,15 +395,17 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
      */
     public function get($sec = null, $key = null, $default = null)
     {
-        // handle get without parameters, because we can
+        // handle get without parameters
         if ((null === $sec) && (null === $key) && (null === $default)) {
-            return $this; // arrayaccess or $this->sections;
+            return $this->sections;
         }
-        if ((null !== $sec) && array_key_exists($sec, $this->sections)
-            && isset($this->sections[$sec][$key])
-        ) {
-            return $this->sections[$sec][$key];
-        }
+		if (is_array($this->sections)) {
+			if ((null !== $sec) && array_key_exists(strval($sec), $this->sections)
+				&& isset($this->sections[$sec][$key])
+			) {
+				return $this->sections[$sec][$key];
+			}
+		}
         // global value
         if ((null === $sec) && array_key_exists($key, $this->sections)) {
             return $this->sections[$key];
@@ -409,10 +414,7 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
         if ((null === $key) && array_key_exists($sec, $this->sections)) {
             return $this->sections[$sec];
         }
-        // all sections
-        if (null === $sec && array_key_exists($sec, $this->sections)) {
-            return $this->sections;
-        }
+
         if (null !== $default) {
             return $default;
         }
@@ -464,23 +466,24 @@ class Config_Lite implements ArrayAccess, IteratorAggregate, Countable, Serializ
                     return $this->_booleans[$value];
                 }
             }
-        }
-        if (array_key_exists($key, $this->sections[$sec])) {
-            if (empty($this->sections[$sec][$key])) {
-                return false;
-            }
-            $value = strtolower($this->sections[$sec][$key]);
-            if (!in_array($value, $this->_booleans) && (null === $default)) {
-                throw new Config_Lite_Exception_InvalidArgument(
-                    sprintf(
-                        'Not a boolean: %s, and no default value given.',
-                        $value
-                    )
-                );
-            } else {
-                return $this->_booleans[$value];
-            }
-        }
+        } else if (is_array($this->sections[strval($sec)])) {
+			if (array_key_exists($key, $this->sections[$sec])) {
+				if (empty($this->sections[$sec][$key])) {
+					return false;
+				}
+				$value = strtolower($this->sections[$sec][$key]);
+				if (!in_array($value, $this->_booleans) && (null === $default)) {
+					throw new Config_Lite_Exception_InvalidArgument(
+						sprintf(
+							'Not a boolean: %s, and no default value given.',
+							$value
+						)
+					);
+				} else {
+					return $this->_booleans[$value];
+				}
+			}
+		}
         if (null !== $default) {
             return $default;
         }

@@ -1,0 +1,231 @@
+
+
+body {
+    background: #41434f;
+}
+
+.logo {
+    color: #ffffff;
+}
+
+.logo path {
+    fill: #31ac63;
+}
+
+.login-block {
+    background: #36363b;
+    border-top: 5px solid #31ac63;
+}
+
+.colorgrab {
+    color:#31ac63;
+}
+
+.login-block h1 {
+    color: #41434f;
+}
+
+.login-block input {
+    border: 1px solid #8A8A8A;
+}
+
+.login-block input:active, .login-block input:focus {
+    border: 1px solid #31ac63;
+}
+
+.login-block button {
+    background: #31ac63;
+    border: 1px solid #31ac63;
+    color: #fff;
+}
+
+.login-block button:hover {
+    background: #31ac63;
+}
+
+iframe {
+    background-color: #41434f;
+}
+
+.modal-title {
+    color: #f1f3f2;
+}
+
+.cd-tabs nav {
+    box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
+}
+
+.cd-tabs-navigation a {
+    color: #747b8b;
+
+}
+
+.cd-tabs-navigation a:hover {
+    color: #f1f3f2; /* Hover text colour */
+    background-color: rgba(233, 230, 202, 0.3);
+}
+
+.cd-tabs-navigation a.selected {
+    background-color: #535358   !important; /* Selected tab colour */
+    color: #f1f3f2; /* Selected text colour */
+}
+
+@media only screen and (min-width: 0px) {
+    .cd-tabs-navigation {
+        background-color: #343843; /* Main nav colour */
+        box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
+    }
+
+
+    .cd-tabs-navigation a.selected {
+        box-shadow: inset 0 5px 0 #31ac63; /* Selected tab marker colour */
+    }
+
+}
+
+.cd-tabs-content {
+    background: #36363b; /* Content background colour */
+}
+
+.cd-tabs-content li p {
+    color: #8493bf;
+}
+
+.main-nav, .drop-nav {
+    background: #343843;
+    box-shadow: inset 0 -2px 3px rgba(203, 196, 130, 0.06);
+}
+
+
+.main-nav > li:hover {
+    color: #f1f3f2;
+    background-color: rgba(233, 230, 202, 0.3);
+}
+
+.main-nav a {
+    color: #747b8b;
+}
+
+.dd a:hover {
+    color: #f1f3f2;
+    background-color: rgba(233, 230, 202, 0.3);
+}
+.navbtn a:hover {
+    color: #f1f3f2;
+    background-color: rgba(233, 230, 202, 0.3);
+}
+.or-active {
+    background-color: rgba(233, 230, 202, 0.3);
+}
+
+.or-active > span {
+    color: #ffffff; /* Hover text colour */
+
+}
+
+.drop-nav {
+    -webkit-box-shadow: -9px 10px 13px -2px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: -9px 10px 13px -2px rgba(0, 0, 0, 0.3);
+    box-shadow: -9px 10px 13px -2px rgba(0, 0, 0, 0.3);
+}
+
+.drop-nav li {
+    border-bottom: 1px solid rgba(255, 255, 255, .2);
+}
+
+.drop-nav > li:hover, .drop-nav > li:hover a {
+    color: #f1f3f2;
+    background-color: rgba(233, 230, 202, 0.3);
+    -webkit-box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
+    -moz-box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: inset 0px 0px 13px 5px rgba(0, 0, 0, 0.3);
+}
+
+input[type='text'], select {
+    color: #000;
+}
+
+input[type="text"][disabled] {
+    color: #696969;
+}
+
+input[disabled]:hover {
+    background-color: #8b0000;
+    color: #fff;
+}
+
+input[type='button'] {
+    color: #FFF;
+    background: #8b0000;
+}
+
+input[type='button']:hover {
+    background: #003147;
+}
+
+.modal-body {
+    background: #343843;
+}
+
+.modal-header, .modal-footer {
+    background: #41434f;
+}
+
+.splashHeader {
+	border-right: 1px solid rgba(71, 41, 41, 0.83);
+}
+.splashNavBtn {
+	background: #5c5d5c;
+	border-color: rgba(41, 71, 41, 0.83);
+}   
+
+.splashNavBtn:hover {
+	background: #31ac63;;
+}
+.well {
+	background-color: #41434f;
+	border: 1px solid rgba(71, 41, 41, 0.83);
+	box-shadow: 0 10px 20px rgba(0,0,0,0.19), 0 6px 6px rgba(0,0,0,0.23);
+	transition: all 0.3s cubic-bezier(.25,.8,.25,1);
+	
+}
+
+.well:hover {
+  box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+}
+#splashBg {
+    background: #777b82; /* Old browsers */
+    background: -moz-linear-gradient(-45deg, #777b82 0%, #343843 100%); /* FF3.6-15 */
+    background: -webkit-linear-gradient(-45deg, #777b82 0%,#343843 100%); /* Chrome10-25,Safari5.1-6 */
+    background: linear-gradient(135deg, #777b82 0%,#343843 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#777b82', endColorstr='#343843',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
+	
+}
+
+.applicationContainer {
+    background: #f5f6f7;
+    -webkit-border-radius: 5px 5px 5px 5px;
+    border-radius: 5px 5px 5px 5px;
+    -webkit-box-shadow: 5px 5px 5px 1px #000;
+    box-shadow: 5px 5px 5px 1px #000;
+    color: #000;
+}
+
+#updateContainer {
+    background-color: #343843;
+    color: #f1f3f2;
+}
+
+.close {
+  color: #f1f3f2;
+}
+
+.close:hover,
+.close:focus {
+  color: #fff;
+}
+
+form input {
+    background-color: #fff;
+    color: #000;
+}

@@ -29,5 +29,115 @@
             "PHP License"
         ],
         "description": "This package defines a class for config/settings text files in ini style.\n\t\tCurrently classes available are:\n\t\t* Config_Lite: a class with arrayaccess to handle ini style files\n\t\t* Config_Lite_Exception: Interface implemented by Exceptions"
+    },
+    {
+        "name": "matthiasmullie/path-converter",
+        "version": "1.0.8",
+        "version_normalized": "1.0.8.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/matthiasmullie/path-converter.git",
+            "reference": "7c36e5cafa95dd20008d19b153b506cffa8c2848"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/matthiasmullie/path-converter/zipball/7c36e5cafa95dd20008d19b153b506cffa8c2848",
+            "reference": "7c36e5cafa95dd20008d19b153b506cffa8c2848",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcre": "*",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "phpunit/phpunit": "~4.8"
+        },
+        "time": "2016-04-27 10:38:05",
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "MatthiasMullie\\PathConverter\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Matthias Mullie",
+                "email": "pathconverter@mullie.eu",
+                "homepage": "http://www.mullie.eu",
+                "role": "Developer"
+            }
+        ],
+        "description": "Relative path converter",
+        "homepage": "http://github.com/matthiasmullie/path-converter",
+        "keywords": [
+            "converter",
+            "path",
+            "paths",
+            "relative"
+        ]
+    },
+    {
+        "name": "matthiasmullie/minify",
+        "version": "1.3.42",
+        "version_normalized": "1.3.42.0",
+        "source": {
+            "type": "git",
+            "url": "https://github.com/matthiasmullie/minify.git",
+            "reference": "b473affbb76ae6ec4e46d368b5081b5bfcdd3ed2"
+        },
+        "dist": {
+            "type": "zip",
+            "url": "https://api.github.com/repos/matthiasmullie/minify/zipball/b473affbb76ae6ec4e46d368b5081b5bfcdd3ed2",
+            "reference": "b473affbb76ae6ec4e46d368b5081b5bfcdd3ed2",
+            "shasum": ""
+        },
+        "require": {
+            "ext-pcre": "*",
+            "matthiasmullie/path-converter": "~1.0",
+            "php": ">=5.3.0"
+        },
+        "require-dev": {
+            "friendsofphp/php-cs-fixer": "~1.0",
+            "matthiasmullie/scrapbook": "~1.0",
+            "phpunit/phpunit": "~4.8"
+        },
+        "time": "2016-11-23 10:16:14",
+        "bin": [
+            "bin/minifycss",
+            "bin/minifyjs"
+        ],
+        "type": "library",
+        "installation-source": "dist",
+        "autoload": {
+            "psr-4": {
+                "MatthiasMullie\\Minify\\": "src/"
+            }
+        },
+        "notification-url": "https://packagist.org/downloads/",
+        "license": [
+            "MIT"
+        ],
+        "authors": [
+            {
+                "name": "Matthias Mullie",
+                "email": "minify@mullie.eu",
+                "homepage": "http://www.mullie.eu",
+                "role": "Developer"
+            }
+        ],
+        "description": "CSS & JS minifier",
+        "homepage": "http://www.minifier.org",
+        "keywords": [
+            "JS",
+            "css",
+            "javascript",
+            "minifier",
+            "minify"
+        ]
     }
 ]

@@ -6,6 +6,8 @@
     }
   ],
   "require": {
-    "pear-pear.php.net/config_lite": "*"
+    "pear-pear.php.net/config_lite": "*",
+    "matthiasmullie/minify": "^1.3"
+	
   }
 }
