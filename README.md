@@ -1,6 +1,6 @@
 # Muximux - Lightweight portal to your webapps
 
-[![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) [![Docker Automated buil](https://img.shields.io/docker/automated/linuxserver/docker-muximux.svg)](https://hub.docker.com/r/linuxserver/muximux/) [![GitHub stars](https://img.shields.io/github/stars/mescon/Muximux.svg)](https://github.com/mescon/Muximux/stargazers) [![GitHub forks](https://img.shields.io/github/forks/mescon/Muximux.svg)](https://github.com/mescon/Muximux/network)
 
 This is a lightweight portal to view & manage your webapps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
@@ -41,35 +41,8 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 
 ## Docker Setup
 
-1. Install [Docker](https://www.docker.com/)
-
-2. Make directory to store Muximux config files. Navigate to that directory and download the sample config.
-```bash
-mkdir muximux
-curl -O https://raw.githubusercontent.com/mescon/Muximux/master/settings.ini.php-example muximux/settings.ini.php
-cd muximux
-```
-3. Run the container, pointing to the directory with the config file. This should now pull the image from Docker hub:
-```bash
-docker run -d -p 80:80 \
---name="muximux" \
--v $(pwd):/config \
---restart="always" \
-mescon/muximux
-```
-
-### Config File
-```
--v $(pwd):/config \
-```
-That will give the absoulte path to your muximux folder. It will be linked to your config in the contatiner so that if you need to rebuild the container you will retain your configuration.
-
-### Port Conflicts
-If you run into a port conflict trying to run on 80, it is simple to modify the port forwarding:
-
-```bash
--p 81:80
-```
+The fine people of [LinuxServer.io](https://www.linuxserver.io) takes care of Docker builds for Muximux.
+You can find [their instructions here](https://hub.docker.com/r/linuxserver/muximux/).
 
 
 ## Usage
@@ -125,7 +98,7 @@ However, you can password protect the Muximux application itself in the "Setting
 #### Settings: Drag & Drop items to re-arrange them in your menu
 ![Drag & Drop items to re-arrange them in your menu](https://i.imgur.com/7m0k6qB.png)
 
-#### Settings: Pick and choose from over 500 icons and choose colors for each tab
+#### Settings: Pick and choose from over 2600 icons and choose colors for each tab
 ![Pick and choose from over 500 icons](https://i.imgur.com/NyUmzX7.png)
 
 > This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
