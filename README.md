@@ -1,17 +1,11 @@
-# Muximux - Lightweight HTPC portal
+# Muximux - Lightweight portal to your webapps
 
 [![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-> This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
-> https://github.com/Tenzinn3/Managethis
-
-> If you prefer a NodeJS version with a built-in webserver, it is available at
-> https://github.com/onedr0p/manage-this-node
-
-This is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
+This is a lightweight portal to view & manage your webapps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
-![Desktop screenshot](https://i.imgur.com/gqdVM6p.jpg)
+![Desktop screenshot](https://i.imgur.com/LLsHzxX.png)
 [More screenshots](#screenshots)
 
 ## Major features
@@ -35,19 +29,15 @@ With Muximux you don't need to keep multiple tabs open, or bookmark the URL to a
 `` parse_ini_file `` must be allowed in php.ini (default is allowed!)
 
 - To set it up, clone this repository:
-`` git clone https://github.com/mescon/Muximux `` or [download the ZIP-file](https://github.com/mescon/Muximux/archive/master.zip). *(note: If you do not install via the git method, you will not be be able to compare your version with the latest update to Muximux)*
+`` git clone https://github.com/mescon/Muximux `` or [download the ZIP-file](https://github.com/mescon/Muximux/archive/master.zip). If you install by downloading the zip-file, Muximux will still be able to notify you of updates and install them for you (given the right directory permissions!)
 
-- Place all files on a publically accessible webserver, either in a subdirectory called ``muximux`` or directly in the root directory of your webserver (such as ``/var/www``, ``/var/html``, ``C:\Inetpub\wwwroot`` or wherever your webserver serves files from by default).
+- Place all files on a publicly accessible webserver, either in a subdirectory called (for example) ``muximux`` or directly in the root directory of your webserver (such as ``/var/www``, ``/var/html``, ``C:\Inetpub\wwwroot`` or wherever your webserver serves files from by default).
 
 - [Read this note](#security) about securing Muximux, and [read this note](#important-note-regarding-https) about what happens if you are using HTTPS. Just do it.
 
 - Make sure that the directory where you place Muximux is [writable by the process that is running your webserver](http://lmgtfy.com/?q=how+to+make+a+directory+writable+by+my+webserver). *(i.e www-data, www-user, apache, nginx or whatever the user is called)*
   - Example: ``chown -R www-data.www-data /var/www/muximux``
 
-> **Users of Muximux versions prior to v1.0**
-> *Users of Muximux 0.9.1 only need to overwrite with the new files - unfortunately, your config settings will not be transferred to Muximux v1.0. You can click "Show backup INI" under "Settings" to see the contents of your old config.*
-> *There is no need to edit either config.ini.php or settings.ini.php - in fact, we recommend you don't!*
-> *Your settings.ini.php will never be overwritten if you use ``git pull`` or download the ZIP-file again.*
 
 ## Docker Setup
 
@@ -96,16 +86,17 @@ If you run into a port conflict trying to run on 80, it is simple to modify the 
 > There is no longer any need to edit config.ini.php or any file at all. In fact, we recommend you don't!
 
 ### Security
-**It is strongly recommended that you secure Muximux with Basic Auth (``.htpasswd / .htaccess``)**
+**It is strongly recommended that your exposed applications with Basic Auth (``.htpasswd / .htaccess``)**
 
 Read instructions for [Nginx](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04), [Apache](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04) and [Microsoft IIS](http://serverfault.com/a/272292).
 
-If you decide not to, Muximux disallows search engines from indexing your site, however, Muximux itself does not password protect your services, so you have to secure each of your applications properly (which they already should be!).
-Muximux is NOT a proxy server, and as such can not by itself secure your separate applications, and if you don't want Muximux to be open to the world, you *must* make sure that you have Basic Auth enabled on your server.
+If you decide not to, Muximux disallows search engines from indexing your site, however, Muximux itself does not password protect your *services*, so you have to secure each of your applications properly (which they already should be!).
+Muximux is NOT a proxy server, and as such can not by itself secure your separate applications.
+However, you can password protect the Muximux application itself in the "Settings" menu. If you don't want your other services exposed to the world you *must* make sure that you have Basic Auth or other means of security enabled on your server.
 
 ### Important note regarding HTTPS
- If you are serving Muximux from a HTTPS-enabled webserver (i.e``https://myserver.com/muximux``), all of your services must also be secured via HTTPS.
- Any URL that does not start with https:// (such as ``http://myserver.com:5050``) will be blocked by your web-browser!
+ If you are serving Muximux from a HTTPS-enabled webserver (i.e``https://myserver.com/muximux``), all of your services *must* *also* be secured via HTTPS.
+ Any URL that does *not* start with ``https://`` (such as ``http://myserver.com:5050``) will be blocked by your web-browser!
 
  If you can, try serving Muximux from a non-secure (HTTP) webserver instead.
  If the apps you have configured are using HTTPS, communication with them will still be encrypted.
@@ -116,17 +107,29 @@ Muximux is NOT a proxy server, and as such can not by itself secure your separat
 
 
 ## Screenshots
-#### Desktop screenshot
-![Desktop screenshot](https://i.imgur.com/gqdVM6p.jpg)
+#### Desktop screenshot (modern theme)
+![Desktop screenshot, modern theme](https://i.imgur.com/LLsHzxX.png)
 
-#### Mobile screenshot - dropdown menu hidden
-![Mobile screenshot - dropdown menu hidden](https://i.imgur.com/w8WjHiO.jpg)
+#### Desktop screenshot (classic theme)
+![Desktop screenshot, classic theme](https://i.imgur.com/MeMfrI4.png)
 
-#### Mobile screenshot - dropdown menu shown
-![Mobile screenshot - dropdown menu shown](https://i.imgur.com/vsVtrvG.jpg)
+#### Splash screen (modern theme) - shown on startup, accessible in the top right corner if you close it
+![Splash screen](https://i.imgur.com/q6gw45q.png)
+
+#### Mobile screenshot (modern theme) - dropdown menu hidden
+![Mobile screenshot - dropdown menu hidden](https://i.imgur.com/smua7bw.png)
+
+#### Mobile screenshot (modern theme) - dropdown menu shown
+![Mobile screenshot - dropdown menu shown](https://i.imgur.com/8cDGN7A.png)
 
 #### Settings: Drag & Drop items to re-arrange them in your menu
-![Drag & Drop items to re-arrange them in your menu](https://i.imgur.com/JKZvn74.jpg)
+![Drag & Drop items to re-arrange them in your menu](https://i.imgur.com/7m0k6qB.png)
 
-#### Settings: Pick and choose from over 500 icons
-![Pick and choose from over 500 icons](https://i.imgur.com/KsuOzH1.jpg)
+#### Settings: Pick and choose from over 500 icons and choose colors for each tab
+![Pick and choose from over 500 icons](https://i.imgur.com/NyUmzX7.png)
+
+> This is a PHP enabled fork of (the simpler and more lightweight) "Managethis" found here:
+> https://github.com/Tenzinn3/Managethis
+
+> If you prefer a NodeJS version with a built-in webserver, a rewrite of Muximux (though not up to date) is available at
+> https://github.com/onedr0p/manage-this-node
