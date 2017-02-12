@@ -2,7 +2,7 @@
 
 [![Join the chat at https://gitter.im/mescon/Muximux](https://badges.gitter.im/mescon/Muximux.svg)](https://gitter.im/mescon/Muximux?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-This is a lightweight portal to view & manage your HTPC apps without having to run anything more than a PHP enabled webserver.
+This is a lightweight portal to view & manage your webapps without having to run anything more than a PHP enabled webserver.
 With Muximux you don't need to keep multiple tabs open, or bookmark the URL to all of your apps.
 
 ![Desktop screenshot](https://i.imgur.com/LLsHzxX.png)
@@ -110,10 +110,10 @@ However, you can password protect the Muximux application itself in the "Setting
 #### Desktop screenshot (modern theme)
 ![Desktop screenshot, modern theme](https://i.imgur.com/LLsHzxX.png)
 
-### Desktop screenshot (classic theme)
+#### Desktop screenshot (classic theme)
 ![Desktop screenshot, classic theme](https://i.imgur.com/MeMfrI4.png)
 
-### Splash screen (modern theme) - shown on startup, accessible in the top right corner if you close it
+#### Splash screen (modern theme) - shown on startup, accessible in the top right corner if you close it
 ![Splash screen](https://i.imgur.com/q6gw45q.png)
 
 #### Mobile screenshot (modern theme) - dropdown menu hidden
