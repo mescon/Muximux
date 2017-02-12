@@ -59,7 +59,7 @@ You can find [their instructions here](https://hub.docker.com/r/linuxserver/muxi
 > There is no longer any need to edit config.ini.php or any file at all. In fact, we recommend you don't!
 
 ### Security
-**It is strongly recommended that your exposed applications with Basic Auth (``.htpasswd / .htaccess``)**
+**It is strongly recommended that you secure any exposed applications with Basic Auth (``.htpasswd / .htaccess``)**
 
 Read instructions for [Nginx](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-nginx-on-ubuntu-14-04), [Apache](https://www.digitalocean.com/community/tutorials/how-to-set-up-password-authentication-with-apache-on-ubuntu-14-04) and [Microsoft IIS](http://serverfault.com/a/272292).
 
