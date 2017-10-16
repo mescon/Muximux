@@ -803,11 +803,6 @@ iframe {
 	margin: 0;
 	margin-top: 0px;
 	filter: none;
-	-webkit-filter: blur(0px);
-	-moz-filter': blur(0px);
- -ms-filter: blur(0px);
-	-o-filter: blur(0px);
-	filter: progid: DXImageTransform.Microsoft.Blur(PixelRadius='0');
 	-webkit-transform: translate3d(0, 0, 0);
 	-webkit-perspective: 1000;
 	-ms-transform-origin: 0 0;
