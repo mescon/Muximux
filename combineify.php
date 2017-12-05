@@ -22,7 +22,7 @@
 
     // Determine last modification date of the files
     $lastmodified = 0;
-    foreach ($lements as $key => $element) {
+    foreach ($elements as $key => $element) {
         $path = realpath($element);
 
         if (($type == 'javascript' && substr($path, -3) != '.js') ||
