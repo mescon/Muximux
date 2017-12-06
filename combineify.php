@@ -22,7 +22,7 @@
 
     // Determine last modification date of the files
     $lastmodified = 0;
-    while (list(,$element) = each($elements)) {
+    foreach ($elements as $key => $element) {
         $path = realpath($element);
 
         if (($type == 'javascript' && substr($path, -3) != '.js') ||
@@ -103,7 +103,7 @@
         if ($type =='javascript') {
             $minifier = new Minify\JS();
         }
-        while (list(,$element) = each($elements)) {
+        foreach ($elements as $key => $element) {
             $path = realpath($element);
             $minifier->add($path);
         }
