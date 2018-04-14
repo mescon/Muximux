@@ -78,6 +78,13 @@ However, you can password protect the Muximux application itself in the "Setting
 
  Install the plugin "[Ignore X-Frame headers](https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe)" which disables the blocking of non-secure content.
 
+### Using with PFSense
+Please refer to the following:
+https://forum.pfsense.org/index.php?topic=47167.msg248336#msg248336
+then check this box:
+Browser HTTP_REFERER enforcement - Disable HTTP_REFERER enforcement check
+Now pfsense works in muximux :D
+(Thanks to nullredvector for the tip)
 
 ## Screenshots
 #### Desktop screenshot (modern theme)
