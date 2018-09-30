@@ -155,13 +155,21 @@ function settingsEventHandlers() {
 				'<div class="col-xs-7 col-md-8">' +
 					'<input class="form-control form-control-sm ' + rand + 'newApplication_-_value" name="' + rand + 'newApplication_-_url" type="text" value="">' + 
 				'</div>' +
-			'</div><br>' + 
-			'<div class="appdiv form-group">' +
+			'</div>' +
+			'<div class="appdiv form-group icoSelDiv_' + rand + 'newApplication">' +
 				'<label for="' + rand + 'newApplication_-_icon" class="col-xs-4 control-label right-label">Icon: </label>' +
 				'<div class="col-xs-7 col-md-5">' +
 					'<button role="iconpicker" class="form-control form-control-sm iconpicker btn btn-default ' + rand + 'newApplication_-_icon" name="' + rand + 'newApplication_-_icon" id="' + rand + 'newApplication_-_iconPicker" data-rows="4" data-cols="6" data-search="true" data-search-text="Search..." data-iconset="muximux" data-placement="left">' + 
 				'</div>' +
 			'</div>' + 
+			'<div class="appDiv form-group imgSelDiv_' + rand + 'newApplication" style="display:none">' +
+			'<label for="' + rand + 'newApplication_-_image" class="col-xs-4 col-md-5 control-label color-label">Image:' +
+			'<input type="text" class="form-control form-control ' + rand + 'newApplication_-_value" id="' +rand + 'newApplication_-_image" name="' + rand + 'newApplication_-_image" value="">'+
+			'</label>'+
+			'</div>'+
+			'<div class="hidden-xl-up">' +
+			'<br>' +
+			' </div>'+
 			'<div class="appdiv form-group colorDiv">' +
 				'<label for="' + rand + 'newApplication_-_color" class="col-xs-4 col-md-5 control-label color-label">Color: </label>' +
 				'<div class="col-xs-7">' +
@@ -184,6 +192,11 @@ function settingsEventHandlers() {
 				'</label>' +
 			'</div>' +
 			'<div class="appdiv form-group">' +
+				'<label for="' + rand + 'newApplication_-_img_icon" class="col-xs-6 col-md-12 control-label col-form-label form-check-inline">Image Icon: ' +
+					'<input type="checkbox" class="form-check-input form-control iconSelection ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_img_icon" name="' + rand + 'newApplication_-_img_icon">' +
+				'</label>' +
+			'</div>' +
+			'<div class="appdiv form-group">' +
 				'<label for="' + rand + 'newApplication_-_default" class="col-xs-6 col-md-12 control-label col-form-label form-check-inline">Default: ' +
 					'<input type="radio" class="form-check-input form-control ' + rand + 'newApplication_-_value" id="' + rand + 'newApplication_-_default" name="' + rand + 'newApplication_-_default">' + 
 				'</label>' +
@@ -192,6 +205,8 @@ function settingsEventHandlers() {
 			'<button type="button" class="form-control form-control-sm removeButton btn btn-danger btn-xs" value="Remove" id="remove_-_' + rand + 'newApplication">Remove<meta class="newAppRand" value="' + rand + '"></button>' +
 			'<meta class="newAppRand" value="' + rand + '">' +
 		'</div>');
+		setIconSelectCallback();
+		changeTabColorVisibility();
         initIconPicker('#' + rand + 'newApplication_-_iconPicker');
 		$('.' + rand + 'newApplication_-_color').spectrum({
 		showInput: true,
@@ -249,13 +264,33 @@ function settingsEventHandlers() {
         $("form").ajaxSubmit(options);
     });
     $('#tabcolorCheckbox').click(function(event) {
-        if ($(this).prop('checked')) {
-            $('.colorDiv').slideDown('fast');    
-        } else {
-            $('.colorDiv').slideUp('fast');     
-        }
-
+        changeTabColorVisibility();
     });
+	setIconSelectCallback();
+}
+
+function changeTabColorVisibility()
+{
+	show = $('#tabcolorCheckbox').prop('checked')
+	if (show)
+		$('.colorDiv').slideDown('fast');
+	else
+		$('.colorDiv').slideUp('fast');
+}
+
+function setIconSelectCallback()
+{
+	$('.iconSelection').click(function(event) {
+		base = $(this).prop('name').split("_-_")[0]
+		if($(this).prop('checked'))
+		{
+			$('.icoSelDiv_'+base).slideUp('fast',function(){$('.imgSelDiv_'+base).slideDown('fast');});
+		}else
+		{
+			$('.imgSelDiv_'+base).slideUp('fast',function(){$('.icoSelDiv_'+base).slideDown('fast');});
+
+		}
+	});
 }
 // Takes all the data we have to generate our changelog
 function viewChangelog() {

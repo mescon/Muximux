@@ -251,8 +251,21 @@ function parse_ini()
             $url = $config->get($section, 'url', 'http://www.plex.com');
             $color = $config->get($section, 'color', '#000');
             $icon = $config->get($section, 'icon', 'muximux-play');
-	    $icon = str_replace('fa-','muximux-',$icon);
-	    $scale = $config->get($section, 'scale', '1');
+ 			$img_icon = $config->getBool($section, 'img_icon', false);
+			if($img_icon === false)
+			{
+				$img_display = 'inline-block';
+				$img_display = 'none';
+				$ico_display = 'inline-block';
+			}
+			else
+			{
+				$icon = $config->getString($section, 'image', 'default.png');
+				$ico_display = 'none';
+				$icon = str_replace('fa-','muximux-',$icon);
+			}
+
+			$scale = $config->get($section, 'scale', '1');
             $default = $config->getBool($section, 'default', false);
             $enabled = $config->getBool($section, 'enabled', true);
             $landingpage = $config->getBool($section, 'landingpage', false);
@@ -281,11 +294,16 @@ function parse_ini()
 									<select id='" . $section . "_-_scale' class='form-control custom-select form-control-sm ' name='" . $section . "_-_scale'>". $scaleRange ."</select>
 								</div>
 							</div>
-							<div class='appDiv form-group'>
+							<div class='appDiv form-group icoSelDiv_" . $section . "' style='display:" . $ico_display . "'>
 								<label for='" . $section . "_-_icon' class='col-xs-4 control-label right-label'>Icon: </label>
 								<div class='col-xs-7 col-md-5'>
 									<button role='iconpicker' class='form-control form-control-sm iconpicker btn btn-default' name='" . $section . "_-_icon' data-rows='4' data-cols='6' data-search='true' data-search-text='Search...' data-iconset='muximux' data-placement='left' data-icon='" . $icon . "'></button>
 								</div>	
+							</div>
+							<div class='appDiv form-group imgSelDiv_" . $section . "' style='display:" . $img_display . "'>
+								<label for='" . $section . "_-_image' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Image:
+									<input type='text' class='form-control form-control " . $section . "_-_value' id='" . $section . "_-_image' name='" . $section . "_-_image' value='" . $icon ."'>
+								</label>
 							</div>
 							<div class='appDiv form-group colorDiv'>
 								<label for='" . $section . "_-_color' class='col-xs-4 col-md-5 control-label color-label right-label'>Color: </label>
@@ -309,6 +327,11 @@ function parse_ini()
 							<div class='appDiv form-group'>
 								<label for='" . $section . "_-_dd' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Dropdown:
 									<input type='checkbox' class='form-check-input form-control " . $section . "_-_value' id='" . $section . "_-_dd' name='" . $section . "_-_dd'".($dd ? 'checked' : '') .">
+								</label>
+							</div>
+							<div class='appDiv form-group'>
+								<label for='" . $section . "_-_img_icon' class='col-xs-6 col-md-12 control-label col-form-label form-check-inline'>Image Icon:
+									<input type='checkbox' class='form-check-input form-control iconSelection " . $section . "_-_value' id='" . $section . "_-_img_icon' name='" . $section . "_-_img_icon'".($img_icon ? 'checked' : '') .">
 								</label>
 							</div>
 							<div class='appDiv form-group'>
@@ -348,18 +371,27 @@ function splashScreen() {
 	$enabled = $config->getBool($keyname,'enabled',false);
 	if (($keyname != "general") && ($keyname != "settings") && $enabled) {
     	$color = ($tabColor===true ? $section["color"] : $themeColor);
-	$icon = $config->get($keyname,'icon','fa-play');
-	$icon = str_replace('fa-','muximux-',$icon);
-			
-			$splash .= "
-									<div class='btnWrap'>
-										<div class='well splashBtn' data-content='" . $keyname . "'>
-											<a class='panel-heading' data-title='" . $section["name"] . "'>
-												<br><i class='fa fa-5x " . $icon . "' style='color:".$color."'></i><br>
-												<p class='splashBtnTitle' style='color:#ddd'>".$section["name"]."</p>
-											</a>
-										</div>
-									</div>";
+		$img_icon = $config->getBool($keyname, 'img_icon', false);
+		$icon = $config->get($keyname,'icon','fa-play');
+
+		if($img_icon === false)
+			$icon = str_replace('fa-','muximux-',$icon);
+		else
+			$icon = $config->getString($keyname, 'image', 'default.png');
+
+		$splash .= "
+								<div class='btnWrap'>
+									<div class='well splashBtn' data-content='" . $keyname . "'>
+										<a class='panel-heading' data-title='" . $section["name"] . "'>";
+		if($img_icon === false)
+			$splash .= "<br><i class='fa fa-5x " . $icon . "' style='color:".$color."'></i><br>";
+		else
+			$splash .= "<br><img class='splash_image_icon' src='images/" . $icon . "'><br>";
+
+		$splash .= "<p class='splashBtnTitle' style='color:#ddd'>".$section["name"]."</p>
+										</a>
+									</div>
+								</div>";
 		}
 	}
 	return $splash;
@@ -501,6 +533,13 @@ function listThemes() {
     return $themelist;
 }
 
+function menuImage($img_icon,$icon,$extra){
+	if($img_icon === false)
+		return "<span class='fa " . $icon . " " . $extra . "'></span> ";
+	else
+		return "<img class='menu_image_icon' src='images/" . $icon . "'></span> ";
+}
+
 // Build the contents of our menu
 function menuItems() {
     $config = new Config_Lite(CONFIG);
@@ -528,9 +567,15 @@ function menuItems() {
             $name = $config->get($keyname, 'name', '');
             $url = $config->get($keyname, 'url', 'http://www.plex.com');
             $color = $config->get($keyname, 'color', '#000');
-            $icon = $config->get($keyname, 'icon', 'fa-play');
-	    $icon = str_replace('fa-','muximux-',$icon);
-	    $scale = $config->get($keyname, 'scale', '1');
+            $img_icon = $config->getBool($keyname, 'img_icon', false);
+            $icon = $config->get($keyname,'icon','fa-play');
+
+            if($img_icon === false)
+				$icon = str_replace('fa-','muximux-',$icon);
+			else
+				$icon = $config->getString($keyname, 'image', 'default.png');
+
+			$scale = $config->get($keyname, 'scale', '1');
             $default = $config->getBool($keyname, 'default', false);
             $enabled = $config->getBool($keyname, 'enabled', false);
             $landingpage = $config->getBool($keyname, 'landingpage', false);
@@ -541,16 +586,16 @@ function menuItems() {
 					if (!$dd) {
 						$standardmenu .= "
 							<li class='cd-tab' data-index='".$int."'>
-								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>
-									<span class='fa " . $icon . " fa-lg'></span> " . $section["name"] . "
+								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "' data-color='" . $section["color"] . "' class='".($default ? 'selected' : '')."'>"
+									. menuImage($img_icon,$icon,"fa-lg") . $section["name"] . "
 								</a>
 							</li>";
 						$int++;
 					} else {
 						$dropdownmenu .= "
 							<li>
-								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "'>
-									<span class='fa " . $icon . "'></span> " . $section["name"] . "
+								<a data-content='" . $keyname . "' data-title='" . $section["name"] . "'>"
+									. menuImage($img_icon,$icon,"") . $section["name"] . "
 								</a>
 							</li>";
 					}

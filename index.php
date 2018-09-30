@@ -42,7 +42,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
     <meta name="msapplication-config" content="images/favicon/browserconfig.xml?v=ngGoyLXN9n">
     <meta name="theme-color" content="#ffffff">
     <link rel="stylesheet" href="css/loader.css"/>
-    <link rel="stylesheet" href="combineify.php?type=css&files=css/cssreset.min.css,css/jquery-ui.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-muximux.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,<?php echo getThemeFile();?>">
+    <link rel="stylesheet" href="combineify.php?type=css&files=css/cssreset.min.css,css/jquery-ui.min.css,css/bootstrap.min.css,css/bootstrap-iconpicker.min.css,css/font-awesome.min.css,css/font-muximux.css,css/font-pt_sans.css,css/style.css,css/spectrum.min.css,css/image_icons.css,<?php echo getThemeFile();?>">
     <title><?php echo getTitle(); ?></title>
 
 </head>
