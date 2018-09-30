@@ -249,9 +249,12 @@ function settingsEventHandlers() {
     var options = {
         url: 'muximux.php',
         type: 'post',
-        success: showResponse
+        success: showResponse,
+        secret: secret
     };
+
     $('#settingsSubmit').click(function(event) {
+        var form = $("form");
         event.preventDefault();
         $('.newApp').remove(); //Remove any new app that isn't filled out.
         $('.checkbox,.radio').each(function() {
@@ -261,7 +264,9 @@ function settingsEventHandlers() {
             }
         });
         $('.appName').removeAttr('disabled');
-        $("form").ajaxSubmit(options);
+        form.append('<input type="hidden" name="secret" value="'+secret+'" /> ');
+        form.append('<input type="hidden" name="function" value="write_ini" /> ');
+        form.ajaxSubmit(options);
     });
     $('#tabcolorCheckbox').click(function(event) {
         changeTabColorVisibility();
@@ -592,6 +597,7 @@ function scaleFrames() {
 // Like the name implies, it changes the favicon to whatever
 // url is passed to it
 function changeFavicon(src) {
+    // noinspection JSAnnotator
     document.head = document.head || document.getElementsByTagName('head')[0];
     var link = document.createElement('link'),
         oldLink = document.getElementById('dynamic-favicon');

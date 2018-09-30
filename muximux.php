@@ -23,11 +23,11 @@ if(!file_exists(CONFIG)){
     checksetSHA();
 }
 
-// First what we're gonna do - save or read
-if (sizeof($_POST) > 0) {
-    if(!isset($_POST['username'])){
-        write_ini();
-    }
+
+if (isset($_POST['function']) && isset($_POST['secret'])) {
+	write_log("Should be saving settings here.");
+	write_log("We have a secret too: ".$_POST['secret']);
+	if ($_POST['secret'] == file_get_contents(SECRET)) write_ini();
 } 
 
 // Check if we can open a file.
@@ -104,7 +104,7 @@ function write_ini()
 			break;
 		}
         
-        $config->set($splitParameter[0], $splitParameter[1], $value);
+        if ($parameter !== 'function' && $parameter !== 'secret')$config->set($splitParameter[0], $splitParameter[1], $value);
     }
     // save object to file
     saveConfig($config);
@@ -125,7 +125,6 @@ function parse_ini()
     $branchList = "";
     $css = getThemeFile();
     $tabColorEnabled = $config->getBool('general', 'tabcolor', false);
-    $enableDropDown = $config->getBool('general', 'enabledropdown', false);
     $updatePopup = $config->getBool('general', 'updatepopup', false);
     $mobileOverride = $config->getBool('general', 'mobileoverride', false);
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
@@ -235,7 +234,7 @@ function parse_ini()
 							</div>
 						</div>
                     </div>
-                
+                	
 					<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>
 					<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>
 					<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>
@@ -567,15 +566,17 @@ function menuItems() {
             $name = $config->get($keyname, 'name', '');
             $url = $config->get($keyname, 'url', 'http://www.plex.com');
             $color = $config->get($keyname, 'color', '#000');
+
             $img_icon = $config->getBool($keyname, 'img_icon', false);
             $icon = $config->get($keyname,'icon','fa-play');
 
             if($img_icon === false)
-				$icon = str_replace('fa-','muximux-',$icon);
-			else
-				$icon = $config->getString($keyname, 'image', 'default.png');
+				        $icon = str_replace('fa-','muximux-',$icon);
+            else
+                $icon = $config->getString($keyname, 'image', 'default.png');
 
-			$scale = $config->get($keyname, 'scale', '1');
+            $scale = $config->get($keyname, 'scale', '1');
+
             $default = $config->getBool($keyname, 'default', false);
             $enabled = $config->getBool($keyname, 'enabled', false);
             $landingpage = $config->getBool($keyname, 'landingpage', false);

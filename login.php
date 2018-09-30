@@ -24,7 +24,7 @@ if(isset($_POST['username'])) {
 		write_log('Successfully logged in.');
 		exit();
     } else {
-		write_log('Error logging in with username of '+ $_POST['username'] +'.','E');
+		write_log('Error logging in from RemoteIP: '. $_SERVER['REMOTE_ADDR'],'E');
 	}
 } 
 echo '
