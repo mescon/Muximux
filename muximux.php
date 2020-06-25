@@ -249,6 +249,9 @@ function parse_ini()
         if (is_array($name) && $section != "settings" && $section != "general") {
             $name = $config->get($section, 'name', '');
             $url = $config->get($section, 'url', 'http://www.plex.com');
+            if  (strpos($url,'{self}')  !== FALSE) {
+                $url = str_replace('{self}',$_SERVER['HTTP_HOST'],$url);
+            }
             $color = $config->get($section, 'color', '#000');
             $icon = $config->get($section, 'icon', 'muximux-play');
 	    $icon = str_replace('fa-','muximux-',$icon);
