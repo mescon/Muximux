@@ -50,6 +50,9 @@ You can find [their instructions here](https://hub.docker.com/r/linuxserver/muxi
 
 - Remove the default apps (or just change the URL:s of them if you want to keep them), add your own apps by clicking in the top right corner and then click "Settings".
 
+- To refer the link to the same server that is hosting Muximix in contexts where ip / hostname I can change (local network, remote network, vpn, etc) you can write the url in the form ``http://{self}/<page/dir>`` or ``http://{self}:<port>``. 
+At runtime ``{self}`` will be replaced with the value contained in ``$_SERVER['HTTP_HOST']``.
+
 - Under Settings, rearrange your apps with drag'n'drop - just drag an item under another item to move it it.
 
 - To reload an app, double click it in the menu, or press the refresh button in the top right bar.

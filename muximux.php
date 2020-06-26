@@ -114,6 +114,14 @@ function write_ini()
     }
 }
 
+// set $_SERVER['HTTP_HOST'] when {self} 
+function selfURL_managment ($url) {
+	if  (strpos($url,'{self}')  !== FALSE) {
+		$url = str_replace('{self}',$_SERVER['HTTP_HOST'],$url);
+	}
+	return $url;
+}
+
 // Parse settings.php and create the Muximux elements
 function parse_ini()
 {
@@ -822,6 +830,7 @@ function frameContent() {
     $default = $config->getBool($keyname,'default',false);
     $scale = $config->get($keyname,'scale',1);
     $url = $section["url"];
+    $url = selfURL_managment($url);
     $url=($landingpage ? "?landing=" . $keyname: $url);
     if ($enabled && ($keyname != 'settings') && ($keyname != 'general')) {
 		$item .= "
