@@ -257,7 +257,6 @@ function parse_ini()
         if (is_array($name) && $section != "settings" && $section != "general") {
             $name = $config->get($section, 'name', '');
             $url = $config->get($section, 'url', 'http://www.plex.com');
-            #$url = selfURL_managment($url);
             $color = $config->get($section, 'color', '#000');
             $icon = $config->get($section, 'icon', 'muximux-play');
 	    $icon = str_replace('fa-','muximux-',$icon);
@@ -663,7 +662,7 @@ function fetchBranches($skip) {
         } else {
             write_log('Refreshing branches from github - manually triggered.');
         }
-        $url = 'https://api.github.com/repos/unclehook/Muximux/branches';
+        $url = 'https://api.github.com/repos/mescon/Muximux/branches';
             $options = array(
           'http'=>array(
             'method'=>"GET",
@@ -777,7 +776,7 @@ function metaTags() {
     $authentication = ($config->getBool('general', 'authentication', false) ? 'true' : 'false');
     $autohide = ($config->getBool('general', 'autohide', false) ? 'true' : 'false');
     $branch = $config->get('general', 'branch', 'master');
-    $branchUrl = "https://api.github.com/repos/unclehook/Muximux/commits?sha=" . $branch;
+    $branchUrl = "https://api.github.com/repos/mescon/Muximux/commits?sha=" . $branch;
     $popupdate = ($config->getBool('general', 'updatepopup', false) ? 'true' : 'false');
     $enabledropdown = ($config->getBool('settings', 'enabledropdown', true) ? 'true' : 'false');
     $maintitle = $config->get('general', 'title', 'Muximux');
@@ -1035,7 +1034,7 @@ function downloadUpdate($sha) {
 	} else {
 		$result = false;
 		$zipFile = "Muximux-".$sha. ".zip";
-		$f = file_put_contents($zipFile, fopen("https://github.com/unclehook/Muximux/archive/". $sha .".zip", 'r'), LOCK_EX);
+		$f = file_put_contents($zipFile, fopen("https://github.com/mescon/Muximux/archive/". $sha .".zip", 'r'), LOCK_EX);
 		if(FALSE === $f) {
 			$result = 'Install Failed!  An error occurred saving the update.  Please check directory permissions and try again.';
 		} else {
