@@ -224,7 +224,7 @@ defined("CONFIG") ? null : define('CONFIG', 'settings.ini.php');
                                target="_blank">https://chrome.google.com/webstore/detail/ignore-x-frame-headers/gleekbfjekiniecknbkamfmkohkpodhe</a>
                         </p>
 
-                        <p>See <a href="https://github.com/mescon/Muximux/" target="_blank">https://github.com/mescon/Muximux/</a>
+                        <p>See <a href="https://github.com/unclehook/Muximux/" target="_blank">https://github.com/unclehook/Muximux/</a>
                             for more information.</p>
 
                     </div>

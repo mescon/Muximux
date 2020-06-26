@@ -1,7 +1,7 @@
 FROM php:7.0-apache
 
 RUN apt-get update && apt-get install -y git && \
-git clone https://github.com/mescon/Muximux /var/www/html  && \
+git clone https://github.com/unclehook/Muximux /var/www/html  && \
 
 # cleanup
 apt-get clean && rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* 
