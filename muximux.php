@@ -28,7 +28,7 @@ if (sizeof($_POST) > 0) {
     if(!isset($_POST['username'])){
         write_ini();
     }
-} 
+}
 
 // Check if we can open a file.
 function openFile($file, $mode) {
@@ -65,7 +65,7 @@ function write_ini()
     $oldBranch = getBranch();
     $terminate = false;
     $authentication = $config->getBool('general','authentication',false);
-	
+
     // Double check that a username post didn't sneak through
     foreach ($_POST as $parameter => $value) {
     	$splitParameter = explode('_-_', $parameter);
@@ -103,7 +103,7 @@ function write_ini()
 				}
 			break;
 		}
-        
+
         $config->set($splitParameter[0], $splitParameter[1], $value);
     }
     // save object to file
@@ -114,7 +114,7 @@ function write_ini()
     }
 }
 
-// set $_SERVER['HTTP_HOST'] when {self} 
+// set $_SERVER['HTTP_HOST'] when {self}
 function selfURL_managment ($url) {
 	if  (strpos($url,'{self}')  !== FALSE) {
 		$url = str_replace('{self}',$_SERVER['HTTP_HOST'],$url);
@@ -146,14 +146,14 @@ function parse_ini()
     $rss = $config->getBool('general', 'rss', false);
 	$rssUrl = $config->get('general','rssUrl','https://www.wired.com/feed/');
     $myBranch = getBranch();
-	
+
     foreach ($branchArray as $branchName => $shaSum ) {
         $branchList .= "
                                 <option value='".$branchName."' ".(($myBranch == $branchName) ? 'selected' : '' ).">". $branchName ."</option>";
     }
     $title = $config->get('general', 'title', 'Muximux - Application Management Console');
     $pageOutput = "<form class='form-inline'>
-	
+
 						<div class='applicationContainer row generalContainer' style='cursor:default;'>
                         <h2>General</h2>
                         <div class='appDiv form-group'>
@@ -243,7 +243,7 @@ function parse_ini()
 							</div>
 						</div>
                     </div>
-                
+
 					<input type='hidden' class='settings_-_value' name='settings_-_sha' value='".$mySha."'>
 					<input type='hidden' class='settings_-_value' name='settings_-_enabled' value='true'>
 					<input type='hidden' class='settings_-_value' name='settings_-_default' value='false'>
@@ -275,7 +275,7 @@ function parse_ini()
 								<div class='col-xs-7 col-md-8'>
 									<input class='form-control form-control-sm appName " . $section . "_-_value' was='" . $section . "' name='" . $section . "_-_name' type='text' value='" . $name . "'>
 								</div>
-								
+
 							</div>
 							<div class='appDiv form-group'>
 								<label for='" . $section . "_-_url' class='col-xs-4 control-label right-label'>URL: </label>
@@ -293,7 +293,7 @@ function parse_ini()
 								<label for='" . $section . "_-_icon' class='col-xs-4 control-label right-label'>Icon: </label>
 								<div class='col-xs-7 col-md-5'>
 									<button role='iconpicker' class='form-control form-control-sm iconpicker btn btn-default' name='" . $section . "_-_icon' data-rows='4' data-cols='6' data-search='true' data-search-text='Search...' data-iconset='muximux' data-placement='left' data-icon='" . $icon . "'></button>
-								</div>	
+								</div>
 							</div>
 							<div class='appDiv form-group colorDiv'>
 								<label for='" . $section . "_-_color' class='col-xs-4 col-md-5 control-label color-label right-label'>Color: </label>
@@ -326,7 +326,7 @@ function parse_ini()
 							</div>
 
 								<button type='button' class='form-control form-control-sm removeButton btn btn-danger btn-xs' value='Remove' id='remove-" . $section . "'>Remove</button>
-							
+
 						</div>";
         }
     }
@@ -349,16 +349,16 @@ function splashScreen() {
     $cssColor = ((parseCSS($css,'.colorgrab','color') != false) ? parseCSS($css,'.colorgrab','color') : '#FFFFFF');
     $themeColor = $config->get('general','color',$cssColor);
     $tabColor = $config->getBool('general','tabcolor',false);
-    
+
     $splash = "";
-    
+
     foreach ($config as $keyname => $section) {
 	$enabled = $config->getBool($keyname,'enabled',false);
 	if (($keyname != "general") && ($keyname != "settings") && $enabled) {
     	$color = ($tabColor===true ? $section["color"] : $themeColor);
 	$icon = $config->get($keyname,'icon','fa-play');
 	$icon = str_replace('fa-','muximux-',$icon);
-			
+
 			$splash .= "
 									<div class='btnWrap'>
 										<div class='well splashBtn' data-content='" . $keyname . "'>
@@ -407,11 +407,11 @@ function log_contents() {
                         </li>';
 			}
 
-		
-		
+
+
 			$lineOut = substr($line,2);
 			$concat = false;
-		
+
 		} else {
 			$lineOut .= $line;
 			$concat = true;
@@ -423,7 +423,7 @@ function log_contents() {
                         </li>';
 
 		}
-        
+
     }
     $out .= '</div>
             </ul>
@@ -489,7 +489,7 @@ function getThemeFile() {
 		$item='theme_default.css';
 		return 'css/'.$item.'.css';
 		die;
-	}	
+	}
 }
 
 // List all available themes in directory
@@ -530,7 +530,7 @@ function menuItems() {
 	$dropdown = $config->getBool('general', 'enabledropdown', true);
 	$mobileoverride = $config->getBool('general', 'mobileoverride', false);
 	$authentication = $config->getBool('general', 'authentication', false);
-    
+
 	foreach ($config as $keyname => $section) {
         if (($keyname != "general") && ($keyname != "settings")) {
             $name = $config->get($keyname, 'name', '');
@@ -543,7 +543,7 @@ function menuItems() {
             $enabled = $config->getBool($keyname, 'enabled', false);
             $landingpage = $config->getBool($keyname, 'landingpage', false);
             $dd = $config->getBool($keyname, 'dd', false);
-			        
+
 			if ($enabled) {
 				if ($dropdown) {
 					if (!$dd) {
@@ -564,12 +564,12 @@ function menuItems() {
 					}
 				}
 			}
-		}	
+		}
 	}
 	$standardmenu .= "</nav>
             </ul>";
 	$splashScreen = $config->getBool('general', 'splashscreen', false);
-    
+
     $moButton = "
 			<ul class='main-nav'>
                 <li class='navbtn ".(($mobileoverride == "true") ? '' : 'hidden')."'>
@@ -582,7 +582,7 @@ function menuItems() {
                 	<span class='fa muximux-home4 fa-lg'></span>
                     </a>
                 </li>
-    
+
                 <li class='navbtn ".(($authentication == "true") ? '' : 'hidden')."'>
                     <a id='logout' title='Click this button to log out of Muximux.'>
                         <span class='fa muximux-sign-out fa-lg'></span>
@@ -593,16 +593,16 @@ function menuItems() {
                         <span class='fa muximux-refresh fa-lg'></span>
                     </a>
                 </li>
-				
-			
+
+
     ";
 
 
     $drawerdiv .= "<div class='cd-tabs-bar ".(($autohide == "true")? 'drawer' : '')."'>";
 
     if ($dropdown == "true") {
-        $item = 
-			$drawerdiv . 
+        $item =
+			$drawerdiv .
             $moButton ."
                 <li class='dd navbtn'>
                     <a id='hamburger'>
@@ -614,12 +614,12 @@ function menuItems() {
                 </li>
             </ul>".
             $standardmenu ."
-                
+
         </div>
         ";
     } else {
-        $item =  
-			$drawerdiv . 
+        $item =
+			$drawerdiv .
             		$moButton .
 			$standardmenu;
     }
@@ -736,7 +736,7 @@ function checksetSHA() {
 					$shaOut = $shaVal;
 				}
 			}
-		} 
+		}
 	}
 	$changed = false;
 	if ($branchIn != $branchOut) {
@@ -749,7 +749,7 @@ function checksetSHA() {
 	}
 	if ($changed) {
 		saveConfig($config);
-        
+
 	}
 }
 
@@ -835,7 +835,7 @@ function frameContent() {
     if ($enabled && ($keyname != 'settings') && ($keyname != 'general')) {
 		$item .= "
 				<li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."' ".($default ? "class='selected'" : '').">
-					<iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-popups allow-modals allow-top-navigation'
+					<iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-downloads allow-popups allow-modals allow-top-navigation'
 					allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' ".($default ? 'src' : 'data-src')."='" . $url . "'></iframe>
 				</li>";
         }
@@ -1065,7 +1065,7 @@ function downloadUpdate($sha) {
 	} else {
 		write_log($result ,'E');
 	}
-    
+
     return $result;
 }
 
@@ -1112,7 +1112,7 @@ function deleteContent($path){
     return true;
 }
 
-// This is used by our login script to determine session state 
+// This is used by our login script to determine session state
 function is_session_started() {
     if ( php_sapi_name() !== 'cli' ) {
         if ( version_compare(phpversion(), '5.4.0', '>=') ) {
@@ -1151,7 +1151,7 @@ function parseCSS($file,$searchSelector,$searchAttribute){
 
 
 // Currently just used outside of the project to generate the iconset names
-// In the future, consider using this to dynamically update the actual .js file that 
+// In the future, consider using this to dynamically update the actual .js file that
 // icon picker uses.
 
 function mapIcons($file,$classSelector){
@@ -1186,7 +1186,7 @@ function mapIcons($file,$classSelector){
 
 function write_log($text,$level=null) {
     if ($level === null) {
-        $level = 'I';	
+        $level = 'I';
     }
     $filename = 'muximux.log';
     $text = $level .'/'. date(DATE_RFC2822) . ': ' . htmlspecialchars($text) . PHP_EOL;
