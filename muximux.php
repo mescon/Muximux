@@ -835,7 +835,7 @@ function frameContent() {
     if ($enabled && ($keyname != 'settings') && ($keyname != 'general')) {
 		$item .= "
 				<li data-content='" . $keyname . "' data-scale='" . $section["scale"] ."' ".($default ? "class='selected'" : '').">
-					<iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-downloads allow-popups allow-modals allow-top-navigation'
+					<iframe sandbox='allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-modals allow-top-navigation'
 					allowfullscreen='true' webkitallowfullscreen='true' mozallowfullscreen='true' scrolling='auto' data-title='" . $section["name"] . "' ".($default ? 'src' : 'data-src')."='" . $url . "'></iframe>
 				</li>";
         }
