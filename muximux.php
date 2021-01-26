@@ -574,23 +574,23 @@ function menuItems() {
 			<ul class='main-nav'>
                 <li class='navbtn ".(($mobileoverride == "true") ? '' : 'hidden')."'>
                     <a id='override' title='Click this button to disable mobile scaling on tablets or other large-resolution devices.'>
-                        <span class='fa muximux-mobile fa-lg'></span>
+                        <span class='fa muximux-mobile muximux-navbtn-icon fa-lg'></span>
                     </a>
                 </li>
                 <li class='navbtn ".(($splashScreen == "true") ? '' : 'hidden')."'>
 			<a id='showSplash' data-toggle='modal' data-target='#splashModal' data-title='Show Splash'>
-                	<span class='fa muximux-home4 fa-lg'></span>
+                	<span class='fa muximux-home4 muximux-navbtn-icon fa-lg'></span>
                     </a>
                 </li>
 
                 <li class='navbtn ".(($authentication == "true") ? '' : 'hidden')."'>
                     <a id='logout' title='Click this button to log out of Muximux.'>
-                        <span class='fa muximux-sign-out fa-lg'></span>
+                        <span class='fa muximux-sign-out muximux-navbtn-icon fa-lg'></span>
                     </a>
                 </li>
 				<li class='navbtn'>
                     <a id='reload' title='Double click your app in the menu, or press this button to refresh the current app.'>
-                        <span class='fa muximux-refresh fa-lg'></span>
+                        <span class='fa muximux-refresh muximux-navbtn-icon fa-lg'></span>
                     </a>
                 </li>
 
@@ -606,7 +606,7 @@ function menuItems() {
             $moButton ."
                 <li class='dd navbtn'>
                     <a id='hamburger'>
-                        <span class='fa fa-bars fa-lg'></span>
+                        <span class='fa fa-bars muximux-navbtn-icon fa-lg'></span>
                     </a>
                     <ul class='drop-nav'>" .
                                 $dropdownmenu ."
