@@ -579,7 +579,7 @@ function menuItems() {
                 </li>
                 <li class='navbtn ".(($splashScreen == "true") ? '' : 'hidden')."'>
 			<a id='showSplash' data-toggle='modal' data-target='#splashModal' data-title='Show Splash'>
-                	<span class='fa muximux-home4 muximux-navbtn-icon fa-lg'></span>
+                	<span class='fa muximux-home2 muximux-navbtn-icon fa-lg'></span>
                     </a>
                 </li>
 
