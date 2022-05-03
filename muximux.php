@@ -117,7 +117,7 @@ function write_ini()
 // set $_SERVER['HTTP_HOST'] when {self}
 function selfURL_managment ($url) {
 	if  (strpos($url,'{self}')  !== FALSE) {
-		$url = str_replace('{self}',$_SERVER['HTTP_HOST'],$url);
+		$url = str_replace('{self}',strtok($_SERVER['HTTP_HOST'],':'),$url);
 	}
 	return $url;
 }
