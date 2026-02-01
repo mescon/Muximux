@@ -1,9 +1,12 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
   import type { App, Config } from '$lib/types';
+  import AppIcon from './AppIcon.svelte';
+  import HealthIndicator from './HealthIndicator.svelte';
 
   export let apps: App[];
   export let config: Config;
+  export let showHealth: boolean = true;
 
   const dispatch = createEventDispatcher<{
     select: App;
@@ -58,13 +61,16 @@
                      hover:scale-105 hover:shadow-lg"
               on:click={() => dispatch('select', app)}
             >
-              <!-- Icon placeholder -->
-              <div
-                class="w-16 h-16 rounded-xl flex items-center justify-center mb-3
-                       text-2xl font-bold text-white"
-                style="background-color: {app.color || '#374151'}"
-              >
-                {app.name.charAt(0).toUpperCase()}
+              <!-- Health indicator -->
+              {#if showHealth}
+                <div class="absolute top-2 right-2">
+                  <HealthIndicator appName={app.name} size="md" />
+                </div>
+              {/if}
+
+              <!-- App icon -->
+              <div class="mb-3">
+                <AppIcon icon={app.icon} name={app.name} color={app.color} size="xl" />
               </div>
 
               <!-- App name -->

@@ -12,7 +12,7 @@ services:
 
   # Go backend with hot reload
   backend:
-    image: golang:1.22-alpine
+    image: golang:1.23-alpine
     working_dir: /app
     ports:
       - "3000:3000"
@@ -21,7 +21,7 @@ services:
       - muximux3-go-mod:/go/pkg/mod
     environment:
       - CGO_ENABLED=0
-    command: sh -c "go install github.com/air-verse/air@latest && air -c .air.toml"
+    command: sh -c "go install github.com/air-verse/air@v1.52.3 && air -c .air.toml"
     depends_on:
       - frontend
 

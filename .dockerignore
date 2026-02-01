@@ -1,0 +1,40 @@
+# Git
+.git
+.gitignore
+
+# Node modules (will be installed in container)
+web/node_modules
+
+# Build artifacts
+bin/
+tmp/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Development files
+.air.toml
+.golangci.yml
+docker-compose.dev.yml
+
+# Data and config (mounted as volume)
+data/
+config.yaml
+*.log
+
+# Tests
+*_test.go
+**/*_test.go
+coverage.out
+
+# Documentation
+*.md
+!README.md
+dev/

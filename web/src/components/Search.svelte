@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import type { App } from '$lib/types';
+  import AppIcon from './AppIcon.svelte';
 
   export let apps: App[];
 
@@ -13,23 +14,91 @@
   let selectedIndex = 0;
   let inputElement: HTMLInputElement;
 
-  $: filteredApps = apps.filter(app => {
-    if (!query) return true;
-    const q = query.toLowerCase();
-    return (
-      app.name.toLowerCase().includes(q) ||
-      app.url.toLowerCase().includes(q) ||
-      app.group?.toLowerCase().includes(q)
-    );
+  // Recent apps from localStorage
+  let recentAppNames: string[] = [];
+
+  onMount(() => {
+    inputElement?.focus();
+    // Load recent apps
+    const stored = localStorage.getItem('muximux_recent_apps');
+    if (stored) {
+      try {
+        recentAppNames = JSON.parse(stored);
+      } catch {
+        recentAppNames = [];
+      }
+    }
   });
+
+  // Fuzzy match function
+  function fuzzyMatch(text: string, pattern: string): number {
+    text = text.toLowerCase();
+    pattern = pattern.toLowerCase();
+
+    // Exact match gets highest score
+    if (text === pattern) return 1000;
+
+    // Contains match
+    if (text.includes(pattern)) {
+      // Prefer matches at the start
+      const index = text.indexOf(pattern);
+      return 100 - index;
+    }
+
+    // Fuzzy character match
+    let score = 0;
+    let patternIdx = 0;
+    let consecutive = 0;
+
+    for (let i = 0; i < text.length && patternIdx < pattern.length; i++) {
+      if (text[i] === pattern[patternIdx]) {
+        score += 10 + consecutive * 5;
+        consecutive++;
+        patternIdx++;
+      } else {
+        consecutive = 0;
+      }
+    }
+
+    // Only return score if all pattern chars were found
+    return patternIdx === pattern.length ? score : 0;
+  }
+
+  // Get app match score
+  function getAppScore(app: App, q: string): number {
+    if (!q) {
+      // No query - sort by recency
+      const recentIndex = recentAppNames.indexOf(app.name);
+      return recentIndex >= 0 ? 1000 - recentIndex : 0;
+    }
+
+    const nameScore = fuzzyMatch(app.name, q);
+    const groupScore = app.group ? fuzzyMatch(app.group, q) * 0.5 : 0;
+
+    return Math.max(nameScore, groupScore);
+  }
+
+  // Filter and sort apps
+  $: filteredApps = apps
+    .map(app => ({ app, score: getAppScore(app, query) }))
+    .filter(({ score }) => !query || score > 0)
+    .sort((a, b) => b.score - a.score)
+    .map(({ app }) => app);
 
   $: if (selectedIndex >= filteredApps.length) {
     selectedIndex = Math.max(0, filteredApps.length - 1);
   }
 
-  onMount(() => {
-    inputElement?.focus();
-  });
+  // Reset selection when query changes
+  $: query, selectedIndex = 0;
+
+  function selectApp(app: App) {
+    // Update recent apps
+    recentAppNames = [app.name, ...recentAppNames.filter(n => n !== app.name)].slice(0, 10);
+    localStorage.setItem('muximux_recent_apps', JSON.stringify(recentAppNames));
+
+    dispatch('select', app);
+  }
 
   function handleKeydown(event: KeyboardEvent) {
     switch (event.key) {
@@ -44,12 +113,21 @@
       case 'Enter':
         event.preventDefault();
         if (filteredApps[selectedIndex]) {
-          dispatch('select', filteredApps[selectedIndex]);
+          selectApp(filteredApps[selectedIndex]);
         }
         break;
       case 'Escape':
         dispatch('close');
         break;
+      default:
+        // Quick select with Cmd/Ctrl + number
+        if ((event.metaKey || event.ctrlKey) && event.key >= '1' && event.key <= '9') {
+          event.preventDefault();
+          const index = parseInt(event.key) - 1;
+          if (filteredApps[index]) {
+            selectApp(filteredApps[index]);
+          }
+        }
     }
   }
 
@@ -60,6 +138,15 @@
       default: return '';
     }
   }
+
+  // Show section headers
+  $: showRecentHeader = !query && recentAppNames.length > 0;
+  $: recentApps = showRecentHeader
+    ? filteredApps.filter(app => recentAppNames.includes(app.name)).slice(0, 3)
+    : [];
+  $: otherApps = showRecentHeader
+    ? filteredApps.filter(app => !recentAppNames.includes(app.name))
+    : filteredApps;
 </script>
 
 <!-- Backdrop -->
@@ -67,11 +154,15 @@
   class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-[15vh]"
   on:click={() => dispatch('close')}
   on:keydown={handleKeydown}
+  role="dialog"
+  aria-modal="true"
+  aria-label="Search apps"
 >
   <!-- Search modal -->
   <div
     class="w-full max-w-xl bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden"
     on:click|stopPropagation
+    role="presentation"
   >
     <!-- Search input -->
     <div class="p-4 border-b border-gray-700">
@@ -95,47 +186,86 @@
     <div class="max-h-80 overflow-auto">
       {#if filteredApps.length === 0}
         <div class="p-4 text-center text-gray-500">
-          No apps found
+          No apps found matching "{query}"
         </div>
       {:else}
-        <ul class="py-2">
-          {#each filteredApps as app, i}
-            <li>
-              <button
-                class="w-full px-4 py-3 flex items-center space-x-3 text-left
-                       {i === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
-                on:click={() => dispatch('select', app)}
-                on:mouseenter={() => selectedIndex = i}
-              >
-                <!-- Icon placeholder -->
-                <div
-                  class="w-10 h-10 rounded-lg flex items-center justify-center text-white font-bold"
-                  style="background-color: {app.color || '#374151'}"
+        <!-- Recent apps section -->
+        {#if showRecentHeader && recentApps.length > 0}
+          <div class="px-4 pt-3 pb-1">
+            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Recent</span>
+          </div>
+          <ul class="pb-2">
+            {#each recentApps as app, i}
+              {@const globalIndex = i}
+              <li>
+                <button
+                  class="w-full px-4 py-3 flex items-center space-x-3 text-left
+                         {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
+                  on:click={() => selectApp(app)}
+                  on:mouseenter={() => selectedIndex = globalIndex}
                 >
-                  {app.name.charAt(0).toUpperCase()}
-                </div>
-
-                <div class="flex-1 min-w-0">
-                  <div class="text-white font-medium truncate">
-                    {app.name}
-                    {#if app.open_mode !== 'iframe'}
-                      <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  <AppIcon icon={app.icon} name={app.name} color={app.color} size="lg" />
+                  <div class="flex-1 min-w-0">
+                    <div class="text-white font-medium truncate">
+                      {app.name}
+                      {#if app.open_mode !== 'iframe'}
+                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                      {/if}
+                    </div>
+                    {#if app.group}
+                      <div class="text-sm text-gray-500 truncate">{app.group}</div>
                     {/if}
                   </div>
-                  {#if app.group}
-                    <div class="text-sm text-gray-500 truncate">{app.group}</div>
+                  {#if globalIndex < 9}
+                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded">
+                      ⌘{globalIndex + 1}
+                    </kbd>
                   {/if}
-                </div>
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
 
-                {#if i < 9}
-                  <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded">
-                    ⌘{i + 1}
-                  </kbd>
-                {/if}
-              </button>
-            </li>
-          {/each}
-        </ul>
+        <!-- All apps section -->
+        {#if otherApps.length > 0}
+          {#if showRecentHeader}
+            <div class="px-4 pt-2 pb-1 border-t border-gray-700">
+              <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">All Apps</span>
+            </div>
+          {/if}
+          <ul class="py-2">
+            {#each otherApps as app, i}
+              {@const globalIndex = showRecentHeader ? recentApps.length + i : i}
+              <li>
+                <button
+                  class="w-full px-4 py-3 flex items-center space-x-3 text-left
+                         {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
+                  on:click={() => selectApp(app)}
+                  on:mouseenter={() => selectedIndex = globalIndex}
+                >
+                  <AppIcon icon={app.icon} name={app.name} color={app.color} size="lg" />
+                  <div class="flex-1 min-w-0">
+                    <div class="text-white font-medium truncate">
+                      {app.name}
+                      {#if app.open_mode !== 'iframe'}
+                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                      {/if}
+                    </div>
+                    {#if app.group}
+                      <div class="text-sm text-gray-500 truncate">{app.group}</div>
+                    {/if}
+                  </div>
+                  {#if globalIndex < 9}
+                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded">
+                      ⌘{globalIndex + 1}
+                    </kbd>
+                  {/if}
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
       {/if}
     </div>
 
@@ -143,6 +273,7 @@
     <div class="px-4 py-2 border-t border-gray-700 text-xs text-gray-500 flex items-center space-x-4">
       <span>↑↓ Navigate</span>
       <span>⏎ Open</span>
+      <span>⌘1-9 Quick select</span>
       <span>esc Close</span>
     </div>
   </div>

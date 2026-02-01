@@ -1,0 +1,34 @@
+# Production Docker Compose for Muximux 3
+# Usage: docker compose up -d
+
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux3:latest
+    container_name: muximux
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      # Uncomment for embedded proxy with HTTPS
+      # - "8443:8443"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - TZ=UTC
+      # For OIDC auth (optional)
+      # - OIDC_CLIENT_SECRET=your-secret-here
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+# Optional: Build from source instead of using pre-built image
+# services:
+#   muximux:
+#     build:
+#       context: .
+#       dockerfile: Dockerfile
+#       args:
+#         VERSION: "1.0.0"
+#     ...

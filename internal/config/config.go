@@ -13,8 +13,16 @@ type Config struct {
 	Auth       AuthConfig       `yaml:"auth"`
 	Navigation NavigationConfig `yaml:"navigation"`
 	Icons      IconsConfig      `yaml:"icons"`
+	Health     HealthConfig     `yaml:"health"`
 	Groups     []GroupConfig    `yaml:"groups"`
 	Apps       []AppConfig      `yaml:"apps"`
+}
+
+// HealthConfig holds health monitoring settings
+type HealthConfig struct {
+	Enabled  bool   `yaml:"enabled"`
+	Interval string `yaml:"interval"` // Check interval, e.g., "30s", "1m"
+	Timeout  string `yaml:"timeout"`  // Request timeout, e.g., "5s"
 }
 
 // ServerConfig holds HTTP server settings
@@ -40,6 +48,8 @@ type AuthConfig struct {
 	TrustedProxies []string          `yaml:"trusted_proxies"`
 	Headers        map[string]string `yaml:"headers"`
 	OIDC           OIDCConfig        `yaml:"oidc"`
+	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
+	SecureCookies  bool              `yaml:"secure_cookies"`
 }
 
 // UserConfig holds local user credentials
@@ -47,6 +57,8 @@ type UserConfig struct {
 	Username     string `yaml:"username"`
 	PasswordHash string `yaml:"password_hash"`
 	Role         string `yaml:"role"`
+	Email        string `yaml:"email,omitempty"`
+	DisplayName  string `yaml:"display_name,omitempty"`
 }
 
 // OIDCConfig holds OIDC provider settings
@@ -60,13 +72,13 @@ type OIDCConfig struct {
 
 // NavigationConfig holds navigation layout settings
 type NavigationConfig struct {
-	Position      string `yaml:"position"` // top, left, right, bottom, floating
-	Width         string `yaml:"width"`
-	AutoHide      bool   `yaml:"auto_hide"`
-	AutoHideDelay string `yaml:"auto_hide_delay"`
-	ShowOnHover   bool   `yaml:"show_on_hover"`
-	ShowLabels    bool   `yaml:"show_labels"`
-	ShowLogo      bool   `yaml:"show_logo"`
+	Position      string `yaml:"position" json:"position"` // top, left, right, bottom, floating
+	Width         string `yaml:"width" json:"width"`
+	AutoHide      bool   `yaml:"auto_hide" json:"auto_hide"`
+	AutoHideDelay string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
+	ShowOnHover   bool   `yaml:"show_on_hover" json:"show_on_hover"`
+	ShowLabels    bool   `yaml:"show_labels" json:"show_labels"`
+	ShowLogo      bool   `yaml:"show_logo" json:"show_logo"`
 }
 
 // IconsConfig holds icon settings
@@ -84,17 +96,18 @@ type DashboardIconsConfig struct {
 
 // GroupConfig holds app group settings
 type GroupConfig struct {
-	Name     string `yaml:"name"`
-	Icon     string `yaml:"icon"`
-	Color    string `yaml:"color"`
-	Order    int    `yaml:"order"`
-	Expanded bool   `yaml:"expanded"`
+	Name     string `yaml:"name" json:"name"`
+	Icon     string `yaml:"icon" json:"icon"`
+	Color    string `yaml:"color" json:"color"`
+	Order    int    `yaml:"order" json:"order"`
+	Expanded bool   `yaml:"expanded" json:"expanded"`
 }
 
 // AppConfig holds individual app settings
 type AppConfig struct {
 	Name       string           `yaml:"name"`
 	URL        string           `yaml:"url"`
+	HealthURL  string           `yaml:"health_url,omitempty"` // Optional custom health check URL
 	Icon       AppIconConfig    `yaml:"icon"`
 	Color      string           `yaml:"color"`
 	Group      string           `yaml:"group"`
@@ -110,11 +123,11 @@ type AppConfig struct {
 
 // AppIconConfig holds app icon settings
 type AppIconConfig struct {
-	Type    string `yaml:"type"` // dashboard, builtin, custom, url
-	Name    string `yaml:"name"`
-	File    string `yaml:"file"`
-	URL     string `yaml:"url"`
-	Variant string `yaml:"variant"`
+	Type    string `yaml:"type" json:"type"` // dashboard, builtin, custom, url
+	Name    string `yaml:"name" json:"name"`
+	File    string `yaml:"file" json:"file"`
+	URL     string `yaml:"url" json:"url"`
+	Variant string `yaml:"variant" json:"variant"`
 }
 
 // AuthBypassRule defines a path that bypasses auth
@@ -189,6 +202,11 @@ func defaultConfig() *Config {
 				CacheDir: "data/icons/dashboard",
 				CacheTTL: "7d",
 			},
+		},
+		Health: HealthConfig{
+			Enabled:  true,
+			Interval: "30s",
+			Timeout:  "5s",
 		},
 		Groups: []GroupConfig{},
 		Apps:   []AppConfig{},

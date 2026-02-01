@@ -1,4 +1,4 @@
-.PHONY: all build dev clean frontend backend install test
+.PHONY: all build dev clean frontend backend install test lint
 
 # Build variables
 VERSION ?= $(shell git describe --tags --always --dirty 2>/dev/null || echo "dev")
@@ -45,8 +45,13 @@ dev-backend:
 
 # Run tests
 test:
-	go test -v ./...
+	go test -v -race ./...
 	cd web && npm run check
+
+# Run linters
+lint:
+	golangci-lint run
+	cd web && npm run lint
 
 # Clean build artifacts
 clean:

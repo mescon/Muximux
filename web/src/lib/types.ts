@@ -1,6 +1,7 @@
 export interface App {
   name: string;
   url: string;
+  health_url?: string;
   icon: AppIcon;
   color: string;
   group: string;
@@ -38,9 +39,33 @@ export interface NavigationConfig {
   show_logo: boolean;
 }
 
+export interface HealthConfig {
+  enabled: boolean;
+  interval: string;
+  timeout: string;
+}
+
+export interface AuthConfig {
+  method: 'none' | 'builtin' | 'forward_auth' | 'oidc';
+  session_max_age?: string;
+  secure_cookies?: boolean;
+}
+
+export interface ProxyConfig {
+  enabled: boolean;
+  listen?: string;
+  auto_https?: boolean;
+  acme_email?: string;
+  tls_cert?: string;
+  tls_key?: string;
+}
+
 export interface Config {
   title: string;
   navigation: NavigationConfig;
+  health?: HealthConfig;
+  auth?: AuthConfig;
+  proxy?: ProxyConfig;
   groups: Group[];
   apps: App[];
 }

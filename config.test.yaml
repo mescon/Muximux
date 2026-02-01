@@ -1,0 +1,138 @@
+server:
+    listen: :3000
+    title: Muximux
+proxy:
+    enabled: false
+    listen: :8443
+    auto_https: false
+    acme_email: ""
+    tls_cert: ""
+    tls_key: ""
+auth:
+    method: none
+    users: []
+    trusted_proxies: []
+    headers: {}
+    oidc:
+        issuer: ""
+        client_id: ""
+        client_secret: ""
+        redirect_url: ""
+        scopes: []
+    session_max_age: ""
+    secure_cookies: false
+navigation:
+    position: right
+    width: 220px
+    auto_hide: true
+    auto_hide_delay: 3s
+    show_on_hover: true
+    show_labels: true
+    show_logo: true
+icons:
+    dashboard_icons:
+        enabled: true
+        mode: on_demand
+        cache_dir: data/icons/dashboard
+        cache_ttl: 7d
+health:
+    enabled: true
+    interval: 30s
+    timeout: 5s
+groups:
+    - name: Media
+      icon: ""
+      color: '#E5A00D'
+      order: 0
+      expanded: true
+    - name: Downloads
+      icon: ""
+      color: '#00CCFF'
+      order: 1
+      expanded: true
+    - name: System
+      icon: ""
+      color: '#F46800'
+      order: 2
+      expanded: true
+apps:
+    - name: Plex
+      url: http://10.9.0.41:32400/web
+      icon:
+        type: dashboard
+        name: plex
+        file: ""
+        url: ""
+        variant: svg
+      color: '#E5A00D'
+      group: Media
+      order: 0
+      enabled: true
+      default: true
+      open_mode: iframe
+      proxy: false
+      scale: 1
+      auth_bypass: []
+      access:
+        roles: []
+        users: []
+    - name: Sonarr
+      url: http://10.9.0.42:8989
+      icon:
+        type: dashboard
+        name: sonarr
+        file: ""
+        url: ""
+        variant: svg
+      color: '#00CCFF'
+      group: Downloads
+      order: 1
+      enabled: true
+      default: false
+      open_mode: iframe
+      proxy: false
+      scale: 1
+      auth_bypass: []
+      access:
+        roles: []
+        users: []
+    - name: Radarr
+      url: http://10.9.0.42:7878
+      icon:
+        type: dashboard
+        name: radarr
+        file: ""
+        url: ""
+        variant: svg
+      color: '#FFC230'
+      group: Downloads
+      order: 2
+      enabled: true
+      default: false
+      open_mode: iframe
+      proxy: false
+      scale: 1
+      auth_bypass: []
+      access:
+        roles: []
+        users: []
+    - name: Pi-hole
+      url: http://10.9.0.100/admin
+      icon:
+        type: dashboard
+        name: pi-hole
+        file: ""
+        url: ""
+        variant: svg
+      color: '#96060C'
+      group: System
+      order: 3
+      enabled: true
+      default: false
+      open_mode: iframe
+      proxy: true
+      scale: 1
+      auth_bypass: []
+      access:
+        roles: []
+        users: []

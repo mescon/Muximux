@@ -1,7 +1,11 @@
 <script lang="ts">
   import type { App } from '$lib/types';
+  import { slugify } from '$lib/api';
 
   export let app: App;
+
+  // Compute the effective URL - use proxy if enabled
+  $: effectiveUrl = app.proxy ? `/proxy/${slugify(app.name)}/` : app.url;
 
   $: scale = app.scale || 1;
   $: transform = scale !== 1 ? `scale(${scale})` : '';
@@ -12,7 +16,7 @@
 
 <div class="w-full h-full overflow-hidden bg-white">
   <iframe
-    src={app.url}
+    src={effectiveUrl}
     title={app.name}
     class="app-frame"
     style:transform
