@@ -1,0 +1,42 @@
+# Air configuration for Go hot reload
+# https://github.com/air-verse/air
+
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  # Build command
+  cmd = "go build -o ./tmp/main ./cmd/muximux"
+  # Binary file
+  bin = "./tmp/main"
+  # Arguments passed to binary
+  args_bin = ["--config", "config.yaml"]
+  # Watch these extensions
+  include_ext = ["go", "yaml"]
+  # Exclude directories
+  exclude_dir = ["tmp", "vendor", "web", "node_modules", "data", "bin"]
+  # Exclude files
+  exclude_file = []
+  # Exclude regex
+  exclude_regex = ["_test.go"]
+  # Exclude unchanged files
+  exclude_unchanged = true
+  # Follow symlinks
+  follow_symlink = false
+  # Delay before rebuilding (ms)
+  delay = 500
+
+[log]
+  # Show log time
+  time = false
+
+[color]
+  # Colorize output
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  runner = "green"
+
+[misc]
+  # Delete tmp directory on exit
+  clean_on_exit = true

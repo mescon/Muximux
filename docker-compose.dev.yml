@@ -1,0 +1,30 @@
+services:
+  # Svelte frontend with Vite HMR
+  frontend:
+    image: node:20-alpine
+    working_dir: /app
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./web:/app
+      - muximux3-node-modules:/app/node_modules
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+
+  # Go backend with hot reload
+  backend:
+    image: golang:1.22-alpine
+    working_dir: /app
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+      - muximux3-go-mod:/go/pkg/mod
+    environment:
+      - CGO_ENABLED=0
+    command: sh -c "go install github.com/air-verse/air@latest && air -c .air.toml"
+    depends_on:
+      - frontend
+
+volumes:
+  muximux3-node-modules:
+  muximux3-go-mod:

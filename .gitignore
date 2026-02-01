@@ -1,0 +1,50 @@
+# Development artifacts - not for version control
+/dev/
+
+# Dependencies
+/node_modules/
+/vendor/
+/web/node_modules/
+
+# Build outputs
+/bin/
+/dist/
+/build/
+/.cache/
+/web/dist/
+/internal/server/dist/
+
+# Config (user-specific)
+config.yaml
+
+# Data directory
+/data/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Go
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+go.work

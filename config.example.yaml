@@ -1,0 +1,140 @@
+# Muximux 3 Configuration Example
+# Copy this file to config.yaml and customize as needed
+
+server:
+  listen: ":8080"
+  title: "Muximux"
+
+# Embedded Caddy proxy (optional)
+proxy:
+  enabled: false
+  listen: ":8443"
+  auto_https: true
+  # acme_email: admin@example.com
+  # Or use custom certs:
+  # tls_cert: /path/to/cert.pem
+  # tls_key: /path/to/key.pem
+
+# Authentication
+auth:
+  method: none  # none, builtin, forward_auth, oidc
+
+  # For builtin auth:
+  # users:
+  #   - username: admin
+  #     password_hash: "$2a$10$..."  # bcrypt hash
+  #     role: admin
+
+  # For forward_auth (Authelia/Authentik):
+  # trusted_proxies:
+  #   - 10.0.0.0/8
+  # headers:
+  #   user: Remote-User
+  #   email: Remote-Email
+  #   groups: Remote-Groups
+
+  # For OIDC:
+  # oidc:
+  #   issuer: https://auth.example.com
+  #   client_id: muximux
+  #   client_secret: ${OIDC_CLIENT_SECRET}
+  #   redirect_url: https://muximux.example.com/auth/callback
+  #   scopes:
+  #     - openid
+  #     - profile
+  #     - email
+
+# Navigation layout
+navigation:
+  position: top  # top, left, right, bottom, floating
+  width: 220px
+  auto_hide: false
+  auto_hide_delay: 3s
+  show_on_hover: true
+  show_labels: true
+  show_logo: true
+
+# Icon settings
+icons:
+  dashboard_icons:
+    enabled: true
+    mode: on_demand  # on_demand, prefetch, offline
+    cache_dir: data/icons/dashboard
+    cache_ttl: 7d
+
+# App groups
+groups:
+  - name: Media
+    icon: play
+    color: "#e5a00d"
+    order: 1
+
+  - name: Downloads
+    icon: download
+    color: "#3498db"
+    order: 2
+
+  - name: System
+    icon: server
+    color: "#e74c3c"
+    order: 3
+
+# Applications
+apps:
+  - name: Plex
+    url: http://localhost:32400
+    icon:
+      type: dashboard
+      name: plex
+    color: "#e5a00d"
+    group: Media
+    order: 1
+    enabled: true
+    default: true
+    open_mode: iframe
+    proxy: false
+    scale: 1
+
+  - name: Sonarr
+    url: http://localhost:8989
+    icon:
+      type: dashboard
+      name: sonarr
+    color: "#3498db"
+    group: Downloads
+    order: 1
+    enabled: true
+    open_mode: iframe
+    proxy: true
+    auth_bypass:
+      - path: /api/*
+        require_api_key: true
+      - path: /feed/*
+        methods: [GET]
+
+  - name: Radarr
+    url: http://localhost:7878
+    icon:
+      type: dashboard
+      name: radarr
+    color: "#ffc107"
+    group: Downloads
+    order: 2
+    enabled: true
+    open_mode: iframe
+    proxy: true
+    auth_bypass:
+      - path: /api/*
+        require_api_key: true
+
+  - name: Portainer
+    url: http://localhost:9000
+    icon:
+      type: dashboard
+      name: portainer
+    color: "#13bef9"
+    group: System
+    order: 1
+    enabled: true
+    open_mode: new_tab  # Opens in new browser tab
+    proxy: false
