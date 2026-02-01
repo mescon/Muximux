@@ -4,6 +4,7 @@
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import { currentUser, isAuthenticated, logout } from '$lib/authStore';
+  import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
 
   export let apps: App[];
   export let showHealth: boolean = true;
@@ -43,6 +44,7 @@
   let isMobile = false;
   let isTablet = false;
   let mobileMenuOpen = false;
+  let hasTouchSupport = false;
 
   // Group apps by their group
   $: groupedApps = apps.reduce((acc, app) => {
@@ -93,7 +95,13 @@
     checkResponsive();
     window.addEventListener('resize', checkResponsive);
 
-    // Set up mouse listeners for auto-hide
+    // Detect touch support
+    hasTouchSupport = isTouchDevice();
+
+    // Set up edge swipe for mobile sidebar
+    setupEdgeSwipe();
+
+    // Set up mouse/pointer listeners for auto-hide
     if (config.navigation.auto_hide) {
       document.addEventListener('mousemove', handleMouseMove);
     }
@@ -101,8 +109,10 @@
     return () => {
       window.removeEventListener('resize', checkResponsive);
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('mousemove', handleResizeMove);
-      document.removeEventListener('mouseup', handleResizeEnd);
+      document.removeEventListener('pointermove', handleResizeMove);
+      document.removeEventListener('pointerup', handleResizeEnd);
+      document.removeEventListener('pointercancel', handleResizeEnd);
+      cleanupEdgeSwipe();
     };
   });
 
@@ -129,15 +139,18 @@
     }
   }
 
-  // Resize handling for sidebars
-  function handleResizeStart(e: MouseEvent) {
+  // Resize handling for sidebars - using pointer events for touch support
+  function handleResizeStart(e: PointerEvent) {
     isResizing = true;
-    document.addEventListener('mousemove', handleResizeMove);
-    document.addEventListener('mouseup', handleResizeEnd);
+    // Capture pointer for reliable tracking outside element bounds
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+    document.addEventListener('pointermove', handleResizeMove);
+    document.addEventListener('pointerup', handleResizeEnd);
+    document.addEventListener('pointercancel', handleResizeEnd);
     e.preventDefault();
   }
 
-  function handleResizeMove(e: MouseEvent) {
+  function handleResizeMove(e: PointerEvent) {
     if (!isResizing) return;
 
     if (config.navigation.position === 'left') {
@@ -147,11 +160,49 @@
     }
   }
 
-  function handleResizeEnd() {
+  function handleResizeEnd(e: PointerEvent) {
     isResizing = false;
-    document.removeEventListener('mousemove', handleResizeMove);
-    document.removeEventListener('mouseup', handleResizeEnd);
+    // Release pointer capture
+    if (e?.target) {
+      try {
+        (e.target as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        // Ignore if already released
+      }
+    }
+    document.removeEventListener('pointermove', handleResizeMove);
+    document.removeEventListener('pointerup', handleResizeEnd);
+    document.removeEventListener('pointercancel', handleResizeEnd);
     localStorage.setItem('muximux_sidebar_width', sidebarWidth.toString());
+  }
+
+  // Edge swipe handlers for opening sidebar on mobile
+  let edgeSwipeHandlers: ReturnType<typeof createEdgeSwipeHandlers> | null = null;
+
+  function setupEdgeSwipe() {
+    if (!isMobile || !hasTouchSupport) return;
+
+    const edge = config.navigation.position === 'right' ? 'right' : 'left';
+    edgeSwipeHandlers = createEdgeSwipeHandlers(
+      edge,
+      () => { mobileMenuOpen = true; },
+      () => { mobileMenuOpen = false; },
+      { edgeWidth: 25, threshold: 40 }
+    );
+
+    // Attach to document for edge detection
+    document.addEventListener('pointerdown', edgeSwipeHandlers.onpointerdown);
+    document.addEventListener('pointerup', edgeSwipeHandlers.onpointerup);
+    document.addEventListener('pointercancel', edgeSwipeHandlers.onpointercancel);
+  }
+
+  function cleanupEdgeSwipe() {
+    if (edgeSwipeHandlers) {
+      document.removeEventListener('pointerdown', edgeSwipeHandlers.onpointerdown);
+      document.removeEventListener('pointerup', edgeSwipeHandlers.onpointerup);
+      document.removeEventListener('pointercancel', edgeSwipeHandlers.onpointercancel);
+      edgeSwipeHandlers = null;
+    }
   }
 
   // Auto-hide handling
@@ -424,11 +475,11 @@
       {/if}
     </div>
 
-    <!-- Resize handle -->
+    <!-- Resize handle - touch-friendly with pointer events -->
     {#if !isMobile}
       <div
-        class="absolute top-0 right-0 w-1 h-full cursor-ew-resize hover:bg-brand-500/50 transition-colors"
-        on:mousedown={handleResizeStart}
+        class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        on:pointerdown={handleResizeStart}
         role="slider"
         aria-label="Resize sidebar"
         tabindex="0"
@@ -545,11 +596,11 @@
       </button>
     </div>
 
-    <!-- Resize handle (left side for right sidebar) -->
+    <!-- Resize handle (left side for right sidebar) - touch-friendly with pointer events -->
     {#if !isMobile}
       <div
-        class="absolute top-0 left-0 w-1 h-full cursor-ew-resize hover:bg-brand-500/50 transition-colors"
-        on:mousedown={handleResizeStart}
+        class="absolute top-0 left-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        on:pointerdown={handleResizeStart}
         role="slider"
         aria-label="Resize sidebar"
         tabindex="0"

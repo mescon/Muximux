@@ -1,16 +1,27 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
-  import { fade, scale } from 'svelte/transition';
+  import { createEventDispatcher, onMount } from 'svelte';
+  import { fade, scale, fly } from 'svelte/transition';
+  import { isMobileViewport } from '$lib/useSwipe';
 
   const dispatch = createEventDispatcher<{
     close: void;
   }>();
+
+  let isMobile = false;
+
+  onMount(() => {
+    isMobile = isMobileViewport();
+    const handleResize = () => { isMobile = isMobileViewport(); };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
 
   const shortcuts = [
     {
       category: 'Navigation',
       items: [
         { keys: ['/', 'Ctrl+K'], description: 'Open search' },
+        { keys: ['Ctrl+Shift+P'], description: 'Command palette' },
         { keys: ['1-9'], description: 'Switch to app by number' },
         { keys: ['Tab'], description: 'Next app' },
         { keys: ['Shift+Tab'], description: 'Previous app' },
@@ -47,7 +58,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
   on:click|self={() => dispatch('close')}
   role="dialog"
   aria-modal="true"
@@ -55,8 +66,11 @@
   transition:fade={{ duration: 150 }}
 >
   <div
-    class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl border border-gray-700 overflow-hidden"
-    in:scale={{ start: 0.95, duration: 200 }}
+    class="bg-gray-800 shadow-2xl w-full border border-gray-700 overflow-hidden
+           {isMobile
+             ? 'h-full max-h-full rounded-none'
+             : 'rounded-xl max-w-2xl'}"
+    in:fly={{ y: isMobile ? 50 : 0, duration: 200 }}
     out:fade={{ duration: 100 }}
   >
     <!-- Header -->

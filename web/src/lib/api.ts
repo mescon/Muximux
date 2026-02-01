@@ -238,3 +238,87 @@ export function slugify(name: string): string {
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-]/g, '');
 }
+
+// Config export/import helpers
+export interface ExportedConfig {
+  title: string;
+  navigation: Config['navigation'];
+  groups: Group[];
+  apps: App[];
+  exportedAt: string;
+  version: string;
+}
+
+/**
+ * Export config as a downloadable JSON file
+ */
+export function exportConfig(config: Config): void {
+  const exportData: ExportedConfig = {
+    title: config.title,
+    navigation: config.navigation,
+    groups: config.groups,
+    apps: config.apps,
+    exportedAt: new Date().toISOString(),
+    version: '1.0',
+  };
+
+  const blob = new Blob([JSON.stringify(exportData, null, 2)], {
+    type: 'application/json',
+  });
+
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `muximux-config-${new Date().toISOString().split('T')[0]}.json`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+/**
+ * Parse and validate an imported config file
+ */
+export function parseImportedConfig(content: string): ExportedConfig {
+  let data: unknown;
+  try {
+    data = JSON.parse(content);
+  } catch {
+    throw new Error('Invalid JSON format');
+  }
+
+  if (typeof data !== 'object' || data === null) {
+    throw new Error('Config must be a JSON object');
+  }
+
+  const obj = data as Record<string, unknown>;
+
+  // Validate required fields
+  if (typeof obj.title !== 'string') {
+    throw new Error('Missing or invalid "title" field');
+  }
+
+  if (!obj.navigation || typeof obj.navigation !== 'object') {
+    throw new Error('Missing or invalid "navigation" field');
+  }
+
+  if (!Array.isArray(obj.groups)) {
+    throw new Error('Missing or invalid "groups" field');
+  }
+
+  if (!Array.isArray(obj.apps)) {
+    throw new Error('Missing or invalid "apps" field');
+  }
+
+  // Validate apps have required fields
+  for (const app of obj.apps as Record<string, unknown>[]) {
+    if (typeof app.name !== 'string' || !app.name) {
+      throw new Error('Each app must have a "name" field');
+    }
+    if (typeof app.url !== 'string' || !app.url) {
+      throw new Error(`App "${app.name}" must have a "url" field`);
+    }
+  }
+
+  return obj as unknown as ExportedConfig;
+}

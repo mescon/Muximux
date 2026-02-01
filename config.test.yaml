@@ -24,11 +24,11 @@ auth:
 navigation:
     position: right
     width: 220px
-    auto_hide: true
+    auto_hide: false
     auto_hide_delay: 3s
     show_on_hover: true
     show_labels: true
-    show_logo: true
+    show_logo: false
 icons:
     dashboard_icons:
         enabled: true

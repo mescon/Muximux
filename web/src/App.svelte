@@ -6,6 +6,7 @@
   import Search from './components/Search.svelte';
   import Settings from './components/Settings.svelte';
   import ShortcutsHelp from './components/ShortcutsHelp.svelte';
+  import CommandPalette from './components/CommandPalette.svelte';
   import Login from './components/Login.svelte';
   import OnboardingWizard from './components/OnboardingWizard.svelte';
   import ToastContainer from './components/ToastContainer.svelte';
@@ -17,8 +18,9 @@
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { authState, checkAuthStatus, logout, isAuthenticated, currentUser, isAdmin } from './lib/authStore';
   import { isOnboardingComplete } from './lib/onboardingStore';
-  import { initTheme } from './lib/themeStore';
+  import { initTheme, setTheme } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
+  import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import type { Config as ConfigType } from './lib/types';
 
   let config: Config | null = null;
@@ -28,6 +30,7 @@
   let showSearch = false;
   let showSettings = false;
   let showShortcuts = false;
+  let showCommandPalette = false;
   let loading = true;
   let error: string | null = null;
 
@@ -44,9 +47,44 @@
   $: isFloatingLayout = navPosition === 'floating';
   $: sidebarWidth = 220; // Will be managed by Navigation component
 
+  // Mobile swipe state
+  let isMobile = false;
+  let mainContentElement: HTMLElement;
+
+  // Swipe gesture handlers for app switching on mobile
+  function handleAppSwipe(result: SwipeResult) {
+    if (!isMobile || !currentApp || showSplash || !result.direction) return;
+    if (result.direction !== 'left' && result.direction !== 'right') return;
+
+    const currentIndex = apps.findIndex(a => a.name === currentApp?.name);
+    if (currentIndex === -1) return;
+
+    let nextIndex: number;
+    if (result.direction === 'left') {
+      // Swipe left = next app
+      nextIndex = (currentIndex + 1) % apps.length;
+    } else {
+      // Swipe right = previous app
+      nextIndex = (currentIndex - 1 + apps.length) % apps.length;
+    }
+
+    selectApp(apps[nextIndex]);
+  }
+
+  const swipeHandlers = createSwipeHandlers(handleAppSwipe, undefined, {
+    threshold: 60,
+    maxDuration: 400,
+    minVelocity: 0.25,
+  });
+
   onMount(async () => {
     // Initialize theme system
     initTheme();
+
+    // Check if mobile viewport
+    isMobile = isMobileViewport();
+    const handleResize = () => { isMobile = isMobileViewport(); };
+    window.addEventListener('resize', handleResize);
 
     // First check auth status
     await checkAuthStatus();
@@ -120,6 +158,7 @@
   onDestroy(() => {
     stopHealthPolling();
     disconnectWs();
+    // Cleanup resize listener is handled by onMount return
   });
 
   async function handleLoginSuccess() {
@@ -230,6 +269,47 @@
     }
   }
 
+  // Handle command palette actions
+  function handleCommandAction(actionId: string) {
+    showCommandPalette = false;
+
+    switch (actionId) {
+      case 'search':
+        showSearch = true;
+        break;
+      case 'settings':
+        showSettings = true;
+        break;
+      case 'shortcuts':
+        showShortcuts = true;
+        break;
+      case 'fullscreen':
+        toggleFullscreen();
+        break;
+      case 'refresh':
+        if (currentApp && !showSplash) {
+          const frame = document.querySelector('iframe');
+          if (frame) frame.src = frame.src;
+        }
+        break;
+      case 'home':
+        showSplash = true;
+        break;
+      case 'theme-dark':
+        setTheme('dark');
+        toasts.success('Switched to dark theme');
+        break;
+      case 'theme-light':
+        setTheme('light');
+        toasts.success('Switched to light theme');
+        break;
+      case 'theme-system':
+        setTheme('system');
+        toasts.success('Using system theme');
+        break;
+    }
+  }
+
   function handleKeydown(event: KeyboardEvent) {
     // Don't trigger shortcuts when not authenticated or on login page
     if (authRequired && !$isAuthenticated) {
@@ -249,8 +329,13 @@
     if (event.key === '/' || (event.ctrlKey && event.key === 'k')) {
       event.preventDefault();
       showSearch = true;
+    } else if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'p') {
+      // Command palette: Ctrl+Shift+P (or Cmd+Shift+P on Mac)
+      event.preventDefault();
+      showCommandPalette = true;
     } else if (event.key === 'Escape') {
-      if (showSearch) showSearch = false;
+      if (showCommandPalette) showCommandPalette = false;
+      else if (showSearch) showSearch = false;
       else if (showSettings) showSettings = false;
       else if (showShortcuts) showShortcuts = false;
       else if (!showSplash && currentApp) showSplash = true;
@@ -336,8 +421,15 @@
       />
     {/if}
 
-    <!-- Main content area -->
-    <main class="flex-1 overflow-hidden relative">
+    <!-- Main content area - with swipe gesture support on mobile -->
+    <main
+      class="flex-1 overflow-hidden relative"
+      bind:this={mainContentElement}
+      on:pointerdown={isMobile ? swipeHandlers.onpointerdown : undefined}
+      on:pointermove={isMobile ? swipeHandlers.onpointermove : undefined}
+      on:pointerup={isMobile ? swipeHandlers.onpointerup : undefined}
+      on:pointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
+    >
       {#if showSplash && !$isFullscreen}
         <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} />
       {:else if currentApp}
@@ -387,6 +479,16 @@
   <!-- Keyboard shortcuts help -->
   {#if showShortcuts}
     <ShortcutsHelp on:close={() => showShortcuts = false} />
+  {/if}
+
+  <!-- Command palette -->
+  {#if showCommandPalette}
+    <CommandPalette
+      {apps}
+      on:select={(e) => { selectApp(e.detail); showCommandPalette = false; }}
+      on:action={(e) => handleCommandAction(e.detail)}
+      on:close={() => showCommandPalette = false}
+    />
   {/if}
 {/if}
 

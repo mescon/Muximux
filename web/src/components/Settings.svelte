@@ -1,13 +1,25 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import { createEventDispatcher, onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { App, Config, Group } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
   import { themeMode, resolvedTheme, setTheme, type ThemeMode } from '$lib/themeStore';
+  import { isMobileViewport } from '$lib/useSwipe';
+  import { exportConfig, parseImportedConfig } from '$lib/api';
+  import { toasts } from '$lib/toastStore';
 
   export let config: Config;
   export let apps: App[];
+
+  let isMobile = false;
+
+  onMount(() => {
+    isMobile = isMobileViewport();
+    const handleResize = () => { isMobile = isMobileViewport(); };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -25,6 +37,10 @@
   let showIconBrowser = false;
   let iconBrowserTarget: 'newApp' | 'editApp' | null = null;
 
+  // Drag and drop state for app reordering
+  let draggedAppIndex: number | null = null;
+  let dragOverIndex: number | null = null;
+
   // Track if changes have been made
   $: hasChanges = JSON.stringify(localConfig) !== JSON.stringify(config) ||
                   JSON.stringify(localApps) !== JSON.stringify(apps);
@@ -34,6 +50,11 @@
   let editingGroup: Group | null = null;
   let showAddApp = false;
   let showAddGroup = false;
+
+  // Import/export state
+  let importFileInput: HTMLInputElement;
+  let showImportConfirm = false;
+  let pendingImport: ReturnType<typeof parseImportedConfig> | null = null;
 
   // New app/group templates
   const newAppTemplate: App = {
@@ -124,6 +145,104 @@
     }
   }
 
+  // Drag and drop handlers for app reordering
+  function handleDragStart(e: DragEvent, index: number) {
+    draggedAppIndex = index;
+    if (e.dataTransfer) {
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', index.toString());
+    }
+  }
+
+  function handleDragOver(e: DragEvent, index: number) {
+    e.preventDefault();
+    if (e.dataTransfer) {
+      e.dataTransfer.dropEffect = 'move';
+    }
+    dragOverIndex = index;
+  }
+
+  function handleDragLeave() {
+    dragOverIndex = null;
+  }
+
+  function handleDrop(e: DragEvent, targetIndex: number) {
+    e.preventDefault();
+    if (draggedAppIndex === null || draggedAppIndex === targetIndex) {
+      draggedAppIndex = null;
+      dragOverIndex = null;
+      return;
+    }
+
+    const newApps = [...localApps];
+    const [draggedApp] = newApps.splice(draggedAppIndex, 1);
+    newApps.splice(targetIndex, 0, draggedApp);
+
+    // Update order values
+    localApps = newApps.map((a, i) => ({ ...a, order: i }));
+    draggedAppIndex = null;
+    dragOverIndex = null;
+  }
+
+  function handleDragEnd() {
+    draggedAppIndex = null;
+    dragOverIndex = null;
+  }
+
+  // Export config to JSON file
+  function handleExport() {
+    const exportData = {
+      ...localConfig,
+      apps: localApps,
+    };
+    exportConfig(exportData as Config);
+    toasts.success('Configuration exported');
+  }
+
+  // Handle import file selection
+  function handleImportSelect(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const content = event.target?.result as string;
+        pendingImport = parseImportedConfig(content);
+        showImportConfirm = true;
+      } catch (err) {
+        toasts.error(err instanceof Error ? err.message : 'Failed to parse config file');
+      }
+    };
+    reader.readAsText(file);
+
+    // Reset input so same file can be selected again
+    input.value = '';
+  }
+
+  // Apply imported config
+  function applyImport() {
+    if (!pendingImport) return;
+
+    localConfig = {
+      ...localConfig,
+      title: pendingImport.title,
+      navigation: pendingImport.navigation,
+      groups: pendingImport.groups,
+    };
+    localApps = pendingImport.apps;
+
+    showImportConfirm = false;
+    pendingImport = null;
+    toasts.success('Configuration imported - save to apply changes');
+  }
+
+  function cancelImport() {
+    showImportConfirm = false;
+    pendingImport = null;
+  }
+
   function handleIconSelect(event: CustomEvent<{ name: string; variant: string; type: string }>) {
     const { name, variant, type } = event.detail;
     if (iconBrowserTarget === 'newApp') {
@@ -157,12 +276,15 @@
 </script>
 
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
   transition:fade={{ duration: 150 }}
 >
   <div
-    class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700 flex flex-col"
-    in:fly={{ y: 20, duration: 200 }}
+    class="bg-gray-800 shadow-2xl w-full overflow-hidden border border-gray-700 flex flex-col
+           {isMobile
+             ? 'h-full max-h-full rounded-none'
+             : 'rounded-xl max-w-4xl max-h-[90vh]'}"
+    in:fly={{ y: isMobile ? 50 : 20, duration: 200 }}
     out:fade={{ duration: 100 }}
   >
     <!-- Header -->
@@ -190,8 +312,8 @@
       </div>
     </div>
 
-    <!-- Tabs -->
-    <div class="flex border-b border-gray-700 flex-shrink-0">
+    <!-- Tabs - scrollable on mobile -->
+    <div class="flex border-b border-gray-700 flex-shrink-0 overflow-x-auto scrollbar-hide">
       {#each [
         { id: 'general', label: 'General' },
         { id: 'apps', label: 'Apps' },
@@ -199,7 +321,7 @@
         { id: 'theme', label: 'Theme' }
       ] as tab}
         <button
-          class="px-4 py-3 text-sm font-medium transition-colors border-b-2
+          class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
                  {activeTab === tab.id
                    ? 'text-brand-400 border-brand-400'
                    : 'text-gray-400 border-transparent hover:text-gray-300 hover:border-gray-600'}"
@@ -301,6 +423,41 @@
               </div>
             </label>
           </div>
+
+          <!-- Import/Export Configuration -->
+          <div class="pt-4 border-t border-gray-700">
+            <h3 class="text-sm font-medium text-gray-300 mb-3">Configuration</h3>
+            <div class="flex flex-wrap gap-3">
+              <button
+                class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex items-center gap-2"
+                on:click={handleExport}
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                </svg>
+                Export Config
+              </button>
+              <button
+                class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex items-center gap-2"
+                on:click={() => importFileInput?.click()}
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
+                </svg>
+                Import Config
+              </button>
+              <input
+                bind:this={importFileInput}
+                type="file"
+                accept=".json"
+                class="hidden"
+                on:change={handleImportSelect}
+              />
+            </div>
+            <p class="text-xs text-gray-500 mt-2">
+              Export your current configuration or import a previously saved one.
+            </p>
+          </div>
         </div>
 
       <!-- Apps Settings -->
@@ -320,10 +477,28 @@
             </button>
           </div>
 
-          <!-- App List -->
+          <!-- App List - Drag & Drop enabled -->
           <div class="space-y-2">
             {#each localApps as app, i}
-              <div class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg group">
+              <div
+                class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg group transition-all cursor-grab active:cursor-grabbing
+                       {draggedAppIndex === i ? 'opacity-50 scale-95' : ''}
+                       {dragOverIndex === i && draggedAppIndex !== i ? 'border-2 border-brand-500 border-dashed' : 'border-2 border-transparent'}"
+                draggable="true"
+                on:dragstart={(e) => handleDragStart(e, i)}
+                on:dragover={(e) => handleDragOver(e, i)}
+                on:dragleave={handleDragLeave}
+                on:drop={(e) => handleDrop(e, i)}
+                on:dragend={handleDragEnd}
+                role="listitem"
+              >
+                <!-- Drag handle -->
+                <div class="flex-shrink-0 text-gray-500 hover:text-gray-300 cursor-grab">
+                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                  </svg>
+                </div>
+
                 <!-- Icon -->
                 <span
                   class="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold flex-shrink-0"
@@ -355,26 +530,6 @@
 
                 <!-- Actions -->
                 <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                    on:click={() => moveApp(app, 'up')}
-                    disabled={i === 0}
-                    title="Move up"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                    </svg>
-                  </button>
-                  <button
-                    class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                    on:click={() => moveApp(app, 'down')}
-                    disabled={i === localApps.length - 1}
-                    title="Move down"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </button>
                   <button
                     class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-gray-600"
                     on:click={() => editingApp = app}
@@ -1012,6 +1167,69 @@
         on:select={handleIconSelect}
         on:close={() => { showIconBrowser = false; iconBrowserTarget = null; }}
       />
+    </div>
+  </div>
+{/if}
+
+<!-- Import Confirmation Modal -->
+{#if showImportConfirm && pendingImport}
+  <div
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-gray-700">
+        <h3 class="text-lg font-semibold text-white">Import Configuration</h3>
+        <button
+          class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          on:click={cancelImport}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 space-y-4">
+        <p class="text-gray-300">
+          This will replace your current configuration with the imported settings.
+        </p>
+        <div class="bg-gray-700/50 rounded-lg p-3 text-sm">
+          <div class="text-gray-400">Preview:</div>
+          <div class="text-white font-medium">{pendingImport.title}</div>
+          <div class="text-gray-400 text-xs mt-1">
+            {pendingImport.apps.length} apps, {pendingImport.groups.length} groups
+          </div>
+          {#if pendingImport.exportedAt}
+            <div class="text-gray-500 text-xs mt-1">
+              Exported: {new Date(pendingImport.exportedAt).toLocaleDateString()}
+            </div>
+          {/if}
+        </div>
+        <p class="text-yellow-400 text-sm flex items-center gap-2">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Unsaved changes will be overwritten
+        </p>
+      </div>
+      <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
+        <button
+          class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          on:click={cancelImport}
+        >
+          Cancel
+        </button>
+        <button
+          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          on:click={applyImport}
+        >
+          Import
+        </button>
+      </div>
     </div>
   </div>
 {/if}

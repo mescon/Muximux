@@ -3,6 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import type { App } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
+  import { isMobileViewport } from '$lib/useSwipe';
 
   export let apps: App[];
 
@@ -14,12 +15,19 @@
   let query = '';
   let selectedIndex = 0;
   let inputElement: HTMLInputElement;
+  let isMobile = false;
 
   // Recent apps from localStorage
   let recentAppNames: string[] = [];
 
   onMount(() => {
     inputElement?.focus();
+    isMobile = isMobileViewport();
+
+    // Update on resize
+    const handleResize = () => { isMobile = isMobileViewport(); };
+    window.addEventListener('resize', handleResize);
+
     // Load recent apps
     const stored = localStorage.getItem('muximux_recent_apps');
     if (stored) {
@@ -29,6 +37,10 @@
         recentAppNames = [];
       }
     }
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   });
 
   // Fuzzy match function
@@ -152,7 +164,7 @@
 
 <!-- Backdrop -->
 <div
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-start justify-center pt-[15vh]"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex {isMobile ? 'items-end' : 'items-start justify-center pt-[15vh]'}"
   on:click={() => dispatch('close')}
   on:keydown={handleKeydown}
   role="dialog"
@@ -160,18 +172,28 @@
   aria-label="Search apps"
   transition:fade={{ duration: 150 }}
 >
-  <!-- Search modal -->
+  <!-- Search modal - bottom sheet on mobile, centered modal on desktop -->
   <div
-    class="w-full max-w-xl bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden"
+    class="w-full bg-gray-800 shadow-2xl border border-gray-700 overflow-hidden
+           {isMobile
+             ? 'rounded-t-2xl max-h-[85vh] border-b-0'
+             : 'max-w-xl rounded-xl mx-4'}"
     on:click|stopPropagation
     role="presentation"
-    in:fly={{ y: -20, duration: 200 }}
+    in:fly={{ y: isMobile ? 100 : -20, duration: 200 }}
     out:fade={{ duration: 100 }}
   >
+    <!-- Mobile drag handle for bottom sheet -->
+    {#if isMobile}
+      <div class="flex justify-center pt-3 pb-1">
+        <div class="w-10 h-1 bg-gray-600 rounded-full"></div>
+      </div>
+    {/if}
+
     <!-- Search input -->
     <div class="p-4 border-b border-gray-700">
       <div class="flex items-center space-x-3">
-        <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-5 h-5 text-gray-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
@@ -179,15 +201,15 @@
           bind:value={query}
           type="text"
           placeholder="Search apps..."
-          class="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-lg"
+          class="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-lg min-w-0"
           on:keydown={handleKeydown}
         />
-        <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded">esc</kbd>
+        <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded flex-shrink-0">esc</kbd>
       </div>
     </div>
 
-    <!-- Results -->
-    <div class="max-h-80 overflow-auto">
+    <!-- Results - taller on mobile for better scrolling -->
+    <div class="{isMobile ? 'max-h-[60vh]' : 'max-h-80'} overflow-auto">
       {#if filteredApps.length === 0}
         <div class="p-4 text-center text-gray-500">
           No apps found matching "{query}"
@@ -203,7 +225,8 @@
               {@const globalIndex = i}
               <li>
                 <button
-                  class="w-full px-4 py-3 flex items-center space-x-3 text-left
+                  class="w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                         {isMobile ? 'py-3.5' : 'py-3'}
                          {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
                   on:click={() => selectApp(app)}
                   on:mouseenter={() => selectedIndex = globalIndex}
@@ -221,7 +244,7 @@
                     {/if}
                   </div>
                   {#if globalIndex < 9}
-                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded">
+                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded flex-shrink-0">
                       ⌘{globalIndex + 1}
                     </kbd>
                   {/if}
@@ -243,7 +266,8 @@
               {@const globalIndex = showRecentHeader ? recentApps.length + i : i}
               <li>
                 <button
-                  class="w-full px-4 py-3 flex items-center space-x-3 text-left
+                  class="w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                         {isMobile ? 'py-3.5' : 'py-3'}
                          {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
                   on:click={() => selectApp(app)}
                   on:mouseenter={() => selectedIndex = globalIndex}
@@ -261,7 +285,7 @@
                     {/if}
                   </div>
                   {#if globalIndex < 9}
-                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded">
+                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded flex-shrink-0">
                       ⌘{globalIndex + 1}
                     </kbd>
                   {/if}
@@ -273,12 +297,19 @@
       {/if}
     </div>
 
-    <!-- Footer hints -->
-    <div class="px-4 py-2 border-t border-gray-700 text-xs text-gray-500 flex items-center space-x-4">
-      <span>↑↓ Navigate</span>
-      <span>⏎ Open</span>
-      <span>⌘1-9 Quick select</span>
-      <span>esc Close</span>
-    </div>
+    <!-- Footer hints - hidden on mobile to save space -->
+    {#if !isMobile}
+      <div class="px-4 py-2 border-t border-gray-700 text-xs text-gray-500 flex items-center space-x-4">
+        <span>↑↓ Navigate</span>
+        <span>⏎ Open</span>
+        <span>⌘1-9 Quick select</span>
+        <span>esc Close</span>
+      </div>
+    {:else}
+      <!-- Mobile-friendly close hint with safe area padding -->
+      <div class="px-4 py-3 pb-safe border-t border-gray-700 text-center">
+        <span class="text-xs text-gray-500">Tap outside to close</span>
+      </div>
+    {/if}
   </div>
 </div>
