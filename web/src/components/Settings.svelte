@@ -4,10 +4,12 @@
   import type { App, Config, Group } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
+  import KeybindingsEditor from './KeybindingsEditor.svelte';
   import { themeMode, resolvedTheme, setTheme, type ThemeMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
+  import { getKeybindingsForConfig } from '$lib/keybindingsStore';
 
   export let config: Config;
   export let apps: App[];
@@ -27,7 +29,7 @@
   }>();
 
   // Active tab
-  let activeTab: 'general' | 'apps' | 'groups' | 'theme' = 'general';
+  let activeTab: 'general' | 'apps' | 'groups' | 'theme' | 'keybindings' = 'general';
 
   // Local copy of config for editing
   let localConfig = JSON.parse(JSON.stringify(config)) as Config;
@@ -41,9 +43,13 @@
   let draggedAppIndex: number | null = null;
   let dragOverIndex: number | null = null;
 
+  // Track keybindings changes
+  let keybindingsChanged = false;
+
   // Track if changes have been made
   $: hasChanges = JSON.stringify(localConfig) !== JSON.stringify(config) ||
-                  JSON.stringify(localApps) !== JSON.stringify(apps);
+                  JSON.stringify(localApps) !== JSON.stringify(apps) ||
+                  keybindingsChanged;
 
   // Editing state
   let editingApp: App | null = null;
@@ -85,6 +91,10 @@
   function handleSave() {
     // Update config with local changes
     localConfig.apps = localApps;
+    // Include keybindings if changed
+    if (keybindingsChanged) {
+      localConfig.keybindings = getKeybindingsForConfig();
+    }
     dispatch('save', localConfig);
     dispatch('close');
   }
@@ -318,7 +328,8 @@
         { id: 'general', label: 'General' },
         { id: 'apps', label: 'Apps' },
         { id: 'groups', label: 'Groups' },
-        { id: 'theme', label: 'Theme' }
+        { id: 'theme', label: 'Theme' },
+        { id: 'keybindings', label: 'Keybindings' }
       ] as tab}
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
@@ -745,6 +756,11 @@
             </div>
           </div>
         </div>
+      {/if}
+
+      <!-- Keybindings Settings -->
+      {#if activeTab === 'keybindings'}
+        <KeybindingsEditor on:change={() => keybindingsChanged = true} />
       {/if}
     </div>
   </div>

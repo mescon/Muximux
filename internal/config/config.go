@@ -8,14 +8,32 @@ import (
 
 // Config holds all application configuration
 type Config struct {
-	Server     ServerConfig     `yaml:"server"`
-	Proxy      ProxyConfig      `yaml:"proxy"`
-	Auth       AuthConfig       `yaml:"auth"`
-	Navigation NavigationConfig `yaml:"navigation"`
-	Icons      IconsConfig      `yaml:"icons"`
-	Health     HealthConfig     `yaml:"health"`
-	Groups     []GroupConfig    `yaml:"groups"`
-	Apps       []AppConfig      `yaml:"apps"`
+	Server      ServerConfig      `yaml:"server"`
+	Proxy       ProxyConfig       `yaml:"proxy"`
+	Auth        AuthConfig        `yaml:"auth"`
+	Navigation  NavigationConfig  `yaml:"navigation"`
+	Icons       IconsConfig       `yaml:"icons"`
+	Health      HealthConfig      `yaml:"health"`
+	Keybindings KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
+	Groups      []GroupConfig     `yaml:"groups"`
+	Apps        []AppConfig       `yaml:"apps"`
+}
+
+// KeybindingsConfig holds custom keyboard shortcut overrides
+// Only stores customized bindings; defaults are managed client-side
+type KeybindingsConfig struct {
+	// Each key is an action name (e.g., "search", "refresh")
+	// Each value is an array of key combos that trigger that action
+	Bindings map[string][]KeyCombo `yaml:"bindings,omitempty" json:"bindings,omitempty"`
+}
+
+// KeyCombo represents a keyboard shortcut combination
+type KeyCombo struct {
+	Key   string `yaml:"key" json:"key"`
+	Ctrl  bool   `yaml:"ctrl,omitempty" json:"ctrl,omitempty"`
+	Alt   bool   `yaml:"alt,omitempty" json:"alt,omitempty"`
+	Shift bool   `yaml:"shift,omitempty" json:"shift,omitempty"`
+	Meta  bool   `yaml:"meta,omitempty" json:"meta,omitempty"`
 }
 
 // HealthConfig holds health monitoring settings
@@ -213,6 +231,9 @@ func defaultConfig() *Config {
 			Enabled:  true,
 			Interval: "30s",
 			Timeout:  "5s",
+		},
+		Keybindings: KeybindingsConfig{
+			Bindings: make(map[string][]KeyCombo),
 		},
 		Groups: []GroupConfig{},
 		Apps:   []AppConfig{},

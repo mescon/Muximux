@@ -21,6 +21,7 @@
   import { initTheme, setTheme } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
+  import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import type { Config as ConfigType } from './lib/types';
 
   let config: Config | null = null;
@@ -97,6 +98,9 @@
       apps = config.apps;
       authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined && config.auth?.method !== '';
 
+      // Initialize keybindings from config
+      initKeybindings(config.keybindings);
+
       // Check if onboarding should be shown (no apps and not completed)
       if (apps.length === 0 && !isOnboardingComplete()) {
         showOnboarding = true;
@@ -166,6 +170,9 @@
     try {
       config = await fetchConfig();
       apps = config.apps;
+
+      // Initialize keybindings from config
+      initKeybindings(config.keybindings);
 
       // Find default app
       const defaultApp = apps.find(app => app.default);
@@ -316,7 +323,7 @@
       return;
     }
 
-    // Don't trigger shortcuts when typing in inputs
+    // Don't trigger shortcuts when typing in inputs (except Escape)
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
       if (event.key === 'Escape') {
         showSearch = false;
@@ -325,53 +332,81 @@
       return;
     }
 
-    // Global keyboard shortcuts
-    if (event.key === '/' || (event.ctrlKey && event.key === 'k')) {
-      event.preventDefault();
-      showSearch = true;
-    } else if ((event.ctrlKey || event.metaKey) && event.shiftKey && event.key === 'p') {
-      // Command palette: Ctrl+Shift+P (or Cmd+Shift+P on Mac)
-      event.preventDefault();
-      showCommandPalette = true;
-    } else if (event.key === 'Escape') {
+    // Escape is always hardcoded for closing modals
+    if (event.key === 'Escape') {
       if (showCommandPalette) showCommandPalette = false;
       else if (showSearch) showSearch = false;
       else if (showSettings) showSettings = false;
       else if (showShortcuts) showShortcuts = false;
       else if (!showSplash && currentApp) showSplash = true;
-    } else if (event.key === '?') {
-      event.preventDefault();
-      showShortcuts = !showShortcuts;
-    } else if (event.ctrlKey && event.key === ',') {
-      event.preventDefault();
-      showSettings = !showSettings;
-    } else if (event.key === 'r' && !event.ctrlKey && !event.metaKey) {
-      // Refresh current app iframe
-      if (currentApp && !showSplash) {
-        const frame = document.querySelector('iframe');
-        if (frame) {
-          frame.src = frame.src;
+      return;
+    }
+
+    // Find the action for this key event using customizable keybindings
+    const action = findAction(event);
+    if (!action) return;
+
+    // Prevent default for most actions
+    event.preventDefault();
+
+    // Execute the action
+    executeAction(action);
+  }
+
+  function executeAction(action: KeyAction) {
+    switch (action) {
+      case 'search':
+        showSearch = true;
+        break;
+      case 'commandPalette':
+        showCommandPalette = true;
+        break;
+      case 'settings':
+        showSettings = !showSettings;
+        break;
+      case 'shortcuts':
+        showShortcuts = !showShortcuts;
+        break;
+      case 'home':
+        showSplash = true;
+        break;
+      case 'refresh':
+        if (currentApp && !showSplash) {
+          const frame = document.querySelector('iframe');
+          if (frame) frame.src = frame.src;
         }
-      }
-    } else if (event.key === 'f' && !event.ctrlKey && !event.metaKey) {
-      // Toggle fullscreen (hide nav)
-      toggleFullscreen();
-    } else if (event.key >= '1' && event.key <= '9') {
-      // Quick switch to app by number
-      const index = parseInt(event.key) - 1;
-      if (apps[index]) {
-        selectApp(apps[index]);
-      }
-    } else if (event.key === 'Tab') {
-      // Navigate between apps
-      if (!showSearch && apps.length > 0) {
-        event.preventDefault();
-        const currentIndex = currentApp ? apps.findIndex(a => a.name === currentApp?.name) : -1;
-        const nextIndex = event.shiftKey
-          ? (currentIndex - 1 + apps.length) % apps.length
-          : (currentIndex + 1) % apps.length;
-        selectApp(apps[nextIndex]);
-      }
+        break;
+      case 'fullscreen':
+        toggleFullscreen();
+        break;
+      case 'nextApp':
+        if (!showSearch && apps.length > 0) {
+          const currentIndex = currentApp ? apps.findIndex(a => a.name === currentApp?.name) : -1;
+          const nextIndex = (currentIndex + 1) % apps.length;
+          selectApp(apps[nextIndex]);
+        }
+        break;
+      case 'prevApp':
+        if (!showSearch && apps.length > 0) {
+          const currentIndex = currentApp ? apps.findIndex(a => a.name === currentApp?.name) : -1;
+          const prevIndex = (currentIndex - 1 + apps.length) % apps.length;
+          selectApp(apps[prevIndex]);
+        }
+        break;
+      case 'app1':
+      case 'app2':
+      case 'app3':
+      case 'app4':
+      case 'app5':
+      case 'app6':
+      case 'app7':
+      case 'app8':
+      case 'app9':
+        const appIndex = parseInt(action.replace('app', '')) - 1;
+        if (apps[appIndex]) {
+          selectApp(apps[appIndex]);
+        }
+        break;
     }
   }
 </script>

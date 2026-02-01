@@ -4,6 +4,7 @@
   import type { App } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import { isMobileViewport } from '$lib/useSwipe';
+  import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
 
   export let apps: App[];
 
@@ -29,18 +30,39 @@
     app?: App;
   }
 
-  // All available commands
-  const actions: Command[] = [
-    { id: 'search', type: 'action', label: 'Open Search', shortcut: '/', icon: 'search' },
-    { id: 'settings', type: 'action', label: 'Open Settings', shortcut: 'Ctrl+,', icon: 'settings' },
-    { id: 'shortcuts', type: 'action', label: 'Show Keyboard Shortcuts', shortcut: '?', icon: 'help' },
-    { id: 'fullscreen', type: 'action', label: 'Toggle Fullscreen', shortcut: 'F', icon: 'fullscreen' },
-    { id: 'refresh', type: 'action', label: 'Refresh Current App', shortcut: 'R', icon: 'refresh' },
-    { id: 'home', type: 'action', label: 'Go to Splash Screen', shortcut: 'Esc', icon: 'home' },
-    { id: 'theme-dark', type: 'setting', label: 'Set Dark Theme', icon: 'moon' },
-    { id: 'theme-light', type: 'setting', label: 'Set Light Theme', icon: 'sun' },
-    { id: 'theme-system', type: 'setting', label: 'Use System Theme', icon: 'system' },
-  ];
+  // Map action IDs to keybinding actions
+  const actionToKeybinding: Record<string, KeyAction> = {
+    'search': 'search',
+    'settings': 'settings',
+    'shortcuts': 'shortcuts',
+    'fullscreen': 'fullscreen',
+    'refresh': 'refresh',
+    'home': 'home',
+  };
+
+  // Get shortcut string for an action from keybindings store
+  function getShortcut(actionId: string): string | undefined {
+    const keybindingAction = actionToKeybinding[actionId];
+    if (!keybindingAction) return undefined;
+
+    const binding = $keybindings.find(b => b.action === keybindingAction);
+    if (!binding) return undefined;
+
+    return formatKeybinding(binding);
+  }
+
+  // All available commands (shortcuts are derived from keybindings store)
+  $: actions = [
+    { id: 'search', type: 'action' as const, label: 'Open Search', shortcut: getShortcut('search'), icon: 'search' },
+    { id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' },
+    { id: 'shortcuts', type: 'action' as const, label: 'Show Keyboard Shortcuts', shortcut: getShortcut('shortcuts'), icon: 'help' },
+    { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
+    { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
+    { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
+    { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
+    { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
+    { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },
+  ] as Command[];
 
   // Create app commands
   $: appCommands = apps.map((app, i) => ({

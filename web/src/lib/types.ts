@@ -60,12 +60,25 @@ export interface ProxyConfig {
   tls_key?: string;
 }
 
+export interface KeyCombo {
+  key: string;
+  ctrl?: boolean;
+  alt?: boolean;
+  shift?: boolean;
+  meta?: boolean;
+}
+
+export interface KeybindingsConfig {
+  bindings?: Record<string, KeyCombo[]>;
+}
+
 export interface Config {
   title: string;
   navigation: NavigationConfig;
   health?: HealthConfig;
   auth?: AuthConfig;
   proxy?: ProxyConfig;
+  keybindings?: KeybindingsConfig;
   groups: Group[];
   apps: App[];
 }

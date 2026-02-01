@@ -1,7 +1,8 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
-  import { fade, scale, fly } from 'svelte/transition';
+  import { fade, fly } from 'svelte/transition';
   import { isMobileViewport } from '$lib/useSwipe';
+  import { keybindings, formatKeybinding, type Keybinding } from '$lib/keybindingsStore';
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -16,34 +17,30 @@
     return () => window.removeEventListener('resize', handleResize);
   });
 
-  const shortcuts = [
+  // Category labels for display
+  const categoryLabels: Record<string, string> = {
+    navigation: 'Navigation',
+    actions: 'Actions',
+    apps: 'App Quick Access'
+  };
+
+  // Group keybindings by category
+  $: groupedBindings = $keybindings.reduce((acc, binding) => {
+    if (!acc[binding.category]) {
+      acc[binding.category] = [];
+    }
+    acc[binding.category].push(binding);
+    return acc;
+  }, {} as Record<string, Keybinding[]>);
+
+  // Additional non-customizable shortcuts
+  const additionalShortcuts = [
     {
-      category: 'Navigation',
+      category: 'Modal Navigation',
       items: [
-        { keys: ['/', 'Ctrl+K'], description: 'Open search' },
-        { keys: ['Ctrl+Shift+P'], description: 'Command palette' },
-        { keys: ['1-9'], description: 'Switch to app by number' },
-        { keys: ['Tab'], description: 'Next app' },
-        { keys: ['Shift+Tab'], description: 'Previous app' },
-        { keys: ['Escape'], description: 'Close modals / Go to splash' }
-      ]
-    },
-    {
-      category: 'Actions',
-      items: [
-        { keys: ['r'], description: 'Refresh current app' },
-        { keys: ['f'], description: 'Toggle fullscreen mode' },
-        { keys: ['Ctrl+,'], description: 'Open settings' },
-        { keys: ['?'], description: 'Show this help' }
-      ]
-    },
-    {
-      category: 'Search (when open)',
-      items: [
-        { keys: ['↑/↓'], description: 'Navigate results' },
-        { keys: ['Enter'], description: 'Select highlighted app' },
-        { keys: ['1-9'], description: 'Quick select result' },
-        { keys: ['Escape'], description: 'Close search' }
+        { keys: ['Escape'], description: 'Close modals / Go to home' },
+        { keys: ['↑/↓'], description: 'Navigate results (in search/palette)' },
+        { keys: ['Enter'], description: 'Select highlighted item' }
       ]
     }
   ];
@@ -89,7 +86,53 @@
     <!-- Content -->
     <div class="p-6 max-h-[70vh] overflow-y-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {#each shortcuts as section}
+        <!-- Customizable shortcuts from keybindings store -->
+        {#each Object.entries(groupedBindings) as [category, bindings]}
+          {#if category !== 'apps'}
+            <div>
+              <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+                {categoryLabels[category] || category}
+              </h3>
+              <div class="space-y-2">
+                {#each bindings as binding}
+                  <div class="flex items-center justify-between py-1">
+                    <span class="text-gray-300">{binding.label}</span>
+                    <div class="flex items-center gap-1">
+                      {#each binding.combos as combo, i}
+                        {#if i > 0}
+                          <span class="text-gray-500 text-xs">or</span>
+                        {/if}
+                        <kbd class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-200 font-mono">
+                          {#if combo.ctrl}Ctrl+{/if}{#if combo.alt}Alt+{/if}{#if combo.shift}Shift+{/if}{#if combo.meta}⌘{/if}{combo.key.length === 1 ? combo.key.toUpperCase() : combo.key}
+                        </kbd>
+                      {/each}
+                    </div>
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+        {/each}
+
+        <!-- App Quick Access (summarized) -->
+        {#if groupedBindings.apps}
+          <div>
+            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              App Quick Access
+            </h3>
+            <div class="space-y-2">
+              <div class="flex items-center justify-between py-1">
+                <span class="text-gray-300">Switch to app by number</span>
+                <kbd class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-200 font-mono">
+                  1-9
+                </kbd>
+              </div>
+            </div>
+          </div>
+        {/if}
+
+        <!-- Additional non-customizable shortcuts -->
+        {#each additionalShortcuts as section}
           <div>
             <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
               {section.category}
@@ -113,6 +156,13 @@
             </div>
           </div>
         {/each}
+      </div>
+
+      <!-- Customization hint -->
+      <div class="mt-6 p-3 bg-gray-700/30 rounded-lg">
+        <p class="text-sm text-gray-400 text-center">
+          Customize shortcuts in <span class="text-brand-400">Settings → Keybindings</span>
+        </p>
       </div>
     </div>
 
