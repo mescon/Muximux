@@ -63,11 +63,17 @@ type UserConfig struct {
 
 // OIDCConfig holds OIDC provider settings
 type OIDCConfig struct {
-	Issuer       string   `yaml:"issuer"`
-	ClientID     string   `yaml:"client_id"`
-	ClientSecret string   `yaml:"client_secret"`
-	RedirectURL  string   `yaml:"redirect_url"`
-	Scopes       []string `yaml:"scopes"`
+	Enabled          bool     `yaml:"enabled"`
+	IssuerURL        string   `yaml:"issuer_url"`
+	ClientID         string   `yaml:"client_id"`
+	ClientSecret     string   `yaml:"client_secret"`
+	RedirectURL      string   `yaml:"redirect_url"`
+	Scopes           []string `yaml:"scopes"`
+	UsernameClaim    string   `yaml:"username_claim"`
+	EmailClaim       string   `yaml:"email_claim"`
+	GroupsClaim      string   `yaml:"groups_claim"`
+	DisplayNameClaim string   `yaml:"display_name_claim"`
+	AdminGroups      []string `yaml:"admin_groups"`
 }
 
 // NavigationConfig holds navigation layout settings

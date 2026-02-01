@@ -20,7 +20,7 @@
       category: 'Actions',
       items: [
         { keys: ['r'], description: 'Refresh current app' },
-        { keys: ['f'], description: 'Toggle fullscreen (coming soon)' },
+        { keys: ['f'], description: 'Toggle fullscreen mode' },
         { keys: ['Ctrl+,'], description: 'Open settings' },
         { keys: ['?'], description: 'Show this help' }
       ]

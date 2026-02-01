@@ -11,6 +11,7 @@ import (
 type AuthHandler struct {
 	sessionStore *auth.SessionStore
 	userStore    *auth.UserStore
+	oidcProvider *auth.OIDCProvider
 }
 
 // NewAuthHandler creates a new auth handler
@@ -19,6 +20,11 @@ func NewAuthHandler(sessionStore *auth.SessionStore, userStore *auth.UserStore) 
 		sessionStore: sessionStore,
 		userStore:    userStore,
 	}
+}
+
+// SetOIDCProvider sets the OIDC provider for OIDC authentication
+func (h *AuthHandler) SetOIDCProvider(provider *auth.OIDCProvider) {
+	h.oidcProvider = provider
 }
 
 // LoginRequest represents a login request
@@ -229,6 +235,7 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 	response := map[string]interface{}{
 		"authenticated": user != nil,
+		"oidc_enabled":  h.oidcProvider != nil && h.oidcProvider.Enabled(),
 	}
 
 	if user != nil {
@@ -242,4 +249,24 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(response)
+}
+
+// OIDCLogin handles GET /api/auth/oidc/login - redirects to OIDC provider
+func (h *AuthHandler) OIDCLogin(w http.ResponseWriter, r *http.Request) {
+	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
+		http.Error(w, "OIDC not configured", http.StatusNotFound)
+		return
+	}
+
+	h.oidcProvider.HandleLogin(w, r)
+}
+
+// OIDCCallback handles GET /api/auth/oidc/callback - OIDC callback
+func (h *AuthHandler) OIDCCallback(w http.ResponseWriter, r *http.Request) {
+	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
+		http.Error(w, "OIDC not configured", http.StatusNotFound)
+		return
+	}
+
+	h.oidcProvider.HandleCallback(w, r)
 }

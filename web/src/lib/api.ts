@@ -56,6 +56,50 @@ export async function fetchGroups(): Promise<Group[]> {
   return fetchJSON<Group[]>('/groups');
 }
 
+// Individual app CRUD
+export async function getApp(name: string): Promise<App> {
+  return fetchJSON<App>(`/app/${encodeURIComponent(name)}`);
+}
+
+export async function createApp(app: Partial<App>): Promise<App> {
+  return postJSON<Partial<App>, App>('/apps', app);
+}
+
+export async function updateApp(name: string, app: Partial<App>): Promise<App> {
+  return putJSON<Partial<App>, App>(`/app/${encodeURIComponent(name)}`, app);
+}
+
+export async function deleteApp(name: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/app/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+}
+
+// Individual group CRUD
+export async function getGroup(name: string): Promise<Group> {
+  return fetchJSON<Group>(`/group/${encodeURIComponent(name)}`);
+}
+
+export async function createGroup(group: Partial<Group>): Promise<Group> {
+  return postJSON<Partial<Group>, Group>('/groups', group);
+}
+
+export async function updateGroup(name: string, group: Partial<Group>): Promise<Group> {
+  return putJSON<Partial<Group>, Group>(`/group/${encodeURIComponent(name)}`, group);
+}
+
+export async function deleteGroup(name: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/group/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+  });
+  if (!response.ok) {
+    throw new Error(`API error: ${response.status}`);
+  }
+}
+
 export async function checkHealth(): Promise<boolean> {
   try {
     const response = await fetch(`${API_BASE}/health`);
@@ -78,6 +122,65 @@ export async function listDashboardIcons(query?: string): Promise<IconInfo[]> {
 
 export function getDashboardIconUrl(name: string, variant: string = 'svg'): string {
   return `/icons/dashboard/${name}.${variant}`;
+}
+
+// Builtin icons
+export interface BuiltinIconInfo {
+  name: string;
+}
+
+export async function listBuiltinIcons(): Promise<BuiltinIconInfo[]> {
+  return fetchJSON<BuiltinIconInfo[]>('/icons/builtin');
+}
+
+export function getBuiltinIconUrl(name: string): string {
+  return `/icons/builtin/${name}.svg`;
+}
+
+// Custom icons
+export interface CustomIconInfo {
+  name: string;
+  content_type: string;
+  size: number;
+}
+
+export async function listCustomIcons(): Promise<CustomIconInfo[]> {
+  return fetchJSON<CustomIconInfo[]>('/icons/custom');
+}
+
+export function getCustomIconUrl(name: string): string {
+  return `/icons/custom/${name}`;
+}
+
+export async function uploadCustomIcon(file: File, name?: string): Promise<{ name: string; status: string }> {
+  const formData = new FormData();
+  formData.append('icon', file);
+  if (name) {
+    formData.append('name', name);
+  }
+
+  const response = await fetch(`${API_BASE}/icons/custom`, {
+    method: 'POST',
+    body: formData,
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || 'Upload failed');
+  }
+
+  return response.json();
+}
+
+export async function deleteCustomIcon(name: string): Promise<void> {
+  const response = await fetch(`${API_BASE}/icons/custom/${encodeURIComponent(name)}`, {
+    method: 'DELETE',
+  });
+
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(text || 'Delete failed');
+  }
 }
 
 // App health types

@@ -173,6 +173,309 @@ func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(h.config.Groups)
 }
 
+// GetApp returns a single app by name
+func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	for _, app := range h.config.Apps {
+		if app.Name == name {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(sanitizeApp(app))
+			return
+		}
+	}
+
+	http.Error(w, "App not found", http.StatusNotFound)
+}
+
+// CreateApp creates a new app
+func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
+	var clientApp ClientAppConfig
+	if err := json.NewDecoder(r.Body).Decode(&clientApp); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if clientApp.Name == "" {
+		http.Error(w, "App name is required", http.StatusBadRequest)
+		return
+	}
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	// Check if app already exists
+	for _, app := range h.config.Apps {
+		if app.Name == clientApp.Name {
+			http.Error(w, "App already exists", http.StatusConflict)
+			return
+		}
+	}
+
+	// Create new app config
+	newApp := config.AppConfig{
+		Name:     clientApp.Name,
+		URL:      clientApp.URL,
+		Icon:     clientApp.Icon,
+		Color:    clientApp.Color,
+		Group:    clientApp.Group,
+		Order:    len(h.config.Apps), // Add at end
+		Enabled:  clientApp.Enabled,
+		Default:  clientApp.Default,
+		OpenMode: clientApp.OpenMode,
+		Proxy:    clientApp.Proxy,
+		Scale:    clientApp.Scale,
+	}
+
+	h.config.Apps = append(h.config.Apps, newApp)
+
+	// Save config
+	if err := h.config.Save(h.configPath); err != nil {
+		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(sanitizeApp(newApp))
+}
+
+// UpdateApp updates an existing app
+func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name string) {
+	var clientApp ClientAppConfig
+	if err := json.NewDecoder(r.Body).Decode(&clientApp); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	// Find the app
+	idx := -1
+	for i, app := range h.config.Apps {
+		if app.Name == name {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		http.Error(w, "App not found", http.StatusNotFound)
+		return
+	}
+
+	// Preserve sensitive fields
+	existing := h.config.Apps[idx]
+
+	// Update app config
+	h.config.Apps[idx] = config.AppConfig{
+		Name:       clientApp.Name,
+		URL:        clientApp.URL,
+		Icon:       clientApp.Icon,
+		Color:      clientApp.Color,
+		Group:      clientApp.Group,
+		Order:      clientApp.Order,
+		Enabled:    clientApp.Enabled,
+		Default:    clientApp.Default,
+		OpenMode:   clientApp.OpenMode,
+		Proxy:      clientApp.Proxy,
+		Scale:      clientApp.Scale,
+		AuthBypass: existing.AuthBypass,
+		Access:     existing.Access,
+	}
+
+	// Save config
+	if err := h.config.Save(h.configPath); err != nil {
+		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(sanitizeApp(h.config.Apps[idx]))
+}
+
+// DeleteApp removes an app
+func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name string) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	// Find and remove the app
+	idx := -1
+	for i, app := range h.config.Apps {
+		if app.Name == name {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		http.Error(w, "App not found", http.StatusNotFound)
+		return
+	}
+
+	h.config.Apps = append(h.config.Apps[:idx], h.config.Apps[idx+1:]...)
+
+	// Save config
+	if err := h.config.Save(h.configPath); err != nil {
+		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// GetGroup returns a single group by name
+func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name string) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
+	for _, group := range h.config.Groups {
+		if group.Name == name {
+			w.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(w).Encode(group)
+			return
+		}
+	}
+
+	http.Error(w, "Group not found", http.StatusNotFound)
+}
+
+// CreateGroup creates a new group
+func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
+	var group config.GroupConfig
+	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	if group.Name == "" {
+		http.Error(w, "Group name is required", http.StatusBadRequest)
+		return
+	}
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	// Check if group already exists
+	for _, g := range h.config.Groups {
+		if g.Name == group.Name {
+			http.Error(w, "Group already exists", http.StatusConflict)
+			return
+		}
+	}
+
+	group.Order = len(h.config.Groups)
+	h.config.Groups = append(h.config.Groups, group)
+
+	// Save config
+	if err := h.config.Save(h.configPath); err != nil {
+		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(group)
+}
+
+// UpdateGroup updates an existing group
+func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name string) {
+	var group config.GroupConfig
+	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
+		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	// Find the group
+	idx := -1
+	for i, g := range h.config.Groups {
+		if g.Name == name {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		http.Error(w, "Group not found", http.StatusNotFound)
+		return
+	}
+
+	h.config.Groups[idx] = group
+
+	// Save config
+	if err := h.config.Save(h.configPath); err != nil {
+		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(group)
+}
+
+// DeleteGroup removes a group
+func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name string) {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+
+	// Find and remove the group
+	idx := -1
+	for i, g := range h.config.Groups {
+		if g.Name == name {
+			idx = i
+			break
+		}
+	}
+
+	if idx == -1 {
+		http.Error(w, "Group not found", http.StatusNotFound)
+		return
+	}
+
+	h.config.Groups = append(h.config.Groups[:idx], h.config.Groups[idx+1:]...)
+
+	// Optionally: Move apps in this group to "ungrouped"
+	deletedName := name
+	for i, app := range h.config.Apps {
+		if app.Group == deletedName {
+			h.config.Apps[i].Group = ""
+		}
+	}
+
+	// Save config
+	if err := h.config.Save(h.configPath); err != nil {
+		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		return
+	}
+
+	w.WriteHeader(http.StatusNoContent)
+}
+
+// sanitizeApp converts a single app config to client format
+func sanitizeApp(app config.AppConfig) ClientAppConfig {
+	url := app.URL
+	if app.Proxy {
+		url = "/proxy/" + slugify(app.Name) + "/"
+	}
+	return ClientAppConfig{
+		Name:     app.Name,
+		URL:      url,
+		Icon:     app.Icon,
+		Color:    app.Color,
+		Group:    app.Group,
+		Order:    app.Order,
+		Enabled:  app.Enabled,
+		Default:  app.Default,
+		OpenMode: app.OpenMode,
+		Proxy:    app.Proxy,
+		Scale:    app.Scale,
+	}
+}
+
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
 	Name     string              `json:"name"`

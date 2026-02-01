@@ -14,6 +14,8 @@
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { authState, checkAuthStatus, logout, isAuthenticated, currentUser, isAdmin } from './lib/authStore';
   import { isOnboardingComplete } from './lib/onboardingStore';
+  import { initTheme } from './lib/themeStore';
+  import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import type { Config as ConfigType } from './lib/types';
 
   let config: Config | null = null;
@@ -40,6 +42,9 @@
   $: sidebarWidth = 220; // Will be managed by Navigation component
 
   onMount(async () => {
+    // Initialize theme system
+    initTheme();
+
     // First check auth status
     await checkAuthStatus();
     authChecked = true;
@@ -259,8 +264,8 @@
         }
       }
     } else if (event.key === 'f' && !event.ctrlKey && !event.metaKey) {
-      // Toggle fullscreen (could hide nav)
-      // TODO: Implement fullscreen mode
+      // Toggle fullscreen (hide nav)
+      toggleFullscreen();
     } else if (event.key >= '1' && event.key <= '9') {
       // Quick switch to app by number
       const index = parseInt(event.key) - 1;
@@ -306,32 +311,53 @@
 {:else if config}
   <!-- Main layout container - direction changes based on nav position -->
   <div
-    class="h-full bg-gray-900"
-    class:flex={!isFloatingLayout}
-    class:flex-row={isHorizontalLayout && navPosition === 'left'}
-    class:flex-row-reverse={isHorizontalLayout && navPosition === 'right'}
-    class:flex-col={!isHorizontalLayout && navPosition === 'top'}
-    class:flex-col-reverse={!isHorizontalLayout && navPosition === 'bottom'}
+    class="h-full bg-gray-900 dark:bg-gray-900"
+    class:flex={!isFloatingLayout && !$isFullscreen}
+    class:flex-row={isHorizontalLayout && navPosition === 'left' && !$isFullscreen}
+    class:flex-row-reverse={isHorizontalLayout && navPosition === 'right' && !$isFullscreen}
+    class:flex-col={!isHorizontalLayout && navPosition === 'top' && !$isFullscreen}
+    class:flex-col-reverse={!isHorizontalLayout && navPosition === 'bottom' && !$isFullscreen}
   >
-    <!-- Navigation -->
-    <Navigation
-      {apps}
-      {currentApp}
-      {config}
-      on:select={(e) => selectApp(e.detail)}
-      on:search={() => showSearch = true}
-      on:splash={() => showSplash = true}
-      on:settings={() => showSettings = !showSettings}
-    />
+    <!-- Navigation (hidden in fullscreen mode) -->
+    {#if !$isFullscreen}
+      <Navigation
+        {apps}
+        {currentApp}
+        {config}
+        on:select={(e) => selectApp(e.detail)}
+        on:search={() => showSearch = true}
+        on:splash={() => showSplash = true}
+        on:settings={() => showSettings = !showSettings}
+      />
+    {/if}
 
     <!-- Main content area -->
     <main class="flex-1 overflow-hidden relative">
-      {#if showSplash}
+      {#if showSplash && !$isFullscreen}
         <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} />
       {:else if currentApp}
         <AppFrame app={currentApp} />
+      {:else if $isFullscreen}
+        <!-- Show splash content in fullscreen if no app selected -->
+        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} />
       {/if}
     </main>
+
+    <!-- Fullscreen exit button -->
+    {#if $isFullscreen}
+      <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+        <button
+          class="p-2 bg-gray-800/80 hover:bg-gray-700 text-white rounded-lg backdrop-blur-sm
+                 border border-gray-600 shadow-lg transition-all opacity-30 hover:opacity-100"
+          on:click={exitFullscreen}
+          title="Exit fullscreen (F)"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    {/if}
   </div>
 
   <!-- Search modal -->

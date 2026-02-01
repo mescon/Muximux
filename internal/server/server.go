@@ -32,6 +32,7 @@ type Server struct {
 	userStore      *auth.UserStore
 	authMiddleware *auth.Middleware
 	proxyServer    *proxy.Proxy
+	oidcProvider   *auth.OIDCProvider
 }
 
 // New creates a new server instance
@@ -72,6 +73,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 			{Path: "/api/auth/login"},
 			{Path: "/api/auth/logout"},
 			{Path: "/api/auth/status"},
+			{Path: "/api/auth/oidc/*"},
 			// Always allow static assets
 			{Path: "/assets/*"},
 			{Path: "/*.js"},
@@ -99,9 +101,33 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 
 	// Auth endpoints (always accessible)
 	authHandler := handlers.NewAuthHandler(sessionStore, userStore)
+
+	// Set up OIDC provider if configured
+	var oidcProvider *auth.OIDCProvider
+	if cfg.Auth.OIDC.Enabled {
+		oidcConfig := auth.OIDCConfig{
+			Enabled:          cfg.Auth.OIDC.Enabled,
+			IssuerURL:        cfg.Auth.OIDC.IssuerURL,
+			ClientID:         cfg.Auth.OIDC.ClientID,
+			ClientSecret:     cfg.Auth.OIDC.ClientSecret,
+			RedirectURL:      cfg.Auth.OIDC.RedirectURL,
+			Scopes:           cfg.Auth.OIDC.Scopes,
+			UsernameClaim:    cfg.Auth.OIDC.UsernameClaim,
+			EmailClaim:       cfg.Auth.OIDC.EmailClaim,
+			GroupsClaim:      cfg.Auth.OIDC.GroupsClaim,
+			DisplayNameClaim: cfg.Auth.OIDC.DisplayNameClaim,
+			AdminGroups:      cfg.Auth.OIDC.AdminGroups,
+		}
+		oidcProvider = auth.NewOIDCProvider(oidcConfig, sessionStore, userStore)
+		authHandler.SetOIDCProvider(oidcProvider)
+		s.oidcProvider = oidcProvider
+	}
+
 	mux.HandleFunc("/api/auth/login", authHandler.Login)
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
 	mux.HandleFunc("/api/auth/status", authHandler.AuthStatus)
+	mux.HandleFunc("/api/auth/oidc/login", authHandler.OIDCLogin)
+	mux.HandleFunc("/api/auth/oidc/callback", authHandler.OIDCCallback)
 
 	// WebSocket endpoint
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
@@ -123,8 +149,68 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		}
 	})
 
-	mux.HandleFunc("/api/apps", api.GetApps)
-	mux.HandleFunc("/api/groups", api.GetGroups)
+	// Apps collection endpoint
+	mux.HandleFunc("/api/apps", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			api.GetApps(w, r)
+		case http.MethodPost:
+			api.CreateApp(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Groups collection endpoint
+	mux.HandleFunc("/api/groups", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			api.GetGroups(w, r)
+		case http.MethodPost:
+			api.CreateGroup(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Individual app endpoint
+	mux.HandleFunc("/api/app/", func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/app/")
+		if name == "" {
+			http.Error(w, "App name required", http.StatusBadRequest)
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			api.GetApp(w, r, name)
+		case http.MethodPut:
+			api.UpdateApp(w, r, name)
+		case http.MethodDelete:
+			api.DeleteApp(w, r, name)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
+	// Individual group endpoint
+	mux.HandleFunc("/api/group/", func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/api/group/")
+		if name == "" {
+			http.Error(w, "Group name required", http.StatusBadRequest)
+			return
+		}
+		switch r.Method {
+		case http.MethodGet:
+			api.GetGroup(w, r, name)
+		case http.MethodPut:
+			api.UpdateGroup(w, r, name)
+		case http.MethodDelete:
+			api.DeleteGroup(w, r, name)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+
 	mux.HandleFunc("/api/health", api.Health)
 
 	// Health monitoring
@@ -173,6 +259,18 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 
 	mux.HandleFunc("/api/icons/dashboard", iconHandler.ListDashboardIcons)
 	mux.HandleFunc("/api/icons/dashboard/", iconHandler.GetDashboardIcon)
+	mux.HandleFunc("/api/icons/builtin", iconHandler.ListBuiltinIcons)
+	mux.HandleFunc("/api/icons/custom", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			iconHandler.ListCustomIcons(w, r)
+		case http.MethodPost:
+			iconHandler.UploadCustomIcon(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/api/icons/custom/", iconHandler.DeleteCustomIcon)
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
 
 	// Proxy setup

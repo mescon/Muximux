@@ -3,6 +3,7 @@
   import type { App, Config, Group } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
+  import { themeMode, resolvedTheme, setTheme, type ThemeMode } from '$lib/themeStore';
 
   export let config: Config;
   export let apps: App[];
@@ -122,12 +123,12 @@
     }
   }
 
-  function handleIconSelect(event: CustomEvent<{ name: string; variant: string }>) {
-    const { name, variant } = event.detail;
+  function handleIconSelect(event: CustomEvent<{ name: string; variant: string; type: string }>) {
+    const { name, variant, type } = event.detail;
     if (iconBrowserTarget === 'newApp') {
-      newApp.icon = { type: 'dashboard', name, variant, file: '', url: '' };
+      newApp.icon = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
     } else if (iconBrowserTarget === 'editApp' && editingApp) {
-      editingApp.icon = { type: 'dashboard', name, variant, file: '', url: '' };
+      editingApp.icon = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
       editingApp = editingApp; // Trigger reactivity
     }
     showIconBrowser = false;
@@ -466,19 +467,118 @@
       <!-- Theme Settings -->
       {:else if activeTab === 'theme'}
         <div class="space-y-6">
-          <p class="text-gray-400 text-sm">
-            Theme customization will be available in a future update.
-          </p>
+          <!-- Theme Mode Selection -->
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-3">
+              Appearance
+            </label>
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <!-- Dark Mode -->
+              <button
+                class="p-4 rounded-lg border text-left transition-colors group
+                       {$themeMode === 'dark'
+                         ? 'border-brand-500 bg-brand-500/10'
+                         : 'border-gray-600 hover:border-gray-500'}"
+                on:click={() => setTheme('dark')}
+              >
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-lg bg-gray-800 border border-gray-600 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                  </div>
+                  {#if $themeMode === 'dark'}
+                    <span class="w-4 h-4 bg-brand-500 rounded-full flex-shrink-0 ml-auto flex items-center justify-center">
+                      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                    </span>
+                  {/if}
+                </div>
+                <div class="font-medium text-white">Dark</div>
+                <div class="text-xs text-gray-400 mt-1">Always use dark theme</div>
+              </button>
 
-          <!-- Placeholder for theme options -->
-          <div class="grid grid-cols-2 gap-4">
-            <div class="p-4 bg-gray-700/50 rounded-lg">
-              <div class="font-medium text-white mb-2">Dark Mode</div>
-              <div class="text-sm text-gray-400">Currently active</div>
+              <!-- Light Mode -->
+              <button
+                class="p-4 rounded-lg border text-left transition-colors group
+                       {$themeMode === 'light'
+                         ? 'border-brand-500 bg-brand-500/10'
+                         : 'border-gray-600 hover:border-gray-500'}"
+                on:click={() => setTheme('light')}
+              >
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                  </div>
+                  {#if $themeMode === 'light'}
+                    <span class="w-4 h-4 bg-brand-500 rounded-full flex-shrink-0 ml-auto flex items-center justify-center">
+                      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                    </span>
+                  {/if}
+                </div>
+                <div class="font-medium text-white">Light</div>
+                <div class="text-xs text-gray-400 mt-1">Always use light theme</div>
+              </button>
+
+              <!-- System Mode -->
+              <button
+                class="p-4 rounded-lg border text-left transition-colors group
+                       {$themeMode === 'system'
+                         ? 'border-brand-500 bg-brand-500/10'
+                         : 'border-gray-600 hover:border-gray-500'}"
+                on:click={() => setTheme('system')}
+              >
+                <div class="flex items-center gap-3 mb-2">
+                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-800 border border-gray-500 flex items-center justify-center">
+                    <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  {#if $themeMode === 'system'}
+                    <span class="w-4 h-4 bg-brand-500 rounded-full flex-shrink-0 ml-auto flex items-center justify-center">
+                      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                      </svg>
+                    </span>
+                  {/if}
+                </div>
+                <div class="font-medium text-white">System</div>
+                <div class="text-xs text-gray-400 mt-1">Match device settings</div>
+              </button>
             </div>
-            <div class="p-4 bg-gray-700/50 rounded-lg opacity-50">
-              <div class="font-medium text-gray-400 mb-2">Light Mode</div>
-              <div class="text-sm text-gray-500">Coming soon</div>
+          </div>
+
+          <!-- Current Theme Info -->
+          <div class="p-4 bg-gray-700/30 rounded-lg">
+            <div class="flex items-center gap-2 text-sm">
+              <span class="text-gray-400">Currently using:</span>
+              <span class="font-medium text-white capitalize">{$resolvedTheme} theme</span>
+              {#if $themeMode === 'system'}
+                <span class="text-xs text-gray-500">(from system preference)</span>
+              {/if}
+            </div>
+          </div>
+
+          <!-- Brand Color (future feature) -->
+          <div class="opacity-50">
+            <label class="block text-sm font-medium text-gray-400 mb-2">
+              Accent Color
+              <span class="text-xs text-gray-500 ml-2">(Coming soon)</span>
+            </label>
+            <div class="flex gap-2">
+              {#each ['#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#eab308'] as color}
+                <button
+                  class="w-8 h-8 rounded-full border-2 cursor-not-allowed
+                         {color === '#22c55e' ? 'border-white' : 'border-transparent'}"
+                  style="background-color: {color}"
+                  disabled
+                ></button>
+              {/each}
             </div>
           </div>
         </div>
