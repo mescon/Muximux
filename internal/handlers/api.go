@@ -46,15 +46,20 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 	// Return config without sensitive fields
 	clientConfig := struct {
-		Title      string                  `json:"title"`
-		Navigation config.NavigationConfig `json:"navigation"`
-		Groups     []config.GroupConfig    `json:"groups"`
-		Apps       []ClientAppConfig       `json:"apps"`
+		Title       string                   `json:"title"`
+		Navigation  config.NavigationConfig  `json:"navigation"`
+		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
+		Groups      []config.GroupConfig     `json:"groups"`
+		Apps        []ClientAppConfig        `json:"apps"`
 	}{
 		Title:      h.config.Server.Title,
 		Navigation: h.config.Navigation,
 		Groups:     h.config.Groups,
 		Apps:       sanitizeApps(h.config.Apps),
+	}
+	// Only include keybindings if there are custom bindings
+	if len(h.config.Keybindings.Bindings) > 0 {
+		clientConfig.Keybindings = &h.config.Keybindings
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -63,10 +68,11 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 // ClientConfigUpdate represents the configuration update from the frontend
 type ClientConfigUpdate struct {
-	Title      string                  `json:"title"`
-	Navigation config.NavigationConfig `json:"navigation"`
-	Groups     []config.GroupConfig    `json:"groups"`
-	Apps       []ClientAppConfig       `json:"apps"`
+	Title       string                    `json:"title"`
+	Navigation  config.NavigationConfig   `json:"navigation"`
+	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Groups      []config.GroupConfig      `json:"groups"`
+	Apps        []ClientAppConfig         `json:"apps"`
 }
 
 // SaveConfig updates and saves the configuration
@@ -89,6 +95,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	h.config.Server.Title = update.Title
 	h.config.Navigation = update.Navigation
 	h.config.Groups = update.Groups
+	if update.Keybindings != nil {
+		h.config.Keybindings = *update.Keybindings
+	}
 
 	// Convert client apps back to full app configs
 	// Preserve existing sensitive data (auth_bypass, access) for apps that still exist
@@ -146,15 +155,19 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	// Return the updated config
 	clientConfig := struct {
-		Title      string                  `json:"title"`
-		Navigation config.NavigationConfig `json:"navigation"`
-		Groups     []config.GroupConfig    `json:"groups"`
-		Apps       []ClientAppConfig       `json:"apps"`
+		Title       string                    `json:"title"`
+		Navigation  config.NavigationConfig   `json:"navigation"`
+		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
+		Groups      []config.GroupConfig      `json:"groups"`
+		Apps        []ClientAppConfig         `json:"apps"`
 	}{
 		Title:      h.config.Server.Title,
 		Navigation: h.config.Navigation,
 		Groups:     h.config.Groups,
 		Apps:       sanitizeApps(h.config.Apps),
+	}
+	if len(h.config.Keybindings.Bindings) > 0 {
+		clientConfig.Keybindings = &h.config.Keybindings
 	}
 
 	w.Header().Set("Content-Type", "application/json")
