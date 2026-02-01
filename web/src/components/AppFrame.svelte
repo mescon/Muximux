@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { fade } from 'svelte/transition';
   import type { App } from '$lib/types';
   import { slugify } from '$lib/api';
 
@@ -14,7 +15,10 @@
   $: height = scale !== 1 ? `${100 / scale}%` : '100%';
 </script>
 
-<div class="w-full h-full overflow-hidden bg-white">
+<div
+  class="w-full h-full overflow-hidden bg-white"
+  in:fade={{ duration: 150, delay: 50 }}
+>
   <iframe
     src={effectiveUrl}
     title={app.name}

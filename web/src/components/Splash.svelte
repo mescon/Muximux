@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { fade } from 'svelte/transition';
   import type { App, Config } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
@@ -35,7 +36,11 @@
   }
 </script>
 
-<div class="h-full overflow-auto bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8">
+<div
+  class="h-full overflow-auto bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 p-8"
+  in:fade={{ duration: 200, delay: 50 }}
+  out:fade={{ duration: 150 }}
+>
   <div class="max-w-6xl mx-auto">
     <!-- Header -->
     <div class="text-center mb-12">

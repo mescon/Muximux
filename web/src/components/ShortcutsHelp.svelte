@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { fade, scale } from 'svelte/transition';
 
   const dispatch = createEventDispatcher<{
     close: void;
@@ -51,8 +52,13 @@
   role="dialog"
   aria-modal="true"
   aria-label="Keyboard shortcuts"
+  transition:fade={{ duration: 150 }}
 >
-  <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl border border-gray-700 overflow-hidden">
+  <div
+    class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-2xl border border-gray-700 overflow-hidden"
+    in:scale={{ start: 0.95, duration: 200 }}
+    out:fade={{ duration: 100 }}
+  >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700">
       <h2 class="text-lg font-semibold text-white">Keyboard Shortcuts</h2>

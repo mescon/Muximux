@@ -8,8 +8,11 @@
   import ShortcutsHelp from './components/ShortcutsHelp.svelte';
   import Login from './components/Login.svelte';
   import OnboardingWizard from './components/OnboardingWizard.svelte';
+  import ToastContainer from './components/ToastContainer.svelte';
+  import ErrorState from './components/ErrorState.svelte';
   import type { App, Config, NavigationConfig, Group } from './lib/types';
   import { fetchConfig, saveConfig } from './lib/api';
+  import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { authState, checkAuthStatus, logout, isAuthenticated, currentUser, isAdmin } from './lib/authStore';
@@ -192,9 +195,10 @@
 
       // Hide onboarding
       showOnboarding = false;
+      toasts.success('Dashboard setup complete!');
     } catch (e) {
       console.error('Failed to save onboarding config:', e);
-      alert('Failed to save configuration. See console for details.');
+      toasts.error('Failed to save configuration');
     }
   }
 
@@ -219,9 +223,10 @@
         currentApp = null;
         showSplash = true;
       }
+      toasts.success('Settings saved successfully');
     } catch (e) {
       console.error('Failed to save config:', e);
-      alert('Failed to save configuration. See console for details.');
+      toasts.error('Failed to save configuration');
     }
   }
 
@@ -301,12 +306,12 @@
   <Login on:success={handleLoginSuccess} />
 {:else if error}
   <div class="flex items-center justify-center h-full bg-gray-900">
-    <div class="text-center text-red-400">
-      <svg class="w-12 h-12 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-      </svg>
-      <p>{error}</p>
-    </div>
+    <ErrorState
+      title="Failed to load dashboard"
+      message={error}
+      icon="network"
+      on:retry={() => window.location.reload()}
+    />
   </div>
 {:else if config}
   <!-- Main layout container - direction changes based on nav position -->
@@ -384,3 +389,6 @@
     <ShortcutsHelp on:close={() => showShortcuts = false} />
   {/if}
 {/if}
+
+<!-- Toast notifications (always rendered) -->
+<ToastContainer />

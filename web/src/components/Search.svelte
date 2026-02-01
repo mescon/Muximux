@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
   import type { App } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
 
@@ -157,12 +158,15 @@
   role="dialog"
   aria-modal="true"
   aria-label="Search apps"
+  transition:fade={{ duration: 150 }}
 >
   <!-- Search modal -->
   <div
     class="w-full max-w-xl bg-gray-800 rounded-xl shadow-2xl border border-gray-700 overflow-hidden"
     on:click|stopPropagation
     role="presentation"
+    in:fly={{ y: -20, duration: 200 }}
+    out:fade={{ duration: 100 }}
   >
     <!-- Search input -->
     <div class="p-4 border-b border-gray-700">

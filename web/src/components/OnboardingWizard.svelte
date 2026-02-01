@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
+  import { fly, fade } from 'svelte/transition';
   import type { App, Group, NavigationConfig } from '$lib/types';
   import {
     currentStep,
@@ -213,7 +214,7 @@
     <div class="max-w-4xl mx-auto">
       <!-- Step 1: Welcome -->
       {#if $currentStep === 'welcome'}
-        <div class="text-center py-12">
+        <div class="text-center py-12" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <!-- Logo -->
           <div class="mb-8">
             <svg class="w-48 h-auto mx-auto text-brand-500" viewBox="0 0 341 207" fill="currentColor">
@@ -274,7 +275,7 @@
 
       <!-- Step 2: Add Apps -->
       {:else if $currentStep === 'apps'}
-        <div class="py-6">
+        <div class="py-6" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-white mb-2">Add Your Applications</h2>
             <p class="text-gray-400">Select the apps you use and customize their URLs</p>
@@ -462,7 +463,7 @@
 
       <!-- Step 3: Navigation Style -->
       {:else if $currentStep === 'navigation'}
-        <div class="py-6">
+        <div class="py-6" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-white mb-2">Choose Your Navigation Style</h2>
             <p class="text-gray-400">Select how you want to navigate between your apps</p>
@@ -535,7 +536,7 @@
 
       <!-- Step 4: Groups -->
       {:else if $currentStep === 'groups'}
-        <div class="py-6">
+        <div class="py-6" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
             <h2 class="text-2xl font-bold text-white mb-2">Organize with Groups</h2>
             <p class="text-gray-400">Based on your selections, we suggest these groups</p>
@@ -570,7 +571,7 @@
 
       <!-- Step 5: Complete -->
       {:else if $currentStep === 'complete'}
-        <div class="text-center py-12">
+        <div class="text-center py-12" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-brand-500/20 flex items-center justify-center">
             <svg class="w-10 h-10 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />

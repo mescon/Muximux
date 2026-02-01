@@ -13,6 +13,8 @@
     type BuiltinIconInfo,
     type CustomIconInfo
   } from '$lib/api';
+  import SkeletonIconGrid from './SkeletonIconGrid.svelte';
+  import ErrorState from './ErrorState.svelte';
 
   export let selectedIcon: string = '';
   export let selectedVariant: string = 'svg';
@@ -257,29 +259,23 @@
   <!-- Icon grid -->
   <div class="flex-1 overflow-y-auto p-3">
     {#if loading}
-      <div class="flex items-center justify-center py-8">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-500"></div>
-      </div>
+      <SkeletonIconGrid count={40} />
     {:else if error}
-      <div class="text-center py-8 text-red-400">
-        <p>{error}</p>
-        <button
-          class="mt-2 text-sm text-brand-400 hover:text-brand-300"
-          on:click={loadAllIcons}
-        >
-          Retry
-        </button>
-      </div>
+      <ErrorState
+        title="Failed to load icons"
+        message={error}
+        icon="network"
+        compact
+        on:retry={loadAllIcons}
+      />
     {:else if currentIcons.length === 0}
-      <div class="text-center py-8 text-gray-400">
-        {#if searchQuery}
-          No icons found matching "{searchQuery}"
-        {:else if activeTab === 'custom'}
-          No custom icons uploaded yet
-        {:else}
-          No icons available
-        {/if}
-      </div>
+      <ErrorState
+        title={searchQuery ? 'No matches found' : activeTab === 'custom' ? 'No custom icons' : 'No icons available'}
+        message={searchQuery ? `No icons found matching "${searchQuery}"` : activeTab === 'custom' ? 'Upload your own icons to use them here' : ''}
+        icon="empty"
+        showRetry={false}
+        compact
+      />
     {:else}
       <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
         {#each currentIcons as icon}

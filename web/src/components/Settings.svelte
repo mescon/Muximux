@@ -1,5 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
   import type { App, Config, Group } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
@@ -155,8 +156,15 @@
   ];
 </script>
 
-<div class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
-  <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700 flex flex-col">
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+  transition:fade={{ duration: 150 }}
+>
+  <div
+    class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden border border-gray-700 flex flex-col"
+    in:fly={{ y: 20, duration: 200 }}
+    out:fade={{ duration: 100 }}
+  >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-gray-700 flex-shrink-0">
       <h2 class="text-lg font-semibold text-white">Settings</h2>
@@ -589,8 +597,15 @@
 
 <!-- Add App Modal -->
 {#if showAddApp}
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg border border-gray-700">
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg border border-gray-700"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
         <h3 class="text-lg font-semibold text-white">Add Application</h3>
         <button
@@ -688,8 +703,15 @@
 
 <!-- Add Group Modal -->
 {#if showAddGroup}
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
         <h3 class="text-lg font-semibold text-white">Add Group</h3>
         <button
@@ -750,8 +772,15 @@
 
 <!-- Edit App Modal -->
 {#if editingApp}
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg border border-gray-700">
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg border border-gray-700"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
         <h3 class="text-lg font-semibold text-white">Edit {editingApp.name}</h3>
         <button
@@ -897,8 +926,15 @@
 
 <!-- Edit Group Modal -->
 {#if editingGroup}
-  <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-700">
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md border border-gray-700"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
         <h3 class="text-lg font-semibold text-white">Edit {editingGroup.name}</h3>
         <button
@@ -951,8 +987,15 @@
 
 <!-- Icon Browser Modal -->
 {#if showIconBrowser}
-  <div class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4">
-    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl border border-gray-700">
+  <div
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-3xl border border-gray-700"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
         <h3 class="text-lg font-semibold text-white">Select Icon</h3>
         <button
