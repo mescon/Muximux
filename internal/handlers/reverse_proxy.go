@@ -111,13 +111,13 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 	})
 
 	// CSS url() with root paths
-	rootPathUrlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*)`)
+	rootPathUrlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
 	result = rootPathUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
 		if strings.Contains(match, "/proxy/") {
 			return match
 		}
-		// Find the last /
-		idx := strings.LastIndex(match, "/")
+		// Find the first / after url(
+		idx := strings.Index(match, "/")
 		if idx == -1 {
 			return match
 		}
