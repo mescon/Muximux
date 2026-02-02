@@ -232,9 +232,14 @@ func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
 				}
 
 				// Join target path with remaining request path
+				// Exception: /api paths typically live at root, not under the target path
+				// This handles apps like Pi-hole where UI is at /admin but API is at /api
 				trimmedTargetPath := strings.TrimSuffix(capturedTargetPath, "/")
 				if trimmedTargetPath != "" && trimmedTargetPath != "/" {
-					if strings.HasPrefix(reqPath, "/") {
+					// Check if this is an API path that should bypass the target path
+					if strings.HasPrefix(reqPath, "/api/") || reqPath == "/api" {
+						req.URL.Path = reqPath
+					} else if strings.HasPrefix(reqPath, "/") {
 						req.URL.Path = trimmedTargetPath + reqPath
 					} else {
 						req.URL.Path = trimmedTargetPath + "/" + reqPath
