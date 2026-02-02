@@ -86,14 +86,51 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 		result = jsPattern.ReplaceAllString(result, "${1}"+r.proxyPrefix+"${2}${3}")
 	}
 
-	// 3. Rewrite root-relative paths (/) that don't start with /proxy/
+	// 3. Handle srcset attribute FIRST (contains multiple paths separated by commas)
+	// srcset="/sm.jpg 1x, /lg.jpg 2x" -> srcset="/proxy/app/sm.jpg 1x, /proxy/app/lg.jpg 2x"
+	srcsetPattern := regexp.MustCompile(`(srcset\s*=\s*["'])([^"']+)(["'])`)
+	result = srcsetPattern.ReplaceAllStringFunc(result, func(match string) string {
+		// Find quote positions
+		quoteStart := strings.IndexAny(match, `"'`)
+		if quoteStart == -1 {
+			return match
+		}
+		quoteChar := match[quoteStart]
+		quoteEnd := strings.LastIndex(match, string(quoteChar))
+		if quoteEnd <= quoteStart {
+			return match
+		}
+
+		srcsetValue := match[quoteStart+1 : quoteEnd]
+		// Split by comma, rewrite each path while preserving spacing
+		parts := strings.Split(srcsetValue, ",")
+		for i, part := range parts {
+			trimmed := strings.TrimSpace(part)
+			if strings.HasPrefix(trimmed, "/") && !strings.HasPrefix(trimmed, "/proxy/") {
+				// Preserve leading whitespace
+				leadingSpace := ""
+				if len(part) > 0 && part[0] == ' ' {
+					leadingSpace = " "
+				}
+				parts[i] = leadingSpace + r.proxyPrefix + trimmed
+			}
+		}
+		return match[:quoteStart+1] + strings.Join(parts, ",") + match[quoteEnd:]
+	})
+
+	// 4. Rewrite root-relative paths (/) that don't start with /proxy/
 	// This catches ALL paths like /api, /static, /Content, etc.
 	// IMPORTANT: This must run for ALL apps, including those without a subpath
 	// For any attribute value that starts with / but not /proxy/
+	// Skip srcset as it's handled above
 	rootPathAttrPattern := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
 	result = rootPathAttrPattern.ReplaceAllStringFunc(result, func(match string) string {
 		// Skip if already rewritten
 		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		// Skip srcset (handled separately)
+		if strings.HasPrefix(strings.ToLower(match), "srcset") {
 			return match
 		}
 		// Find the quote and the path start
@@ -177,6 +214,67 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 			return match
 		}
 		return match[:firstQuote+1] + r.proxyPrefix + match[firstQuote+1:]
+	})
+
+	// 7. Rewrite JSON arrays of paths: ["/path1", "/path2"]
+	jsonArrayPathPattern := regexp.MustCompile(`(\[|,)\s*"(/[^"]+)"`)
+	result = jsonArrayPathPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		// Find the path start
+		idx := strings.Index(match, `"/`)
+		if idx == -1 {
+			return match
+		}
+		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+	})
+
+	// 8. CSS @import statements
+	// @import "/styles.css" or @import '/styles.css'
+	cssImportPattern := regexp.MustCompile(`(@import\s+["'])(/[^"']+)(["'])`)
+	result = cssImportPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		idx := strings.Index(match, `"/`)
+		if idx == -1 {
+			idx = strings.Index(match, `'/`)
+		}
+		if idx == -1 {
+			return match
+		}
+		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+	})
+
+	// @import url("/styles.css") or @import url('/styles.css')
+	cssImportUrlPattern := regexp.MustCompile(`(@import\s+url\s*\(\s*["']?)(/[^"')]+)(["']?\s*\))`)
+	result = cssImportUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		idx := strings.Index(match, `(/`)
+		if idx == -1 {
+			return match
+		}
+		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+	})
+
+	// 9. SVG use/image href attributes
+	svgHrefPattern := regexp.MustCompile(`(<(?:use|image)[^>]*(?:href|xlink:href)\s*=\s*["'])(/[^"'#]+)(#[^"']*)?(['"])`)
+	result = svgHrefPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		// Find the path (starts with /)
+		idx := strings.Index(match, `"/`)
+		if idx == -1 {
+			idx = strings.Index(match, `'/`)
+		}
+		if idx == -1 {
+			return match
+		}
+		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
 	})
 
 	return []byte(result)
@@ -331,6 +429,25 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 			for _, cookie := range cookies {
 				rewritten := rewriter.rewriteCookiePath(cookie)
 				resp.Header.Add("Set-Cookie", rewritten)
+			}
+		}
+
+		// Rewrite Link headers (for preload, prefetch, etc.)
+		// Link: </style.css>; rel=preload -> Link: </proxy/app/style.css>; rel=preload
+		linkHeaders := resp.Header.Values("Link")
+		if len(linkHeaders) > 0 {
+			resp.Header.Del("Link")
+			linkPathPattern := regexp.MustCompile(`<(/[^>]+)>`)
+			for _, link := range linkHeaders {
+				rewritten := linkPathPattern.ReplaceAllStringFunc(link, func(match string) string {
+					if strings.Contains(match, "/proxy/") {
+						return match
+					}
+					// Extract path between < and >
+					path := match[1 : len(match)-1]
+					return "<" + proxyPrefix + path + ">"
+				})
+				resp.Header.Add("Link", rewritten)
 			}
 		}
 
