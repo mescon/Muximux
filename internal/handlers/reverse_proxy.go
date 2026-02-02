@@ -86,45 +86,43 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 		result = jsPattern.ReplaceAllString(result, "${1}"+r.proxyPrefix+"${2}${3}")
 	}
 
-	// 3. Rewrite root-relative paths (/) that don't start with target path or /proxy/
-	// This catches ALL paths like /api, /static, etc.
-	if r.targetPath != "" {
-		// For any attribute value that starts with / but not /proxy/
-		// Match any attribute with a path value starting with /
-		rootPathAttrPattern := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
-		result = rootPathAttrPattern.ReplaceAllStringFunc(result, func(match string) string {
-			// Skip if already rewritten
-			if strings.Contains(match, "/proxy/") {
-				return match
-			}
-			// Find the quote and the path start
-			quoteIdx := strings.LastIndex(match, `"`)
-			if quoteIdx == -1 {
-				quoteIdx = strings.LastIndex(match, `'`)
-			}
-			if quoteIdx == -1 {
-				return match
-			}
-			// Extract parts
-			prefix := match[:quoteIdx+1] // Including the opening quote
-			path := match[quoteIdx+1:]   // The /path part
-			return prefix + r.proxyPrefix + path
-		})
+	// 3. Rewrite root-relative paths (/) that don't start with /proxy/
+	// This catches ALL paths like /api, /static, /Content, etc.
+	// IMPORTANT: This must run for ALL apps, including those without a subpath
+	// For any attribute value that starts with / but not /proxy/
+	rootPathAttrPattern := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
+	result = rootPathAttrPattern.ReplaceAllStringFunc(result, func(match string) string {
+		// Skip if already rewritten
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		// Find the quote and the path start
+		quoteIdx := strings.LastIndex(match, `"`)
+		if quoteIdx == -1 {
+			quoteIdx = strings.LastIndex(match, `'`)
+		}
+		if quoteIdx == -1 {
+			return match
+		}
+		// Extract parts
+		prefix := match[:quoteIdx+1] // Including the opening quote
+		path := match[quoteIdx+1:]   // The /path part
+		return prefix + r.proxyPrefix + path
+	})
 
-		// CSS url() with root paths
-		rootPathUrlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*)`)
-		result = rootPathUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
-			if strings.Contains(match, "/proxy/") {
-				return match
-			}
-			// Find the last /
-			idx := strings.LastIndex(match, "/")
-			if idx == -1 {
-				return match
-			}
-			return match[:idx] + r.proxyPrefix + match[idx:]
-		})
-	}
+	// CSS url() with root paths
+	rootPathUrlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*)`)
+	result = rootPathUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		// Find the last /
+		idx := strings.LastIndex(match, "/")
+		if idx == -1 {
+			return match
+		}
+		return match[:idx] + r.proxyPrefix + match[idx:]
+	})
 
 	// 4. Rewrite <base href="..."> tag
 	basePattern := regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
