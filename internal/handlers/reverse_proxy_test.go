@@ -116,6 +116,46 @@ func TestContentRewriter(t *testing.T) {
 			input:       `<link rel="icon" href="/Content/Images/Icons/favicon.png">`,
 			expected:    `<link rel="icon" href="/proxy/sonarr/Content/Images/Icons/favicon.png">`,
 		},
+		{
+			name:        "rewrite JSON urlBase empty string",
+			proxyPrefix: "/proxy/sonarr",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `{"urlBase": "", "version": "1.0"}`,
+			expected:    `{"urlBase": "/proxy/sonarr", "version": "1.0"}`,
+		},
+		{
+			name:        "rewrite JSON apiRoot path",
+			proxyPrefix: "/proxy/sonarr",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `{"apiRoot": "/api/v3", "urlBase": ""}`,
+			expected:    `{"apiRoot": "/proxy/sonarr/api/v3", "urlBase": "/proxy/sonarr"}`,
+		},
+		{
+			name:        "rewrite JSON generic path keys",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `{"redirectUrl": "/login", "assetsPath": "/static/assets"}`,
+			expected:    `{"redirectUrl": "/proxy/app/login", "assetsPath": "/proxy/app/static/assets"}`,
+		},
+		{
+			name:        "don't double-rewrite JSON paths",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `{"apiRoot": "/proxy/app/api"}`,
+			expected:    `{"apiRoot": "/proxy/app/api"}`,
+		},
+		{
+			name:        "rewrite JS urlBase assignment",
+			proxyPrefix: "/proxy/sonarr",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `window.Sonarr = { urlBase: '' };`,
+			expected:    `window.Sonarr = { urlBase: "/proxy/sonarr" };`,
+		},
 	}
 
 	for _, tt := range tests {

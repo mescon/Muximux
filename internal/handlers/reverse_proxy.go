@@ -157,6 +157,28 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 		return match[:quoteStart+1] + href + match[quoteEnd:]
 	})
 
+	// 5. Rewrite JavaScript/JSON base path patterns (for SPAs like Sonarr/Radarr)
+	// Handle empty strings: urlBase: '' or "urlBase": ""
+	// Match common base path variable names with empty values
+	urlBaseEmptyPattern := regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
+	result = urlBaseEmptyPattern.ReplaceAllString(result, `${1}${2}${3}: "`+r.proxyPrefix+`"`)
+
+	// 6. Rewrite JSON paths generically - any "key": "/path" where path doesn't start with /proxy/
+	// This handles apiRoot, basePath, redirectUrl, etc. without hardcoding names
+	jsonPathPattern := regexp.MustCompile(`("[\w]+"\s*:\s*")(/[^"/][^"]*)(")`)
+	result = jsonPathPattern.ReplaceAllStringFunc(result, func(match string) string {
+		// Skip if already has proxy prefix
+		if strings.Contains(match, "/proxy/") {
+			return match
+		}
+		// Find the path part (between the second " and third ")
+		firstQuote := strings.Index(match, `"/`)
+		if firstQuote == -1 {
+			return match
+		}
+		return match[:firstQuote+1] + r.proxyPrefix + match[firstQuote+1:]
+	})
+
 	return []byte(result)
 }
 
