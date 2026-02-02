@@ -2,13 +2,12 @@
   import { fade } from 'svelte/transition';
   import { onMount } from 'svelte';
   import type { App } from '$lib/types';
-  import { slugify } from '$lib/api';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
 
   export let app: App;
 
-  // Compute the effective URL - use proxy if enabled
-  $: effectiveUrl = app.proxy ? `/proxy/${slugify(app.name)}/` : app.url;
+  // Use proxyUrl if available (proxy enabled), otherwise use the original url
+  $: effectiveUrl = app.proxyUrl || app.url;
 
   $: scale = app.scale || 1;
   $: transform = scale !== 1 ? `scale(${scale})` : '';

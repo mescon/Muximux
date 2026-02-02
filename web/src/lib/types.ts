@@ -1,6 +1,7 @@
 export interface App {
   name: string;
   url: string;
+  proxyUrl?: string;  // Proxy path for iframe loading (when proxy enabled)
   health_url?: string;
   icon: AppIcon;
   color: string;

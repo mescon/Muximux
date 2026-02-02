@@ -470,13 +470,14 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 // sanitizeApp converts a single app config to client format
 func sanitizeApp(app config.AppConfig) ClientAppConfig {
-	url := app.URL
+	var proxyURL string
 	if app.Proxy {
-		url = "/proxy/" + slugify(app.Name) + "/"
+		proxyURL = "/proxy/" + slugify(app.Name) + "/"
 	}
 	return ClientAppConfig{
 		Name:     app.Name,
-		URL:      url,
+		URL:      app.URL,
+		ProxyURL: proxyURL,
 		Icon:     app.Icon,
 		Color:    app.Color,
 		Group:    app.Group,
@@ -491,17 +492,18 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name     string              `json:"name"`
-	URL      string              `json:"url"`
+	Name     string               `json:"name"`
+	URL      string               `json:"url"`                // Original target URL (for editing/config)
+	ProxyURL string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
 	Icon     config.AppIconConfig `json:"icon"`
-	Color    string              `json:"color"`
-	Group    string              `json:"group"`
-	Order    int                 `json:"order"`
-	Enabled  bool                `json:"enabled"`
-	Default  bool                `json:"default"`
-	OpenMode string              `json:"open_mode"`
-	Proxy    bool                `json:"proxy"`
-	Scale    float64             `json:"scale"`
+	Color    string               `json:"color"`
+	Group    string               `json:"group"`
+	Order    int                  `json:"order"`
+	Enabled  bool                 `json:"enabled"`
+	Default  bool                 `json:"default"`
+	OpenMode string               `json:"open_mode"`
+	Proxy    bool                 `json:"proxy"`
+	Scale    float64              `json:"scale"`
 }
 
 // sanitizeApps removes sensitive fields from app configs
@@ -512,16 +514,17 @@ func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
 			continue
 		}
 
-		// Determine the URL to send to client
-		url := app.URL
+		// URL is always the original target URL
+		// ProxyURL is set when proxy is enabled (for iframe loading)
+		var proxyURL string
 		if app.Proxy {
-			// If proxied, use the proxy path instead of direct URL
-			url = "/proxy/" + slugify(app.Name) + "/"
+			proxyURL = "/proxy/" + slugify(app.Name) + "/"
 		}
 
 		result = append(result, ClientAppConfig{
 			Name:     app.Name,
-			URL:      url,
+			URL:      app.URL,
+			ProxyURL: proxyURL,
 			Icon:     app.Icon,
 			Color:    app.Color,
 			Group:    app.Group,

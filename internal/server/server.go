@@ -273,7 +273,14 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	mux.HandleFunc("/api/icons/custom/", iconHandler.DeleteCustomIcon)
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
 
-	// Proxy setup
+	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
+	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps)
+	if reverseProxyHandler.HasRoutes() {
+		mux.Handle("/proxy/", reverseProxyHandler)
+		fmt.Printf("Integrated reverse proxy enabled for: %v\n", reverseProxyHandler.GetRoutes())
+	}
+
+	// Caddy proxy setup (for HTTPS/TLS scenarios on separate port)
 	if cfg.Proxy.Enabled {
 		proxyConfig := proxy.Config{
 			Enabled:   cfg.Proxy.Enabled,
@@ -315,16 +322,19 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 
 	// Serve embedded frontend files
 	distFS, err := fs.Sub(embeddedFiles, "dist")
-	var fileServer http.Handler
+	var staticHandler http.Handler
 	if err != nil {
 		// Fallback to serving from web/dist during development
-		fileServer = http.FileServer(http.Dir("web/dist"))
+		fileServer := http.FileServer(http.Dir("web/dist"))
+		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
+		// Debug: also register file server directly to test
+		fmt.Println("DEBUG: Using development file server from web/dist")
 	} else {
-		fileServer = http.FileServer(http.FS(distFS))
+		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html")
 	}
 
-	// Wrap static file serving with SPA fallback
-	mux.Handle("/", spaHandler(fileServer, "index.html"))
+	// Serve static files with SPA fallback
+	mux.Handle("/", staticHandler)
 
 	// Create the final handler with auth middleware wrapping where needed
 	var handler http.Handler = mux
@@ -390,15 +400,44 @@ func (s *Server) Stop() error {
 	return s.httpServer.Shutdown(ctx)
 }
 
-// spaHandler wraps a file server to serve index.html for SPA routes
-func spaHandler(fileServer http.Handler, indexPath string) http.Handler {
+// spaHandlerDev wraps a file server for development (filesystem-based)
+func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Try to serve the file
+		path := r.URL.Path
+		fmt.Printf("DEBUG spaHandlerDev: path=%s\n", path)
+
+		// For root or paths without extension (likely SPA routes), serve index.html directly
+		// We use http.ServeFile instead of FileServer to avoid redirect loops
+		// Exclude /api/, /ws, /proxy/, and /icons/ paths
+		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, "/proxy/") && !strings.HasPrefix(path, "/icons/")) {
+			fmt.Printf("DEBUG: serving index.html for path=%s\n", path)
+			http.ServeFile(w, r, distDir+"/"+indexPath)
+			return
+		}
+
+		fmt.Printf("DEBUG: passing to fileServer for path=%s\n", path)
+		fileServer.ServeHTTP(w, r)
+	})
+}
+
+// spaHandlerEmbed wraps a file server for embedded files
+func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, indexPath string) http.Handler {
+	// Pre-read the index.html content for SPA routes
+	indexContent, err := fs.ReadFile(fsys, indexPath)
+	if err != nil {
+		// Fallback to letting fileServer handle it
+		return fileServer
+	}
+
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
 
-		// For root or paths without extension (likely SPA routes), serve index.html
-		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws")) {
-			r.URL.Path = "/" + indexPath
+		// For root or paths without extension (likely SPA routes), serve index.html directly
+		// Exclude /api/, /ws, /proxy/, and /icons/ paths
+		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, "/proxy/") && !strings.HasPrefix(path, "/icons/")) {
+			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+			w.Write(indexContent)
+			return
 		}
 
 		fileServer.ServeHTTP(w, r)
