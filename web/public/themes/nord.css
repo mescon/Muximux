@@ -1,0 +1,111 @@
+/**
+ * Nord Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * An arctic, north-bluish color palette inspired by the beauty of the north.
+ * Based on the Nord color scheme: https://www.nordtheme.com/
+ *
+ * This is an example custom theme. To create your own:
+ * 1. Copy this file to /themes/your-theme-name.css
+ * 2. Modify the CSS custom properties below
+ * 3. The theme will be auto-detected and available in Settings
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: nord
+ * @theme-name: Nord
+ * @theme-description: Arctic, north-bluish color palette
+ * @theme-is-dark: true
+ * @theme-preview-bg: #2e3440
+ * @theme-preview-surface: #3b4252
+ * @theme-preview-accent: #88c0d0
+ * @theme-preview-text: #eceff4
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="nord"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     NORD PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Polar Night (dark backgrounds):
+       #2e3440 - nord0 (darkest)
+       #3b4252 - nord1
+       #434c5e - nord2
+       #4c566a - nord3 (lightest dark)
+
+     Snow Storm (light text/surfaces):
+       #d8dee9 - nord4
+       #e5e9f0 - nord5
+       #eceff4 - nord6 (brightest)
+
+     Frost (accent blues):
+       #8fbcbb - nord7 (teal)
+       #88c0d0 - nord8 (light blue - primary accent)
+       #81a1c1 - nord9 (blue)
+       #5e81ac - nord10 (darker blue)
+
+     Aurora (semantic colors):
+       #bf616a - nord11 (red/error)
+       #d08770 - nord12 (orange/warning)
+       #ebcb8b - nord13 (yellow)
+       #a3be8c - nord14 (green/success)
+       #b48ead - nord15 (purple)
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds - layered using Polar Night */
+  --bg-base: #2e3440;
+  --bg-surface: #3b4252;
+  --bg-elevated: #434c5e;
+  --bg-overlay: #4c566a;
+  --bg-hover: #434c5e;
+  --bg-active: #4c566a;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(59, 66, 82, 0.85);
+  --glass-border: rgba(236, 239, 244, 0.1);
+  --glass-highlight: rgba(236, 239, 244, 0.05);
+
+  /* Text hierarchy - using Snow Storm */
+  --text-primary: #eceff4;
+  --text-secondary: #d8dee9;
+  --text-muted: #81a1c1;
+  --text-disabled: #616e88;
+
+  /* Borders */
+  --border-subtle: rgba(236, 239, 244, 0.06);
+  --border-default: rgba(236, 239, 244, 0.1);
+  --border-strong: rgba(236, 239, 244, 0.15);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Frost palette */
+  --accent-primary: #88c0d0;
+  --accent-secondary: #81a1c1;
+  --accent-muted: rgba(136, 192, 208, 0.25);
+  --accent-subtle: rgba(136, 192, 208, 0.12);
+
+  /* Brand palette - derived from Frost */
+  --color-brand-50: #f0f7f9;
+  --color-brand-100: #d8eef4;
+  --color-brand-200: #b4dde9;
+  --color-brand-300: #88c0d0;
+  --color-brand-400: #81a1c1;
+  --color-brand-500: #5e81ac;
+  --color-brand-600: #4c6a8a;
+  --color-brand-700: #3b5268;
+  --color-brand-800: #2e3f50;
+  --color-brand-900: #2e3440;
+  --color-brand-950: #242933;
+
+  /* Status colors - using Aurora palette */
+  --status-success: #a3be8c;
+  --status-warning: #ebcb8b;
+  --status-error: #bf616a;
+  --status-info: #81a1c1;
+
+  /* Shadows - adjusted for Nord's softer aesthetic */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.25), 0 2px 4px -1px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.25), 0 4px 6px -2px rgba(0, 0, 0, 0.15);
+  --shadow-glow: 0 0 20px rgba(136, 192, 208, 0.2);
+}

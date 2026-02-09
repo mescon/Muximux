@@ -76,6 +76,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 			{Path: "/api/auth/oidc/*"},
 			// Always allow static assets
 			{Path: "/assets/*"},
+			{Path: "/themes/*"},
 			{Path: "/*.js"},
 			{Path: "/*.css"},
 			{Path: "/*.ico"},
@@ -252,6 +253,22 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		})
 	}
 
+	// Theme routes (custom theme CRUD API)
+	themeHandler := handlers.NewThemeHandler("data/themes")
+	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
+		switch r.Method {
+		case http.MethodGet:
+			themeHandler.ListThemes(w, r)
+		case http.MethodPost:
+			themeHandler.SaveTheme(w, r)
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	})
+	mux.HandleFunc("/api/themes/", themeHandler.DeleteTheme)
+	// Serve custom theme CSS files from data/themes/
+	mux.Handle("/themes/", http.StripPrefix("/themes/", http.FileServer(http.Dir("data/themes"))))
+
 	// Icon routes
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
 	dashboardClient := icons.NewDashboardIconsClient(cfg.Icons.DashboardIcons.CacheDir, cacheTTL)
@@ -282,13 +299,21 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 
 	// Caddy proxy setup (for HTTPS/TLS scenarios on separate port)
 	if cfg.Proxy.Enabled {
+		// Derive the upstream address for Caddy to forward to the main server.
+		// cfg.Server.Listen is e.g. ":8080" — Caddy needs "localhost:8080".
+		upstreamAddr := cfg.Server.Listen
+		if strings.HasPrefix(upstreamAddr, ":") {
+			upstreamAddr = "localhost" + upstreamAddr
+		}
+
 		proxyConfig := proxy.Config{
-			Enabled:   cfg.Proxy.Enabled,
-			Listen:    cfg.Proxy.Listen,
-			AutoHTTPS: cfg.Proxy.AutoHTTPS,
-			ACMEEmail: cfg.Proxy.ACMEEmail,
-			TLSCert:   cfg.Proxy.TLSCert,
-			TLSKey:    cfg.Proxy.TLSKey,
+			Enabled:      cfg.Proxy.Enabled,
+			Listen:       cfg.Proxy.Listen,
+			UpstreamAddr: upstreamAddr,
+			AutoHTTPS:    cfg.Proxy.AutoHTTPS,
+			ACMEEmail:    cfg.Proxy.ACMEEmail,
+			TLSCert:      cfg.Proxy.TLSCert,
+			TLSKey:       cfg.Proxy.TLSKey,
 		}
 		s.proxyServer = proxy.New(proxyConfig)
 

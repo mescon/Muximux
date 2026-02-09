@@ -1,0 +1,109 @@
+/**
+ * Catppuccin Mocha Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * A soothing pastel theme for the high-spirited!
+ * Based on Catppuccin Mocha: https://catppuccin.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: catppuccin
+ * @theme-name: Catppuccin
+ * @theme-description: Soothing pastel theme (Mocha variant)
+ * @theme-is-dark: true
+ * @theme-preview-bg: #1e1e2e
+ * @theme-preview-surface: #313244
+ * @theme-preview-accent: #cba6f7
+ * @theme-preview-text: #cdd6f4
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="catppuccin"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     CATPPUCCIN MOCHA PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Base colors:
+       #1e1e2e - Base (darkest background)
+       #181825 - Mantle
+       #11111b - Crust (deepest)
+       #313244 - Surface0
+       #45475a - Surface1
+       #585b70 - Surface2
+
+     Text colors:
+       #cdd6f4 - Text
+       #bac2de - Subtext1
+       #a6adc8 - Subtext0
+       #6c7086 - Overlay0
+
+     Accent colors:
+       #f5c2e7 - Pink
+       #cba6f7 - Mauve (primary accent)
+       #f38ba8 - Red
+       #fab387 - Peach
+       #f9e2af - Yellow
+       #a6e3a1 - Green
+       #94e2d5 - Teal
+       #89dceb - Sky
+       #74c7ec - Sapphire
+       #89b4fa - Blue
+       #b4befe - Lavender
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds - layered using Base colors */
+  --bg-base: #1e1e2e;
+  --bg-surface: #313244;
+  --bg-elevated: #45475a;
+  --bg-overlay: #585b70;
+  --bg-hover: #45475a;
+  --bg-active: #585b70;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(49, 50, 68, 0.85);
+  --glass-border: rgba(205, 214, 244, 0.1);
+  --glass-highlight: rgba(205, 214, 244, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #cdd6f4;
+  --text-secondary: #bac2de;
+  --text-muted: #a6adc8;
+  --text-disabled: #6c7086;
+
+  /* Borders */
+  --border-subtle: rgba(205, 214, 244, 0.06);
+  --border-default: rgba(205, 214, 244, 0.1);
+  --border-strong: rgba(205, 214, 244, 0.15);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Mauve as primary */
+  --accent-primary: #cba6f7;
+  --accent-secondary: #b4befe;
+  --accent-muted: rgba(203, 166, 247, 0.25);
+  --accent-subtle: rgba(203, 166, 247, 0.12);
+
+  /* Brand palette - derived from Mauve */
+  --color-brand-50: #faf5ff;
+  --color-brand-100: #f3e8ff;
+  --color-brand-200: #e9d5ff;
+  --color-brand-300: #cba6f7;
+  --color-brand-400: #b4befe;
+  --color-brand-500: #9d7cd8;
+  --color-brand-600: #7c5ab8;
+  --color-brand-700: #5b3d8a;
+  --color-brand-800: #3d2760;
+  --color-brand-900: #1e1e2e;
+  --color-brand-950: #11111b;
+
+  /* Status colors - using Catppuccin semantic colors */
+  --status-success: #a6e3a1;
+  --status-warning: #f9e2af;
+  --status-error: #f38ba8;
+  --status-info: #89b4fa;
+
+  /* Shadows - softer for the pastel aesthetic */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(203, 166, 247, 0.25);
+}

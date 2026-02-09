@@ -36,6 +36,10 @@
   // Auto-hide state
   let isHidden = false;
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+  const collapsedStripWidth = 48; // Width/height of visible strip when collapsed (fits icon + border)
+
+  // Calculate actual width for sidebars (for layout reflow)
+  $: effectiveSidebarWidth = isHidden && config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth;
 
   // Group expansion state (persisted to localStorage)
   let expandedGroups: Record<string, boolean> = {};
@@ -206,8 +210,10 @@
   }
 
   // Auto-hide handling
+  // Document-level: only used to detect mouse hitting the screen edge (to reveal collapsed nav)
   function handleMouseMove(e: MouseEvent) {
-    if (!config.navigation.auto_hide) return;
+    if (!config.navigation.auto_hide || !isHidden) return;
+    if (!config.navigation.show_on_hover) return;
 
     const threshold = 20;
     const pos = config.navigation.position;
@@ -218,22 +224,32 @@
     if (pos === 'top' && e.clientY < threshold) shouldShow = true;
     if (pos === 'bottom' && e.clientY > window.innerHeight - threshold) shouldShow = true;
 
-    if (shouldShow && isHidden) {
+    if (shouldShow) {
       isHidden = false;
       if (hideTimeout) clearTimeout(hideTimeout);
-    } else if (!shouldShow && !isHidden && config.navigation.auto_hide) {
-      if (hideTimeout) clearTimeout(hideTimeout);
-      const delayMs = parseDelay(config.navigation.auto_hide_delay);
-      hideTimeout = setTimeout(() => {
-        isHidden = true;
-      }, delayMs);
     }
   }
 
+  // Nav element enter/leave: controls hide timer based on whether mouse is inside the nav
+  function handleNavEnter() {
+    if (!config.navigation.auto_hide) return;
+    isHidden = false;
+    if (hideTimeout) clearTimeout(hideTimeout);
+  }
+
+  function handleNavLeave() {
+    if (!config.navigation.auto_hide) return;
+    if (hideTimeout) clearTimeout(hideTimeout);
+    const delayMs = parseDelay(config.navigation.auto_hide_delay);
+    hideTimeout = setTimeout(() => {
+      isHidden = true;
+    }, delayMs);
+  }
+
   function parseDelay(delay: string): number {
-    const match = delay.match(/^(\d+)(ms|s)?$/);
+    const match = delay.match(/^([\d.]+)(ms|s)?$/);
     if (!match) return 3000;
-    const value = parseInt(match[1], 10);
+    const value = parseFloat(match[1]);
     const unit = match[2] || 's';
     return unit === 'ms' ? value : value * 1000;
   }
@@ -282,11 +298,39 @@
 
 <!-- TOP NAVIGATION -->
 {#if config.navigation.position === 'top'}
+  {@const isCollapsedTop = isHidden && config.navigation.auto_hide}
   <nav
-    class="bg-gray-800 border-b border-gray-700 transition-transform duration-300 {isHidden && config.navigation.auto_hide ? '-translate-y-full' : ''}"
-    on:mouseenter={() => { if (config.navigation.auto_hide) { isHidden = false; if (hideTimeout) clearTimeout(hideTimeout); } }}
+    class="border-b transition-all duration-300 relative"
+    style="
+      background: var(--bg-surface);
+      border-color: var(--border-subtle);
+      height: {isCollapsedTop ? collapsedStripWidth + 'px' : '56px'};
+    "
+    on:mouseenter={handleNavEnter}
+    on:mouseleave={handleNavLeave}
   >
-    <div class="flex items-center justify-between h-14 px-4">
+    <!-- Collapsed icon strip - show app icons when collapsed -->
+    {#if isCollapsedTop}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <div class="absolute inset-0 flex items-center justify-center gap-1 z-20 px-4 cursor-pointer" on:click={() => isHidden = false} role="button" tabindex="0">
+        {#each apps as app}
+          <button
+            class="flex-shrink-0 transition-all duration-200 rounded"
+            style="opacity: {currentApp?.name === app.name ? '1' : '0.4'};
+                   {config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}"
+            on:click|stopPropagation={() => dispatch('select', app)}
+            title={app.name}
+          >
+            <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={false} />
+          </button>
+        {/each}
+      </div>
+    {/if}
+    <!-- Content wrapper -->
+    <div
+      class="flex items-center justify-between h-14 px-4 transition-opacity duration-200"
+      style="opacity: {isCollapsedTop ? '0' : '1'}; pointer-events: {isCollapsedTop ? 'none' : 'auto'};"
+    >
       <!-- Logo -->
       <div class="flex items-center space-x-4">
         {#if config.navigation.show_logo}
@@ -306,12 +350,12 @@
                      {currentApp?.name === app.name
                        ? 'bg-gray-900 text-white'
                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
-              style={currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}
+              style={config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}
               on:click={() => dispatch('select', app)}
             >
               {#if !config.navigation.show_labels}
                 <!-- Icon only mode -->
-                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" />
+                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
               {:else}
                 {app.name}
               {/if}
@@ -347,22 +391,43 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </button>
+        {#if $isAuthenticated && $currentUser}
+          <button
+            class="p-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
+            on:click={handleLogout}
+            title="Sign out"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        {/if}
       </div>
     </div>
   </nav>
 
 <!-- LEFT SIDEBAR -->
 {:else if config.navigation.position === 'left'}
+  {@const isCollapsed = isHidden && config.navigation.auto_hide && !isMobile}
   <aside
-    class="bg-gray-800 border-r border-gray-700 flex flex-col h-full transition-transform duration-300
-           {isMobile ? (mobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : ''}
-           {isHidden && config.navigation.auto_hide && !isMobile ? '-translate-x-full' : ''}"
-    style="width: {isMobile ? '280px' : sidebarWidth + 'px'}"
-    on:mouseenter={() => { if (config.navigation.auto_hide) { isHidden = false; if (hideTimeout) clearTimeout(hideTimeout); } }}
+    class="border-r flex flex-col h-full transition-all duration-300 relative
+           {isMobile ? (mobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : ''}"
+    style="
+      background: var(--bg-surface);
+      border-color: var(--border-subtle);
+      width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};
+    "
+    on:mouseenter={handleNavEnter}
+    on:mouseleave={handleNavLeave}
   >
-    <!-- Header -->
+    <!-- Content wrapper - stays visible when collapsed so icons maintain position -->
+    <div
+      class="flex flex-col h-full transition-all duration-200 overflow-hidden"
+    >
+    <!-- Header (hidden when collapsed) -->
     {#if config.navigation.show_logo}
-      <div class="p-4 border-b border-gray-700">
+      <div class="p-4 border-b border-gray-700 transition-opacity duration-200"
+           style="opacity: {isCollapsed ? '0' : '1'}; pointer-events: {isCollapsed ? 'none' : 'auto'};">
         <button
           class="text-xl font-bold text-white hover:text-brand-400 transition-colors w-full text-left"
           on:click={() => { dispatch('splash'); mobileMenuOpen = false; }}
@@ -372,8 +437,9 @@
       </div>
     {/if}
 
-    <!-- Search button -->
-    <div class="p-2">
+    <!-- Search button (hidden when collapsed) -->
+    <div class="p-2 transition-opacity duration-200"
+         style="opacity: {isCollapsed ? '0' : '1'}; pointer-events: {isCollapsed ? 'none' : 'auto'};">
       <button
         class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('search')}
@@ -391,9 +457,10 @@
       {#each groupNames as groupName}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
-          <!-- Group header (collapsible) -->
+          <!-- Group header -->
           <button
-            class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 transition-opacity duration-200"
+            style="opacity: {isCollapsed ? '0' : '1'};"
             on:click={() => toggleGroup(groupName)}
           >
             <svg
@@ -404,38 +471,43 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-            {#if groupConfig?.color}
+            {#if groupConfig?.icon?.name}
+              <div class="flex-shrink-0">
+                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" showBackground={false} />
+              </div>
+            {:else if groupConfig?.color}
               <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
             {/if}
-            <span>{groupName}</span>
+            <span class="truncate">{groupName}</span>
             <span class="ml-auto text-gray-500">{groupedApps[groupName]?.length || 0}</span>
           </button>
 
           <!-- Apps in group -->
-          {#if expandedGroups[groupName]}
+          {#if expandedGroups[groupName] || isCollapsed}
             <div class="mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app}
                 <button
-                  class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors
+                  class="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style={currentApp?.name === app.name ? `border-left: 3px solid ${app.color || '#22c55e'}` : 'border-left: 3px solid transparent'}
+                  style="border-left: 3px solid {config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsed) ? (app.color || '#22c55e') : 'transparent'};
+                         {isCollapsed && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
                   on:click={() => { dispatch('select', app); mobileMenuOpen = false; }}
                 >
                   <!-- App icon -->
                   <div class="flex-shrink-0">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" />
+                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
                   </div>
-                  {#if config.navigation.show_labels}
+                  {#if config.navigation.show_labels && !isCollapsed}
                     <span class="truncate">{app.name}</span>
                   {/if}
-                  {#if showHealth}
+                  {#if showHealth && !isCollapsed}
                     <span class="ml-auto">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
                   {/if}
-                  {#if app.open_mode !== 'iframe'}
+                  {#if app.open_mode !== 'iframe' && !isCollapsed}
                     <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
@@ -446,8 +518,9 @@
       {/each}
     </div>
 
-    <!-- Footer with settings and user menu -->
-    <div class="p-2 border-t border-gray-700 space-y-1">
+    <!-- Footer (hidden when collapsed) -->
+    <div class="p-2 border-t border-gray-700 space-y-1 transition-opacity duration-200"
+         style="opacity: {isCollapsed ? '0' : '1'}; pointer-events: {isCollapsed ? 'none' : 'auto'};">
       <button
         class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('settings')}
@@ -460,20 +533,19 @@
       </button>
 
       {#if $isAuthenticated && $currentUser}
-        <div class="flex items-center justify-between px-3 py-2 text-sm">
-          <span class="text-gray-400 truncate">{$currentUser.display_name || $currentUser.username}</span>
-          <button
-            class="text-gray-500 hover:text-red-400 transition-colors"
-            on:click={handleLogout}
-            title="Sign out"
-          >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-            </svg>
-          </button>
-        </div>
+        <button
+          class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          on:click={handleLogout}
+          title="Sign out"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign out</span>
+        </button>
       {/if}
     </div>
+    </div> <!-- End content wrapper -->
 
     <!-- Resize handle - touch-friendly with pointer events -->
     {#if !isMobile}
@@ -492,16 +564,26 @@
 
 <!-- RIGHT SIDEBAR -->
 {:else if config.navigation.position === 'right'}
+  {@const isCollapsedRight = isHidden && config.navigation.auto_hide && !isMobile}
   <aside
-    class="bg-gray-800 border-l border-gray-700 flex flex-col h-full transition-transform duration-300
-           {isMobile ? (mobileMenuOpen ? 'translate-x-0' : 'translate-x-full') : ''}
-           {isHidden && config.navigation.auto_hide && !isMobile ? 'translate-x-full' : ''}"
-    style="width: {isMobile ? '280px' : sidebarWidth + 'px'}"
-    on:mouseenter={() => { if (config.navigation.auto_hide) { isHidden = false; if (hideTimeout) clearTimeout(hideTimeout); } }}
+    class="border-l flex flex-col h-full transition-all duration-300 relative
+           {isMobile ? (mobileMenuOpen ? 'translate-x-0' : 'translate-x-full') : ''}"
+    style="
+      background: var(--bg-surface);
+      border-color: var(--border-subtle);
+      width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};
+    "
+    on:mouseenter={handleNavEnter}
+    on:mouseleave={handleNavLeave}
   >
-    <!-- Header -->
+    <!-- Content wrapper - stays visible when collapsed so icons maintain position -->
+    <div
+      class="flex flex-col h-full transition-all duration-200 overflow-hidden"
+    >
+    <!-- Header (hidden when collapsed) -->
     {#if config.navigation.show_logo}
-      <div class="p-4 border-b border-gray-700">
+      <div class="p-4 border-b border-gray-700 transition-opacity duration-200"
+           style="opacity: {isCollapsedRight ? '0' : '1'}; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
         <button
           class="text-xl font-bold text-white hover:text-brand-400 transition-colors w-full text-right"
           on:click={() => { dispatch('splash'); mobileMenuOpen = false; }}
@@ -511,8 +593,9 @@
       </div>
     {/if}
 
-    <!-- Search button -->
-    <div class="p-2">
+    <!-- Search button (hidden when collapsed) -->
+    <div class="p-2 transition-opacity duration-200"
+         style="opacity: {isCollapsedRight ? '0' : '1'}; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
       <button
         class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('search')}
@@ -531,7 +614,8 @@
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
           <button
-            class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
+            class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 transition-opacity duration-200"
+            style="opacity: {isCollapsedRight ? '0' : '1'};"
             on:click={() => toggleGroup(groupName)}
           >
             <svg
@@ -542,36 +626,42 @@
             >
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
             </svg>
-            {#if groupConfig?.color}
+            {#if groupConfig?.icon?.name}
+              <div class="flex-shrink-0">
+                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" showBackground={false} />
+              </div>
+            {:else if groupConfig?.color}
               <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
             {/if}
-            <span>{groupName}</span>
+            <span class="truncate">{groupName}</span>
             <span class="ml-auto text-gray-500">{groupedApps[groupName]?.length || 0}</span>
           </button>
 
-          {#if expandedGroups[groupName]}
+          {#if expandedGroups[groupName] || isCollapsedRight}
             <div class="mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app}
                 <button
-                  class="w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm transition-colors
+                  class="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style={currentApp?.name === app.name ? `border-right: 3px solid ${app.color || '#22c55e'}` : 'border-right: 3px solid transparent'}
+                  style="border-left: 3px solid {config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsedRight) ? (app.color || '#22c55e') : 'transparent'};
+                         {config.navigation.show_app_colors && !isCollapsedRight && currentApp?.name === app.name ? `border-right: 3px solid ${app.color || '#22c55e'};` : ''}
+                         {isCollapsedRight && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
                   on:click={() => { dispatch('select', app); mobileMenuOpen = false; }}
                 >
                   <div class="flex-shrink-0">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" />
+                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
                   </div>
-                  {#if config.navigation.show_labels}
+                  {#if config.navigation.show_labels && !isCollapsedRight}
                     <span class="truncate">{app.name}</span>
                   {/if}
-                  {#if showHealth}
+                  {#if showHealth && !isCollapsedRight}
                     <span class="ml-auto">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
                   {/if}
-                  {#if app.open_mode !== 'iframe'}
+                  {#if app.open_mode !== 'iframe' && !isCollapsedRight}
                     <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
@@ -582,8 +672,9 @@
       {/each}
     </div>
 
-    <!-- Footer with settings -->
-    <div class="p-2 border-t border-gray-700">
+    <!-- Footer (hidden when collapsed) -->
+    <div class="p-2 border-t border-gray-700 space-y-1 transition-opacity duration-200"
+         style="opacity: {isCollapsedRight ? '0' : '1'}; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
       <button
         class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('settings')}
@@ -594,7 +685,21 @@
         </svg>
         <span>Settings</span>
       </button>
+
+      {#if $isAuthenticated && $currentUser}
+        <button
+          class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          on:click={handleLogout}
+          title="Sign out"
+        >
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>Sign out</span>
+        </button>
+      {/if}
     </div>
+    </div> <!-- End content wrapper -->
 
     <!-- Resize handle (left side for right sidebar) - touch-friendly with pointer events -->
     {#if !isMobile}
@@ -613,12 +718,38 @@
 
 <!-- BOTTOM BAR (Dock-style) -->
 {:else if config.navigation.position === 'bottom'}
+  {@const isCollapsedBottom = isHidden && config.navigation.auto_hide}
   <nav
-    class="bg-gray-800/95 backdrop-blur border-t border-gray-700 transition-transform duration-300
-           {isHidden && config.navigation.auto_hide ? 'translate-y-full' : ''}"
-    on:mouseenter={() => { if (config.navigation.auto_hide) { isHidden = false; if (hideTimeout) clearTimeout(hideTimeout); } }}
+    class="backdrop-blur border-t transition-all duration-300 relative"
+    style="
+      background: var(--glass-bg);
+      border-color: var(--border-subtle);
+      height: {isCollapsedBottom ? collapsedStripWidth + 'px' : 'auto'};
+    "
+    on:mouseenter={handleNavEnter}
+    on:mouseleave={handleNavLeave}
   >
-    <div class="flex items-center justify-center gap-2 p-3 overflow-x-auto scrollbar-hide">
+    <!-- Collapsed icon strip - show app icons when collapsed -->
+    {#if isCollapsedBottom}
+      <!-- svelte-ignore a11y-click-events-have-key-events -->
+      <div class="absolute inset-0 flex items-center justify-center gap-1 z-20 px-4 cursor-pointer" on:click={() => isHidden = false} role="button" tabindex="0">
+        {#each apps as app}
+          <button
+            class="flex-shrink-0 transition-all duration-200 rounded"
+            style="opacity: {currentApp?.name === app.name ? '1' : '0.4'};"
+            on:click|stopPropagation={() => dispatch('select', app)}
+            title={app.name}
+          >
+            <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={false} />
+          </button>
+        {/each}
+      </div>
+    {/if}
+    <!-- Content wrapper -->
+    <div
+      class="flex items-center justify-center gap-2 p-3 overflow-x-auto scrollbar-hide transition-opacity duration-200"
+      style="opacity: {isCollapsedBottom ? '0' : '1'}; pointer-events: {isCollapsedBottom ? 'none' : 'auto'};"
+    >
       <!-- Home/Splash button -->
       {#if config.navigation.show_logo}
         <button
@@ -641,7 +772,7 @@
           on:click={() => dispatch('select', app)}
           title={app.name}
         >
-          <AppIcon icon={app.icon} name={app.name} color={app.color} size="lg" />
+          <AppIcon icon={app.icon} name={app.name} color={app.color} size="lg" showBackground={config.navigation.show_icon_background} />
 
           <!-- Health indicator -->
           {#if showHealth}
@@ -689,6 +820,18 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
       </button>
+
+      {#if $isAuthenticated && $currentUser}
+        <button
+          class="p-3 rounded-xl bg-gray-700/50 hover:bg-red-600/30 transition-all hover:scale-110 group"
+          on:click={handleLogout}
+          title="Sign out"
+        >
+          <svg class="w-6 h-6 text-gray-300 group-hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      {/if}
     </div>
   </nav>
 
@@ -699,7 +842,8 @@
     class="fixed {floatingPosition} z-40 transition-all duration-300"
     class:opacity-50={isHidden && config.navigation.auto_hide}
     class:scale-90={isHidden && config.navigation.auto_hide}
-    on:mouseenter={() => { if (config.navigation.auto_hide) { isHidden = false; if (hideTimeout) clearTimeout(hideTimeout); } }}
+    on:mouseenter={handleNavEnter}
+    on:mouseleave={handleNavLeave}
   >
     <!-- Expanded menu -->
     <div class="flex flex-col-reverse items-end gap-2 mb-2">
@@ -710,7 +854,7 @@
                  {currentApp?.name === app.name ? 'ring-2 ring-brand-500' : ''}"
           on:click={() => dispatch('select', app)}
         >
-          <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
+          <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" showBackground={config.navigation.show_icon_background} />
           <span class="text-sm text-white pr-1">{app.name}</span>
           {#if showHealth}
             <HealthIndicator appName={app.name} size="sm" />
@@ -730,6 +874,17 @@
 
     <!-- Main FAB buttons -->
     <div class="flex items-center gap-2">
+      {#if $isAuthenticated && $currentUser}
+        <button
+          class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
+          on:click={handleLogout}
+          title="Sign out"
+        >
+          <svg class="w-5 h-5 text-gray-300 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+        </button>
+      {/if}
       <button
         class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
         on:click={() => dispatch('search')}
@@ -766,5 +921,131 @@
   /* Ensure sidebar has relative positioning for resize handle */
   aside {
     position: relative;
+  }
+
+  /* ═══════════════════════════════════════════════════════════════════════════
+     THEME-AWARE NAVIGATION STYLES
+     Override Tailwind gray classes with CSS custom properties
+     ═══════════════════════════════════════════════════════════════════════════ */
+
+  /* Navigation containers */
+  nav, aside {
+    background: var(--bg-surface) !important;
+    border-color: var(--border-subtle) !important;
+  }
+
+  /* Glass effect for bottom bar */
+  nav[class*="backdrop-blur"] {
+    background: var(--glass-bg) !important;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+
+  /* Text colors */
+  nav :global(.text-white),
+  aside :global(.text-white) {
+    color: var(--text-primary) !important;
+  }
+
+  nav :global(.text-gray-300),
+  aside :global(.text-gray-300) {
+    color: var(--text-secondary) !important;
+  }
+
+  nav :global(.text-gray-400),
+  aside :global(.text-gray-400) {
+    color: var(--text-muted) !important;
+  }
+
+  nav :global(.text-gray-500),
+  aside :global(.text-gray-500) {
+    color: var(--text-disabled) !important;
+  }
+
+  /* Background colors */
+  nav :global(.bg-gray-700),
+  aside :global(.bg-gray-700) {
+    background: var(--bg-hover) !important;
+  }
+
+  nav :global(.bg-gray-800),
+  aside :global(.bg-gray-800) {
+    background: var(--bg-surface) !important;
+  }
+
+  nav :global(.bg-gray-900),
+  aside :global(.bg-gray-900) {
+    background: var(--bg-base) !important;
+  }
+
+  /* Hover states */
+  nav :global(.hover\:bg-gray-700:hover),
+  aside :global(.hover\:bg-gray-700:hover) {
+    background: var(--bg-hover) !important;
+  }
+
+  nav :global(.hover\:bg-gray-600\/50:hover),
+  aside :global(.hover\:bg-gray-600\/50:hover) {
+    background: var(--bg-active) !important;
+  }
+
+  nav :global(.hover\:text-white:hover),
+  aside :global(.hover\:text-white:hover) {
+    color: var(--text-primary) !important;
+  }
+
+  /* Border colors */
+  nav :global(.border-gray-700),
+  aside :global(.border-gray-700) {
+    border-color: var(--border-subtle) !important;
+  }
+
+  /* Active/selected states */
+  nav :global(.bg-gray-700\/50),
+  aside :global(.bg-gray-700\/50) {
+    background: var(--bg-hover) !important;
+  }
+
+  /* Floating buttons */
+  :global(.bg-gray-800.border.border-gray-700) {
+    background: var(--bg-surface) !important;
+    border-color: var(--border-default) !important;
+  }
+
+  /* Keyboard shortcut badges */
+  nav :global(.bg-gray-700.px-1\.5),
+  aside :global(.bg-gray-700.px-1\.5) {
+    background: var(--bg-overlay) !important;
+    color: var(--text-muted) !important;
+  }
+
+  /* Brand color buttons */
+  :global(.bg-brand-600) {
+    background: var(--accent-primary) !important;
+  }
+
+  :global(.hover\:bg-brand-700:hover) {
+    background: var(--accent-secondary) !important;
+  }
+
+  :global(.ring-brand-500) {
+    --tw-ring-color: var(--accent-primary) !important;
+  }
+
+  /* Mobile overlay */
+  :global(.bg-black\/50) {
+    background: rgba(0, 0, 0, 0.6) !important;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+  }
+
+  /* Resize handle */
+  :global(.hover\:bg-brand-500\/50:hover) {
+    background: var(--accent-muted) !important;
+  }
+
+  :global(.active\:bg-brand-500\/70:active) {
+    background: var(--accent-primary) !important;
+    opacity: 0.7;
   }
 </style>

@@ -5,7 +5,7 @@
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
-  import { themeMode, resolvedTheme, setTheme, type ThemeMode } from '$lib/themeStore';
+  import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, type ThemeMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
@@ -29,7 +29,7 @@
   }>();
 
   // Active tab
-  let activeTab: 'general' | 'apps' | 'groups' | 'theme' | 'keybindings' = 'general';
+  let activeTab: 'general' | 'apps' | 'theme' | 'keybindings' = 'general';
 
   // Local copy of config for editing
   let localConfig = JSON.parse(JSON.stringify(config)) as Config;
@@ -37,11 +37,13 @@
 
   // Icon browser state
   let showIconBrowser = false;
-  let iconBrowserTarget: 'newApp' | 'editApp' | null = null;
+  let iconBrowserTarget: 'newApp' | 'editApp' | 'newGroup' | 'editGroup' | null = null;
 
-  // Drag and drop state for app reordering
-  let draggedAppIndex: number | null = null;
-  let dragOverIndex: number | null = null;
+  // Drag and drop state
+  let draggedApp: App | null = null;
+  let dragOverGroup: string | null = null;
+  let draggedGroupIndex: number | null = null;
+  let dragOverGroupIndex: number | null = null;
 
   // Track keybindings changes
   let keybindingsChanged = false;
@@ -79,7 +81,7 @@
 
   const newGroupTemplate: Group = {
     name: '',
-    icon: '',
+    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
     color: '#3498db',
     order: 0,
     expanded: true
@@ -87,6 +89,20 @@
 
   let newApp = { ...newAppTemplate };
   let newGroup = { ...newGroupTemplate };
+
+  // Grouped apps for the unified view
+  $: sortedGroups = [...localConfig.groups].sort((a, b) => a.order - b.order);
+  $: groupedLocalApps = localApps.reduce((acc, app) => {
+    const group = app.group || '';
+    if (!acc[group]) acc[group] = [];
+    acc[group].push(app);
+    return acc;
+  }, {} as Record<string, App[]>);
+  $: {
+    Object.keys(groupedLocalApps).forEach(group => {
+      groupedLocalApps[group].sort((a, b) => a.order - b.order);
+    });
+  }
 
   function handleSave() {
     // Update config with local changes
@@ -99,12 +115,21 @@
     dispatch('close');
   }
 
+  // Inline confirmation state
+  let confirmClose = false;
+  let confirmDeleteApp: App | null = null;
+  let confirmDeleteGroup: Group | null = null;
+
   function handleClose() {
     if (hasChanges) {
-      if (!confirm('You have unsaved changes. Are you sure you want to close?')) {
-        return;
-      }
+      confirmClose = true;
+      return;
     }
+    dispatch('close');
+  }
+
+  function confirmCloseDiscard() {
+    confirmClose = false;
     dispatch('close');
   }
 
@@ -116,8 +141,13 @@
   }
 
   function deleteApp(app: App) {
-    if (confirm(`Delete "${app.name}"? This cannot be undone.`)) {
-      localApps = localApps.filter(a => a.name !== app.name);
+    confirmDeleteApp = app;
+  }
+
+  function confirmDeleteAppAction() {
+    if (confirmDeleteApp) {
+      localApps = localApps.filter(a => a.name !== confirmDeleteApp!.name);
+      confirmDeleteApp = null;
     }
   }
 
@@ -129,74 +159,118 @@
   }
 
   function deleteGroup(group: Group) {
-    if (confirm(`Delete group "${group.name}"? Apps in this group will become ungrouped.`)) {
-      localConfig.groups = localConfig.groups.filter(g => g.name !== group.name);
-      // Move apps to ungrouped
+    confirmDeleteGroup = group;
+  }
+
+  function confirmDeleteGroupAction() {
+    if (confirmDeleteGroup) {
+      localConfig.groups = localConfig.groups.filter(g => g.name !== confirmDeleteGroup!.name);
       localApps = localApps.map(app =>
-        app.group === group.name ? { ...app, group: '' } : app
+        app.group === confirmDeleteGroup!.name ? { ...app, group: '' } : app
       );
+      confirmDeleteGroup = null;
     }
   }
 
-  function moveApp(app: App, direction: 'up' | 'down') {
-    const index = localApps.findIndex(a => a.name === app.name);
-    const newApps = [...localApps];
+  // (App reordering now handled by moveAppInGroup in drag-and-drop section)
 
-    if (direction === 'up' && index > 0) {
-      const temp = newApps[index - 1];
-      newApps[index - 1] = newApps[index];
-      newApps[index] = temp;
-      localApps = newApps.map((a, i) => ({ ...a, order: i }));
-    } else if (direction === 'down' && index < localApps.length - 1) {
-      const temp = newApps[index];
-      newApps[index] = newApps[index + 1];
-      newApps[index + 1] = temp;
-      localApps = newApps.map((a, i) => ({ ...a, order: i }));
-    }
-  }
-
-  // Drag and drop handlers for app reordering
-  function handleDragStart(e: DragEvent, index: number) {
-    draggedAppIndex = index;
+  // App drag-and-drop handlers (within and between groups)
+  function handleAppDragStart(e: DragEvent, app: App) {
+    draggedApp = app;
     if (e.dataTransfer) {
       e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', index.toString());
+      e.dataTransfer.setData('text/plain', app.name);
     }
   }
 
-  function handleDragOver(e: DragEvent, index: number) {
+  function handleAppDragOverGroup(e: DragEvent, groupName: string) {
+    if (!draggedApp) return;
     e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    dragOverGroup = groupName;
+  }
+
+  function handleAppDropOnGroup(e: DragEvent, groupName: string) {
+    e.preventDefault();
+    if (!draggedApp) return;
+
+    // Move app to this group
+    localApps = localApps.map(a => {
+      if (a.name === draggedApp!.name) {
+        return { ...a, group: groupName };
+      }
+      return a;
+    });
+
+    // Reorder within the group
+    const groupApps = localApps.filter(a => a.group === groupName);
+    groupApps.forEach((a, i) => { a.order = i; });
+
+    draggedApp = null;
+    dragOverGroup = null;
+  }
+
+  function handleAppDragEnd() {
+    draggedApp = null;
+    dragOverGroup = null;
+  }
+
+  // Reorder an app within its group
+  function moveAppInGroup(app: App, direction: 'up' | 'down') {
+    const groupApps = localApps.filter(a => a.group === app.group).sort((a, b) => a.order - b.order);
+    const idx = groupApps.findIndex(a => a.name === app.name);
+    if (direction === 'up' && idx > 0) {
+      const prev = groupApps[idx - 1];
+      const thisOrder = app.order;
+      app.order = prev.order;
+      prev.order = thisOrder;
+    } else if (direction === 'down' && idx < groupApps.length - 1) {
+      const next = groupApps[idx + 1];
+      const thisOrder = app.order;
+      app.order = next.order;
+      next.order = thisOrder;
+    }
+    localApps = [...localApps];
+  }
+
+  // Group drag-and-drop handlers
+  function handleGroupDragStart(e: DragEvent, index: number) {
+    draggedGroupIndex = index;
     if (e.dataTransfer) {
-      e.dataTransfer.dropEffect = 'move';
+      e.dataTransfer.effectAllowed = 'move';
+      e.dataTransfer.setData('text/plain', 'group:' + index);
     }
-    dragOverIndex = index;
   }
 
-  function handleDragLeave() {
-    dragOverIndex = null;
-  }
-
-  function handleDrop(e: DragEvent, targetIndex: number) {
+  function handleGroupDragOver(e: DragEvent, index: number) {
+    if (draggedGroupIndex === null) return;
     e.preventDefault();
-    if (draggedAppIndex === null || draggedAppIndex === targetIndex) {
-      draggedAppIndex = null;
-      dragOverIndex = null;
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+    dragOverGroupIndex = index;
+  }
+
+  function handleGroupDrop(e: DragEvent, targetIndex: number) {
+    e.preventDefault();
+    if (draggedGroupIndex === null || draggedGroupIndex === targetIndex) {
+      draggedGroupIndex = null;
+      dragOverGroupIndex = null;
       return;
     }
 
-    const newApps = [...localApps];
-    const [draggedApp] = newApps.splice(draggedAppIndex, 1);
-    newApps.splice(targetIndex, 0, draggedApp);
+    const groups = [...localConfig.groups].sort((a, b) => a.order - b.order);
+    const [moved] = groups.splice(draggedGroupIndex, 1);
+    groups.splice(targetIndex, 0, moved);
+    groups.forEach((g, i) => { g.order = i; });
 
-    // Update order values
-    localApps = newApps.map((a, i) => ({ ...a, order: i }));
-    draggedAppIndex = null;
-    dragOverIndex = null;
+    localConfig.groups = groups;
+    localConfig = localConfig; // trigger reactivity
+    draggedGroupIndex = null;
+    dragOverGroupIndex = null;
   }
 
-  function handleDragEnd() {
-    draggedAppIndex = null;
-    dragOverIndex = null;
+  function handleGroupDragEnd() {
+    draggedGroupIndex = null;
+    dragOverGroupIndex = null;
   }
 
   // Export config to JSON file
@@ -255,17 +329,24 @@
 
   function handleIconSelect(event: CustomEvent<{ name: string; variant: string; type: string }>) {
     const { name, variant, type } = event.detail;
+    const iconData = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
+
     if (iconBrowserTarget === 'newApp') {
-      newApp.icon = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
+      newApp.icon = iconData;
     } else if (iconBrowserTarget === 'editApp' && editingApp) {
-      editingApp.icon = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
-      editingApp = editingApp; // Trigger reactivity
+      editingApp.icon = iconData;
+      editingApp = editingApp;
+    } else if (iconBrowserTarget === 'newGroup') {
+      newGroup.icon = iconData;
+    } else if (iconBrowserTarget === 'editGroup' && editingGroup) {
+      editingGroup.icon = iconData;
+      editingGroup = editingGroup;
     }
     showIconBrowser = false;
     iconBrowserTarget = null;
   }
 
-  function openIconBrowser(target: 'newApp' | 'editApp') {
+  function openIconBrowser(target: 'newApp' | 'editApp' | 'newGroup' | 'editGroup') {
     iconBrowserTarget = target;
     showIconBrowser = true;
   }
@@ -283,6 +364,117 @@
     { value: 'new_tab', label: 'New Tab', description: 'Open in a new browser tab' },
     { value: 'new_window', label: 'New Window', description: 'Open in a popup window' }
   ];
+
+  // Theme editor state
+  let showThemeEditor = false;
+  let themeEditorVars: Record<string, string> = {};
+  let themeEditorDefaults: Record<string, string> = {};
+  let saveThemeName = '';
+  let isSavingTheme = false;
+
+  function openThemeEditor() {
+    themeEditorDefaults = getCurrentThemeVariables();
+    themeEditorVars = { ...themeEditorDefaults };
+    showThemeEditor = true;
+  }
+
+  function closeThemeEditor() {
+    // Revert live preview changes
+    for (const [name] of Object.entries(themeEditorVars)) {
+      document.documentElement.style.removeProperty(name);
+    }
+    showThemeEditor = false;
+    saveThemeName = '';
+  }
+
+  function updateThemeVar(name: string, value: string) {
+    themeEditorVars[name] = value;
+    themeEditorVars = themeEditorVars; // trigger reactivity
+    // Live preview
+    document.documentElement.style.setProperty(name, value);
+  }
+
+  function resetThemeVar(name: string) {
+    themeEditorVars[name] = themeEditorDefaults[name];
+    themeEditorVars = themeEditorVars;
+    document.documentElement.style.removeProperty(name);
+  }
+
+  function resetAllThemeVars() {
+    for (const name of Object.keys(themeEditorVars)) {
+      document.documentElement.style.removeProperty(name);
+    }
+    themeEditorVars = { ...themeEditorDefaults };
+  }
+
+  async function handleSaveTheme() {
+    if (!saveThemeName.trim()) return;
+    isSavingTheme = true;
+    const success = await saveCustomThemeToServer(
+      saveThemeName.trim(),
+      $resolvedTheme,
+      $isDarkTheme,
+      themeEditorVars
+    );
+    isSavingTheme = false;
+    if (success) {
+      // Clear inline overrides — the saved CSS file takes over
+      for (const name of Object.keys(themeEditorVars)) {
+        document.documentElement.style.removeProperty(name);
+      }
+      // Switch to the new theme
+      const id = saveThemeName.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      setTheme(id);
+      showThemeEditor = false;
+      saveThemeName = '';
+      toasts.success('Theme saved');
+    } else {
+      toasts.error('Failed to save theme');
+    }
+  }
+
+  async function handleDeleteTheme(themeId: string) {
+    const success = await deleteCustomThemeFromServer(themeId);
+    if (success) {
+      toasts.success('Theme deleted');
+    } else {
+      toasts.error('Failed to delete theme');
+    }
+  }
+
+  // Convert CSS color to hex (for color input compatibility)
+  function cssColorToHex(color: string): string {
+    if (!color) return '#000000';
+    // Already hex
+    if (color.startsWith('#')) return color.length === 4
+      ? '#' + color[1] + color[1] + color[2] + color[2] + color[3] + color[3]
+      : color;
+    // Try rgb/rgba
+    const match = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+      const r = parseInt(match[1]).toString(16).padStart(2, '0');
+      const g = parseInt(match[2]).toString(16).padStart(2, '0');
+      const b = parseInt(match[3]).toString(16).padStart(2, '0');
+      return `#${r}${g}${b}`;
+    }
+    return '#000000';
+  }
+
+  // Variable display names
+  const varLabels: Record<string, string> = {
+    '--bg-base': 'Base',
+    '--bg-surface': 'Surface',
+    '--bg-elevated': 'Elevated',
+    '--text-primary': 'Primary',
+    '--text-secondary': 'Secondary',
+    '--text-muted': 'Muted',
+    '--accent-primary': 'Primary',
+    '--accent-secondary': 'Secondary',
+    '--status-success': 'Success',
+    '--status-warning': 'Warning',
+    '--status-error': 'Error',
+    '--status-info': 'Info',
+  };
 </script>
 
 <div
@@ -322,12 +514,28 @@
       </div>
     </div>
 
+    <!-- Unsaved changes confirmation banner -->
+    {#if confirmClose}
+      <div class="flex items-center justify-between px-4 py-2 bg-yellow-600/20 border-b border-yellow-600/40">
+        <span class="text-sm text-yellow-200">You have unsaved changes. Discard?</span>
+        <div class="flex gap-2">
+          <button
+            class="px-3 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+            on:click={() => confirmClose = false}
+          >Keep Editing</button>
+          <button
+            class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+            on:click={confirmCloseDiscard}
+          >Discard</button>
+        </div>
+      </div>
+    {/if}
+
     <!-- Tabs - scrollable on mobile -->
     <div class="flex border-b border-gray-700 flex-shrink-0 overflow-x-auto scrollbar-hide">
       {#each [
         { id: 'general', label: 'General' },
-        { id: 'apps', label: 'Apps' },
-        { id: 'groups', label: 'Groups' },
+        { id: 'apps', label: 'Apps & Groups' },
         { id: 'theme', label: 'Theme' },
         { id: 'keybindings', label: 'Keybindings' }
       ] as tab}
@@ -413,14 +621,56 @@
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={localConfig.navigation.auto_hide}
+                bind:checked={localConfig.navigation.show_app_colors}
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
               />
               <div>
-                <div class="text-sm text-white">Auto-hide Navigation</div>
-                <div class="text-xs text-gray-400">Hide navigation after inactivity</div>
+                <div class="text-sm text-white">App Color Accents</div>
+                <div class="text-xs text-gray-400">Show colored borders on app items</div>
               </div>
             </label>
+
+            <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={localConfig.navigation.show_icon_background}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+              />
+              <div>
+                <div class="text-sm text-white">Icon Background</div>
+                <div class="text-xs text-gray-400">Show colored background behind app icons</div>
+              </div>
+            </label>
+
+            <div class="p-3 bg-gray-700/50 rounded-lg">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  bind:checked={localConfig.navigation.auto_hide}
+                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                />
+                <div class="flex-1">
+                  <div class="text-sm text-white">Auto-hide Navigation</div>
+                  <div class="text-xs text-gray-400">Hide navigation after inactivity</div>
+                </div>
+              </label>
+              <!-- Hide delay dropdown - nested inside, only shown when enabled -->
+              {#if localConfig.navigation.auto_hide}
+                <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-600">
+                  <div class="flex-1 text-xs text-gray-400 pl-7">Hide after</div>
+                  <select
+                    bind:value={localConfig.navigation.auto_hide_delay}
+                    class="px-2 py-1 text-xs bg-gray-600 border border-gray-500 rounded text-white focus:ring-brand-500 focus:border-brand-500"
+                  >
+                    <option value="0.5s">0.5s</option>
+                    <option value="1s">1s</option>
+                    <option value="2s">2s</option>
+                    <option value="3s">3s</option>
+                    <option value="5s">5s</option>
+                  </select>
+                </div>
+              {/if}
+            </div>
 
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
               <input
@@ -471,168 +721,273 @@
           </div>
         </div>
 
-      <!-- Apps Settings -->
+      <!-- Apps & Groups Settings -->
       {:else if activeTab === 'apps'}
         <div class="space-y-4">
-          <!-- Add App Button -->
+          <!-- Action buttons -->
           <div class="flex justify-between items-center">
-            <h3 class="text-sm font-medium text-gray-300">Manage Applications</h3>
-            <button
-              class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center gap-1"
-              on:click={() => showAddApp = true}
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Add App
-            </button>
+            <h3 class="text-sm font-medium text-gray-300">Apps & Groups</h3>
+            <div class="flex gap-2">
+              <button
+                class="px-3 py-1.5 text-sm bg-gray-600 hover:bg-gray-500 text-white rounded-md flex items-center gap-1"
+                on:click={() => showAddGroup = true}
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+                </svg>
+                Add Group
+              </button>
+              <button
+                class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center gap-1"
+                on:click={() => showAddApp = true}
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add App
+              </button>
+            </div>
           </div>
 
-          <!-- App List - Drag & Drop enabled -->
-          <div class="space-y-2">
-            {#each localApps as app, i}
+          <p class="text-xs text-gray-500">Drag apps between groups to reorganize. Drag group headers to reorder groups.</p>
+
+          <!-- Groups with their apps -->
+          <div class="space-y-3">
+            {#each sortedGroups as group, gi}
+              {@const appsInGroup = groupedLocalApps[group.name] || []}
               <div
-                class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg group transition-all cursor-grab active:cursor-grabbing
-                       {draggedAppIndex === i ? 'opacity-50 scale-95' : ''}
-                       {dragOverIndex === i && draggedAppIndex !== i ? 'border-2 border-brand-500 border-dashed' : 'border-2 border-transparent'}"
-                draggable="true"
-                on:dragstart={(e) => handleDragStart(e, i)}
-                on:dragover={(e) => handleDragOver(e, i)}
-                on:dragleave={handleDragLeave}
-                on:drop={(e) => handleDrop(e, i)}
-                on:dragend={handleDragEnd}
-                role="listitem"
+                class="rounded-lg border transition-all
+                       {dragOverGroup === group.name && draggedApp ? 'border-brand-500 bg-brand-500/5' : 'border-gray-700'}
+                       {dragOverGroupIndex === gi && draggedGroupIndex !== null && draggedGroupIndex !== gi ? 'border-t-2 border-t-brand-400' : ''}"
+                on:dragover={(e) => { handleAppDragOverGroup(e, group.name); handleGroupDragOver(e, gi); }}
+                on:dragleave={() => { dragOverGroup = null; dragOverGroupIndex = null; }}
+                on:drop={(e) => { if (draggedApp) handleAppDropOnGroup(e, group.name); else if (draggedGroupIndex !== null) handleGroupDrop(e, gi); }}
               >
-                <!-- Drag handle -->
-                <div class="flex-shrink-0 text-gray-500 hover:text-gray-300 cursor-grab">
-                  <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                  </svg>
-                </div>
-
-                <!-- Icon -->
-                <span
-                  class="w-10 h-10 rounded-lg flex items-center justify-center text-lg font-bold flex-shrink-0"
-                  style="background-color: {app.color || '#374151'}"
+                <!-- Group header - draggable -->
+                <div
+                  class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-t-lg cursor-grab active:cursor-grabbing"
+                  draggable="true"
+                  on:dragstart={(e) => handleGroupDragStart(e, gi)}
+                  on:dragend={handleGroupDragEnd}
+                  role="listitem"
                 >
-                  {app.name.charAt(0).toUpperCase()}
-                </span>
+                  <!-- Drag handle -->
+                  <div class="flex-shrink-0 text-gray-500 hover:text-gray-300">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                    </svg>
+                  </div>
 
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                  <div class="flex items-center gap-2">
-                    <span class="font-medium text-white truncate">{app.name}</span>
-                    {#if app.default}
-                      <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
-                    {/if}
-                    {#if !app.enabled}
-                      <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
+                  <!-- Group icon -->
+                  <div class="flex-shrink-0">
+                    {#if group.icon?.name}
+                      <AppIcon icon={group.icon} name={group.name} color={group.color || '#374151'} size="sm" showBackground={true} />
+                    {:else}
+                      <span class="w-6 h-6 rounded flex-shrink-0 block" style="background-color: {group.color || '#374151'}"></span>
                     {/if}
                   </div>
-                  <div class="text-xs text-gray-400 truncate">{app.url}</div>
+
+                  <!-- Group info -->
+                  <div class="flex-1 min-w-0">
+                    <span class="font-medium text-white text-sm">{group.name}</span>
+                    <span class="text-xs text-gray-500 ml-2">{appsInGroup.length} apps</span>
+                  </div>
+
+                  <!-- Group actions -->
+                  {#if confirmDeleteGroup?.name === group.name}
+                    <div class="flex items-center gap-1">
+                      <span class="text-xs text-red-400 mr-1">Delete?</span>
+                      <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                              on:click={confirmDeleteGroupAction}>Yes</button>
+                      <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+                              on:click={() => confirmDeleteGroup = null}>No</button>
+                    </div>
+                  {:else}
+                    <div class="flex items-center gap-1">
+                      <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                              on:click={() => editingGroup = group} title="Edit group">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                              on:click={() => deleteGroup(group)} title="Delete group">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  {/if}
                 </div>
 
-                <!-- Group badge -->
-                {#if app.group}
-                  <span class="text-xs bg-gray-600 text-gray-300 px-2 py-0.5 rounded hidden sm:block">
-                    {app.group}
-                  </span>
-                {/if}
+                <!-- Apps in this group -->
+                <div class="p-2 space-y-1 min-h-[36px]">
+                  {#each appsInGroup as app (app.name)}
+                    <div
+                      class="flex items-center gap-3 p-2 rounded-md group/app transition-all cursor-grab active:cursor-grabbing hover:bg-gray-700/30
+                             {draggedApp?.name === app.name ? 'opacity-50 scale-95' : ''}"
+                      draggable="true"
+                      on:dragstart={(e) => handleAppDragStart(e, app)}
+                      on:dragend={handleAppDragEnd}
+                      role="listitem"
+                    >
+                      <!-- Drag handle -->
+                      <div class="flex-shrink-0 text-gray-600 hover:text-gray-400 cursor-grab">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                      </div>
 
-                <!-- Actions -->
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                    on:click={() => editingApp = app}
-                    title="Edit"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
-                    class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
-                    on:click={() => deleteApp(app)}
-                    title="Delete"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
+                      <!-- App icon -->
+                      <div class="flex-shrink-0">
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
+                      </div>
+
+                      <!-- App info -->
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium text-white text-sm truncate">{app.name}</span>
+                          {#if app.default}
+                            <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
+                          {/if}
+                          {#if !app.enabled}
+                            <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
+                          {/if}
+                        </div>
+                        <div class="text-xs text-gray-400 truncate">{app.url}</div>
+                      </div>
+
+                      <!-- App actions -->
+                      {#if confirmDeleteApp?.name === app.name}
+                        <div class="flex items-center gap-1">
+                          <span class="text-xs text-red-400 mr-1">Delete?</span>
+                          <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                                  on:click={confirmDeleteAppAction}>Yes</button>
+                          <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+                                  on:click={() => confirmDeleteApp = null}>No</button>
+                        </div>
+                      {:else}
+                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
+                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                  on:click={() => moveAppInGroup(app, 'up')} title="Move up">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
+                            </svg>
+                          </button>
+                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                  on:click={() => moveAppInGroup(app, 'down')} title="Move down">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                            </svg>
+                          </button>
+                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                  on:click={() => editingApp = app} title="Edit">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                                  on:click={() => deleteApp(app)} title="Delete">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      {/if}
+                    </div>
+                  {/each}
+
+                  {#if appsInGroup.length === 0}
+                    <div class="text-center py-3 text-xs text-gray-500">
+                      Drop apps here
+                    </div>
+                  {/if}
                 </div>
               </div>
             {/each}
 
-            {#if localApps.length === 0}
-              <div class="text-center py-8 text-gray-400">
-                No applications configured. Click "Add App" to get started.
+            <!-- Ungrouped apps -->
+            {#if (groupedLocalApps[''] || []).length > 0 || localConfig.groups.length > 0}
+            {@const ungroupedApps = (groupedLocalApps[''] || []).sort((a, b) => a.order - b.order)}
+              <div
+                class="rounded-lg border transition-all
+                       {dragOverGroup === '' && draggedApp ? 'border-brand-500 bg-brand-500/5' : 'border-gray-700 border-dashed'}"
+                on:dragover={(e) => handleAppDragOverGroup(e, '')}
+                on:dragleave={() => dragOverGroup = null}
+                on:drop={(e) => handleAppDropOnGroup(e, '')}
+              >
+                <div class="p-3 bg-gray-700/20 rounded-t-lg">
+                  <span class="text-sm font-medium text-gray-400">Ungrouped</span>
+                  <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
+                </div>
+                <div class="p-2 space-y-1 min-h-[36px]">
+                  {#each ungroupedApps as app (app.name)}
+                    <div
+                      class="flex items-center gap-3 p-2 rounded-md group/app transition-all cursor-grab active:cursor-grabbing hover:bg-gray-700/30
+                             {draggedApp?.name === app.name ? 'opacity-50 scale-95' : ''}"
+                      draggable="true"
+                      on:dragstart={(e) => handleAppDragStart(e, app)}
+                      on:dragend={handleAppDragEnd}
+                      role="listitem"
+                    >
+                      <div class="flex-shrink-0 text-gray-600 hover:text-gray-400 cursor-grab">
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                        </svg>
+                      </div>
+                      <div class="flex-shrink-0">
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="flex items-center gap-2">
+                          <span class="font-medium text-white text-sm truncate">{app.name}</span>
+                          {#if app.default}
+                            <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
+                          {/if}
+                          {#if !app.enabled}
+                            <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
+                          {/if}
+                        </div>
+                        <div class="text-xs text-gray-400 truncate">{app.url}</div>
+                      </div>
+                      {#if confirmDeleteApp?.name === app.name}
+                        <div class="flex items-center gap-1">
+                          <span class="text-xs text-red-400 mr-1">Delete?</span>
+                          <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                                  on:click={confirmDeleteAppAction}>Yes</button>
+                          <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+                                  on:click={() => confirmDeleteApp = null}>No</button>
+                        </div>
+                      {:else}
+                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
+                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                  on:click={() => editingApp = app} title="Edit">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </button>
+                          <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                                  on:click={() => deleteApp(app)} title="Delete">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </div>
+                      {/if}
+                    </div>
+                  {/each}
+                  {#if ungroupedApps.length === 0}
+                    <div class="text-center py-3 text-xs text-gray-500">
+                      Drop apps here to ungroup
+                    </div>
+                  {/if}
+                </div>
               </div>
             {/if}
-          </div>
-        </div>
 
-      <!-- Groups Settings -->
-      {:else if activeTab === 'groups'}
-        <div class="space-y-4">
-          <!-- Add Group Button -->
-          <div class="flex justify-between items-center">
-            <h3 class="text-sm font-medium text-gray-300">Manage Groups</h3>
-            <button
-              class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center gap-1"
-              on:click={() => showAddGroup = true}
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
-              </svg>
-              Add Group
-            </button>
-          </div>
-
-          <!-- Group List -->
-          <div class="space-y-2">
-            {#each localConfig.groups as group}
-              <div class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg group">
-                <!-- Color indicator -->
-                <span
-                  class="w-8 h-8 rounded-lg flex-shrink-0"
-                  style="background-color: {group.color || '#374151'}"
-                ></span>
-
-                <!-- Info -->
-                <div class="flex-1 min-w-0">
-                  <span class="font-medium text-white">{group.name}</span>
-                  <div class="text-xs text-gray-400">
-                    {localApps.filter(a => a.group === group.name).length} apps
-                  </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button
-                    class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                    on:click={() => editingGroup = group}
-                    title="Edit"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                    </svg>
-                  </button>
-                  <button
-                    class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
-                    on:click={() => deleteGroup(group)}
-                    title="Delete"
-                  >
-                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            {/each}
-
-            {#if localConfig.groups.length === 0}
+            {#if localApps.length === 0 && localConfig.groups.length === 0}
               <div class="text-center py-8 text-gray-400">
-                No groups configured. Apps will appear in a single list.
+                No applications or groups configured. Click "Add App" to get started.
               </div>
             {/if}
           </div>
@@ -641,119 +996,267 @@
       <!-- Theme Settings -->
       {:else if activeTab === 'theme'}
         <div class="space-y-6">
-          <!-- Theme Mode Selection -->
+          <!-- System Preference Toggle -->
+          <div class="flex items-center justify-between p-4 rounded-lg"
+               style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                   style="background: linear-gradient(135deg, var(--bg-surface) 50%, var(--bg-overlay) 50%); border: 1px solid var(--border-default);">
+                <svg class="w-5 h-5" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <div>
+                <div class="font-medium" style="color: var(--text-primary);">Follow System</div>
+                <div class="text-xs" style="color: var(--text-muted);">Automatically match your device's appearance</div>
+              </div>
+            </div>
+            <button
+              class="relative w-11 h-6 rounded-full transition-colors"
+              style="background: {$themeMode === 'system' ? 'var(--accent-primary)' : 'var(--bg-overlay)'};"
+              on:click={() => {
+                if ($themeMode === 'system') {
+                  // Switching off system mode - use current resolved theme
+                  setTheme($resolvedTheme);
+                } else {
+                  setTheme('system');
+                }
+              }}
+            >
+              <span
+                class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform"
+                style="background: var(--text-primary); transform: translateX({$themeMode === 'system' ? '20px' : '0'});"
+              ></span>
+            </button>
+          </div>
+
+          <!-- Theme Grid -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-3">
-              Appearance
+            <label class="block text-sm font-medium mb-3" style="color: var(--text-secondary);">
+              Choose Theme
             </label>
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <!-- Dark Mode -->
-              <button
-                class="p-4 rounded-lg border text-left transition-colors group
-                       {$themeMode === 'dark'
-                         ? 'border-brand-500 bg-brand-500/10'
-                         : 'border-gray-600 hover:border-gray-500'}"
-                on:click={() => setTheme('dark')}
-              >
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="w-10 h-10 rounded-lg bg-gray-800 border border-gray-600 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                    </svg>
-                  </div>
-                  {#if $themeMode === 'dark'}
-                    <span class="w-4 h-4 bg-brand-500 rounded-full flex-shrink-0 ml-auto flex items-center justify-center">
-                      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {#each $allThemes as theme (theme.id)}
+                {@const isSelected = $themeMode === 'system' ? $resolvedTheme === theme.id : $themeMode === theme.id}
+                <button
+                  class="relative p-4 rounded-xl text-left transition-all group"
+                  style="
+                    background: var(--bg-surface);
+                    border: 2px solid {isSelected ? 'var(--accent-primary)' : 'var(--border-subtle)'};
+                    box-shadow: {isSelected ? 'var(--shadow-glow)' : 'none'};
+                  "
+                  on:click={() => setTheme(theme.id)}
+                >
+                  <!-- Selection indicator -->
+                  {#if isSelected}
+                    <div class="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
+                         style="background: var(--accent-primary);">
+                      <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
                         <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
                       </svg>
-                    </span>
+                    </div>
                   {/if}
-                </div>
-                <div class="font-medium text-white">Dark</div>
-                <div class="text-xs text-gray-400 mt-1">Always use dark theme</div>
-              </button>
 
-              <!-- Light Mode -->
-              <button
-                class="p-4 rounded-lg border text-left transition-colors group
-                       {$themeMode === 'light'
-                         ? 'border-brand-500 bg-brand-500/10'
-                         : 'border-gray-600 hover:border-gray-500'}"
-                on:click={() => setTheme('light')}
-              >
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="w-10 h-10 rounded-lg bg-gray-100 border border-gray-300 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                    </svg>
-                  </div>
-                  {#if $themeMode === 'light'}
-                    <span class="w-4 h-4 bg-brand-500 rounded-full flex-shrink-0 ml-auto flex items-center justify-center">
-                      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                  <!-- Theme Preview -->
+                  {#if theme.preview}
+                    <div class="flex gap-1 mb-3">
+                      <!-- Color swatches preview -->
+                      <div class="w-12 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+                           style="border: 1px solid {theme.preview.text}20;">
+                        <div class="flex-1" style="background: {theme.preview.bg};"></div>
+                        <div class="h-2" style="background: {theme.preview.accent};"></div>
+                      </div>
+                      <div class="flex flex-col gap-1">
+                        <div class="w-6 h-5.5 rounded" style="background: {theme.preview.surface}; border: 1px solid {theme.preview.text}15;"></div>
+                        <div class="w-6 h-5.5 rounded" style="background: {theme.preview.accent};"></div>
+                      </div>
+                    </div>
+                  {:else}
+                    <!-- Fallback if no preview -->
+                    <div class="w-12 h-12 rounded-lg mb-3 flex items-center justify-center"
+                         style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                      <svg class="w-6 h-6" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                       </svg>
-                    </span>
+                    </div>
                   {/if}
-                </div>
-                <div class="font-medium text-white">Light</div>
-                <div class="text-xs text-gray-400 mt-1">Always use light theme</div>
-              </button>
 
-              <!-- System Mode -->
-              <button
-                class="p-4 rounded-lg border text-left transition-colors group
-                       {$themeMode === 'system'
-                         ? 'border-brand-500 bg-brand-500/10'
-                         : 'border-gray-600 hover:border-gray-500'}"
-                on:click={() => setTheme('system')}
-              >
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-gray-100 to-gray-800 border border-gray-500 flex items-center justify-center">
-                    <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  {#if $themeMode === 'system'}
-                    <span class="w-4 h-4 bg-brand-500 rounded-full flex-shrink-0 ml-auto flex items-center justify-center">
-                      <svg class="w-2.5 h-2.5 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                      </svg>
-                    </span>
+                  <!-- Theme Name & Description -->
+                  <div class="font-medium" style="color: var(--text-primary);">{theme.name}</div>
+                  {#if theme.description}
+                    <div class="text-xs mt-0.5" style="color: var(--text-muted);">{theme.description}</div>
                   {/if}
-                </div>
-                <div class="font-medium text-white">System</div>
-                <div class="text-xs text-gray-400 mt-1">Match device settings</div>
-              </button>
+
+                  <!-- Custom theme badge -->
+                  {#if !theme.isBuiltin}
+                    <div class="absolute bottom-3 right-3">
+                      <span class="text-[10px] px-1.5 py-0.5 rounded"
+                            style="background: var(--accent-subtle); color: var(--accent-primary);">
+                        Custom
+                      </span>
+                    </div>
+                  {/if}
+                </button>
+              {/each}
             </div>
           </div>
 
           <!-- Current Theme Info -->
-          <div class="p-4 bg-gray-700/30 rounded-lg">
+          <div class="p-4 rounded-lg" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
             <div class="flex items-center gap-2 text-sm">
-              <span class="text-gray-400">Currently using:</span>
-              <span class="font-medium text-white capitalize">{$resolvedTheme} theme</span>
+              <span style="color: var(--text-muted);">Currently using:</span>
+              <span class="font-medium capitalize" style="color: var(--text-primary);">
+                {$allThemes.find(t => t.id === $resolvedTheme)?.name || $resolvedTheme} theme
+              </span>
               {#if $themeMode === 'system'}
-                <span class="text-xs text-gray-500">(from system preference)</span>
+                <span class="text-xs" style="color: var(--text-disabled);">(from system preference)</span>
               {/if}
             </div>
           </div>
 
-          <!-- Brand Color (future feature) -->
-          <div class="opacity-50">
-            <label class="block text-sm font-medium text-gray-400 mb-2">
-              Accent Color
-              <span class="text-xs text-gray-500 ml-2">(Coming soon)</span>
-            </label>
-            <div class="flex gap-2">
-              {#each ['#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#f97316', '#eab308'] as color}
+          <!-- Theme Customization -->
+          <div class="space-y-3">
+            {#if !showThemeEditor}
+              <button
+                class="w-full p-4 rounded-lg text-left transition-all hover:border-brand-500/50 flex items-center gap-3"
+                style="background: var(--bg-surface); border: 1px solid var(--border-subtle);"
+                on:click={openThemeEditor}
+              >
+                <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
+                     style="background: var(--accent-subtle);">
+                  <svg class="w-4 h-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-medium text-sm" style="color: var(--text-primary);">Customize Current Theme</div>
+                  <p class="text-xs mt-0.5" style="color: var(--text-muted);">Tweak colors and save as a new custom theme</p>
+                </div>
+              </button>
+            {:else}
+              <!-- Theme Editor Panel -->
+              <div class="rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
+                <div class="flex items-center justify-between p-3" style="background: var(--bg-elevated);">
+                  <span class="text-sm font-medium" style="color: var(--text-primary);">Theme Editor</span>
+                  <div class="flex items-center gap-2">
+                    <button
+                      class="px-2 py-1 text-xs rounded transition-colors"
+                      style="background: var(--bg-hover); color: var(--text-secondary);"
+                      on:click={resetAllThemeVars}
+                    >Reset All</button>
+                    <button
+                      class="p-1 rounded transition-colors"
+                      style="color: var(--text-muted);"
+                      on:click={closeThemeEditor}
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <div class="p-3 space-y-4" style="background: var(--bg-surface);">
+                  {#each Object.entries(themeVariableGroups) as [groupName, vars]}
+                    <div>
+                      <div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted);">{groupName}</div>
+                      <div class="space-y-2">
+                        {#each vars as varName}
+                          {@const isColorVar = !themeEditorVars[varName]?.startsWith('rgba') && !themeEditorVars[varName]?.includes('px')}
+                          <div class="flex items-center gap-2">
+                            <span class="text-xs w-20 flex-shrink-0" style="color: var(--text-secondary);">{varLabels[varName] || varName.replace('--', '')}</span>
+                            {#if isColorVar}
+                              <input
+                                type="color"
+                                value={cssColorToHex(themeEditorVars[varName] || '#000000')}
+                                on:input={(e) => updateThemeVar(varName, e.currentTarget.value)}
+                                class="w-8 h-8 rounded cursor-pointer border-0 p-0"
+                              />
+                            {/if}
+                            <input
+                              type="text"
+                              value={themeEditorVars[varName] || ''}
+                              on:input={(e) => updateThemeVar(varName, e.currentTarget.value)}
+                              class="flex-1 px-2 py-1 text-xs rounded font-mono"
+                              style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-subtle);"
+                            />
+                            {#if themeEditorVars[varName] !== themeEditorDefaults[varName]}
+                              <button
+                                class="p-1 rounded transition-colors flex-shrink-0"
+                                style="color: var(--text-muted);"
+                                on:click={() => resetThemeVar(varName)}
+                                title="Reset to default"
+                              >
+                                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                </svg>
+                              </button>
+                            {:else}
+                              <div class="w-[22px]"></div>
+                            {/if}
+                          </div>
+                        {/each}
+                      </div>
+                    </div>
+                  {/each}
+
+                  <!-- Save as theme -->
+                  <div class="pt-3 space-y-2" style="border-top: 1px solid var(--border-subtle);">
+                    <div class="flex gap-2">
+                      <input
+                        type="text"
+                        bind:value={saveThemeName}
+                        placeholder="Theme name..."
+                        class="flex-1 px-3 py-2 text-sm rounded"
+                        style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+                      />
+                      <button
+                        class="px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50"
+                        style="background: var(--accent-primary); color: var(--bg-base);"
+                        disabled={!saveThemeName.trim() || isSavingTheme}
+                        on:click={handleSaveTheme}
+                      >
+                        {isSavingTheme ? 'Saving...' : 'Save Theme'}
+                      </button>
+                    </div>
+                    <p class="text-xs" style="color: var(--text-disabled);">
+                      Saves as a CSS file on the server. Changes are live-previewed above.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            {/if}
+
+            <!-- Saved custom themes with delete option -->
+            {#each $allThemes.filter(t => !t.isBuiltin && t.id !== 'nord' && t.id !== 'catppuccin') as theme (theme.id)}
+              <div class="flex items-center justify-between p-3 rounded-lg" style="background: var(--bg-surface); border: 1px solid var(--border-subtle);">
+                <div class="flex items-center gap-3">
+                  {#if theme.preview}
+                    <div class="w-6 h-6 rounded overflow-hidden flex flex-col"
+                         style="border: 1px solid var(--border-subtle);">
+                      <div class="flex-1" style="background: {theme.preview.bg};"></div>
+                      <div class="h-1" style="background: {theme.preview.accent};"></div>
+                    </div>
+                  {/if}
+                  <div>
+                    <span class="text-sm font-medium" style="color: var(--text-primary);">{theme.name}</span>
+                    {#if theme.description}
+                      <span class="text-xs ml-2" style="color: var(--text-muted);">{theme.description}</span>
+                    {/if}
+                  </div>
+                </div>
                 <button
-                  class="w-8 h-8 rounded-full border-2 cursor-not-allowed
-                         {color === '#22c55e' ? 'border-white' : 'border-transparent'}"
-                  style="background-color: {color}"
-                  disabled
-                ></button>
-              {/each}
-            </div>
+                  class="p-1.5 rounded transition-colors"
+                  style="color: var(--text-muted);"
+                  on:click={() => handleDeleteTheme(theme.id)}
+                  title="Delete theme"
+                >
+                  <svg class="w-4 h-4 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            {/each}
           </div>
         </div>
       {/if}
@@ -904,6 +1407,18 @@
             class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             placeholder="Media"
           />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <div class="flex items-center gap-3">
+            <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
+            <button
+              class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
+              on:click={() => openIconBrowser('newGroup')}
+            >
+              {newGroup.icon?.name || 'Choose icon...'}
+            </button>
+          </div>
         </div>
         <div>
           <label for="group-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
@@ -1128,6 +1643,23 @@
           />
         </div>
         <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <div class="flex items-center gap-3">
+            <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
+            <div class="flex-1">
+              <button
+                class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md w-full text-left"
+                on:click={() => openIconBrowser('editGroup')}
+              >
+                {editingGroup.icon?.name || 'Choose icon...'}
+              </button>
+              <p class="text-xs text-gray-400 mt-1">
+                {editingGroup.icon?.type === 'dashboard' ? 'Dashboard Icon' : editingGroup.icon?.type || 'No icon set'}
+              </p>
+            </div>
+          </div>
+        </div>
+        <div>
           <label for="edit-group-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
           <div class="flex items-center gap-2">
             <input
@@ -1179,7 +1711,11 @@
         </button>
       </div>
       <IconBrowser
-        selectedIcon={iconBrowserTarget === 'editApp' && editingApp?.icon?.type === 'dashboard' ? editingApp.icon.name : ''}
+        selectedIcon={
+          iconBrowserTarget === 'editApp' && editingApp?.icon?.type === 'dashboard' ? editingApp.icon.name :
+          iconBrowserTarget === 'editGroup' && editingGroup?.icon?.type === 'dashboard' ? editingGroup.icon.name :
+          ''
+        }
         on:select={handleIconSelect}
         on:close={() => { showIconBrowser = false; iconBrowserTarget = null; }}
       />
