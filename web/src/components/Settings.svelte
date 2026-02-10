@@ -1,6 +1,7 @@
 <script lang="ts">
   import { createEventDispatcher, onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
+  import { flip } from 'svelte/animate';
   import type { App, Config, Group } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
@@ -10,6 +11,7 @@
   import { exportConfig, parseImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
+  import { dndzone } from 'svelte-dnd-action';
 
   export let config: Config;
   export let apps: App[];
@@ -39,11 +41,8 @@
   let showIconBrowser = false;
   let iconBrowserTarget: 'newApp' | 'editApp' | 'newGroup' | 'editGroup' | null = null;
 
-  // Drag and drop state
-  let draggedApp: App | null = null;
-  let dragOverGroup: string | null = null;
-  let draggedGroupIndex: number | null = null;
-  let dragOverGroupIndex: number | null = null;
+  // Drag and drop config
+  const flipDurationMs = 200;
 
   // Track keybindings changes
   let keybindingsChanged = false;
@@ -76,7 +75,8 @@
     default: false,
     open_mode: 'iframe',
     proxy: false,
-    scale: 1
+    scale: 1,
+    disable_keyboard_shortcuts: false
   };
 
   const newGroupTemplate: Group = {
@@ -90,18 +90,54 @@
   let newApp = { ...newAppTemplate };
   let newGroup = { ...newGroupTemplate };
 
-  // Grouped apps for the unified view
-  $: sortedGroups = [...localConfig.groups].sort((a, b) => a.order - b.order);
-  $: groupedLocalApps = localApps.reduce((acc, app) => {
-    const group = app.group || '';
-    if (!acc[group]) acc[group] = [];
-    acc[group].push(app);
+  // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
+  localApps.forEach(a => { (a as any).id = a.name; });
+  localConfig.groups.forEach(g => { (g as any).id = g.name; });
+
+  // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
+  let dndGroups: Group[] = [...localConfig.groups].sort((a, b) => a.order - b.order);
+  let dndGroupedApps: Record<string, App[]> = buildGroupedApps();
+
+  function buildGroupedApps(): Record<string, App[]> {
+    const acc: Record<string, App[]> = {};
+    for (const app of localApps) {
+      const group = app.group || '';
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(app);
+    }
+    Object.values(acc).forEach(arr => arr.sort((a, b) => a.order - b.order));
     return acc;
-  }, {} as Record<string, App[]>);
-  $: {
-    Object.keys(groupedLocalApps).forEach(group => {
-      groupedLocalApps[group].sort((a, b) => a.order - b.order);
-    });
+  }
+
+  function rebuildDndArrays() {
+    dndGroups = [...localConfig.groups].sort((a, b) => a.order - b.order);
+    dndGroupedApps = buildGroupedApps();
+  }
+
+  // DnD handlers for groups
+  function handleGroupDndConsider(e: CustomEvent<any>) {
+    dndGroups = e.detail.items;
+  }
+  function handleGroupDndFinalize(e: CustomEvent<any>) {
+    dndGroups = e.detail.items;
+    dndGroups.forEach((g, i) => { g.order = i; });
+    localConfig.groups = [...dndGroups];
+    localConfig = localConfig;
+  }
+
+  // DnD handlers for apps within a group
+  function handleAppDndConsider(e: CustomEvent<any>, groupName: string) {
+    dndGroupedApps[groupName] = e.detail.items;
+    dndGroupedApps = dndGroupedApps;
+  }
+  function handleAppDndFinalize(e: CustomEvent<any>, groupName: string) {
+    const newItems = e.detail.items as App[];
+    newItems.forEach((a, i) => { a.group = groupName; a.order = i; (a as any).id = a.name; });
+    dndGroupedApps[groupName] = newItems;
+    dndGroupedApps = dndGroupedApps;
+    // Sync back to localApps
+    const otherApps = localApps.filter(a => (a.group || '') !== groupName && !newItems.find(n => n.name === a.name));
+    localApps = [...otherApps, ...newItems];
   }
 
   function handleSave() {
@@ -135,9 +171,12 @@
 
   function addApp() {
     newApp.order = localApps.length;
-    localApps = [...localApps, { ...newApp }];
+    const app = { ...newApp } as any;
+    app.id = app.name;
+    localApps = [...localApps, app];
     newApp = { ...newAppTemplate };
     showAddApp = false;
+    rebuildDndArrays();
   }
 
   function deleteApp(app: App) {
@@ -148,14 +187,18 @@
     if (confirmDeleteApp) {
       localApps = localApps.filter(a => a.name !== confirmDeleteApp!.name);
       confirmDeleteApp = null;
+      rebuildDndArrays();
     }
   }
 
   function addGroup() {
     newGroup.order = localConfig.groups.length;
-    localConfig.groups = [...localConfig.groups, { ...newGroup }];
+    const group = { ...newGroup } as any;
+    group.id = group.name;
+    localConfig.groups = [...localConfig.groups, group];
     newGroup = { ...newGroupTemplate };
     showAddGroup = false;
+    rebuildDndArrays();
   }
 
   function deleteGroup(group: Group) {
@@ -168,109 +211,26 @@
       localApps = localApps.map(app =>
         app.group === confirmDeleteGroup!.name ? { ...app, group: '' } : app
       );
+      localApps.forEach(a => { (a as any).id = a.name; });
       confirmDeleteGroup = null;
+      rebuildDndArrays();
     }
   }
 
-  // (App reordering now handled by moveAppInGroup in drag-and-drop section)
-
-  // App drag-and-drop handlers (within and between groups)
-  function handleAppDragStart(e: DragEvent, app: App) {
-    draggedApp = app;
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', app.name);
+  function closeEditApp() {
+    if (editingApp) {
+      (editingApp as any).id = editingApp.name;
     }
+    editingApp = null;
+    rebuildDndArrays();
   }
 
-  function handleAppDragOverGroup(e: DragEvent, groupName: string) {
-    if (!draggedApp) return;
-    e.preventDefault();
-    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
-    dragOverGroup = groupName;
-  }
-
-  function handleAppDropOnGroup(e: DragEvent, groupName: string) {
-    e.preventDefault();
-    if (!draggedApp) return;
-
-    // Move app to this group
-    localApps = localApps.map(a => {
-      if (a.name === draggedApp!.name) {
-        return { ...a, group: groupName };
-      }
-      return a;
-    });
-
-    // Reorder within the group
-    const groupApps = localApps.filter(a => a.group === groupName);
-    groupApps.forEach((a, i) => { a.order = i; });
-
-    draggedApp = null;
-    dragOverGroup = null;
-  }
-
-  function handleAppDragEnd() {
-    draggedApp = null;
-    dragOverGroup = null;
-  }
-
-  // Reorder an app within its group
-  function moveAppInGroup(app: App, direction: 'up' | 'down') {
-    const groupApps = localApps.filter(a => a.group === app.group).sort((a, b) => a.order - b.order);
-    const idx = groupApps.findIndex(a => a.name === app.name);
-    if (direction === 'up' && idx > 0) {
-      const prev = groupApps[idx - 1];
-      const thisOrder = app.order;
-      app.order = prev.order;
-      prev.order = thisOrder;
-    } else if (direction === 'down' && idx < groupApps.length - 1) {
-      const next = groupApps[idx + 1];
-      const thisOrder = app.order;
-      app.order = next.order;
-      next.order = thisOrder;
+  function closeEditGroup() {
+    if (editingGroup) {
+      (editingGroup as any).id = editingGroup.name;
     }
-    localApps = [...localApps];
-  }
-
-  // Group drag-and-drop handlers
-  function handleGroupDragStart(e: DragEvent, index: number) {
-    draggedGroupIndex = index;
-    if (e.dataTransfer) {
-      e.dataTransfer.effectAllowed = 'move';
-      e.dataTransfer.setData('text/plain', 'group:' + index);
-    }
-  }
-
-  function handleGroupDragOver(e: DragEvent, index: number) {
-    if (draggedGroupIndex === null) return;
-    e.preventDefault();
-    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
-    dragOverGroupIndex = index;
-  }
-
-  function handleGroupDrop(e: DragEvent, targetIndex: number) {
-    e.preventDefault();
-    if (draggedGroupIndex === null || draggedGroupIndex === targetIndex) {
-      draggedGroupIndex = null;
-      dragOverGroupIndex = null;
-      return;
-    }
-
-    const groups = [...localConfig.groups].sort((a, b) => a.order - b.order);
-    const [moved] = groups.splice(draggedGroupIndex, 1);
-    groups.splice(targetIndex, 0, moved);
-    groups.forEach((g, i) => { g.order = i; });
-
-    localConfig.groups = groups;
-    localConfig = localConfig; // trigger reactivity
-    draggedGroupIndex = null;
-    dragOverGroupIndex = null;
-  }
-
-  function handleGroupDragEnd() {
-    draggedGroupIndex = null;
-    dragOverGroupIndex = null;
+    editingGroup = null;
+    rebuildDndArrays();
   }
 
   // Export config to JSON file
@@ -316,6 +276,11 @@
       groups: pendingImport.groups,
     };
     localApps = pendingImport.apps;
+
+    // Assign stable ids for svelte-dnd-action
+    localApps.forEach(a => { (a as any).id = a.name; });
+    localConfig.groups.forEach(g => { (g as any).id = g.name; });
+    rebuildDndArrays();
 
     showImportConfirm = false;
     pendingImport = null;
@@ -477,6 +442,7 @@
   };
 </script>
 
+<div class="settings">
 <div
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
   transition:fade={{ duration: 150 }}
@@ -642,6 +608,18 @@
               </div>
             </label>
 
+            <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={localConfig.navigation.show_splash_on_startup}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+              />
+              <div>
+                <div class="text-sm text-white">Show Splash on Startup</div>
+                <div class="text-xs text-gray-400">Show the overview screen instead of the default app on load</div>
+              </div>
+            </label>
+
             <div class="p-3 bg-gray-700/50 rounded-lg">
               <label class="flex items-center gap-3 cursor-pointer">
                 <input
@@ -749,28 +727,24 @@
             </div>
           </div>
 
-          <p class="text-xs text-gray-500">Drag apps between groups to reorganize. Drag group headers to reorder groups.</p>
+          <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-gray-500">
+            <span>Drag apps to reorder or move between groups. Drag group headers to reorder groups.</span>
+            <span class="flex items-center gap-3 text-gray-500">
+              <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></span> Proxy</span>
+              <span class="flex items-center gap-1"><span class="app-indicator">↗</span> New tab</span>
+              <span class="flex items-center gap-1"><span class="app-indicator">⧉</span> New window</span>
+              <span class="flex items-center gap-1"><span class="app-indicator">50%</span> Scale</span>
+              <span class="flex items-center gap-1"><span class="app-indicator">⌨</span> Keyboard</span>
+            </span>
+          </div>
 
-          <!-- Groups with their apps -->
-          <div class="space-y-3">
-            {#each sortedGroups as group, gi}
-              {@const appsInGroup = groupedLocalApps[group.name] || []}
-              <div
-                class="rounded-lg border transition-all
-                       {dragOverGroup === group.name && draggedApp ? 'border-brand-500 bg-brand-500/5' : 'border-gray-700'}
-                       {dragOverGroupIndex === gi && draggedGroupIndex !== null && draggedGroupIndex !== gi ? 'border-t-2 border-t-brand-400' : ''}"
-                on:dragover={(e) => { handleAppDragOverGroup(e, group.name); handleGroupDragOver(e, gi); }}
-                on:dragleave={() => { dragOverGroup = null; dragOverGroupIndex = null; }}
-                on:drop={(e) => { if (draggedApp) handleAppDropOnGroup(e, group.name); else if (draggedGroupIndex !== null) handleGroupDrop(e, gi); }}
-              >
-                <!-- Group header - draggable -->
-                <div
-                  class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-t-lg cursor-grab active:cursor-grabbing"
-                  draggable="true"
-                  on:dragstart={(e) => handleGroupDragStart(e, gi)}
-                  on:dragend={handleGroupDragEnd}
-                  role="listitem"
-                >
+          <!-- Groups with their apps (dnd-zone for group reordering) -->
+          <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} on:consider={handleGroupDndConsider} on:finalize={handleGroupDndFinalize}>
+            {#each dndGroups as group (group.id)}
+              {@const appsInGroup = dndGroupedApps[group.name] || []}
+              <div class="rounded-lg border border-gray-700" animate:flip={{duration: flipDurationMs}}>
+                <!-- Group header -->
+                <div class="flex items-center gap-3 p-3 bg-gray-700/30 rounded-t-lg cursor-grab active:cursor-grabbing">
                   <!-- Drag handle -->
                   <div class="flex-shrink-0 text-gray-500 hover:text-gray-300">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -820,30 +794,22 @@
                   {/if}
                 </div>
 
-                <!-- Apps in this group -->
-                <div class="p-2 space-y-1 min-h-[36px]">
-                  {#each appsInGroup as app (app.name)}
+                <!-- Apps in this group (dnd-zone for app reordering + cross-group) -->
+                <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: appsInGroup, flipDurationMs, type: 'apps', dropTargetStyle: {}}} on:consider={(e) => handleAppDndConsider(e, group.name)} on:finalize={(e) => handleAppDndFinalize(e, group.name)}>
+                  {#each appsInGroup as app (app.id)}
                     <div
-                      class="flex items-center gap-3 p-2 rounded-md group/app transition-all cursor-grab active:cursor-grabbing hover:bg-gray-700/30
-                             {draggedApp?.name === app.name ? 'opacity-50 scale-95' : ''}"
-                      draggable="true"
-                      on:dragstart={(e) => handleAppDragStart(e, app)}
-                      on:dragend={handleAppDragEnd}
-                      role="listitem"
+                      class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
+                      animate:flip={{duration: flipDurationMs}}
                     >
                       <!-- Drag handle -->
-                      <div class="flex-shrink-0 text-gray-600 hover:text-gray-400 cursor-grab">
+                      <div class="flex-shrink-0 text-gray-600 hover:text-gray-400">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
                         </svg>
                       </div>
-
-                      <!-- App icon -->
                       <div class="flex-shrink-0">
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
                       </div>
-
-                      <!-- App info -->
                       <div class="flex-1 min-w-0">
                         <div class="flex items-center gap-2">
                           <span class="font-medium text-white text-sm truncate">{app.name}</span>
@@ -854,9 +820,28 @@
                             <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
                           {/if}
                         </div>
-                        <div class="text-xs text-gray-400 truncate">{app.url}</div>
+                        <div class="flex items-center gap-1.5">
+                          <span class="text-xs text-gray-400 truncate">{app.url}</span>
+                          {#if app.proxy}
+                            <span class="app-indicator" title="Proxied through server">
+                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            </span>
+                          {/if}
+                          {#if app.open_mode && app.open_mode !== 'iframe'}
+                            <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
+                              {app.open_mode === 'new_tab' ? '↗' : app.open_mode === 'new_window' ? '⧉' : '↪'}
+                            </span>
+                          {/if}
+                          {#if app.scale && app.scale !== 1}
+                            <span class="app-indicator" title="Scaled to {Math.round(app.scale * 100)}%">
+                              {Math.round(app.scale * 100)}%
+                            </span>
+                          {/if}
+                          {#if app.disable_keyboard_shortcuts}
+                            <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
+                          {/if}
+                        </div>
                       </div>
-
                       <!-- App actions -->
                       {#if confirmDeleteApp?.name === app.name}
                         <div class="flex items-center gap-1">
@@ -869,18 +854,6 @@
                       {:else}
                         <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
                           <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                                  on:click={() => moveAppInGroup(app, 'up')} title="Move up">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 15l7-7 7 7" />
-                            </svg>
-                          </button>
-                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                                  on:click={() => moveAppInGroup(app, 'down')} title="Move down">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                            </svg>
-                          </button>
-                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
                                   on:click={() => editingApp = app} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
@@ -896,101 +869,100 @@
                       {/if}
                     </div>
                   {/each}
-
-                  {#if appsInGroup.length === 0}
-                    <div class="text-center py-3 text-xs text-gray-500">
-                      Drop apps here
-                    </div>
-                  {/if}
                 </div>
               </div>
             {/each}
-
-            <!-- Ungrouped apps -->
-            {#if (groupedLocalApps[''] || []).length > 0 || localConfig.groups.length > 0}
-            {@const ungroupedApps = (groupedLocalApps[''] || []).sort((a, b) => a.order - b.order)}
-              <div
-                class="rounded-lg border transition-all
-                       {dragOverGroup === '' && draggedApp ? 'border-brand-500 bg-brand-500/5' : 'border-gray-700 border-dashed'}"
-                on:dragover={(e) => handleAppDragOverGroup(e, '')}
-                on:dragleave={() => dragOverGroup = null}
-                on:drop={(e) => handleAppDropOnGroup(e, '')}
-              >
-                <div class="p-3 bg-gray-700/20 rounded-t-lg">
-                  <span class="text-sm font-medium text-gray-400">Ungrouped</span>
-                  <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
-                </div>
-                <div class="p-2 space-y-1 min-h-[36px]">
-                  {#each ungroupedApps as app (app.name)}
-                    <div
-                      class="flex items-center gap-3 p-2 rounded-md group/app transition-all cursor-grab active:cursor-grabbing hover:bg-gray-700/30
-                             {draggedApp?.name === app.name ? 'opacity-50 scale-95' : ''}"
-                      draggable="true"
-                      on:dragstart={(e) => handleAppDragStart(e, app)}
-                      on:dragend={handleAppDragEnd}
-                      role="listitem"
-                    >
-                      <div class="flex-shrink-0 text-gray-600 hover:text-gray-400 cursor-grab">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                        </svg>
-                      </div>
-                      <div class="flex-shrink-0">
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2">
-                          <span class="font-medium text-white text-sm truncate">{app.name}</span>
-                          {#if app.default}
-                            <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
-                          {/if}
-                          {#if !app.enabled}
-                            <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
-                          {/if}
-                        </div>
-                        <div class="text-xs text-gray-400 truncate">{app.url}</div>
-                      </div>
-                      {#if confirmDeleteApp?.name === app.name}
-                        <div class="flex items-center gap-1">
-                          <span class="text-xs text-red-400 mr-1">Delete?</span>
-                          <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
-                                  on:click={confirmDeleteAppAction}>Yes</button>
-                          <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
-                                  on:click={() => confirmDeleteApp = null}>No</button>
-                        </div>
-                      {:else}
-                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
-                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                                  on:click={() => editingApp = app} title="Edit">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
-                                  on:click={() => deleteApp(app)} title="Delete">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      {/if}
-                    </div>
-                  {/each}
-                  {#if ungroupedApps.length === 0}
-                    <div class="text-center py-3 text-xs text-gray-500">
-                      Drop apps here to ungroup
-                    </div>
-                  {/if}
-                </div>
-              </div>
-            {/if}
-
-            {#if localApps.length === 0 && localConfig.groups.length === 0}
-              <div class="text-center py-8 text-gray-400">
-                No applications or groups configured. Click "Add App" to get started.
-              </div>
-            {/if}
           </div>
+
+          <!-- Ungrouped apps -->
+          {#if (dndGroupedApps[''] || []).length > 0 || localConfig.groups.length > 0}
+            {@const ungroupedApps = dndGroupedApps[''] || []}
+            <div class="rounded-lg border border-gray-700 border-dashed">
+              <div class="p-3 bg-gray-700/20 rounded-t-lg">
+                <span class="text-sm font-medium text-gray-400">Ungrouped</span>
+                <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
+              </div>
+              <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} on:consider={(e) => handleAppDndConsider(e, '')} on:finalize={(e) => handleAppDndFinalize(e, '')}>
+                {#each ungroupedApps as app (app.id)}
+                  <div
+                    class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
+                    animate:flip={{duration: flipDurationMs}}
+                  >
+                    <div class="flex-shrink-0 text-gray-600 hover:text-gray-400">
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                      </svg>
+                    </div>
+                    <div class="flex-shrink-0">
+                      <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
+                    </div>
+                    <div class="flex-1 min-w-0">
+                      <div class="flex items-center gap-2">
+                        <span class="font-medium text-white text-sm truncate">{app.name}</span>
+                        {#if app.default}
+                          <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
+                        {/if}
+                        {#if !app.enabled}
+                          <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
+                        {/if}
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <span class="text-xs text-gray-400 truncate">{app.url}</span>
+                        {#if app.proxy}
+                          <span class="app-indicator" title="Proxied through server">
+                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                          </span>
+                        {/if}
+                        {#if app.open_mode && app.open_mode !== 'iframe'}
+                          <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
+                            {app.open_mode === 'new_tab' ? '↗' : app.open_mode === 'new_window' ? '⧉' : '↪'}
+                          </span>
+                        {/if}
+                        {#if app.scale && app.scale !== 1}
+                          <span class="app-indicator" title="Scaled to {Math.round(app.scale * 100)}%">
+                            {Math.round(app.scale * 100)}%
+                          </span>
+                        {/if}
+                        {#if app.disable_keyboard_shortcuts}
+                          <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
+                        {/if}
+                      </div>
+                    </div>
+                    {#if confirmDeleteApp?.name === app.name}
+                      <div class="flex items-center gap-1">
+                        <span class="text-xs text-red-400 mr-1">Delete?</span>
+                        <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                                on:click={confirmDeleteAppAction}>Yes</button>
+                        <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+                                on:click={() => confirmDeleteApp = null}>No</button>
+                      </div>
+                    {:else}
+                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
+                        <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                on:click={() => editingApp = app} title="Edit">
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                                on:click={() => deleteApp(app)} title="Delete">
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    {/if}
+                  </div>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
+          {#if localApps.length === 0 && localConfig.groups.length === 0}
+            <div class="text-center py-8 text-gray-400">
+              No applications or groups configured. Click "Add App" to get started.
+            </div>
+          {/if}
         </div>
 
       <!-- Theme Settings -->
@@ -1291,7 +1263,7 @@
           </svg>
         </button>
       </div>
-      <div class="p-4 space-y-4">
+      <div class="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
         <div>
           <label for="app-name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
           <input
@@ -1311,6 +1283,18 @@
             class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             placeholder="http://localhost:8080"
           />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <div class="flex items-center gap-3">
+            <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
+            <button
+              class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
+              on:click={() => openIconBrowser('newApp')}
+            >
+              {newApp.icon?.name || 'Choose icon...'}
+            </button>
+          </div>
         </div>
         <div class="grid grid-cols-2 gap-4">
           <div>
@@ -1354,6 +1338,33 @@
               <option value={mode.value}>{mode.label} - {mode.description}</option>
             {/each}
           </select>
+        </div>
+        <div>
+          <label for="app-scale" class="block text-sm font-medium text-gray-300 mb-1">
+            Scale: {Math.round(newApp.scale * 100)}%
+          </label>
+          <input
+            id="app-scale"
+            type="range"
+            min="0.25"
+            max="5"
+            step="0.05"
+            bind:value={newApp.scale}
+            class="w-full"
+          />
+        </div>
+        <div class="space-y-2">
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              bind:checked={newApp.disable_keyboard_shortcuts}
+              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+            />
+            <div>
+              <span class="text-sm text-white">Let app use keyboard shortcuts</span>
+              <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
+            </div>
+          </label>
         </div>
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
@@ -1471,7 +1482,7 @@
         <h3 class="text-lg font-semibold text-white">Edit {editingApp.name}</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => editingApp = null}
+          on:click={closeEditApp}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1559,14 +1570,14 @@
         </div>
         <div>
           <label for="edit-app-scale" class="block text-sm font-medium text-gray-300 mb-1">
-            Scale: {editingApp.scale}x
+            Scale: {Math.round(editingApp.scale * 100)}%
           </label>
           <input
             id="edit-app-scale"
             type="range"
-            min="0.5"
-            max="2"
-            step="0.1"
+            min="0.25"
+            max="5"
+            step="0.05"
             bind:value={editingApp.scale}
             class="w-full"
           />
@@ -1596,12 +1607,23 @@
             />
             <span class="text-sm text-white">Use proxy (if enabled)</span>
           </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              bind:checked={editingApp.disable_keyboard_shortcuts}
+              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+            />
+            <div>
+              <span class="text-sm text-white">Let app use keyboard shortcuts</span>
+              <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
+            </div>
+          </label>
         </div>
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => editingApp = null}
+          on:click={closeEditApp}
         >
           Done
         </button>
@@ -1625,7 +1647,7 @@
         <h3 class="text-lg font-semibold text-white">Edit {editingGroup.name}</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => editingGroup = null}
+          on:click={closeEditGroup}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1679,7 +1701,7 @@
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => editingGroup = null}
+          on:click={closeEditGroup}
         >
           Done
         </button>
@@ -1785,3 +1807,109 @@
     </div>
   </div>
 {/if}
+</div>
+
+<style>
+  /* Theme-aware overrides: map Tailwind's hardcoded grays to CSS custom properties.
+     This makes the Settings UI adapt to light, dark, and custom themes instead of
+     being locked to dark-mode gray values. */
+
+  /* Surface backgrounds */
+  .settings :global(.bg-gray-800) {
+    background-color: var(--bg-surface) !important;
+  }
+  .settings :global(.bg-gray-700) {
+    background-color: var(--bg-elevated) !important;
+  }
+  .settings :global([class*="bg-gray-700/"]) {
+    background-color: var(--bg-hover) !important;
+  }
+  .settings :global(.bg-gray-600) {
+    background-color: var(--bg-overlay) !important;
+  }
+
+  /* Borders */
+  .settings :global(.border-gray-700) {
+    border-color: var(--border-default) !important;
+  }
+  .settings :global(.border-gray-600) {
+    border-color: var(--border-subtle) !important;
+  }
+  .settings :global(.border-gray-500) {
+    border-color: var(--border-strong) !important;
+  }
+
+  /* Text */
+  .settings :global(.text-white) {
+    color: var(--text-primary) !important;
+  }
+  .settings :global(.text-gray-100),
+  .settings :global(.text-gray-200) {
+    color: var(--text-primary) !important;
+  }
+  .settings :global(.text-gray-300) {
+    color: var(--text-secondary) !important;
+  }
+  .settings :global(.text-gray-400) {
+    color: var(--text-muted) !important;
+  }
+  .settings :global(.text-gray-500) {
+    color: var(--text-disabled) !important;
+  }
+
+  /* Hover backgrounds */
+  .settings :global(.hover\:bg-gray-700:hover) {
+    background-color: var(--bg-hover) !important;
+  }
+  .settings :global(.hover\:bg-gray-600:hover) {
+    background-color: var(--bg-active) !important;
+  }
+  .settings :global(.hover\:bg-gray-500:hover) {
+    background-color: var(--bg-active) !important;
+  }
+
+  /* Hover text */
+  .settings :global(.hover\:text-white:hover) {
+    color: var(--text-primary) !important;
+  }
+  .settings :global(.hover\:text-gray-300:hover) {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Hover borders */
+  .settings :global(.hover\:border-gray-600:hover) {
+    border-color: var(--border-default) !important;
+  }
+  .settings :global(.hover\:border-gray-500:hover) {
+    border-color: var(--border-strong) !important;
+  }
+
+  /* Focus ring offset should match the modal surface */
+  .settings :global(.focus\:ring-offset-gray-800) {
+    --tw-ring-offset-color: var(--bg-surface) !important;
+  }
+
+  /* App status indicators */
+  .settings :global(.app-indicator) {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 0.6875rem;
+    line-height: 1;
+    padding: 2px 5px;
+    border-radius: 4px;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Drop indicator for intra-group drag-and-drop */
+  .settings :global(.drop-indicator) {
+    height: 2px;
+    background: var(--accent-primary);
+    border-radius: 1px;
+    margin: 0 8px;
+    box-shadow: 0 0 6px var(--accent-primary);
+  }
+</style>
