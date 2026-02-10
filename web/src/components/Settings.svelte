@@ -1200,7 +1200,7 @@
             {/if}
 
             <!-- Saved custom themes with delete option -->
-            {#each $allThemes.filter(t => !t.isBuiltin && t.id !== 'nord' && t.id !== 'catppuccin') as theme (theme.id)}
+            {#each $allThemes.filter(t => !t.isBuiltin) as theme (theme.id)}
               <div class="flex items-center justify-between p-3 rounded-lg" style="background: var(--bg-surface); border: 1px solid var(--border-subtle);">
                 <div class="flex items-center gap-3">
                   {#if theme.preview}

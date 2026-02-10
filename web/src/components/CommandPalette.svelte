@@ -210,6 +210,26 @@
         selectedIndex = Math.max(selectedIndex - 1, 0);
         scrollToSelected();
         break;
+      case 'PageDown':
+        event.preventDefault();
+        selectedIndex = Math.min(selectedIndex + 10, flatCommands.length - 1);
+        scrollToSelected();
+        break;
+      case 'PageUp':
+        event.preventDefault();
+        selectedIndex = Math.max(selectedIndex - 10, 0);
+        scrollToSelected();
+        break;
+      case 'Home':
+        event.preventDefault();
+        selectedIndex = 0;
+        scrollToSelected();
+        break;
+      case 'End':
+        event.preventDefault();
+        selectedIndex = flatCommands.length - 1;
+        scrollToSelected();
+        break;
       case 'Enter':
         event.preventDefault();
         if (flatCommands[selectedIndex]) {

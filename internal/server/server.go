@@ -258,8 +258,11 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Forward-declare so /themes/ handler closure can reference it
 	var staticHandler http.Handler
 
+	// Extract embedded dist filesystem (used for bundled themes + static serving)
+	distFS, distErr := fs.Sub(embeddedFiles, "dist")
+
 	// Theme routes (custom theme CRUD API)
-	themeHandler := handlers.NewThemeHandler("data/themes")
+	themeHandler := handlers.NewThemeHandler("data/themes", distFS)
 	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -360,8 +363,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	})
 
 	// Serve embedded frontend files
-	distFS, err := fs.Sub(embeddedFiles, "dist")
-	if err != nil {
+	if distErr != nil {
 		// Fallback to serving from web/dist during development
 		fileServer := http.FileServer(http.Dir("web/dist"))
 		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")

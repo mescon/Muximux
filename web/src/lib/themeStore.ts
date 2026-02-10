@@ -31,7 +31,8 @@ export interface ThemeInfo {
   };
 }
 
-// Built-in theme definitions
+// Built-in theme definitions (CSS-only, no hardcoded data)
+// Dark and Light are defined in app.css; all others come from /api/themes
 export const builtinThemes: ThemeInfo[] = [
   {
     id: 'dark',
@@ -57,32 +58,6 @@ export const builtinThemes: ThemeInfo[] = [
       surface: '#ffffff',
       accent: '#0d9488',
       text: '#18181b'
-    }
-  },
-  {
-    id: 'nord',
-    name: 'Nord',
-    description: 'Arctic, north-bluish color palette',
-    isBuiltin: false, // Loaded from CSS file
-    isDark: true,
-    preview: {
-      bg: '#2e3440',
-      surface: '#3b4252',
-      accent: '#88c0d0',
-      text: '#eceff4'
-    }
-  },
-  {
-    id: 'catppuccin',
-    name: 'Catppuccin',
-    description: 'Soothing pastel theme (Mocha)',
-    isBuiltin: false, // Loaded from CSS file
-    isDark: true,
-    preview: {
-      bg: '#1e1e2e',
-      surface: '#313244',
-      accent: '#cba6f7',
-      text: '#cdd6f4'
     }
   }
 ];

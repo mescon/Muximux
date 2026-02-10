@@ -3,23 +3,26 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
+	"sort"
 	"strings"
 )
 
 // ThemeHandler handles custom theme CRUD operations
 type ThemeHandler struct {
-	themesDir string
+	themesDir  string
+	bundledFS  fs.FS // embedded filesystem containing bundled theme CSS files (themes/*.css)
 }
 
-// NewThemeHandler creates a new theme handler
-func NewThemeHandler(themesDir string) *ThemeHandler {
-	// Ensure directory exists
+// NewThemeHandler creates a new theme handler.
+// bundledFS should be the embedded dist filesystem (or nil if unavailable).
+func NewThemeHandler(themesDir string, bundledFS fs.FS) *ThemeHandler {
 	os.MkdirAll(themesDir, 0755)
-	return &ThemeHandler{themesDir: themesDir}
+	return &ThemeHandler{themesDir: themesDir, bundledFS: bundledFS}
 }
 
 // ThemeInfo represents theme metadata for the API
@@ -48,32 +51,60 @@ type ThemeSaveRequest struct {
 	Variables map[string]string `json:"variables"`
 }
 
-// ListThemes returns all custom themes from the themes directory
+// ListThemes returns all available themes (bundled + user-created).
+// Bundled themes are read from the embedded filesystem, user themes from disk.
+// User themes with the same ID override bundled ones.
 func (h *ThemeHandler) ListThemes(w http.ResponseWriter, r *http.Request) {
+	themeMap := make(map[string]ThemeInfo)
+
+	// 1. Scan bundled themes from embedded filesystem
+	if h.bundledFS != nil {
+		entries, err := fs.ReadDir(h.bundledFS, "themes")
+		if err == nil {
+			for _, entry := range entries {
+				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
+					continue
+				}
+				data, err := fs.ReadFile(h.bundledFS, "themes/"+entry.Name())
+				if err != nil {
+					continue
+				}
+				theme := parseThemeMetadata(string(data), entry.Name())
+				if theme != nil {
+					theme.IsBuiltin = true
+					themeMap[theme.ID] = *theme
+				}
+			}
+		}
+	}
+
+	// 2. Scan user-created themes from disk (override bundled if same ID)
 	entries, err := os.ReadDir(h.themesDir)
-	if err != nil {
-		// Directory might not exist yet
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode([]ThemeInfo{})
-		return
-	}
-
-	themes := make([]ThemeInfo, 0)
-	for _, entry := range entries {
-		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
-			continue
-		}
-
-		data, err := os.ReadFile(filepath.Join(h.themesDir, entry.Name()))
-		if err != nil {
-			continue
-		}
-
-		theme := parseThemeMetadata(string(data), entry.Name())
-		if theme != nil {
-			themes = append(themes, *theme)
+	if err == nil {
+		for _, entry := range entries {
+			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
+				continue
+			}
+			data, err := os.ReadFile(filepath.Join(h.themesDir, entry.Name()))
+			if err != nil {
+				continue
+			}
+			theme := parseThemeMetadata(string(data), entry.Name())
+			if theme != nil {
+				theme.IsBuiltin = false
+				themeMap[theme.ID] = *theme
+			}
 		}
 	}
+
+	// 3. Collect and sort by name
+	themes := make([]ThemeInfo, 0, len(themeMap))
+	for _, t := range themeMap {
+		themes = append(themes, t)
+	}
+	sort.Slice(themes, func(i, j int) bool {
+		return themes[i].Name < themes[j].Name
+	})
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(themes)
@@ -141,8 +172,8 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Don't allow deleting builtin themes
-	if name == "dark" || name == "light" || name == "nord" || name == "catppuccin" {
+	// Don't allow deleting builtin themes (dark/light are CSS-only, others are bundled files)
+	if name == "dark" || name == "light" || h.isBundledTheme(name) {
 		http.Error(w, "Cannot delete builtin themes", http.StatusBadRequest)
 		return
 	}
@@ -161,6 +192,15 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "deleted",
 	})
+}
+
+// isBundledTheme checks whether a theme ID exists in the embedded filesystem
+func (h *ThemeHandler) isBundledTheme(id string) bool {
+	if h.bundledFS == nil {
+		return false
+	}
+	_, err := fs.Stat(h.bundledFS, "themes/"+id+".css")
+	return err == nil
 }
 
 // parseThemeMetadata extracts theme info from CSS file comments
