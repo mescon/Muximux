@@ -58,7 +58,7 @@ func (h *ThemeHandler) ListThemes(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var themes []ThemeInfo
+	themes := make([]ThemeInfo, 0)
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
 			continue

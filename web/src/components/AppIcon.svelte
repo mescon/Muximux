@@ -5,6 +5,7 @@
   export let name: string;
   export let color: string = '#374151';
   export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
+  export let showBackground: boolean = true;
 
   // Size classes
   const sizeClasses = {
@@ -48,7 +49,7 @@
 
 <div
   class="rounded flex items-center justify-center font-bold {sizeClasses[size]}"
-  style="background-color: {color}"
+  style="background-color: {showBackground ? color : 'transparent'}"
 >
   {#if iconUrl && !imageError}
     <img

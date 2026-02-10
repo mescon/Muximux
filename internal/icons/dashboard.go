@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -32,7 +33,7 @@ type IconInfo struct {
 const (
 	GitHubOwner = "homarr-labs"
 	GitHubRepo  = "dashboard-icons"
-	RawBaseURL  = "https://raw.githubusercontent.com/homarr-labs/dashboard-icons/main"
+	RawBaseURL  = "https://cdn.jsdelivr.net/gh/homarr-labs/dashboard-icons"
 	APIBaseURL  = "https://api.github.com/repos/homarr-labs/dashboard-icons/contents"
 )
 
@@ -193,10 +194,10 @@ func (c *DashboardIconsClient) saveToCache(name, variant string, data []byte) er
 	return os.WriteFile(cachePath, data, 0644)
 }
 
-// fetchIconList fetches the list of available icons from GitHub
+// fetchIconList fetches the list of available icons from GitHub using the Trees API
+// (the Contents API has a 1000-file limit per directory)
 func (c *DashboardIconsClient) fetchIconList() ([]IconInfo, error) {
-	// Fetch the SVG directory listing from GitHub API
-	url := fmt.Sprintf("%s/svg", APIBaseURL)
+	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/git/trees/main?recursive=1", GitHubOwner, GitHubRepo)
 
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -214,24 +215,35 @@ func (c *DashboardIconsClient) fetchIconList() ([]IconInfo, error) {
 		return nil, fmt.Errorf("failed to fetch icon list: status %d", resp.StatusCode)
 	}
 
-	var files []struct {
-		Name string `json:"name"`
-		Type string `json:"type"`
+	var tree struct {
+		Tree []struct {
+			Path string `json:"path"`
+			Type string `json:"type"`
+		} `json:"tree"`
 	}
-	if err := json.NewDecoder(resp.Body).Decode(&files); err != nil {
-		return nil, fmt.Errorf("failed to parse icon list: %w", err)
+	if err := json.NewDecoder(resp.Body).Decode(&tree); err != nil {
+		return nil, fmt.Errorf("failed to parse icon tree: %w", err)
+	}
+
+	// Collect unique icon names from svg/ directory
+	iconSet := make(map[string]bool)
+	for _, entry := range tree.Tree {
+		if entry.Type == "blob" && strings.HasPrefix(entry.Path, "svg/") && strings.HasSuffix(entry.Path, ".svg") {
+			name := strings.TrimSuffix(strings.TrimPrefix(entry.Path, "svg/"), ".svg")
+			iconSet[name] = true
+		}
 	}
 
 	var icons []IconInfo
-	for _, file := range files {
-		if file.Type == "file" && strings.HasSuffix(file.Name, ".svg") {
-			name := strings.TrimSuffix(file.Name, ".svg")
-			icons = append(icons, IconInfo{
-				Name:     name,
-				Variants: []string{"svg", "png", "webp"},
-			})
-		}
+	for name := range iconSet {
+		icons = append(icons, IconInfo{
+			Name:     name,
+			Variants: []string{"svg", "png", "webp"},
+		})
 	}
+
+	// Sort for consistent ordering
+	sortIconInfoByName(icons)
 
 	// Cache the list
 	c.mu.Lock()
@@ -240,6 +252,12 @@ func (c *DashboardIconsClient) fetchIconList() ([]IconInfo, error) {
 	c.mu.Unlock()
 
 	return icons, nil
+}
+
+func sortIconInfoByName(icons []IconInfo) {
+	sort.Slice(icons, func(i, j int) bool {
+		return icons[i].Name < icons[j].Name
+	})
 }
 
 // getContentType returns the MIME type for an icon variant

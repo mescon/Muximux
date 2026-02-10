@@ -5,6 +5,7 @@
   import AppIcon from './AppIcon.svelte';
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
+  import { captureKeybindings } from '$lib/keybindingCaptureStore';
 
   export let apps: App[];
 
@@ -17,7 +18,11 @@
   let query = '';
   let selectedIndex = 0;
   let inputElement: HTMLInputElement;
+  let resultsElement: HTMLElement;
   let isMobile = false;
+
+  // Recent apps from localStorage
+  let recentAppNames: string[] = [];
 
   // Command types
   interface Command {
@@ -32,7 +37,6 @@
 
   // Map action IDs to keybinding actions
   const actionToKeybinding: Record<string, KeyAction> = {
-    'search': 'search',
     'settings': 'settings',
     'shortcuts': 'shortcuts',
     'fullscreen': 'fullscreen',
@@ -51,14 +55,14 @@
     return formatKeybinding(binding);
   }
 
-  // All available commands (shortcuts are derived from keybindings store)
+  // All available actions (no "Open Search" — we're already in the palette)
   $: actions = [
-    { id: 'search', type: 'action' as const, label: 'Open Search', shortcut: getShortcut('search'), icon: 'search' },
     { id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' },
     { id: 'shortcuts', type: 'action' as const, label: 'Show Keyboard Shortcuts', shortcut: getShortcut('shortcuts'), icon: 'help' },
     { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
     { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
     { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
+    { id: 'toggle-keybindings', type: 'action' as const, label: $captureKeybindings ? 'Pause Keyboard Shortcuts' : 'Resume Keyboard Shortcuts', icon: 'keyboard' },
     { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
     { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
     { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },
@@ -105,23 +109,40 @@
     return patternIdx === pattern.length ? score : 0;
   }
 
+  // Get command score (incorporates recency for apps, number matching)
+  function getCommandScore(cmd: Command, q: string): number {
+    if (!q) {
+      // No query — recency for apps, fixed order for actions/settings
+      if (cmd.type === 'app' && cmd.app) {
+        const recentIndex = recentAppNames.indexOf(cmd.app.name);
+        return recentIndex >= 0 ? 1000 - recentIndex : 0;
+      }
+      return 0;
+    }
+
+    // Number query matches app position (1-9)
+    const trimmed = q.trim();
+    if (cmd.type === 'app' && /^[1-9]$/.test(trimmed)) {
+      const appIndex = apps.findIndex(a => a.name === cmd.app?.name);
+      if (appIndex === parseInt(trimmed) - 1) return 2000;
+    }
+
+    const nameScore = fuzzyMatch(cmd.label, q);
+    const descScore = cmd.description ? fuzzyMatch(cmd.description, q) * 0.5 : 0;
+    return Math.max(nameScore, descScore);
+  }
+
   // Filter and sort commands
   $: filteredCommands = query
     ? allCommands
-        .map(cmd => ({
-          cmd,
-          score: Math.max(
-            fuzzyMatch(cmd.label, query),
-            cmd.description ? fuzzyMatch(cmd.description, query) * 0.5 : 0
-          ),
-        }))
+        .map(cmd => ({ cmd, score: getCommandScore(cmd, query) }))
         .filter(({ score }) => score > 0)
         .sort((a, b) => b.score - a.score)
         .map(({ cmd }) => cmd)
     : allCommands;
 
-  $: if (selectedIndex >= filteredCommands.length) {
-    selectedIndex = Math.max(0, filteredCommands.length - 1);
+  $: if (selectedIndex >= flatCommands.length) {
+    selectedIndex = Math.max(0, flatCommands.length - 1);
   }
 
   // Reset selection when query changes
@@ -131,6 +152,16 @@
     inputElement?.focus();
     isMobile = isMobileViewport();
 
+    // Load recent apps
+    const stored = localStorage.getItem('muximux_recent_apps');
+    if (stored) {
+      try {
+        recentAppNames = JSON.parse(stored);
+      } catch {
+        recentAppNames = [];
+      }
+    }
+
     const handleResize = () => { isMobile = isMobileViewport(); };
     window.addEventListener('resize', handleResize);
 
@@ -139,9 +170,17 @@
     };
   });
 
+  function selectApp(app: App) {
+    // Update recent apps
+    recentAppNames = [app.name, ...recentAppNames.filter(n => n !== app.name)].slice(0, 10);
+    localStorage.setItem('muximux_recent_apps', JSON.stringify(recentAppNames));
+
+    dispatch('select', app);
+  }
+
   function executeCommand(cmd: Command) {
     if (cmd.type === 'app' && cmd.app) {
-      dispatch('select', cmd.app);
+      selectApp(cmd.app);
     } else {
       dispatch('action', cmd.id);
     }
@@ -149,24 +188,56 @@
   }
 
   function handleKeydown(event: KeyboardEvent) {
+    // Ctrl/Cmd + 1-9 quick select
+    if ((event.ctrlKey || event.metaKey) && event.key >= '1' && event.key <= '9') {
+      event.preventDefault();
+      const index = parseInt(event.key) - 1;
+      if (apps[index]) {
+        selectApp(apps[index]);
+        dispatch('close');
+      }
+      return;
+    }
+
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        selectedIndex = Math.min(selectedIndex + 1, filteredCommands.length - 1);
+        selectedIndex = Math.min(selectedIndex + 1, flatCommands.length - 1);
+        scrollToSelected();
         break;
       case 'ArrowUp':
         event.preventDefault();
         selectedIndex = Math.max(selectedIndex - 1, 0);
+        scrollToSelected();
         break;
       case 'Enter':
         event.preventDefault();
-        if (filteredCommands[selectedIndex]) {
-          executeCommand(filteredCommands[selectedIndex]);
+        if (flatCommands[selectedIndex]) {
+          executeCommand(flatCommands[selectedIndex]);
         }
         break;
       case 'Escape':
         dispatch('close');
         break;
+    }
+  }
+
+  function scrollToSelected() {
+    // Wait a tick for the DOM to update, then scroll the selected item into view
+    requestAnimationFrame(() => {
+      if (!resultsElement) return;
+      const item = resultsElement.querySelector('[data-selected="true"]') as HTMLElement;
+      if (item) {
+        item.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+
+  function getOpenModeIcon(mode: string): string {
+    switch (mode) {
+      case 'new_tab': return '↗';
+      case 'new_window': return '⧉';
+      default: return '';
     }
   }
 
@@ -184,6 +255,8 @@
         return 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15';
       case 'home':
         return 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6';
+      case 'keyboard':
+        return 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4';
       case 'moon':
         return 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z';
       case 'sun':
@@ -195,30 +268,36 @@
     }
   }
 
-  // Group commands by type for display
-  $: groupedCommands = {
-    apps: filteredCommands.filter(c => c.type === 'app'),
-    actions: filteredCommands.filter(c => c.type === 'action'),
-    settings: filteredCommands.filter(c => c.type === 'setting'),
-  };
+  // When no query: show Recent apps (up to 3), then remaining apps, then actions, then settings
+  // When query: flat filtered list grouped by type
+  $: showRecentHeader = !query && recentAppNames.length > 0;
+  $: recentCommands = showRecentHeader
+    ? filteredCommands.filter(c => c.type === 'app' && c.app && recentAppNames.includes(c.app.name)).slice(0, 3)
+    : [];
+  $: otherAppCommands = showRecentHeader
+    ? filteredCommands.filter(c => c.type === 'app' && (!c.app || !recentAppNames.includes(c.app.name)))
+    : filteredCommands.filter(c => c.type === 'app');
+  $: actionCommands = filteredCommands.filter(c => c.type === 'action');
+  $: settingCommands = filteredCommands.filter(c => c.type === 'setting');
 
-  $: hasApps = groupedCommands.apps.length > 0;
-  $: hasActions = groupedCommands.actions.length > 0;
-  $: hasSettings = groupedCommands.settings.length > 0;
+  $: hasRecent = recentCommands.length > 0;
+  $: hasApps = otherAppCommands.length > 0;
+  $: hasActions = actionCommands.length > 0;
+  $: hasSettings = settingCommands.length > 0;
 
   // Global index mapping for keyboard navigation
   $: flatCommands = [
-    ...groupedCommands.apps,
-    ...groupedCommands.actions,
-    ...groupedCommands.settings,
+    ...recentCommands,
+    ...otherAppCommands,
+    ...actionCommands,
+    ...settingCommands,
   ];
 </script>
 
 <!-- Backdrop -->
 <div
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex {isMobile ? 'items-end' : 'items-start justify-center pt-[15vh]'}"
+  class="command-palette-backdrop fixed inset-0 backdrop-blur-sm z-50 flex {isMobile ? 'items-end' : 'items-start justify-center pt-[15vh]'}"
   on:click={() => dispatch('close')}
-  on:keydown={handleKeydown}
   role="dialog"
   aria-modal="true"
   aria-label="Command palette"
@@ -226,7 +305,7 @@
 >
   <!-- Command palette modal -->
   <div
-    class="w-full bg-gray-800 shadow-2xl border border-gray-700 overflow-hidden
+    class="command-palette-modal w-full shadow-2xl overflow-hidden
            {isMobile
              ? 'rounded-t-2xl max-h-[85vh] border-b-0'
              : 'max-w-xl rounded-xl mx-4'}"
@@ -238,48 +317,49 @@
     <!-- Mobile drag handle -->
     {#if isMobile}
       <div class="flex justify-center pt-3 pb-1">
-        <div class="w-10 h-1 bg-gray-600 rounded-full"></div>
+        <div class="w-10 h-1 rounded-full" style="background: var(--bg-active);"></div>
       </div>
     {/if}
 
     <!-- Search input -->
-    <div class="p-4 border-b border-gray-700">
+    <div class="p-4 border-b" style="border-color: var(--border-subtle);">
       <div class="flex items-center space-x-3">
-        <svg class="w-5 h-5 text-brand-400 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+        <svg class="w-5 h-5 flex-shrink-0" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
         </svg>
         <input
           bind:this={inputElement}
           bind:value={query}
           type="text"
-          placeholder="Type a command or search..."
-          class="flex-1 bg-transparent text-white placeholder-gray-500 outline-none text-lg min-w-0"
+          placeholder="Search apps and commands..."
+          class="command-palette-input flex-1 bg-transparent outline-none text-lg min-w-0"
           on:keydown={handleKeydown}
         />
-        <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded flex-shrink-0">esc</kbd>
+        <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">esc</kbd>
       </div>
     </div>
 
     <!-- Results -->
-    <div class="{isMobile ? 'max-h-[60vh]' : 'max-h-80'} overflow-auto">
-      {#if filteredCommands.length === 0}
-        <div class="p-4 text-center text-gray-500">
-          No commands found matching "{query}"
+    <div bind:this={resultsElement} class="{isMobile ? 'max-h-[60vh]' : 'max-h-80'} overflow-auto">
+      {#if flatCommands.length === 0}
+        <div class="p-4 text-center" style="color: var(--text-disabled);">
+          No results found for "{query}"
         </div>
       {:else}
-        <!-- Apps section -->
-        {#if hasApps}
+        <!-- Recent section (only when no query) -->
+        {#if hasRecent}
           <div class="px-4 pt-3 pb-1">
-            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Apps</span>
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Recent</span>
           </div>
           <ul class="pb-2">
-            {#each groupedCommands.apps as cmd}
+            {#each recentCommands as cmd}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
-                         {isMobile ? 'py-3.5' : 'py-3'}
-                         {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
+                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                         {isMobile ? 'py-3.5' : 'py-3'}"
+                  style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
+                  data-selected={globalIndex === selectedIndex}
                   on:click={() => executeCommand(cmd)}
                   on:mouseenter={() => selectedIndex = globalIndex}
                 >
@@ -287,13 +367,60 @@
                     <AppIcon icon={cmd.app.icon} name={cmd.app.name} color={cmd.app.color} size="md" />
                   {/if}
                   <div class="flex-1 min-w-0">
-                    <div class="text-white font-medium truncate">{cmd.label}</div>
+                    <div class="font-medium truncate" style="color: var(--text-primary);">
+                      {cmd.label}
+                      {#if cmd.app && cmd.app.open_mode !== 'iframe'}
+                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
+                      {/if}
+                    </div>
                     {#if cmd.description}
-                      <div class="text-sm text-gray-500 truncate">{cmd.description}</div>
+                      <div class="text-sm truncate" style="color: var(--text-disabled);">{cmd.description}</div>
                     {/if}
                   </div>
                   {#if cmd.shortcut}
-                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded flex-shrink-0">
+                    <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">
+                      {cmd.shortcut}
+                    </kbd>
+                  {/if}
+                </button>
+              </li>
+            {/each}
+          </ul>
+        {/if}
+
+        <!-- Apps section -->
+        {#if hasApps}
+          <div class="px-4 pt-2 pb-1 {hasRecent ? 'border-t' : 'pt-3'}" style="{hasRecent ? 'border-color: var(--border-subtle);' : ''}">
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Apps</span>
+          </div>
+          <ul class="pb-2">
+            {#each otherAppCommands as cmd}
+              {@const globalIndex = flatCommands.indexOf(cmd)}
+              <li>
+                <button
+                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                         {isMobile ? 'py-3.5' : 'py-3'}"
+                  style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
+                  data-selected={globalIndex === selectedIndex}
+                  on:click={() => executeCommand(cmd)}
+                  on:mouseenter={() => selectedIndex = globalIndex}
+                >
+                  {#if cmd.app}
+                    <AppIcon icon={cmd.app.icon} name={cmd.app.name} color={cmd.app.color} size="md" />
+                  {/if}
+                  <div class="flex-1 min-w-0">
+                    <div class="font-medium truncate" style="color: var(--text-primary);">
+                      {cmd.label}
+                      {#if cmd.app && cmd.app.open_mode !== 'iframe'}
+                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
+                      {/if}
+                    </div>
+                    {#if cmd.description}
+                      <div class="text-sm truncate" style="color: var(--text-disabled);">{cmd.description}</div>
+                    {/if}
+                  </div>
+                  {#if cmd.shortcut}
+                    <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">
                       {cmd.shortcut}
                     </kbd>
                   {/if}
@@ -305,30 +432,31 @@
 
         <!-- Actions section -->
         {#if hasActions}
-          <div class="px-4 pt-2 pb-1 {hasApps ? 'border-t border-gray-700' : ''}">
-            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</span>
+          <div class="px-4 pt-2 pb-1 {hasRecent || hasApps ? 'border-t' : ''}" style="{hasRecent || hasApps ? 'border-color: var(--border-subtle);' : ''}">
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Actions</span>
           </div>
           <ul class="pb-2">
-            {#each groupedCommands.actions as cmd}
+            {#each actionCommands as cmd}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
-                         {isMobile ? 'py-3' : 'py-2.5'}
-                         {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
+                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
+                         {isMobile ? 'py-3' : 'py-2.5'}"
+                  style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
+                  data-selected={globalIndex === selectedIndex}
                   on:click={() => executeCommand(cmd)}
                   on:mouseenter={() => selectedIndex = globalIndex}
                 >
-                  <div class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--bg-hover);">
+                    <svg class="w-4 h-4" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSvg(cmd.icon)} />
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-white truncate">{cmd.label}</div>
+                    <div class="truncate" style="color: var(--text-primary);">{cmd.label}</div>
                   </div>
                   {#if cmd.shortcut}
-                    <kbd class="hidden sm:inline-block px-2 py-1 text-xs text-gray-500 bg-gray-700 rounded flex-shrink-0">
+                    <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">
                       {cmd.shortcut}
                     </kbd>
                   {/if}
@@ -340,27 +468,28 @@
 
         <!-- Settings section -->
         {#if hasSettings}
-          <div class="px-4 pt-2 pb-1 {hasApps || hasActions ? 'border-t border-gray-700' : ''}">
-            <span class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Settings</span>
+          <div class="px-4 pt-2 pb-1 {hasRecent || hasApps || hasActions ? 'border-t' : ''}" style="{hasRecent || hasApps || hasActions ? 'border-color: var(--border-subtle);' : ''}">
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Settings</span>
           </div>
           <ul class="pb-2">
-            {#each groupedCommands.settings as cmd}
+            {#each settingCommands as cmd}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
-                         {isMobile ? 'py-3' : 'py-2.5'}
-                         {globalIndex === selectedIndex ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
+                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
+                         {isMobile ? 'py-3' : 'py-2.5'}"
+                  style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
+                  data-selected={globalIndex === selectedIndex}
                   on:click={() => executeCommand(cmd)}
                   on:mouseenter={() => selectedIndex = globalIndex}
                 >
-                  <div class="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--bg-hover);">
+                    <svg class="w-4 h-4" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSvg(cmd.icon)} />
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">
-                    <div class="text-white truncate">{cmd.label}</div>
+                    <div class="truncate" style="color: var(--text-primary);">{cmd.label}</div>
                   </div>
                 </button>
               </li>
@@ -372,15 +501,45 @@
 
     <!-- Footer hints -->
     {#if !isMobile}
-      <div class="px-4 py-2 border-t border-gray-700 text-xs text-gray-500 flex items-center space-x-4">
+      <div class="px-4 py-2 border-t text-xs flex items-center space-x-4" style="border-color: var(--border-subtle); color: var(--text-disabled);">
         <span>↑↓ Navigate</span>
         <span>⏎ Execute</span>
+        <span>⌘1-9 Quick select</span>
         <span>esc Close</span>
       </div>
     {:else}
-      <div class="px-4 py-3 pb-safe border-t border-gray-700 text-center">
-        <span class="text-xs text-gray-500">Tap outside to close</span>
+      <div class="px-4 py-3 pb-safe border-t text-center" style="border-color: var(--border-subtle);">
+        <span class="text-xs" style="color: var(--text-disabled);">Tap outside to close</span>
       </div>
     {/if}
   </div>
 </div>
+
+<style>
+  /* Command palette theming */
+  .command-palette-backdrop {
+    background: rgba(0, 0, 0, 0.6);
+  }
+
+  .command-palette-modal {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .command-palette-input {
+    color: var(--text-primary);
+  }
+
+  .command-palette-input::placeholder {
+    color: var(--text-disabled);
+  }
+
+  .command-palette-kbd {
+    background: var(--bg-overlay);
+    color: var(--text-disabled);
+  }
+
+  .command-palette-item:hover {
+    background: var(--bg-hover) !important;
+  }
+</style>

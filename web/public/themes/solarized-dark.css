@@ -1,0 +1,105 @@
+/**
+ * Solarized Dark Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Precision colors for machines and people, designed with both precise
+ * CIELAB lightness relationships and a restrained palette.
+ * Based on Solarized: https://ethanschoonover.com/solarized/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: solarized-dark
+ * @theme-name: Solarized Dark
+ * @theme-description: Precision colors with balanced contrast
+ * @theme-is-dark: true
+ * @theme-preview-bg: #002b36
+ * @theme-preview-surface: #073642
+ * @theme-preview-accent: #268bd2
+ * @theme-preview-text: #839496
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="solarized-dark"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     SOLARIZED PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Background tones:
+       #002b36 - base03 (darkest background)
+       #073642 - base02 (background highlight)
+       #586e75 - base01 (secondary content / comments)
+       #657b83 - base00 (body text in light mode)
+
+     Content tones:
+       #839496 - base0  (body text in dark mode)
+       #93a1a1 - base1  (secondary content in light mode)
+       #eee8d5 - base2  (background in light mode)
+       #fdf6e3 - base3  (lightest background)
+
+     Accent colors:
+       #b58900 - yellow
+       #cb4b16 - orange
+       #dc322f - red
+       #d33682 - magenta
+       #6c71c4 - violet
+       #268bd2 - blue (primary)
+       #2aa198 - cyan
+       #859900 - green
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #002b36;
+  --bg-surface: #073642;
+  --bg-elevated: #0a4050;
+  --bg-overlay: #0d4d5f;
+  --bg-hover: #0a4050;
+  --bg-active: #0d4d5f;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(7, 54, 66, 0.85);
+  --glass-border: rgba(131, 148, 150, 0.1);
+  --glass-highlight: rgba(131, 148, 150, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #93a1a1;
+  --text-secondary: #839496;
+  --text-muted: #586e75;
+  --text-disabled: #465a61;
+
+  /* Borders */
+  --border-subtle: rgba(131, 148, 150, 0.08);
+  --border-default: rgba(131, 148, 150, 0.12);
+  --border-strong: rgba(131, 148, 150, 0.18);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Blue */
+  --accent-primary: #268bd2;
+  --accent-secondary: #2aa198;
+  --accent-muted: rgba(38, 139, 210, 0.25);
+  --accent-subtle: rgba(38, 139, 210, 0.12);
+
+  /* Brand palette - derived from Blue */
+  --color-brand-50: #e8f4fc;
+  --color-brand-100: #c8e3f6;
+  --color-brand-200: #8cc4ec;
+  --color-brand-300: #4ba3de;
+  --color-brand-400: #268bd2;
+  --color-brand-500: #1a6ca6;
+  --color-brand-600: #145280;
+  --color-brand-700: #0f3d5f;
+  --color-brand-800: #073642;
+  --color-brand-900: #002b36;
+  --color-brand-950: #001f27;
+
+  /* Status colors - using Solarized semantic colors */
+  --status-success: #859900;
+  --status-warning: #b58900;
+  --status-error: #dc322f;
+  --status-info: #268bd2;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(38, 139, 210, 0.2);
+}

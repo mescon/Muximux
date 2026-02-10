@@ -1,0 +1,94 @@
+/**
+ * Dracula Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * A dark theme with vibrant colors inspired by classic horror.
+ * Based on Dracula: https://draculatheme.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: dracula
+ * @theme-name: Dracula
+ * @theme-description: Dark theme with vibrant colors
+ * @theme-is-dark: true
+ * @theme-preview-bg: #282a36
+ * @theme-preview-surface: #44475a
+ * @theme-preview-accent: #bd93f9
+ * @theme-preview-text: #f8f8f2
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="dracula"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     DRACULA PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Background:   #282a36
+     Current Line: #44475a
+     Foreground:   #f8f8f2
+     Comment:      #6272a4
+     Cyan:         #8be9fd
+     Green:        #50fa7b
+     Orange:       #ffb86c
+     Pink:         #ff79c6
+     Purple:       #bd93f9
+     Red:          #ff5555
+     Yellow:       #f1fa8c
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #21222c;
+  --bg-surface: #282a36;
+  --bg-elevated: #44475a;
+  --bg-overlay: #4d5066;
+  --bg-hover: #44475a;
+  --bg-active: #4d5066;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(40, 42, 54, 0.85);
+  --glass-border: rgba(248, 248, 242, 0.1);
+  --glass-highlight: rgba(248, 248, 242, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #f8f8f2;
+  --text-secondary: #d4d4dc;
+  --text-muted: #6272a4;
+  --text-disabled: #515669;
+
+  /* Borders */
+  --border-subtle: rgba(248, 248, 242, 0.06);
+  --border-default: rgba(248, 248, 242, 0.1);
+  --border-strong: rgba(248, 248, 242, 0.16);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Purple */
+  --accent-primary: #bd93f9;
+  --accent-secondary: #ff79c6;
+  --accent-muted: rgba(189, 147, 249, 0.25);
+  --accent-subtle: rgba(189, 147, 249, 0.12);
+
+  /* Brand palette - derived from Purple */
+  --color-brand-50: #f5f0ff;
+  --color-brand-100: #ede5ff;
+  --color-brand-200: #dccbfe;
+  --color-brand-300: #bd93f9;
+  --color-brand-400: #a87ef5;
+  --color-brand-500: #9b6beb;
+  --color-brand-600: #7c4dca;
+  --color-brand-700: #5e35a0;
+  --color-brand-800: #44475a;
+  --color-brand-900: #282a36;
+  --color-brand-950: #21222c;
+
+  /* Status colors - using Dracula semantic colors */
+  --status-success: #50fa7b;
+  --status-warning: #ffb86c;
+  --status-error: #ff5555;
+  --status-info: #8be9fd;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(189, 147, 249, 0.2);
+}

@@ -13,6 +13,7 @@
     type BuiltinIconInfo,
     type CustomIconInfo
   } from '$lib/api';
+  import { toasts } from '$lib/toastStore';
   import SkeletonIconGrid from './SkeletonIconGrid.svelte';
   import ErrorState from './ErrorState.svelte';
 
@@ -53,6 +54,28 @@
   // File input ref
   let fileInput: HTMLInputElement;
 
+  // Infinite scroll
+  const BATCH_SIZE = 100;
+  let displayCount = BATCH_SIZE;
+  let observer: IntersectionObserver;
+
+  function observeSentinel(node: HTMLElement) {
+    observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && displayCount < allCurrentIcons.length) {
+          displayCount += BATCH_SIZE;
+        }
+      },
+      { rootMargin: '200px' }
+    );
+    observer.observe(node);
+    return {
+      destroy() {
+        observer.disconnect();
+      }
+    };
+  }
+
   onMount(async () => {
     await loadAllIcons();
   });
@@ -66,9 +89,9 @@
         listBuiltinIcons().catch(() => []),
         listCustomIcons().catch(() => [])
       ]);
-      dashboardIcons = dashboard;
-      builtinIcons = builtin;
-      customIcons = custom;
+      dashboardIcons = dashboard || [];
+      builtinIcons = builtin || [];
+      customIcons = custom || [];
       applyFilter();
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load icons';
@@ -79,7 +102,7 @@
 
   async function loadCustomIcons() {
     try {
-      customIcons = await listCustomIcons();
+      customIcons = (await listCustomIcons()) || [];
       applyFilter();
     } catch (e) {
       // Ignore
@@ -140,9 +163,16 @@
     }
   }
 
-  async function handleDeleteIcon(name: string) {
-    if (!confirm(`Delete custom icon "${name}"?`)) return;
+  let confirmDeleteIcon: string | null = null;
 
+  function handleDeleteIcon(name: string) {
+    confirmDeleteIcon = name;
+  }
+
+  async function confirmDeleteIconAction() {
+    if (!confirmDeleteIcon) return;
+    const name = confirmDeleteIcon;
+    confirmDeleteIcon = null;
     try {
       await deleteCustomIcon(name);
       await loadCustomIcons();
@@ -150,13 +180,24 @@
         selectedIcon = '';
       }
     } catch (e) {
-      alert(e instanceof Error ? e.message : 'Delete failed');
+      toasts.error(e instanceof Error ? e.message : 'Delete failed');
     }
   }
 
-  $: currentIcons = activeTab === 'dashboard' ? filteredDashboardIcons :
-                    activeTab === 'builtin' ? filteredBuiltinIcons :
-                    filteredCustomIcons;
+  $: allCurrentIcons = activeTab === 'dashboard' ? filteredDashboardIcons :
+                       activeTab === 'builtin' ? filteredBuiltinIcons :
+                       filteredCustomIcons;
+  $: currentIcons = allCurrentIcons.slice(0, displayCount);
+  $: hasMore = displayCount < allCurrentIcons.length;
+  $: totalCount = activeTab === 'dashboard' ? dashboardIcons.length :
+                  activeTab === 'builtin' ? builtinIcons.length :
+                  customIcons.length;
+
+  // Reset display count when search or tab changes
+  $: searchQuery, activeTab, resetDisplayCount();
+  function resetDisplayCount() {
+    displayCount = BATCH_SIZE;
+  }
 </script>
 
 <div class="flex flex-col h-full max-h-[60vh]">
@@ -296,28 +337,52 @@
               />
             </button>
             {#if activeTab === 'custom'}
-              <button
-                class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
-                       text-white flex items-center justify-center opacity-0 group-hover:opacity-100
-                       transition-opacity text-xs"
-                on:click|stopPropagation={() => handleDeleteIcon(icon.name)}
-                title="Delete"
-              >
-                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
+              {#if confirmDeleteIcon === icon.name}
+                <!-- Inline confirmation overlay -->
+                <div class="absolute inset-0 rounded-lg bg-gray-900/90 flex flex-col items-center justify-center gap-1 z-10">
+                  <span class="text-[10px] text-red-400">Delete?</span>
+                  <div class="flex gap-1">
+                    <button
+                      class="px-1.5 py-0.5 text-[10px] rounded bg-red-600 hover:bg-red-500 text-white"
+                      on:click|stopPropagation={confirmDeleteIconAction}
+                    >Yes</button>
+                    <button
+                      class="px-1.5 py-0.5 text-[10px] rounded bg-gray-600 hover:bg-gray-500 text-white"
+                      on:click|stopPropagation={() => confirmDeleteIcon = null}
+                    >No</button>
+                  </div>
+                </div>
+              {:else}
+                <button
+                  class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
+                         text-white flex items-center justify-center opacity-0 group-hover:opacity-100
+                         transition-opacity text-xs"
+                  on:click|stopPropagation={() => handleDeleteIcon(icon.name)}
+                  title="Delete"
+                >
+                  <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              {/if}
             {/if}
           </div>
         {/each}
       </div>
+      <!-- Infinite scroll sentinel -->
+      <div use:observeSentinel class="h-1" />
+      {#if hasMore}
+        <div class="text-center py-3 text-xs text-gray-400">
+          Loading more... ({currentIcons.length} of {allCurrentIcons.length})
+        </div>
+      {/if}
     {/if}
   </div>
 
   <!-- Footer -->
   <div class="p-3 border-t border-gray-700 flex justify-between items-center">
     <span class="text-xs text-gray-400">
-      {currentIcons.length} icons
+      {allCurrentIcons.length}{allCurrentIcons.length !== totalCount ? ` of ${totalCount}` : ''} icons
     </span>
     <div class="flex gap-2">
       <button

@@ -119,11 +119,16 @@
     dispatch('change');
   }
 
+  let confirmResetAll = false;
+
   function handleResetAll() {
-    if (confirm('Reset all keybindings to defaults?')) {
-      resetAllKeybindings();
-      dispatch('change');
-    }
+    confirmResetAll = true;
+  }
+
+  function confirmResetAllAction() {
+    resetAllKeybindings();
+    dispatch('change');
+    confirmResetAll = false;
   }
 
   function getDefaultCombos(action: KeyAction): KeyCombo[] {
@@ -140,13 +145,29 @@
     <p class="text-sm text-gray-400">
       Click a keybinding to change it. Press Escape to cancel.
     </p>
-    <button
-      type="button"
-      class="text-sm text-gray-400 hover:text-white transition-colors"
-      on:click={handleResetAll}
-    >
-      Reset All to Defaults
-    </button>
+    {#if confirmResetAll}
+      <div class="flex items-center gap-2">
+        <span class="text-sm text-red-400">Reset all keybindings?</span>
+        <button
+          type="button"
+          class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+          on:click={confirmResetAllAction}
+        >Yes, Reset</button>
+        <button
+          type="button"
+          class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+          on:click={() => confirmResetAll = false}
+        >Cancel</button>
+      </div>
+    {:else}
+      <button
+        type="button"
+        class="text-sm text-gray-400 hover:text-white transition-colors"
+        on:click={handleResetAll}
+      >
+        Reset All to Defaults
+      </button>
+    {/if}
   </div>
 
   <!-- Keybindings by category -->
@@ -278,25 +299,25 @@
 
 <!-- Capture confirmation modal -->
 {#if capturingAction && capturedCombo}
-  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-    <div class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
+  <div class="fixed inset-0 z-50 flex items-center justify-center backdrop-blur-sm" style="background: rgba(0, 0, 0, 0.6);">
+    <div class="keybinding-modal rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
       <div class="p-6">
-        <h3 class="text-lg font-semibold text-white mb-4">
+        <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">
           Set Keybinding
         </h3>
 
         <div class="text-center mb-6">
-          <kbd class="px-4 py-2 text-lg bg-gray-700 border border-gray-600 rounded-lg text-white font-mono">
+          <kbd class="keybinding-kbd px-4 py-2 text-lg rounded-lg font-mono">
             {formatKeyCombo(capturedCombo)}
           </kbd>
         </div>
 
         {#if conflicts.length > 0}
-          <div class="bg-yellow-900/30 border border-yellow-700/50 rounded-lg p-3 mb-4">
-            <p class="text-yellow-300 text-sm font-medium mb-1">
+          <div class="keybinding-conflict rounded-lg p-3 mb-4">
+            <p class="text-sm font-medium mb-1" style="color: var(--status-warning);">
               Conflict detected
             </p>
-            <p class="text-yellow-200/80 text-xs">
+            <p class="text-xs" style="color: var(--text-secondary);">
               This shortcut is already used by:
               {conflicts.map(c => c.label).join(', ')}
             </p>
@@ -306,14 +327,14 @@
         <div class="flex gap-3">
           <button
             type="button"
-            class="flex-1 px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-200 rounded-lg transition-colors"
+            class="keybinding-btn-cancel flex-1 px-4 py-2 rounded-lg transition-colors"
             on:click={cancelCapture}
           >
             Cancel
           </button>
           <button
             type="button"
-            class="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-lg transition-colors"
+            class="keybinding-btn-confirm flex-1 px-4 py-2 rounded-lg transition-colors"
             on:click={confirmCapture}
           >
             {conflicts.length > 0 ? 'Use Anyway' : 'Confirm'}
@@ -323,3 +344,33 @@
     </div>
   </div>
 {/if}
+
+<style>
+  .keybinding-modal {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+  }
+  .keybinding-kbd {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    color: var(--text-primary);
+  }
+  .keybinding-conflict {
+    background: color-mix(in srgb, var(--status-warning) 12%, transparent);
+    border: 1px solid color-mix(in srgb, var(--status-warning) 30%, transparent);
+  }
+  .keybinding-btn-cancel {
+    background: var(--bg-elevated);
+    color: var(--text-secondary);
+  }
+  .keybinding-btn-cancel:hover {
+    background: var(--bg-active);
+  }
+  .keybinding-btn-confirm {
+    background: var(--accent-primary);
+    color: #fff;
+  }
+  .keybinding-btn-confirm:hover {
+    filter: brightness(1.1);
+  }
+</style>

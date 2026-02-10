@@ -13,6 +13,8 @@
 /.cache/
 /web/dist/
 /internal/server/dist/
+/muximux
+/muximux3
 
 # Test coverage
 /web/coverage/

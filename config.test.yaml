@@ -14,15 +14,21 @@ auth:
     trusted_proxies: []
     headers: {}
     oidc:
-        issuer: ""
+        enabled: false
+        issuer_url: ""
         client_id: ""
         client_secret: ""
         redirect_url: ""
         scopes: []
+        username_claim: ""
+        email_claim: ""
+        groups_claim: ""
+        display_name_claim: ""
+        admin_groups: []
     session_max_age: ""
     secure_cookies: false
 navigation:
-    position: right
+    position: top
     width: 220px
     auto_hide: false
     auto_hide_delay: 3s
@@ -39,6 +45,16 @@ health:
     enabled: true
     interval: 30s
     timeout: 5s
+keybindings:
+    bindings:
+        fullscreen:
+            - key: F11
+        refresh:
+            - key: F5
+        search:
+            - key: /
+            - key: k
+              ctrl: true
 groups:
     - name: Media
       icon: ""
@@ -90,7 +106,7 @@ apps:
       enabled: true
       default: false
       open_mode: iframe
-      proxy: false
+      proxy: true
       scale: 1
       auth_bypass: []
       access:
@@ -110,7 +126,7 @@ apps:
       enabled: true
       default: false
       open_mode: iframe
-      proxy: false
+      proxy: true
       scale: 1
       auth_bypass: []
       access:

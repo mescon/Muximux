@@ -12,6 +12,7 @@ export interface App {
   open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
   proxy: boolean;
   scale: number;
+  disable_keyboard_shortcuts: boolean;
 }
 
 export interface AppIcon {
@@ -24,7 +25,7 @@ export interface AppIcon {
 
 export interface Group {
   name: string;
-  icon: string;
+  icon: AppIcon;
   color: string;
   order: number;
   expanded: boolean;
@@ -38,6 +39,9 @@ export interface NavigationConfig {
   show_on_hover: boolean;
   show_labels: boolean;
   show_logo: boolean;
+  show_app_colors: boolean;
+  show_icon_background: boolean;
+  show_splash_on_startup: boolean;
 }
 
 export interface HealthConfig {

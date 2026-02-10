@@ -757,3 +757,50 @@ html.theme-switching *::after {
   height: 100%;
   background: var(--border-subtle);
 }
+
+/* ─────────────────────────────────────────────────────────────────────────────
+   TAILWIND GRAY → THEME VARIABLE OVERRIDES
+   Maps hardcoded Tailwind gray utilities to theme-aware CSS variables so all
+   components automatically get correct contrast in any theme (light or dark).
+   ───────────────────────────────────────────────────────────────────────────── */
+
+/* Text grays → semantic text hierarchy */
+.text-white         { color: var(--text-primary) !important; }
+.text-gray-100,
+.text-gray-200      { color: var(--text-primary) !important; }
+.text-gray-300      { color: var(--text-secondary) !important; }
+.text-gray-400      { color: var(--text-muted) !important; }
+.text-gray-500      { color: var(--text-disabled) !important; }
+
+/* Background grays → semantic surface hierarchy */
+.bg-gray-900        { background-color: var(--bg-base) !important; }
+.bg-gray-800        { background-color: var(--bg-surface) !important; }
+.bg-gray-700        { background-color: var(--bg-elevated) !important; }
+[class*="bg-gray-700\\/"] { background-color: var(--bg-hover) !important; }
+.bg-gray-600        { background-color: var(--bg-overlay) !important; }
+
+/* Border grays → semantic border hierarchy */
+.border-gray-700    { border-color: var(--border-default) !important; }
+.border-gray-600    { border-color: var(--border-subtle) !important; }
+.border-gray-500    { border-color: var(--border-strong) !important; }
+
+/* Hover states */
+.hover\:bg-gray-700:hover   { background-color: var(--bg-hover) !important; }
+.hover\:bg-gray-600:hover   { background-color: var(--bg-active) !important; }
+.hover\:bg-gray-500:hover   { background-color: var(--bg-active) !important; }
+.hover\:text-white:hover    { color: var(--text-primary) !important; }
+.hover\:text-gray-300:hover { color: var(--text-secondary) !important; }
+.hover\:border-gray-600:hover { border-color: var(--border-default) !important; }
+.hover\:border-gray-500:hover { border-color: var(--border-strong) !important; }
+
+/* Group-hover states (Tailwind group pattern) */
+.group:hover .group-hover\:bg-gray-600   { background-color: var(--bg-active) !important; }
+.group:hover .group-hover\:border-gray-500 { border-color: var(--border-strong) !important; }
+
+/* Focus ring offsets */
+.focus\:ring-offset-gray-800 { --tw-ring-offset-color: var(--bg-surface) !important; }
+.focus\:ring-offset-gray-900 { --tw-ring-offset-color: var(--bg-base) !important; }
+
+/* Placeholder text */
+.placeholder-gray-400::placeholder,
+.placeholder-gray-500::placeholder { color: var(--text-disabled) !important; }

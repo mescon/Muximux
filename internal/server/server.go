@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"io/fs"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -253,6 +255,9 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		})
 	}
 
+	// Forward-declare so /themes/ handler closure can reference it
+	var staticHandler http.Handler
+
 	// Theme routes (custom theme CRUD API)
 	themeHandler := handlers.NewThemeHandler("data/themes")
 	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
@@ -266,8 +271,17 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		}
 	})
 	mux.HandleFunc("/api/themes/", themeHandler.DeleteTheme)
-	// Serve custom theme CSS files from data/themes/
-	mux.Handle("/themes/", http.StripPrefix("/themes/", http.FileServer(http.Dir("data/themes"))))
+	// Serve theme CSS files: try data/themes/ first (user-created), fall back to static assets (bundled)
+	mux.HandleFunc("/themes/", func(w http.ResponseWriter, r *http.Request) {
+		name := strings.TrimPrefix(r.URL.Path, "/themes/")
+		localPath := filepath.Join("data/themes", name)
+		if _, err := os.Stat(localPath); err == nil {
+			http.ServeFile(w, r, localPath)
+			return
+		}
+		// Fall through to static handler (web/dist/themes/ or embedded)
+		staticHandler.ServeHTTP(w, r)
+	})
 
 	// Icon routes
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
@@ -347,7 +361,6 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 
 	// Serve embedded frontend files
 	distFS, err := fs.Sub(embeddedFiles, "dist")
-	var staticHandler http.Handler
 	if err != nil {
 		// Fallback to serving from web/dist during development
 		fileServer := http.FileServer(http.Dir("web/dist"))

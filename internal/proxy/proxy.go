@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
-	"net/url"
 	"strings"
 	"sync"
 
@@ -22,12 +21,13 @@ type AppRoute struct {
 
 // Config holds proxy configuration
 type Config struct {
-	Enabled   bool
-	Listen    string // e.g., ":8443"
-	AutoHTTPS bool
-	ACMEEmail string
-	TLSCert   string
-	TLSKey    string
+	Enabled      bool
+	Listen       string // e.g., ":8443"
+	UpstreamAddr string // Main server address to forward to, e.g., "localhost:8080"
+	AutoHTTPS    bool
+	ACMEEmail    string
+	TLSCert      string
+	TLSKey       string
 }
 
 // Proxy manages the embedded Caddy reverse proxy
@@ -46,7 +46,8 @@ func New(cfg Config) *Proxy {
 	}
 }
 
-// SetRoutes updates the proxy routes
+// SetRoutes updates the proxy routes (used for tracking which apps have proxy enabled).
+// Caddy itself doesn't need per-app routes — it forwards everything to the main server.
 func (p *Proxy) SetRoutes(routes []AppRoute) {
 	p.mu.Lock()
 	defer p.mu.Unlock()
@@ -55,13 +56,6 @@ func (p *Proxy) SetRoutes(routes []AppRoute) {
 	for _, route := range routes {
 		if route.Enabled {
 			p.routes[route.Slug] = route
-		}
-	}
-
-	// If running, reload configuration
-	if p.running {
-		if err := p.reload(); err != nil {
-			log.Printf("Failed to reload proxy config: %v", err)
 		}
 	}
 }
@@ -116,97 +110,38 @@ func (p *Proxy) Stop() error {
 	return nil
 }
 
-// reload reloads the proxy configuration
-func (p *Proxy) reload() error {
-	cfg, err := p.buildConfig()
-	if err != nil {
-		return err
-	}
-
-	cfgJSON, err := json.Marshal(cfg)
-	if err != nil {
-		return err
-	}
-
-	return caddy.Load(cfgJSON, true)
-}
-
 // buildConfig builds the Caddy JSON configuration
+// Caddy acts as a TLS termination proxy, forwarding all requests to the main
+// Muximux server which handles authentication, routing, and content rewriting.
 func (p *Proxy) buildConfig() (map[string]interface{}, error) {
-	// Build routes for each app
-	var routes []map[string]interface{}
-
-	for slug, route := range p.routes {
-		targetURL, err := url.Parse(route.TargetURL)
-		if err != nil {
-			log.Printf("Invalid URL for %s: %v", route.Name, err)
-			continue
-		}
-
-		// Create a route that matches /proxy/{slug}/*
-		routeConfig := map[string]interface{}{
-			"match": []map[string]interface{}{
-				{
-					"path": []string{fmt.Sprintf("/proxy/%s/*", slug)},
-				},
-			},
+	// Single route: forward everything to the main Muximux server
+	// This ensures all requests go through auth middleware
+	routes := []map[string]interface{}{
+		{
 			"handle": []map[string]interface{}{
-				// Strip the /proxy/{slug} prefix
-				{
-					"handler": "rewrite",
-					"strip_path_prefix": fmt.Sprintf("/proxy/%s", slug),
-				},
-				// Reverse proxy to the target
 				{
 					"handler": "reverse_proxy",
 					"upstreams": []map[string]interface{}{
 						{
-							"dial": targetURL.Host,
+							"dial": p.config.UpstreamAddr,
 						},
 					},
 					"headers": map[string]interface{}{
 						"request": map[string]interface{}{
 							"set": map[string][]string{
-								"Host":             {targetURL.Host},
-								"X-Forwarded-Host": {"{http.request.host}"},
-								"X-Real-IP":        {"{http.request.remote.host}"},
-							},
-						},
-						"response": map[string]interface{}{
-							// Remove headers that prevent iframe embedding
-							"delete": []string{
-								"X-Frame-Options",
-								"Content-Security-Policy",
-								"X-Content-Type-Options",
+								"X-Forwarded-Proto": {"{http.request.scheme}"},
+								"X-Forwarded-Host":  {"{http.request.host}"},
+								"X-Real-IP":         {"{http.request.remote.host}"},
 							},
 						},
 					},
-					// Handle WebSocket upgrades
 					"transport": map[string]interface{}{
 						"protocol": "http",
 					},
 				},
 			},
-		}
-
-		routes = append(routes, routeConfig)
+		},
 	}
-
-	// Add a fallback route for unmatched proxy paths
-	routes = append(routes, map[string]interface{}{
-		"match": []map[string]interface{}{
-			{
-				"path": []string{"/proxy/*"},
-			},
-		},
-		"handle": []map[string]interface{}{
-			{
-				"handler":     "static_response",
-				"status_code": 404,
-				"body":        "App not found",
-			},
-		},
-	})
 
 	// Build the server configuration
 	server := map[string]interface{}{

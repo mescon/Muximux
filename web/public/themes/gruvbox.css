@@ -1,0 +1,106 @@
+/**
+ * Gruvbox Dark Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * A retro groove color scheme with warm, earthy tones.
+ * Based on Gruvbox: https://github.com/morhetz/gruvbox
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: gruvbox
+ * @theme-name: Gruvbox
+ * @theme-description: Retro groove color scheme with warm tones
+ * @theme-is-dark: true
+ * @theme-preview-bg: #282828
+ * @theme-preview-surface: #3c3836
+ * @theme-preview-accent: #d79921
+ * @theme-preview-text: #ebdbb2
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="gruvbox"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     GRUVBOX DARK PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Backgrounds:
+       #282828 - bg0 (dark0)
+       #3c3836 - bg1 (dark1)
+       #504945 - bg2 (dark2)
+       #665c54 - bg3 (dark3)
+       #7c6f64 - bg4 (dark4)
+
+     Foreground:
+       #ebdbb2 - fg0 (light0)
+       #d5c4a1 - fg1 (light1)
+       #bdae93 - fg2 (light2)
+       #a89984 - fg3 (light3)
+       #928374 - fg4 (gray)
+
+     Bright colors:
+       #fb4934 - red
+       #b8bb26 - green
+       #fabd2f - yellow
+       #83a598 - blue
+       #d3869b - purple
+       #8ec07c - aqua
+       #fe8019 - orange
+       #d79921 - dark yellow (accent)
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #282828;
+  --bg-surface: #3c3836;
+  --bg-elevated: #504945;
+  --bg-overlay: #665c54;
+  --bg-hover: #504945;
+  --bg-active: #665c54;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(60, 56, 54, 0.85);
+  --glass-border: rgba(235, 219, 178, 0.1);
+  --glass-highlight: rgba(235, 219, 178, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #ebdbb2;
+  --text-secondary: #d5c4a1;
+  --text-muted: #a89984;
+  --text-disabled: #7c6f64;
+
+  /* Borders */
+  --border-subtle: rgba(235, 219, 178, 0.08);
+  --border-default: rgba(235, 219, 178, 0.12);
+  --border-strong: rgba(235, 219, 178, 0.18);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using dark yellow/orange */
+  --accent-primary: #d79921;
+  --accent-secondary: #fe8019;
+  --accent-muted: rgba(215, 153, 33, 0.25);
+  --accent-subtle: rgba(215, 153, 33, 0.12);
+
+  /* Brand palette - derived from yellow/orange */
+  --color-brand-50: #fef9e7;
+  --color-brand-100: #fdf0c8;
+  --color-brand-200: #fce196;
+  --color-brand-300: #fabd2f;
+  --color-brand-400: #d79921;
+  --color-brand-500: #b57614;
+  --color-brand-600: #8f5d0b;
+  --color-brand-700: #6a4509;
+  --color-brand-800: #3c3836;
+  --color-brand-900: #282828;
+  --color-brand-950: #1d2021;
+
+  /* Status colors */
+  --status-success: #b8bb26;
+  --status-warning: #fabd2f;
+  --status-error: #fb4934;
+  --status-info: #83a598;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(215, 153, 33, 0.2);
+}

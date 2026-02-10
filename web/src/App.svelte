@@ -3,7 +3,6 @@
   import Navigation from './components/Navigation.svelte';
   import AppFrame from './components/AppFrame.svelte';
   import Splash from './components/Splash.svelte';
-  import Search from './components/Search.svelte';
   import Settings from './components/Settings.svelte';
   import ShortcutsHelp from './components/ShortcutsHelp.svelte';
   import CommandPalette from './components/CommandPalette.svelte';
@@ -22,13 +21,13 @@
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
+  import { captureKeybindings, isProtectedKey, toggleCaptureKeybindings } from './lib/keybindingCaptureStore';
   import type { Config as ConfigType } from './lib/types';
 
   let config: Config | null = null;
   let apps: App[] = [];
   let currentApp: App | null = null;
   let showSplash = true;
-  let showSearch = false;
   let showSettings = false;
   let showShortcuts = false;
   let showCommandPalette = false;
@@ -108,11 +107,13 @@
         return;
       }
 
-      // Find default app
-      const defaultApp = apps.find(app => app.default);
-      if (defaultApp) {
-        currentApp = defaultApp;
-        showSplash = false;
+      // Find default app (unless splash-on-startup is enabled)
+      if (!config.navigation.show_splash_on_startup) {
+        const defaultApp = apps.find(app => app.default);
+        if (defaultApp) {
+          currentApp = defaultApp;
+          showSplash = false;
+        }
       }
 
       // Start health polling if enabled
@@ -174,11 +175,13 @@
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
-      // Find default app
-      const defaultApp = apps.find(app => app.default);
-      if (defaultApp) {
-        currentApp = defaultApp;
-        showSplash = false;
+      // Find default app (unless splash-on-startup is enabled)
+      if (!config.navigation.show_splash_on_startup) {
+        const defaultApp = apps.find(app => app.default);
+        if (defaultApp) {
+          currentApp = defaultApp;
+          showSplash = false;
+        }
       }
 
       // Start health polling
@@ -281,9 +284,6 @@
     showCommandPalette = false;
 
     switch (actionId) {
-      case 'search':
-        showSearch = true;
-        break;
       case 'settings':
         showSettings = true;
         break;
@@ -301,6 +301,10 @@
         break;
       case 'home':
         showSplash = true;
+        break;
+      case 'toggle-keybindings':
+        toggleCaptureKeybindings();
+        toasts.success($captureKeybindings ? 'Keyboard shortcuts enabled' : 'Keyboard shortcuts paused');
         break;
       case 'theme-dark':
         setTheme('dark');
@@ -326,16 +330,20 @@
     // Don't trigger shortcuts when typing in inputs (except Escape)
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
       if (event.key === 'Escape') {
-        showSearch = false;
+        showCommandPalette = false;
         showSettings = false;
       }
       return;
     }
 
+    // Gate shortcuts: check global capture toggle and per-app disable setting
+    const appDisablesShortcuts = currentApp && !showSplash && currentApp.disable_keyboard_shortcuts;
+    const shouldCapture = $captureKeybindings && !appDisablesShortcuts;
+    if (!shouldCapture && !isProtectedKey(event)) return;
+
     // Escape is always hardcoded for closing modals
     if (event.key === 'Escape') {
       if (showCommandPalette) showCommandPalette = false;
-      else if (showSearch) showSearch = false;
       else if (showSettings) showSettings = false;
       else if (showShortcuts) showShortcuts = false;
       else if (!showSplash && currentApp) showSplash = true;
@@ -356,9 +364,6 @@
   function executeAction(action: KeyAction) {
     switch (action) {
       case 'search':
-        showSearch = true;
-        break;
-      case 'commandPalette':
         showCommandPalette = true;
         break;
       case 'settings':
@@ -380,14 +385,14 @@
         toggleFullscreen();
         break;
       case 'nextApp':
-        if (!showSearch && apps.length > 0) {
+        if (apps.length > 0) {
           const currentIndex = currentApp ? apps.findIndex(a => a.name === currentApp?.name) : -1;
           const nextIndex = (currentIndex + 1) % apps.length;
           selectApp(apps[nextIndex]);
         }
         break;
       case 'prevApp':
-        if (!showSearch && apps.length > 0) {
+        if (apps.length > 0) {
           const currentIndex = currentApp ? apps.findIndex(a => a.name === currentApp?.name) : -1;
           const prevIndex = (currentIndex - 1 + apps.length) % apps.length;
           selectApp(apps[prevIndex]);
@@ -411,13 +416,18 @@
   }
 </script>
 
+<!-- Dynamic page title -->
+<svelte:head>
+  <title>{currentApp ? `${currentApp.name} — ${config?.title || 'Muximux'}` : config?.title || 'Muximux'}</title>
+</svelte:head>
+
 <svelte:window on:keydown={handleKeydown} />
 
 {#if loading || !authChecked}
-  <div class="flex items-center justify-center h-full bg-gray-900">
+  <div class="flex items-center justify-center h-full" style="background: var(--bg-base);">
     <div class="text-center">
-      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-500 mx-auto"></div>
-      <p class="mt-4 text-gray-400">Loading Muximux...</p>
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style="border-color: var(--accent-primary);"></div>
+      <p class="mt-4" style="color: var(--text-muted);">Loading Muximux...</p>
     </div>
   </div>
 {:else if showOnboarding}
@@ -425,7 +435,7 @@
 {:else if authRequired && !$isAuthenticated}
   <Login on:success={handleLoginSuccess} />
 {:else if error}
-  <div class="flex items-center justify-center h-full bg-gray-900">
+  <div class="flex items-center justify-center h-full" style="background: var(--bg-base);">
     <ErrorState
       title="Failed to load dashboard"
       message={error}
@@ -436,7 +446,8 @@
 {:else if config}
   <!-- Main layout container - direction changes based on nav position -->
   <div
-    class="h-full bg-gray-900 dark:bg-gray-900"
+    class="h-full"
+    style="background: var(--bg-base);"
     class:flex={!isFloatingLayout && !$isFullscreen}
     class:flex-row={isHorizontalLayout && navPosition === 'left' && !$isFullscreen}
     class:flex-row-reverse={isHorizontalLayout && navPosition === 'right' && !$isFullscreen}
@@ -449,8 +460,9 @@
         {apps}
         {currentApp}
         {config}
+        {showSplash}
         on:select={(e) => selectApp(e.detail)}
-        on:search={() => showSearch = true}
+        on:search={() => showCommandPalette = true}
         on:splash={() => showSplash = true}
         on:settings={() => showSettings = !showSettings}
       />
@@ -466,12 +478,12 @@
       on:pointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
     >
       {#if showSplash && !$isFullscreen}
-        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} />
+        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} on:settings={() => showSettings = true} />
       {:else if currentApp}
         <AppFrame app={currentApp} />
       {:else if $isFullscreen}
         <!-- Show splash content in fullscreen if no app selected -->
-        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} />
+        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} on:settings={() => showSettings = true} />
       {/if}
     </main>
 
@@ -479,8 +491,7 @@
     {#if $isFullscreen}
       <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
         <button
-          class="p-2 bg-gray-800/80 hover:bg-gray-700 text-white rounded-lg backdrop-blur-sm
-                 border border-gray-600 shadow-lg transition-all opacity-30 hover:opacity-100"
+          class="fullscreen-exit-btn p-2 rounded-lg backdrop-blur-sm shadow-lg transition-all opacity-30 hover:opacity-100"
           on:click={exitFullscreen}
           title="Exit fullscreen (F)"
         >
@@ -491,15 +502,6 @@
       </div>
     {/if}
   </div>
-
-  <!-- Search modal -->
-  {#if showSearch}
-    <Search
-      {apps}
-      on:select={(e) => { selectApp(e.detail); showSearch = false; }}
-      on:close={() => showSearch = false}
-    />
-  {/if}
 
   <!-- Settings panel -->
   {#if showSettings}
@@ -529,3 +531,15 @@
 
 <!-- Toast notifications (always rendered) -->
 <ToastContainer />
+
+<style>
+  .fullscreen-exit-btn {
+    background: var(--glass-bg);
+    color: var(--text-primary);
+    border: 1px solid var(--border-default);
+  }
+
+  .fullscreen-exit-btn:hover {
+    background: var(--bg-hover);
+  }
+</style>

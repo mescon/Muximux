@@ -9,7 +9,6 @@ export type { KeyCombo };
  */
 export type KeyAction =
   | 'search'
-  | 'commandPalette'
   | 'settings'
   | 'shortcuts'
   | 'refresh'
@@ -46,20 +45,11 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // Navigation
   {
     action: 'search',
-    label: 'Open Search',
-    description: 'Open the app search dialog',
-    combos: [
-      { key: '/' },
-      { key: 'k', ctrl: true }
-    ],
-    category: 'navigation',
-    editable: true
-  },
-  {
-    action: 'commandPalette',
     label: 'Command Palette',
     description: 'Open the command palette',
     combos: [
+      { key: '/' },
+      { key: 'k', ctrl: true },
       { key: 'p', ctrl: true, shift: true }
     ],
     category: 'navigation',

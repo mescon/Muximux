@@ -5,11 +5,14 @@
   import HealthIndicator from './HealthIndicator.svelte';
   import { currentUser, isAuthenticated, logout } from '$lib/authStore';
   import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
+  import MuximuxLogo from './MuximuxLogo.svelte';
+  import { captureKeybindings, toggleCaptureKeybindings } from '$lib/keybindingCaptureStore';
 
   export let apps: App[];
   export let showHealth: boolean = true;
   export let currentApp: App | null;
   export let config: Config;
+  export let showSplash: boolean = false;
 
   const dispatch = createEventDispatcher<{
     select: App;
@@ -39,7 +42,9 @@
   const collapsedStripWidth = 48; // Width/height of visible strip when collapsed (fits icon + border)
 
   // Calculate actual width for sidebars (for layout reflow)
-  $: effectiveSidebarWidth = isHidden && config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth;
+  // When auto_hide is on, always reserve only the collapsed strip in the layout.
+  // The expanded sidebar overlays the content instead of pushing it.
+  $: effectiveSidebarWidth = config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth;
 
   // Group expansion state (persisted to localStorage)
   let expandedGroups: Record<string, boolean> = {};
@@ -254,6 +259,15 @@
     return unit === 'ms' ? value : value * 1000;
   }
 
+  // Whether shortcuts are currently active (considers both global toggle and per-app setting)
+  $: appDisablesShortcuts = currentApp && !showSplash && currentApp.disable_keyboard_shortcuts;
+  $: shortcutsActive = $captureKeybindings && !appDisablesShortcuts;
+  $: keyboardTooltip = appDisablesShortcuts
+    ? 'Shortcuts paused by app setting'
+    : $captureKeybindings
+      ? 'Keyboard shortcuts active'
+      : 'Keyboard shortcuts paused';
+
   // CSS classes based on position
   $: positionClasses = {
     top: 'fixed top-0 left-0 right-0 z-40',
@@ -309,60 +323,43 @@
     on:mouseenter={handleNavEnter}
     on:mouseleave={handleNavLeave}
   >
-    <!-- Collapsed icon strip - show app icons when collapsed -->
-    {#if isCollapsedTop}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="absolute inset-0 flex items-center justify-center gap-1 z-20 px-4 cursor-pointer" on:click={() => isHidden = false} role="button" tabindex="0">
-        {#each apps as app}
-          <button
-            class="flex-shrink-0 transition-all duration-200 rounded"
-            style="opacity: {currentApp?.name === app.name ? '1' : '0.4'};
-                   {config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}"
-            on:click|stopPropagation={() => dispatch('select', app)}
-            title={app.name}
-          >
-            <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={false} />
-          </button>
-        {/each}
-      </div>
-    {/if}
-    <!-- Content wrapper -->
+    <!-- Unified content - icons stay in place, labels/actions fade -->
     <div
-      class="flex items-center justify-between h-14 px-4 transition-opacity duration-200"
-      style="opacity: {isCollapsedTop ? '0' : '1'}; pointer-events: {isCollapsedTop ? 'none' : 'auto'};"
+      class="flex items-center justify-between h-full px-4"
     >
-      <!-- Logo -->
+      <!-- Logo + app tabs -->
       <div class="flex items-center space-x-4">
         {#if config.navigation.show_logo}
           <button
-            class="text-xl font-bold text-white hover:text-brand-400 transition-colors"
+            class="flex-shrink-0 hover:opacity-80 transition-opacity duration-200"
+            style="color: var(--accent-primary); opacity: {isCollapsedTop || showSplash ? '0' : '1'}; pointer-events: {isCollapsedTop || showSplash ? 'none' : 'auto'}; width: {isCollapsedTop ? '0' : 'auto'}; overflow: hidden;"
             on:click={() => dispatch('splash')}
+            title={config.title}
           >
-            {config.title}
+            <MuximuxLogo height="24" />
           </button>
         {/if}
 
-        <!-- App tabs - horizontal scrollable -->
+        <!-- App tabs - always visible, labels hidden when collapsed -->
         <div class="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-[calc(100vw-300px)]">
           {#each apps as app}
             <button
-              class="px-3 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
+              class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
                      {currentApp?.name === app.name
                        ? 'bg-gray-900 text-white'
-                       : 'text-gray-300 hover:bg-gray-700 hover:text-white'}"
+                       : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                     {isCollapsedTop && currentApp?.name !== app.name ? 'opacity-40' : ''}"
               style={config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}
               on:click={() => dispatch('select', app)}
             >
-              {#if !config.navigation.show_labels}
-                <!-- Icon only mode -->
-                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
-              {:else}
-                {app.name}
+              <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
+              {#if config.navigation.show_labels && !isCollapsedTop}
+                <span>{app.name}</span>
               {/if}
-              {#if showHealth}
+              {#if showHealth && !isCollapsedTop}
                 <HealthIndicator appName={app.name} size="sm" />
               {/if}
-              {#if app.open_mode !== 'iframe'}
+              {#if app.open_mode !== 'iframe' && !isCollapsedTop}
                 <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
               {/if}
             </button>
@@ -370,8 +367,9 @@
         </div>
       </div>
 
-      <!-- Right side actions -->
-      <div class="flex items-center space-x-2">
+      <!-- Right side actions (hidden when collapsed) -->
+      <div class="flex items-center space-x-2 transition-opacity duration-200"
+           style="opacity: {isCollapsedTop ? '0' : '1'}; pointer-events: {isCollapsedTop ? 'none' : 'auto'};">
         <button
           class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           on:click={() => dispatch('search')}
@@ -382,12 +380,24 @@
           </svg>
         </button>
         <button
+          class="p-2 rounded-md hover:bg-gray-700 transition-colors"
+          class:text-brand-400={shortcutsActive}
+          class:text-gray-500={!shortcutsActive}
+          class:opacity-50={appDisablesShortcuts}
+          on:click={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
+          title={keyboardTooltip}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </button>
+        <button
           class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           on:click={() => dispatch('settings')}
           title="Settings"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
         </button>
@@ -410,76 +420,95 @@
 {:else if config.navigation.position === 'left'}
   {@const isCollapsed = isHidden && config.navigation.auto_hide && !isMobile}
   <aside
-    class="border-r flex flex-col h-full transition-all duration-300 relative
+    class="flex-shrink-0 h-full relative
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : ''}"
-    style="
-      background: var(--bg-surface);
-      border-color: var(--border-subtle);
-      width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};
-    "
+    style="width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};"
     on:mouseenter={handleNavEnter}
     on:mouseleave={handleNavLeave}
   >
-    <!-- Content wrapper - stays visible when collapsed so icons maintain position -->
+    <!-- Content panel - overlays content when auto-hide expands -->
     <div
-      class="flex flex-col h-full transition-all duration-200 overflow-hidden"
+      class="sidebar-panel flex flex-col h-full overflow-hidden border-r"
+      style="background: var(--bg-surface); border-color: var(--border-subtle);"
+      style:width="{isCollapsed ? collapsedStripWidth : sidebarWidth}px"
+      style:box-shadow={config.navigation.auto_hide && !isMobile && !isCollapsed ? '4px 0 24px rgba(0,0,0,0.25)' : null}
+      style:position={config.navigation.auto_hide && !isMobile ? 'absolute' : null}
+      style:top={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:left={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:bottom={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:z-index={config.navigation.auto_hide && !isMobile ? '30' : null}
     >
-    <!-- Header (hidden when collapsed) -->
+    <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
     {#if config.navigation.show_logo}
-      <div class="p-4 border-b border-gray-700 transition-opacity duration-200"
-           style="opacity: {isCollapsed ? '0' : '1'}; pointer-events: {isCollapsed ? 'none' : 'auto'};">
+      <div class="border-b border-gray-700 flex items-center justify-center overflow-hidden"
+           style="height: 100px;">
         <button
-          class="text-xl font-bold text-white hover:text-brand-400 transition-colors w-full text-left"
+          class="hover:opacity-80 flex items-center justify-center"
+          style="color: var(--accent-primary); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
           on:click={() => { dispatch('splash'); mobileMenuOpen = false; }}
+          title={config.title}
         >
-          {config.title}
+          <MuximuxLogo height="80" />
         </button>
       </div>
     {/if}
 
-    <!-- Search button (hidden when collapsed) -->
-    <div class="p-2 transition-opacity duration-200"
-         style="opacity: {isCollapsed ? '0' : '1'}; pointer-events: {isCollapsed ? 'none' : 'auto'};">
+    <!-- Search — fixed height, icon centered via container, text fades smoothly -->
+    <div class="flex items-center"
+         style="height: 52px; padding: 8px {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
-        class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('search')}
+        title="Search (Ctrl+K)"
       >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <span>Search...</span>
-        <span class="ml-auto text-xs bg-gray-700 px-1.5 py-0.5 rounded">⌘K</span>
+        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Search...</span>
+        <span class="ml-auto mr-2 text-xs bg-gray-700 px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
       </button>
     </div>
 
     <!-- App list with groups -->
-    <div class="flex-1 overflow-y-auto scrollbar-hide p-2">
+    <div class="flex-1 overflow-y-auto scrollbar-hide"
+         style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
-          <!-- Group header -->
+          <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
-            class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 transition-opacity duration-200"
-            style="opacity: {isCollapsed ? '0' : '1'};"
-            on:click={() => toggleGroup(groupName)}
+            class="w-full flex items-center py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
+            on:click={() => !isCollapsed && toggleGroup(groupName)}
+            style="pointer-events: {isCollapsed ? 'none' : 'auto'};"
           >
-            <svg
-              class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''}"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-            {#if groupConfig?.icon?.name}
-              <div class="flex-shrink-0">
-                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" showBackground={false} />
-              </div>
-            {:else if groupConfig?.color}
-              <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
-            {/if}
-            <span class="truncate">{groupName}</span>
-            <span class="ml-auto text-gray-500">{groupedApps[groupName]?.length || 0}</span>
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              {#if groupConfig?.icon?.name}
+                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" showBackground={config.navigation.show_icon_background} />
+              {:else if groupConfig?.color}
+                <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
+              {:else}
+                <svg
+                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''}"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              {/if}
+            </div>
+            <div class="flex items-center overflow-hidden flex-1 min-w-0" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
+              {#if groupConfig?.icon?.name || groupConfig?.color}
+                <svg
+                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} mr-1 flex-shrink-0"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              {/if}
+              <span class="truncate">{groupName}</span>
+              <span class="ml-auto text-gray-500 flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+            </div>
           </button>
 
           <!-- Apps in group -->
@@ -487,28 +516,29 @@
             <div class="mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app}
                 <button
-                  class="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors
+                  class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style="border-left: 3px solid {config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsed) ? (app.color || '#22c55e') : 'transparent'};
-                         {isCollapsed && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
+                  style="{isCollapsed && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
                   on:click={() => { dispatch('select', app); mobileMenuOpen = false; }}
                 >
-                  <!-- App icon -->
-                  <div class="flex-shrink-0">
+                  {#if config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsed)}
+                    <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                  {/if}
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
                     <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
                   </div>
-                  {#if config.navigation.show_labels && !isCollapsed}
-                    <span class="truncate">{app.name}</span>
+                  {#if config.navigation.show_labels}
+                    <span class="truncate" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
-                  {#if showHealth && !isCollapsed}
-                    <span class="ml-auto">
+                  {#if showHealth}
+                    <span class="ml-auto pr-2" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
                   {/if}
-                  {#if app.open_mode !== 'iframe' && !isCollapsed}
-                    <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  {#if app.open_mode !== 'iframe'}
+                    <span class="text-xs pr-1" style="opacity: {isCollapsed ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
               {/each}
@@ -518,37 +548,59 @@
       {/each}
     </div>
 
-    <!-- Footer (hidden when collapsed) -->
-    <div class="p-2 border-t border-gray-700 space-y-1 transition-opacity duration-200"
-         style="opacity: {isCollapsed ? '0' : '1'}; pointer-events: {isCollapsed ? 'none' : 'auto'};">
+    <!-- Footer — settings cog always visible, text fades smoothly -->
+    <div class="border-t border-gray-700"
+         style="padding: 8px {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
-        class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('settings')}
+        title="Settings"
       >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <span>Settings</span>
+        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
+      </button>
+
+      <button
+        class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
+        class:text-brand-400={shortcutsActive}
+        class:text-gray-500={!shortcutsActive}
+        style="opacity: {isCollapsed && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
+        on:click={() => toggleCaptureKeybindings()}
+        title={keyboardTooltip}
+      >
+        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </div>
+        <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
       </button>
 
       {#if $isAuthenticated && $currentUser}
         <button
-          class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
           on:click={handleLogout}
           title="Sign out"
         >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span>Sign out</span>
+          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </div>
+          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
         </button>
       {/if}
     </div>
     </div> <!-- End content wrapper -->
 
-    <!-- Resize handle - touch-friendly with pointer events -->
-    {#if !isMobile}
+    <!-- Resize handle - only when not auto-hiding -->
+    {#if !isMobile && !config.navigation.auto_hide}
       <div
         class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
         on:pointerdown={handleResizeStart}
@@ -566,103 +618,124 @@
 {:else if config.navigation.position === 'right'}
   {@const isCollapsedRight = isHidden && config.navigation.auto_hide && !isMobile}
   <aside
-    class="border-l flex flex-col h-full transition-all duration-300 relative
+    class="flex-shrink-0 h-full relative
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : 'translate-x-full') : ''}"
-    style="
-      background: var(--bg-surface);
-      border-color: var(--border-subtle);
-      width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};
-    "
+    style="width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};"
     on:mouseenter={handleNavEnter}
     on:mouseleave={handleNavLeave}
   >
-    <!-- Content wrapper - stays visible when collapsed so icons maintain position -->
+    <!-- Content panel - overlays content when auto-hide expands -->
     <div
-      class="flex flex-col h-full transition-all duration-200 overflow-hidden"
+      class="sidebar-panel flex flex-col h-full overflow-hidden border-l"
+      style="background: var(--bg-surface); border-color: var(--border-subtle);"
+      style:width="{isCollapsedRight ? collapsedStripWidth : sidebarWidth}px"
+      style:box-shadow={config.navigation.auto_hide && !isMobile && !isCollapsedRight ? '-4px 0 24px rgba(0,0,0,0.25)' : null}
+      style:position={config.navigation.auto_hide && !isMobile ? 'absolute' : null}
+      style:top={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:right={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:bottom={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:z-index={config.navigation.auto_hide && !isMobile ? '30' : null}
     >
-    <!-- Header (hidden when collapsed) -->
+    <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
     {#if config.navigation.show_logo}
-      <div class="p-4 border-b border-gray-700 transition-opacity duration-200"
-           style="opacity: {isCollapsedRight ? '0' : '1'}; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
+      <div class="border-b border-gray-700 flex items-center justify-center overflow-hidden"
+           style="height: 100px;">
         <button
-          class="text-xl font-bold text-white hover:text-brand-400 transition-colors w-full text-right"
+          class="hover:opacity-80 flex items-center justify-center"
+          style="color: var(--accent-primary); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
           on:click={() => { dispatch('splash'); mobileMenuOpen = false; }}
+          title={config.title}
         >
-          {config.title}
+          <MuximuxLogo height="80" />
         </button>
       </div>
     {/if}
 
-    <!-- Search button (hidden when collapsed) -->
-    <div class="p-2 transition-opacity duration-200"
-         style="opacity: {isCollapsedRight ? '0' : '1'}; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
+    <!-- Search — fixed height, icon centered via container, text fades smoothly -->
+    <div class="flex items-center"
+         style="height: 52px; padding: 8px {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
-        class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('search')}
+        title="Search (Ctrl+K)"
       >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-        <span>Search...</span>
-        <span class="ml-auto text-xs bg-gray-700 px-1.5 py-0.5 rounded">⌘K</span>
+        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+          </svg>
+        </div>
+        <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Search...</span>
+        <span class="ml-auto mr-2 text-xs bg-gray-700 px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
       </button>
     </div>
 
     <!-- App list with groups -->
-    <div class="flex-1 overflow-y-auto scrollbar-hide p-2">
+    <div class="flex-1 overflow-y-auto scrollbar-hide"
+         style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
+          <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
-            class="w-full flex items-center gap-2 px-2 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 transition-opacity duration-200"
-            style="opacity: {isCollapsedRight ? '0' : '1'};"
-            on:click={() => toggleGroup(groupName)}
+            class="w-full flex items-center py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
+            on:click={() => !isCollapsedRight && toggleGroup(groupName)}
+            style="pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
           >
-            <svg
-              class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''}"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-            >
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-            </svg>
-            {#if groupConfig?.icon?.name}
-              <div class="flex-shrink-0">
-                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" showBackground={false} />
-              </div>
-            {:else if groupConfig?.color}
-              <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
-            {/if}
-            <span class="truncate">{groupName}</span>
-            <span class="ml-auto text-gray-500">{groupedApps[groupName]?.length || 0}</span>
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              {#if groupConfig?.icon?.name}
+                <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" showBackground={config.navigation.show_icon_background} />
+              {:else if groupConfig?.color}
+                <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
+              {:else}
+                <svg
+                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''}"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              {/if}
+            </div>
+            <div class="flex items-center overflow-hidden flex-1 min-w-0" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
+              {#if groupConfig?.icon?.name || groupConfig?.color}
+                <svg
+                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} mr-1 flex-shrink-0"
+                  fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                >
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              {/if}
+              <span class="truncate">{groupName}</span>
+              <span class="ml-auto text-gray-500 flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+            </div>
           </button>
 
           {#if expandedGroups[groupName] || isCollapsedRight}
             <div class="mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app}
                 <button
-                  class="w-full flex items-center gap-2 px-2 py-2 rounded-md text-sm transition-colors
+                  class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style="border-left: 3px solid {config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsedRight) ? (app.color || '#22c55e') : 'transparent'};
-                         {config.navigation.show_app_colors && !isCollapsedRight && currentApp?.name === app.name ? `border-right: 3px solid ${app.color || '#22c55e'};` : ''}
-                         {isCollapsedRight && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
+                  style="{isCollapsedRight && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
                   on:click={() => { dispatch('select', app); mobileMenuOpen = false; }}
                 >
-                  <div class="flex-shrink-0">
+                  {#if config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsedRight)}
+                    <div class="absolute right-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                  {/if}
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
                     <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
                   </div>
-                  {#if config.navigation.show_labels && !isCollapsedRight}
-                    <span class="truncate">{app.name}</span>
+                  {#if config.navigation.show_labels}
+                    <span class="truncate" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
-                  {#if showHealth && !isCollapsedRight}
-                    <span class="ml-auto">
+                  {#if showHealth}
+                    <span class="ml-auto pr-2" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
                   {/if}
-                  {#if app.open_mode !== 'iframe' && !isCollapsedRight}
-                    <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  {#if app.open_mode !== 'iframe'}
+                    <span class="text-xs pr-1" style="opacity: {isCollapsedRight ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
               {/each}
@@ -672,37 +745,59 @@
       {/each}
     </div>
 
-    <!-- Footer (hidden when collapsed) -->
-    <div class="p-2 border-t border-gray-700 space-y-1 transition-opacity duration-200"
-         style="opacity: {isCollapsedRight ? '0' : '1'}; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
+    <!-- Footer — settings cog always visible, text fades smoothly -->
+    <div class="border-t border-gray-700"
+         style="padding: 8px {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
-        class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
         on:click={() => dispatch('settings')}
+        title="Settings"
       >
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-        <span>Settings</span>
+        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </div>
+        <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
+      </button>
+
+      <button
+        class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
+        class:text-brand-400={shortcutsActive}
+        class:text-gray-500={!shortcutsActive}
+        style="opacity: {isCollapsedRight && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
+        on:click={() => toggleCaptureKeybindings()}
+        title={keyboardTooltip}
+      >
+        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </div>
+        <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
       </button>
 
       {#if $isAuthenticated && $currentUser}
         <button
-          class="w-full flex items-center gap-2 px-3 py-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
           on:click={handleLogout}
           title="Sign out"
         >
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span>Sign out</span>
+          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </div>
+          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
         </button>
       {/if}
     </div>
     </div> <!-- End content wrapper -->
 
-    <!-- Resize handle (left side for right sidebar) - touch-friendly with pointer events -->
-    {#if !isMobile}
+    <!-- Resize handle (left side for right sidebar) - only when not auto-hiding -->
+    {#if !isMobile && !config.navigation.auto_hide}
       <div
         class="absolute top-0 left-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
         on:pointerdown={handleResizeStart}
@@ -729,108 +824,109 @@
     on:mouseenter={handleNavEnter}
     on:mouseleave={handleNavLeave}
   >
-    <!-- Collapsed icon strip - show app icons when collapsed -->
-    {#if isCollapsedBottom}
-      <!-- svelte-ignore a11y-click-events-have-key-events -->
-      <div class="absolute inset-0 flex items-center justify-center gap-1 z-20 px-4 cursor-pointer" on:click={() => isHidden = false} role="button" tabindex="0">
-        {#each apps as app}
-          <button
-            class="flex-shrink-0 transition-all duration-200 rounded"
-            style="opacity: {currentApp?.name === app.name ? '1' : '0.4'};"
-            on:click|stopPropagation={() => dispatch('select', app)}
-            title={app.name}
-          >
-            <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={false} />
-          </button>
-        {/each}
-      </div>
-    {/if}
-    <!-- Content wrapper -->
+    <!-- Unified dock content - icons stay in place, extras fade -->
     <div
-      class="flex items-center justify-center gap-2 p-3 overflow-x-auto scrollbar-hide transition-opacity duration-200"
-      style="opacity: {isCollapsedBottom ? '0' : '1'}; pointer-events: {isCollapsedBottom ? 'none' : 'auto'};"
+      class="flex items-center justify-center gap-2 p-2 overflow-x-auto scrollbar-hide"
     >
       <!-- Home/Splash button -->
-      {#if config.navigation.show_logo}
+      {#if config.navigation.show_logo && !isCollapsedBottom}
         <button
-          class="p-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
+          class="p-2 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
+          style="color: var(--accent-primary); opacity: {showSplash ? '0.3' : '1'}; transition: opacity 0.2s ease;"
           on:click={() => dispatch('splash')}
           title={config.title}
         >
-          <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-          </svg>
+          <MuximuxLogo height="24" />
         </button>
-        <div class="w-px h-10 bg-gray-700"></div>
+        <div class="w-px h-8 bg-gray-700"></div>
       {/if}
 
-      <!-- App icons -->
+      <!-- App icons - consistent size in both states -->
       {#each apps as app}
         <button
-          class="relative p-2 rounded-xl transition-all hover:scale-110 group
-                 {currentApp?.name === app.name ? 'bg-gray-700' : 'hover:bg-gray-700/50'}"
+          class="relative p-2 rounded-xl transition-all group
+                 {currentApp?.name === app.name ? 'bg-gray-700' : 'hover:bg-gray-700/50'}
+                 {isCollapsedBottom && currentApp?.name !== app.name ? 'opacity-40' : ''}
+                 {!isCollapsedBottom ? 'hover:scale-110' : ''}"
           on:click={() => dispatch('select', app)}
           title={app.name}
         >
-          <AppIcon icon={app.icon} name={app.name} color={app.color} size="lg" showBackground={config.navigation.show_icon_background} />
+          <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" showBackground={config.navigation.show_icon_background} />
 
-          <!-- Health indicator -->
-          {#if showHealth}
-            <span class="absolute top-1 right-1">
-              <HealthIndicator appName={app.name} size="sm" showTooltip={false} />
+          {#if !isCollapsedBottom}
+            <!-- Health indicator -->
+            {#if showHealth}
+              <span class="absolute top-0 right-0">
+                <HealthIndicator appName={app.name} size="sm" showTooltip={false} />
+              </span>
+            {/if}
+
+            <!-- Active indicator dot -->
+            {#if currentApp?.name === app.name}
+              <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white"></span>
+            {/if}
+
+            <!-- Tooltip on hover -->
+            <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
+              {app.name}
+              {#if app.open_mode !== 'iframe'}
+                {getOpenModeIcon(app.open_mode)}
+              {/if}
             </span>
           {/if}
-
-          <!-- Active indicator dot -->
-          {#if currentApp?.name === app.name}
-            <span class="absolute bottom-0 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-white"></span>
-          {/if}
-
-          <!-- Tooltip on hover -->
-          <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 text-xs bg-gray-900 text-white rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-            {app.name}
-            {#if app.open_mode !== 'iframe'}
-              {getOpenModeIcon(app.open_mode)}
-            {/if}
-          </span>
         </button>
       {/each}
 
-      <div class="w-px h-10 bg-gray-700"></div>
+      {#if !isCollapsedBottom}
+        <div class="w-px h-8 bg-gray-700"></div>
 
-      <!-- Search button -->
-      <button
-        class="p-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
-        on:click={() => dispatch('search')}
-        title="Search (Ctrl+K)"
-      >
-        <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
-      </button>
-
-      <!-- Settings button -->
-      <button
-        class="p-3 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
-        on:click={() => dispatch('settings')}
-        title="Settings"
-      >
-        <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-        </svg>
-      </button>
-
-      {#if $isAuthenticated && $currentUser}
+        <!-- Search button -->
         <button
-          class="p-3 rounded-xl bg-gray-700/50 hover:bg-red-600/30 transition-all hover:scale-110 group"
-          on:click={handleLogout}
-          title="Sign out"
+          class="p-2 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
+          on:click={() => dispatch('search')}
+          title="Search (Ctrl+K)"
         >
-          <svg class="w-6 h-6 text-gray-300 group-hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
+
+        <!-- Keyboard shortcuts toggle -->
+        <button
+          class="p-2 rounded-xl transition-all group
+                 {appDisablesShortcuts ? 'opacity-50' : 'hover:scale-110'}
+                 {shortcutsActive ? 'bg-brand-600/30' : 'bg-gray-700/50'}"
+          on:click={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
+          title={keyboardTooltip}
+        >
+          <svg class="w-6 h-6 {shortcutsActive ? 'text-brand-400' : 'text-gray-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+        </button>
+
+        <!-- Settings button -->
+        <button
+          class="p-2 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
+          on:click={() => dispatch('settings')}
+          title="Settings"
+        >
+          <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+
+        {#if $isAuthenticated && $currentUser}
+          <button
+            class="p-2 rounded-xl bg-gray-700/50 hover:bg-red-600/30 transition-all hover:scale-110 group"
+            on:click={handleLogout}
+            title="Sign out"
+          >
+            <svg class="w-6 h-6 text-gray-300 group-hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+          </button>
+        {/if}
       {/if}
     </div>
   </nav>
@@ -895,6 +991,17 @@
         </svg>
       </button>
       <button
+        class="p-3 border rounded-full shadow-lg transition-all
+               {appDisablesShortcuts ? 'opacity-50' : 'hover:scale-110'}
+               {shortcutsActive ? 'bg-brand-600/20 border-brand-500/50' : 'bg-gray-800 border-gray-700'}"
+        on:click={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
+        title={keyboardTooltip}
+      >
+        <svg class="w-5 h-5 {shortcutsActive ? 'text-brand-400' : 'text-gray-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+        </svg>
+      </button>
+      <button
         class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
         on:click={() => dispatch('settings')}
         title="Settings"
@@ -921,6 +1028,13 @@
   /* Ensure sidebar has relative positioning for resize handle */
   aside {
     position: relative;
+  }
+
+  /* Sidebar panel transition — declared in CSS (not inline) so Svelte's
+     style attribute replacement never removes the transition declaration */
+  .sidebar-panel {
+    transition: width 0.3s ease, box-shadow 0.3s ease;
+    will-change: width;
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════

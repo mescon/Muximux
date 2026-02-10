@@ -5,6 +5,7 @@ import (
 	"compress/gzip"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -46,6 +47,22 @@ func newContentRewriter(proxyPrefix, targetPath, targetHost string) *contentRewr
 
 func (r *contentRewriter) rewrite(content []byte) []byte {
 	result := string(content)
+
+	// 0. Strip integrity attributes since we modify content (breaks SRI hash)
+	// Also strip crossorigin as it's often paired with integrity
+	integrityPattern := regexp.MustCompile(`\s*(integrity|crossorigin)\s*=\s*["'][^"']*["']`)
+	result = integrityPattern.ReplaceAllString(result, "")
+
+	// 0b. Strip dynamic SRI assignment in webpack loaders (e.g., Plex)
+	// Pattern: f.integrity=b.sriHashes[d] or similar variations
+	// This prevents webpack from adding integrity at runtime when loading chunks
+	dynamicSriPattern := regexp.MustCompile(`\w+\.integrity\s*=\s*\w+\.sriHashes\[[^\]]+\],?`)
+	result = dynamicSriPattern.ReplaceAllString(result, "")
+
+	// Also neutralize the sriHashes object itself if it exists
+	// b.sriHashes={...} -> b.sriHashes={}
+	sriHashesPattern := regexp.MustCompile(`(\w+\.sriHashes)\s*=\s*\{[^}]+\}`)
+	result = sriHashesPattern.ReplaceAllString(result, "${1}={}")
 
 	// 1. Rewrite absolute URLs with the target host
 	// e.g., http://10.9.0.100/admin/foo -> /proxy/slug/foo
@@ -196,7 +213,7 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 
 	// 5. Rewrite JavaScript/JSON base path patterns (for SPAs like Sonarr/Radarr)
 	// Handle empty strings: urlBase: '' or "urlBase": ""
-	// Match common base path variable names with empty values
+	// Note: This may cause double-prefixing in some apps, but we handle that in the Director
 	urlBaseEmptyPattern := regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
 	result = urlBaseEmptyPattern.ReplaceAllString(result, `${1}${2}${3}: "`+r.proxyPrefix+`"`)
 
@@ -351,6 +368,13 @@ func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
 					reqPath = "/"
 				}
 
+				// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint
+				// e.g., /api/v3/proxy/radarr/movie should become /api/v3/movie
+				// This happens when the app does urlBase + endpoint before AJAX adds apiRoot
+				if strings.Contains(reqPath, capturedProxyPrefix) {
+					reqPath = strings.ReplaceAll(reqPath, capturedProxyPrefix, "")
+				}
+
 				// Join target path with remaining request path
 				// Exception: /api paths typically live at root, not under the target path
 				// This handles apps like Pi-hole where UI is at /admin but API is at /api
@@ -371,10 +395,42 @@ func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
 				req.URL.Scheme = capturedTargetURL.Scheme
 				req.URL.Host = capturedTargetURL.Host
 
-				// Set proper headers
+				// Preserve original client information for the backend
+				// Extract client IP (RemoteAddr includes port, e.g., "10.9.0.5:54321")
+				clientIP := req.RemoteAddr
+				if host, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
+					clientIP = host
+				}
+
+				// Set standard proxy headers
+				// X-Forwarded-For: Client IP (append to existing if present)
+				if prior := req.Header.Get("X-Forwarded-For"); prior != "" {
+					req.Header.Set("X-Forwarded-For", prior+", "+clientIP)
+				} else {
+					req.Header.Set("X-Forwarded-For", clientIP)
+				}
+
+				// X-Forwarded-Host: Original host requested by client
+				if req.Header.Get("X-Forwarded-Host") == "" {
+					req.Header.Set("X-Forwarded-Host", req.Host)
+				}
+
+				// X-Forwarded-Proto: Original protocol
+				proto := "http"
+				if req.TLS != nil {
+					proto = "https"
+				}
+				if req.Header.Get("X-Forwarded-Proto") == "" {
+					req.Header.Set("X-Forwarded-Proto", proto)
+				}
+
+				// X-Real-IP: Original client IP (commonly used by nginx)
+				if req.Header.Get("X-Real-IP") == "" {
+					req.Header.Set("X-Real-IP", clientIP)
+				}
+
+				// Now set the target host
 				req.Host = capturedTargetURL.Host
-				req.Header.Set("X-Forwarded-Host", req.Host)
-				req.Header.Set("X-Real-IP", req.RemoteAddr)
 				req.Header.Set("Accept-Encoding", "gzip, identity")
 			},
 			ModifyResponse: createModifyResponse(capturedProxyPrefix, capturedTargetPath, rewriter),
@@ -401,23 +457,23 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 		resp.Header.Del("Content-Security-Policy")
 		resp.Header.Del("X-Content-Type-Options")
 
-		// Rewrite Location headers for redirects
+		// Rewrite Location headers for redirects (301, 302, 303, 307, 308)
 		if location := resp.Header.Get("Location"); location != "" {
-			location = rewriteLocation(location, proxyPrefix, targetPath)
+			location = rewriteLocation(location, proxyPrefix, targetPath, rewriter.targetHost)
 			resp.Header.Set("Location", location)
 		}
 
 		// Rewrite Content-Location header
 		if contentLoc := resp.Header.Get("Content-Location"); contentLoc != "" {
-			contentLoc = rewriteLocation(contentLoc, proxyPrefix, targetPath)
+			contentLoc = rewriteLocation(contentLoc, proxyPrefix, targetPath, rewriter.targetHost)
 			resp.Header.Set("Content-Location", contentLoc)
 		}
 
-		// Rewrite Refresh header if present
+		// Rewrite Refresh header if present (meta refresh redirects)
 		if refresh := resp.Header.Get("Refresh"); refresh != "" {
 			if idx := strings.Index(strings.ToLower(refresh), "url="); idx != -1 {
 				urlPart := strings.TrimSpace(refresh[idx+4:])
-				urlPart = rewriteLocation(urlPart, proxyPrefix, targetPath)
+				urlPart = rewriteLocation(urlPart, proxyPrefix, targetPath, rewriter.targetHost)
 				resp.Header.Set("Refresh", refresh[:idx+4]+urlPart)
 			}
 		}
@@ -489,7 +545,27 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 	}
 }
 
-func rewriteLocation(location, proxyPrefix, targetPath string) string {
+func rewriteLocation(location, proxyPrefix, targetPath, targetHost string) string {
+	// Handle absolute URLs pointing to the target server
+	// e.g., http://10.9.0.41:32400/web/index.html -> /proxy/plex/index.html
+	if strings.HasPrefix(location, "http://") || strings.HasPrefix(location, "https://") {
+		parsed, err := url.Parse(location)
+		if err != nil {
+			return location
+		}
+		// Only rewrite if it's pointing to our target host
+		if parsed.Host == targetHost {
+			location = parsed.Path
+			if parsed.RawQuery != "" {
+				location += "?" + parsed.RawQuery
+			}
+			// Fall through to path rewriting below
+		} else {
+			return location // Different host, don't rewrite
+		}
+	}
+
+	// Skip if already rewritten or not a path
 	if !strings.HasPrefix(location, "/") || strings.HasPrefix(location, "/proxy/") {
 		return location
 	}

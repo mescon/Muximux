@@ -96,13 +96,16 @@ type OIDCConfig struct {
 
 // NavigationConfig holds navigation layout settings
 type NavigationConfig struct {
-	Position      string `yaml:"position" json:"position"` // top, left, right, bottom, floating
-	Width         string `yaml:"width" json:"width"`
-	AutoHide      bool   `yaml:"auto_hide" json:"auto_hide"`
-	AutoHideDelay string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
-	ShowOnHover   bool   `yaml:"show_on_hover" json:"show_on_hover"`
-	ShowLabels    bool   `yaml:"show_labels" json:"show_labels"`
-	ShowLogo      bool   `yaml:"show_logo" json:"show_logo"`
+	Position            string `yaml:"position" json:"position"` // top, left, right, bottom, floating
+	Width               string `yaml:"width" json:"width"`
+	AutoHide            bool   `yaml:"auto_hide" json:"auto_hide"`
+	AutoHideDelay       string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
+	ShowOnHover         bool   `yaml:"show_on_hover" json:"show_on_hover"`
+	ShowLabels          bool   `yaml:"show_labels" json:"show_labels"`
+	ShowLogo            bool   `yaml:"show_logo" json:"show_logo"`
+	ShowAppColors       bool   `yaml:"show_app_colors" json:"show_app_colors"`
+	ShowIconBackground  bool   `yaml:"show_icon_background" json:"show_icon_background"`
+	ShowSplashOnStart   bool   `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
 }
 
 // IconsConfig holds icon settings
@@ -120,11 +123,11 @@ type DashboardIconsConfig struct {
 
 // GroupConfig holds app group settings
 type GroupConfig struct {
-	Name     string `yaml:"name" json:"name"`
-	Icon     string `yaml:"icon" json:"icon"`
-	Color    string `yaml:"color" json:"color"`
-	Order    int    `yaml:"order" json:"order"`
-	Expanded bool   `yaml:"expanded" json:"expanded"`
+	Name     string        `yaml:"name" json:"name"`
+	Icon     AppIconConfig `yaml:"icon" json:"icon"`
+	Color    string        `yaml:"color" json:"color"`
+	Order    int           `yaml:"order" json:"order"`
+	Expanded bool          `yaml:"expanded" json:"expanded"`
 }
 
 // AppConfig holds individual app settings
@@ -140,9 +143,10 @@ type AppConfig struct {
 	Default    bool             `yaml:"default"`
 	OpenMode   string           `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
 	Proxy      bool             `yaml:"proxy"`
-	Scale      float64          `yaml:"scale"`
-	AuthBypass []AuthBypassRule `yaml:"auth_bypass"`
-	Access     AppAccessConfig  `yaml:"access"`
+	Scale                    float64          `yaml:"scale"`
+	DisableKeyboardShortcuts bool             `yaml:"disable_keyboard_shortcuts,omitempty"`
+	AuthBypass               []AuthBypassRule `yaml:"auth_bypass"`
+	Access                   AppAccessConfig  `yaml:"access"`
 }
 
 // AppIconConfig holds app icon settings
@@ -211,13 +215,16 @@ func defaultConfig() *Config {
 			Method: "none",
 		},
 		Navigation: NavigationConfig{
-			Position:      "top",
-			Width:         "220px",
-			AutoHide:      false,
-			AutoHideDelay: "3s",
-			ShowOnHover:   true,
-			ShowLabels:    true,
-			ShowLogo:      true,
+			Position:           "top",
+			Width:              "220px",
+			AutoHide:           false,
+			AutoHideDelay:      "3s",
+			ShowOnHover:        true,
+			ShowLabels:         true,
+			ShowLogo:           true,
+			ShowAppColors:      true,
+			ShowIconBackground: true,
+			ShowSplashOnStart:  false,
 		},
 		Icons: IconsConfig{
 			DashboardIcons: DashboardIconsConfig{

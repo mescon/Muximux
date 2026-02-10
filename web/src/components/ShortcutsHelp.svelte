@@ -55,7 +55,7 @@
 <svelte:window on:keydown={handleKeydown} />
 
 <div
-  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
+  class="shortcuts-help fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
   on:click|self={() => dispatch('close')}
   role="dialog"
   aria-modal="true"
@@ -63,7 +63,7 @@
   transition:fade={{ duration: 150 }}
 >
   <div
-    class="bg-gray-800 shadow-2xl w-full border border-gray-700 overflow-hidden
+    class="shortcuts-modal shadow-2xl w-full overflow-hidden
            {isMobile
              ? 'h-full max-h-full rounded-none'
              : 'rounded-xl max-w-2xl'}"
@@ -71,10 +71,10 @@
     out:fade={{ duration: 100 }}
   >
     <!-- Header -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-700">
-      <h2 class="text-lg font-semibold text-white">Keyboard Shortcuts</h2>
+    <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-subtle);">
+      <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Keyboard Shortcuts</h2>
       <button
-        class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+        class="shortcuts-close-btn p-1.5 rounded-md"
         on:click={() => dispatch('close')}
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -90,19 +90,19 @@
         {#each Object.entries(groupedBindings) as [category, bindings]}
           {#if category !== 'apps'}
             <div>
-              <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+              <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
                 {categoryLabels[category] || category}
               </h3>
               <div class="space-y-2">
                 {#each bindings as binding}
                   <div class="flex items-center justify-between py-1">
-                    <span class="text-gray-300">{binding.label}</span>
+                    <span style="color: var(--text-secondary);">{binding.label}</span>
                     <div class="flex items-center gap-1">
                       {#each binding.combos as combo, i}
                         {#if i > 0}
-                          <span class="text-gray-500 text-xs">or</span>
+                          <span class="text-xs" style="color: var(--text-disabled);">or</span>
                         {/if}
-                        <kbd class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-200 font-mono">
+                        <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
                           {#if combo.ctrl}Ctrl+{/if}{#if combo.alt}Alt+{/if}{#if combo.shift}Shift+{/if}{#if combo.meta}⌘{/if}{combo.key.length === 1 ? combo.key.toUpperCase() : combo.key}
                         </kbd>
                       {/each}
@@ -117,13 +117,13 @@
         <!-- App Quick Access (summarized) -->
         {#if groupedBindings.apps}
           <div>
-            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
               App Quick Access
             </h3>
             <div class="space-y-2">
               <div class="flex items-center justify-between py-1">
-                <span class="text-gray-300">Switch to app by number</span>
-                <kbd class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-200 font-mono">
+                <span style="color: var(--text-secondary);">Switch to app by number</span>
+                <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
                   1-9
                 </kbd>
               </div>
@@ -134,19 +134,19 @@
         <!-- Additional non-customizable shortcuts -->
         {#each additionalShortcuts as section}
           <div>
-            <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+            <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
               {section.category}
             </h3>
             <div class="space-y-2">
               {#each section.items as shortcut}
                 <div class="flex items-center justify-between py-1">
-                  <span class="text-gray-300">{shortcut.description}</span>
+                  <span style="color: var(--text-secondary);">{shortcut.description}</span>
                   <div class="flex items-center gap-1">
                     {#each shortcut.keys as key, i}
                       {#if i > 0}
-                        <span class="text-gray-500 text-xs">or</span>
+                        <span class="text-xs" style="color: var(--text-disabled);">or</span>
                       {/if}
-                      <kbd class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-gray-200 font-mono">
+                      <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
                         {key}
                       </kbd>
                     {/each}
@@ -159,19 +159,41 @@
       </div>
 
       <!-- Customization hint -->
-      <div class="mt-6 p-3 bg-gray-700/30 rounded-lg">
-        <p class="text-sm text-gray-400 text-center">
-          Customize shortcuts in <span class="text-brand-400">Settings → Keybindings</span>
+      <div class="mt-6 p-3 rounded-lg" style="background: var(--bg-hover);">
+        <p class="text-sm text-center" style="color: var(--text-muted);">
+          Customize shortcuts in <span style="color: var(--accent-primary);">Settings → Keybindings</span>
         </p>
       </div>
     </div>
 
     <!-- Footer -->
-    <div class="p-4 border-t border-gray-700 text-center">
-      <p class="text-sm text-gray-400">
-        Press <kbd class="px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-600">?</kbd> or
-        <kbd class="px-1.5 py-0.5 text-xs bg-gray-700 rounded border border-gray-600">Escape</kbd> to close
+    <div class="p-4 border-t text-center" style="border-color: var(--border-subtle);">
+      <p class="text-sm" style="color: var(--text-muted);">
+        Press <kbd class="shortcuts-kbd px-1.5 py-0.5 text-xs rounded">?</kbd> or
+        <kbd class="shortcuts-kbd px-1.5 py-0.5 text-xs rounded">Escape</kbd> to close
       </p>
     </div>
   </div>
 </div>
+
+<style>
+  .shortcuts-modal {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .shortcuts-close-btn {
+    color: var(--text-muted);
+  }
+
+  .shortcuts-close-btn:hover {
+    color: var(--text-primary);
+    background: var(--bg-hover);
+  }
+
+  .shortcuts-kbd {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
+  }
+</style>

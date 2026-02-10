@@ -19,7 +19,9 @@ navigation:
 
 groups:
   - name: Test Group
-    icon: server
+    icon:
+      type: dashboard
+      name: server
     color: "#ff0000"
     order: 1
 
@@ -128,7 +130,7 @@ func TestSave(t *testing.T) {
 	cfg := defaultConfig()
 	cfg.Server.Title = "Saved Config"
 	cfg.Groups = []GroupConfig{
-		{Name: "Test", Icon: "test", Color: "#000000", Order: 1},
+		{Name: "Test", Icon: AppIconConfig{Type: "dashboard", Name: "test"}, Color: "#000000", Order: 1},
 	}
 
 	tmpDir := t.TempDir()

@@ -117,17 +117,18 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		}
 
 		app := config.AppConfig{
-			Name:     clientApp.Name,
-			URL:      url,
-			Icon:     clientApp.Icon,
-			Color:    clientApp.Color,
-			Group:    clientApp.Group,
-			Order:    clientApp.Order,
-			Enabled:  clientApp.Enabled,
-			Default:  clientApp.Default,
-			OpenMode: clientApp.OpenMode,
-			Proxy:    clientApp.Proxy,
-			Scale:    clientApp.Scale,
+			Name:                     clientApp.Name,
+			URL:                      url,
+			Icon:                     clientApp.Icon,
+			Color:                    clientApp.Color,
+			Group:                    clientApp.Group,
+			Order:                    clientApp.Order,
+			Enabled:                  clientApp.Enabled,
+			Default:                  clientApp.Default,
+			OpenMode:                 clientApp.OpenMode,
+			Proxy:                    clientApp.Proxy,
+			Scale:                    clientApp.Scale,
+			DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 		}
 
 		// Preserve auth bypass and access rules if app existed before
@@ -228,17 +229,18 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 
 	// Create new app config
 	newApp := config.AppConfig{
-		Name:     clientApp.Name,
-		URL:      clientApp.URL,
-		Icon:     clientApp.Icon,
-		Color:    clientApp.Color,
-		Group:    clientApp.Group,
-		Order:    len(h.config.Apps), // Add at end
-		Enabled:  clientApp.Enabled,
-		Default:  clientApp.Default,
-		OpenMode: clientApp.OpenMode,
-		Proxy:    clientApp.Proxy,
-		Scale:    clientApp.Scale,
+		Name:                     clientApp.Name,
+		URL:                      clientApp.URL,
+		Icon:                     clientApp.Icon,
+		Color:                    clientApp.Color,
+		Group:                    clientApp.Group,
+		Order:                    len(h.config.Apps), // Add at end
+		Enabled:                  clientApp.Enabled,
+		Default:                  clientApp.Default,
+		OpenMode:                 clientApp.OpenMode,
+		Proxy:                    clientApp.Proxy,
+		Scale:                    clientApp.Scale,
+		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 	}
 
 	h.config.Apps = append(h.config.Apps, newApp)
@@ -284,19 +286,20 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Update app config
 	h.config.Apps[idx] = config.AppConfig{
-		Name:       clientApp.Name,
-		URL:        clientApp.URL,
-		Icon:       clientApp.Icon,
-		Color:      clientApp.Color,
-		Group:      clientApp.Group,
-		Order:      clientApp.Order,
-		Enabled:    clientApp.Enabled,
-		Default:    clientApp.Default,
-		OpenMode:   clientApp.OpenMode,
-		Proxy:      clientApp.Proxy,
-		Scale:      clientApp.Scale,
-		AuthBypass: existing.AuthBypass,
-		Access:     existing.Access,
+		Name:                     clientApp.Name,
+		URL:                      clientApp.URL,
+		Icon:                     clientApp.Icon,
+		Color:                    clientApp.Color,
+		Group:                    clientApp.Group,
+		Order:                    clientApp.Order,
+		Enabled:                  clientApp.Enabled,
+		Default:                  clientApp.Default,
+		OpenMode:                 clientApp.OpenMode,
+		Proxy:                    clientApp.Proxy,
+		Scale:                    clientApp.Scale,
+		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		AuthBypass:               existing.AuthBypass,
+		Access:                   existing.Access,
 	}
 
 	// Save config
@@ -475,35 +478,37 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 		proxyURL = "/proxy/" + slugify(app.Name) + "/"
 	}
 	return ClientAppConfig{
-		Name:     app.Name,
-		URL:      app.URL,
-		ProxyURL: proxyURL,
-		Icon:     app.Icon,
-		Color:    app.Color,
-		Group:    app.Group,
-		Order:    app.Order,
-		Enabled:  app.Enabled,
-		Default:  app.Default,
-		OpenMode: app.OpenMode,
-		Proxy:    app.Proxy,
-		Scale:    app.Scale,
+		Name:                     app.Name,
+		URL:                      app.URL,
+		ProxyURL:                 proxyURL,
+		Icon:                     app.Icon,
+		Color:                    app.Color,
+		Group:                    app.Group,
+		Order:                    app.Order,
+		Enabled:                  app.Enabled,
+		Default:                  app.Default,
+		OpenMode:                 app.OpenMode,
+		Proxy:                    app.Proxy,
+		Scale:                    app.Scale,
+		DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 	}
 }
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name     string               `json:"name"`
-	URL      string               `json:"url"`                // Original target URL (for editing/config)
-	ProxyURL string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
-	Icon     config.AppIconConfig `json:"icon"`
-	Color    string               `json:"color"`
-	Group    string               `json:"group"`
-	Order    int                  `json:"order"`
-	Enabled  bool                 `json:"enabled"`
-	Default  bool                 `json:"default"`
-	OpenMode string               `json:"open_mode"`
-	Proxy    bool                 `json:"proxy"`
-	Scale    float64              `json:"scale"`
+	Name                     string               `json:"name"`
+	URL                      string               `json:"url"`                         // Original target URL (for editing/config)
+	ProxyURL                 string               `json:"proxyUrl,omitempty"`           // Proxy path for iframe loading (when proxy enabled)
+	Icon                     config.AppIconConfig `json:"icon"`
+	Color                    string               `json:"color"`
+	Group                    string               `json:"group"`
+	Order                    int                  `json:"order"`
+	Enabled                  bool                 `json:"enabled"`
+	Default                  bool                 `json:"default"`
+	OpenMode                 string               `json:"open_mode"`
+	Proxy                    bool                 `json:"proxy"`
+	Scale                    float64              `json:"scale"`
+	DisableKeyboardShortcuts bool                 `json:"disable_keyboard_shortcuts"`
 }
 
 // sanitizeApps removes sensitive fields from app configs
@@ -522,18 +527,19 @@ func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
 		}
 
 		result = append(result, ClientAppConfig{
-			Name:     app.Name,
-			URL:      app.URL,
-			ProxyURL: proxyURL,
-			Icon:     app.Icon,
-			Color:    app.Color,
-			Group:    app.Group,
-			Order:    app.Order,
-			Enabled:  app.Enabled,
-			Default:  app.Default,
-			OpenMode: app.OpenMode,
-			Proxy:    app.Proxy,
-			Scale:    app.Scale,
+			Name:                     app.Name,
+			URL:                      app.URL,
+			ProxyURL:                 proxyURL,
+			Icon:                     app.Icon,
+			Color:                    app.Color,
+			Group:                    app.Group,
+			Order:                    app.Order,
+			Enabled:                  app.Enabled,
+			Default:                  app.Default,
+			OpenMode:                 app.OpenMode,
+			Proxy:                    app.Proxy,
+			Scale:                    app.Scale,
+			DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 		})
 	}
 	return result
