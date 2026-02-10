@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
   import {
     keybindings,
     type Keybinding,
@@ -17,15 +16,18 @@
     DEFAULT_KEYBINDINGS
   } from '$lib/keybindingsStore';
 
-  const dispatch = createEventDispatcher<{
-    change: void;
-  }>();
+  // Props
+  let {
+    onchange
+  }: {
+    onchange?: () => void;
+  } = $props();
 
   // State for capturing new keybinding
-  let capturingAction: KeyAction | null = null;
-  let capturingIndex: number | null = null; // null = adding new, number = replacing
-  let capturedCombo: KeyCombo | null = null;
-  let conflicts: Keybinding[] = [];
+  let capturingAction = $state<KeyAction | null>(null);
+  let capturingIndex = $state<number | null>(null); // null = adding new, number = replacing
+  let capturedCombo = $state<KeyCombo | null>(null);
+  let conflicts = $state<Keybinding[]>([]);
 
   // Category labels
   const categoryLabels: Record<string, string> = {
@@ -35,13 +37,13 @@
   };
 
   // Group bindings by category
-  $: groupedBindings = $keybindings.reduce((acc, binding) => {
+  const groupedBindings = $derived($keybindings.reduce((acc, binding) => {
     if (!acc[binding.category]) {
       acc[binding.category] = [];
     }
     acc[binding.category].push(binding);
     return acc;
-  }, {} as Record<string, Keybinding[]>);
+  }, {} as Record<string, Keybinding[]>));
 
   function startCapture(action: KeyAction, index: number | null = null) {
     capturingAction = action;
@@ -102,7 +104,7 @@
     );
 
     setKeybinding(capturingAction, newCombos);
-    dispatch('change');
+    onchange?.();
     cancelCapture();
   }
 
@@ -110,16 +112,16 @@
     const binding = $keybindings.find(b => b.action === action);
     if (binding && binding.combos.length > 1) {
       removeKeyCombo(action, index);
-      dispatch('change');
+      onchange?.();
     }
   }
 
   function handleResetBinding(action: KeyAction) {
     resetKeybinding(action);
-    dispatch('change');
+    onchange?.();
   }
 
-  let confirmResetAll = false;
+  let confirmResetAll = $state(false);
 
   function handleResetAll() {
     confirmResetAll = true;
@@ -127,7 +129,7 @@
 
   function confirmResetAllAction() {
     resetAllKeybindings();
-    dispatch('change');
+    onchange?.();
     confirmResetAll = false;
   }
 
@@ -137,7 +139,7 @@
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div class="space-y-6">
   <!-- Header with reset button -->
@@ -151,19 +153,19 @@
         <button
           type="button"
           class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
-          on:click={confirmResetAllAction}
+          onclick={confirmResetAllAction}
         >Yes, Reset</button>
         <button
           type="button"
           class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
-          on:click={() => confirmResetAll = false}
+          onclick={() => confirmResetAll = false}
         >Cancel</button>
       </div>
     {:else}
       <button
         type="button"
         class="text-sm text-gray-400 hover:text-white transition-colors"
-        on:click={handleResetAll}
+        onclick={handleResetAll}
       >
         Reset All to Defaults
       </button>
@@ -212,31 +214,34 @@
                         {/if}
                       </div>
                     {:else}
-                      <button
-                        type="button"
-                        class="group flex items-center gap-1"
-                        on:click={() => binding.editable && startCapture(binding.action, i)}
-                        disabled={!binding.editable}
-                      >
-                        <kbd
-                          class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded font-mono
-                                 {binding.editable ? 'text-gray-200 group-hover:bg-gray-600 group-hover:border-gray-500' : 'text-gray-500'}"
+                      <div class="group flex items-center gap-1">
+                        <button
+                          type="button"
+                          onclick={() => binding.editable && startCapture(binding.action, i)}
+                          disabled={!binding.editable}
                         >
-                          {formatKeyCombo(combo)}
-                        </kbd>
+                          <kbd
+                            class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded font-mono
+                                   {binding.editable ? 'text-gray-200 group-hover:bg-gray-600 group-hover:border-gray-500' : 'text-gray-500'}"
+                          >
+                            {formatKeyCombo(combo)}
+                          </kbd>
+                        </button>
                         {#if binding.editable && binding.combos.length > 1}
-                          <button
-                            type="button"
-                            class="p-0.5 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                            on:click|stopPropagation={() => handleRemoveCombo(binding.action, i)}
+                          <span
+                            role="button"
+                            class="p-0.5 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
+                            onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
+                            tabindex="0"
                             title="Remove this shortcut"
                           >
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
                             </svg>
-                          </button>
+                          </span>
                         {/if}
-                      </button>
+                      </div>
                     {/if}
                     {#if i < binding.combos.length - 1}
                       <span class="text-gray-500 text-xs mx-1">or</span>
@@ -249,7 +254,7 @@
                   <button
                     type="button"
                     class="p-1 text-gray-500 hover:text-gray-300 transition-colors"
-                    on:click={() => startCapture(binding.action, null)}
+                    onclick={() => startCapture(binding.action, null)}
                     title="Add alternative shortcut"
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -280,7 +285,7 @@
                 <button
                   type="button"
                   class="p-1 text-gray-500 hover:text-yellow-400 transition-colors"
-                  on:click={() => handleResetBinding(binding.action)}
+                  onclick={() => handleResetBinding(binding.action)}
                   title="Reset to default"
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -328,14 +333,14 @@
           <button
             type="button"
             class="keybinding-btn-cancel flex-1 px-4 py-2 rounded-lg transition-colors"
-            on:click={cancelCapture}
+            onclick={cancelCapture}
           >
             Cancel
           </button>
           <button
             type="button"
             class="keybinding-btn-confirm flex-1 px-4 py-2 rounded-lg transition-colors"
-            on:click={confirmCapture}
+            onclick={confirmCapture}
           >
             {conflicts.length > 0 ? 'Use Anyway' : 'Confirm'}
           </button>

@@ -1,21 +1,31 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import type { Snippet } from 'svelte';
 
-  export let error: Error | null = null;
-  export let resetError: (() => void) | null = null;
+  let { error = null, resetError = null, children }: {
+    error?: Error | null;
+    resetError?: (() => void) | null;
+    children?: Snippet;
+  } = $props();
 
-  let errorInfo: string = '';
+  let errorState = $state<Error | null>(error);
+  let errorInfo = $state('');
+
+  // Sync external error prop
+  $effect(() => {
+    errorState = error;
+  });
 
   // Global error handler
   onMount(() => {
     const handleError = (event: ErrorEvent) => {
-      error = event.error || new Error(event.message);
+      errorState = event.error || new Error(event.message);
       errorInfo = `${event.filename}:${event.lineno}:${event.colno}`;
       event.preventDefault();
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
-      error = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
+      errorState = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
       errorInfo = 'Unhandled Promise Rejection';
       event.preventDefault();
     };
@@ -30,7 +40,7 @@
   });
 
   function handleReset() {
-    error = null;
+    errorState = null;
     errorInfo = '';
     if (resetError) {
       resetError();
@@ -42,12 +52,12 @@
   }
 
   function copyErrorDetails() {
-    const details = `Error: ${error?.message}\n\nStack:\n${error?.stack}\n\nInfo: ${errorInfo}`;
+    const details = `Error: ${errorState?.message}\n\nStack:\n${errorState?.stack}\n\nInfo: ${errorInfo}`;
     navigator.clipboard.writeText(details);
   }
 </script>
 
-{#if error}
+{#if errorState}
   <div class="fixed inset-0 z-[100] flex items-center justify-center bg-gray-900/95 p-4">
     <div class="max-w-lg w-full bg-gray-800 rounded-lg shadow-xl border border-gray-700 overflow-hidden">
       <!-- Header -->
@@ -66,18 +76,18 @@
       <!-- Error details -->
       <div class="px-6 py-4">
         <div class="bg-gray-900 rounded-md p-4 mb-4">
-          <p class="text-red-400 font-mono text-sm break-all">{error.message}</p>
+          <p class="text-red-400 font-mono text-sm break-all">{errorState.message}</p>
           {#if errorInfo}
             <p class="text-gray-500 text-xs mt-2">{errorInfo}</p>
           {/if}
         </div>
 
-        {#if error.stack}
+        {#if errorState.stack}
           <details class="text-sm">
             <summary class="text-gray-400 cursor-pointer hover:text-gray-300 mb-2">
               Show stack trace
             </summary>
-            <pre class="bg-gray-900 rounded-md p-3 text-xs text-gray-500 overflow-x-auto max-h-40">{error.stack}</pre>
+            <pre class="bg-gray-900 rounded-md p-3 text-xs text-gray-500 overflow-x-auto max-h-40">{errorState.stack}</pre>
           </details>
         {/if}
       </div>
@@ -85,21 +95,21 @@
       <!-- Actions -->
       <div class="px-6 py-4 bg-gray-800/50 border-t border-gray-700 flex gap-3">
         <button
-          on:click={handleReload}
+          onclick={handleReload}
           class="flex-1 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md
                  transition-colors text-sm font-medium"
         >
           Reload Page
         </button>
         <button
-          on:click={handleReset}
+          onclick={handleReset}
           class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-md
                  transition-colors text-sm"
         >
           Try Again
         </button>
         <button
-          on:click={copyErrorDetails}
+          onclick={copyErrorDetails}
           class="px-4 py-2 bg-gray-700 hover:bg-gray-600 text-gray-300 rounded-md
                  transition-colors text-sm"
           title="Copy error details"
@@ -111,6 +121,6 @@
       </div>
     </div>
   </div>
-{:else}
-  <slot />
+{:else if children}
+  {@render children()}
 {/if}

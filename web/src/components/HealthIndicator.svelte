@@ -3,15 +3,16 @@
   import type { AppHealth, HealthStatus } from '$lib/api';
   import { triggerHealthCheck } from '$lib/api';
 
-  export let appName: string;
-  export let showTooltip: boolean = true;
-  export let size: 'sm' | 'md' | 'lg' = 'sm';
+  let { appName, showTooltip = true, size = 'sm' }: {
+    appName: string;
+    showTooltip?: boolean;
+    size?: 'sm' | 'md' | 'lg';
+  } = $props();
 
-  let health: AppHealth | null = null;
-  let checking = false;
+  let checking = $state(false);
 
   // Subscribe to health data
-  $: health = $healthData.get(appName) || null;
+  let health = $derived($healthData.get(appName) || null);
 
   const sizeClasses = {
     sm: 'w-2 h-2',
@@ -61,7 +62,8 @@
     return date.toLocaleString();
   }
 
-  async function handleCheckNow() {
+  async function handleCheckNow(e: MouseEvent) {
+    e.stopPropagation();
     if (checking) return;
     checking = true;
     try {
@@ -118,7 +120,7 @@
 
       <button
         class="mt-2 w-full text-center text-brand-400 hover:text-brand-300 text-[10px] disabled:opacity-50"
-        on:click|stopPropagation={handleCheckNow}
+        onclick={handleCheckNow}
         disabled={checking}
       >
         {checking ? 'Checking...' : 'Check Now'}

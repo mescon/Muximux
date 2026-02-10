@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import {
     listDashboardIcons,
     getDashboardIconUrl,
@@ -17,46 +17,51 @@
   import SkeletonIconGrid from './SkeletonIconGrid.svelte';
   import ErrorState from './ErrorState.svelte';
 
-  export let selectedIcon: string = '';
-  export let selectedVariant: string = 'svg';
-  export let selectedType: 'dashboard' | 'builtin' | 'custom' = 'dashboard';
-
-  const dispatch = createEventDispatcher<{
-    select: { name: string; variant: string; type: string };
-    close: void;
-  }>();
+  let {
+    selectedIcon = '',
+    selectedVariant = 'svg',
+    selectedType = 'dashboard',
+    onselect,
+    onclose,
+  }: {
+    selectedIcon?: string;
+    selectedVariant?: string;
+    selectedType?: 'dashboard' | 'builtin' | 'custom';
+    onselect?: (detail: { name: string; variant: string; type: string }) => void;
+    onclose?: () => void;
+  } = $props();
 
   type IconTab = 'dashboard' | 'builtin' | 'custom';
-  let activeTab: IconTab = selectedType;
+  let activeTab = $state<IconTab>(selectedType);
 
-  let searchQuery = '';
+  let searchQuery = $state('');
 
   // Dashboard icons
-  let dashboardIcons: IconInfo[] = [];
-  let filteredDashboardIcons: IconInfo[] = [];
+  let dashboardIcons = $state<IconInfo[]>([]);
+  let filteredDashboardIcons = $state<IconInfo[]>([]);
 
   // Builtin icons
-  let builtinIcons: BuiltinIconInfo[] = [];
-  let filteredBuiltinIcons: BuiltinIconInfo[] = [];
+  let builtinIcons = $state<BuiltinIconInfo[]>([]);
+  let filteredBuiltinIcons = $state<BuiltinIconInfo[]>([]);
 
   // Custom icons
-  let customIcons: CustomIconInfo[] = [];
-  let filteredCustomIcons: CustomIconInfo[] = [];
+  let customIcons = $state<CustomIconInfo[]>([]);
+  let filteredCustomIcons = $state<CustomIconInfo[]>([]);
 
-  let loading = true;
-  let error: string | null = null;
-  let uploading = false;
-  let uploadError: string | null = null;
+  let loading = $state(true);
+  let error = $state<string | null>(null);
+  let uploading = $state(false);
+  let uploadError = $state<string | null>(null);
 
   // Debounce search
   let searchTimeout: ReturnType<typeof setTimeout>;
 
   // File input ref
-  let fileInput: HTMLInputElement;
+  let fileInput = $state<HTMLInputElement | undefined>(undefined);
 
   // Infinite scroll
   const BATCH_SIZE = 100;
-  let displayCount = BATCH_SIZE;
+  let displayCount = $state(BATCH_SIZE);
   let observer: IntersectionObserver;
 
   function observeSentinel(node: HTMLElement) {
@@ -130,7 +135,7 @@
   function selectIcon(name: string, type: IconTab) {
     selectedIcon = name;
     selectedType = type;
-    dispatch('select', { name, variant: type === 'dashboard' ? selectedVariant : 'svg', type });
+    onselect?.({ name, variant: type === 'dashboard' ? selectedVariant : 'svg', type });
   }
 
   function getIconUrl(name: string, type: IconTab): string {
@@ -163,7 +168,7 @@
     }
   }
 
-  let confirmDeleteIcon: string | null = null;
+  let confirmDeleteIcon = $state<string | null>(null);
 
   function handleDeleteIcon(name: string) {
     confirmDeleteIcon = name;
@@ -184,20 +189,25 @@
     }
   }
 
-  $: allCurrentIcons = activeTab === 'dashboard' ? filteredDashboardIcons :
-                       activeTab === 'builtin' ? filteredBuiltinIcons :
-                       filteredCustomIcons;
-  $: currentIcons = allCurrentIcons.slice(0, displayCount);
-  $: hasMore = displayCount < allCurrentIcons.length;
-  $: totalCount = activeTab === 'dashboard' ? dashboardIcons.length :
-                  activeTab === 'builtin' ? builtinIcons.length :
-                  customIcons.length;
+  let allCurrentIcons = $derived(
+    activeTab === 'dashboard' ? filteredDashboardIcons :
+    activeTab === 'builtin' ? filteredBuiltinIcons :
+    filteredCustomIcons
+  );
+  let currentIcons = $derived(allCurrentIcons.slice(0, displayCount));
+  let hasMore = $derived(displayCount < allCurrentIcons.length);
+  let totalCount = $derived(
+    activeTab === 'dashboard' ? dashboardIcons.length :
+    activeTab === 'builtin' ? builtinIcons.length :
+    customIcons.length
+  );
 
   // Reset display count when search or tab changes
-  $: searchQuery, activeTab, resetDisplayCount();
-  function resetDisplayCount() {
+  $effect(() => {
+    searchQuery;
+    activeTab;
     displayCount = BATCH_SIZE;
-  }
+  });
 </script>
 
 <div class="flex flex-col h-full max-h-[60vh]">
@@ -208,7 +218,7 @@
              {activeTab === 'dashboard'
                ? 'text-brand-400 border-brand-400'
                : 'text-gray-400 border-transparent hover:text-gray-300'}"
-      on:click={() => activeTab = 'dashboard'}
+      onclick={() => activeTab = 'dashboard'}
     >
       Dashboard Icons
       <span class="text-xs text-gray-500 ml-1">({dashboardIcons.length})</span>
@@ -218,7 +228,7 @@
              {activeTab === 'builtin'
                ? 'text-brand-400 border-brand-400'
                : 'text-gray-400 border-transparent hover:text-gray-300'}"
-      on:click={() => activeTab = 'builtin'}
+      onclick={() => activeTab = 'builtin'}
     >
       Builtin
       <span class="text-xs text-gray-500 ml-1">({builtinIcons.length})</span>
@@ -228,7 +238,7 @@
              {activeTab === 'custom'
                ? 'text-brand-400 border-brand-400'
                : 'text-gray-400 border-transparent hover:text-gray-300'}"
-      on:click={() => activeTab = 'custom'}
+      onclick={() => activeTab = 'custom'}
     >
       Custom
       <span class="text-xs text-gray-500 ml-1">({customIcons.length})</span>
@@ -240,7 +250,7 @@
     <input
       type="text"
       bind:value={searchQuery}
-      on:input={handleSearch}
+      oninput={handleSearch}
       placeholder="Search icons..."
       class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
              focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
@@ -256,7 +266,7 @@
                  {selectedVariant === variant
                    ? 'bg-brand-500 text-white'
                    : 'bg-gray-700 text-gray-400 hover:text-white'}"
-          on:click={() => selectedVariant = variant}
+          onclick={() => selectedVariant = variant}
         >
           {variant.toUpperCase()}
         </button>
@@ -271,14 +281,14 @@
         bind:this={fileInput}
         type="file"
         accept=".svg,.png,.jpg,.jpeg,.webp,.gif"
-        on:change={handleFileSelect}
+        onchange={handleFileSelect}
         class="hidden"
       />
       <button
         class="w-full px-3 py-2 border-2 border-dashed border-gray-600 rounded-lg
                text-gray-400 hover:text-white hover:border-gray-500 transition-colors
                flex items-center justify-center gap-2"
-        on:click={() => fileInput.click()}
+        onclick={() => fileInput?.click()}
         disabled={uploading}
       >
         {#if uploading}
@@ -307,7 +317,7 @@
         message={error}
         icon="network"
         compact
-        on:retry={loadAllIcons}
+        onretry={loadAllIcons}
       />
     {:else if currentIcons.length === 0}
       <ErrorState
@@ -326,7 +336,7 @@
                      {selectedIcon === icon.name && selectedType === activeTab
                        ? 'border-brand-500 bg-brand-500/10'
                        : 'border-gray-700 hover:border-gray-600 hover:bg-gray-700/50'}"
-              on:click={() => selectIcon(icon.name, activeTab)}
+              onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
             >
               <img
@@ -344,11 +354,11 @@
                   <div class="flex gap-1">
                     <button
                       class="px-1.5 py-0.5 text-[10px] rounded bg-red-600 hover:bg-red-500 text-white"
-                      on:click|stopPropagation={confirmDeleteIconAction}
+                      onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIconAction(); }}
                     >Yes</button>
                     <button
                       class="px-1.5 py-0.5 text-[10px] rounded bg-gray-600 hover:bg-gray-500 text-white"
-                      on:click|stopPropagation={() => confirmDeleteIcon = null}
+                      onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIcon = null; }}
                     >No</button>
                   </div>
                 </div>
@@ -357,7 +367,7 @@
                   class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
                          text-white flex items-center justify-center opacity-0 group-hover:opacity-100
                          transition-opacity text-xs"
-                  on:click|stopPropagation={() => handleDeleteIcon(icon.name)}
+                  onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}
                   title="Delete"
                 >
                   <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -370,7 +380,7 @@
         {/each}
       </div>
       <!-- Infinite scroll sentinel -->
-      <div use:observeSentinel class="h-1" />
+      <div use:observeSentinel class="h-1"></div>
       {#if hasMore}
         <div class="text-center py-3 text-xs text-gray-400">
           Loading more... ({currentIcons.length} of {allCurrentIcons.length})
@@ -387,14 +397,14 @@
     <div class="flex gap-2">
       <button
         class="px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-        on:click={() => dispatch('close')}
+        onclick={() => onclose?.()}
       >
         Cancel
       </button>
       <button
         class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
         disabled={!selectedIcon}
-        on:click={() => dispatch('select', { name: selectedIcon, variant: selectedType === 'dashboard' ? selectedVariant : 'svg', type: selectedType })}
+        onclick={() => onselect?.({ name: selectedIcon, variant: selectedType === 'dashboard' ? selectedVariant : 'svg', type: selectedType })}
       >
         Select Icon
       </button>

@@ -1,52 +1,52 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { fade } from 'svelte/transition';
   import type { App, Config } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
 
-  export let apps: App[];
-  export let config: Config;
-  export let showHealth: boolean = true;
+  let { apps, config, showHealth = true, onselect, onsettings }: {
+    apps: App[];
+    config: Config;
+    showHealth?: boolean;
+    onselect?: (app: App) => void;
+    onsettings?: () => void;
+  } = $props();
 
-  const dispatch = createEventDispatcher<{
-    select: App;
-    settings: void;
-  }>();
-
-  let mounted = false;
+  let mounted = $state(false);
   onMount(() => {
     // Trigger staggered animations after mount
     mounted = true;
   });
 
   // Group apps by their group
-  $: groupedApps = apps.reduce((acc, app) => {
+  let groupedApps = $derived(apps.reduce((acc, app) => {
     const group = app.group || 'Ungrouped';
     if (!acc[group]) acc[group] = [];
     acc[group].push(app);
     return acc;
-  }, {} as Record<string, App[]>);
+  }, {} as Record<string, App[]>));
 
-  // Sort apps within groups by order
-  $: Object.keys(groupedApps).forEach(group => {
-    groupedApps[group].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  });
-
-  $: groups = Object.keys(groupedApps).sort((a, b) => {
-    if (a === 'Ungrouped') return 1;
-    if (b === 'Ungrouped') return -1;
-    // Find group configs and sort by order
-    const groupA = config.groups.find(g => g.name === a);
-    const groupB = config.groups.find(g => g.name === b);
-    return (groupA?.order ?? 0) - (groupB?.order ?? 0);
+  // Sort apps within groups and get group order
+  let groups = $derived.by(() => {
+    // Sort within groups
+    for (const group of Object.keys(groupedApps)) {
+      groupedApps[group].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    }
+    return Object.keys(groupedApps).sort((a, b) => {
+      if (a === 'Ungrouped') return 1;
+      if (b === 'Ungrouped') return -1;
+      const groupA = config.groups.find(g => g.name === a);
+      const groupB = config.groups.find(g => g.name === b);
+      return (groupA?.order ?? 0) - (groupB?.order ?? 0);
+    });
   });
 
   function getOpenModeIcon(mode: string): string {
     switch (mode) {
-      case 'new_tab': return '↗';
-      case 'new_window': return '⧉';
+      case 'new_tab': return '\u2197';
+      case 'new_window': return '\u29C9';
       default: return '';
     }
   }
@@ -129,7 +129,7 @@
               class="app-card group opacity-0"
               class:animate-slide-up={mounted}
               style="animation-delay: {getStaggerDelay(groupIndex, appIndex)};"
-              on:click={() => dispatch('select', app)}
+              onclick={() => onselect?.(app)}
             >
               <!-- Health indicator -->
               {#if showHealth}
@@ -197,7 +197,7 @@
         </p>
         <button
           class="btn btn-primary"
-          on:click={() => dispatch('settings')}
+          onclick={() => onsettings?.()}
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -220,7 +220,7 @@
           </span>
           <button
             class="flex items-center gap-1.5 hover:text-[var(--text-secondary)] transition-colors"
-            on:click={() => dispatch('settings')}
+            onclick={() => onsettings?.()}
           >
             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

@@ -4,26 +4,26 @@
   import type { App } from '$lib/types';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
 
-  export let app: App;
+  let { app }: { app: App } = $props();
 
   // Use proxyUrl if available (proxy enabled), otherwise use the original url
-  $: effectiveUrl = app.proxyUrl || app.url;
+  let effectiveUrl = $derived(app.proxyUrl || app.url);
 
-  $: scale = app.scale || 1;
-  $: transform = scale !== 1 ? `scale(${scale})` : '';
-  $: transformOrigin = scale !== 1 ? 'top left' : '';
-  $: width = scale !== 1 ? `${100 / scale}%` : '100%';
-  $: height = scale !== 1 ? `${100 / scale}%` : '100%';
+  let scale = $derived(app.scale || 1);
+  let transform = $derived(scale !== 1 ? `scale(${scale})` : '');
+  let transformOrigin = $derived(scale !== 1 ? 'top left' : '');
+  let width = $derived(scale !== 1 ? `${100 / scale}%` : '100%');
+  let height = $derived(scale !== 1 ? `${100 / scale}%` : '100%');
 
   // Pull-to-refresh state
-  let isMobile = false;
-  let hasTouch = false;
-  let isPulling = false;
-  let pullDistance = 0;
-  let isRefreshing = false;
-  let startY = 0;
-  let iframeRef: HTMLIFrameElement;
-  let containerRef: HTMLDivElement;
+  let isMobile = $state(false);
+  let hasTouch = $state(false);
+  let isPulling = $state(false);
+  let pullDistance = $state(0);
+  let isRefreshing = $state(false);
+  let startY = $state(0);
+  let iframeRef = $state<HTMLIFrameElement | undefined>(undefined);
+  let containerRef = $state<HTMLDivElement | undefined>(undefined);
 
   const PULL_THRESHOLD = 80;
   const RESISTANCE = 2.5;
@@ -81,17 +81,18 @@
     isPulling = false;
   }
 
-  $: pullProgress = Math.min(pullDistance / PULL_THRESHOLD, 1);
-  $: showPullIndicator = pullDistance > 10 || isRefreshing;
+  let pullProgress = $derived(Math.min(pullDistance / PULL_THRESHOLD, 1));
+  let showPullIndicator = $derived(pullDistance > 10 || isRefreshing);
 </script>
 
 <div
   bind:this={containerRef}
   class="w-full h-full overflow-hidden bg-white relative"
+  role="application"
   in:fade={{ duration: 150, delay: 50 }}
-  on:touchstart={handleTouchStart}
-  on:touchmove={handleTouchMove}
-  on:touchend={handleTouchEnd}
+  ontouchstart={handleTouchStart}
+  ontouchmove={handleTouchMove}
+  ontouchend={handleTouchEnd}
 >
   <!-- Pull-to-refresh indicator -->
   {#if showPullIndicator && isMobile}

@@ -1,8 +1,5 @@
 <script lang="ts">
-  export let height: string | undefined = undefined;
-  export let width: string | undefined = undefined;
-  let className = '';
-  export { className as class };
+  let { height, width, class: className = '' }: { height?: string; width?: string; class?: string } = $props();
 </script>
 
 <svg

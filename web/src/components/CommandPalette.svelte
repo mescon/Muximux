@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import type { App } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
@@ -7,22 +7,28 @@
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
   import { captureKeybindings } from '$lib/keybindingCaptureStore';
 
-  export let apps: App[];
+  // Props with callbacks instead of dispatchers
+  let {
+    apps,
+    onselect,
+    onaction,
+    onclose
+  }: {
+    apps: App[];
+    onselect?: (app: App) => void;
+    onaction?: (actionId: string) => void;
+    onclose?: () => void;
+  } = $props();
 
-  const dispatch = createEventDispatcher<{
-    select: App;
-    action: string;
-    close: void;
-  }>();
-
-  let query = '';
-  let selectedIndex = 0;
-  let inputElement: HTMLInputElement;
-  let resultsElement: HTMLElement;
-  let isMobile = false;
+  // State
+  let query = $state('');
+  let selectedIndex = $state(0);
+  let inputElement = $state<HTMLInputElement>();
+  let resultsElement = $state<HTMLElement>();
+  let isMobile = $state(false);
 
   // Recent apps from localStorage
-  let recentAppNames: string[] = [];
+  let recentAppNames = $state<string[]>([]);
 
   // Command types
   interface Command {
@@ -56,7 +62,7 @@
   }
 
   // All available actions (no "Open Search" — we're already in the palette)
-  $: actions = [
+  const actions = $derived([
     { id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' },
     { id: 'shortcuts', type: 'action' as const, label: 'Show Keyboard Shortcuts', shortcut: getShortcut('shortcuts'), icon: 'help' },
     { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
@@ -66,20 +72,20 @@
     { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
     { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
     { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },
-  ] as Command[];
+  ] as Command[]);
 
   // Create app commands
-  $: appCommands = apps.map((app, i) => ({
+  const appCommands = $derived(apps.map((app, i) => ({
     id: `app-${app.name}`,
     type: 'app' as const,
     label: app.name,
     description: app.group || 'Switch to app',
     shortcut: i < 9 ? `${i + 1}` : undefined,
     app,
-  }));
+  })));
 
   // All commands combined
-  $: allCommands = [...appCommands, ...actions];
+  const allCommands = $derived([...appCommands, ...actions]);
 
   // Fuzzy match function
   function fuzzyMatch(text: string, pattern: string): number {
@@ -133,20 +139,51 @@
   }
 
   // Filter and sort commands
-  $: filteredCommands = query
+  const filteredCommands = $derived(query
     ? allCommands
         .map(cmd => ({ cmd, score: getCommandScore(cmd, query) }))
         .filter(({ score }) => score > 0)
         .sort((a, b) => b.score - a.score)
         .map(({ cmd }) => cmd)
-    : allCommands;
+    : allCommands);
 
-  $: if (selectedIndex >= flatCommands.length) {
-    selectedIndex = Math.max(0, flatCommands.length - 1);
-  }
+  // When no query: show Recent apps (up to 3), then remaining apps, then actions, then settings
+  // When query: flat filtered list grouped by type
+  const showRecentHeader = $derived(!query && recentAppNames.length > 0);
+  const recentCommands = $derived(showRecentHeader
+    ? filteredCommands.filter(c => c.type === 'app' && c.app && recentAppNames.includes(c.app.name)).slice(0, 3)
+    : []);
+  const otherAppCommands = $derived(showRecentHeader
+    ? filteredCommands.filter(c => c.type === 'app' && (!c.app || !recentAppNames.includes(c.app.name)))
+    : filteredCommands.filter(c => c.type === 'app'));
+  const actionCommands = $derived(filteredCommands.filter(c => c.type === 'action'));
+  const settingCommands = $derived(filteredCommands.filter(c => c.type === 'setting'));
 
-  // Reset selection when query changes
-  $: query, selectedIndex = 0;
+  const hasRecent = $derived(recentCommands.length > 0);
+  const hasApps = $derived(otherAppCommands.length > 0);
+  const hasActions = $derived(actionCommands.length > 0);
+  const hasSettings = $derived(settingCommands.length > 0);
+
+  // Global index mapping for keyboard navigation
+  const flatCommands = $derived([
+    ...recentCommands,
+    ...otherAppCommands,
+    ...actionCommands,
+    ...settingCommands,
+  ]);
+
+  // Reset selection when it exceeds bounds or query changes
+  $effect(() => {
+    if (selectedIndex >= flatCommands.length) {
+      selectedIndex = Math.max(0, flatCommands.length - 1);
+    }
+  });
+
+  $effect(() => {
+    // Reset selection when query changes
+    query;
+    selectedIndex = 0;
+  });
 
   onMount(() => {
     inputElement?.focus();
@@ -175,16 +212,16 @@
     recentAppNames = [app.name, ...recentAppNames.filter(n => n !== app.name)].slice(0, 10);
     localStorage.setItem('muximux_recent_apps', JSON.stringify(recentAppNames));
 
-    dispatch('select', app);
+    onselect?.(app);
   }
 
   function executeCommand(cmd: Command) {
     if (cmd.type === 'app' && cmd.app) {
       selectApp(cmd.app);
     } else {
-      dispatch('action', cmd.id);
+      onaction?.(cmd.id);
     }
-    dispatch('close');
+    onclose?.();
   }
 
   function handleKeydown(event: KeyboardEvent) {
@@ -194,7 +231,7 @@
       const index = parseInt(event.key) - 1;
       if (apps[index]) {
         selectApp(apps[index]);
-        dispatch('close');
+        onclose?.();
       }
       return;
     }
@@ -237,7 +274,7 @@
         }
         break;
       case 'Escape':
-        dispatch('close');
+        onclose?.();
         break;
     }
   }
@@ -287,40 +324,22 @@
         return 'M13 10V3L4 14h7v7l9-11h-7z';
     }
   }
-
-  // When no query: show Recent apps (up to 3), then remaining apps, then actions, then settings
-  // When query: flat filtered list grouped by type
-  $: showRecentHeader = !query && recentAppNames.length > 0;
-  $: recentCommands = showRecentHeader
-    ? filteredCommands.filter(c => c.type === 'app' && c.app && recentAppNames.includes(c.app.name)).slice(0, 3)
-    : [];
-  $: otherAppCommands = showRecentHeader
-    ? filteredCommands.filter(c => c.type === 'app' && (!c.app || !recentAppNames.includes(c.app.name)))
-    : filteredCommands.filter(c => c.type === 'app');
-  $: actionCommands = filteredCommands.filter(c => c.type === 'action');
-  $: settingCommands = filteredCommands.filter(c => c.type === 'setting');
-
-  $: hasRecent = recentCommands.length > 0;
-  $: hasApps = otherAppCommands.length > 0;
-  $: hasActions = actionCommands.length > 0;
-  $: hasSettings = settingCommands.length > 0;
-
-  // Global index mapping for keyboard navigation
-  $: flatCommands = [
-    ...recentCommands,
-    ...otherAppCommands,
-    ...actionCommands,
-    ...settingCommands,
-  ];
 </script>
+
+<svelte:window onkeydown={handleKeydown} />
 
 <!-- Backdrop -->
 <div
   class="command-palette-backdrop fixed inset-0 backdrop-blur-sm z-50 flex {isMobile ? 'items-end' : 'items-start justify-center pt-[15vh]'}"
-  on:click={() => dispatch('close')}
+  onclick={(e) => {
+    if (e.currentTarget === e.target) {
+      onclose?.();
+    }
+  }}
   role="dialog"
   aria-modal="true"
   aria-label="Command palette"
+  tabindex="-1"
   transition:fade={{ duration: 150 }}
 >
   <!-- Command palette modal -->
@@ -329,7 +348,7 @@
            {isMobile
              ? 'rounded-t-2xl max-h-[85vh] border-b-0'
              : 'max-w-xl rounded-xl mx-4'}"
-    on:click|stopPropagation
+    onclick={(e) => e.stopPropagation()}
     role="presentation"
     in:fly={{ y: isMobile ? 100 : -20, duration: 200 }}
     out:fade={{ duration: 100 }}
@@ -353,7 +372,7 @@
           type="text"
           placeholder="Search apps and commands..."
           class="command-palette-input flex-1 bg-transparent outline-none text-lg min-w-0"
-          on:keydown={handleKeydown}
+          onkeydown={handleKeydown}
         />
         <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">esc</kbd>
       </div>
@@ -380,8 +399,8 @@
                          {isMobile ? 'py-3.5' : 'py-3'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
-                  on:click={() => executeCommand(cmd)}
-                  on:mouseenter={() => selectedIndex = globalIndex}
+                  onclick={() => executeCommand(cmd)}
+                  onmouseenter={() => selectedIndex = globalIndex}
                 >
                   {#if cmd.app}
                     <AppIcon icon={cmd.app.icon} name={cmd.app.name} color={cmd.app.color} size="md" />
@@ -422,8 +441,8 @@
                          {isMobile ? 'py-3.5' : 'py-3'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
-                  on:click={() => executeCommand(cmd)}
-                  on:mouseenter={() => selectedIndex = globalIndex}
+                  onclick={() => executeCommand(cmd)}
+                  onmouseenter={() => selectedIndex = globalIndex}
                 >
                   {#if cmd.app}
                     <AppIcon icon={cmd.app.icon} name={cmd.app.name} color={cmd.app.color} size="md" />
@@ -464,8 +483,8 @@
                          {isMobile ? 'py-3' : 'py-2.5'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
-                  on:click={() => executeCommand(cmd)}
-                  on:mouseenter={() => selectedIndex = globalIndex}
+                  onclick={() => executeCommand(cmd)}
+                  onmouseenter={() => selectedIndex = globalIndex}
                 >
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--bg-hover);">
                     <svg class="w-4 h-4" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -500,8 +519,8 @@
                          {isMobile ? 'py-3' : 'py-2.5'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
-                  on:click={() => executeCommand(cmd)}
-                  on:mouseenter={() => selectedIndex = globalIndex}
+                  onclick={() => executeCommand(cmd)}
+                  onmouseenter={() => selectedIndex = globalIndex}
                 >
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--bg-hover);">
                     <svg class="w-4 h-4" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">

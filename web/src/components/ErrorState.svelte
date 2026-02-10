@@ -1,16 +1,25 @@
 <script lang="ts">
-  import { createEventDispatcher } from 'svelte';
+  import type { Snippet } from 'svelte';
 
-  export let title: string = 'Something went wrong';
-  export let message: string = '';
-  export let icon: 'error' | 'network' | 'notfound' | 'empty' = 'error';
-  export let showRetry: boolean = true;
-  export let retryLabel: string = 'Try again';
-  export let compact: boolean = false;
-
-  const dispatch = createEventDispatcher<{
-    retry: void;
-  }>();
+  let {
+    title = 'Something went wrong',
+    message = '',
+    icon = 'error',
+    showRetry = true,
+    retryLabel = 'Try again',
+    compact = false,
+    onretry,
+    children,
+  }: {
+    title?: string;
+    message?: string;
+    icon?: 'error' | 'network' | 'notfound' | 'empty';
+    showRetry?: boolean;
+    retryLabel?: string;
+    compact?: boolean;
+    onretry?: () => void;
+    children?: Snippet;
+  } = $props();
 
   const icons = {
     error: {
@@ -31,7 +40,7 @@
     },
   };
 
-  $: iconData = icons[icon];
+  let iconData = $derived(icons[icon]);
 </script>
 
 <div class="flex flex-col items-center justify-center {compact ? 'py-6' : 'py-12'} text-center">
@@ -59,13 +68,13 @@
   {/if}
 
   <!-- Actions -->
-  {#if showRetry || $$slots.default}
+  {#if showRetry || children}
     <div class="flex items-center gap-3 mt-2">
       {#if showRetry}
         <button
           class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md
                  transition-colors flex items-center gap-2"
-          on:click={() => dispatch('retry')}
+          onclick={() => onretry?.()}
         >
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
@@ -73,7 +82,9 @@
           {retryLabel}
         </button>
       {/if}
-      <slot />
+      {#if children}
+        {@render children()}
+      {/if}
     </div>
   {/if}
 </div>

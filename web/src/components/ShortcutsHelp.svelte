@@ -1,14 +1,16 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type Keybinding } from '$lib/keybindingsStore';
 
-  const dispatch = createEventDispatcher<{
-    close: void;
-  }>();
+  interface Props {
+    onclose?: () => void;
+  }
 
-  let isMobile = false;
+  let { onclose }: Props = $props();
+
+  let isMobile = $state(false);
 
   onMount(() => {
     isMobile = isMobileViewport();
@@ -25,13 +27,13 @@
   };
 
   // Group keybindings by category
-  $: groupedBindings = $keybindings.reduce((acc, binding) => {
+  const groupedBindings = $derived($keybindings.reduce((acc, binding) => {
     if (!acc[binding.category]) {
       acc[binding.category] = [];
     }
     acc[binding.category].push(binding);
     return acc;
-  }, {} as Record<string, Keybinding[]>);
+  }, {} as Record<string, Keybinding[]>));
 
   // Additional non-customizable shortcuts
   const additionalShortcuts = [
@@ -47,16 +49,22 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape' || event.key === '?') {
-      dispatch('close');
+      onclose?.();
+    }
+  }
+
+  function handleBackdropClick(e: MouseEvent) {
+    if (e.target === e.currentTarget) {
+      onclose?.();
     }
   }
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 <div
   class="shortcuts-help fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
-  on:click|self={() => dispatch('close')}
+  onclick={handleBackdropClick}
   role="dialog"
   aria-modal="true"
   aria-label="Keyboard shortcuts"
@@ -75,7 +83,8 @@
       <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Keyboard Shortcuts</h2>
       <button
         class="shortcuts-close-btn p-1.5 rounded-md"
-        on:click={() => dispatch('close')}
+        onclick={() => onclose?.()}
+        aria-label="Close"
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

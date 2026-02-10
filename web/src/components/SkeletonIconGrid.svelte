@@ -1,7 +1,7 @@
 <script lang="ts">
   import Skeleton from './Skeleton.svelte';
 
-  export let count: number = 30;
+  let { count = 30 }: { count?: number } = $props();
 </script>
 
 <!-- Mimics the icon browser grid -->

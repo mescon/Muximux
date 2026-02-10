@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { fly, fade } from 'svelte/transition';
   import type { App, Group, NavigationConfig } from '$lib/types';
   import {
@@ -18,28 +18,30 @@
   import type { PopularAppTemplate } from '$lib/popularApps';
   import AppIcon from './AppIcon.svelte';
 
-  const dispatch = createEventDispatcher<{
-    complete: { apps: App[]; navigation: NavigationConfig; groups: Group[] };
-  }>();
+  // Props
+  let {
+    oncomplete
+  }: {
+    oncomplete?: (detail: { apps: App[]; navigation: NavigationConfig; groups: Group[] }) => void;
+  } = $props();
 
   // Track which apps are selected with their URLs
-  let appSelections: Map<string, { selected: boolean; url: string }> = new Map();
+  let appSelections = $state<Map<string, { selected: boolean; url: string }>>(new Map());
 
   // Custom app form
-  let showCustomApp = false;
-  let customApp = {
+  let showCustomApp = $state(false);
+  let customApp = $state({
     name: '',
     url: '',
     color: '#22c55e',
     group: ''
-  };
+  });
 
   // Initialize app selections
   onMount(() => {
     Object.values(popularApps).flat().forEach(app => {
       appSelections.set(app.name, { selected: false, url: app.defaultUrl });
     });
-    appSelections = appSelections; // Trigger reactivity
   });
 
   // Toggle app selection
@@ -47,7 +49,6 @@
     const current = appSelections.get(app.name);
     if (current) {
       appSelections.set(app.name, { ...current, selected: !current.selected });
-      appSelections = appSelections;
     }
   }
 
@@ -56,15 +57,14 @@
     const current = appSelections.get(appName);
     if (current) {
       appSelections.set(appName, { ...current, url });
-      appSelections = appSelections;
     }
   }
 
   // Get selected apps count
-  $: selectedCount = [...appSelections.values()].filter(a => a.selected).length;
+  const selectedCount = $derived([...appSelections.values()].filter(a => a.selected).length);
 
   // Get suggested groups based on selected apps
-  $: suggestedGroups = (() => {
+  const suggestedGroups = $derived.by(() => {
     const groupsWithApps = new Set<string>();
     appSelections.forEach((value, key) => {
       if (value.selected) {
@@ -75,7 +75,7 @@
       }
     });
     return getAllGroups().filter(g => groupsWithApps.has(g));
-  })();
+  });
 
   // Navigation position options
   const navPositions: { value: NavigationConfig['position']; label: string; description: string; icon: string }[] = [
@@ -156,7 +156,7 @@
     };
 
     markOnboardingComplete();
-    dispatch('complete', { apps, navigation, groups });
+    oncomplete?.({ apps, navigation, groups });
   }
 
   function getGroupColor(group: string): string {
@@ -267,7 +267,7 @@
 
           <button
             class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
-            on:click={nextStep}
+            onclick={nextStep}
           >
             Let's Get Started
           </button>
@@ -297,8 +297,8 @@
                            {selection?.selected
                              ? 'bg-brand-500/10 border-brand-500'
                              : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}"
-                    on:click={() => toggleApp(app)}
-                    on:keydown={(e) => e.key === 'Enter' && toggleApp(app)}
+                    onclick={() => toggleApp(app)}
+                    onkeydown={(e) => e.key === 'Enter' && toggleApp(app)}
                     role="checkbox"
                     aria-checked={selection?.selected}
                     tabindex="0"
@@ -333,8 +333,8 @@
                           <input
                             type="url"
                             value={selection.url}
-                            on:input={(e) => updateAppUrl(app.name, e.currentTarget.value)}
-                            on:click|stopPropagation
+                            oninput={(e) => updateAppUrl(app.name, e.currentTarget.value)}
+                            onclick={(e) => e.stopPropagation()}
                             class="w-full px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded
                                    text-white placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                             placeholder="http://localhost:8080"
@@ -409,13 +409,13 @@
                   <button
                     class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
                     disabled={!customApp.name || !customApp.url}
-                    on:click={addCustomApp}
+                    onclick={addCustomApp}
                   >
                     Add App
                   </button>
                   <button
                     class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-                    on:click={() => showCustomApp = false}
+                    onclick={() => showCustomApp = false}
                   >
                     Cancel
                   </button>
@@ -424,7 +424,7 @@
             {:else}
               <button
                 class="flex items-center gap-2 px-4 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-800"
-                on:click={() => showCustomApp = true}
+                onclick={() => showCustomApp = true}
               >
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -448,7 +448,7 @@
                     </div>
                     <button
                       class="p-1 text-gray-400 hover:text-red-400"
-                      on:click={() => selectedApps.update(apps => apps.filter(a => a.name !== app.name))}
+                      onclick={() => selectedApps.update(apps => apps.filter(a => a.name !== app.name))}
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -476,7 +476,7 @@
                        {$selectedNavigation === pos.value
                          ? 'border-brand-500 bg-brand-500/10'
                          : 'border-gray-700 hover:border-gray-600 bg-gray-800/50'}"
-                on:click={() => selectedNavigation.set(pos.value)}
+                onclick={() => selectedNavigation.set(pos.value)}
               >
                 <!-- Visual preview -->
                 <div class="w-full aspect-video mb-4 bg-gray-900 rounded-lg overflow-hidden relative border border-gray-700">
@@ -608,7 +608,7 @@
 
           <button
             class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
-            on:click={handleComplete}
+            onclick={handleComplete}
           >
             Launch Dashboard
           </button>
@@ -624,7 +624,7 @@
         {#if $currentStep !== 'welcome'}
           <button
             class="px-4 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-800 transition-colors"
-            on:click={prevStep}
+            onclick={prevStep}
           >
             Back
           </button>
@@ -642,7 +642,7 @@
           <button
             class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
             disabled={$currentStep === 'apps' && selectedCount + $selectedApps.length === 0}
-            on:click={nextStep}
+            onclick={nextStep}
           >
             {$currentStep === 'groups' ? 'Finish' : 'Continue'}
           </button>

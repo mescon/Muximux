@@ -2,7 +2,7 @@
   import { connectionState, lastError } from '$lib/websocketStore';
   import type { ConnectionState } from '$lib/websocketStore';
 
-  export let showLabel: boolean = false;
+  let { showLabel = false }: { showLabel?: boolean } = $props();
 
   function getStatusColor(state: ConnectionState): string {
     switch (state) {

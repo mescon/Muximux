@@ -8,7 +8,7 @@
   import CommandPalette from './components/CommandPalette.svelte';
   import Login from './components/Login.svelte';
   import OnboardingWizard from './components/OnboardingWizard.svelte';
-  import ToastContainer from './components/ToastContainer.svelte';
+  import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import type { App, Config, NavigationConfig, Group } from './lib/types';
   import { fetchConfig, saveConfig } from './lib/api';
@@ -24,32 +24,32 @@
   import { captureKeybindings, isProtectedKey, toggleCaptureKeybindings } from './lib/keybindingCaptureStore';
   import type { Config as ConfigType } from './lib/types';
 
-  let config: Config | null = null;
-  let apps: App[] = [];
-  let currentApp: App | null = null;
-  let showSplash = true;
-  let showSettings = false;
-  let showShortcuts = false;
-  let showCommandPalette = false;
-  let loading = true;
-  let error: string | null = null;
+  let config = $state<Config | null>(null);
+  let apps = $state<App[]>([]);
+  let currentApp = $state<App | null>(null);
+  let showSplash = $state(true);
+  let showSettings = $state(false);
+  let showShortcuts = $state(false);
+  let showCommandPalette = $state(false);
+  let loading = $state(true);
+  let error = $state<string | null>(null);
 
   // Auth state
-  let authRequired = false;
-  let authChecked = false;
+  let authRequired = $state(false);
+  let authChecked = $state(false);
 
   // Onboarding state
-  let showOnboarding = false;
+  let showOnboarding = $state(false);
 
   // Computed layout properties
-  $: navPosition = config?.navigation.position || 'top';
-  $: isHorizontalLayout = navPosition === 'left' || navPosition === 'right';
-  $: isFloatingLayout = navPosition === 'floating';
-  $: sidebarWidth = 220; // Will be managed by Navigation component
+  let navPosition = $derived(config?.navigation.position || 'top');
+  let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
+  let isFloatingLayout = $derived(navPosition === 'floating');
+  let sidebarWidth = $derived(220); // Will be managed by Navigation component
 
   // Mobile swipe state
-  let isMobile = false;
-  let mainContentElement: HTMLElement;
+  let isMobile = $state(false);
+  let mainContentElement = $state<HTMLElement | undefined>(undefined);
 
   // Swipe gesture handlers for app switching on mobile
   function handleAppSwipe(result: SwipeResult) {
@@ -163,7 +163,6 @@
   onDestroy(() => {
     stopHealthPolling();
     disconnectWs();
-    // Cleanup resize listener is handled by onMount return
   });
 
   async function handleLoginSuccess() {
@@ -208,8 +207,8 @@
     showSplash = true;
   }
 
-  async function handleOnboardingComplete(event: CustomEvent<{ apps: App[]; navigation: NavigationConfig; groups: Group[] }>) {
-    const { apps: newApps, navigation, groups } = event.detail;
+  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[] }) {
+    const { apps: newApps, navigation, groups } = detail;
 
     if (!config) return;
 
@@ -421,7 +420,7 @@
   <title>{currentApp ? `${currentApp.name} — ${config?.title || 'Muximux'}` : config?.title || 'Muximux'}</title>
 </svelte:head>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window onkeydown={handleKeydown} />
 
 {#if loading || !authChecked}
   <div class="flex items-center justify-center h-full" style="background: var(--bg-base);">
@@ -431,16 +430,16 @@
     </div>
   </div>
 {:else if showOnboarding}
-  <OnboardingWizard on:complete={handleOnboardingComplete} />
+  <OnboardingWizard oncomplete={handleOnboardingComplete} />
 {:else if authRequired && !$isAuthenticated}
-  <Login on:success={handleLoginSuccess} />
+  <Login onsuccess={handleLoginSuccess} />
 {:else if error}
   <div class="flex items-center justify-center h-full" style="background: var(--bg-base);">
     <ErrorState
       title="Failed to load dashboard"
       message={error}
       icon="network"
-      on:retry={() => window.location.reload()}
+      onretry={() => window.location.reload()}
     />
   </div>
 {:else if config}
@@ -461,10 +460,10 @@
         {currentApp}
         {config}
         {showSplash}
-        on:select={(e) => selectApp(e.detail)}
-        on:search={() => showCommandPalette = true}
-        on:splash={() => showSplash = true}
-        on:settings={() => showSettings = !showSettings}
+        onselect={(app) => selectApp(app)}
+        onsearch={() => showCommandPalette = true}
+        onsplash={() => showSplash = true}
+        onsettings={() => showSettings = !showSettings}
       />
     {/if}
 
@@ -472,18 +471,18 @@
     <main
       class="flex-1 overflow-hidden relative"
       bind:this={mainContentElement}
-      on:pointerdown={isMobile ? swipeHandlers.onpointerdown : undefined}
-      on:pointermove={isMobile ? swipeHandlers.onpointermove : undefined}
-      on:pointerup={isMobile ? swipeHandlers.onpointerup : undefined}
-      on:pointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
+      onpointerdown={isMobile ? swipeHandlers.onpointerdown : undefined}
+      onpointermove={isMobile ? swipeHandlers.onpointermove : undefined}
+      onpointerup={isMobile ? swipeHandlers.onpointerup : undefined}
+      onpointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
     >
       {#if showSplash && !$isFullscreen}
-        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} on:settings={() => showSettings = true} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} />
       {:else if currentApp}
         <AppFrame app={currentApp} />
       {:else if $isFullscreen}
         <!-- Show splash content in fullscreen if no app selected -->
-        <Splash {apps} {config} on:select={(e) => selectApp(e.detail)} on:settings={() => showSettings = true} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} />
       {/if}
     </main>
 
@@ -492,7 +491,7 @@
       <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
         <button
           class="fullscreen-exit-btn p-2 rounded-lg backdrop-blur-sm shadow-lg transition-all opacity-30 hover:opacity-100"
-          on:click={exitFullscreen}
+          onclick={exitFullscreen}
           title="Exit fullscreen (F)"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -508,29 +507,29 @@
     <Settings
       {config}
       {apps}
-      on:close={() => showSettings = false}
-      on:save={(e) => handleSaveConfig(e.detail)}
+      onclose={() => showSettings = false}
+      onsave={(newConfig) => handleSaveConfig(newConfig)}
     />
   {/if}
 
   <!-- Keyboard shortcuts help -->
   {#if showShortcuts}
-    <ShortcutsHelp on:close={() => showShortcuts = false} />
+    <ShortcutsHelp onclose={() => showShortcuts = false} />
   {/if}
 
   <!-- Command palette -->
   {#if showCommandPalette}
     <CommandPalette
       {apps}
-      on:select={(e) => { selectApp(e.detail); showCommandPalette = false; }}
-      on:action={(e) => handleCommandAction(e.detail)}
-      on:close={() => showCommandPalette = false}
+      onselect={(app) => { selectApp(app); showCommandPalette = false; }}
+      onaction={(actionId) => handleCommandAction(actionId)}
+      onclose={() => showCommandPalette = false}
     />
   {/if}
 {/if}
 
 <!-- Toast notifications (always rendered) -->
-<ToastContainer />
+<Toaster position="bottom-right" theme="dark" richColors />
 
 <style>
   .fullscreen-exit-btn {

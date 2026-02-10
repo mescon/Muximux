@@ -1,18 +1,10 @@
 <script lang="ts">
-  /**
-   * Skeleton loading placeholder component
-   * Usage:
-   *   <Skeleton /> - Default bar
-   *   <Skeleton circle /> - Circle
-   *   <Skeleton width="100px" height="20px" /> - Custom size
-   *   <Skeleton class="my-custom-class" /> - Additional classes
-   */
-
-  export let width: string = '100%';
-  export let height: string = '1rem';
-  export let circle: boolean = false;
-  let className: string = '';
-  export { className as class };
+  let { width = '100%', height = '1rem', circle = false, class: className = '' }: {
+    width?: string;
+    height?: string;
+    circle?: boolean;
+    class?: string;
+  } = $props();
 </script>
 
 <div

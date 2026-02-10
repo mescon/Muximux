@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount, onDestroy } from 'svelte';
+  import { onMount } from 'svelte';
   import type { App, Config, Group } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
@@ -8,74 +8,85 @@
   import MuximuxLogo from './MuximuxLogo.svelte';
   import { captureKeybindings, toggleCaptureKeybindings } from '$lib/keybindingCaptureStore';
 
-  export let apps: App[];
-  export let showHealth: boolean = true;
-  export let currentApp: App | null;
-  export let config: Config;
-  export let showSplash: boolean = false;
-
-  const dispatch = createEventDispatcher<{
-    select: App;
-    search: void;
-    splash: void;
-    settings: void;
-    logout: void;
-  }>();
+  let {
+    apps,
+    showHealth = true,
+    currentApp,
+    config,
+    showSplash = false,
+    onselect,
+    onsearch,
+    onsplash,
+    onsettings,
+    onlogout,
+  }: {
+    apps: App[];
+    showHealth?: boolean;
+    currentApp: App | null;
+    config: Config;
+    showSplash?: boolean;
+    onselect?: (app: App) => void;
+    onsearch?: () => void;
+    onsplash?: () => void;
+    onsettings?: () => void;
+    onlogout?: () => void;
+  } = $props();
 
   // User menu state
-  let userMenuOpen = false;
+  let userMenuOpen = $state(false);
 
   async function handleLogout() {
     await logout();
-    dispatch('logout');
+    onlogout?.();
   }
 
   // Sidebar width state (for left/right layouts)
-  let sidebarWidth = 220;
-  let isResizing = false;
+  let sidebarWidth = $state(220);
+  let isResizing = $state(false);
   let minWidth = 180;
   let maxWidth = 400;
 
   // Auto-hide state
-  let isHidden = false;
+  let isHidden = $state(false);
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
   const collapsedStripWidth = 48; // Width/height of visible strip when collapsed (fits icon + border)
 
   // Calculate actual width for sidebars (for layout reflow)
   // When auto_hide is on, always reserve only the collapsed strip in the layout.
   // The expanded sidebar overlays the content instead of pushing it.
-  $: effectiveSidebarWidth = config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth;
+  let effectiveSidebarWidth = $derived(config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth);
 
   // Group expansion state (persisted to localStorage)
-  let expandedGroups: Record<string, boolean> = {};
+  let expandedGroups: Record<string, boolean> = $state({});
 
   // Responsive state
-  let isMobile = false;
-  let isTablet = false;
-  let mobileMenuOpen = false;
-  let hasTouchSupport = false;
+  let isMobile = $state(false);
+  let isTablet = $state(false);
+  let mobileMenuOpen = $state(false);
+  let hasTouchSupport = $state(false);
 
-  // Group apps by their group
-  $: groupedApps = apps.reduce((acc, app) => {
-    const group = app.group || 'Ungrouped';
-    if (!acc[group]) acc[group] = [];
-    acc[group].push(app);
+  // Group apps by their group, sorted by order
+  let groupedApps = $derived.by(() => {
+    const acc = {} as Record<string, App[]>;
+    for (const app of apps) {
+      const group = app.group || 'Ungrouped';
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(app);
+    }
+    for (const group of Object.keys(acc)) {
+      acc[group].sort((a, b) => a.order - b.order);
+    }
     return acc;
-  }, {} as Record<string, App[]>);
-
-  // Sort apps within groups by order
-  $: Object.keys(groupedApps).forEach(group => {
-    groupedApps[group].sort((a, b) => a.order - b.order);
   });
 
   // Get sorted groups from config
-  $: sortedGroups = [...config.groups].sort((a, b) => a.order - b.order);
+  let sortedGroups = $derived([...config.groups].sort((a, b) => a.order - b.order));
 
   // Get group names in order, including 'Ungrouped' at the end
-  $: groupNames = [
+  let groupNames = $derived([
     ...sortedGroups.map(g => g.name),
     ...(groupedApps['Ungrouped'] ? ['Ungrouped'] : [])
-  ].filter(name => groupedApps[name]);
+  ].filter(name => groupedApps[name]));
 
   // Initialize expanded state from localStorage
   onMount(() => {
@@ -132,7 +143,6 @@
 
   function toggleGroup(name: string) {
     expandedGroups[name] = !expandedGroups[name];
-    expandedGroups = expandedGroups; // Trigger reactivity
     localStorage.setItem('muximux_expanded_groups', JSON.stringify(expandedGroups));
   }
 
@@ -260,37 +270,37 @@
   }
 
   // Whether shortcuts are currently active (considers both global toggle and per-app setting)
-  $: appDisablesShortcuts = currentApp && !showSplash && currentApp.disable_keyboard_shortcuts;
-  $: shortcutsActive = $captureKeybindings && !appDisablesShortcuts;
-  $: keyboardTooltip = appDisablesShortcuts
+  let appDisablesShortcuts = $derived(currentApp && !showSplash && currentApp.disable_keyboard_shortcuts);
+  let shortcutsActive = $derived($captureKeybindings && !appDisablesShortcuts);
+  let keyboardTooltip = $derived(appDisablesShortcuts
     ? 'Shortcuts paused by app setting'
     : $captureKeybindings
       ? 'Keyboard shortcuts active'
-      : 'Keyboard shortcuts paused';
+      : 'Keyboard shortcuts paused');
 
   // CSS classes based on position
-  $: positionClasses = {
+  let positionClasses = $derived({
     top: 'fixed top-0 left-0 right-0 z-40',
     left: 'fixed top-0 left-0 bottom-0 z-40',
     right: 'fixed top-0 right-0 bottom-0 z-40',
     bottom: 'fixed bottom-0 left-0 right-0 z-40',
     floating: 'fixed z-40'
-  };
+  });
 
-  $: hideTransform = {
+  let hideTransform = $derived({
     top: 'translateY(-100%)',
     left: 'translateX(-100%)',
     right: 'translateX(100%)',
     bottom: 'translateY(100%)',
     floating: 'scale(0.8) opacity(0)'
-  };
+  });
 </script>
 
 <!-- Mobile hamburger menu -->
 {#if isMobile && config.navigation.position !== 'bottom'}
   <button
     class="fixed top-4 left-4 z-50 p-2 bg-gray-800 rounded-lg border border-gray-700 text-white lg:hidden"
-    on:click={() => mobileMenuOpen = !mobileMenuOpen}
+    onclick={() => mobileMenuOpen = !mobileMenuOpen}
   >
     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       {#if mobileMenuOpen}
@@ -306,7 +316,7 @@
 {#if mobileMenuOpen}
   <button
     class="fixed inset-0 bg-black/50 z-30 lg:hidden"
-    on:click={() => mobileMenuOpen = false}
+    onclick={() => mobileMenuOpen = false}
   ></button>
 {/if}
 
@@ -320,8 +330,8 @@
       border-color: var(--border-subtle);
       height: {isCollapsedTop ? collapsedStripWidth + 'px' : '56px'};
     "
-    on:mouseenter={handleNavEnter}
-    on:mouseleave={handleNavLeave}
+    onmouseenter={handleNavEnter}
+    onmouseleave={handleNavLeave}
   >
     <!-- Unified content - icons stay in place, labels/actions fade -->
     <div
@@ -333,7 +343,7 @@
           <button
             class="flex-shrink-0 hover:opacity-80 transition-opacity duration-200"
             style="color: var(--accent-primary); opacity: {isCollapsedTop || showSplash ? '0' : '1'}; pointer-events: {isCollapsedTop || showSplash ? 'none' : 'auto'}; width: {isCollapsedTop ? '0' : 'auto'}; overflow: hidden;"
-            on:click={() => dispatch('splash')}
+            onclick={() => onsplash?.()}
             title={config.title}
           >
             <MuximuxLogo height="24" />
@@ -350,7 +360,7 @@
                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
                      {isCollapsedTop && currentApp?.name !== app.name ? 'opacity-40' : ''}"
               style={config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}
-              on:click={() => dispatch('select', app)}
+              onclick={() => onselect?.(app)}
             >
               <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" showBackground={config.navigation.show_icon_background} />
               {#if config.navigation.show_labels && !isCollapsedTop}
@@ -372,7 +382,7 @@
            style="opacity: {isCollapsedTop ? '0' : '1'}; pointer-events: {isCollapsedTop ? 'none' : 'auto'};">
         <button
           class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => dispatch('search')}
+          onclick={() => onsearch?.()}
           title="Search (Ctrl+K)"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -384,7 +394,7 @@
           class:text-brand-400={shortcutsActive}
           class:text-gray-500={!shortcutsActive}
           class:opacity-50={appDisablesShortcuts}
-          on:click={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
+          onclick={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
           title={keyboardTooltip}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -393,7 +403,7 @@
         </button>
         <button
           class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => dispatch('settings')}
+          onclick={() => onsettings?.()}
           title="Settings"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -404,7 +414,7 @@
         {#if $isAuthenticated && $currentUser}
           <button
             class="p-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
-            on:click={handleLogout}
+            onclick={handleLogout}
             title="Sign out"
           >
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -423,8 +433,8 @@
     class="flex-shrink-0 h-full relative
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : ''}"
     style="width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};"
-    on:mouseenter={handleNavEnter}
-    on:mouseleave={handleNavLeave}
+    onmouseenter={handleNavEnter}
+    onmouseleave={handleNavLeave}
   >
     <!-- Content panel - overlays content when auto-hide expands -->
     <div
@@ -445,7 +455,7 @@
         <button
           class="hover:opacity-80 flex items-center justify-center"
           style="color: var(--accent-primary); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
-          on:click={() => { dispatch('splash'); mobileMenuOpen = false; }}
+          onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
           title={config.title}
         >
           <MuximuxLogo height="80" />
@@ -458,7 +468,7 @@
          style="height: 52px; padding: 8px {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
         class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        on:click={() => dispatch('search')}
+        onclick={() => onsearch?.()}
         title="Search (Ctrl+K)"
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -480,7 +490,7 @@
           <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
             class="w-full flex items-center py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
-            on:click={() => !isCollapsed && toggleGroup(groupName)}
+            onclick={() => !isCollapsed && toggleGroup(groupName)}
             style="pointer-events: {isCollapsed ? 'none' : 'auto'};"
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -512,8 +522,8 @@
           </button>
 
           <!-- Apps in group -->
-          {#if expandedGroups[groupName] || isCollapsed}
-            <div class="mt-1 space-y-0.5">
+          <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName] || isCollapsed}>
+            <div class="group-apps-inner mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app}
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
@@ -521,7 +531,7 @@
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
                   style="{isCollapsed && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
-                  on:click={() => { dispatch('select', app); mobileMenuOpen = false; }}
+                  onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsed)}
                     <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -543,7 +553,7 @@
                 </button>
               {/each}
             </div>
-          {/if}
+          </div>
         </div>
       {/each}
     </div>
@@ -553,7 +563,7 @@
          style="padding: 8px {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
         class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        on:click={() => dispatch('settings')}
+        onclick={() => onsettings?.()}
         title="Settings"
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -570,7 +580,7 @@
         class:text-brand-400={shortcutsActive}
         class:text-gray-500={!shortcutsActive}
         style="opacity: {isCollapsed && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-        on:click={() => toggleCaptureKeybindings()}
+        onclick={() => toggleCaptureKeybindings()}
         title={keyboardTooltip}
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -585,7 +595,7 @@
         <button
           class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
           style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
-          on:click={handleLogout}
+          onclick={handleLogout}
           title="Sign out"
         >
           <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -603,7 +613,7 @@
     {#if !isMobile && !config.navigation.auto_hide}
       <div
         class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
-        on:pointerdown={handleResizeStart}
+        onpointerdown={handleResizeStart}
         role="slider"
         aria-label="Resize sidebar"
         tabindex="0"
@@ -621,8 +631,8 @@
     class="flex-shrink-0 h-full relative
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : 'translate-x-full') : ''}"
     style="width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};"
-    on:mouseenter={handleNavEnter}
-    on:mouseleave={handleNavLeave}
+    onmouseenter={handleNavEnter}
+    onmouseleave={handleNavLeave}
   >
     <!-- Content panel - overlays content when auto-hide expands -->
     <div
@@ -643,7 +653,7 @@
         <button
           class="hover:opacity-80 flex items-center justify-center"
           style="color: var(--accent-primary); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
-          on:click={() => { dispatch('splash'); mobileMenuOpen = false; }}
+          onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
           title={config.title}
         >
           <MuximuxLogo height="80" />
@@ -656,7 +666,7 @@
          style="height: 52px; padding: 8px {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
         class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        on:click={() => dispatch('search')}
+        onclick={() => onsearch?.()}
         title="Search (Ctrl+K)"
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -678,7 +688,7 @@
           <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
             class="w-full flex items-center py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
-            on:click={() => !isCollapsedRight && toggleGroup(groupName)}
+            onclick={() => !isCollapsedRight && toggleGroup(groupName)}
             style="pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
           >
             <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -709,8 +719,8 @@
             </div>
           </button>
 
-          {#if expandedGroups[groupName] || isCollapsedRight}
-            <div class="mt-1 space-y-0.5">
+          <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName] || isCollapsedRight}>
+            <div class="group-apps-inner mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app}
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
@@ -718,7 +728,7 @@
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
                   style="{isCollapsedRight && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
-                  on:click={() => { dispatch('select', app); mobileMenuOpen = false; }}
+                  onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsedRight)}
                     <div class="absolute right-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
@@ -740,7 +750,7 @@
                 </button>
               {/each}
             </div>
-          {/if}
+          </div>
         </div>
       {/each}
     </div>
@@ -750,7 +760,7 @@
          style="padding: 8px {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
         class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        on:click={() => dispatch('settings')}
+        onclick={() => onsettings?.()}
         title="Settings"
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -767,7 +777,7 @@
         class:text-brand-400={shortcutsActive}
         class:text-gray-500={!shortcutsActive}
         style="opacity: {isCollapsedRight && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-        on:click={() => toggleCaptureKeybindings()}
+        onclick={() => toggleCaptureKeybindings()}
         title={keyboardTooltip}
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -782,7 +792,7 @@
         <button
           class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
           style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
-          on:click={handleLogout}
+          onclick={handleLogout}
           title="Sign out"
         >
           <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -800,7 +810,7 @@
     {#if !isMobile && !config.navigation.auto_hide}
       <div
         class="absolute top-0 left-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
-        on:pointerdown={handleResizeStart}
+        onpointerdown={handleResizeStart}
         role="slider"
         aria-label="Resize sidebar"
         tabindex="0"
@@ -821,8 +831,8 @@
       border-color: var(--border-subtle);
       height: {isCollapsedBottom ? collapsedStripWidth + 'px' : 'auto'};
     "
-    on:mouseenter={handleNavEnter}
-    on:mouseleave={handleNavLeave}
+    onmouseenter={handleNavEnter}
+    onmouseleave={handleNavLeave}
   >
     <!-- Unified dock content - icons stay in place, extras fade -->
     <div
@@ -833,7 +843,7 @@
         <button
           class="p-2 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.3' : '1'}; transition: opacity 0.2s ease;"
-          on:click={() => dispatch('splash')}
+          onclick={() => onsplash?.()}
           title={config.title}
         >
           <MuximuxLogo height="24" />
@@ -848,7 +858,7 @@
                  {currentApp?.name === app.name ? 'bg-gray-700' : 'hover:bg-gray-700/50'}
                  {isCollapsedBottom && currentApp?.name !== app.name ? 'opacity-40' : ''}
                  {!isCollapsedBottom ? 'hover:scale-110' : ''}"
-          on:click={() => dispatch('select', app)}
+          onclick={() => onselect?.(app)}
           title={app.name}
         >
           <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" showBackground={config.navigation.show_icon_background} />
@@ -883,7 +893,7 @@
         <!-- Search button -->
         <button
           class="p-2 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
-          on:click={() => dispatch('search')}
+          onclick={() => onsearch?.()}
           title="Search (Ctrl+K)"
         >
           <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -896,7 +906,7 @@
           class="p-2 rounded-xl transition-all group
                  {appDisablesShortcuts ? 'opacity-50' : 'hover:scale-110'}
                  {shortcutsActive ? 'bg-brand-600/30' : 'bg-gray-700/50'}"
-          on:click={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
+          onclick={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
           title={keyboardTooltip}
         >
           <svg class="w-6 h-6 {shortcutsActive ? 'text-brand-400' : 'text-gray-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -907,7 +917,7 @@
         <!-- Settings button -->
         <button
           class="p-2 rounded-xl bg-gray-700/50 hover:bg-gray-600/50 transition-all hover:scale-110 group"
-          on:click={() => dispatch('settings')}
+          onclick={() => onsettings?.()}
           title="Settings"
         >
           <svg class="w-6 h-6 text-gray-300 group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -919,7 +929,7 @@
         {#if $isAuthenticated && $currentUser}
           <button
             class="p-2 rounded-xl bg-gray-700/50 hover:bg-red-600/30 transition-all hover:scale-110 group"
-            on:click={handleLogout}
+            onclick={handleLogout}
             title="Sign out"
           >
             <svg class="w-6 h-6 text-gray-300 group-hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -938,8 +948,8 @@
     class="fixed {floatingPosition} z-40 transition-all duration-300"
     class:opacity-50={isHidden && config.navigation.auto_hide}
     class:scale-90={isHidden && config.navigation.auto_hide}
-    on:mouseenter={handleNavEnter}
-    on:mouseleave={handleNavLeave}
+    onmouseenter={handleNavEnter}
+    onmouseleave={handleNavLeave}
   >
     <!-- Expanded menu -->
     <div class="flex flex-col-reverse items-end gap-2 mb-2">
@@ -948,7 +958,7 @@
           class="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-full shadow-lg
                  hover:bg-gray-700 transition-all hover:scale-105
                  {currentApp?.name === app.name ? 'ring-2 ring-brand-500' : ''}"
-          on:click={() => dispatch('select', app)}
+          onclick={() => onselect?.(app)}
         >
           <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" showBackground={config.navigation.show_icon_background} />
           <span class="text-sm text-white pr-1">{app.name}</span>
@@ -961,7 +971,7 @@
       {#if apps.length > 6}
         <button
           class="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all"
-          on:click={() => dispatch('splash')}
+          onclick={() => onsplash?.()}
         >
           <span class="text-sm text-gray-400">+{apps.length - 6} more</span>
         </button>
@@ -973,7 +983,7 @@
       {#if $isAuthenticated && $currentUser}
         <button
           class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-          on:click={handleLogout}
+          onclick={handleLogout}
           title="Sign out"
         >
           <svg class="w-5 h-5 text-gray-300 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -983,7 +993,7 @@
       {/if}
       <button
         class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-        on:click={() => dispatch('search')}
+        onclick={() => onsearch?.()}
         title="Search"
       >
         <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -994,7 +1004,7 @@
         class="p-3 border rounded-full shadow-lg transition-all
                {appDisablesShortcuts ? 'opacity-50' : 'hover:scale-110'}
                {shortcutsActive ? 'bg-brand-600/20 border-brand-500/50' : 'bg-gray-800 border-gray-700'}"
-        on:click={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
+        onclick={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
         title={keyboardTooltip}
       >
         <svg class="w-5 h-5 {shortcutsActive ? 'text-brand-400' : 'text-gray-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1003,7 +1013,7 @@
       </button>
       <button
         class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-        on:click={() => dispatch('settings')}
+        onclick={() => onsettings?.()}
         title="Settings"
       >
         <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1013,7 +1023,7 @@
       </button>
       <button
         class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all hover:scale-110"
-        on:click={() => dispatch('splash')}
+        onclick={() => onsplash?.()}
         title={config.title}
       >
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1161,5 +1171,19 @@
   :global(.active\:bg-brand-500\/70:active) {
     background: var(--accent-primary) !important;
     opacity: 0.7;
+  }
+
+  /* Smooth expand/collapse for group app lists */
+  .group-apps-wrapper {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.25s ease;
+  }
+  .group-apps-wrapper.expanded {
+    grid-template-rows: 1fr;
+  }
+  .group-apps-inner {
+    overflow: hidden;
+    min-height: 0;
   }
 </style>

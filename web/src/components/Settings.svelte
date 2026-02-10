@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import type { App, Config, Group } from '$lib/types';
@@ -12,11 +12,21 @@
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
   import { dndzone } from 'svelte-dnd-action';
+  import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
 
-  export let config: Config;
-  export let apps: App[];
+  let {
+    config,
+    apps,
+    onclose,
+    onsave,
+  }: {
+    config: Config;
+    apps: App[];
+    onclose?: () => void;
+    onsave?: (config: Config) => void;
+  } = $props();
 
-  let isMobile = false;
+  let isMobile = $state(false);
 
   onMount(() => {
     isMobile = isMobileViewport();
@@ -25,43 +35,38 @@
     return () => window.removeEventListener('resize', handleResize);
   });
 
-  const dispatch = createEventDispatcher<{
-    close: void;
-    save: Config;
-  }>();
-
   // Active tab
-  let activeTab: 'general' | 'apps' | 'theme' | 'keybindings' = 'general';
+  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings'>('general');
 
   // Local copy of config for editing
-  let localConfig = JSON.parse(JSON.stringify(config)) as Config;
-  let localApps = JSON.parse(JSON.stringify(apps)) as App[];
+  let localConfig = $state(JSON.parse(JSON.stringify(config)) as Config);
+  let localApps = $state(JSON.parse(JSON.stringify(apps)) as App[]);
 
   // Icon browser state
-  let showIconBrowser = false;
-  let iconBrowserTarget: 'newApp' | 'editApp' | 'newGroup' | 'editGroup' | null = null;
+  let showIconBrowser = $state(false);
+  let iconBrowserTarget = $state<'newApp' | 'editApp' | 'newGroup' | 'editGroup' | null>(null);
 
   // Drag and drop config
   const flipDurationMs = 200;
 
   // Track keybindings changes
-  let keybindingsChanged = false;
+  let keybindingsChanged = $state(false);
 
   // Track if changes have been made
-  $: hasChanges = JSON.stringify(localConfig) !== JSON.stringify(config) ||
+  let hasChanges = $derived(JSON.stringify(localConfig) !== JSON.stringify(config) ||
                   JSON.stringify(localApps) !== JSON.stringify(apps) ||
-                  keybindingsChanged;
+                  keybindingsChanged);
 
   // Editing state
-  let editingApp: App | null = null;
-  let editingGroup: Group | null = null;
-  let showAddApp = false;
-  let showAddGroup = false;
+  let editingApp = $state<App | null>(null);
+  let editingGroup = $state<Group | null>(null);
+  let showAddApp = $state(false);
+  let showAddGroup = $state(false);
 
   // Import/export state
-  let importFileInput: HTMLInputElement;
-  let showImportConfirm = false;
-  let pendingImport: ReturnType<typeof parseImportedConfig> | null = null;
+  let importFileInput = $state<HTMLInputElement | undefined>(undefined);
+  let showImportConfirm = $state(false);
+  let pendingImport = $state<ReturnType<typeof parseImportedConfig> | null>(null);
 
   // New app/group templates
   const newAppTemplate: App = {
@@ -87,16 +92,20 @@
     expanded: true
   };
 
-  let newApp = { ...newAppTemplate };
-  let newGroup = { ...newGroupTemplate };
+  let newApp = $state({ ...newAppTemplate });
+  let newGroup = $state({ ...newGroupTemplate });
+
+  // Validation error state
+  let appErrors = $state<Record<string, string>>({});
+  let groupErrors = $state<Record<string, string>>({});
 
   // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
   localApps.forEach(a => { (a as any).id = a.name; });
   localConfig.groups.forEach(g => { (g as any).id = g.name; });
 
   // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
-  let dndGroups: Group[] = [...localConfig.groups].sort((a, b) => a.order - b.order);
-  let dndGroupedApps: Record<string, App[]> = buildGroupedApps();
+  let dndGroups = $state<Group[]>([...localConfig.groups].sort((a, b) => a.order - b.order));
+  let dndGroupedApps = $state<Record<string, App[]>>(buildGroupedApps());
 
   function buildGroupedApps(): Record<string, App[]> {
     const acc: Record<string, App[]> = {};
@@ -122,19 +131,16 @@
     dndGroups = e.detail.items;
     dndGroups.forEach((g, i) => { g.order = i; });
     localConfig.groups = [...dndGroups];
-    localConfig = localConfig;
   }
 
   // DnD handlers for apps within a group
   function handleAppDndConsider(e: CustomEvent<any>, groupName: string) {
     dndGroupedApps[groupName] = e.detail.items;
-    dndGroupedApps = dndGroupedApps;
   }
   function handleAppDndFinalize(e: CustomEvent<any>, groupName: string) {
     const newItems = e.detail.items as App[];
     newItems.forEach((a, i) => { a.group = groupName; a.order = i; (a as any).id = a.name; });
     dndGroupedApps[groupName] = newItems;
-    dndGroupedApps = dndGroupedApps;
     // Sync back to localApps
     const otherApps = localApps.filter(a => (a.group || '') !== groupName && !newItems.find(n => n.name === a.name));
     localApps = [...otherApps, ...newItems];
@@ -147,29 +153,35 @@
     if (keybindingsChanged) {
       localConfig.keybindings = getKeybindingsForConfig();
     }
-    dispatch('save', localConfig);
-    dispatch('close');
+    onsave?.(localConfig);
+    onclose?.();
   }
 
   // Inline confirmation state
-  let confirmClose = false;
-  let confirmDeleteApp: App | null = null;
-  let confirmDeleteGroup: Group | null = null;
+  let confirmClose = $state(false);
+  let confirmDeleteApp = $state<App | null>(null);
+  let confirmDeleteGroup = $state<Group | null>(null);
 
   function handleClose() {
     if (hasChanges) {
       confirmClose = true;
       return;
     }
-    dispatch('close');
+    onclose?.();
   }
 
   function confirmCloseDiscard() {
     confirmClose = false;
-    dispatch('close');
+    onclose?.();
   }
 
   function addApp() {
+    const result = appSchema.safeParse(newApp);
+    if (!result.success) {
+      appErrors = extractErrors(result);
+      return;
+    }
+    appErrors = {};
     newApp.order = localApps.length;
     const app = { ...newApp } as any;
     app.id = app.name;
@@ -192,6 +204,12 @@
   }
 
   function addGroup() {
+    const result = groupSchema.safeParse(newGroup);
+    if (!result.success) {
+      groupErrors = extractErrors(result);
+      return;
+    }
+    groupErrors = {};
     newGroup.order = localConfig.groups.length;
     const group = { ...newGroup } as any;
     group.id = group.name;
@@ -292,20 +310,18 @@
     pendingImport = null;
   }
 
-  function handleIconSelect(event: CustomEvent<{ name: string; variant: string; type: string }>) {
-    const { name, variant, type } = event.detail;
+  function handleIconSelect(detail: { name: string; variant: string; type: string }) {
+    const { name, variant, type } = detail;
     const iconData = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
 
     if (iconBrowserTarget === 'newApp') {
       newApp.icon = iconData;
     } else if (iconBrowserTarget === 'editApp' && editingApp) {
       editingApp.icon = iconData;
-      editingApp = editingApp;
     } else if (iconBrowserTarget === 'newGroup') {
       newGroup.icon = iconData;
     } else if (iconBrowserTarget === 'editGroup' && editingGroup) {
       editingGroup.icon = iconData;
-      editingGroup = editingGroup;
     }
     showIconBrowser = false;
     iconBrowserTarget = null;
@@ -331,11 +347,11 @@
   ];
 
   // Theme editor state
-  let showThemeEditor = false;
-  let themeEditorVars: Record<string, string> = {};
-  let themeEditorDefaults: Record<string, string> = {};
-  let saveThemeName = '';
-  let isSavingTheme = false;
+  let showThemeEditor = $state(false);
+  let themeEditorVars: Record<string, string> = $state({});
+  let themeEditorDefaults: Record<string, string> = $state({});
+  let saveThemeName = $state('');
+  let isSavingTheme = $state(false);
 
   function openThemeEditor() {
     themeEditorDefaults = getCurrentThemeVariables();
@@ -354,14 +370,12 @@
 
   function updateThemeVar(name: string, value: string) {
     themeEditorVars[name] = value;
-    themeEditorVars = themeEditorVars; // trigger reactivity
     // Live preview
     document.documentElement.style.setProperty(name, value);
   }
 
   function resetThemeVar(name: string) {
     themeEditorVars[name] = themeEditorDefaults[name];
-    themeEditorVars = themeEditorVars;
     document.documentElement.style.removeProperty(name);
   }
 
@@ -465,13 +479,13 @@
         <button
           class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
           disabled={!hasChanges}
-          on:click={handleSave}
+          onclick={handleSave}
         >
           Save Changes
         </button>
         <button
           class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={handleClose}
+          onclick={handleClose}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -487,11 +501,11 @@
         <div class="flex gap-2">
           <button
             class="px-3 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
-            on:click={() => confirmClose = false}
+            onclick={() => confirmClose = false}
           >Keep Editing</button>
           <button
             class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
-            on:click={confirmCloseDiscard}
+            onclick={confirmCloseDiscard}
           >Discard</button>
         </div>
       </div>
@@ -510,7 +524,7 @@
                  {activeTab === tab.id
                    ? 'text-brand-400 border-brand-400'
                    : 'text-gray-400 border-transparent hover:text-gray-300 hover:border-gray-600'}"
-          on:click={() => activeTab = tab.id}
+          onclick={() => activeTab = tab.id}
         >
           {tab.label}
         </button>
@@ -549,7 +563,7 @@
                          {localConfig.navigation.position === pos.value
                            ? 'border-brand-500 bg-brand-500/10 text-white'
                            : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
-                  on:click={() => localConfig.navigation.position = pos.value}
+                  onclick={() => localConfig.navigation.position = pos.value}
                 >
                   <div class="font-medium">{pos.label}</div>
                   <div class="text-xs text-gray-400 mt-1">{pos.description}</div>
@@ -669,7 +683,7 @@
             <div class="flex flex-wrap gap-3">
               <button
                 class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex items-center gap-2"
-                on:click={handleExport}
+                onclick={handleExport}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -678,7 +692,7 @@
               </button>
               <button
                 class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex items-center gap-2"
-                on:click={() => importFileInput?.click()}
+                onclick={() => importFileInput?.click()}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
@@ -690,7 +704,7 @@
                 type="file"
                 accept=".json"
                 class="hidden"
-                on:change={handleImportSelect}
+                onchange={handleImportSelect}
               />
             </div>
             <p class="text-xs text-gray-500 mt-2">
@@ -708,7 +722,7 @@
             <div class="flex gap-2">
               <button
                 class="px-3 py-1.5 text-sm bg-gray-600 hover:bg-gray-500 text-white rounded-md flex items-center gap-1"
-                on:click={() => showAddGroup = true}
+                onclick={() => { groupErrors = {}; showAddGroup = true; }}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
@@ -717,7 +731,7 @@
               </button>
               <button
                 class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center gap-1"
-                on:click={() => showAddApp = true}
+                onclick={() => { appErrors = {}; showAddApp = true; }}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -739,7 +753,7 @@
           </div>
 
           <!-- Groups with their apps (dnd-zone for group reordering) -->
-          <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} on:consider={handleGroupDndConsider} on:finalize={handleGroupDndFinalize}>
+          <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} onconsider={handleGroupDndConsider} onfinalize={handleGroupDndFinalize}>
             {#each dndGroups as group (group.id)}
               {@const appsInGroup = dndGroupedApps[group.name] || []}
               <div class="rounded-lg border border-gray-700" animate:flip={{duration: flipDurationMs}}>
@@ -772,20 +786,20 @@
                     <div class="flex items-center gap-1">
                       <span class="text-xs text-red-400 mr-1">Delete?</span>
                       <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
-                              on:click={confirmDeleteGroupAction}>Yes</button>
+                              onclick={confirmDeleteGroupAction}>Yes</button>
                       <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
-                              on:click={() => confirmDeleteGroup = null}>No</button>
+                              onclick={() => confirmDeleteGroup = null}>No</button>
                     </div>
                   {:else}
                     <div class="flex items-center gap-1">
                       <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                              on:click={() => editingGroup = group} title="Edit group">
+                              onclick={() => editingGroup = group} title="Edit group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
                       <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
-                              on:click={() => deleteGroup(group)} title="Delete group">
+                              onclick={() => deleteGroup(group)} title="Delete group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                         </svg>
@@ -795,7 +809,7 @@
                 </div>
 
                 <!-- Apps in this group (dnd-zone for app reordering + cross-group) -->
-                <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: appsInGroup, flipDurationMs, type: 'apps', dropTargetStyle: {}}} on:consider={(e) => handleAppDndConsider(e, group.name)} on:finalize={(e) => handleAppDndFinalize(e, group.name)}>
+                <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: appsInGroup, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, group.name)} onfinalize={(e) => handleAppDndFinalize(e, group.name)}>
                   {#each appsInGroup as app (app.id)}
                     <div
                       class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
@@ -847,20 +861,20 @@
                         <div class="flex items-center gap-1">
                           <span class="text-xs text-red-400 mr-1">Delete?</span>
                           <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
-                                  on:click={confirmDeleteAppAction}>Yes</button>
+                                  onclick={confirmDeleteAppAction}>Yes</button>
                           <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
-                                  on:click={() => confirmDeleteApp = null}>No</button>
+                                  onclick={() => confirmDeleteApp = null}>No</button>
                         </div>
                       {:else}
                         <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
                           <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                                  on:click={() => editingApp = app} title="Edit">
+                                  onclick={() => editingApp = app} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
                           <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
-                                  on:click={() => deleteApp(app)} title="Delete">
+                                  onclick={() => deleteApp(app)} title="Delete">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -882,7 +896,7 @@
                 <span class="text-sm font-medium text-gray-400">Ungrouped</span>
                 <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
               </div>
-              <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} on:consider={(e) => handleAppDndConsider(e, '')} on:finalize={(e) => handleAppDndFinalize(e, '')}>
+              <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
                 {#each ungroupedApps as app (app.id)}
                   <div
                     class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
@@ -932,20 +946,20 @@
                       <div class="flex items-center gap-1">
                         <span class="text-xs text-red-400 mr-1">Delete?</span>
                         <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
-                                on:click={confirmDeleteAppAction}>Yes</button>
+                                onclick={confirmDeleteAppAction}>Yes</button>
                         <button class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
-                                on:click={() => confirmDeleteApp = null}>No</button>
+                                onclick={() => confirmDeleteApp = null}>No</button>
                       </div>
                     {:else}
                       <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
                         <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
-                                on:click={() => editingApp = app} title="Edit">
+                                onclick={() => editingApp = app} title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
-                                on:click={() => deleteApp(app)} title="Delete">
+                                onclick={() => deleteApp(app)} title="Delete">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
@@ -986,7 +1000,7 @@
             <button
               class="relative w-11 h-6 rounded-full transition-colors"
               style="background: {$themeMode === 'system' ? 'var(--accent-primary)' : 'var(--bg-overlay)'};"
-              on:click={() => {
+              onclick={() => {
                 if ($themeMode === 'system') {
                   // Switching off system mode - use current resolved theme
                   setTheme($resolvedTheme);
@@ -1017,7 +1031,7 @@
                     border: 2px solid {isSelected ? 'var(--accent-primary)' : 'var(--border-subtle)'};
                     box-shadow: {isSelected ? 'var(--shadow-glow)' : 'none'};
                   "
-                  on:click={() => setTheme(theme.id)}
+                  onclick={() => setTheme(theme.id)}
                 >
                   <!-- Selection indicator -->
                   {#if isSelected}
@@ -1092,7 +1106,7 @@
               <button
                 class="w-full p-4 rounded-lg text-left transition-all hover:border-brand-500/50 flex items-center gap-3"
                 style="background: var(--bg-surface); border: 1px solid var(--border-subtle);"
-                on:click={openThemeEditor}
+                onclick={openThemeEditor}
               >
                 <div class="w-8 h-8 rounded-lg flex-shrink-0 flex items-center justify-center"
                      style="background: var(--accent-subtle);">
@@ -1114,12 +1128,12 @@
                     <button
                       class="px-2 py-1 text-xs rounded transition-colors"
                       style="background: var(--bg-hover); color: var(--text-secondary);"
-                      on:click={resetAllThemeVars}
+                      onclick={resetAllThemeVars}
                     >Reset All</button>
                     <button
                       class="p-1 rounded transition-colors"
                       style="color: var(--text-muted);"
-                      on:click={closeThemeEditor}
+                      onclick={closeThemeEditor}
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1141,14 +1155,14 @@
                               <input
                                 type="color"
                                 value={cssColorToHex(themeEditorVars[varName] || '#000000')}
-                                on:input={(e) => updateThemeVar(varName, e.currentTarget.value)}
+                                oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
                                 class="w-8 h-8 rounded cursor-pointer border-0 p-0"
                               />
                             {/if}
                             <input
                               type="text"
                               value={themeEditorVars[varName] || ''}
-                              on:input={(e) => updateThemeVar(varName, e.currentTarget.value)}
+                              oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
                               class="flex-1 px-2 py-1 text-xs rounded font-mono"
                               style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-subtle);"
                             />
@@ -1156,7 +1170,7 @@
                               <button
                                 class="p-1 rounded transition-colors flex-shrink-0"
                                 style="color: var(--text-muted);"
-                                on:click={() => resetThemeVar(varName)}
+                                onclick={() => resetThemeVar(varName)}
                                 title="Reset to default"
                               >
                                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1186,7 +1200,7 @@
                         class="px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50"
                         style="background: var(--accent-primary); color: var(--bg-base);"
                         disabled={!saveThemeName.trim() || isSavingTheme}
-                        on:click={handleSaveTheme}
+                        onclick={handleSaveTheme}
                       >
                         {isSavingTheme ? 'Saving...' : 'Save Theme'}
                       </button>
@@ -1220,7 +1234,7 @@
                 <button
                   class="p-1.5 rounded transition-colors"
                   style="color: var(--text-muted);"
-                  on:click={() => handleDeleteTheme(theme.id)}
+                  onclick={() => handleDeleteTheme(theme.id)}
                   title="Delete theme"
                 >
                   <svg class="w-4 h-4 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1235,7 +1249,7 @@
 
       <!-- Keybindings Settings -->
       {#if activeTab === 'keybindings'}
-        <KeybindingsEditor on:change={() => keybindingsChanged = true} />
+        <KeybindingsEditor onchange={() => keybindingsChanged = true} />
       {/if}
     </div>
   </div>
@@ -1256,7 +1270,7 @@
         <h3 class="text-lg font-semibold text-white">Add Application</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => showAddApp = false}
+          onclick={() => showAddApp = false}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1270,9 +1284,11 @@
             id="app-name"
             type="text"
             bind:value={newApp.name}
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            oninput={() => { delete appErrors.name; appErrors = appErrors; }}
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {appErrors.name ? 'border-red-500' : 'border-gray-600'}"
             placeholder="My App"
           />
+          {#if appErrors.name}<p class="text-red-400 text-xs mt-1">{appErrors.name}</p>{/if}
         </div>
         <div>
           <label for="app-url" class="block text-sm font-medium text-gray-300 mb-1">URL</label>
@@ -1280,9 +1296,11 @@
             id="app-url"
             type="url"
             bind:value={newApp.url}
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            oninput={() => { delete appErrors.url; appErrors = appErrors; }}
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {appErrors.url ? 'border-red-500' : 'border-gray-600'}"
             placeholder="http://localhost:8080"
           />
+          {#if appErrors.url}<p class="text-red-400 text-xs mt-1">{appErrors.url}</p>{/if}
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
@@ -1290,7 +1308,7 @@
             <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
             <button
               class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
-              on:click={() => openIconBrowser('newApp')}
+              onclick={() => openIconBrowser('newApp')}
             >
               {newApp.icon?.name || 'Choose icon...'}
             </button>
@@ -1370,14 +1388,13 @@
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => showAddApp = false}
+          onclick={() => showAddApp = false}
         >
           Cancel
         </button>
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
-          disabled={!newApp.name || !newApp.url}
-          on:click={addApp}
+          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          onclick={addApp}
         >
           Add App
         </button>
@@ -1401,7 +1418,7 @@
         <h3 class="text-lg font-semibold text-white">Add Group</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => showAddGroup = false}
+          onclick={() => showAddGroup = false}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1415,9 +1432,11 @@
             id="group-name"
             type="text"
             bind:value={newGroup.name}
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
+            class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-red-500' : 'border-gray-600'}"
             placeholder="Media"
           />
+          {#if groupErrors.name}<p class="text-red-400 text-xs mt-1">{groupErrors.name}</p>{/if}
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
@@ -1425,7 +1444,7 @@
             <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             <button
               class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
-              on:click={() => openIconBrowser('newGroup')}
+              onclick={() => openIconBrowser('newGroup')}
             >
               {newGroup.icon?.name || 'Choose icon...'}
             </button>
@@ -1451,14 +1470,13 @@
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => showAddGroup = false}
+          onclick={() => showAddGroup = false}
         >
           Cancel
         </button>
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
-          disabled={!newGroup.name}
-          on:click={addGroup}
+          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          onclick={addGroup}
         >
           Add Group
         </button>
@@ -1482,7 +1500,7 @@
         <h3 class="text-lg font-semibold text-white">Edit {editingApp.name}</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={closeEditApp}
+          onclick={closeEditApp}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1515,7 +1533,7 @@
             <div class="flex-1">
               <button
                 class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md w-full text-left"
-                on:click={() => openIconBrowser('editApp')}
+                onclick={() => openIconBrowser('editApp')}
               >
                 {editingApp.icon?.name || 'Choose icon...'}
               </button>
@@ -1623,7 +1641,7 @@
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={closeEditApp}
+          onclick={closeEditApp}
         >
           Done
         </button>
@@ -1647,7 +1665,7 @@
         <h3 class="text-lg font-semibold text-white">Edit {editingGroup.name}</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={closeEditGroup}
+          onclick={closeEditGroup}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1671,7 +1689,7 @@
             <div class="flex-1">
               <button
                 class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md w-full text-left"
-                on:click={() => openIconBrowser('editGroup')}
+                onclick={() => openIconBrowser('editGroup')}
               >
                 {editingGroup.icon?.name || 'Choose icon...'}
               </button>
@@ -1701,7 +1719,7 @@
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={closeEditGroup}
+          onclick={closeEditGroup}
         >
           Done
         </button>
@@ -1725,7 +1743,7 @@
         <h3 class="text-lg font-semibold text-white">Select Icon</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={() => { showIconBrowser = false; iconBrowserTarget = null; }}
+          onclick={() => { showIconBrowser = false; iconBrowserTarget = null; }}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1738,8 +1756,8 @@
           iconBrowserTarget === 'editGroup' && editingGroup?.icon?.type === 'dashboard' ? editingGroup.icon.name :
           ''
         }
-        on:select={handleIconSelect}
-        on:close={() => { showIconBrowser = false; iconBrowserTarget = null; }}
+        onselect={handleIconSelect}
+        onclose={() => { showIconBrowser = false; iconBrowserTarget = null; }}
       />
     </div>
   </div>
@@ -1760,7 +1778,7 @@
         <h3 class="text-lg font-semibold text-white">Import Configuration</h3>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={cancelImport}
+          onclick={cancelImport}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1793,13 +1811,13 @@
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
           class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          on:click={cancelImport}
+          onclick={cancelImport}
         >
           Cancel
         </button>
         <button
           class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
-          on:click={applyImport}
+          onclick={applyImport}
         >
           Import
         </button>

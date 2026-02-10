@@ -1,17 +1,15 @@
 <script lang="ts">
-  import { createEventDispatcher, onMount } from 'svelte';
+  import { onMount } from 'svelte';
   import { login, authState, checkAuthStatus } from '$lib/authStore';
 
-  const dispatch = createEventDispatcher<{
-    success: void;
-  }>();
+  let { onsuccess }: { onsuccess?: () => void } = $props();
 
-  let username = '';
-  let password = '';
-  let rememberMe = false;
-  let error: string | null = null;
-  let loading = false;
-  let oidcEnabled = false;
+  let username = $state('');
+  let password = $state('');
+  let rememberMe = $state(false);
+  let error = $state<string | null>(null);
+  let loading = $state(false);
+  let oidcEnabled = $state(false);
 
   onMount(async () => {
     // Check if OIDC is enabled
@@ -26,7 +24,8 @@
     }
   });
 
-  async function handleSubmit() {
+  async function handleSubmit(e: SubmitEvent) {
+    e.preventDefault();
     if (!username || !password) {
       error = 'Username and password are required';
       return;
@@ -40,7 +39,7 @@
     loading = false;
 
     if (result.success) {
-      dispatch('success');
+      onsuccess?.();
     } else {
       error = result.message || 'Login failed';
     }
@@ -54,7 +53,7 @@
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Enter') {
-      handleSubmit();
+      handleSubmit(new SubmitEvent('submit'));
     }
   }
 </script>
@@ -75,7 +74,7 @@
         <!-- OIDC Login Button -->
         <button
           type="button"
-          on:click={handleOIDCLogin}
+          onclick={handleOIDCLogin}
           class="w-full py-2.5 px-4 bg-gray-700 hover:bg-gray-600 text-white font-medium
                  rounded-md transition-colors flex items-center justify-center gap-2
                  border border-gray-600 mb-6"
@@ -97,7 +96,7 @@
         </div>
       {/if}
 
-      <form on:submit|preventDefault={handleSubmit}>
+      <form onsubmit={handleSubmit}>
         {#if error}
           <div class="mb-4 p-3 bg-red-500/10 border border-red-500/50 rounded-md text-red-400 text-sm">
             {error}
@@ -112,7 +111,7 @@
             id="username"
             type="text"
             bind:value={username}
-            on:keydown={handleKeydown}
+            onkeydown={handleKeydown}
             class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
                    placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500
                    focus:border-transparent"
@@ -130,7 +129,7 @@
             id="password"
             type="password"
             bind:value={password}
-            on:keydown={handleKeydown}
+            onkeydown={handleKeydown}
             class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
                    placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-brand-500
                    focus:border-transparent"

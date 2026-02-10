@@ -1,226 +1,145 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { get } from 'svelte/store';
-import { toasts, withToast, type Toast } from './toastStore';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+
+// Use vi.hoisted so the mock is available when vi.mock factory runs
+const { mockToast } = vi.hoisted(() => {
+  const mockToast = Object.assign(
+    vi.fn(),
+    {
+      success: vi.fn().mockReturnValue(1),
+      error: vi.fn().mockReturnValue(2),
+      warning: vi.fn().mockReturnValue(3),
+      info: vi.fn().mockReturnValue(4),
+      dismiss: vi.fn(),
+      promise: vi.fn(),
+    }
+  );
+  return { mockToast };
+});
+
+vi.mock('svelte-sonner', () => ({
+  toast: mockToast,
+}));
+
+import { toasts, withToast } from './toastStore';
 
 describe('toastStore', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    toasts.clear();
-  });
-
-  afterEach(() => {
-    vi.useRealTimers();
+    vi.clearAllMocks();
   });
 
   describe('adding toasts', () => {
-    it('should add a success toast', () => {
+    it('should call toast.success with message', () => {
       toasts.success('Operation completed');
-      const currentToasts = get(toasts);
-
-      expect(currentToasts).toHaveLength(1);
-      expect(currentToasts[0].type).toBe('success');
-      expect(currentToasts[0].message).toBe('Operation completed');
-      expect(currentToasts[0].dismissible).toBe(true);
+      expect(mockToast.success).toHaveBeenCalledWith('Operation completed', {
+        description: undefined,
+        duration: 4000,
+      });
     });
 
-    it('should add an error toast with longer duration', () => {
+    it('should call toast.error with longer default duration', () => {
       toasts.error('Something went wrong');
-      const currentToasts = get(toasts);
-
-      expect(currentToasts).toHaveLength(1);
-      expect(currentToasts[0].type).toBe('error');
-      expect(currentToasts[0].duration).toBe(6000);
+      expect(mockToast.error).toHaveBeenCalledWith('Something went wrong', {
+        description: undefined,
+        duration: 6000,
+      });
     });
 
-    it('should add a warning toast', () => {
+    it('should call toast.warning', () => {
       toasts.warning('Be careful');
-      const currentToasts = get(toasts);
-
-      expect(currentToasts).toHaveLength(1);
-      expect(currentToasts[0].type).toBe('warning');
+      expect(mockToast.warning).toHaveBeenCalledWith('Be careful', {
+        description: undefined,
+        duration: 4000,
+      });
     });
 
-    it('should add an info toast', () => {
+    it('should call toast.info', () => {
       toasts.info('Just letting you know');
-      const currentToasts = get(toasts);
-
-      expect(currentToasts).toHaveLength(1);
-      expect(currentToasts[0].type).toBe('info');
+      expect(mockToast.info).toHaveBeenCalledWith('Just letting you know', {
+        description: undefined,
+        duration: 4000,
+      });
     });
 
-    it('should support custom title', () => {
+    it('should pass title as description', () => {
       toasts.success('Details here', { title: 'Success!' });
-      const currentToasts = get(toasts);
-
-      expect(currentToasts[0].title).toBe('Success!');
+      expect(mockToast.success).toHaveBeenCalledWith('Details here', {
+        description: 'Success!',
+        duration: 4000,
+      });
     });
 
-    it('should support custom duration', () => {
+    it('should pass custom duration', () => {
       toasts.info('Quick message', { duration: 1000 });
-      const currentToasts = get(toasts);
-
-      expect(currentToasts[0].duration).toBe(1000);
-    });
-
-    it('should support non-dismissible toasts', () => {
-      toasts.info('Loading...', { dismissible: false, duration: 0 });
-      const currentToasts = get(toasts);
-
-      expect(currentToasts[0].dismissible).toBe(false);
+      expect(mockToast.info).toHaveBeenCalledWith('Quick message', {
+        description: undefined,
+        duration: 1000,
+      });
     });
 
     it('should return toast id', () => {
       const id = toasts.success('Test');
-
-      expect(id).toMatch(/^toast-\d+-\d+$/);
+      expect(id).toBe(1);
     });
   });
 
   describe('dismissing toasts', () => {
-    it('should dismiss toast by id', () => {
-      const id = toasts.success('Will be dismissed');
-      expect(get(toasts)).toHaveLength(1);
-
-      toasts.dismiss(id);
-      expect(get(toasts)).toHaveLength(0);
+    it('should call toast.dismiss with id', () => {
+      toasts.dismiss(42);
+      expect(mockToast.dismiss).toHaveBeenCalledWith(42);
     });
 
-    it('should auto-dismiss after duration', () => {
-      toasts.success('Auto dismiss', { duration: 2000 });
-      expect(get(toasts)).toHaveLength(1);
-
-      vi.advanceTimersByTime(2000);
-      expect(get(toasts)).toHaveLength(0);
-    });
-
-    it('should not auto-dismiss when duration is 0', () => {
-      toasts.info('Permanent', { duration: 0 });
-      expect(get(toasts)).toHaveLength(1);
-
-      vi.advanceTimersByTime(10000);
-      expect(get(toasts)).toHaveLength(1);
-    });
-
-    it('should handle dismissing non-existent id gracefully', () => {
-      toasts.success('Test');
-      toasts.dismiss('non-existent-id');
-
-      expect(get(toasts)).toHaveLength(1);
+    it('should call toast.dismiss without id', () => {
+      toasts.dismiss();
+      expect(mockToast.dismiss).toHaveBeenCalledWith(undefined);
     });
   });
 
   describe('clearing toasts', () => {
-    it('should clear all toasts', () => {
-      toasts.success('One');
-      toasts.error('Two');
-      toasts.warning('Three');
-      expect(get(toasts)).toHaveLength(3);
-
+    it('should call toast.dismiss without arguments', () => {
       toasts.clear();
-      expect(get(toasts)).toHaveLength(0);
-    });
-  });
-
-  describe('max toasts limit', () => {
-    it('should limit to 5 toasts', () => {
-      for (let i = 0; i < 7; i++) {
-        toasts.info(`Toast ${i}`, { duration: 0 });
-      }
-
-      const currentToasts = get(toasts);
-      expect(currentToasts).toHaveLength(5);
-      // Should keep the most recent ones
-      expect(currentToasts[0].message).toBe('Toast 2');
-      expect(currentToasts[4].message).toBe('Toast 6');
-    });
-  });
-
-  describe('unique IDs', () => {
-    it('should generate unique IDs for each toast', () => {
-      const id1 = toasts.success('First');
-      const id2 = toasts.success('Second');
-      const id3 = toasts.success('Third');
-
-      expect(id1).not.toBe(id2);
-      expect(id2).not.toBe(id3);
-      expect(id1).not.toBe(id3);
+      expect(mockToast.dismiss).toHaveBeenCalledWith();
     });
   });
 });
 
 describe('withToast', () => {
   beforeEach(() => {
-    vi.useFakeTimers();
-    toasts.clear();
+    vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
-  });
+  it('should call toast.promise with the promise', async () => {
+    const promise = Promise.resolve('result');
+    mockToast.promise.mockResolvedValue('result');
 
-  it('should show loading toast while promise is pending', async () => {
-    let resolvePromise: (value: string) => void;
-    const promise = new Promise<string>((resolve) => {
-      resolvePromise = resolve;
-    });
-
-    const resultPromise = withToast(promise, {
+    await withToast(promise, {
       loading: 'Loading...',
       success: 'Done!',
+      error: 'Failed',
     });
 
-    expect(get(toasts)).toHaveLength(1);
-    expect(get(toasts)[0].message).toBe('Loading...');
-
-    resolvePromise!('result');
-    await resultPromise;
-
-    // Loading toast should be dismissed, success shown
-    const currentToasts = get(toasts);
-    expect(currentToasts).toHaveLength(1);
-    expect(currentToasts[0].type).toBe('success');
-    expect(currentToasts[0].message).toBe('Done!');
+    expect(mockToast.promise).toHaveBeenCalledWith(promise, expect.objectContaining({
+      loading: 'Loading...',
+    }));
   });
 
-  it('should return the promise result', async () => {
-    const promise = Promise.resolve({ data: 'test' });
-
-    const result = await withToast(promise, {
-      success: 'Success',
-    });
-
-    expect(result).toEqual({ data: 'test' });
-  });
-
-  it('should show error toast on failure', async () => {
-    const promise = Promise.reject(new Error('Something broke'));
-
-    await expect(
-      withToast(promise, {
-        loading: 'Working...',
-        error: 'Operation failed',
-      })
-    ).rejects.toThrow('Something broke');
-
-    const currentToasts = get(toasts);
-    expect(currentToasts).toHaveLength(1);
-    expect(currentToasts[0].type).toBe('error');
-    expect(currentToasts[0].message).toBe('Operation failed');
-  });
-
-  it('should support function for success message', async () => {
+  it('should handle function-based success message', async () => {
     const promise = Promise.resolve({ count: 5 });
+    mockToast.promise.mockResolvedValue({ count: 5 });
 
     await withToast(promise, {
       success: (result) => `Processed ${result.count} items`,
     });
 
-    const currentToasts = get(toasts);
-    expect(currentToasts[0].message).toBe('Processed 5 items');
+    const call = mockToast.promise.mock.calls[0];
+    const successFn = call[1].success;
+    expect(successFn({ count: 5 })).toBe('Processed 5 items');
   });
 
-  it('should support function for error message', async () => {
-    const promise = Promise.reject(new Error('Network timeout'));
+  it('should handle function-based error message', async () => {
+    const error = new Error('Network timeout');
+    const promise = Promise.reject(error);
+    promise.catch(() => {}); // Prevent unhandled rejection
+    mockToast.promise.mockRejectedValue(error);
 
     await expect(
       withToast(promise, {
@@ -228,18 +147,20 @@ describe('withToast', () => {
       })
     ).rejects.toThrow();
 
-    const currentToasts = get(toasts);
-    expect(currentToasts[0].message).toBe('Error: Network timeout');
+    const call = mockToast.promise.mock.calls[0];
+    const errorFn = call[1].error;
+    expect(errorFn(new Error('Network timeout'))).toBe('Error: Network timeout');
   });
 
-  it('should work without loading toast', async () => {
-    const promise = Promise.resolve('done');
+  it('should use defaults when options not provided', async () => {
+    const promise = Promise.resolve('ok');
+    mockToast.promise.mockResolvedValue('ok');
 
-    await withToast(promise, {
-      success: 'Completed',
-    });
+    await withToast(promise, {});
 
-    expect(get(toasts)).toHaveLength(1);
-    expect(get(toasts)[0].type).toBe('success');
+    const call = mockToast.promise.mock.calls[0];
+    expect(call[1].loading).toBe('Loading...');
+    expect(call[1].success('ok')).toBe('Done');
+    expect(call[1].error(new Error('fail'))).toBe('Failed');
   });
 });

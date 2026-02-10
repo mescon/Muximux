@@ -1,11 +1,13 @@
 <script lang="ts">
   import type { AppIcon as AppIconType } from '$lib/types';
 
-  export let icon: AppIconType;
-  export let name: string;
-  export let color: string = '#374151';
-  export let size: 'sm' | 'md' | 'lg' | 'xl' = 'md';
-  export let showBackground: boolean = true;
+  let { icon, name, color = '#374151', size = 'md', showBackground = true }: {
+    icon: AppIconType;
+    name: string;
+    color?: string;
+    size?: 'sm' | 'md' | 'lg' | 'xl';
+    showBackground?: boolean;
+  } = $props();
 
   // Size classes
   const sizeClasses = {
@@ -37,10 +39,10 @@
     }
   }
 
-  $: iconUrl = getIconUrl();
-  $: fallbackLetter = name.charAt(0).toUpperCase();
+  let iconUrl = $derived(getIconUrl());
+  let fallbackLetter = $derived(name.charAt(0).toUpperCase());
 
-  let imageError = false;
+  let imageError = $state(false);
 
   function handleImageError() {
     imageError = true;
@@ -56,7 +58,7 @@
       src={iconUrl}
       alt={name}
       class="w-full h-full object-contain p-1"
-      on:error={handleImageError}
+      onerror={handleImageError}
     />
   {:else}
     <span class="text-white">{fallbackLetter}</span>
