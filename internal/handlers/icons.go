@@ -13,13 +13,15 @@ import (
 // IconHandler handles icon-related requests
 type IconHandler struct {
 	dashboardClient *icons.DashboardIconsClient
+	lucideClient    *icons.LucideClient
 	customManager   *icons.CustomIconsManager
 }
 
 // NewIconHandler creates a new icon handler
-func NewIconHandler(dashboardClient *icons.DashboardIconsClient, customIconsDir string) *IconHandler {
+func NewIconHandler(dashboardClient *icons.DashboardIconsClient, lucideClient *icons.LucideClient, customIconsDir string) *IconHandler {
 	return &IconHandler{
 		dashboardClient: dashboardClient,
+		lucideClient:    lucideClient,
 		customManager:   icons.NewCustomIconsManager(customIconsDir),
 	}
 }
@@ -74,17 +76,17 @@ func (h *IconHandler) ListDashboardIcons(w http.ResponseWriter, r *http.Request)
 	json.NewEncoder(w).Encode(iconList)
 }
 
-// ListBuiltinIcons returns a list of available builtin icons
-func (h *IconHandler) ListBuiltinIcons(w http.ResponseWriter, r *http.Request) {
+// ListLucideIcons returns a list of available Lucide icons with optional search
+func (h *IconHandler) ListLucideIcons(w http.ResponseWriter, r *http.Request) {
 	query := r.URL.Query().Get("q")
 
-	var iconList []icons.BuiltinIconInfo
+	var iconList []icons.LucideIconInfo
 	var err error
 
 	if query != "" {
-		iconList, err = icons.SearchBuiltinIcons(query)
+		iconList, err = h.lucideClient.SearchIcons(query)
 	} else {
-		iconList, err = icons.ListBuiltinIcons()
+		iconList, err = h.lucideClient.ListIcons()
 	}
 
 	if err != nil {
@@ -96,7 +98,26 @@ func (h *IconHandler) ListBuiltinIcons(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(iconList)
 }
 
-// ServeIcon serves an icon based on type (dashboard, custom, or builtin)
+// GetLucideIcon serves a single Lucide icon by name
+func (h *IconHandler) GetLucideIcon(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimPrefix(r.URL.Path, "/api/icons/lucide/")
+	if path == "" {
+		http.Error(w, "Icon name required", http.StatusBadRequest)
+		return
+	}
+
+	data, contentType, err := h.lucideClient.GetIcon(path)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusNotFound)
+		return
+	}
+
+	w.Header().Set("Content-Type", contentType)
+	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.Write(data)
+}
+
+// ServeIcon serves an icon based on type (dashboard, lucide, or custom)
 func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 	// Path format: /icons/{type}/{name}
 	path := strings.TrimPrefix(r.URL.Path, "/icons/")
@@ -145,9 +166,10 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "public, max-age=86400")
 		w.Write(data)
 
-	case "builtin":
-		// Serve from embedded assets
-		data, contentType, err := icons.GetBuiltinIcon(iconName)
+	case "lucide":
+		// Serve from Lucide CDN (cached locally)
+		name := strings.TrimSuffix(iconName, filepath.Ext(iconName))
+		data, contentType, err := h.lucideClient.GetIcon(name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusNotFound)
 			return

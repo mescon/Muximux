@@ -308,11 +308,13 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Icon routes
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
 	dashboardClient := icons.NewDashboardIconsClient(cfg.Icons.DashboardIcons.CacheDir, cacheTTL)
-	iconHandler := handlers.NewIconHandler(dashboardClient, "data/icons/custom")
+	lucideClient := icons.NewLucideClient("data/icons/lucide", cacheTTL)
+	iconHandler := handlers.NewIconHandler(dashboardClient, lucideClient, "data/icons/custom")
 
 	mux.HandleFunc("/api/icons/dashboard", iconHandler.ListDashboardIcons)
 	mux.HandleFunc("/api/icons/dashboard/", iconHandler.GetDashboardIcon)
-	mux.HandleFunc("/api/icons/builtin", iconHandler.ListBuiltinIcons)
+	mux.HandleFunc("/api/icons/lucide", iconHandler.ListLucideIcons)
+	mux.HandleFunc("/api/icons/lucide/", iconHandler.GetLucideIcon)
 	mux.HandleFunc("/api/icons/custom", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:

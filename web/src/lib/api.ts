@@ -124,17 +124,19 @@ export function getDashboardIconUrl(name: string, variant: string = 'svg'): stri
   return `/icons/dashboard/${name}.${variant}`;
 }
 
-// Builtin icons
-export interface BuiltinIconInfo {
+// Lucide icons
+export interface LucideIconInfo {
   name: string;
+  categories?: string[];
 }
 
-export async function listBuiltinIcons(): Promise<BuiltinIconInfo[]> {
-  return fetchJSON<BuiltinIconInfo[]>('/icons/builtin');
+export async function listLucideIcons(query?: string): Promise<LucideIconInfo[]> {
+  const params = query ? `?q=${encodeURIComponent(query)}` : '';
+  return fetchJSON<LucideIconInfo[]>(`/icons/lucide${params}`);
 }
 
-export function getBuiltinIconUrl(name: string): string {
-  return `/icons/builtin/${name}.svg`;
+export function getLucideIconUrl(name: string): string {
+  return `/icons/lucide/${name}.svg`;
 }
 
 // Custom icons

@@ -29,7 +29,7 @@ apps:
   - name: Test App
     url: http://localhost:8080
     icon:
-      type: builtin
+      type: lucide
       name: server
     color: "#00ff00"
     group: Test Group

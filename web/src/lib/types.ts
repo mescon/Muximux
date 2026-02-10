@@ -20,7 +20,7 @@ export function getEffectiveUrl(app: App): string {
 }
 
 export interface AppIcon {
-  type: 'dashboard' | 'builtin' | 'custom' | 'url';
+  type: 'dashboard' | 'lucide' | 'custom' | 'url';
   name: string;
   file: string;
   url: string;

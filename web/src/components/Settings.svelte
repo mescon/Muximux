@@ -340,7 +340,7 @@
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
     const { name, variant, type } = detail;
-    const iconData = { type: type as 'dashboard' | 'builtin' | 'custom', name, variant, file: '', url: '' };
+    const iconData = { type: type as 'dashboard' | 'lucide' | 'custom', name, variant, file: '', url: '' };
 
     if (iconBrowserTarget === 'newApp') {
       newApp.icon = iconData;

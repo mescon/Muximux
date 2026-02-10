@@ -3,14 +3,14 @@
   import {
     listDashboardIcons,
     getDashboardIconUrl,
-    listBuiltinIcons,
-    getBuiltinIconUrl,
+    listLucideIcons,
+    getLucideIconUrl,
     listCustomIcons,
     getCustomIconUrl,
     uploadCustomIcon,
     deleteCustomIcon,
     type IconInfo,
-    type BuiltinIconInfo,
+    type LucideIconInfo,
     type CustomIconInfo
   } from '$lib/api';
   import { toasts } from '$lib/toastStore';
@@ -26,12 +26,12 @@
   }: {
     selectedIcon?: string;
     selectedVariant?: string;
-    selectedType?: 'dashboard' | 'builtin' | 'custom';
+    selectedType?: 'dashboard' | 'lucide' | 'custom';
     onselect?: (detail: { name: string; variant: string; type: string }) => void;
     onclose?: () => void;
   } = $props();
 
-  type IconTab = 'dashboard' | 'builtin' | 'custom';
+  type IconTab = 'dashboard' | 'lucide' | 'custom';
   let activeTab = $state<IconTab>(selectedType);
 
   let searchQuery = $state('');
@@ -40,9 +40,9 @@
   let dashboardIcons = $state<IconInfo[]>([]);
   let filteredDashboardIcons = $state<IconInfo[]>([]);
 
-  // Builtin icons
-  let builtinIcons = $state<BuiltinIconInfo[]>([]);
-  let filteredBuiltinIcons = $state<BuiltinIconInfo[]>([]);
+  // Lucide icons
+  let lucideIcons = $state<LucideIconInfo[]>([]);
+  let filteredLucideIcons = $state<LucideIconInfo[]>([]);
 
   // Custom icons
   let customIcons = $state<CustomIconInfo[]>([]);
@@ -89,13 +89,13 @@
     loading = true;
     error = null;
     try {
-      const [dashboard, builtin, custom] = await Promise.all([
+      const [dashboard, lucide, custom] = await Promise.all([
         listDashboardIcons().catch(() => []),
-        listBuiltinIcons().catch(() => []),
+        listLucideIcons().catch(() => []),
         listCustomIcons().catch(() => [])
       ]);
       dashboardIcons = dashboard || [];
-      builtinIcons = builtin || [];
+      lucideIcons = lucide || [];
       customIcons = custom || [];
       applyFilter();
     } catch (e) {
@@ -118,11 +118,14 @@
     const query = searchQuery.toLowerCase().trim();
     if (query) {
       filteredDashboardIcons = dashboardIcons.filter(i => i.name.toLowerCase().includes(query));
-      filteredBuiltinIcons = builtinIcons.filter(i => i.name.toLowerCase().includes(query));
+      filteredLucideIcons = lucideIcons.filter(i =>
+        i.name.toLowerCase().includes(query) ||
+        (i.categories?.some(c => c.toLowerCase().includes(query)) ?? false)
+      );
       filteredCustomIcons = customIcons.filter(i => i.name.toLowerCase().includes(query));
     } else {
       filteredDashboardIcons = dashboardIcons;
-      filteredBuiltinIcons = builtinIcons;
+      filteredLucideIcons = lucideIcons;
       filteredCustomIcons = customIcons;
     }
   }
@@ -142,8 +145,8 @@
     switch (type) {
       case 'dashboard':
         return getDashboardIconUrl(name, selectedVariant);
-      case 'builtin':
-        return getBuiltinIconUrl(name);
+      case 'lucide':
+        return getLucideIconUrl(name);
       case 'custom':
         return getCustomIconUrl(name);
     }
@@ -192,7 +195,7 @@
   let allCurrentIcons = $derived.by(() => {
     switch (activeTab) {
       case 'dashboard': return filteredDashboardIcons;
-      case 'builtin': return filteredBuiltinIcons;
+      case 'lucide': return filteredLucideIcons;
       case 'custom': return filteredCustomIcons;
     }
   });
@@ -201,7 +204,7 @@
   let totalCount = $derived.by(() => {
     switch (activeTab) {
       case 'dashboard': return dashboardIcons.length;
-      case 'builtin': return builtinIcons.length;
+      case 'lucide': return lucideIcons.length;
       case 'custom': return customIcons.length;
     }
   });
@@ -229,13 +232,13 @@
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
-             {activeTab === 'builtin'
+             {activeTab === 'lucide'
                ? 'text-brand-400 border-brand-400'
                : 'text-gray-400 border-transparent hover:text-gray-300'}"
-      onclick={() => activeTab = 'builtin'}
+      onclick={() => activeTab = 'lucide'}
     >
-      Builtin
-      <span class="text-xs text-gray-500 ml-1">({builtinIcons.length})</span>
+      Lucide
+      <span class="text-xs text-gray-500 ml-1">({lucideIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
@@ -343,9 +346,9 @@
               onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
             >
-              {#if activeTab === 'builtin'}
+              {#if activeTab === 'lucide'}
                 <div
-                  class="w-full h-full builtin-icon"
+                  class="w-full h-full lucide-icon"
                   style="-webkit-mask-image: url({getIconUrl(icon.name, activeTab)}); mask-image: url({getIconUrl(icon.name, activeTab)});"
                   role="img"
                   aria-label={icon.name}
@@ -426,7 +429,7 @@
 </div>
 
 <style>
-  .builtin-icon {
+  .lucide-icon {
     background-color: var(--text-primary, #fff);
     -webkit-mask-size: contain;
     mask-size: contain;

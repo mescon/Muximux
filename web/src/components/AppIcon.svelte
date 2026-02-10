@@ -31,9 +31,9 @@
         return `/icons/custom/${icon.file}`;
       case 'url':
         return icon.url || null;
-      case 'builtin':
+      case 'lucide':
         if (!icon.name) return null;
-        return `/icons/builtin/${icon.name}.svg`;
+        return `/icons/lucide/${icon.name}.svg`;
       default:
         return null;
     }
@@ -54,9 +54,9 @@
   style="background-color: {showBackground ? color : 'transparent'}"
 >
   {#if iconUrl && !imageError}
-    {#if icon?.type === 'builtin'}
+    {#if icon?.type === 'lucide'}
       <div
-        class="w-full h-full p-1 builtin-icon"
+        class="w-full h-full p-1 lucide-icon"
         style="-webkit-mask-image: url({iconUrl}); mask-image: url({iconUrl});"
         role="img"
         aria-label={name}
@@ -80,7 +80,7 @@
     max-width: 100%;
     max-height: 100%;
   }
-  .builtin-icon {
+  .lucide-icon {
     background-color: var(--text-primary, #fff);
     -webkit-mask-size: contain;
     mask-size: contain;
@@ -88,5 +88,7 @@
     mask-repeat: no-repeat;
     -webkit-mask-position: center;
     mask-position: center;
+    -webkit-mask-origin: content-box;
+    mask-origin: content-box;
   }
 </style>
