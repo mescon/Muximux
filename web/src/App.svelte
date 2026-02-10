@@ -10,7 +10,7 @@
   import OnboardingWizard from './components/OnboardingWizard.svelte';
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
-  import type { App, Config, NavigationConfig, Group } from './lib/types';
+  import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group } from './lib/types';
   import { fetchConfig, saveConfig } from './lib/api';
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
@@ -251,10 +251,11 @@
   }
 
   function selectApp(app: App) {
+    const url = getEffectiveUrl(app);
     if (app.open_mode === 'new_tab') {
-      window.open(app.url, '_blank');
+      window.open(url, '_blank');
     } else if (app.open_mode === 'new_window') {
-      window.open(app.url, app.name, 'width=1200,height=800');
+      window.open(url, app.name);
     } else {
       currentApp = app;
       showSplash = false;

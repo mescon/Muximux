@@ -1,13 +1,12 @@
 <script lang="ts">
   import { fade } from 'svelte/transition';
   import { onMount } from 'svelte';
-  import type { App } from '$lib/types';
+  import { getEffectiveUrl, type App } from '$lib/types';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
 
   let { app }: { app: App } = $props();
 
-  // Use proxyUrl if available (proxy enabled), otherwise use the original url
-  let effectiveUrl = $derived(app.proxyUrl || app.url);
+  let effectiveUrl = $derived(getEffectiveUrl(app));
 
   let scale = $derived(app.scale || 1);
   let transform = $derived(scale !== 1 ? `scale(${scale})` : '');

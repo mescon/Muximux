@@ -15,6 +15,10 @@ export interface App {
   disable_keyboard_shortcuts: boolean;
 }
 
+export function getEffectiveUrl(app: App): string {
+  return app.proxyUrl || app.url;
+}
+
 export interface AppIcon {
   type: 'dashboard' | 'builtin' | 'custom' | 'url';
   name: string;
