@@ -61,10 +61,10 @@
   --glass-highlight: rgba(131, 148, 150, 0.05);
 
   /* Text hierarchy */
-  --text-primary: #93a1a1;
-  --text-secondary: #839496;
-  --text-muted: #586e75;
-  --text-disabled: #465a61;
+  --text-primary: #a8b8b8;
+  --text-secondary: #93a5a7;
+  --text-muted: #6a828a;
+  --text-disabled: #5a7078;
 
   /* Borders */
   --border-subtle: rgba(131, 148, 150, 0.08);

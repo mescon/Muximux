@@ -64,8 +64,8 @@
   /* Text hierarchy */
   --text-primary: #ebdbb2;
   --text-secondary: #d5c4a1;
-  --text-muted: #a89984;
-  --text-disabled: #7c6f64;
+  --text-muted: #bdae93;
+  --text-disabled: #998a7a;
 
   /* Borders */
   --border-subtle: rgba(235, 219, 178, 0.08);

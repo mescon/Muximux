@@ -54,12 +54,21 @@
   style="background-color: {showBackground ? color : 'transparent'}"
 >
   {#if iconUrl && !imageError}
-    <img
-      src={iconUrl}
-      alt={name}
-      class="w-full h-full object-contain p-1"
-      onerror={handleImageError}
-    />
+    {#if icon?.type === 'builtin'}
+      <div
+        class="w-full h-full p-1 builtin-icon"
+        style="-webkit-mask-image: url({iconUrl}); mask-image: url({iconUrl});"
+        role="img"
+        aria-label={name}
+      ></div>
+    {:else}
+      <img
+        src={iconUrl}
+        alt={name}
+        class="w-full h-full object-contain p-1"
+        onerror={handleImageError}
+      />
+    {/if}
   {:else}
     <span class="text-white">{fallbackLetter}</span>
   {/if}
@@ -70,5 +79,14 @@
     /* Ensure SVGs display properly */
     max-width: 100%;
     max-height: 100%;
+  }
+  .builtin-icon {
+    background-color: var(--text-primary, #fff);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
   }
 </style>

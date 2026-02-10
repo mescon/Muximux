@@ -6,6 +6,7 @@
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
+  import { get } from 'svelte/store';
   import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, type ThemeMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig } from '$lib/api';
@@ -53,9 +54,10 @@
   let keybindingsChanged = $state(false);
 
   // Track if changes have been made
-  let hasChanges = $derived(JSON.stringify(localConfig) !== JSON.stringify(config) ||
-                  JSON.stringify(localApps) !== JSON.stringify(apps) ||
-                  keybindingsChanged);
+  let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
+                  JSON.stringify(localApps) !== initialAppsSnapshot ||
+                  keybindingsChanged ||
+                  $themeMode !== initialTheme);
 
   // Editing state
   let editingApp = $state<App | null>(null);
@@ -102,6 +104,13 @@
   // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
   localApps.forEach(a => { (a as any).id = a.name; });
   localConfig.groups.forEach(g => { (g as any).id = g.name; });
+
+  // Snapshot taken AFTER id fields are added, so hasChanges starts as false
+  const initialConfigSnapshot = JSON.stringify(localConfig);
+  const initialAppsSnapshot = JSON.stringify(localApps);
+
+  // Snapshot theme so we can revert on close without save
+  const initialTheme = get(themeMode) as ThemeMode;
 
   // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
   let dndGroups = $state<Group[]>([...localConfig.groups].sort((a, b) => a.order - b.order));
@@ -167,11 +176,13 @@
       confirmClose = true;
       return;
     }
+    setTheme(initialTheme);
     onclose?.();
   }
 
   function confirmCloseDiscard() {
     confirmClose = false;
+    setTheme(initialTheme);
     onclose?.();
   }
 
@@ -810,6 +821,9 @@
 
                 <!-- Apps in this group (dnd-zone for app reordering + cross-group) -->
                 <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: appsInGroup, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, group.name)} onfinalize={(e) => handleAppDndFinalize(e, group.name)}>
+                  {#if appsInGroup.length === 0}
+                    <div class="text-center py-3 text-gray-500 text-sm italic">No apps in this group</div>
+                  {/if}
                   {#each appsInGroup as app (app.id)}
                     <div
                       class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
@@ -825,7 +839,7 @@
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
                       </div>
                       <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2">
+                        <div class="flex items-center gap-2 flex-wrap">
                           <span class="font-medium text-white text-sm truncate">{app.name}</span>
                           {#if app.default}
                             <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
@@ -833,12 +847,9 @@
                           {#if !app.enabled}
                             <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
                           {/if}
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                          <span class="text-xs text-gray-400 truncate">{app.url}</span>
                           {#if app.proxy}
                             <span class="app-indicator" title="Proxied through server">
-                              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                             </span>
                           {/if}
                           {#if app.open_mode && app.open_mode !== 'iframe'}
@@ -855,6 +866,7 @@
                             <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
                           {/if}
                         </div>
+                        <span class="text-xs text-gray-400 truncate block">{app.url}</span>
                       </div>
                       <!-- App actions -->
                       {#if confirmDeleteApp?.name === app.name}
@@ -911,7 +923,7 @@
                       <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
                     </div>
                     <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2">
+                      <div class="flex items-center gap-2 flex-wrap">
                         <span class="font-medium text-white text-sm truncate">{app.name}</span>
                         {#if app.default}
                           <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
@@ -919,12 +931,9 @@
                         {#if !app.enabled}
                           <span class="text-xs bg-gray-600 text-gray-400 px-1.5 py-0.5 rounded">Disabled</span>
                         {/if}
-                      </div>
-                      <div class="flex items-center gap-1.5">
-                        <span class="text-xs text-gray-400 truncate">{app.url}</span>
                         {#if app.proxy}
                           <span class="app-indicator" title="Proxied through server">
-                            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
                           </span>
                         {/if}
                         {#if app.open_mode && app.open_mode !== 'iframe'}
@@ -941,6 +950,7 @@
                           <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
                         {/if}
                       </div>
+                      <span class="text-xs text-gray-400 truncate block">{app.url}</span>
                     </div>
                     {#if confirmDeleteApp?.name === app.name}
                       <div class="flex items-center gap-1">
@@ -1911,10 +1921,10 @@
   .settings :global(.app-indicator) {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
-    font-size: 0.6875rem;
+    gap: 3px;
+    font-size: 0.875rem;
     line-height: 1;
-    padding: 2px 5px;
+    padding: 4px 8px;
     border-radius: 4px;
     background: var(--bg-elevated);
     color: var(--text-muted);

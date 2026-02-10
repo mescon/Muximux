@@ -339,12 +339,21 @@
               onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
             >
-              <img
-                src={getIconUrl(icon.name, activeTab)}
-                alt={icon.name}
-                class="w-full h-full object-contain"
-                loading="lazy"
-              />
+              {#if activeTab === 'builtin'}
+                <div
+                  class="w-full h-full builtin-icon"
+                  style="-webkit-mask-image: url({getIconUrl(icon.name, activeTab)}); mask-image: url({getIconUrl(icon.name, activeTab)});"
+                  role="img"
+                  aria-label={icon.name}
+                ></div>
+              {:else}
+                <img
+                  src={getIconUrl(icon.name, activeTab)}
+                  alt={icon.name}
+                  class="w-full h-full object-contain"
+                  loading="lazy"
+                />
+              {/if}
             </button>
             {#if activeTab === 'custom'}
               {#if confirmDeleteIcon === icon.name}
@@ -411,3 +420,15 @@
     </div>
   </div>
 </div>
+
+<style>
+  .builtin-icon {
+    background-color: var(--text-primary, #fff);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+  }
+</style>

@@ -10,7 +10,7 @@ export default defineConfig({
     },
   },
   build: {
-    outDir: 'dist',
+    outDir: '../internal/server/dist',
     emptyOutDir: true,
   },
   server: {
