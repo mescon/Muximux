@@ -1,0 +1,110 @@
+/**
+ * Tokyo Night Day Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The official light variant of Tokyo Night — soft, muted daytime colors.
+ * Based on Tokyo Night: https://github.com/enkia/tokyo-night-vscode-theme
+ * Colors from tokyonight.nvim "day" variant.
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: tokyo-night-light
+ * @theme-name: Tokyo Night Light
+ * @theme-family: tokyo-night
+ * @theme-family-name: Tokyo Night
+ * @theme-variant: light
+ * @theme-description: Clean light theme inspired by Tokyo days
+ * @theme-is-dark: false
+ * @theme-preview-bg: #e1e2e7
+ * @theme-preview-surface: #d0d5e3
+ * @theme-preview-accent: #2e7de9
+ * @theme-preview-text: #3760bf
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="tokyo-night-light"] {
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     TOKYO NIGHT DAY PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Backgrounds:
+       #e1e2e7 - bg
+       #d0d5e3 - bg_dark / sidebar
+       #c4c8da - bg_highlight
+       #b4b5b9 - border / dark black
+
+     Foreground:
+       #3760bf - fg
+       #6172b0 - fg_dark
+       #848cb5 - comment
+       #a8aecb - fg_gutter
+       #68709a - dark5
+       #8990b3 - dark3
+
+     Colors:
+       #f52a65 - red
+       #b15c00 - orange
+       #8c6c3e - yellow
+       #587539 - green
+       #118c74 - teal
+       #2e7de9 - blue (primary accent)
+       #9854f1 - magenta/purple
+       #007197 - cyan
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #e1e2e7;
+  --bg-surface: #d0d5e3;
+  --bg-elevated: #c4c8da;
+  --bg-overlay: #b7c1e3;
+  --bg-hover: #c4c8da;
+  --bg-active: #b7c1e3;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(208, 213, 227, 0.85);
+  --glass-border: rgba(55, 96, 191, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.5);
+
+  /* Text hierarchy */
+  --text-primary: #3760bf;
+  --text-secondary: #6172b0;
+  --text-muted: #848cb5;
+  --text-disabled: #a8aecb;
+
+  /* Borders */
+  --border-subtle: rgba(55, 96, 191, 0.08);
+  --border-default: rgba(55, 96, 191, 0.14);
+  --border-strong: rgba(55, 96, 191, 0.22);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Blue */
+  --accent-primary: #2e7de9;
+  --accent-secondary: #007197;
+  --accent-muted: rgba(46, 125, 233, 0.18);
+  --accent-subtle: rgba(46, 125, 233, 0.08);
+
+  /* Brand palette - derived from Blue */
+  --color-brand-50: #e8f0fd;
+  --color-brand-100: #c8dcfa;
+  --color-brand-200: #92b8f4;
+  --color-brand-300: #5d94ee;
+  --color-brand-400: #2e7de9;
+  --color-brand-500: #1a5ec0;
+  --color-brand-600: #14489a;
+  --color-brand-700: #0f3572;
+  --color-brand-800: #0b254f;
+  --color-brand-900: #071830;
+  --color-brand-950: #040e1c;
+
+  /* Status colors */
+  --status-success: #587539;
+  --status-warning: #8c6c3e;
+  --status-error: #f52a65;
+  --status-info: #007197;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(46, 125, 233, 0.15);
+}

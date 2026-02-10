@@ -40,6 +40,9 @@ type ThemeInfo struct {
 	Description string        `json:"description,omitempty"`
 	IsBuiltin   bool          `json:"isBuiltin"`
 	IsDark      bool          `json:"isDark"`
+	Family      string        `json:"family,omitempty"`
+	Variant     string        `json:"variant,omitempty"`
+	FamilyName  string        `json:"familyName,omitempty"`
 	Preview     *ThemePreview `json:"preview,omitempty"`
 }
 
@@ -257,6 +260,12 @@ func parseThemeMetadata(content string, filename string) *ThemeInfo {
 			theme.Description = value
 		case "is-dark":
 			theme.IsDark = value == "true"
+		case "family":
+			theme.Family = value
+		case "family-name":
+			theme.FamilyName = value
+		case "variant":
+			theme.Variant = value
 		case "preview-bg", "preview-surface", "preview-accent", "preview-text":
 			if theme.Preview == nil {
 				theme.Preview = &ThemePreview{}

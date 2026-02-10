@@ -1,0 +1,91 @@
+/**
+ * Nord Light Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The light variant of Nord, using Snow Storm as backgrounds and
+ * Polar Night as foreground, with the same Frost accents.
+ * Based on the Nord color scheme: https://www.nordtheme.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: nord-light
+ * @theme-name: Nord Light
+ * @theme-family: nord
+ * @theme-family-name: Nord
+ * @theme-variant: light
+ * @theme-description: Arctic, north-bluish light palette
+ * @theme-is-dark: false
+ * @theme-preview-bg: #eceff4
+ * @theme-preview-surface: #e5e9f0
+ * @theme-preview-accent: #5e81ac
+ * @theme-preview-text: #2e3440
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="nord-light"] {
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     NORD LIGHT MAPPING
+     ─────────────────────────────────────────────────────────────────────────
+     Backgrounds use Snow Storm: nord6 → nord5 → nord4
+     Text uses Polar Night: nord0 → nord1 → nord3
+     Accents use Frost: nord8, nord9, nord10 (deeper blue for contrast)
+     Status uses Aurora: same as dark variant
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds - layered using Snow Storm */
+  --bg-base: #eceff4;
+  --bg-surface: #e5e9f0;
+  --bg-elevated: #d8dee9;
+  --bg-overlay: #cdd4e0;
+  --bg-hover: #d8dee9;
+  --bg-active: #cdd4e0;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(229, 233, 240, 0.85);
+  --glass-border: rgba(46, 52, 64, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+
+  /* Text hierarchy - using Polar Night */
+  --text-primary: #2e3440;
+  --text-secondary: #3b4252;
+  --text-muted: #4c566a;
+  --text-disabled: #7b88a1;
+
+  /* Borders */
+  --border-subtle: rgba(46, 52, 64, 0.08);
+  --border-default: rgba(46, 52, 64, 0.12);
+  --border-strong: rgba(46, 52, 64, 0.2);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using deeper Frost for light-mode contrast */
+  --accent-primary: #5e81ac;
+  --accent-secondary: #81a1c1;
+  --accent-muted: rgba(94, 129, 172, 0.2);
+  --accent-subtle: rgba(94, 129, 172, 0.08);
+
+  /* Brand palette - derived from Frost */
+  --color-brand-50: #eceff4;
+  --color-brand-100: #d8dee9;
+  --color-brand-200: #b4c5d9;
+  --color-brand-300: #81a1c1;
+  --color-brand-400: #5e81ac;
+  --color-brand-500: #4c6a8a;
+  --color-brand-600: #3b5268;
+  --color-brand-700: #2e3f50;
+  --color-brand-800: #2e3440;
+  --color-brand-900: #242933;
+  --color-brand-950: #1c2028;
+
+  /* Status colors - Aurora palette (same hues, slightly deeper for readability) */
+  --status-success: #6d8a4e;
+  --status-warning: #c08b2c;
+  --status-error: #bf616a;
+  --status-info: #5e81ac;
+
+  /* Shadows - lighter for light theme */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(94, 129, 172, 0.15);
+}

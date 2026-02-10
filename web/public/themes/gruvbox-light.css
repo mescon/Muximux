@@ -1,0 +1,108 @@
+/**
+ * Gruvbox Light Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The official light variant of Gruvbox — warm, earthy tones on cream.
+ * Based on Gruvbox: https://github.com/morhetz/gruvbox
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: gruvbox-light
+ * @theme-name: Gruvbox Light
+ * @theme-family: gruvbox
+ * @theme-family-name: Gruvbox
+ * @theme-variant: light
+ * @theme-description: Retro groove light scheme with warm tones
+ * @theme-is-dark: false
+ * @theme-preview-bg: #fbf1c7
+ * @theme-preview-surface: #ebdbb2
+ * @theme-preview-accent: #b57614
+ * @theme-preview-text: #282828
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="gruvbox-light"] {
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     GRUVBOX LIGHT PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Backgrounds (light):
+       #fbf1c7 - bg0
+       #ebdbb2 - bg1
+       #d5c4a1 - bg2
+       #bdae93 - bg3
+       #a89984 - bg4
+
+     Foreground (dark):
+       #282828 - fg0
+       #3c3836 - fg1
+       #504945 - fg2
+       #665c54 - fg3
+       #7c6f64 - fg4
+
+     Faded colors (for light mode):
+       #9d0006 - red
+       #79740e - green
+       #b57614 - yellow (accent)
+       #076678 - blue
+       #8f3f71 - purple
+       #427b58 - aqua
+       #af3a03 - orange
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #fbf1c7;
+  --bg-surface: #ebdbb2;
+  --bg-elevated: #d5c4a1;
+  --bg-overlay: #bdae93;
+  --bg-hover: #e2d6a4;
+  --bg-active: #d5c4a1;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(235, 219, 178, 0.85);
+  --glass-border: rgba(40, 40, 40, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.5);
+
+  /* Text hierarchy */
+  --text-primary: #282828;
+  --text-secondary: #3c3836;
+  --text-muted: #665c54;
+  --text-disabled: #a89984;
+
+  /* Borders */
+  --border-subtle: rgba(40, 40, 40, 0.08);
+  --border-default: rgba(40, 40, 40, 0.14);
+  --border-strong: rgba(40, 40, 40, 0.22);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using faded yellow/orange for light mode */
+  --accent-primary: #b57614;
+  --accent-secondary: #af3a03;
+  --accent-muted: rgba(181, 118, 20, 0.2);
+  --accent-subtle: rgba(181, 118, 20, 0.08);
+
+  /* Brand palette - derived from yellow/orange */
+  --color-brand-50: #fef9e7;
+  --color-brand-100: #fdf0c8;
+  --color-brand-200: #fce196;
+  --color-brand-300: #d79921;
+  --color-brand-400: #b57614;
+  --color-brand-500: #8f5d0b;
+  --color-brand-600: #6a4509;
+  --color-brand-700: #4a3007;
+  --color-brand-800: #302005;
+  --color-brand-900: #1a1103;
+  --color-brand-950: #0d0901;
+
+  /* Status colors - Gruvbox faded colors for light mode */
+  --status-success: #79740e;
+  --status-warning: #b57614;
+  --status-error: #9d0006;
+  --status-info: #076678;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(181, 118, 20, 0.15);
+}

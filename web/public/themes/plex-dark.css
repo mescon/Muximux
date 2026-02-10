@@ -1,0 +1,100 @@
+/**
+ * Plex Dark Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Inspired by the Plex media server's sleek dark interface.
+ * Charcoal backgrounds with warm amber/gold accents.
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: plex-dark
+ * @theme-name: Plex Dark
+ * @theme-family: plex
+ * @theme-family-name: Plex
+ * @theme-variant: dark
+ * @theme-description: Sleek media server theme with amber accents
+ * @theme-is-dark: true
+ * @theme-preview-bg: #1b1b1b
+ * @theme-preview-surface: #282a2d
+ * @theme-preview-accent: #e5a00d
+ * @theme-preview-text: #eeeeee
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="plex-dark"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     PLEX DARK PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Backgrounds:
+       #1b1b1b - Main background
+       #282a2d - Surface / cards (Shark)
+       #3f4245 - Surface secondary
+       #1f2326 - Nav/sidebar dark
+
+     Accent:
+       #e5a00d - Plex Gamboge (primary amber)
+       #cc7b19 - Accent hover (warm amber)
+
+     Text:
+       #eeeeee - Primary text
+       #b4b4b4 - Secondary text
+       #808080 - Muted text
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #1b1b1b;
+  --bg-surface: #282a2d;
+  --bg-elevated: #3f4245;
+  --bg-overlay: #4a4d51;
+  --bg-hover: #3f4245;
+  --bg-active: #4a4d51;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(40, 42, 45, 0.85);
+  --glass-border: rgba(238, 238, 238, 0.1);
+  --glass-highlight: rgba(238, 238, 238, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #eeeeee;
+  --text-secondary: #b4b4b4;
+  --text-muted: #808080;
+  --text-disabled: #5a5a5a;
+
+  /* Borders */
+  --border-subtle: rgba(238, 238, 238, 0.06);
+  --border-default: rgba(238, 238, 238, 0.1);
+  --border-strong: rgba(238, 238, 238, 0.16);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - Plex Gamboge amber */
+  --accent-primary: #e5a00d;
+  --accent-secondary: #cc7b19;
+  --accent-muted: rgba(229, 160, 13, 0.25);
+  --accent-subtle: rgba(229, 160, 13, 0.12);
+
+  /* Brand palette - derived from amber */
+  --color-brand-50: #fef8e7;
+  --color-brand-100: #fdedc0;
+  --color-brand-200: #fbdb80;
+  --color-brand-300: #f5c23a;
+  --color-brand-400: #e5a00d;
+  --color-brand-500: #cc7b19;
+  --color-brand-600: #9e5e12;
+  --color-brand-700: #74450d;
+  --color-brand-800: #4a2c08;
+  --color-brand-900: #282a2d;
+  --color-brand-950: #1b1b1b;
+
+  /* Status colors */
+  --status-success: #4caf50;
+  --status-warning: #e5a00d;
+  --status-error: #e74c3c;
+  --status-info: #3498db;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(229, 160, 13, 0.2);
+}

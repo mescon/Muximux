@@ -1,0 +1,99 @@
+/**
+ * Dracula Light (Alucard) Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The official light variant of Dracula, known as "Alucard".
+ * Warm cream backgrounds with deeper, more saturated accent colors.
+ * Based on Dracula: https://draculatheme.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: dracula-light
+ * @theme-name: Dracula Light
+ * @theme-family: dracula
+ * @theme-family-name: Dracula
+ * @theme-variant: light
+ * @theme-description: Light variant with vibrant colors (Alucard)
+ * @theme-is-dark: false
+ * @theme-preview-bg: #fffbeb
+ * @theme-preview-surface: #f0ece0
+ * @theme-preview-accent: #644ac9
+ * @theme-preview-text: #1f1f1f
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="dracula-light"] {
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     ALUCARD (DRACULA LIGHT) PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Background:   #fffbeb (warm cream)
+     Current Line: #f0ece0
+     Selection:    #cfcfde
+     Foreground:   #1f1f1f
+     Comment:      #6c664b
+     Red:          #cb3a2a
+     Orange:       #a34d14
+     Yellow:       #846e15
+     Green:        #14710a
+     Cyan:         #036a96
+     Purple:       #644ac9
+     Pink:         #a3144d
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #fffbeb;
+  --bg-surface: #f0ece0;
+  --bg-elevated: #e4e0d4;
+  --bg-overlay: #cfcfde;
+  --bg-hover: #e8e4d8;
+  --bg-active: #dedad0;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(240, 236, 224, 0.85);
+  --glass-border: rgba(31, 31, 31, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+
+  /* Text hierarchy */
+  --text-primary: #1f1f1f;
+  --text-secondary: #3d3d3d;
+  --text-muted: #6c664b;
+  --text-disabled: #9a9484;
+
+  /* Borders */
+  --border-subtle: rgba(31, 31, 31, 0.08);
+  --border-default: rgba(31, 31, 31, 0.12);
+  --border-strong: rgba(31, 31, 31, 0.2);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Purple */
+  --accent-primary: #644ac9;
+  --accent-secondary: #a3144d;
+  --accent-muted: rgba(100, 74, 201, 0.18);
+  --accent-subtle: rgba(100, 74, 201, 0.08);
+
+  /* Brand palette - derived from Purple */
+  --color-brand-50: #f3f0ff;
+  --color-brand-100: #e5dfff;
+  --color-brand-200: #ccc0fe;
+  --color-brand-300: #9d8af0;
+  --color-brand-400: #7862d0;
+  --color-brand-500: #644ac9;
+  --color-brand-600: #4d36a0;
+  --color-brand-700: #3a2878;
+  --color-brand-800: #281c52;
+  --color-brand-900: #1a1130;
+  --color-brand-950: #0e0920;
+
+  /* Status colors - Alucard semantic colors */
+  --status-success: #14710a;
+  --status-warning: #a34d14;
+  --status-error: #cb3a2a;
+  --status-info: #036a96;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(100, 74, 201, 0.15);
+}

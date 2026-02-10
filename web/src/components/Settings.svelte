@@ -7,7 +7,7 @@
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
   import { get } from 'svelte/store';
-  import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, type ThemeMode } from '$lib/themeStore';
+  import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode, type ThemeMode, type VariantMode, type ThemeFamily } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
@@ -57,7 +57,8 @@
   let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
                   JSON.stringify(localApps) !== initialAppsSnapshot ||
                   keybindingsChanged ||
-                  $themeMode !== initialTheme);
+                  $selectedFamily !== initialFamily ||
+                  $variantMode !== initialVariant);
 
   // Editing state
   let editingApp = $state<App | null>(null);
@@ -110,6 +111,8 @@
   const initialAppsSnapshot = JSON.stringify(localApps);
 
   // Snapshot theme so we can revert on close without save
+  const initialFamily = get(selectedFamily);
+  const initialVariant = get(variantMode);
   const initialTheme = get(themeMode) as ThemeMode;
 
   // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
@@ -177,14 +180,19 @@
       confirmClose = true;
       return;
     }
-    setTheme(initialTheme);
+    revertTheme();
     onclose?.();
   }
 
   function confirmCloseDiscard() {
     confirmClose = false;
-    setTheme(initialTheme);
+    revertTheme();
     onclose?.();
+  }
+
+  function revertTheme() {
+    setThemeFamily(initialFamily);
+    setVariantMode(initialVariant);
   }
 
   function addApp() {
@@ -442,9 +450,10 @@
       for (const name of Object.keys(themeEditorVars)) {
         document.documentElement.style.removeProperty(name);
       }
-      // Switch to the new theme
+      // Switch to the new theme (as a standalone family)
       const id = sanitizeThemeId(saveThemeName.trim());
-      setTheme(id);
+      setThemeFamily(id);
+      setVariantMode($isDarkTheme ? 'dark' : 'light');
       showThemeEditor = false;
       saveThemeName = '';
       saveThemeDescription = '';
@@ -1055,48 +1064,54 @@
       <!-- Theme Settings -->
       {:else if activeTab === 'theme'}
         <div class="space-y-6">
-          <!-- System Preference Toggle -->
-          <div class="flex items-center justify-between p-4 rounded-lg"
-               style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
-            <div class="flex items-center gap-3">
-              <div class="w-10 h-10 rounded-lg flex items-center justify-center"
-                   style="background: linear-gradient(135deg, var(--bg-surface) 50%, var(--bg-overlay) 50%); border: 1px solid var(--border-default);">
-                <svg class="w-5 h-5" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
+          <!-- Variant Mode Selector (Dark / System / Light) -->
+          <div class="p-4 rounded-lg" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-lg flex items-center justify-center"
+                     style="background: linear-gradient(135deg, var(--bg-surface) 50%, var(--bg-overlay) 50%); border: 1px solid var(--border-default);">
+                  <svg class="w-5 h-5" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                  </svg>
+                </div>
+                <div>
+                  <div class="font-medium" style="color: var(--text-primary);">Appearance</div>
+                  <div class="text-xs" style="color: var(--text-muted);">Choose dark, light, or follow your system</div>
+                </div>
               </div>
-              <div>
-                <div class="font-medium" style="color: var(--text-primary);">Follow System</div>
-                <div class="text-xs" style="color: var(--text-muted);">Automatically match your device's appearance</div>
+              <!-- Three-way segmented control -->
+              <div class="flex rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
+                {#each (['dark', 'system', 'light'] as const) as mode}
+                  <button
+                    class="px-3 py-1.5 text-xs font-medium transition-colors"
+                    style="
+                      background: {$variantMode === mode ? 'var(--accent-primary)' : 'var(--bg-surface)'};
+                      color: {$variantMode === mode ? 'white' : 'var(--text-secondary)'};
+                    "
+                    onclick={() => setVariantMode(mode)}
+                  >
+                    {#if mode === 'dark'}
+                      Dark
+                    {:else if mode === 'system'}
+                      System
+                    {:else}
+                      Light
+                    {/if}
+                  </button>
+                {/each}
               </div>
             </div>
-            <button
-              class="relative w-11 h-6 rounded-full transition-colors"
-              style="background: {$themeMode === 'system' ? 'var(--accent-primary)' : 'var(--bg-overlay)'};"
-              onclick={() => {
-                if ($themeMode === 'system') {
-                  // Switching off system mode - use current resolved theme
-                  setTheme($resolvedTheme);
-                } else {
-                  setTheme('system');
-                }
-              }}
-            >
-              <span
-                class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full transition-transform"
-                style="background: var(--text-primary); transform: translateX({$themeMode === 'system' ? '20px' : '0'});"
-              ></span>
-            </button>
           </div>
 
-          <!-- Theme Grid -->
+          <!-- Theme Family Grid -->
           <div>
             <label class="block text-sm font-medium mb-3" style="color: var(--text-secondary);">
               Choose Theme
             </label>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {#each $allThemes as theme (theme.id)}
-                {@const isSelected = $themeMode === 'system' ? $resolvedTheme === theme.id : $themeMode === theme.id}
+              {#each $themeFamilies as family (family.id)}
+                {@const isSelected = $selectedFamily === family.id}
+                {@const isCustom = family.darkTheme ? !family.darkTheme.isBuiltin : family.lightTheme ? !family.lightTheme.isBuiltin : false}
                 <button
                   class="relative p-4 rounded-xl text-left transition-all group"
                   style="
@@ -1104,15 +1119,15 @@
                     border: 2px solid {isSelected ? 'var(--accent-primary)' : 'var(--border-subtle)'};
                     box-shadow: {isSelected ? 'var(--shadow-glow)' : 'none'};
                   "
-                  onclick={() => setTheme(theme.id)}
+                  onclick={() => setThemeFamily(family.id)}
                 >
                   <!-- Selection indicator / delete button -->
                   <div class="absolute top-3 right-3 flex items-center gap-1">
-                    {#if !theme.isBuiltin}
+                    {#if isCustom}
                       <button
                         class="w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
                         style="background: var(--status-error); color: white;"
-                        onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(theme.id); }}
+                        onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                         title="Delete theme"
                       >
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -1130,46 +1145,61 @@
                     {/if}
                   </div>
 
-                  <!-- Theme Preview -->
-                  {#if theme.preview}
-                    <div class="flex gap-1 mb-3">
-                      <!-- Color swatches preview -->
-                      <div class="w-12 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
-                           style="border: 1px solid {theme.preview.text}20;">
-                        <div class="flex-1" style="background: {theme.preview.bg};"></div>
-                        <div class="h-2" style="background: {theme.preview.accent};"></div>
+                  <!-- Dual Preview Swatches (dark left, light right) -->
+                  <div class="flex gap-1.5 mb-3">
+                    {#if family.darkTheme?.preview && family.lightTheme?.preview}
+                      <!-- Dark variant swatch -->
+                      <div class="w-10 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+                           style="border: 1px solid {family.darkTheme.preview.text}20;">
+                        <div class="flex-1" style="background: {family.darkTheme.preview.bg};"></div>
+                        <div class="h-2" style="background: {family.darkTheme.preview.accent};"></div>
                       </div>
-                      <div class="flex flex-col gap-1">
-                        <div class="w-6 h-5.5 rounded" style="background: {theme.preview.surface}; border: 1px solid {theme.preview.text}15;"></div>
-                        <div class="w-6 h-5.5 rounded" style="background: {theme.preview.accent};"></div>
+                      <!-- Light variant swatch -->
+                      <div class="w-10 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+                           style="border: 1px solid {family.lightTheme.preview.text}20;">
+                        <div class="flex-1" style="background: {family.lightTheme.preview.bg};"></div>
+                        <div class="h-2" style="background: {family.lightTheme.preview.accent};"></div>
                       </div>
-                    </div>
-                  {:else}
-                    <!-- Fallback if no preview -->
-                    <div class="w-12 h-12 rounded-lg mb-3 flex items-center justify-center"
-                         style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
-                      <svg class="w-6 h-6" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
-                      </svg>
-                    </div>
-                  {/if}
+                    {:else}
+                      <!-- Single variant swatch -->
+                      {@const theme = family.darkTheme || family.lightTheme}
+                      {#if theme?.preview}
+                        <div class="w-12 h-12 rounded-lg overflow-hidden flex flex-col shadow-md"
+                             style="border: 1px solid {theme.preview.text}20;">
+                          <div class="flex-1" style="background: {theme.preview.bg};"></div>
+                          <div class="h-2" style="background: {theme.preview.accent};"></div>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                          <div class="w-6 h-5.5 rounded" style="background: {theme.preview.surface}; border: 1px solid {theme.preview.text}15;"></div>
+                          <div class="w-6 h-5.5 rounded" style="background: {theme.preview.accent};"></div>
+                        </div>
+                      {:else}
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center"
+                             style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+                          <svg class="w-6 h-6" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+                          </svg>
+                        </div>
+                      {/if}
+                    {/if}
+                  </div>
 
-                  <!-- Theme Name & Description -->
+                  <!-- Family Name & Badge -->
                   <div class="flex items-center gap-2">
-                    <span class="font-medium" style="color: var(--text-primary);">{theme.name}</span>
-                    {#if !theme.isBuiltin}
+                    <span class="font-medium" style="color: var(--text-primary);">{family.name}</span>
+                    {#if isCustom}
                       <span class="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0"
                             style="background: var(--accent-subtle); color: var(--accent-primary);">
                         Custom
                       </span>
                     {/if}
                   </div>
-                  {#if theme.description}
-                    <div class="text-xs mt-0.5 pr-1" style="color: var(--text-muted);">{theme.description}</div>
+                  {#if family.description}
+                    <div class="text-xs mt-0.5 pr-1" style="color: var(--text-muted);">{family.description}</div>
                   {/if}
 
                   <!-- Delete confirmation overlay -->
-                  {#if confirmDeleteTheme === theme.id}
+                  {#if confirmDeleteTheme === (family.darkTheme?.id || family.lightTheme?.id)}
                     <div class="absolute inset-0 rounded-xl flex items-center justify-center gap-3 z-10"
                          style="background: var(--bg-overlay); backdrop-filter: blur(4px);"
                          onclick={(e: MouseEvent) => e.stopPropagation()}>
@@ -1194,7 +1224,7 @@
               <span class="font-medium capitalize" style="color: var(--text-primary);">
                 {$allThemes.find(t => t.id === $resolvedTheme)?.name || $resolvedTheme} theme
               </span>
-              {#if $themeMode === 'system'}
+              {#if $variantMode === 'system'}
                 <span class="text-xs" style="color: var(--text-disabled);">(from system preference)</span>
               {/if}
             </div>

@@ -1,0 +1,81 @@
+/**
+ * Plex Light Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * Light variant inspired by the Plex media server interface.
+ * Clean, bright surfaces with warm amber accents.
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: plex-light
+ * @theme-name: Plex Light
+ * @theme-family: plex
+ * @theme-family-name: Plex
+ * @theme-variant: light
+ * @theme-description: Clean light theme with warm amber accents
+ * @theme-is-dark: false
+ * @theme-preview-bg: #f6f6f6
+ * @theme-preview-surface: #ffffff
+ * @theme-preview-accent: #cc7b19
+ * @theme-preview-text: #1b1b1b
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="plex-light"] {
+  color-scheme: light;
+
+  /* Backgrounds */
+  --bg-base: #f6f6f6;
+  --bg-surface: #ffffff;
+  --bg-elevated: #e8e8e8;
+  --bg-overlay: #d4d4d4;
+  --bg-hover: #ebebeb;
+  --bg-active: #e0e0e0;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(27, 27, 27, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+
+  /* Text hierarchy */
+  --text-primary: #1b1b1b;
+  --text-secondary: #3f4245;
+  --text-muted: #6d7175;
+  --text-disabled: #a0a4a8;
+
+  /* Borders */
+  --border-subtle: rgba(27, 27, 27, 0.08);
+  --border-default: rgba(27, 27, 27, 0.12);
+  --border-strong: rgba(27, 27, 27, 0.2);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - warm amber */
+  --accent-primary: #cc7b19;
+  --accent-secondary: #e5a00d;
+  --accent-muted: rgba(204, 123, 25, 0.18);
+  --accent-subtle: rgba(204, 123, 25, 0.08);
+
+  /* Brand palette - derived from amber */
+  --color-brand-50: #fef8e7;
+  --color-brand-100: #fdedc0;
+  --color-brand-200: #fbdb80;
+  --color-brand-300: #e5a00d;
+  --color-brand-400: #cc7b19;
+  --color-brand-500: #9e5e12;
+  --color-brand-600: #74450d;
+  --color-brand-700: #4a2c08;
+  --color-brand-800: #302005;
+  --color-brand-900: #1a1103;
+  --color-brand-950: #0d0901;
+
+  /* Status colors */
+  --status-success: #2e7d32;
+  --status-warning: #cc7b19;
+  --status-error: #c0392b;
+  --status-info: #2980b9;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(204, 123, 25, 0.15);
+}

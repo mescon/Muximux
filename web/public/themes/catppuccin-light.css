@@ -1,0 +1,112 @@
+/**
+ * Catppuccin Latte Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The official light flavor of Catppuccin — a soothing pastel palette.
+ * Based on Catppuccin Latte: https://catppuccin.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: catppuccin-light
+ * @theme-name: Catppuccin Light
+ * @theme-family: catppuccin
+ * @theme-family-name: Catppuccin
+ * @theme-variant: light
+ * @theme-description: Soothing pastel theme (Latte variant)
+ * @theme-is-dark: false
+ * @theme-preview-bg: #eff1f5
+ * @theme-preview-surface: #e6e9ef
+ * @theme-preview-accent: #8839ef
+ * @theme-preview-text: #4c4f69
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="catppuccin-light"] {
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     CATPPUCCIN LATTE PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Base colors:
+       #eff1f5 - Base (lightest background)
+       #e6e9ef - Mantle
+       #dce0e8 - Crust
+       #ccd0da - Surface0
+       #bcc0cc - Surface1
+       #acb0be - Surface2
+
+     Text colors:
+       #4c4f69 - Text
+       #5c5f77 - Subtext1
+       #6c6f85 - Subtext0
+       #9ca0b0 - Overlay0
+
+     Accent colors:
+       #ea76cb - Pink
+       #8839ef - Mauve (primary accent)
+       #d20f39 - Red
+       #fe640b - Peach
+       #df8e1d - Yellow
+       #40a02b - Green
+       #179299 - Teal
+       #04a5e5 - Sky
+       #209fb5 - Sapphire
+       #1e66f5 - Blue
+       #7287fd - Lavender
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds - layered using Latte base colors */
+  --bg-base: #eff1f5;
+  --bg-surface: #e6e9ef;
+  --bg-elevated: #dce0e8;
+  --bg-overlay: #ccd0da;
+  --bg-hover: #dce0e8;
+  --bg-active: #ccd0da;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(230, 233, 239, 0.85);
+  --glass-border: rgba(76, 79, 105, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+
+  /* Text hierarchy */
+  --text-primary: #4c4f69;
+  --text-secondary: #5c5f77;
+  --text-muted: #6c6f85;
+  --text-disabled: #9ca0b0;
+
+  /* Borders */
+  --border-subtle: rgba(76, 79, 105, 0.08);
+  --border-default: rgba(76, 79, 105, 0.12);
+  --border-strong: rgba(76, 79, 105, 0.2);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Mauve as primary */
+  --accent-primary: #8839ef;
+  --accent-secondary: #7287fd;
+  --accent-muted: rgba(136, 57, 239, 0.18);
+  --accent-subtle: rgba(136, 57, 239, 0.08);
+
+  /* Brand palette - derived from Mauve */
+  --color-brand-50: #f5f0ff;
+  --color-brand-100: #ede3ff;
+  --color-brand-200: #d5b8ff;
+  --color-brand-300: #a862f7;
+  --color-brand-400: #8839ef;
+  --color-brand-500: #6d28c4;
+  --color-brand-600: #531d98;
+  --color-brand-700: #3d156e;
+  --color-brand-800: #2a0e4c;
+  --color-brand-900: #1a0830;
+  --color-brand-950: #0e0420;
+
+  /* Status colors - Catppuccin Latte semantic colors */
+  --status-success: #40a02b;
+  --status-warning: #df8e1d;
+  --status-error: #d20f39;
+  --status-info: #1e66f5;
+
+  /* Shadows - lighter for light theme */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.08), 0 2px 4px -1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -2px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 20px rgba(136, 57, 239, 0.15);
+}
