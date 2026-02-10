@@ -170,6 +170,7 @@
   let confirmClose = $state(false);
   let confirmDeleteApp = $state<App | null>(null);
   let confirmDeleteGroup = $state<Group | null>(null);
+  let confirmDeleteTheme = $state<string | null>(null);
 
   function handleClose() {
     if (hasChanges) {
@@ -370,6 +371,8 @@
   let themeEditorVars: Record<string, string> = $state({});
   let themeEditorDefaults: Record<string, string> = $state({});
   let saveThemeName = $state('');
+  let saveThemeDescription = $state('');
+  let saveThemeAuthor = $state('');
   let isSavingTheme = $state(false);
 
   function openThemeEditor() {
@@ -377,6 +380,23 @@
     themeEditorVars = { ...themeEditorDefaults };
     showThemeEditor = true;
   }
+
+  // Refresh theme editor when the active theme changes while editor is open
+  $effect(() => {
+    $resolvedTheme; // track
+    if (showThemeEditor) {
+      // Clear any live preview overrides from the previous theme
+      for (const name of Object.keys(themeEditorVars)) {
+        document.documentElement.style.removeProperty(name);
+      }
+      // Re-read the new theme's variables
+      // Use a microtask so the theme CSS has loaded
+      queueMicrotask(() => {
+        themeEditorDefaults = getCurrentThemeVariables();
+        themeEditorVars = { ...themeEditorDefaults };
+      });
+    }
+  });
 
   function closeThemeEditor() {
     // Revert live preview changes
@@ -412,7 +432,9 @@
       saveThemeName.trim(),
       $resolvedTheme,
       $isDarkTheme,
-      themeEditorVars
+      themeEditorVars,
+      saveThemeDescription.trim(),
+      saveThemeAuthor.trim()
     );
     isSavingTheme = false;
     if (success) {
@@ -425,6 +447,8 @@
       setTheme(id);
       showThemeEditor = false;
       saveThemeName = '';
+      saveThemeDescription = '';
+      saveThemeAuthor = '';
       toasts.success('Theme saved');
     } else {
       toasts.error('Failed to save theme');
@@ -432,6 +456,13 @@
   }
 
   async function handleDeleteTheme(themeId: string) {
+    confirmDeleteTheme = themeId;
+  }
+
+  async function confirmDeleteThemeAction() {
+    if (!confirmDeleteTheme) return;
+    const themeId = confirmDeleteTheme;
+    confirmDeleteTheme = null;
     const success = await deleteCustomThemeFromServer(themeId);
     if (success) {
       toasts.success('Theme deleted');
@@ -774,8 +805,8 @@
             <span>Drag apps to reorder or move between groups. Drag group headers to reorder groups.</span>
             <span class="flex items-center gap-3 text-gray-500">
               <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></span> Proxy</span>
-              <span class="flex items-center gap-1"><span class="app-indicator">↗</span> New tab</span>
-              <span class="flex items-center gap-1"><span class="app-indicator">⧉</span> New window</span>
+              <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></span> New tab</span>
+              <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span> New window</span>
               <span class="flex items-center gap-1"><span class="app-indicator">50%</span> Scale</span>
               <span class="flex items-center gap-1"><span class="app-indicator">⌨</span> Keyboard</span>
             </span>
@@ -872,7 +903,13 @@
                           {/if}
                           {#if app.open_mode && app.open_mode !== 'iframe'}
                             <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
-                              {app.open_mode === 'new_tab' ? '↗' : app.open_mode === 'new_window' ? '⧉' : '↪'}
+                              {#if app.open_mode === 'new_tab'}
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                              {:else if app.open_mode === 'new_window'}
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                              {:else}
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                              {/if}
                             </span>
                           {/if}
                           {#if app.scale && app.scale !== 1}
@@ -958,7 +995,13 @@
                         {/if}
                         {#if app.open_mode && app.open_mode !== 'iframe'}
                           <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
-                            {app.open_mode === 'new_tab' ? '↗' : app.open_mode === 'new_window' ? '⧉' : '↪'}
+                            {#if app.open_mode === 'new_tab'}
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+                            {:else if app.open_mode === 'new_window'}
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+                            {:else}
+                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+                            {/if}
                           </span>
                         {/if}
                         {#if app.scale && app.scale !== 1}
@@ -1063,15 +1106,29 @@
                   "
                   onclick={() => setTheme(theme.id)}
                 >
-                  <!-- Selection indicator -->
-                  {#if isSelected}
-                    <div class="absolute top-3 right-3 w-5 h-5 rounded-full flex items-center justify-center"
-                         style="background: var(--accent-primary);">
-                      <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
-                  {/if}
+                  <!-- Selection indicator / delete button -->
+                  <div class="absolute top-3 right-3 flex items-center gap-1">
+                    {#if !theme.isBuiltin}
+                      <button
+                        class="w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        style="background: var(--status-error); color: white;"
+                        onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(theme.id); }}
+                        title="Delete theme"
+                      >
+                        <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>
+                    {/if}
+                    {#if isSelected}
+                      <div class="w-5 h-5 rounded-full flex items-center justify-center"
+                           style="background: var(--accent-primary);">
+                        <svg class="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                          <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                      </div>
+                    {/if}
+                  </div>
 
                   <!-- Theme Preview -->
                   {#if theme.preview}
@@ -1098,18 +1155,31 @@
                   {/if}
 
                   <!-- Theme Name & Description -->
-                  <div class="font-medium" style="color: var(--text-primary);">{theme.name}</div>
-                  {#if theme.description}
-                    <div class="text-xs mt-0.5" style="color: var(--text-muted);">{theme.description}</div>
-                  {/if}
-
-                  <!-- Custom theme badge -->
-                  {#if !theme.isBuiltin}
-                    <div class="absolute bottom-3 right-3">
-                      <span class="text-[10px] px-1.5 py-0.5 rounded"
+                  <div class="flex items-center gap-2">
+                    <span class="font-medium" style="color: var(--text-primary);">{theme.name}</span>
+                    {#if !theme.isBuiltin}
+                      <span class="text-[10px] px-1.5 py-0.5 rounded flex-shrink-0"
                             style="background: var(--accent-subtle); color: var(--accent-primary);">
                         Custom
                       </span>
+                    {/if}
+                  </div>
+                  {#if theme.description}
+                    <div class="text-xs mt-0.5 pr-1" style="color: var(--text-muted);">{theme.description}</div>
+                  {/if}
+
+                  <!-- Delete confirmation overlay -->
+                  {#if confirmDeleteTheme === theme.id}
+                    <div class="absolute inset-0 rounded-xl flex items-center justify-center gap-3 z-10"
+                         style="background: var(--bg-overlay); backdrop-filter: blur(4px);"
+                         onclick={(e: MouseEvent) => e.stopPropagation()}>
+                      <span class="text-sm font-medium" style="color: var(--text-primary);">Delete?</span>
+                      <button class="px-3 py-1 rounded text-sm font-medium"
+                              style="background: var(--status-error); color: white;"
+                              onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteThemeAction(); }}>Yes</button>
+                      <button class="px-3 py-1 rounded text-sm font-medium"
+                              style="background: var(--bg-elevated); color: var(--text-primary);"
+                              onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteTheme = null; }}>No</button>
                     </div>
                   {/if}
                 </button>
@@ -1218,23 +1288,37 @@
 
                   <!-- Save as theme -->
                   <div class="pt-3 space-y-2" style="border-top: 1px solid var(--border-subtle);">
+                    <input
+                      type="text"
+                      bind:value={saveThemeName}
+                      placeholder="Theme name..."
+                      class="w-full px-3 py-2 text-sm rounded"
+                      style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+                    />
                     <div class="flex gap-2">
                       <input
                         type="text"
-                        bind:value={saveThemeName}
-                        placeholder="Theme name..."
+                        bind:value={saveThemeDescription}
+                        placeholder="Description (optional)"
                         class="flex-1 px-3 py-2 text-sm rounded"
                         style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
                       />
-                      <button
-                        class="px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50"
-                        style="background: var(--accent-primary); color: var(--bg-base);"
-                        disabled={!saveThemeName.trim() || isSavingTheme}
-                        onclick={handleSaveTheme}
-                      >
-                        {isSavingTheme ? 'Saving...' : 'Save Theme'}
-                      </button>
+                      <input
+                        type="text"
+                        bind:value={saveThemeAuthor}
+                        placeholder="Author (optional)"
+                        class="w-32 px-3 py-2 text-sm rounded"
+                        style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+                      />
                     </div>
+                    <button
+                      class="w-full px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50"
+                      style="background: var(--accent-primary); color: var(--bg-base);"
+                      disabled={!saveThemeName.trim() || isSavingTheme}
+                      onclick={handleSaveTheme}
+                    >
+                      {isSavingTheme ? 'Saving...' : 'Save Theme'}
+                    </button>
                     <p class="text-xs" style="color: var(--text-disabled);">
                       Saves as a CSS file on the server. Changes are live-previewed above.
                     </p>
@@ -1243,36 +1327,6 @@
               </div>
             {/if}
 
-            <!-- Saved custom themes with delete option -->
-            {#each $allThemes.filter(t => !t.isBuiltin) as theme (theme.id)}
-              <div class="flex items-center justify-between p-3 rounded-lg" style="background: var(--bg-surface); border: 1px solid var(--border-subtle);">
-                <div class="flex items-center gap-3">
-                  {#if theme.preview}
-                    <div class="w-6 h-6 rounded overflow-hidden flex flex-col"
-                         style="border: 1px solid var(--border-subtle);">
-                      <div class="flex-1" style="background: {theme.preview.bg};"></div>
-                      <div class="h-1" style="background: {theme.preview.accent};"></div>
-                    </div>
-                  {/if}
-                  <div>
-                    <span class="text-sm font-medium" style="color: var(--text-primary);">{theme.name}</span>
-                    {#if theme.description}
-                      <span class="text-xs ml-2" style="color: var(--text-muted);">{theme.description}</span>
-                    {/if}
-                  </div>
-                </div>
-                <button
-                  class="p-1.5 rounded transition-colors"
-                  style="color: var(--text-muted);"
-                  onclick={() => handleDeleteTheme(theme.id)}
-                  title="Delete theme"
-                >
-                  <svg class="w-4 h-4 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              </div>
-            {/each}
           </div>
         </div>
       {/if}

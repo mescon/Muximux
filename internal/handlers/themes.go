@@ -45,10 +45,12 @@ type ThemePreview struct {
 
 // ThemeSaveRequest is the JSON body for creating/updating a theme
 type ThemeSaveRequest struct {
-	Name      string            `json:"name"`
-	BaseTheme string            `json:"baseTheme"`
-	IsDark    bool              `json:"isDark"`
-	Variables map[string]string `json:"variables"`
+	Name        string            `json:"name"`
+	Description string            `json:"description"`
+	Author      string            `json:"author"`
+	BaseTheme   string            `json:"baseTheme"`
+	IsDark      bool              `json:"isDark"`
+	Variables   map[string]string `json:"variables"`
 }
 
 // ListThemes returns all available themes (bundled + user-created).
@@ -293,13 +295,22 @@ func generateThemeCSS(id string, req ThemeSaveRequest) string {
 
 	var sb strings.Builder
 
+	// Build description
+	description := req.Description
+	if description == "" {
+		description = fmt.Sprintf("Custom theme based on %s", req.BaseTheme)
+	}
+
 	// Metadata comments
 	sb.WriteString(fmt.Sprintf("/**\n * %s - Custom Theme for Muximux\n", req.Name))
+	if req.Author != "" {
+		sb.WriteString(fmt.Sprintf(" * Author: %s\n", req.Author))
+	}
 	sb.WriteString(fmt.Sprintf(" * Based on: %s\n", req.BaseTheme))
 	sb.WriteString(" *\n")
 	sb.WriteString(fmt.Sprintf(" * @theme-id: %s\n", id))
 	sb.WriteString(fmt.Sprintf(" * @theme-name: %s\n", req.Name))
-	sb.WriteString(fmt.Sprintf(" * @theme-description: Custom theme based on %s\n", req.BaseTheme))
+	sb.WriteString(fmt.Sprintf(" * @theme-description: %s\n", description))
 	sb.WriteString(fmt.Sprintf(" * @theme-is-dark: %v\n", req.IsDark))
 	sb.WriteString(fmt.Sprintf(" * @theme-preview-bg: %s\n", previewBG))
 	sb.WriteString(fmt.Sprintf(" * @theme-preview-surface: %s\n", previewSurface))

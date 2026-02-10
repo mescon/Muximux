@@ -257,13 +257,15 @@ export async function saveCustomThemeToServer(
   name: string,
   baseTheme: string,
   isDark: boolean,
-  variables: Record<string, string>
+  variables: Record<string, string>,
+  description?: string,
+  author?: string
 ): Promise<boolean> {
   try {
     const response = await fetch('/api/themes', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, baseTheme, isDark, variables })
+      body: JSON.stringify({ name, baseTheme, isDark, variables, description, author })
     });
 
     if (!response.ok) return false;
