@@ -22,7 +22,6 @@
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { captureKeybindings, isProtectedKey, toggleCaptureKeybindings } from './lib/keybindingCaptureStore';
-  import type { Config as ConfigType } from './lib/types';
 
   let config = $state<Config | null>(null);
   let apps = $state<App[]>([]);
@@ -45,11 +44,38 @@
   let navPosition = $derived(config?.navigation.position || 'top');
   let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
   let isFloatingLayout = $derived(navPosition === 'floating');
-  let sidebarWidth = $derived(220); // Will be managed by Navigation component
 
   // Mobile swipe state
   let isMobile = $state(false);
   let mainContentElement = $state<HTMLElement | undefined>(undefined);
+
+  function parseIntervalMs(intervalStr: string, fallback = 30000): number {
+    const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);
+    if (!match) return fallback;
+    const value = parseInt(match[1], 10);
+    const unit = match[2] || 's';
+    if (unit === 'ms') return value;
+    if (unit === 'm') return value * 60 * 1000;
+    return value * 1000;
+  }
+
+  function showDefaultApp() {
+    if (!config || config.navigation.show_splash_on_startup) return;
+    const defaultApp = apps.find(app => app.default);
+    if (defaultApp) {
+      currentApp = defaultApp;
+      showSplash = false;
+    }
+  }
+
+  function startServices() {
+    if (!config) return;
+    if (config.health?.enabled !== false) {
+      const intervalMs = parseIntervalMs(config.health?.interval || '30s');
+      startHealthPolling(intervalMs);
+    }
+    connectWs();
+  }
 
   // Swipe gesture handlers for app switching on mobile
   function handleAppSwipe(result: SwipeResult) {
@@ -107,37 +133,12 @@
         return;
       }
 
-      // Find default app (unless splash-on-startup is enabled)
-      if (!config.navigation.show_splash_on_startup) {
-        const defaultApp = apps.find(app => app.default);
-        if (defaultApp) {
-          currentApp = defaultApp;
-          showSplash = false;
-        }
-      }
-
-      // Start health polling if enabled
-      if (config.health?.enabled !== false) {
-        // Parse interval from config (e.g., "30s" -> 30000ms)
-        const intervalStr = config.health?.interval || '30s';
-        const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);
-        let intervalMs = 30000;
-        if (match) {
-          const value = parseInt(match[1], 10);
-          const unit = match[2] || 's';
-          if (unit === 'ms') intervalMs = value;
-          else if (unit === 's') intervalMs = value * 1000;
-          else if (unit === 'm') intervalMs = value * 60 * 1000;
-        }
-        startHealthPolling(intervalMs);
-      }
-
-      // Connect to WebSocket for real-time updates
-      connectWs();
+      showDefaultApp();
+      startServices();
 
       // Listen for config updates via WebSocket
       onWsEvent('config_updated', (payload) => {
-        const newConfig = payload as ConfigType;
+        const newConfig = payload as Config;
         config = newConfig;
         apps = newConfig.apps;
         // Reset current app if it no longer exists
@@ -174,22 +175,8 @@
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
-      // Find default app (unless splash-on-startup is enabled)
-      if (!config.navigation.show_splash_on_startup) {
-        const defaultApp = apps.find(app => app.default);
-        if (defaultApp) {
-          currentApp = defaultApp;
-          showSplash = false;
-        }
-      }
-
-      // Start health polling
-      if (config.health?.enabled !== false) {
-        startHealthPolling(30000);
-      }
-
-      // Connect WebSocket
-      connectWs();
+      showDefaultApp();
+      startServices();
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load configuration';
     }
@@ -235,11 +222,7 @@
         showSplash = false;
       }
 
-      // Start services
-      if (config.health?.enabled !== false) {
-        startHealthPolling(30000);
-      }
-      connectWs();
+      startServices();
 
       // Hide onboarding
       showOnboarding = false;

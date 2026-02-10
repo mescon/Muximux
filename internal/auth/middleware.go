@@ -295,19 +295,21 @@ func (m *Middleware) authenticateForwardAuth(r *http.Request) *User {
 }
 
 // isFromTrustedProxy checks if the request is from a trusted proxy
+// Uses the direct connection IP (RemoteAddr), not forwarded headers
 func (m *Middleware) isFromTrustedProxy(r *http.Request) bool {
 	if len(m.trustedNets) == 0 {
-		// No trusted proxies configured, trust all (not recommended)
-		return true
+		// No trusted proxies configured — fail closed for security
+		log.Printf("WARNING: forward_auth enabled but no trusted_proxies configured; rejecting request")
+		return false
 	}
 
-	clientIP := net.ParseIP(m.getClientIP(r))
-	if clientIP == nil {
+	directIP := net.ParseIP(m.getDirectIP(r))
+	if directIP == nil {
 		return false
 	}
 
 	for _, network := range m.trustedNets {
-		if network.Contains(clientIP) {
+		if network.Contains(directIP) {
 			return true
 		}
 	}
@@ -315,27 +317,33 @@ func (m *Middleware) isFromTrustedProxy(r *http.Request) bool {
 	return false
 }
 
-// getClientIP extracts the client IP from the request
-func (m *Middleware) getClientIP(r *http.Request) string {
-	// Check X-Forwarded-For first (if from trusted proxy)
-	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-		ips := strings.Split(xff, ",")
-		if len(ips) > 0 {
-			return strings.TrimSpace(ips[0])
-		}
-	}
-
-	// Check X-Real-IP
-	if xri := r.Header.Get("X-Real-IP"); xri != "" {
-		return xri
-	}
-
-	// Fall back to RemoteAddr
+// getDirectIP returns the IP from RemoteAddr (the actual TCP connection, not forwarded headers)
+func (m *Middleware) getDirectIP(r *http.Request) string {
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr
 	}
 	return host
+}
+
+// getClientIP extracts the client IP from the request.
+// Only trusts X-Forwarded-For / X-Real-IP when the direct connection is from a trusted proxy.
+func (m *Middleware) getClientIP(r *http.Request) string {
+	// Only trust forwarded headers from verified trusted proxies
+	if m.isFromTrustedProxy(r) {
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			ips := strings.Split(xff, ",")
+			if len(ips) > 0 {
+				return strings.TrimSpace(ips[0])
+			}
+		}
+		if xri := r.Header.Get("X-Real-IP"); xri != "" {
+			return xri
+		}
+	}
+
+	// Fall back to direct connection IP
+	return m.getDirectIP(r)
 }
 
 // handleUnauthenticated handles unauthenticated requests

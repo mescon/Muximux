@@ -248,8 +248,9 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	p.sessionStore.SetCookie(w, session)
 
 	// Redirect to original destination or home
+	// Validate redirect is a safe relative path (prevent open redirect)
 	redirectURL := entry.redirectURL
-	if redirectURL == "" {
+	if redirectURL == "" || !strings.HasPrefix(redirectURL, "/") || strings.HasPrefix(redirectURL, "//") {
 		redirectURL = "/"
 	}
 	http.Redirect(w, r, redirectURL, http.StatusFound)
@@ -393,7 +394,8 @@ func getStringListClaim(claims map[string]interface{}, key string) []string {
 // HandleLogin redirects to the OIDC provider for authentication
 func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	redirectAfter := r.URL.Query().Get("redirect")
-	if redirectAfter == "" {
+	// Only allow safe relative paths
+	if redirectAfter == "" || !strings.HasPrefix(redirectAfter, "/") || strings.HasPrefix(redirectAfter, "//") {
 		redirectAfter = "/"
 	}
 

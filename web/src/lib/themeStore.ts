@@ -247,6 +247,11 @@ export function initTheme() {
   detectCustomThemes();
 }
 
+// Convert a theme name to a safe filesystem ID
+export function sanitizeThemeId(name: string): string {
+  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+}
+
 // Get theme info by ID
 export function getThemeInfo(themeId: string): ThemeInfo | undefined {
   return get(allThemes).find(t => t.id === themeId);
@@ -274,7 +279,7 @@ export async function saveCustomThemeToServer(
     await detectCustomThemes();
 
     // Force reload the CSS for this theme (remove old link tag to get fresh version)
-    const id = name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+    const id = sanitizeThemeId(name);
     const linkEl = document.getElementById(`theme-${id}`);
     if (linkEl) linkEl.remove();
     await loadCustomThemeCSS(id);

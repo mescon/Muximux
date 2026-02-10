@@ -7,7 +7,7 @@
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
   import { get } from 'svelte/store';
-  import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, type ThemeMode } from '$lib/themeStore';
+  import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, type ThemeMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
@@ -400,7 +400,7 @@
 
   function closeThemeEditor() {
     // Revert live preview changes
-    for (const [name] of Object.entries(themeEditorVars)) {
+    for (const name of Object.keys(themeEditorVars)) {
       document.documentElement.style.removeProperty(name);
     }
     showThemeEditor = false;
@@ -443,7 +443,7 @@
         document.documentElement.style.removeProperty(name);
       }
       // Switch to the new theme
-      const id = saveThemeName.trim().toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+      const id = sanitizeThemeId(saveThemeName.trim());
       setTheme(id);
       showThemeEditor = false;
       saveThemeName = '';
@@ -455,7 +455,7 @@
     }
   }
 
-  async function handleDeleteTheme(themeId: string) {
+  function handleDeleteTheme(themeId: string) {
     confirmDeleteTheme = themeId;
   }
 

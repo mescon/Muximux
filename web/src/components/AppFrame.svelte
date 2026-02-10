@@ -136,7 +136,7 @@
     style:transform-origin={transformOrigin}
     style:width
     style:height
-    sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-modals allow-top-navigation"
+    sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-modals"
     allowfullscreen
   ></iframe>
 </div>

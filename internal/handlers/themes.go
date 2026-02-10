@@ -12,6 +12,14 @@ import (
 	"strings"
 )
 
+var (
+	reNonAlnum     = regexp.MustCompile(`[^a-z0-9-]`)
+	reMultiDash    = regexp.MustCompile(`-+`)
+	reThemeMeta    = regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
+	reCSSVarName   = regexp.MustCompile(`^--[a-z][a-z0-9-]*$`)
+	reCSSBadValue  = regexp.MustCompile(`(?i)(url\s*\(|@import|expression\s*\(|javascript:|\\00)`)
+)
+
 // ThemeHandler handles custom theme CRUD operations
 type ThemeHandler struct {
 	themesDir  string
@@ -143,6 +151,18 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate CSS variable names and values to prevent CSS injection
+	for varName, varValue := range req.Variables {
+		if !reCSSVarName.MatchString(varName) {
+			http.Error(w, fmt.Sprintf("Invalid CSS variable name: %s", varName), http.StatusBadRequest)
+			return
+		}
+		if strings.Contains(varValue, "}") || strings.Contains(varValue, "{") || reCSSBadValue.MatchString(varValue) {
+			http.Error(w, fmt.Sprintf("Invalid CSS variable value for %s", varName), http.StatusBadRequest)
+			return
+		}
+	}
+
 	// Generate CSS content
 	css := generateThemeCSS(id, req)
 
@@ -171,6 +191,13 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 	name := strings.TrimPrefix(r.URL.Path, "/api/themes/")
 	if name == "" {
 		http.Error(w, "Theme name required", http.StatusBadRequest)
+		return
+	}
+
+	// Sanitize to prevent path traversal — only allow [a-z0-9-]
+	name = sanitizeThemeID(name)
+	if name == "" {
+		http.Error(w, "Invalid theme name", http.StatusBadRequest)
 		return
 	}
 
@@ -217,8 +244,7 @@ func parseThemeMetadata(content string, filename string) *ThemeInfo {
 	}
 
 	// Parse @theme-* metadata comments
-	metaPattern := regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
-	matches := metaPattern.FindAllStringSubmatch(content, -1)
+	matches := reThemeMeta.FindAllStringSubmatch(content, -1)
 	for _, match := range matches {
 		key := match[1]
 		value := strings.TrimSpace(match[2])
@@ -231,26 +257,20 @@ func parseThemeMetadata(content string, filename string) *ThemeInfo {
 			theme.Description = value
 		case "is-dark":
 			theme.IsDark = value == "true"
-		case "preview-bg":
+		case "preview-bg", "preview-surface", "preview-accent", "preview-text":
 			if theme.Preview == nil {
 				theme.Preview = &ThemePreview{}
 			}
-			theme.Preview.BG = value
-		case "preview-surface":
-			if theme.Preview == nil {
-				theme.Preview = &ThemePreview{}
+			switch key {
+			case "preview-bg":
+				theme.Preview.BG = value
+			case "preview-surface":
+				theme.Preview.Surface = value
+			case "preview-accent":
+				theme.Preview.Accent = value
+			case "preview-text":
+				theme.Preview.Text = value
 			}
-			theme.Preview.Surface = value
-		case "preview-accent":
-			if theme.Preview == nil {
-				theme.Preview = &ThemePreview{}
-			}
-			theme.Preview.Accent = value
-		case "preview-text":
-			if theme.Preview == nil {
-				theme.Preview = &ThemePreview{}
-			}
-			theme.Preview.Text = value
 		}
 	}
 
@@ -259,12 +279,10 @@ func parseThemeMetadata(content string, filename string) *ThemeInfo {
 
 // sanitizeThemeID converts a theme name to a safe filesystem ID
 func sanitizeThemeID(name string) string {
-	// Lowercase, replace spaces/special chars with hyphens
 	id := strings.ToLower(name)
-	id = regexp.MustCompile(`[^a-z0-9-]`).ReplaceAllString(id, "-")
-	id = regexp.MustCompile(`-+`).ReplaceAllString(id, "-")
-	id = strings.Trim(id, "-")
-	return id
+	id = reNonAlnum.ReplaceAllString(id, "-")
+	id = reMultiDash.ReplaceAllString(id, "-")
+	return strings.Trim(id, "-")
 }
 
 // generateThemeCSS creates a complete CSS file for a custom theme

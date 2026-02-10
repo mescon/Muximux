@@ -5,10 +5,12 @@ import (
 	"embed"
 	"fmt"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/mescon/muximux3/internal/auth"
@@ -126,7 +128,8 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		s.oidcProvider = oidcProvider
 	}
 
-	mux.HandleFunc("/api/auth/login", authHandler.Login)
+	loginLimiter := newRateLimiter(5, 1*time.Minute) // 5 attempts per IP per minute
+	mux.HandleFunc("/api/auth/login", loginLimiter.wrap(authHandler.Login))
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
 	mux.HandleFunc("/api/auth/status", authHandler.AuthStatus)
 	mux.HandleFunc("/api/auth/oidc/login", authHandler.OIDCLogin)
@@ -277,7 +280,23 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Serve theme CSS files: try data/themes/ first (user-created), fall back to static assets (bundled)
 	mux.HandleFunc("/themes/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/themes/")
+		// Reject path traversal attempts — only allow safe filenames
+		if name == "" || strings.Contains(name, "..") || strings.ContainsAny(name, "/\\") {
+			http.NotFound(w, r)
+			return
+		}
 		localPath := filepath.Join("data/themes", name)
+		// Double-check resolved path is within the themes directory
+		absPath, err := filepath.Abs(localPath)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		absThemesDir, _ := filepath.Abs("data/themes")
+		if !strings.HasPrefix(absPath, absThemesDir+string(filepath.Separator)) {
+			http.NotFound(w, r)
+			return
+		}
 		if _, err := os.Stat(localPath); err == nil {
 			http.ServeFile(w, r, localPath)
 			return
@@ -376,13 +395,15 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Serve static files with SPA fallback
 	mux.Handle("/", staticHandler)
 
-	// Create the final handler with auth middleware wrapping where needed
+	// Create the final handler with security middleware
 	var handler http.Handler = mux
 	if cfg.Auth.Method != "none" && cfg.Auth.Method != "" {
-		// Wrap the entire handler with auth middleware
-		// The middleware will check bypass rules and auth status
 		handler = authMiddleware.RequireAuth(mux)
 	}
+	// Wrap with security middleware (outermost = runs first)
+	handler = securityHeadersMiddleware(handler)
+	handler = csrfMiddleware(handler)
+	handler = bodySizeLimitMiddleware(handler)
 
 	s.httpServer = &http.Server{
 		Addr:         cfg.Server.Listen,
@@ -506,4 +527,131 @@ func parseDuration(s string, defaultVal time.Duration) time.Duration {
 	}
 
 	return defaultVal
+}
+
+// securityHeadersMiddleware adds standard security headers to all responses
+func securityHeadersMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		next.ServeHTTP(w, r)
+	})
+}
+
+// csrfMiddleware protects state-changing API requests from cross-origin attacks.
+// POST requests are the main CSRF vector (browsers can send cross-origin POSTs via forms).
+// We require JSON Content-Type on POST/PUT, which triggers CORS preflight from cross-origin.
+// DELETE/PATCH are not "simple" HTTP methods, so browsers always preflight them.
+func csrfMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") && (r.Method == http.MethodPost || r.Method == http.MethodPut) {
+			ct := r.Header.Get("Content-Type")
+			if !strings.HasPrefix(ct, "application/json") && !strings.HasPrefix(ct, "multipart/form-data") {
+				http.Error(w, "Forbidden: JSON Content-Type required", http.StatusForbidden)
+				return
+			}
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// bodySizeLimitMiddleware limits request body size for API endpoints
+func bodySizeLimitMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if strings.HasPrefix(r.URL.Path, "/api/") && r.Body != nil {
+			// 1MB limit for config endpoints, 64KB for others
+			var maxBytes int64 = 64 * 1024
+			if r.URL.Path == "/api/config" || strings.HasPrefix(r.URL.Path, "/api/themes") {
+				maxBytes = 1 * 1024 * 1024
+			} else if strings.HasPrefix(r.URL.Path, "/api/icons/custom") {
+				maxBytes = 5 * 1024 * 1024 // 5MB for icon uploads
+			}
+			r.Body = http.MaxBytesReader(w, r.Body, maxBytes)
+		}
+		next.ServeHTTP(w, r)
+	})
+}
+
+// rateLimiter implements a simple per-IP rate limiter
+type rateLimiter struct {
+	mu       sync.Mutex
+	attempts map[string][]time.Time
+	max      int
+	window   time.Duration
+}
+
+func newRateLimiter(max int, window time.Duration) *rateLimiter {
+	rl := &rateLimiter{
+		attempts: make(map[string][]time.Time),
+		max:      max,
+		window:   window,
+	}
+	// Periodic cleanup of stale entries
+	go func() {
+		for range time.Tick(5 * time.Minute) {
+			rl.mu.Lock()
+			now := time.Now()
+			for ip, times := range rl.attempts {
+				// Remove entries older than the window
+				valid := times[:0]
+				for _, t := range times {
+					if now.Sub(t) < rl.window {
+						valid = append(valid, t)
+					}
+				}
+				if len(valid) == 0 {
+					delete(rl.attempts, ip)
+				} else {
+					rl.attempts[ip] = valid
+				}
+			}
+			rl.mu.Unlock()
+		}
+	}()
+	return rl
+}
+
+func (rl *rateLimiter) allow(ip string) bool {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	cutoff := now.Add(-rl.window)
+
+	// Filter to only recent attempts
+	times := rl.attempts[ip]
+	valid := times[:0]
+	for _, t := range times {
+		if t.After(cutoff) {
+			valid = append(valid, t)
+		}
+	}
+
+	if len(valid) >= rl.max {
+		rl.attempts[ip] = valid
+		return false
+	}
+
+	rl.attempts[ip] = append(valid, now)
+	return true
+}
+
+func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// Only rate-limit POST requests (actual login attempts)
+		if r.Method != http.MethodPost {
+			handler(w, r)
+			return
+		}
+
+		ip, _, _ := strings.Cut(r.RemoteAddr, ":")
+		if !rl.allow(ip) {
+			log.Printf("Rate limit exceeded for IP %s on %s", ip, r.URL.Path)
+			w.Header().Set("Retry-After", fmt.Sprintf("%d", int(rl.window.Seconds())))
+			http.Error(w, "Too many requests", http.StatusTooManyRequests)
+			return
+		}
+		handler(w, r)
+	}
 }

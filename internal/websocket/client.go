@@ -26,9 +26,13 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
-		// Allow all origins for now
-		// TODO: Add proper origin checking
-		return true
+		origin := r.Header.Get("Origin")
+		if origin == "" {
+			return true // No origin header (e.g. non-browser clients)
+		}
+		// Allow same-origin requests
+		host := r.Host
+		return origin == "http://"+host || origin == "https://"+host
 	},
 }
 

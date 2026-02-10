@@ -189,18 +189,22 @@
     }
   }
 
-  let allCurrentIcons = $derived(
-    activeTab === 'dashboard' ? filteredDashboardIcons :
-    activeTab === 'builtin' ? filteredBuiltinIcons :
-    filteredCustomIcons
-  );
+  let allCurrentIcons = $derived.by(() => {
+    switch (activeTab) {
+      case 'dashboard': return filteredDashboardIcons;
+      case 'builtin': return filteredBuiltinIcons;
+      case 'custom': return filteredCustomIcons;
+    }
+  });
   let currentIcons = $derived(allCurrentIcons.slice(0, displayCount));
   let hasMore = $derived(displayCount < allCurrentIcons.length);
-  let totalCount = $derived(
-    activeTab === 'dashboard' ? dashboardIcons.length :
-    activeTab === 'builtin' ? builtinIcons.length :
-    customIcons.length
-  );
+  let totalCount = $derived.by(() => {
+    switch (activeTab) {
+      case 'dashboard': return dashboardIcons.length;
+      case 'builtin': return builtinIcons.length;
+      case 'custom': return customIcons.length;
+    }
+  });
 
   // Reset display count when search or tab changes
   $effect(() => {

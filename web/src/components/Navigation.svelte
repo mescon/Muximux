@@ -32,9 +32,6 @@
     onlogout?: () => void;
   } = $props();
 
-  // User menu state
-  let userMenuOpen = $state(false);
-
   async function handleLogout() {
     await logout();
     onlogout?.();
@@ -61,7 +58,6 @@
 
   // Responsive state
   let isMobile = $state(false);
-  let isTablet = $state(false);
   let mobileMenuOpen = $state(false);
   let hasTouchSupport = $state(false);
 
@@ -138,7 +134,6 @@
 
   function checkResponsive() {
     isMobile = window.innerWidth < 640;
-    isTablet = window.innerWidth >= 640 && window.innerWidth < 1024;
   }
 
   function toggleGroup(name: string) {
@@ -278,22 +273,6 @@
       ? 'Keyboard shortcuts active'
       : 'Keyboard shortcuts paused');
 
-  // CSS classes based on position
-  let positionClasses = $derived({
-    top: 'fixed top-0 left-0 right-0 z-40',
-    left: 'fixed top-0 left-0 bottom-0 z-40',
-    right: 'fixed top-0 right-0 bottom-0 z-40',
-    bottom: 'fixed bottom-0 left-0 right-0 z-40',
-    floating: 'fixed z-40'
-  });
-
-  let hideTransform = $derived({
-    top: 'translateY(-100%)',
-    left: 'translateX(-100%)',
-    right: 'translateX(100%)',
-    bottom: 'translateY(100%)',
-    floating: 'scale(0.8) opacity(0)'
-  });
 </script>
 
 <!-- Mobile hamburger menu -->
