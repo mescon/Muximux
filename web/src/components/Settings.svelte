@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import type { App, Config, Group } from '$lib/types';
@@ -340,16 +340,26 @@
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
     const { name, variant, type } = detail;
-    const iconData = { type: type as 'dashboard' | 'lucide' | 'custom', name, variant, file: '', url: '' };
+    const iconData = { type: type as 'dashboard' | 'lucide' | 'custom', name, variant, file: '', url: '', color: '', background: '' };
 
     if (iconBrowserTarget === 'newApp') {
-      newApp.icon = iconData;
+      newApp = { ...newApp, icon: iconData };
     } else if (iconBrowserTarget === 'editApp' && editingApp) {
-      editingApp.icon = iconData;
+      // Replace in dndGroupedApps and editingApp with the same new object
+      const updated = { ...editingApp, icon: iconData };
+      for (const apps of Object.values(dndGroupedApps)) {
+        const idx = apps.indexOf(editingApp);
+        if (idx !== -1) { apps[idx] = updated; break; }
+      }
+      editingApp = updated;
     } else if (iconBrowserTarget === 'newGroup') {
-      newGroup.icon = iconData;
+      newGroup = { ...newGroup, icon: iconData };
     } else if (iconBrowserTarget === 'editGroup' && editingGroup) {
-      editingGroup.icon = iconData;
+      // Replace in dndGroups and editingGroup with the same new object
+      const updated = { ...editingGroup, icon: iconData };
+      const idx = dndGroups.indexOf(editingGroup);
+      if (idx !== -1) dndGroups[idx] = updated;
+      editingGroup = updated;
     }
     showIconBrowser = false;
     iconBrowserTarget = null;
@@ -394,7 +404,8 @@
     $resolvedTheme; // track
     if (showThemeEditor) {
       // Clear any live preview overrides from the previous theme
-      for (const name of Object.keys(themeEditorVars)) {
+      const varNames = untrack(() => Object.keys(themeEditorVars));
+      for (const name of varNames) {
         document.documentElement.style.removeProperty(name);
       }
       // Re-read the new theme's variables
@@ -1325,22 +1336,20 @@
                       class="w-full px-3 py-2 text-sm rounded"
                       style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
                     />
-                    <div class="flex gap-2">
-                      <input
-                        type="text"
-                        bind:value={saveThemeDescription}
-                        placeholder="Description (optional)"
-                        class="flex-1 px-3 py-2 text-sm rounded"
-                        style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
-                      />
-                      <input
-                        type="text"
-                        bind:value={saveThemeAuthor}
-                        placeholder="Author (optional)"
-                        class="w-32 px-3 py-2 text-sm rounded"
-                        style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
-                      />
-                    </div>
+                    <input
+                      type="text"
+                      bind:value={saveThemeDescription}
+                      placeholder="Description (optional)"
+                      class="w-full px-3 py-2 text-sm rounded"
+                      style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+                    />
+                    <input
+                      type="text"
+                      bind:value={saveThemeAuthor}
+                      placeholder="Author (optional)"
+                      class="w-full px-3 py-2 text-sm rounded"
+                      style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
+                    />
                     <button
                       class="w-full px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50"
                       style="background: var(--accent-primary); color: var(--bg-base);"
@@ -1662,6 +1671,25 @@
               </p>
             </div>
           </div>
+          {#if editingApp.icon?.type === 'lucide'}
+            <div class="flex items-center gap-4 mt-2">
+              <label class="flex items-center gap-2 text-xs text-gray-400">
+                Icon color
+                <input type="color" value={editingApp.icon.color || '#ffffff'} oninput={(e) => editingApp.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                {#if editingApp.icon.color}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp.icon.color = ''} title="Reset to theme default">&times;</button>
+                {/if}
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400">
+                Background
+                <input type="color" value={editingApp.icon.background || editingApp.color || '#374151'} oninput={(e) => editingApp.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp.icon.background = 'transparent'} title="Transparent">none</button>
+                {#if editingApp.icon.background}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp.icon.background = ''} title="Reset to app color">&times;</button>
+                {/if}
+              </label>
+            </div>
+          {/if}
         </div>
         <div>
           <label for="edit-app-group" class="block text-sm font-medium text-gray-300 mb-1">Group</label>
@@ -1818,6 +1846,25 @@
               </p>
             </div>
           </div>
+          {#if editingGroup.icon?.type === 'lucide'}
+            <div class="flex items-center gap-4 mt-2">
+              <label class="flex items-center gap-2 text-xs text-gray-400">
+                Icon color
+                <input type="color" value={editingGroup.icon.color || '#ffffff'} oninput={(e) => editingGroup.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                {#if editingGroup.icon.color}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup.icon.color = ''} title="Reset to theme default">&times;</button>
+                {/if}
+              </label>
+              <label class="flex items-center gap-2 text-xs text-gray-400">
+                Background
+                <input type="color" value={editingGroup.icon.background || editingGroup.color || '#374151'} oninput={(e) => editingGroup.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingGroup.icon.background = 'transparent'} title="Transparent">none</button>
+                {#if editingGroup.icon.background}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup.icon.background = ''} title="Reset to group color">&times;</button>
+                {/if}
+              </label>
+            </div>
+          {/if}
         </div>
         <div>
           <label for="edit-group-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>

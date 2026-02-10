@@ -1,0 +1,99 @@
+/**
+ * Rose Pine Dawn (Light) Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * The light variant of Rose Pine, known as "Dawn".
+ * Soft parchment tones with warm rose accents.
+ * Based on Rose Pine: https://rosepinetheme.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: rose-pine-light
+ * @theme-name: Rose Pine Dawn
+ * @theme-family: rose-pine
+ * @theme-family-name: Rose Pine
+ * @theme-variant: light
+ * @theme-description: Soft parchment tones with warm rose accents
+ * @theme-is-dark: false
+ * @theme-preview-bg: #faf4ed
+ * @theme-preview-surface: #fffaf3
+ * @theme-preview-accent: #b4637a
+ * @theme-preview-text: #575279
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="rose-pine-light"] {
+  color-scheme: light;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     ROSE PINE DAWN PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Base:         #faf4ed
+     Surface:      #fffaf3
+     Overlay:      #f2e9e1
+     Muted:        #9893a5
+     Subtle:       #797593
+     Text:         #575279
+     Love:         #b4637a   (red/rose)
+     Gold:         #ea9d34   (yellow)
+     Rose:         #d7827e   (pink)
+     Pine:         #286983   (teal)
+     Foam:         #56949f   (cyan)
+     Iris:         #907aa9   (purple)
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #faf4ed;
+  --bg-surface: #fffaf3;
+  --bg-elevated: #f2e9e1;
+  --bg-overlay: #ebe3db;
+  --bg-hover: #f2e9e1;
+  --bg-active: #ebe3db;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(255, 250, 243, 0.85);
+  --glass-border: rgba(87, 82, 121, 0.1);
+  --glass-highlight: rgba(87, 82, 121, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #575279;
+  --text-secondary: #797593;
+  --text-muted: #9893a5;
+  --text-disabled: #b4b0c0;
+
+  /* Borders */
+  --border-subtle: rgba(87, 82, 121, 0.08);
+  --border-default: rgba(87, 82, 121, 0.14);
+  --border-strong: rgba(87, 82, 121, 0.22);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Love (rose) */
+  --accent-primary: #b4637a;
+  --accent-secondary: #d7827e;
+  --accent-muted: rgba(180, 99, 122, 0.2);
+  --accent-subtle: rgba(180, 99, 122, 0.1);
+
+  /* Brand palette - derived from Love */
+  --color-brand-50: #fdf2f4;
+  --color-brand-100: #fbe5ea;
+  --color-brand-200: #f5c5cf;
+  --color-brand-300: #d7827e;
+  --color-brand-400: #c96b80;
+  --color-brand-500: #b4637a;
+  --color-brand-600: #974b61;
+  --color-brand-700: #7a3a4d;
+  --color-brand-800: #f2e9e1;
+  --color-brand-900: #faf4ed;
+  --color-brand-950: #fffaf3;
+
+  /* Status colors */
+  --status-success: #286983;
+  --status-warning: #ea9d34;
+  --status-error: #b4637a;
+  --status-info: #907aa9;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(87, 82, 121, 0.06);
+  --shadow-md: 0 4px 6px -1px rgba(87, 82, 121, 0.08), 0 2px 4px -1px rgba(87, 82, 121, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(87, 82, 121, 0.08), 0 4px 6px -2px rgba(87, 82, 121, 0.04);
+  --shadow-glow: 0 0 20px rgba(180, 99, 122, 0.1);
+}

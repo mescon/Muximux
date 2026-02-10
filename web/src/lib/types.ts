@@ -25,6 +25,8 @@ export interface AppIcon {
   file: string;
   url: string;
   variant: string;
+  color?: string;
+  background?: string;
 }
 
 export interface Group {

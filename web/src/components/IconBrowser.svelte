@@ -138,7 +138,6 @@
   function selectIcon(name: string, type: IconTab) {
     selectedIcon = name;
     selectedType = type;
-    onselect?.({ name, variant: type === 'dashboard' ? selectedVariant : 'svg', type });
   }
 
   function getIconUrl(name: string, type: IconTab): string {

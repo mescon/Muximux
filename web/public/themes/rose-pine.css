@@ -1,0 +1,98 @@
+/**
+ * Rose Pine Theme for Muximux
+ * ═══════════════════════════════════════════════════════════════════════════
+ *
+ * A warm, muted theme with rose and pine tones.
+ * Based on Rose Pine: https://rosepinetheme.com/
+ *
+ * Theme metadata (used by the theme selector):
+ * @theme-id: rose-pine
+ * @theme-name: Rose Pine
+ * @theme-family: rose-pine
+ * @theme-family-name: Rose Pine
+ * @theme-variant: dark
+ * @theme-description: Warm muted tones with rose accents
+ * @theme-is-dark: true
+ * @theme-preview-bg: #191724
+ * @theme-preview-surface: #1f1d2e
+ * @theme-preview-accent: #ebbcba
+ * @theme-preview-text: #e0def4
+ * ═══════════════════════════════════════════════════════════════════════════
+ */
+
+[data-theme="rose-pine"] {
+  color-scheme: dark;
+
+  /* ─────────────────────────────────────────────────────────────────────────
+     ROSE PINE PALETTE REFERENCE
+     ─────────────────────────────────────────────────────────────────────────
+     Base:         #191724
+     Surface:      #1f1d2e
+     Overlay:      #26233a
+     Muted:        #6e6a86
+     Subtle:       #908caa
+     Text:         #e0def4
+     Love:         #eb6f92   (red/rose)
+     Gold:         #f6c177   (yellow)
+     Rose:         #ebbcba   (pink)
+     Pine:         #31748f   (teal)
+     Foam:         #9ccfd8   (cyan)
+     Iris:         #c4a7e7   (purple)
+     ───────────────────────────────────────────────────────────────────────── */
+
+  /* Backgrounds */
+  --bg-base: #191724;
+  --bg-surface: #1f1d2e;
+  --bg-elevated: #26233a;
+  --bg-overlay: #2a2740;
+  --bg-hover: #26233a;
+  --bg-active: #2a2740;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(31, 29, 46, 0.85);
+  --glass-border: rgba(224, 222, 244, 0.1);
+  --glass-highlight: rgba(224, 222, 244, 0.05);
+
+  /* Text hierarchy */
+  --text-primary: #e0def4;
+  --text-secondary: #908caa;
+  --text-muted: #6e6a86;
+  --text-disabled: #555169;
+
+  /* Borders */
+  --border-subtle: rgba(224, 222, 244, 0.06);
+  --border-default: rgba(224, 222, 244, 0.1);
+  --border-strong: rgba(224, 222, 244, 0.16);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - using Rose */
+  --accent-primary: #ebbcba;
+  --accent-secondary: #eb6f92;
+  --accent-muted: rgba(235, 188, 186, 0.25);
+  --accent-subtle: rgba(235, 188, 186, 0.12);
+
+  /* Brand palette - derived from Rose */
+  --color-brand-50: #fdf2f2;
+  --color-brand-100: #fbe5e4;
+  --color-brand-200: #f5cbc9;
+  --color-brand-300: #ebbcba;
+  --color-brand-400: #e8a8a5;
+  --color-brand-500: #eb6f92;
+  --color-brand-600: #c4516e;
+  --color-brand-700: #9e3a54;
+  --color-brand-800: #26233a;
+  --color-brand-900: #1f1d2e;
+  --color-brand-950: #191724;
+
+  /* Status colors */
+  --status-success: #9ccfd8;
+  --status-warning: #f6c177;
+  --status-error: #eb6f92;
+  --status-info: #c4a7e7;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.35), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.35), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(235, 188, 186, 0.15);
+}

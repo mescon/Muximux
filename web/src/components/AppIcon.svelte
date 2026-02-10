@@ -41,6 +41,14 @@
 
   let iconUrl = $derived(getIconUrl());
   let fallbackLetter = $derived(name.charAt(0).toUpperCase());
+  // Icon-level background overrides the app/group color; empty string = transparent
+  let bgColor = $derived(
+    icon?.background !== undefined && icon.background !== ''
+      ? icon.background
+      : showBackground ? color : 'transparent'
+  );
+  // Icon tint color for Lucide (CSS mask); falls back to theme text color
+  let tintColor = $derived(icon?.color || '');
 
   let imageError = $state(false);
 
@@ -51,13 +59,13 @@
 
 <div
   class="rounded flex items-center justify-center font-bold {sizeClasses[size]}"
-  style="background-color: {showBackground ? color : 'transparent'}"
+  style="background-color: {bgColor}"
 >
   {#if iconUrl && !imageError}
     {#if icon?.type === 'lucide'}
       <div
         class="w-full h-full p-1 lucide-icon"
-        style="-webkit-mask-image: url({iconUrl}); mask-image: url({iconUrl});"
+        style="-webkit-mask-image: url({iconUrl}); mask-image: url({iconUrl});{tintColor ? ` background-color: ${tintColor};` : ''}"
         role="img"
         aria-label={name}
       ></div>

@@ -59,7 +59,7 @@ export const builtinThemes: ThemeInfo[] = [
     isDark: true,
     family: 'default',
     variant: 'dark',
-    familyName: 'Default',
+    familyName: 'Muximux',
     preview: {
       bg: '#09090b',
       surface: '#111114',
@@ -75,7 +75,7 @@ export const builtinThemes: ThemeInfo[] = [
     isDark: false,
     family: 'default',
     variant: 'light',
-    familyName: 'Default',
+    familyName: 'Muximux',
     preview: {
       bg: '#fafafa',
       surface: '#ffffff',
