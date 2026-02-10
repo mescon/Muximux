@@ -249,6 +249,12 @@
   function closeEditApp() {
     if (editingApp) {
       (editingApp as any).id = editingApp.name;
+      // Sync DnD app changes back to localApps before rebuilding
+      const allApps: App[] = [];
+      for (const apps of Object.values(dndGroupedApps)) {
+        allApps.push(...apps);
+      }
+      localApps = allApps;
     }
     editingApp = null;
     rebuildDndArrays();
@@ -257,6 +263,8 @@
   function closeEditGroup() {
     if (editingGroup) {
       (editingGroup as any).id = editingGroup.name;
+      // Sync DnD group changes back to localConfig before rebuilding
+      localConfig.groups = [...dndGroups];
     }
     editingGroup = null;
     rebuildDndArrays();
@@ -672,6 +680,16 @@
                     <option value="5s">5s</option>
                   </select>
                 </div>
+                <label class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-600 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    bind:checked={localConfig.navigation.show_shadow}
+                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800 ml-7"
+                  />
+                  <div>
+                    <div class="text-xs text-gray-400">Show shadow</div>
+                  </div>
+                </label>
               {/if}
             </div>
 
@@ -903,11 +921,13 @@
           <!-- Ungrouped apps -->
           {#if (dndGroupedApps[''] || []).length > 0 || localConfig.groups.length > 0}
             {@const ungroupedApps = dndGroupedApps[''] || []}
-            <div class="rounded-lg border border-gray-700 border-dashed">
-              <div class="p-3 bg-gray-700/20 rounded-t-lg">
-                <span class="text-sm font-medium text-gray-400">Ungrouped</span>
-                <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
-              </div>
+            <div class="rounded-lg border border-gray-700 border-dashed" class:hidden={ungroupedApps.length === 0 && localConfig.groups.length === 0}>
+              {#if ungroupedApps.length > 0}
+                <div class="p-3 bg-gray-700/20 rounded-t-lg">
+                  <span class="text-sm font-medium text-gray-400">Ungrouped</span>
+                  <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
+                </div>
+              {/if}
               <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
                 {#each ungroupedApps as app (app.id)}
                   <div
@@ -1315,7 +1335,9 @@
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
           <div class="flex items-center gap-3">
-            <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newApp')}>
+              <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
+            </button>
             <button
               class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
               onclick={() => openIconBrowser('newApp')}
@@ -1451,7 +1473,9 @@
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
           <div class="flex items-center gap-3">
-            <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newGroup')}>
+              <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
+            </button>
             <button
               class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
               onclick={() => openIconBrowser('newGroup')}
@@ -1539,7 +1563,9 @@
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
           <div class="flex items-center gap-3">
-            <AppIcon icon={editingApp.icon} name={editingApp.name} color={editingApp.color} size="lg" />
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editApp')}>
+              <AppIcon icon={editingApp.icon} name={editingApp.name} color={editingApp.color} size="lg" />
+            </button>
             <div class="flex-1">
               <button
                 class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md w-full text-left"
@@ -1553,35 +1579,33 @@
             </div>
           </div>
         </div>
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
-            <div class="flex items-center gap-2">
-              <input
-                id="edit-app-color"
-                type="color"
-                bind:value={editingApp.color}
-                class="w-10 h-10 rounded cursor-pointer"
-              />
-              <input
-                type="text"
-                bind:value={editingApp.color}
-                class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
-              />
-            </div>
-          </div>
-          <div>
-            <label for="edit-app-group" class="block text-sm font-medium text-gray-300 mb-1">Group</label>
-            <select
-              id="edit-app-group"
-              bind:value={editingApp.group}
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-            >
-              <option value="">No group</option>
-              {#each localConfig.groups as group}
-                <option value={group.name}>{group.name}</option>
-              {/each}
-            </select>
+        <div>
+          <label for="edit-app-group" class="block text-sm font-medium text-gray-300 mb-1">Group</label>
+          <select
+            id="edit-app-group"
+            bind:value={editingApp.group}
+            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="">No group</option>
+            {#each localConfig.groups as group}
+              <option value={group.name}>{group.name}</option>
+            {/each}
+          </select>
+        </div>
+        <div>
+          <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="edit-app-color"
+              type="color"
+              bind:value={editingApp.color}
+              class="w-10 h-10 rounded cursor-pointer"
+            />
+            <input
+              type="text"
+              bind:value={editingApp.color}
+              class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+            />
           </div>
         </div>
         <div>
@@ -1695,7 +1719,9 @@
         <div>
           <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
           <div class="flex items-center gap-3">
-            <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editGroup')}>
+              <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
+            </button>
             <div class="flex-1">
               <button
                 class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md w-full text-left"
@@ -1917,8 +1943,8 @@
     --tw-ring-offset-color: var(--bg-surface) !important;
   }
 
-  /* App status indicators */
-  .settings :global(.app-indicator) {
+  /* App status indicators (global so they survive DnD reparenting to body) */
+  :global(.app-indicator) {
     display: inline-flex;
     align-items: center;
     gap: 3px;

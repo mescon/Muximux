@@ -441,7 +441,7 @@
       class="sidebar-panel flex flex-col h-full overflow-hidden border-r"
       style="background: var(--bg-surface); border-color: var(--border-subtle);"
       style:width="{isCollapsed ? collapsedStripWidth : sidebarWidth}px"
-      style:box-shadow={config.navigation.auto_hide && !isMobile && !isCollapsed ? '4px 0 24px rgba(0,0,0,0.25)' : null}
+      style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow && !isMobile ? '4px 0 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide && !isMobile ? 'absolute' : null}
       style:top={config.navigation.auto_hide && !isMobile ? '0' : null}
       style:left={config.navigation.auto_hide && !isMobile ? '0' : null}
@@ -533,7 +533,7 @@
                   style="{isCollapsed && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
-                  {#if config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsed)}
+                  {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
@@ -639,7 +639,7 @@
       class="sidebar-panel flex flex-col h-full overflow-hidden border-l"
       style="background: var(--bg-surface); border-color: var(--border-subtle);"
       style:width="{isCollapsedRight ? collapsedStripWidth : sidebarWidth}px"
-      style:box-shadow={config.navigation.auto_hide && !isMobile && !isCollapsedRight ? '-4px 0 24px rgba(0,0,0,0.25)' : null}
+      style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow && !isMobile ? '-4px 0 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide && !isMobile ? 'absolute' : null}
       style:top={config.navigation.auto_hide && !isMobile ? '0' : null}
       style:right={config.navigation.auto_hide && !isMobile ? '0' : null}
@@ -730,7 +730,7 @@
                   style="{isCollapsedRight && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
-                  {#if config.navigation.show_app_colors && (currentApp?.name === app.name || isCollapsedRight)}
+                  {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute right-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">

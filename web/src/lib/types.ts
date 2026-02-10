@@ -42,6 +42,7 @@ export interface NavigationConfig {
   show_app_colors: boolean;
   show_icon_background: boolean;
   show_splash_on_startup: boolean;
+  show_shadow: boolean;
 }
 
 export interface HealthConfig {

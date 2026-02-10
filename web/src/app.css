@@ -155,6 +155,19 @@
   --accent-muted: rgba(13, 148, 136, 0.15);
   --accent-subtle: rgba(13, 148, 136, 0.08);
 
+  /* Brand palette - shifted darker for light backgrounds */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #5eead4;
+  --color-brand-300: #14b8a6;
+  --color-brand-400: #0d9488;
+  --color-brand-500: #0f766e;
+  --color-brand-600: #115e59;
+  --color-brand-700: #134e4a;
+  --color-brand-800: #1a3a38;
+  --color-brand-900: #112826;
+  --color-brand-950: #042f2e;
+
   /* Status colors - slightly adjusted for light bg */
   --status-success: #16a34a;
   --status-warning: #d97706;

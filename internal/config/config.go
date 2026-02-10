@@ -106,6 +106,7 @@ type NavigationConfig struct {
 	ShowAppColors       bool   `yaml:"show_app_colors" json:"show_app_colors"`
 	ShowIconBackground  bool   `yaml:"show_icon_background" json:"show_icon_background"`
 	ShowSplashOnStart   bool   `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
+	ShowShadow          bool   `yaml:"show_shadow" json:"show_shadow"`
 }
 
 // IconsConfig holds icon settings
@@ -225,6 +226,7 @@ func defaultConfig() *Config {
 			ShowAppColors:      true,
 			ShowIconBackground: true,
 			ShowSplashOnStart:  false,
+			ShowShadow:         true,
 		},
 		Icons: IconsConfig{
 			DashboardIcons: DashboardIconsConfig{
