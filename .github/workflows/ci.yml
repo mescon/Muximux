@@ -2,7 +2,7 @@ name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
     branches: [main]
 
@@ -41,10 +41,10 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: go.mod
 
       - name: Run golangci-lint
-        uses: golangci/golangci-lint-action@v4
+        uses: golangci/golangci-lint-action@v6
         with:
           version: latest
 
@@ -57,7 +57,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: go.mod
 
       - name: Run tests
         run: go test -v -race -coverprofile=coverage.out ./...
@@ -85,7 +85,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: go.mod
 
       - name: Build frontend
         run: |
@@ -94,10 +94,7 @@ jobs:
         working-directory: web
 
       - name: Build backend
-        run: |
-          mkdir -p internal/server/dist
-          cp -r web/dist/* internal/server/dist/
-          CGO_ENABLED=0 go build -o muximux ./cmd/muximux
+        run: CGO_ENABLED=0 go build -o muximux ./cmd/muximux
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4

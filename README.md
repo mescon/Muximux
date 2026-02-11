@@ -12,7 +12,7 @@ A modern, self-hosted portal to your web applications.
 - **Embedded Proxy** - Built-in Caddy-powered reverse proxy for iframe embedding
 - **Real-time Health** - WebSocket-based health monitoring with live updates
 - **Multiple Auth** - Built-in users, forward auth (Authelia/Authentik), or OIDC
-- **1,600+ Icons** - Lucide icons with category search, plus [dashboard-icons](https://github.com/walkxcode/dashboard-icons)
+- **1,600+ Icons** - Lucide icons with category search, plus [dashboard-icons](https://github.com/homarr-labs/dashboard-icons)
 - **Responsive UI** - Modern Svelte 5 frontend with Tailwind CSS
 - **Easy Deployment** - Docker or native binary
 
@@ -310,5 +310,5 @@ MIT License - see [LICENSE](LICENSE) for details.
 ## Credits
 
 - [Lucide Icons](https://lucide.dev/) for the icon library
-- [Dashboard Icons](https://github.com/walkxcode/dashboard-icons) by walkxcode
+- [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) by Homarr Labs
 - [Caddy](https://caddyserver.com/) for the embedded proxy

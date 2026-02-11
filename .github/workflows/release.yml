@@ -39,7 +39,7 @@ jobs:
       - name: Setup Go
         uses: actions/setup-go@v5
         with:
-          go-version: '1.22'
+          go-version-file: go.mod
 
       - name: Build frontend
         run: |
@@ -52,15 +52,12 @@ jobs:
           GOOS: ${{ matrix.goos }}
           GOARCH: ${{ matrix.goarch }}
           CGO_ENABLED: "0"
-          GIT_REF: ${{ github.ref }}
-          GIT_SHA: ${{ github.sha }}
+          VERSION: ${{ github.ref_name }}
+          COMMIT: ${{ github.sha }}
         run: |
-          mkdir -p internal/server/dist
-          cp -r web/dist/* internal/server/dist/
-
-          VERSION="${GIT_REF#refs/tags/v}"
-          COMMIT="${GIT_SHA:0:8}"
           BUILD_DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          VERSION="${VERSION#v}"
+          SHORT_COMMIT="${COMMIT:0:8}"
 
           EXT=""
           if [ "${GOOS}" = "windows" ]; then
@@ -68,7 +65,7 @@ jobs:
           fi
 
           go build \
-            -ldflags "-X main.version=${VERSION} -X main.commit=${COMMIT} -X main.buildDate=${BUILD_DATE}" \
+            -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${SHORT_COMMIT} -X main.buildDate=${BUILD_DATE}" \
             -o "muximux-${GOOS}-${GOARCH}${EXT}" \
             ./cmd/muximux
 
@@ -109,10 +106,10 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=sha
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           platforms: linux/amd64,linux/arm64
@@ -148,7 +145,7 @@ jobs:
           sha256sum muximux-* > checksums.txt
 
       - name: Create Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}

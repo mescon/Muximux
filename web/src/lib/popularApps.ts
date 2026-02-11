@@ -10,7 +10,7 @@ export interface PopularAppTemplate {
 }
 
 // Pre-defined homelab app templates with icons from dashboard-icons
-// Icons are sourced from: https://github.com/walkxcode/dashboard-icons
+// Icons are sourced from: https://github.com/homarr-labs/dashboard-icons
 export const popularApps: Record<string, PopularAppTemplate[]> = {
   'Media': [
     {

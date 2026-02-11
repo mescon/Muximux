@@ -1,9 +1,9 @@
-# Production Docker Compose for Muximux 3
+# Production Docker Compose for Muximux
 # Usage: docker compose up -d
 
 services:
   muximux:
-    image: ghcr.io/mescon/muximux3:latest
+    image: ghcr.io/mescon/muximux:latest
     container_name: muximux
     restart: unless-stopped
     ports:
