@@ -1,6 +1,6 @@
-# Muximux 3
+# Muximux
 
-A modern rewrite of [Muximux](https://github.com/mescon/Muximux) - a lightweight portal to your web applications.
+A modern, self-hosted portal to your web applications.
 
 ![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)
 ![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white)
@@ -12,7 +12,7 @@ A modern rewrite of [Muximux](https://github.com/mescon/Muximux) - a lightweight
 - **Embedded Proxy** - Built-in Caddy-powered reverse proxy for iframe embedding
 - **Real-time Health** - WebSocket-based health monitoring with live updates
 - **Multiple Auth** - Built-in users, forward auth (Authelia/Authentik), or OIDC
-- **Dashboard Icons** - Automatic icon fetching from [dashboard-icons](https://github.com/walkxcode/dashboard-icons)
+- **1,600+ Icons** - Lucide icons with category search, plus [dashboard-icons](https://github.com/walkxcode/dashboard-icons)
 - **Responsive UI** - Modern Svelte 5 frontend with Tailwind CSS
 - **Easy Deployment** - Docker or native binary
 
@@ -31,14 +31,14 @@ docker run -d \
   --name muximux \
   -p 8080:8080 \
   -v $(pwd)/data:/app/data \
-  ghcr.io/mescon/muximux3:latest
+  ghcr.io/mescon/muximux:latest
 ```
 
 ### Binary
 
 ```bash
 # Download the latest release
-# https://github.com/mescon/muximux3/releases
+# https://github.com/mescon/Muximux/releases
 
 # Run
 ./muximux --config config.yaml
@@ -48,7 +48,7 @@ docker run -d \
 
 ```bash
 # Clone and install dependencies
-git clone https://github.com/mescon/muximux3.git
+git clone https://github.com/mescon/Muximux.git
 cd muximux3
 
 # Start development servers
@@ -246,7 +246,7 @@ icon:
   variant: light      # light, dark, or empty for default
 
 icon:
-  type: builtin       # Built-in icons
+  type: lucide        # Lucide icon library (~1,600 icons)
   name: server
 
 icon:
@@ -309,6 +309,6 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 ## Credits
 
-- Original [Muximux](https://github.com/mescon/Muximux) by mescon
+- [Lucide Icons](https://lucide.dev/) for the icon library
 - [Dashboard Icons](https://github.com/walkxcode/dashboard-icons) by walkxcode
 - [Caddy](https://caddyserver.com/) for the embedded proxy
