@@ -1,6 +1,6 @@
 # Muximux
 
-A modern, self-hosted portal to your web applications.
+A modern, self-hosted portal to your web applications. One binary, one port, one config file.
 
 ![Go Version](https://img.shields.io/badge/Go-1.22+-00ADD8?logo=go&logoColor=white)
 ![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white)
@@ -9,9 +9,10 @@ A modern, self-hosted portal to your web applications.
 ## Features
 
 - **Single Binary** - No database required, configuration via YAML
-- **Integrated Proxy** - Built-in reverse proxy for iframe embedding with optional TLS/gateway via Caddy
-- **Real-time Health** - WebSocket-based health monitoring with live updates
-- **Multiple Auth** - Built-in users, forward auth (Authelia/Authentik), or OIDC
+- **Single Port** - One `listen` address for everything; TLS and gateway handled transparently
+- **Integrated Reverse Proxy** - Proxies apps through `/proxy/{slug}/`, stripping headers that block iframe embedding
+- **Real-time Health** - WebSocket-based health monitoring with live status indicators
+- **Multiple Auth Methods** - Built-in users, forward auth (Authelia/Authentik), or OIDC
 - **1,600+ Icons** - Lucide icons with category search, plus [dashboard-icons](https://github.com/homarr-labs/dashboard-icons)
 - **Responsive UI** - Modern Svelte 5 frontend with Tailwind CSS
 - **Easy Deployment** - Docker or native binary
@@ -21,12 +22,10 @@ A modern, self-hosted portal to your web applications.
 ### Docker (Recommended)
 
 ```bash
-# Create data directory and config
 mkdir -p data
 cp config.example.yaml data/config.yaml
 # Edit data/config.yaml with your apps
 
-# Run with Docker
 docker run -d \
   --name muximux \
   -p 8080:8080 \
@@ -37,17 +36,12 @@ docker run -d \
 ### Binary
 
 ```bash
-# Download the latest release
-# https://github.com/mescon/Muximux/releases
-
-# Run
 ./muximux --config config.yaml
 ```
 
 ### Development
 
 ```bash
-# Clone and install dependencies
 git clone https://github.com/mescon/Muximux.git
 cd muximux3
 
@@ -67,7 +61,7 @@ Muximux is configured via a YAML file. See [config.example.yaml](config.example.
 
 ```yaml
 server:
-  listen: ":8080"
+  listen: ":8080"    # The port you access Muximux on
   title: "Muximux"
 ```
 
@@ -75,19 +69,19 @@ server:
 
 ```yaml
 apps:
-  - name: Plex
-    url: http://localhost:32400
+  - name: Sonarr
+    url: http://sonarr:8989
     icon:
-      type: dashboard    # Uses dashboard-icons
-      name: plex
-    color: "#e5a00d"
-    group: Media
+      type: dashboard
+      name: sonarr
+    color: "#3498db"
+    group: Downloads
     order: 1
     enabled: true
-    default: true        # Opens by default
-    open_mode: iframe    # iframe, new_tab, new_window, redirect
-    proxy: false         # Enable integrated reverse proxy
-    scale: 1             # Zoom level (0.5-2.0)
+    default: false
+    open_mode: iframe       # iframe, new_tab, new_window, redirect
+    proxy: true             # Proxy through /proxy/sonarr/ (see below)
+    scale: 1                # Zoom level (0.5-2.0)
 ```
 
 ### Groups
@@ -95,7 +89,9 @@ apps:
 ```yaml
 groups:
   - name: Media
-    icon: play
+    icon:
+      type: lucide
+      name: play
     color: "#e5a00d"
     order: 1
 ```
@@ -112,26 +108,65 @@ navigation:
   show_logo: true
 ```
 
-### TLS / HTTPS
+---
 
-Muximux serves on a single port. To enable HTTPS, add a `tls` section under `server`:
+## Integrated Reverse Proxy
+
+When `proxy: true` is set on an app, Muximux proxies all requests through `/proxy/{app-slug}/` on the **same port**. This works automatically with zero extra configuration.
+
+**What it does:**
+- Strips `X-Frame-Options` and `Content-Security-Policy` headers that block iframe embedding
+- Rewrites URLs in HTML, CSS, and JavaScript so the app works correctly under the proxy path
+- Rewrites `Set-Cookie` paths, `Location` redirects, and `<base href>` tags
+- Handles gzipped responses transparently
+
+**Use this when:** an app refuses to load in an iframe (most apps set `X-Frame-Options: DENY`).
+
+```yaml
+apps:
+  - name: Sonarr
+    url: http://sonarr:8989
+    proxy: true              # Now accessible at /proxy/sonarr/
+    open_mode: iframe
+```
+
+The integrated proxy runs on the Go server itself and does **not** require TLS, Caddy, or any other configuration. It works in every deployment mode.
+
+---
+
+## TLS / HTTPS
+
+Muximux serves on a single port. To add HTTPS, configure `tls` under `server`. An embedded [Caddy](https://caddyserver.com/) server starts automatically and handles the user-facing port, forwarding to Go internally.
+
+### Auto-HTTPS (Let's Encrypt)
 
 ```yaml
 server:
   listen: ":8080"
   tls:
-    domain: "muximux.example.com"  # Auto-HTTPS via Let's Encrypt
+    domain: "muximux.example.com"
     email: "admin@example.com"
-    # Or bring your own certs (use domain OR cert, not both):
-    # cert: /path/to/cert.pem
-    # key: /path/to/key.pem
 ```
 
-When TLS is configured, an embedded Caddy server handles the user-facing port and forwards to an internal Go server automatically.
+Caddy manages certificate issuance and renewal automatically. It will also listen on ports 80 and 443 for the ACME challenge.
 
-### Gateway
+### Manual Certificates
 
-Serve additional sites through the same Caddy instance using standard Caddyfile syntax:
+```yaml
+server:
+  listen: ":8080"
+  tls:
+    cert: /path/to/cert.pem
+    key: /path/to/key.pem
+```
+
+Muximux serves HTTPS on the configured `listen` port using your certificates. Use `domain` **or** `cert`/`key`, not both.
+
+---
+
+## Gateway
+
+Serve additional sites alongside Muximux through the same Caddy instance, using standard [Caddyfile](https://caddyserver.com/docs/caddyfile) syntax:
 
 ```yaml
 server:
@@ -139,21 +174,34 @@ server:
   gateway: /path/to/sites.Caddyfile
 ```
 
-Caddy starts automatically when either `tls` or `gateway` is configured. If neither is set, Go serves directly with zero overhead.
+The referenced Caddyfile is imported into Caddy's configuration. You can use this to reverse-proxy other services, serve static files, or add any Caddy-supported functionality.
 
-### Integrated Reverse Proxy
+---
 
-When `proxy: true` is set on an app, Muximux proxies requests through `/proxy/{app-slug}/` and strips X-Frame-Options/CSP headers that would prevent iframe embedding.
+## How It All Fits Together
 
-### Authentication
+| `tls` | `gateway` | What happens |
+|-------|-----------|-------------|
+| No | No | Go serves on `listen` directly. No Caddy. Simplest mode. |
+| Yes | No | Caddy serves HTTPS on `listen`, Go on an internal port. |
+| No | Yes | Caddy serves HTTP on `listen` + extra sites, Go on internal port. |
+| Yes | Yes | Caddy serves HTTPS on `listen` + extra sites, Go on internal port. |
 
-#### No Auth (Default)
+The internal port is computed automatically (`listen` port + 10000, e.g., `:8080` becomes `127.0.0.1:18080`). It is never user-configured.
+
+The per-app `proxy: true` setting (integrated reverse proxy) works in **all four modes** above. It runs on the Go server and is independent of Caddy.
+
+---
+
+## Authentication
+
+### No Auth (Default)
 ```yaml
 auth:
   method: none
 ```
 
-#### Built-in Users
+### Built-in Users
 ```yaml
 auth:
   method: builtin
@@ -175,7 +223,7 @@ Generate password hashes:
 docker exec muximux ./muximux hashpw
 ```
 
-#### Forward Auth (Authelia/Authentik)
+### Forward Auth (Authelia/Authentik)
 ```yaml
 auth:
   method: forward_auth
@@ -188,7 +236,7 @@ auth:
     groups: Remote-Groups
 ```
 
-#### OIDC
+### OIDC
 ```yaml
 auth:
   method: oidc
@@ -203,7 +251,9 @@ auth:
       - email
 ```
 
-### Health Monitoring
+---
+
+## Health Monitoring
 
 ```yaml
 health:
@@ -213,43 +263,6 @@ health:
 ```
 
 Health status is displayed as colored indicators on app icons and broadcast via WebSocket for real-time updates.
-
-## API
-
-### Apps
-- `GET /api/apps` - List all apps
-- `GET /api/apps/:name` - Get app by name
-- `POST /api/apps` - Create app
-- `PUT /api/apps/:name` - Update app
-- `DELETE /api/apps/:name` - Delete app
-
-### Groups
-- `GET /api/groups` - List all groups
-- `POST /api/groups` - Create group
-- `PUT /api/groups/:name` - Update group
-- `DELETE /api/groups/:name` - Delete group
-
-### Config
-- `GET /api/config` - Get configuration
-- `PUT /api/config` - Update configuration
-
-### Health
-- `GET /api/health` - Get all health statuses
-- `GET /api/health/:name` - Get app health status
-
-### Auth
-- `POST /api/auth/login` - Login
-- `POST /api/auth/logout` - Logout
-- `GET /api/auth/me` - Get current user
-
-### WebSocket
-- `GET /ws` - WebSocket connection for real-time events
-
-Events:
-```json
-{"type": "health_update", "data": {"app": "plex", "status": "healthy"}}
-{"type": "config_change", "data": {"section": "apps"}}
-```
 
 ## Icons
 
@@ -284,26 +297,65 @@ auth:
     client_secret: ${OIDC_CLIENT_SECRET}
 ```
 
+## API
+
+### Apps
+- `GET /api/apps` - List all apps
+- `POST /api/apps` - Create app
+- `GET /api/app/:name` - Get app
+- `PUT /api/app/:name` - Update app
+- `DELETE /api/app/:name` - Delete app
+
+### Groups
+- `GET /api/groups` - List all groups
+- `POST /api/groups` - Create group
+- `GET /api/group/:name` - Get group
+- `PUT /api/group/:name` - Update group
+- `DELETE /api/group/:name` - Delete group
+
+### Config
+- `GET /api/config` - Get configuration
+- `PUT /api/config` - Update configuration
+
+### Health
+- `GET /api/apps/health` - Get all health statuses
+- `GET /api/apps/:name/health` - Get app health
+
+### Auth
+- `POST /api/auth/login` - Login
+- `POST /api/auth/logout` - Logout
+- `GET /api/auth/status` - Auth status
+- `GET /api/auth/me` - Current user
+
+### WebSocket
+- `GET /ws` - Real-time events
+
+```json
+{"type": "health_update", "data": {"app": "sonarr", "status": "healthy"}}
+{"type": "config_change", "data": {"section": "apps"}}
+```
+
 ## Architecture
 
 ```
 muximux3/
 ├── cmd/muximux/      # Main entrypoint
 ├── internal/
-│   ├── config/       # YAML configuration
-│   ├── server/       # HTTP server & routing
-│   ├── handlers/     # API handlers
+│   ├── config/       # YAML configuration + validation
+│   ├── server/       # HTTP server, routing, middleware
+│   ├── handlers/     # API handlers + integrated reverse proxy
 │   ├── health/       # Health monitoring
-│   ├── websocket/    # WebSocket hub
-│   ├── auth/         # Authentication
+│   ├── websocket/    # WebSocket hub for real-time events
+│   ├── auth/         # Authentication (builtin, forward_auth, OIDC)
 │   ├── proxy/        # Caddy TLS/gateway management
+│   ├── icons/        # Dashboard Icons + Lucide client
 │   └── logging/      # Structured logging
-└── web/              # Svelte frontend
+└── web/              # Svelte 5 frontend
     ├── src/
     │   ├── components/
-    │   ├── lib/      # Stores & utilities
+    │   ├── lib/      # Stores, types, API client
     │   └── App.svelte
-    └── dist/         # Embedded in binary
+    └── dist/         # Built assets (embedded in binary)
 ```
 
 ## Building

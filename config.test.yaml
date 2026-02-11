@@ -1,13 +1,6 @@
 server:
     listen: :3000
     title: Muximux
-proxy:
-    enabled: false
-    listen: :8443
-    auto_https: false
-    acme_email: ""
-    tls_cert: ""
-    tls_key: ""
 auth:
     method: none
     users: []
@@ -73,7 +66,7 @@ groups:
       expanded: true
 apps:
     - name: Plex
-      url: http://10.9.0.41:32400/web
+      url: http://192.0.2.10:32400/web
       icon:
         type: dashboard
         name: plex
@@ -93,7 +86,7 @@ apps:
         roles: []
         users: []
     - name: Sonarr
-      url: http://10.9.0.42:8989
+      url: http://192.0.2.20:8989
       icon:
         type: dashboard
         name: sonarr
@@ -113,7 +106,7 @@ apps:
         roles: []
         users: []
     - name: Radarr
-      url: http://10.9.0.42:7878
+      url: http://192.0.2.20:7878
       icon:
         type: dashboard
         name: radarr
@@ -133,7 +126,7 @@ apps:
         roles: []
         users: []
     - name: Pi-hole
-      url: http://10.9.0.100/admin
+      url: http://192.0.2.100/admin
       icon:
         type: dashboard
         name: pi-hole

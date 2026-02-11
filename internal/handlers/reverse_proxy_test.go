@@ -24,16 +24,16 @@ func TestContentRewriter(t *testing.T) {
 			name:        "rewrite absolute URL with target host",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "/admin",
-			targetHost:  "10.9.0.100",
-			input:       `<a href="http://10.9.0.100/admin/settings">`,
+			targetHost:  "192.0.2.100",
+			input:       `<a href="http://192.0.2.100/admin/settings">`,
 			expected:    `<a href="/proxy/app/settings">`,
 		},
 		{
 			name:        "rewrite absolute URL without target path",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "/admin",
-			targetHost:  "10.9.0.100",
-			input:       `<a href="http://10.9.0.100/other/path">`,
+			targetHost:  "192.0.2.100",
+			input:       `<a href="http://192.0.2.100/other/path">`,
 			expected:    `<a href="/proxy/app/other/path">`,
 		},
 		{
@@ -112,7 +112,7 @@ func TestContentRewriter(t *testing.T) {
 			name:        "handle app without subpath (like Sonarr)",
 			proxyPrefix: "/proxy/sonarr",
 			targetPath:  "/",
-			targetHost:  "10.9.0.42:8989",
+			targetHost:  "192.0.2.42:8989",
 			input:       `<link rel="icon" href="/Content/Images/Icons/favicon.png">`,
 			expected:    `<link rel="icon" href="/proxy/sonarr/Content/Images/Icons/favicon.png">`,
 		},
@@ -274,6 +274,7 @@ func TestRewriteLocation(t *testing.T) {
 		location    string
 		proxyPrefix string
 		targetPath  string
+		targetHost  string
 		expected    string
 	}{
 		{
@@ -281,6 +282,7 @@ func TestRewriteLocation(t *testing.T) {
 			location:    "/admin/dashboard",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "/admin",
+			targetHost:  "",
 			expected:    "/proxy/app/dashboard",
 		},
 		{
@@ -288,6 +290,7 @@ func TestRewriteLocation(t *testing.T) {
 			location:    "/admin",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "/admin",
+			targetHost:  "",
 			expected:    "/proxy/app/",
 		},
 		{
@@ -295,6 +298,7 @@ func TestRewriteLocation(t *testing.T) {
 			location:    "/login",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
+			targetHost:  "",
 			expected:    "/proxy/app/login",
 		},
 		{
@@ -302,27 +306,46 @@ func TestRewriteLocation(t *testing.T) {
 			location:    "/proxy/app/page",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
+			targetHost:  "",
 			expected:    "/proxy/app/page",
 		},
 		{
-			name:        "don't rewrite absolute URLs",
+			name:        "don't rewrite absolute URLs to different host",
 			location:    "https://external.com/page",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
+			targetHost:  "192.0.2.10:32400",
 			expected:    "https://external.com/page",
+		},
+		{
+			name:        "rewrite absolute URL matching target host",
+			location:    "http://192.0.2.10:32400/web/index.html",
+			proxyPrefix: "/proxy/myapp",
+			targetPath:  "",
+			targetHost:  "192.0.2.10:32400",
+			expected:    "/proxy/myapp/web/index.html",
+		},
+		{
+			name:        "rewrite absolute URL with query string",
+			location:    "http://192.0.2.10:32400/web/index.html?redirect=1",
+			proxyPrefix: "/proxy/myapp",
+			targetPath:  "",
+			targetHost:  "192.0.2.10:32400",
+			expected:    "/proxy/myapp/web/index.html?redirect=1",
 		},
 		{
 			name:        "handle API path redirect",
 			location:    "/api/auth",
 			proxyPrefix: "/proxy/pihole",
 			targetPath:  "/admin",
+			targetHost:  "",
 			expected:    "/proxy/pihole/api/auth",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriteLocation(tt.location, tt.proxyPrefix, tt.targetPath)
+			result := rewriteLocation(tt.location, tt.proxyPrefix, tt.targetPath, tt.targetHost)
 			if result != tt.expected {
 				t.Errorf("rewriteLocation() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -344,46 +367,46 @@ func TestDirectorPathMapping(t *testing.T) {
 		{
 			name:           "app at root path",
 			appName:        "Sonarr",
-			appURL:         "http://10.9.0.42:8989",
+			appURL:         "http://192.0.2.42:8989",
 			requestPath:    "/proxy/sonarr/api/series",
 			expectedPath:   "/api/series",
-			expectedHost:   "10.9.0.42:8989",
+			expectedHost:   "192.0.2.42:8989",
 			expectedScheme: "http",
 		},
 		{
 			name:           "app with subpath",
 			appName:        "Pi-hole",
-			appURL:         "http://10.9.0.100/admin",
+			appURL:         "http://192.0.2.100/admin",
 			requestPath:    "/proxy/pi-hole/settings",
 			expectedPath:   "/admin/settings",
-			expectedHost:   "10.9.0.100",
+			expectedHost:   "192.0.2.100",
 			expectedScheme: "http",
 		},
 		{
 			name:           "app with subpath - API at root",
 			appName:        "Pi-hole",
-			appURL:         "http://10.9.0.100/admin",
+			appURL:         "http://192.0.2.100/admin",
 			requestPath:    "/proxy/pi-hole/api/auth",
 			expectedPath:   "/api/auth",
-			expectedHost:   "10.9.0.100",
+			expectedHost:   "192.0.2.100",
 			expectedScheme: "http",
 		},
 		{
 			name:           "app at root - root request",
 			appName:        "Sonarr",
-			appURL:         "http://10.9.0.42:8989",
+			appURL:         "http://192.0.2.42:8989",
 			requestPath:    "/proxy/sonarr/",
 			expectedPath:   "/",
-			expectedHost:   "10.9.0.42:8989",
+			expectedHost:   "192.0.2.42:8989",
 			expectedScheme: "http",
 		},
 		{
 			name:           "app with subpath - root request",
 			appName:        "Pi-hole",
-			appURL:         "http://10.9.0.100/admin",
+			appURL:         "http://192.0.2.100/admin",
 			requestPath:    "/proxy/pi-hole/",
 			expectedPath:   "/admin/",
-			expectedHost:   "10.9.0.100",
+			expectedHost:   "192.0.2.100",
 			expectedScheme: "http",
 		},
 		{

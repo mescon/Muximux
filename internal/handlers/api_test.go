@@ -111,11 +111,11 @@ func TestGetConfig(t *testing.T) {
 		t.Errorf("expected 2 enabled apps, got %d", len(response.Apps))
 	}
 
-	// Proxied app should have proxy URL
+	// Proxied app should have proxyUrl field set
 	for _, app := range response.Apps {
 		if app.Name == "App2" && app.Proxy {
-			if app.URL != "/proxy/app2/" {
-				t.Errorf("expected proxy URL '/proxy/app2/', got '%s'", app.URL)
+			if app.ProxyURL != "/proxy/app2/" {
+				t.Errorf("expected proxyUrl '/proxy/app2/', got '%s'", app.ProxyURL)
 			}
 		}
 	}

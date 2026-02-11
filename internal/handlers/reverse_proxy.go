@@ -65,8 +65,8 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 	result = sriHashesPattern.ReplaceAllString(result, "${1}={}")
 
 	// 1. Rewrite absolute URLs with the target host
-	// e.g., http://10.9.0.100/admin/foo -> /proxy/slug/foo
-	// e.g., http://10.9.0.100/foo -> /proxy/slug/foo
+	// e.g., http://192.0.2.100/admin/foo -> /proxy/slug/foo
+	// e.g., http://192.0.2.100/foo -> /proxy/slug/foo
 	if r.targetHost != "" {
 		hostPattern := regexp.MustCompile(`https?://` + regexp.QuoteMeta(r.targetHost) + `(/[^"'\s>)]*)`)
 		result = hostPattern.ReplaceAllStringFunc(result, func(match string) string {
@@ -396,7 +396,7 @@ func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
 				req.URL.Host = capturedTargetURL.Host
 
 				// Preserve original client information for the backend
-				// Extract client IP (RemoteAddr includes port, e.g., "10.9.0.5:54321")
+				// Extract client IP (RemoteAddr includes port, e.g., "192.0.2.5:54321")
 				clientIP := req.RemoteAddr
 				if host, _, err := net.SplitHostPort(req.RemoteAddr); err == nil {
 					clientIP = host
@@ -547,7 +547,7 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 
 func rewriteLocation(location, proxyPrefix, targetPath, targetHost string) string {
 	// Handle absolute URLs pointing to the target server
-	// e.g., http://10.9.0.41:32400/web/index.html -> /proxy/plex/index.html
+	// e.g., http://192.0.2.10:32400/web/index.html -> /proxy/plex/index.html
 	if strings.HasPrefix(location, "http://") || strings.HasPrefix(location, "https://") {
 		parsed, err := url.Parse(location)
 		if err != nil {
