@@ -265,55 +265,19 @@ function viewChangelog() {
     } 
 		json = JSON.parse(sessionStorage.getItem('JSONData'));
 	
-    $.getJSON(commitURL, function(result) {
-        json = result;
-        var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
-        difference = 0;
-        for (var i in json) {
-            if (json[i].sha == localversion) {
-                difference = i;
-            }
-        }
-        differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-
-
-    var status = "<strong>up to date!</strong>";
-    if (difference > 0) {
-        status = "<strong>" + difference + " commits behind!</strong>";
-    }
-    output = "<p>Your install is currently " + status + "<br/>";
-    if (difference > 0) {
-        output += "The changes from your version to the latest version can be read <a href=\"" + compareURL + "\" target=\"_blank\">here</a>.</p>";
-    }
-    output += "<p>Updates to your version of <a href='https://github.com/mescon/Muximux/' target='_blank'>Muximux</a> were uploaded to Github " + (differenceDays == 1 ? 'today' : differenceDays - 1 + (differenceDays == 2 ? ' day ago' : ' days ago') ) + ".</p>";
+    var output = "<h2>Muximux v3 is now available!</h2>";
+    output += "<p>Muximux has been completely rewritten from the ground up with a modern stack:</p>";
+    output += "<ul>";
+    output += "<li><strong>Standalone Go binary</strong> &mdash; no PHP, no web server configuration needed</li>";
+    output += "<li><strong>Modern UI</strong> built with Svelte &mdash; themes, drag &amp; drop, and more</li>";
+    output += "<li><strong>Built-in reverse proxy</strong> &mdash; access all your apps through a single port</li>";
+    output += "<li><strong>1,600+ icons</strong> from the Lucide icon library</li>";
+    output += "</ul>";
+    output += "<p>Your current Muximux v2 installation will continue to work, but it will no longer receive updates.</p>";
     output += "<div class='btn-group' role='group' aria-label='Buttons' id='topButtons'>";
-    if (difference > 0) {
-        output +="<a class='btn btn-primary' id='downloadUpdate'><span class='fa fa-arrow-circle-down'></span> Install Now</a>";
-    }
-    output +="<a class='btn btn-primary' id='refreshUpdate'><span class='fa fa-rotate-right'></span> Refresh Updates</a>" +
-                    "</div>";
-    if (difference > 0) {
-
-        output += "<p>Or you can manually download <a href='https://github.com/mescon/Muximux/archive/" + branch + ".zip' target='_blank'>the latest zip here.</a></p>";
-        output += "<h3>Changelog (" + branch + ")</h3><ul>";
-        var i=0;
-        do {
-            var shortCommitID = json[i].sha.substring(0, 7);
-            var shortComments = htmlEntities(json[i].commit.message.substring(0, 550).replace(/$/, "") + "...");
-            var shortDate = json[i].commit.author.date.substring(0, 10);
-            output += "<li><pre>" + shortDate + " <a href=\"" + json[i].html_url + "\">" + shortCommitID + "</a>:  " + shortComments + "</li></pre>";
-            i++;
-        } while (i != difference);
-        output += "</ul>";
-    }
+    output += "<a class='btn btn-primary' href='https://github.com/mescon/Muximux' target='_blank'><span class='fa fa-arrow-circle-up'></span> Upgrade to v3</a>";
+    output += "</div>";
     $('#changelog').html(output);
-    $('#downloadUpdate').click(function(){
-        downloadUpdate(json[0].sha);
-    });
-    $('#refreshUpdate').click(function(){
-        refreshBranches();
-        updateBox(true);
-    });
 
 
     });
@@ -404,42 +368,18 @@ function setTitle(title) {
 }
 // Idea and implementation graciously borrowed from PlexPy (https://github.com/drzoidberg33/plexpy)
 function updateBox($force) {
-    if ((!getCookie('hasJSON')) || ($force === true) || (!sessionStorage['JSONData'])) {
-        write_log('Refreshing commit data from github - ' + ($force ? "automatically triggered." : "manually triggered."));
-        updateJson();
-    } 
-	json = JSON.parse(sessionStorage.getItem('JSONData'));
-	
-    var compareURL = "https://github.com/mescon/Muximux/compare/" + localversion + "..." + json[0].sha;
-    var difference = 0;
-    for (var i in json) {
-        if (json[i].sha == localversion) {
-            difference = i;
-        }
+    if (!getCookie('updateDismiss')) {
+        $('#updateContainer').html("<button type='button' id='updateDismiss' class='close pull-right'>&times;</button>" +
+        "<span><strong>Muximux v3 is now available!</strong><br/>" +
+        "A complete rewrite with a modern UI, built-in reverse proxy, themes, and much more.<br/>" +
+        "<a href='https://github.com/mescon/Muximux' target='_blank'>Learn more and upgrade &rarr;</a></span>");
+        $('#updateContainer').fadeIn("slow");
     }
-    var differenceDays = datediff(json[0].commit.author.date.substring(0, 10));
-    var updateCheck;
-    if (difference) {
-        clearInterval(updateCheck);
-        if (difference > 0) {
-
-            if (!getCookie('updateDismiss')) {
-                $('#updateContainer').html("<button type='button' id='updateDismiss' class='close pull-right'>&times;</button>" +
-                "<span>You are currently <strong>" + difference + "</strong> "+ ((difference > 1) ? 'commits' : 'commit')+" behind!<br/>" +
-                "See <a href='" + compareURL + "' target='_blank'>changelog</a> or <div id='downloadModal'><code>click here</code></div> to install now.</span>");
-                $('#updateContainer').fadeIn("slow");
-                $('#downloadModal').click(function(){
-                    downloadUpdate(json[0].sha);
-                });
-            }
-        }
-        $('#updateDismiss').click(function() {
-            $('#updateContainer').fadeOut('slow');
-            // Set cookie to remember dismiss decision for 1 hour.
-            setCookie('updateDismiss', 'true', 1 / 24);
-            write_log('Update notification dismissed for one hour.');
-        });
-    }
+    $('#updateDismiss').click(function() {
+        $('#updateContainer').fadeOut('slow');
+        setCookie('updateDismiss', 'true', 1 / 24);
+        write_log('v3 notification dismissed for one hour.');
+    });
 }
 
 function updateJson() {
@@ -466,28 +406,8 @@ function scaleContent(content, scale) {
 }
 
 function downloadUpdate($sha) {
-    if (confirm('Would you like to download and install updates now?')) {
-        $.ajax({
-            async: true,
-            url: "muximux.php",
-            type: 'GET',
-			dataType:'json',
-            data: {action: "update", secret: secret, sha: $sha},
-        })
-		.done(function(res) {
-			setStatus('Update installed successfully!',true);
-			delete_cookie('hasJSON');
-			sessionStorage.removeItem('JSONData');
-			n = 15;
-			var tm = setInterval(reloadTimer,1000);
-
-		})
-		.fail(function(res) {
-			response=JSON.parse(res["responseText"]);
-			setStatus('INSTALL FAILED: ' + response["message"],false);
-		});
-
-    } 
+    // v2 auto-update disabled. Muximux v3 is a standalone Go binary.
+    window.open('https://github.com/mescon/Muximux', '_blank');
 }
 
 // A little countdown function to reload and tell the user why
