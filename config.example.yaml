@@ -55,11 +55,12 @@ auth:
   #   issuer_url: https://auth.example.com
   #   client_id: ${OIDC_CLIENT_ID}
   #   client_secret: ${OIDC_CLIENT_SECRET}
-  #   redirect_url: https://muximux.example.com/auth/callback
+  #   redirect_url: https://muximux.example.com/api/auth/oidc/callback
   #   scopes: [openid, profile, email]
   #   username_claim: preferred_username  # default
   #   email_claim: email                  # default
   #   groups_claim: groups                # default
+  #   display_name_claim: name            # default
   #   admin_groups: [admins]
 
 # Navigation layout

@@ -86,7 +86,8 @@ If the `--config` flag is omitted, Muximux looks for `config.yaml` in the curren
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--config` | `config.yaml` | Path to the configuration file |
+| `--config` | `config.yaml` | Path to the configuration file (env: `MUXIMUX_CONFIG`) |
+| `--listen` | from config | Override listen address (env: `MUXIMUX_LISTEN`) |
 | `--version` | | Print version information and exit |
 
 ---

@@ -37,7 +37,7 @@ auth:
   # Builtin auth users
   users:
     - username: ""
-      password_hash: ""        # bcrypt hash (generate with: muximux hashpw)
+      password_hash: ""        # bcrypt hash (see Authentication page)
       role: admin              # admin or user
       email: ""                # Optional
       display_name: ""         # Optional

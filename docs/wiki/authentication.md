@@ -49,15 +49,31 @@ auth:
 
 ### Generating Password Hashes
 
-```bash
-# From binary
-./muximux hashpw
+The `hashpw` utility is a separate binary built from `cmd/hashpw/`:
 
-# From Docker
-docker exec muximux ./muximux hashpw
+```bash
+# Build and run
+go build -o hashpw ./cmd/hashpw
+./hashpw
 ```
 
 This prompts for a password and outputs a bcrypt hash to paste into `config.yaml`.
+
+You can also pass the password as an argument (useful for scripting):
+
+```bash
+./hashpw 'my-secret-password'
+```
+
+**Docker users:** The hashpw utility is not included in the Docker image. Generate hashes on your host machine, or use any bcrypt tool:
+
+```bash
+# Using htpasswd (from apache2-utils)
+htpasswd -nbBC 10 "" 'my-secret-password' | cut -d: -f2
+
+# Using Python
+python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-secret-password', bcrypt.gensalt()).decode())"
+```
 
 ### Roles
 
@@ -97,7 +113,7 @@ Only the direct TCP connection IP (from `RemoteAddr`) is checked against trusted
 
 ### Admin Detection
 
-Users whose groups contain "admin", "admins", or "administrators" (case-insensitive) are automatically assigned the admin role.
+Users whose groups contain "admin", "admins", or "administrators" (exact match) are automatically assigned the admin role.
 
 ### Typical Setup with Authelia
 

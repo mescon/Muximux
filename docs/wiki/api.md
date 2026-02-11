@@ -201,20 +201,20 @@ Accepted formats: PNG, SVG, JPG, WebP. Maximum file size: 5MB.
 Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
 
 ```json
-{"type": "config_updated", "data": {...}}
-{"type": "health_changed", "data": [...]}
-{"type": "app_health_changed", "data": {"name": "Sonarr", "status": "healthy", ...}}
+{"type": "config_updated", "payload": {...}}
+{"type": "health_changed", "payload": [...]}
+{"type": "app_health_changed", "payload": {"app": "Sonarr", "health": {"status": "healthy", ...}}}
 ```
 
 **Event types:**
 
-| Type | Description |
-|------|-------------|
-| `config_updated` | Configuration was changed (via Settings panel or API) |
-| `health_changed` | Health status changed for one or more apps |
-| `app_health_changed` | Health status changed for a specific app |
+| Type | Payload | Description |
+|------|---------|-------------|
+| `config_updated` | Full config object | Configuration was changed (via Settings panel or API) |
+| `health_changed` | Array of health statuses | Health status changed for one or more apps |
+| `app_health_changed` | `{"app": "name", "health": {...}}` | Health status changed for a specific app |
 
-The WebSocket client automatically reconnects if the connection drops, using exponential backoff up to 10 retry attempts.
+The WebSocket client automatically reconnects if the connection drops, using exponential backoff (up to 30 seconds between retries, max 10 attempts).
 
 ---
 
