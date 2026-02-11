@@ -65,9 +65,11 @@
 <div
   class="shortcuts-help fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
   onclick={handleBackdropClick}
+  onkeydown={handleKeydown}
   role="dialog"
   aria-modal="true"
   aria-label="Keyboard shortcuts"
+  tabindex="-1"
   transition:fade={{ duration: 150 }}
 >
   <div

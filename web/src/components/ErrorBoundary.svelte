@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { Snippet } from 'svelte';
 
   let { error = null, resetError = null, children }: {
@@ -8,7 +8,7 @@
     children?: Snippet;
   } = $props();
 
-  let errorState = $state<Error | null>(error);
+  let errorState = $state<Error | null>(untrack(() => error));
   let errorInfo = $state('');
 
   // Sync external error prop

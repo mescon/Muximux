@@ -10,7 +10,7 @@ export const groupSchema = z.object({
 });
 
 /** Extract field errors from a Zod result into a flat Record */
-export function extractErrors(result: z.SafeParseReturnType<any, any>): Record<string, string> {
+export function extractErrors(result: z.ZodSafeParseResult<any>): Record<string, string> {
   if (result.success) return {};
   const errors: Record<string, string> = {};
   for (const issue of result.error.issues) {

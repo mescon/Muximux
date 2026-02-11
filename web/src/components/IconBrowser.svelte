@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import {
     listDashboardIcons,
     getDashboardIconUrl,
@@ -20,7 +20,7 @@
   let {
     selectedIcon = '',
     selectedVariant = 'svg',
-    selectedType = 'dashboard',
+    selectedType = 'dashboard' as 'dashboard' | 'lucide' | 'custom',
     onselect,
     onclose,
   }: {
@@ -32,7 +32,7 @@
   } = $props();
 
   type IconTab = 'dashboard' | 'lucide' | 'custom';
-  let activeTab = $state<IconTab>(selectedType);
+  let activeTab = $state<IconTab>(untrack(() => selectedType));
 
   let searchQuery = $state('');
 

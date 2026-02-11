@@ -54,8 +54,8 @@ describe('healthStore', () => {
 
     it('should populate healthData with results', async () => {
       mockFetchAllAppHealth.mockResolvedValue([
-        { name: 'App1', status: 'healthy', response_time: 50 },
-        { name: 'App2', status: 'unhealthy', response_time: 0 },
+        { name: 'App1', status: 'healthy', response_time_ms: 50, last_check: '2024-01-01T00:00:00Z', uptime_percent: 100, check_count: 10, success_count: 10 },
+        { name: 'App2', status: 'unhealthy', response_time_ms: 0, last_check: '2024-01-01T00:00:00Z', uptime_percent: 0, check_count: 10, success_count: 0 },
       ]);
 
       await refreshHealth();
@@ -65,7 +65,11 @@ describe('healthStore', () => {
       expect(data.get('App1')).toEqual({
         name: 'App1',
         status: 'healthy',
-        response_time: 50,
+        response_time_ms: 50,
+        last_check: '2024-01-01T00:00:00Z',
+        uptime_percent: 100,
+        check_count: 10,
+        success_count: 10,
       });
       expect(data.get('App2')?.status).toBe('unhealthy');
     });
@@ -182,7 +186,7 @@ describe('healthStore', () => {
   describe('getAppHealthStatus', () => {
     it('should return health status for known app', () => {
       const healthMap = new Map();
-      healthMap.set('App1', { name: 'App1', status: 'healthy', response_time: 50 });
+      healthMap.set('App1', { name: 'App1', status: 'healthy', response_time_ms: 50 });
       healthData.set(healthMap);
 
       const status = getAppHealthStatus('App1');
@@ -198,7 +202,7 @@ describe('healthStore', () => {
 
     it('should return correct status for unhealthy app', () => {
       const healthMap = new Map();
-      healthMap.set('BadApp', { name: 'BadApp', status: 'unhealthy', response_time: 0 });
+      healthMap.set('BadApp', { name: 'BadApp', status: 'unhealthy', response_time_ms: 0 });
       healthData.set(healthMap);
 
       const status = getAppHealthStatus('BadApp');
@@ -209,7 +213,7 @@ describe('healthStore', () => {
   describe('createAppHealthStore', () => {
     it('should create a derived store for specific app', () => {
       const healthMap = new Map();
-      healthMap.set('MyApp', { name: 'MyApp', status: 'healthy', response_time: 100 });
+      healthMap.set('MyApp', { name: 'MyApp', status: 'healthy', response_time_ms: 100 });
       healthData.set(healthMap);
 
       const myAppHealth = createAppHealthStore('MyApp');
@@ -218,7 +222,7 @@ describe('healthStore', () => {
       expect(health).toEqual({
         name: 'MyApp',
         status: 'healthy',
-        response_time: 100,
+        response_time_ms: 100,
       });
     });
 
@@ -237,14 +241,14 @@ describe('healthStore', () => {
 
       // Add app health data
       const healthMap = new Map();
-      healthMap.set('DynamicApp', { name: 'DynamicApp', status: 'healthy', response_time: 25 });
+      healthMap.set('DynamicApp', { name: 'DynamicApp', status: 'healthy', response_time_ms: 25 });
       healthData.set(healthMap);
 
       // Should now have data
       expect(get(myAppHealth)?.status).toBe('healthy');
 
       // Update status
-      healthMap.set('DynamicApp', { name: 'DynamicApp', status: 'unhealthy', response_time: 0 });
+      healthMap.set('DynamicApp', { name: 'DynamicApp', status: 'unhealthy', response_time_ms: 0 });
       healthData.set(healthMap);
 
       expect(get(myAppHealth)?.status).toBe('unhealthy');

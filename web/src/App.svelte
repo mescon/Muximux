@@ -121,7 +121,7 @@
     try {
       config = await fetchConfig();
       apps = config.apps;
-      authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined && config.auth?.method !== '';
+      authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined;
 
       // Initialize keybindings from config
       initKeybindings(config.keybindings);

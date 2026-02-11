@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -166,7 +167,8 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Check for errors from provider
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		errDesc := r.URL.Query().Get("error_description")
-		http.Error(w, fmt.Sprintf("Authentication error: %s - %s", errParam, errDesc), http.StatusUnauthorized)
+		log.Printf("OIDC authentication error: %s - %s", errParam, errDesc)
+		http.Error(w, "Authentication failed. Please try again.", http.StatusUnauthorized)
 		return
 	}
 
@@ -194,14 +196,16 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Exchange code for tokens
 	tokens, err := p.exchangeCode(code)
 	if err != nil {
-		http.Error(w, "Failed to exchange code: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("OIDC code exchange failed: %v", err)
+		http.Error(w, "Authentication failed. Please try again.", http.StatusInternalServerError)
 		return
 	}
 
 	// Get user info
 	userInfo, err := p.getUserInfo(tokens.AccessToken)
 	if err != nil {
-		http.Error(w, "Failed to get user info: "+err.Error(), http.StatusInternalServerError)
+		log.Printf("OIDC user info retrieval failed: %v", err)
+		http.Error(w, "Authentication failed. Please try again.", http.StatusInternalServerError)
 		return
 	}
 

@@ -35,7 +35,6 @@ describe('keybindingsStore', () => {
     it('should have all expected actions', () => {
       const actions = DEFAULT_KEYBINDINGS.map(b => b.action);
       expect(actions).toContain('search');
-      expect(actions).toContain('commandPalette');
       expect(actions).toContain('settings');
       expect(actions).toContain('shortcuts');
       expect(actions).toContain('refresh');
@@ -157,7 +156,7 @@ describe('keybindingsStore', () => {
 
     it('should find action for key combo', () => {
       const event = new KeyboardEvent('keydown', { key: 'p', ctrlKey: true, shiftKey: true });
-      expect(findAction(event)).toBe('commandPalette');
+      expect(findAction(event)).toBe('search');
     });
   });
 

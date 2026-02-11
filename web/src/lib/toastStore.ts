@@ -60,9 +60,10 @@ export async function withToast<T>(
     error?: string | ((err: Error) => string);
   }
 ): Promise<T> {
-  return toast.promise(promise, {
+  toast.promise(promise, {
     loading: options.loading ?? 'Loading...',
     success: (r: T) => typeof options.success === 'function' ? options.success(r) : options.success ?? 'Done',
-    error: (e: Error) => typeof options.error === 'function' ? options.error(e) : options.error ?? 'Failed',
+    error: (e: unknown) => typeof options.error === 'function' ? options.error(e as Error) : options.error ?? 'Failed',
   });
+  return promise;
 }

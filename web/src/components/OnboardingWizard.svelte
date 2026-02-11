@@ -101,7 +101,8 @@
       default: false,
       open_mode: 'iframe',
       proxy: false,
-      scale: 1
+      scale: 1,
+      disable_keyboard_shortcuts: false
     };
 
     selectedApps.update(apps => [...apps, newApp]);
@@ -138,7 +139,7 @@
     // Build groups
     const groups: Group[] = suggestedGroups.map((name, i) => ({
       name,
-      icon: '',
+      icon: { type: 'lucide', name: '', file: '', url: '', variant: '' },
       color: getGroupColor(name),
       order: i,
       expanded: true
@@ -152,7 +153,11 @@
       auto_hide_delay: '3s',
       show_on_hover: true,
       show_labels: $showLabels,
-      show_logo: true
+      show_logo: true,
+      show_app_colors: true,
+      show_icon_background: true,
+      show_splash_on_startup: true,
+      show_shadow: true
     };
 
     markOnboardingComplete();
@@ -449,6 +454,7 @@
                     <button
                       class="p-1 text-gray-400 hover:text-red-400"
                       onclick={() => selectedApps.update(apps => apps.filter(a => a.name !== app.name))}
+                      aria-label="Remove app"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

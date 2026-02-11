@@ -412,8 +412,6 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		// Fallback to serving from web/dist during development
 		fileServer := http.FileServer(http.Dir("web/dist"))
 		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
-		// Debug: also register file server directly to test
-		fmt.Println("DEBUG: Using development file server from web/dist")
 	} else {
 		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html")
 	}
@@ -494,18 +492,15 @@ func (s *Server) Stop() error {
 func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		path := r.URL.Path
-		fmt.Printf("DEBUG spaHandlerDev: path=%s\n", path)
 
 		// For root or paths without extension (likely SPA routes), serve index.html directly
 		// We use http.ServeFile instead of FileServer to avoid redirect loops
 		// Exclude /api/, /ws, /proxy/, and /icons/ paths
 		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, "/proxy/") && !strings.HasPrefix(path, "/icons/")) {
-			fmt.Printf("DEBUG: serving index.html for path=%s\n", path)
 			http.ServeFile(w, r, distDir+"/"+indexPath)
 			return
 		}
 
-		fmt.Printf("DEBUG: passing to fileServer for path=%s\n", path)
 		fileServer.ServeHTTP(w, r)
 	})
 }
@@ -564,6 +559,7 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
 		next.ServeHTTP(w, r)
 	})
 }

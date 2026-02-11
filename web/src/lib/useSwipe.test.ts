@@ -5,15 +5,16 @@ import {
   isTouchDevice,
   isMobileViewport,
   type SwipeResult,
+  type SwipeState,
 } from './useSwipe';
 
 describe('useSwipe', () => {
   describe('createSwipeHandlers', () => {
-    let onSwipe: ReturnType<typeof vi.fn>;
+    let onSwipe: ReturnType<typeof vi.fn<(result: SwipeResult) => void>>;
     let handlers: ReturnType<typeof createSwipeHandlers>;
 
     beforeEach(() => {
-      onSwipe = vi.fn();
+      onSwipe = vi.fn<(result: SwipeResult) => void>();
       handlers = createSwipeHandlers(onSwipe);
     });
 
@@ -93,7 +94,7 @@ describe('useSwipe', () => {
     });
 
     it('should call onSwipeMove during swipe', () => {
-      const onSwipeMove = vi.fn();
+      const onSwipeMove = vi.fn<(state: SwipeState) => void>();
       handlers = createSwipeHandlers(onSwipe, onSwipeMove);
 
       handlers.onpointerdown(createPointerEvent('pointerdown', { clientX: 100, clientY: 100 }));
@@ -122,12 +123,12 @@ describe('useSwipe', () => {
   });
 
   describe('createEdgeSwipeHandlers', () => {
-    let onSwipeOpen: ReturnType<typeof vi.fn>;
-    let onSwipeClose: ReturnType<typeof vi.fn>;
+    let onSwipeOpen: ReturnType<typeof vi.fn<() => void>>;
+    let onSwipeClose: ReturnType<typeof vi.fn<() => void>>;
 
     beforeEach(() => {
-      onSwipeOpen = vi.fn();
-      onSwipeClose = vi.fn();
+      onSwipeOpen = vi.fn<() => void>();
+      onSwipeClose = vi.fn<() => void>();
       // Mock window dimensions
       Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
     });

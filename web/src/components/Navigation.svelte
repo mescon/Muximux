@@ -48,16 +48,16 @@
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
   const collapsedStripWidth = 48; // Width/height of visible strip when collapsed (fits icon + border)
 
-  // Calculate actual width for sidebars (for layout reflow)
-  // When auto_hide is on, always reserve only the collapsed strip in the layout.
-  // The expanded sidebar overlays the content instead of pushing it.
-  let effectiveSidebarWidth = $derived(config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth);
-
   // Group expansion state (persisted to localStorage)
   let expandedGroups: Record<string, boolean> = $state({});
 
   // Responsive state
   let isMobile = $state(false);
+
+  // Calculate actual width for sidebars (for layout reflow)
+  // When auto_hide is on, always reserve only the collapsed strip in the layout.
+  // The expanded sidebar overlays the content instead of pushing it.
+  let effectiveSidebarWidth = $derived(config.navigation.auto_hide && !isMobile ? collapsedStripWidth : sidebarWidth);
   let mobileMenuOpen = $state(false);
   let hasTouchSupport = $state(false);
 
@@ -296,6 +296,7 @@
   <button
     class="fixed inset-0 bg-black/50 z-30 lg:hidden"
     onclick={() => mobileMenuOpen = false}
+    aria-label="Close menu"
   ></button>
 {/if}
 
@@ -929,6 +930,7 @@
     class:scale-90={isHidden && config.navigation.auto_hide}
     onmouseenter={handleNavEnter}
     onmouseleave={handleNavLeave}
+    role="presentation"
   >
     <!-- Expanded menu -->
     <div class="flex flex-col-reverse items-end gap-2 mb-2">

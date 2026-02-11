@@ -336,6 +336,11 @@
       onclose?.();
     }
   }}
+  onkeydown={(e) => {
+    if (e.key === 'Escape') {
+      onclose?.();
+    }
+  }}
   role="dialog"
   aria-modal="true"
   aria-label="Command palette"
@@ -488,7 +493,7 @@
                 >
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--bg-hover);">
                     <svg class="w-4 h-4" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSvg(cmd.icon)} />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSvg('icon' in cmd ? cmd.icon : undefined)} />
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">
@@ -524,7 +529,7 @@
                 >
                   <div class="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0" style="background: var(--bg-hover);">
                     <svg class="w-4 h-4" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSvg(cmd.icon)} />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d={getIconSvg('icon' in cmd ? cmd.icon : undefined)} />
                     </svg>
                   </div>
                   <div class="flex-1 min-w-0">

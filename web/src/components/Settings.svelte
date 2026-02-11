@@ -40,8 +40,8 @@
   let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings'>('general');
 
   // Local copy of config for editing
-  let localConfig = $state(JSON.parse(JSON.stringify(config)) as Config);
-  let localApps = $state(JSON.parse(JSON.stringify(apps)) as App[]);
+  let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
+  let localApps = $state(untrack(() => JSON.parse(JSON.stringify(apps)) as App[]));
 
   // Icon browser state
   let showIconBrowser = $state(false);
@@ -53,12 +53,7 @@
   // Track keybindings changes
   let keybindingsChanged = $state(false);
 
-  // Track if changes have been made
-  let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
-                  JSON.stringify(localApps) !== initialAppsSnapshot ||
-                  keybindingsChanged ||
-                  $selectedFamily !== initialFamily ||
-                  $variantMode !== initialVariant);
+  // Track if changes have been made (declared below after snapshot variables)
 
   // Editing state
   let editingApp = $state<App | null>(null);
@@ -103,20 +98,27 @@
   let groupErrors = $state<Record<string, string>>({});
 
   // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
-  localApps.forEach(a => { (a as any).id = a.name; });
-  localConfig.groups.forEach(g => { (g as any).id = g.name; });
+  untrack(() => localApps).forEach(a => { (a as any).id = a.name; });
+  untrack(() => localConfig).groups.forEach(g => { (g as any).id = g.name; });
 
   // Snapshot taken AFTER id fields are added, so hasChanges starts as false
-  const initialConfigSnapshot = JSON.stringify(localConfig);
-  const initialAppsSnapshot = JSON.stringify(localApps);
+  const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig));
+  const initialAppsSnapshot = untrack(() => JSON.stringify(localApps));
 
   // Snapshot theme so we can revert on close without save
-  const initialFamily = get(selectedFamily);
-  const initialVariant = get(variantMode);
-  const initialTheme = get(themeMode) as ThemeMode;
+  const initialFamily = untrack(() => get(selectedFamily));
+  const initialVariant = untrack(() => get(variantMode));
+  const initialTheme = untrack(() => get(themeMode) as ThemeMode);
+
+  // Track if changes have been made
+  let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
+                  JSON.stringify(localApps) !== initialAppsSnapshot ||
+                  keybindingsChanged ||
+                  $selectedFamily !== initialFamily ||
+                  $variantMode !== initialVariant);
 
   // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
-  let dndGroups = $state<Group[]>([...localConfig.groups].sort((a, b) => a.order - b.order));
+  let dndGroups = $state<Group[]>([...untrack(() => localConfig).groups].sort((a, b) => a.order - b.order));
   let dndGroupedApps = $state<Record<string, App[]>>(buildGroupedApps());
 
   function buildGroupedApps(): Record<string, App[]> {
@@ -376,7 +378,7 @@
     { value: 'right', label: 'Right Sidebar', description: 'Vertical sidebar on the right' },
     { value: 'bottom', label: 'Bottom Dock', description: 'macOS-style dock at the bottom' },
     { value: 'floating', label: 'Floating', description: 'Minimal floating buttons' }
-  ];
+  ] as const;
 
   const openModes = [
     { value: 'iframe', label: 'Embedded', description: 'Show inside Muximux' },
@@ -556,6 +558,7 @@
         <button
           class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={handleClose}
+          aria-label="Close settings"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -594,7 +597,7 @@
                  {activeTab === tab.id
                    ? 'text-brand-400 border-brand-400'
                    : 'text-gray-400 border-transparent hover:text-gray-300 hover:border-gray-600'}"
-          onclick={() => activeTab = tab.id}
+          onclick={() => activeTab = tab.id as typeof activeTab}
         >
           {tab.label}
         </button>
@@ -623,9 +626,9 @@
 
           <!-- Navigation Position -->
           <div>
-            <label class="block text-sm font-medium text-gray-300 mb-2">
+            <span class="block text-sm font-medium text-gray-300 mb-2">
               Navigation Position
-            </label>
+            </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {#each navPositions as pos}
                 <button
@@ -834,7 +837,7 @@
 
           <!-- Groups with their apps (dnd-zone for group reordering) -->
           <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} onconsider={handleGroupDndConsider} onfinalize={handleGroupDndFinalize}>
-            {#each dndGroups as group (group.id)}
+            {#each dndGroups as group ((group as any).id)}
               {@const appsInGroup = dndGroupedApps[group.name] || []}
               <div class="rounded-lg border border-gray-700" animate:flip={{duration: flipDurationMs}}>
                 <!-- Group header -->
@@ -893,7 +896,7 @@
                   {#if appsInGroup.length === 0}
                     <div class="text-center py-3 text-gray-500 text-sm italic">No apps in this group</div>
                   {/if}
-                  {#each appsInGroup as app (app.id)}
+                  {#each appsInGroup as app ((app as any).id)}
                     <div
                       class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
                       animate:flip={{duration: flipDurationMs}}
@@ -986,7 +989,7 @@
                 </div>
               {/if}
               <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
-                {#each ungroupedApps as app (app.id)}
+                {#each ungroupedApps as app ((app as any).id)}
                   <div
                     class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
                     animate:flip={{duration: flipDurationMs}}
@@ -1116,21 +1119,24 @@
 
           <!-- Theme Family Grid -->
           <div>
-            <label class="block text-sm font-medium mb-3" style="color: var(--text-secondary);">
+            <span class="block text-sm font-medium mb-3" style="color: var(--text-secondary);">
               Choose Theme
-            </label>
+            </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {#each $themeFamilies as family (family.id)}
                 {@const isSelected = $selectedFamily === family.id}
                 {@const isCustom = family.darkTheme ? !family.darkTheme.isBuiltin : family.lightTheme ? !family.lightTheme.isBuiltin : false}
-                <button
-                  class="relative p-4 rounded-xl text-left transition-all group"
+                <div
+                  class="relative p-4 rounded-xl text-left transition-all group cursor-pointer"
                   style="
                     background: var(--bg-surface);
                     border: 2px solid {isSelected ? 'var(--accent-primary)' : 'var(--border-subtle)'};
                     box-shadow: {isSelected ? 'var(--shadow-glow)' : 'none'};
                   "
                   onclick={() => setThemeFamily(family.id)}
+                  onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setThemeFamily(family.id); } }}
+                  role="button"
+                  tabindex="0"
                 >
                   <!-- Selection indicator / delete button -->
                   <div class="absolute top-3 right-3 flex items-center gap-1">
@@ -1140,6 +1146,7 @@
                         style="background: var(--status-error); color: white;"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                         title="Delete theme"
+                        aria-label="Delete theme"
                       >
                         <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                           <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -1213,7 +1220,9 @@
                   {#if confirmDeleteTheme === (family.darkTheme?.id || family.lightTheme?.id)}
                     <div class="absolute inset-0 rounded-xl flex items-center justify-center gap-3 z-10"
                          style="background: var(--bg-overlay); backdrop-filter: blur(4px);"
-                         onclick={(e: MouseEvent) => e.stopPropagation()}>
+                         onclick={(e: MouseEvent) => e.stopPropagation()}
+                         onkeydown={(e: KeyboardEvent) => e.stopPropagation()}
+                         role="presentation">
                       <span class="text-sm font-medium" style="color: var(--text-primary);">Delete?</span>
                       <button class="px-3 py-1 rounded text-sm font-medium"
                               style="background: var(--status-error); color: white;"
@@ -1223,7 +1232,7 @@
                               onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteTheme = null; }}>No</button>
                     </div>
                   {/if}
-                </button>
+                </div>
               {/each}
             </div>
           </div>
@@ -1275,6 +1284,7 @@
                       class="p-1 rounded transition-colors"
                       style="color: var(--text-muted);"
                       onclick={closeThemeEditor}
+                      aria-label="Close theme editor"
                     >
                       <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1394,6 +1404,7 @@
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={() => showAddApp = false}
+          aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1426,7 +1437,7 @@
           {#if appErrors.url}<p class="text-red-400 text-xs mt-1">{appErrors.url}</p>{/if}
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <span class="block text-sm font-medium text-gray-300 mb-1">Icon</span>
           <div class="flex items-center gap-3">
             <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newApp')}>
               <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
@@ -1544,6 +1555,7 @@
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={() => showAddGroup = false}
+          aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1564,7 +1576,7 @@
           {#if groupErrors.name}<p class="text-red-400 text-xs mt-1">{groupErrors.name}</p>{/if}
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <span class="block text-sm font-medium text-gray-300 mb-1">Icon</span>
           <div class="flex items-center gap-3">
             <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newGroup')}>
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
@@ -1628,6 +1640,7 @@
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={closeEditApp}
+          aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1654,7 +1667,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <span class="block text-sm font-medium text-gray-300 mb-1">Icon</span>
           <div class="flex items-center gap-3">
             <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editApp')}>
               <AppIcon icon={editingApp.icon} name={editingApp.name} color={editingApp.color} size="lg" />
@@ -1675,17 +1688,17 @@
             <div class="flex items-center gap-4 mt-2">
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Icon color
-                <input type="color" value={editingApp.icon.color || '#ffffff'} oninput={(e) => editingApp.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
-                {#if editingApp.icon.color}
-                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp.icon.color = ''} title="Reset to theme default">&times;</button>
+                <input type="color" value={editingApp!.icon.color || '#ffffff'} oninput={(e) => editingApp!.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                {#if editingApp!.icon.color}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.color = ''} title="Reset to theme default">&times;</button>
                 {/if}
               </label>
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Background
-                <input type="color" value={editingApp.icon.background || editingApp.color || '#374151'} oninput={(e) => editingApp.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
-                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp.icon.background = 'transparent'} title="Transparent">none</button>
-                {#if editingApp.icon.background}
-                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp.icon.background = ''} title="Reset to app color">&times;</button>
+                <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp!.icon.background = 'transparent'} title="Transparent">none</button>
+                {#if editingApp!.icon.background}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.background = ''} title="Reset to app color">&times;</button>
                 {/if}
               </label>
             </div>
@@ -1812,6 +1825,7 @@
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={closeEditGroup}
+          aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1829,7 +1843,7 @@
           />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-300 mb-1">Icon</label>
+          <span class="block text-sm font-medium text-gray-300 mb-1">Icon</span>
           <div class="flex items-center gap-3">
             <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editGroup')}>
               <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
@@ -1850,17 +1864,17 @@
             <div class="flex items-center gap-4 mt-2">
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Icon color
-                <input type="color" value={editingGroup.icon.color || '#ffffff'} oninput={(e) => editingGroup.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
-                {#if editingGroup.icon.color}
-                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup.icon.color = ''} title="Reset to theme default">&times;</button>
+                <input type="color" value={editingGroup!.icon.color || '#ffffff'} oninput={(e) => editingGroup!.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                {#if editingGroup!.icon.color}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup!.icon.color = ''} title="Reset to theme default">&times;</button>
                 {/if}
               </label>
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Background
-                <input type="color" value={editingGroup.icon.background || editingGroup.color || '#374151'} oninput={(e) => editingGroup.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
-                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingGroup.icon.background = 'transparent'} title="Transparent">none</button>
-                {#if editingGroup.icon.background}
-                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup.icon.background = ''} title="Reset to group color">&times;</button>
+                <input type="color" value={editingGroup!.icon.background || editingGroup!.color || '#374151'} oninput={(e) => editingGroup!.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title="Transparent">none</button>
+                {#if editingGroup!.icon.background}
+                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup!.icon.background = ''} title="Reset to group color">&times;</button>
                 {/if}
               </label>
             </div>
@@ -1911,6 +1925,7 @@
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={() => { showIconBrowser = false; iconBrowserTarget = null; }}
+          aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1946,6 +1961,7 @@
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={cancelImport}
+          aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
