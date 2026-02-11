@@ -14,6 +14,9 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
+      # Uncomment if using tls.domain or gateway with domain-based sites:
+      # - "80:80"    # HTTP→HTTPS redirect + ACME challenges
+      # - "443:443"  # HTTPS
     volumes:
       - ./data:/app/data
       # Uncomment to mount a custom gateway Caddyfile:

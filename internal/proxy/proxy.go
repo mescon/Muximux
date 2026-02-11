@@ -140,12 +140,23 @@ func (p *Proxy) buildCaddyfile() string {
 		fmt.Fprintf(&b, "%s {\n%s\n}\n", p.config.Domain, reverseProxyBlock)
 	} else if p.config.TLSCert != "" {
 		// Manual TLS: serve HTTPS on the listen port
-		fmt.Fprintf(&b, "{\n\tauto_https off\n\tadmin off\n}\n\n")
+		// Keep auto_https enabled when gateway is set so domain-based gateway
+		// sites can still get automatic certificates and 80→443 redirects.
+		if p.config.Gateway != "" {
+			fmt.Fprintf(&b, "{\n\tadmin off\n}\n\n")
+		} else {
+			fmt.Fprintf(&b, "{\n\tauto_https off\n\tadmin off\n}\n\n")
+		}
 		fmt.Fprintf(&b, "%s {\n\ttls %s %s\n%s\n}\n",
 			p.config.ListenAddr, p.config.TLSCert, p.config.TLSKey, reverseProxyBlock)
 	} else {
-		// HTTP only (gateway mode, no TLS)
-		fmt.Fprintf(&b, "{\n\tauto_https off\n\tadmin off\n}\n\n")
+		// HTTP only: disable auto_https unless gateway is set, since gateway
+		// sites with domains need Caddy to manage ports 80+443 for them.
+		if p.config.Gateway != "" {
+			fmt.Fprintf(&b, "{\n\tadmin off\n}\n\n")
+		} else {
+			fmt.Fprintf(&b, "{\n\tauto_https off\n\tadmin off\n}\n\n")
+		}
 		fmt.Fprintf(&b, "%s {\n%s\n}\n", p.config.ListenAddr, reverseProxyBlock)
 	}
 

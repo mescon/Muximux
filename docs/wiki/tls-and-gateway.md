@@ -76,6 +76,8 @@ wiki.example.com {
 
 This lets you serve additional sites alongside Muximux through the same Caddy instance. Useful when you want one entry point for multiple services.
 
+When the gateway Caddyfile contains domain-based site blocks (like `grafana.example.com`), Caddy automatically provisions TLS certificates and listens on ports 80 and 443 for those domains. Make sure those ports are accessible -- in Docker, add `-p 80:80 -p 443:443` to your port mappings.
+
 > **Note:** The gateway file must exist when Muximux starts, or it will fail with an error.
 
 ---

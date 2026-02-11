@@ -6,7 +6,7 @@ This page walks you through what happens the first time you launch Muximux and h
 
 ## First Launch
 
-When Muximux starts and no `config.yaml` exists (or the file exists but has no apps configured), and your browser has not previously completed onboarding, Muximux shows the **Onboarding Wizard** -- a guided setup that walks you through initial configuration.
+When Muximux starts with no apps configured (either no `config.yaml` exists or the file has an empty `apps` list), it shows the **Onboarding Wizard** -- a guided setup that walks you through initial configuration.
 
 Open your browser and navigate to Muximux (by default, `http://your-server:8080`).
 
