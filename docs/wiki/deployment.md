@@ -1,8 +1,22 @@
 # Deployment
 
+Muximux supports three deployment styles. Pick the one that matches your setup.
+
+| Style | You provide | Muximux does | Ports to expose |
+|-------|------------|-------------|----------------|
+| **Behind an external proxy** | Traefik / nginx / Caddy handles TLS and auth | Serves the dashboard on a single port | 8080 (internal only) |
+| **Standalone with built-in proxy** | Direct access, optional built-in auth | Dashboard + per-app `/proxy/{slug}/` for iframe embedding | 8080 |
+| **Full reverse proxy appliance** | DNS records | TLS certificates, HTTP→HTTPS redirects, gateway for other services | 80, 443 |
+
+The built-in per-app reverse proxy (`proxy: true`) works in **all three styles** -- it runs inside the Go server and is independent of Caddy or any external proxy.
+
+---
+
 ## Docker
 
 The recommended way to run Muximux in production.
+
+### Behind an external proxy (Traefik, nginx, etc.)
 
 ```yaml
 # docker-compose.yml
@@ -14,10 +28,27 @@ services:
     volumes:
       - ./data:/app/data
     restart: unless-stopped
-    # Optional: for OIDC secrets
-    environment:
-      - OIDC_CLIENT_SECRET=your-secret-here
 ```
+
+Set `auth.method: none` or `forward_auth` in config.yaml and let your external proxy handle TLS and authentication.
+
+### As a full reverse proxy appliance
+
+```yaml
+# docker-compose.yml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data:/app/data
+      - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
+    restart: unless-stopped
+```
+
+Configure `tls.domain` and `gateway` in config.yaml. See [TLS & HTTPS](tls-and-gateway.md) for a full walkthrough. Port 8080 does not need to be exposed -- Caddy handles all traffic on 80/443.
 
 ### Volume
 
@@ -101,9 +132,11 @@ sudo journalctl -u muximux -f
 
 ---
 
-## Behind a Reverse Proxy
+## Behind an External Reverse Proxy
 
-If you run Muximux behind Nginx, Traefik, or Caddy (external), you do **not** need Muximux's built-in TLS. Use `auth.method: none` or `forward_auth` depending on your setup.
+If you run Muximux behind Nginx, Traefik, or Caddy (external), you do **not** need Muximux's built-in TLS or gateway. Your external proxy handles TLS termination and optionally authentication. Set `auth.method: none` (if your proxy handles auth) or `forward_auth` (for Authelia/Authentik) in config.yaml.
+
+The per-app reverse proxy (`proxy: true`) still works in this setup -- it runs inside the Go server and is unrelated to the external proxy.
 
 ### Nginx
 
@@ -151,4 +184,7 @@ services:
 
 - **Same network as apps**: Muximux needs to reach your apps (for health checks and the built-in reverse proxy). In Docker, use the same Docker network or host networking.
 - **WebSocket support**: If running behind an external reverse proxy, make sure it supports WebSocket connections (needed for real-time health updates).
-- **Ports**: By default, only port 8080 needs to be exposed. If using auto-HTTPS with a domain, ports 80 and 443 also need to be accessible.
+- **Ports**:
+  - Behind an external proxy: only 8080 (or your configured listen port), and it doesn't need to be publicly accessible.
+  - Standalone: 8080 (or your configured listen port).
+  - Full reverse proxy appliance: 80 and 443. Port 8080 is not needed externally.

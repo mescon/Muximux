@@ -1,4 +1,4 @@
-# Reverse Proxy
+# Built-in Reverse Proxy
 
 ## What It Does
 
@@ -7,6 +7,8 @@ When `proxy: true` is set on an app, Muximux proxies all requests to that app th
 For example, an app named "My Sonarr" would be proxied at `/proxy/my-sonarr/`.
 
 All requests to that path are forwarded to the app's configured `url`, and the responses are rewritten so the app works correctly at its new location.
+
+> **Note:** This per-app reverse proxy is built into the Go server and works in every deployment mode -- whether Muximux is behind Traefik, running standalone, or acting as a full reverse proxy appliance with Caddy. It is completely independent of Caddy and requires no extra configuration beyond `proxy: true`.
 
 ---
 
