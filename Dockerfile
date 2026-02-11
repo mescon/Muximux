@@ -11,7 +11,7 @@ COPY web/ ./
 RUN npm run build
 
 # Build stage - Backend
-FROM golang:1.25-alpine AS backend
+FROM golang:1.26-alpine AS backend
 WORKDIR /app
 
 # Install build dependencies
