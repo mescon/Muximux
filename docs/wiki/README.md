@@ -1,6 +1,6 @@
 # Muximux Wiki
 
-Muximux is a modern, self-hosted web application portal for your homelab. It runs as a single binary, serves everything on a single port, and stores all configuration in one YAML file. Add your self-hosted applications, organize them into groups, and access them all from a unified dashboard with health monitoring, keyboard shortcuts, and a built-in reverse proxy.
+Muximux is a modern, self-hosted web application portal for your homelab. It runs as a single binary, serves on a single port, and stores all configuration in one YAML file. Add your self-hosted applications, organize them into groups, and access them from a unified dashboard with health monitoring, keyboard shortcuts, and a built-in reverse proxy.
 
 ## Table of Contents
 
