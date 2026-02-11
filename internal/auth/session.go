@@ -101,6 +101,17 @@ func (s *SessionStore) Delete(id string) {
 	s.mu.Unlock()
 }
 
+// DeleteByUserID removes all sessions for a user, optionally excluding one session
+func (s *SessionStore) DeleteByUserID(userID string, exceptSessionID string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for id, session := range s.sessions {
+		if session.UserID == userID && id != exceptSessionID {
+			delete(s.sessions, id)
+		}
+	}
+}
+
 // Refresh extends the session expiration
 func (s *SessionStore) Refresh(id string) {
 	s.mu.Lock()

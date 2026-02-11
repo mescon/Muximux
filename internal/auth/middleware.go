@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"crypto/subtle"
 	"log"
 	"net"
 	"net/http"
@@ -34,6 +35,7 @@ type AuthConfig struct {
 	TrustedProxies []string
 	Headers        ForwardAuthHeaders
 	BypassRules    []BypassRule
+	APIKey         string
 }
 
 // ForwardAuthHeaders defines the header names for forward auth
@@ -206,7 +208,11 @@ func (m *Middleware) matchBypassRule(r *http.Request, rule BypassRule) bool {
 
 	// Check API key requirement
 	if rule.RequireAPIKey {
-		if r.Header.Get("X-Api-Key") == "" {
+		provided := r.Header.Get("X-Api-Key")
+		if provided == "" || m.config.APIKey == "" {
+			return false
+		}
+		if subtle.ConstantTimeCompare([]byte(provided), []byte(m.config.APIKey)) != 1 {
 			return false
 		}
 	}

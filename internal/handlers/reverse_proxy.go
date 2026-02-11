@@ -455,7 +455,6 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 		// Remove headers that prevent iframe embedding
 		resp.Header.Del("X-Frame-Options")
 		resp.Header.Del("Content-Security-Policy")
-		resp.Header.Del("X-Content-Type-Options")
 
 		// Rewrite Location headers for redirects (301, 302, 303, 307, 308)
 		if location := resp.Header.Get("Location"); location != "" {

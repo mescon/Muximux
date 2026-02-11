@@ -188,6 +188,16 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(req.NewPassword) < 8 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]interface{}{
+			"success": false,
+			"message": "Password must be at least 8 characters",
+		})
+		return
+	}
+
 	// Verify current password
 	_, err := h.userStore.Authenticate(user.Username, req.CurrentPassword)
 	if err != nil {
@@ -218,6 +228,14 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Failed to update password", http.StatusInternalServerError)
 		return
 	}
+
+	// Invalidate all other sessions for this user
+	currentSession := auth.GetSessionFromContext(r.Context())
+	exceptID := ""
+	if currentSession != nil {
+		exceptID = currentSession.ID
+	}
+	h.sessionStore.DeleteByUserID(user.ID, exceptID)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})

@@ -74,6 +74,7 @@ type AuthConfig struct {
 	OIDC           OIDCConfig        `yaml:"oidc"`
 	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
 	SecureCookies  bool              `yaml:"secure_cookies"`
+	APIKey         string            `yaml:"api_key"`
 }
 
 // UserConfig holds local user credentials

@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"net"
 	"strings"
 	"sync"
 	"time"
@@ -66,6 +67,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	authConfig := auth.AuthConfig{
 		Method:         auth.AuthMethod(cfg.Auth.Method),
 		TrustedProxies: cfg.Auth.TrustedProxies,
+		APIKey:         cfg.Auth.APIKey,
 		Headers: auth.ForwardAuthHeaders{
 			User:   cfg.Auth.Headers["user"],
 			Email:  cfg.Auth.Headers["email"],
@@ -140,6 +142,23 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		websocket.ServeWs(wsHub, w, r)
 	})
 
+	// requireAdmin checks that the authenticated user has admin role.
+	// Used to protect state-changing API endpoints.
+	requireAdmin := func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			user := auth.GetUserFromContext(r.Context())
+			if user == nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+			if user.Role != auth.RoleAdmin {
+				http.Error(w, "Forbidden: admin role required", http.StatusForbidden)
+				return
+			}
+			next(w, r)
+		}
+	}
+
 	// API routes
 	api := handlers.NewAPIHandler(cfg, configPath)
 
@@ -149,7 +168,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			api.GetConfig(w, r)
 		case http.MethodPut:
-			api.SaveConfig(w, r)
+			requireAdmin(api.SaveConfig)(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -161,7 +180,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			api.GetApps(w, r)
 		case http.MethodPost:
-			api.CreateApp(w, r)
+			requireAdmin(api.CreateApp)(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -173,7 +192,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			api.GetGroups(w, r)
 		case http.MethodPost:
-			api.CreateGroup(w, r)
+			requireAdmin(api.CreateGroup)(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -190,9 +209,13 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			api.GetApp(w, r, name)
 		case http.MethodPut:
-			api.UpdateApp(w, r, name)
+			requireAdmin(func(w http.ResponseWriter, r *http.Request) {
+				api.UpdateApp(w, r, name)
+			})(w, r)
 		case http.MethodDelete:
-			api.DeleteApp(w, r, name)
+			requireAdmin(func(w http.ResponseWriter, r *http.Request) {
+				api.DeleteApp(w, r, name)
+			})(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -209,9 +232,13 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			api.GetGroup(w, r, name)
 		case http.MethodPut:
-			api.UpdateGroup(w, r, name)
+			requireAdmin(func(w http.ResponseWriter, r *http.Request) {
+				api.UpdateGroup(w, r, name)
+			})(w, r)
 		case http.MethodDelete:
-			api.DeleteGroup(w, r, name)
+			requireAdmin(func(w http.ResponseWriter, r *http.Request) {
+				api.DeleteGroup(w, r, name)
+			})(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
@@ -271,12 +298,12 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			themeHandler.ListThemes(w, r)
 		case http.MethodPost:
-			themeHandler.SaveTheme(w, r)
+			requireAdmin(themeHandler.SaveTheme)(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
-	mux.HandleFunc("/api/themes/", themeHandler.DeleteTheme)
+	mux.HandleFunc("/api/themes/", requireAdmin(themeHandler.DeleteTheme))
 	// Serve theme CSS files: try data/themes/ first (user-created), fall back to static assets (bundled)
 	mux.HandleFunc("/themes/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/themes/")
@@ -320,12 +347,12 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		case http.MethodGet:
 			iconHandler.ListCustomIcons(w, r)
 		case http.MethodPost:
-			iconHandler.UploadCustomIcon(w, r)
+			requireAdmin(iconHandler.UploadCustomIcon)(w, r)
 		default:
 			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 		}
 	})
-	mux.HandleFunc("/api/icons/custom/", iconHandler.DeleteCustomIcon)
+	mux.HandleFunc("/api/icons/custom/", requireAdmin(iconHandler.DeleteCustomIcon))
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
@@ -647,7 +674,10 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ip, _, _ := strings.Cut(r.RemoteAddr, ":")
+		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+		if ip == "" {
+			ip = r.RemoteAddr
+		}
 		if !rl.allow(ip) {
 			log.Printf("Rate limit exceeded for IP %s on %s", ip, r.URL.Path)
 			w.Header().Set("Retry-After", fmt.Sprintf("%d", int(rl.window.Seconds())))
