@@ -99,8 +99,93 @@ Caddy handles HTTPS for Muximux **and** serves the additional sites from the Cad
 
 ---
 
+## Using Muximux as Your Only Reverse Proxy
+
+If Muximux is the only reverse proxy on your server, you can use its embedded Caddy to handle HTTPS for your dashboard and all your other services. This gives you automatic TLS certificates, HTTP→HTTPS redirects, and a single entry point for everything.
+
+### 1. Configure Muximux with a domain
+
+```yaml
+server:
+  listen: ":8080"
+  tls:
+    domain: "muximux.example.com"
+    email: "admin@example.com"
+  gateway: /app/data/sites.Caddyfile
+```
+
+### 2. Create a gateway Caddyfile for your other services
+
+Create `sites.Caddyfile` with your other domains:
+
+```
+grafana.example.com {
+    reverse_proxy localhost:3000
+}
+
+sonarr.example.com {
+    reverse_proxy localhost:8989
+}
+
+plex.example.com {
+    reverse_proxy localhost:32400
+}
+```
+
+Each domain automatically gets a Let's Encrypt certificate. Caddy handles all renewals.
+
+### 3. Expose ports 80 and 443
+
+Caddy needs port 80 for ACME HTTP-01 challenges and HTTP→HTTPS redirects, and port 443 to serve HTTPS.
+
+**Docker Compose:**
+
+```yaml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./data:/app/data
+      - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
+```
+
+Port 8080 does not need to be exposed -- Caddy handles all traffic on 80/443 and forwards to the Go server internally.
+
+**Binary / systemd:**
+
+No extra configuration needed -- Caddy binds to ports 80 and 443 directly. Make sure no other service (like nginx or Apache) is using those ports.
+
+### 4. Point your DNS records
+
+Create A/AAAA records for each domain pointing to your server:
+
+```
+muximux.example.com  → your-server-ip
+grafana.example.com  → your-server-ip
+sonarr.example.com   → your-server-ip
+plex.example.com     → your-server-ip
+```
+
+### 5. Access your services
+
+Once DNS propagates and Caddy obtains certificates (usually within seconds):
+
+- `https://muximux.example.com` -- your dashboard
+- `https://grafana.example.com` -- served by Caddy directly to Grafana
+- `https://sonarr.example.com` -- served by Caddy directly to Sonarr
+
+All HTTP requests (port 80) are automatically redirected to HTTPS (port 443).
+
+> **Tip:** Apps in the gateway Caddyfile are served directly by Caddy -- they do not go through Muximux's built-in reverse proxy. You can still add these apps to Muximux's dashboard using their `https://` URLs and `open_mode: new_tab` or `open_mode: iframe`.
+
+---
+
 ## Important Notes
 
 - The built-in reverse proxy (`proxy: true` per app) works in **all** modes -- it is independent of Caddy.
 - Caddy's admin API is disabled for security.
 - When using auto-HTTPS with a domain, Caddy handles the user-facing port entirely; the `listen` address becomes the internal forward target.
+- When a gateway Caddyfile contains domain-based sites, Caddy automatically listens on ports 80 and 443 even if `tls.domain` is not set for Muximux itself.
