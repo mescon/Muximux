@@ -157,7 +157,7 @@
           class="w-full py-2 px-4 bg-brand-600 hover:bg-brand-700 disabled:bg-brand-800
                  disabled:cursor-not-allowed text-white font-medium rounded-md
                  transition-colors focus:outline-none focus:ring-2 focus:ring-brand-500
-                 focus:ring-offset-2 focus:ring-offset-gray-800"
+                 focus:ring-offset-2"
         >
           {#if loading}
             <span class="inline-flex items-center">

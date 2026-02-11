@@ -1132,7 +1132,7 @@
   }
 
   :global(.ring-brand-500) {
-    --tw-ring-color: var(--accent-primary) !important;
+    outline-color: var(--accent-primary) !important;
   }
 
   /* Mobile overlay */

@@ -524,7 +524,7 @@
               <input
                 type="checkbox"
                 bind:checked={$showLabels}
-                class="w-5 h-5 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-900"
+                class="w-5 h-5 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-white font-medium">Show App Labels</div>

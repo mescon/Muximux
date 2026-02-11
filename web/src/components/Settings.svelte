@@ -648,7 +648,7 @@
               <input
                 type="checkbox"
                 bind:checked={localConfig.navigation.show_logo}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-sm text-white">Show Logo</div>
@@ -660,7 +660,7 @@
               <input
                 type="checkbox"
                 bind:checked={localConfig.navigation.show_labels}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-sm text-white">Show Labels</div>
@@ -672,7 +672,7 @@
               <input
                 type="checkbox"
                 bind:checked={localConfig.navigation.show_app_colors}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-sm text-white">App Color Accents</div>
@@ -684,7 +684,7 @@
               <input
                 type="checkbox"
                 bind:checked={localConfig.navigation.show_icon_background}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-sm text-white">Icon Background</div>
@@ -696,7 +696,7 @@
               <input
                 type="checkbox"
                 bind:checked={localConfig.navigation.show_splash_on_startup}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-sm text-white">Show Splash on Startup</div>
@@ -709,7 +709,7 @@
                 <input
                   type="checkbox"
                   bind:checked={localConfig.navigation.auto_hide}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
                 />
                 <div class="flex-1">
                   <div class="text-sm text-white">Auto-hide Navigation</div>
@@ -735,7 +735,7 @@
                   <input
                     type="checkbox"
                     bind:checked={localConfig.navigation.show_shadow}
-                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800 ml-7"
+                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 ml-7"
                   />
                   <div>
                     <div class="text-xs text-gray-400">Show shadow</div>
@@ -748,7 +748,7 @@
               <input
                 type="checkbox"
                 bind:checked={localConfig.navigation.show_on_hover}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 focus:ring-offset-gray-800"
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <div class="text-sm text-white">Show on Hover</div>
@@ -2067,11 +2067,6 @@
   }
   .settings :global(.hover\:border-gray-500:hover) {
     border-color: var(--border-strong) !important;
-  }
-
-  /* Focus ring offset should match the modal surface */
-  .settings :global(.focus\:ring-offset-gray-800) {
-    --tw-ring-offset-color: var(--bg-surface) !important;
   }
 
   /* App status indicators (global so they survive DnD reparenting to body) */
