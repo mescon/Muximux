@@ -16,7 +16,7 @@
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { authState, checkAuthStatus, logout, isAuthenticated, currentUser, isAdmin } from './lib/authStore';
-  import { isOnboardingComplete } from './lib/onboardingStore';
+  import { resetOnboarding } from './lib/onboardingStore';
   import { initTheme, setTheme } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
@@ -126,8 +126,9 @@
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
-      // Check if onboarding should be shown (no apps and not completed)
-      if (apps.length === 0 && !isOnboardingComplete()) {
+      // Show onboarding when no apps are configured
+      if (apps.length === 0) {
+        resetOnboarding();
         showOnboarding = true;
         loading = false;
         return;

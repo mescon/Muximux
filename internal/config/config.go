@@ -182,7 +182,8 @@ type AppAccessConfig struct {
 	Users []string `yaml:"users"`
 }
 
-// Load reads configuration from a YAML file
+// Load reads configuration from a YAML file.
+// Environment variables referenced as ${VAR} in config values are expanded.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -193,8 +194,11 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	// Expand environment variables in config values
+	expanded := os.ExpandEnv(string(data))
+
 	cfg := defaultConfig()
-	if err := yaml.Unmarshal(data, cfg); err != nil {
+	if err := yaml.Unmarshal([]byte(expanded), cfg); err != nil {
 		return nil, err
 	}
 

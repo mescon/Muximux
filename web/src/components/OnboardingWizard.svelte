@@ -10,7 +10,6 @@
     selectedGroups,
     nextStep,
     prevStep,
-    markOnboardingComplete,
     stepProgress,
     totalSteps
   } from '$lib/onboardingStore';
@@ -160,7 +159,6 @@
       show_shadow: true
     };
 
-    markOnboardingComplete();
     oncomplete?.({ apps, navigation, groups });
   }
 

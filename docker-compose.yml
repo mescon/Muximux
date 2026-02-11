@@ -1,5 +1,11 @@
-# Production Docker Compose for Muximux
+# Muximux Docker Compose
 # Usage: docker compose up -d
+#
+# Environment variables can be used in two ways:
+#   1. Direct overrides: MUXIMUX_LISTEN, MUXIMUX_CONFIG (see below)
+#   2. Config file expansion: Any ${VAR} in config.yaml is replaced with
+#      the environment variable value. Pass vars here and reference them
+#      in your config.yaml (e.g., client_secret: ${OIDC_CLIENT_SECRET}).
 
 services:
   muximux:
@@ -10,10 +16,46 @@ services:
       - "8080:8080"
     volumes:
       - ./data:/app/data
+      # Uncomment to mount a custom gateway Caddyfile:
+      # - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
     environment:
+      # ── Timezone ────────────────────────────────────────────────
       - TZ=UTC
-      # For OIDC auth (optional)
-      # - OIDC_CLIENT_SECRET=your-secret-here
+
+      # ── Direct Overrides ────────────────────────────────────────
+      # These override the corresponding config.yaml values.
+      #
+      # Override the listen address (default: :8080)
+      # - MUXIMUX_LISTEN=:8080
+      #
+      # Override the config file path (default: /app/data/config.yaml)
+      # - MUXIMUX_CONFIG=/app/data/config.yaml
+
+      # ── Config File Variable Expansion ──────────────────────────
+      # These are available for ${VAR} expansion inside config.yaml.
+      # Example config.yaml usage: client_secret: ${OIDC_CLIENT_SECRET}
+      #
+      # OIDC authentication secrets
+      # - OIDC_CLIENT_ID=muximux
+      # - OIDC_CLIENT_SECRET=your-oidc-client-secret
+      # - OIDC_ISSUER_URL=https://auth.example.com
+      # - OIDC_REDIRECT_URL=https://muximux.example.com/auth/callback
+      #
+      # API key for external access (auth bypass rules)
+      # - MUXIMUX_API_KEY=your-api-key-here
+      #
+      # Builtin auth password hash (bcrypt)
+      # - ADMIN_PASSWORD_HASH=$$2a$$10$$...
+      #
+      # TLS settings (for auto-HTTPS or manual certs)
+      # - TLS_DOMAIN=muximux.example.com
+      # - TLS_EMAIL=admin@example.com
+      # - TLS_CERT=/app/data/cert.pem
+      # - TLS_KEY=/app/data/key.pem
+      #
+      # App URLs (useful for varying between environments)
+      # - PLEX_URL=http://plex:32400
+      # - SONARR_URL=http://sonarr:8989
     healthcheck:
       test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/api/health"]
       interval: 30s

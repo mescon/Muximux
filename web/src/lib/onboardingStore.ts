@@ -3,8 +3,6 @@ import type { App, Group, NavigationConfig } from './types';
 
 export type OnboardingStep = 'welcome' | 'apps' | 'navigation' | 'groups' | 'complete';
 
-const ONBOARDING_KEY = 'muximux_onboarded';
-
 // Step order for navigation
 const STEP_ORDER: OnboardingStep[] = ['welcome', 'apps', 'navigation', 'groups', 'complete'];
 
@@ -23,24 +21,8 @@ export const showLabels = writable<boolean>(true);
 // Groups to create (based on selected apps)
 export const selectedGroups = writable<Group[]>([]);
 
-// Check if onboarding has been completed
-export function isOnboardingComplete(): boolean {
-  if (typeof window === 'undefined') return true;
-  return localStorage.getItem(ONBOARDING_KEY) === 'true';
-}
-
-// Mark onboarding as complete
-export function markOnboardingComplete(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.setItem(ONBOARDING_KEY, 'true');
-  }
-}
-
-// Reset onboarding (for testing)
+// Reset onboarding state back to initial step
 export function resetOnboarding(): void {
-  if (typeof window !== 'undefined') {
-    localStorage.removeItem(ONBOARDING_KEY);
-  }
   currentStep.set('welcome');
   selectedApps.set([]);
   selectedNavigation.set('left');

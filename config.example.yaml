@@ -1,5 +1,11 @@
 # Muximux 3 Configuration Example
 # Copy this file to config.yaml and customize as needed
+#
+# Environment variable expansion:
+#   Use ${VAR_NAME} in any string value to reference environment variables.
+#   This keeps secrets out of config files — set them in your environment,
+#   Docker Compose, or systemd unit instead.
+#   Example: client_secret: ${OIDC_CLIENT_SECRET}
 
 server:
   listen: ":8080"
@@ -16,9 +22,18 @@ server:
   # Optional: reverse proxy additional sites through this port (Caddyfile format)
   # gateway: /path/to/sites.Caddyfile
 
+# Health monitoring
+health:
+  enabled: true
+  interval: 30s    # How often to check app health
+  timeout: 5s      # Request timeout for health checks
+
 # Authentication
 auth:
   method: none  # none, builtin, forward_auth, oidc
+  # session_max_age: 24h       # How long sessions last
+  # secure_cookies: false      # Set true when using HTTPS
+  # api_key: ${MUXIMUX_API_KEY}  # For auth bypass rules
 
   # For builtin auth:
   # users:
@@ -36,14 +51,16 @@ auth:
 
   # For OIDC:
   # oidc:
-  #   issuer: https://auth.example.com
-  #   client_id: muximux
+  #   enabled: true
+  #   issuer_url: https://auth.example.com
+  #   client_id: ${OIDC_CLIENT_ID}
   #   client_secret: ${OIDC_CLIENT_SECRET}
   #   redirect_url: https://muximux.example.com/auth/callback
-  #   scopes:
-  #     - openid
-  #     - profile
-  #     - email
+  #   scopes: [openid, profile, email]
+  #   username_claim: preferred_username  # default
+  #   email_claim: email                  # default
+  #   groups_claim: groups                # default
+  #   admin_groups: [admins]
 
 # Navigation layout
 navigation:
@@ -66,17 +83,23 @@ icons:
 # App groups
 groups:
   - name: Media
-    icon: play
+    icon:
+      type: lucide
+      name: play
     color: "#e5a00d"
     order: 1
 
   - name: Downloads
-    icon: download
+    icon:
+      type: lucide
+      name: download
     color: "#3498db"
     order: 2
 
   - name: System
-    icon: server
+    icon:
+      type: lucide
+      name: server
     color: "#e74c3c"
     order: 3
 
