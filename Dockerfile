@@ -57,8 +57,8 @@ COPY --from=backend /muximux ./muximux
 # Data directory for config, icons, etc.
 VOLUME /app/data
 
-# Default ports: main UI and proxy
-EXPOSE 8080 8443
+# Default port
+EXPOSE 8080
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \

@@ -335,23 +335,19 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		fmt.Printf("Integrated reverse proxy enabled for: %v\n", reverseProxyHandler.GetRoutes())
 	}
 
-	// Caddy proxy setup (for HTTPS/TLS scenarios on separate port)
-	if cfg.Proxy.Enabled {
-		// Derive the upstream address for Caddy to forward to the main server.
-		// cfg.Server.Listen is e.g. ":8080" — Caddy needs "localhost:8080".
-		upstreamAddr := cfg.Server.Listen
-		if strings.HasPrefix(upstreamAddr, ":") {
-			upstreamAddr = "localhost" + upstreamAddr
-		}
-
+	// Caddy setup: when TLS or Gateway is configured, Caddy serves the
+	// user-facing port and Go moves to an internal address.
+	goListenAddr := cfg.Server.Listen
+	if cfg.Server.NeedsCaddy() {
+		internalAddr := proxy.ComputeInternalAddr(cfg.Server.Listen)
 		proxyConfig := proxy.Config{
-			Enabled:      cfg.Proxy.Enabled,
-			Listen:       cfg.Proxy.Listen,
-			UpstreamAddr: upstreamAddr,
-			AutoHTTPS:    cfg.Proxy.AutoHTTPS,
-			ACMEEmail:    cfg.Proxy.ACMEEmail,
-			TLSCert:      cfg.Proxy.TLSCert,
-			TLSKey:       cfg.Proxy.TLSKey,
+			ListenAddr:   cfg.Server.Listen,
+			InternalAddr: internalAddr,
+			Domain:       cfg.Server.TLS.Domain,
+			Email:        cfg.Server.TLS.Email,
+			TLSCert:      cfg.Server.TLS.Cert,
+			TLSKey:       cfg.Server.TLS.Key,
+			Gateway:      cfg.Server.Gateway,
 		}
 		s.proxyServer = proxy.New(proxyConfig)
 
@@ -369,11 +365,12 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		}
 		s.proxyServer.SetRoutes(proxyRoutes)
 
-		// Proxy API routes
-		proxyHandler := handlers.NewProxyHandler(s.proxyServer)
-		mux.HandleFunc("/api/proxy/status", proxyHandler.GetStatus)
-		mux.HandleFunc("/api/proxy/app", proxyHandler.GetAppProxyURL)
+		goListenAddr = internalAddr
 	}
+
+	// Proxy API routes (always registered so the endpoint responds gracefully)
+	proxyHandler := handlers.NewProxyHandler(s.proxyServer, cfg.Server)
+	mux.HandleFunc("/api/proxy/status", proxyHandler.GetStatus)
 
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {
@@ -408,7 +405,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	handler = bodySizeLimitMiddleware(handler)
 
 	s.httpServer = &http.Server{
-		Addr:         cfg.Server.Listen,
+		Addr:         goListenAddr,
 		Handler:      handler,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
@@ -428,11 +425,15 @@ func (s *Server) Start() error {
 		s.healthMonitor.Start()
 	}
 
-	// Start proxy if enabled
+	// Start Caddy if configured (must start before Go server claims its port)
 	if s.proxyServer != nil {
 		if err := s.proxyServer.Start(); err != nil {
-			return fmt.Errorf("failed to start proxy: %w", err)
+			return fmt.Errorf("failed to start caddy: %w", err)
 		}
+		log.Printf("Muximux started on %s (Caddy on user port, Go on %s)",
+			s.config.Server.Listen, s.proxyServer.GetInternalAddr())
+	} else {
+		log.Printf("Muximux started on %s", s.config.Server.Listen)
 	}
 
 	return s.httpServer.ListenAndServe()
@@ -450,11 +451,10 @@ func (s *Server) Stop() error {
 		s.healthMonitor.Stop()
 	}
 
-	// Stop proxy
+	// Stop Caddy
 	if s.proxyServer != nil {
 		if err := s.proxyServer.Stop(); err != nil {
-			// Log but don't fail
-			fmt.Printf("Warning: failed to stop proxy: %v\n", err)
+			fmt.Printf("Warning: failed to stop caddy: %v\n", err)
 		}
 	}
 

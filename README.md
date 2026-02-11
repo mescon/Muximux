@@ -9,7 +9,7 @@ A modern, self-hosted portal to your web applications.
 ## Features
 
 - **Single Binary** - No database required, configuration via YAML
-- **Embedded Proxy** - Built-in Caddy-powered reverse proxy for iframe embedding
+- **Integrated Proxy** - Built-in reverse proxy for iframe embedding with optional TLS/gateway via Caddy
 - **Real-time Health** - WebSocket-based health monitoring with live updates
 - **Multiple Auth** - Built-in users, forward auth (Authelia/Authentik), or OIDC
 - **1,600+ Icons** - Lucide icons with category search, plus [dashboard-icons](https://github.com/homarr-labs/dashboard-icons)
@@ -86,7 +86,7 @@ apps:
     enabled: true
     default: true        # Opens by default
     open_mode: iframe    # iframe, new_tab, new_window, redirect
-    proxy: false         # Enable embedded proxy
+    proxy: false         # Enable integrated reverse proxy
     scale: 1             # Zoom level (0.5-2.0)
 ```
 
@@ -112,20 +112,36 @@ navigation:
   show_logo: true
 ```
 
-### Embedded Proxy
+### TLS / HTTPS
 
-The embedded proxy uses Caddy to serve applications that block iframe embedding:
+Muximux serves on a single port. To enable HTTPS, add a `tls` section under `server`:
 
 ```yaml
-proxy:
-  enabled: true
-  listen: ":8443"
-  auto_https: true
-  acme_email: admin@example.com
-  # Or use custom certs:
-  # tls_cert: /path/to/cert.pem
-  # tls_key: /path/to/key.pem
+server:
+  listen: ":8080"
+  tls:
+    domain: "muximux.example.com"  # Auto-HTTPS via Let's Encrypt
+    email: "admin@example.com"
+    # Or bring your own certs (use domain OR cert, not both):
+    # cert: /path/to/cert.pem
+    # key: /path/to/key.pem
 ```
+
+When TLS is configured, an embedded Caddy server handles the user-facing port and forwards to an internal Go server automatically.
+
+### Gateway
+
+Serve additional sites through the same Caddy instance using standard Caddyfile syntax:
+
+```yaml
+server:
+  listen: ":8080"
+  gateway: /path/to/sites.Caddyfile
+```
+
+Caddy starts automatically when either `tls` or `gateway` is configured. If neither is set, Go serves directly with zero overhead.
+
+### Integrated Reverse Proxy
 
 When `proxy: true` is set on an app, Muximux proxies requests through `/proxy/{app-slug}/` and strips X-Frame-Options/CSP headers that would prevent iframe embedding.
 
@@ -280,7 +296,7 @@ muximux3/
 │   ├── health/       # Health monitoring
 │   ├── websocket/    # WebSocket hub
 │   ├── auth/         # Authentication
-│   ├── proxy/        # Embedded Caddy proxy
+│   ├── proxy/        # Caddy TLS/gateway management
 │   └── logging/      # Structured logging
 └── web/              # Svelte frontend
     ├── src/
@@ -311,4 +327,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 
 - [Lucide Icons](https://lucide.dev/) for the icon library
 - [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) by Homarr Labs
-- [Caddy](https://caddyserver.com/) for the embedded proxy
+- [Caddy](https://caddyserver.com/) for TLS and gateway support

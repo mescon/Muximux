@@ -3,6 +3,7 @@ package config
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -71,6 +72,10 @@ apps:
 	if cfg.Apps[0].Name != "Test App" {
 		t.Errorf("Expected app name 'Test App', got %s", cfg.Apps[0].Name)
 	}
+	// TLS should be empty by default
+	if cfg.Server.NeedsCaddy() {
+		t.Error("Expected NeedsCaddy() false with no TLS/gateway config")
+	}
 }
 
 func TestLoadMissingFile(t *testing.T) {
@@ -124,6 +129,9 @@ func TestDefaultConfig(t *testing.T) {
 	if !cfg.Icons.DashboardIcons.Enabled {
 		t.Error("Expected dashboard icons to be enabled by default")
 	}
+	if cfg.Server.NeedsCaddy() {
+		t.Error("Default config should not need Caddy")
+	}
 }
 
 func TestSave(t *testing.T) {
@@ -151,5 +159,146 @@ func TestSave(t *testing.T) {
 	}
 	if len(loaded.Groups) != 1 {
 		t.Errorf("Expected 1 group, got %d", len(loaded.Groups))
+	}
+}
+
+func TestNeedsCaddy(t *testing.T) {
+	tests := []struct {
+		name   string
+		server ServerConfig
+		want   bool
+	}{
+		{"empty", ServerConfig{Listen: ":8080"}, false},
+		{"domain set", ServerConfig{Listen: ":8080", TLS: TLSConfig{Domain: "example.com", Email: "a@b.com"}}, true},
+		{"cert set", ServerConfig{Listen: ":8080", TLS: TLSConfig{Cert: "/a.pem", Key: "/b.pem"}}, true},
+		{"gateway set", ServerConfig{Listen: ":8080", Gateway: "/path/to/file"}, true},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := tt.server.NeedsCaddy(); got != tt.want {
+				t.Errorf("NeedsCaddy() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestValidation(t *testing.T) {
+	tmpDir := t.TempDir()
+
+	// Create a dummy gateway file for the valid-gateway test
+	gatewayPath := filepath.Join(tmpDir, "sites.Caddyfile")
+	if err := os.WriteFile(gatewayPath, []byte("# test"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	tests := []struct {
+		name    string
+		yaml    string
+		wantErr string
+	}{
+		{
+			name: "domain without email",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    domain: example.com
+`,
+			wantErr: "tls.email is required",
+		},
+		{
+			name: "cert without key",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    cert: /a.pem
+`,
+			wantErr: "tls.cert and tls.key must both be set",
+		},
+		{
+			name: "key without cert",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    key: /b.pem
+`,
+			wantErr: "tls.cert and tls.key must both be set",
+		},
+		{
+			name: "domain and cert both set",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    domain: example.com
+    email: a@b.com
+    cert: /a.pem
+    key: /b.pem
+`,
+			wantErr: "use tls.domain or tls.cert/tls.key, not both",
+		},
+		{
+			name: "missing gateway file",
+			yaml: `
+server:
+  listen: ":8080"
+  gateway: /nonexistent/sites.Caddyfile
+`,
+			wantErr: "gateway file not found",
+		},
+		{
+			name: "valid gateway file",
+			yaml: `
+server:
+  listen: ":8080"
+  gateway: "` + gatewayPath + `"
+`,
+			wantErr: "",
+		},
+		{
+			name: "valid domain config",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    domain: example.com
+    email: admin@example.com
+`,
+			wantErr: "",
+		},
+		{
+			name: "valid cert config",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    cert: /a.pem
+    key: /b.pem
+`,
+			wantErr: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			configPath := filepath.Join(tmpDir, tt.name+".yaml")
+			if err := os.WriteFile(configPath, []byte(tt.yaml), 0644); err != nil {
+				t.Fatal(err)
+			}
+			_, err := Load(configPath)
+			if tt.wantErr == "" {
+				if err != nil {
+					t.Errorf("expected no error, got: %v", err)
+				}
+			} else {
+				if err == nil {
+					t.Errorf("expected error containing %q, got nil", tt.wantErr)
+				} else if !strings.Contains(err.Error(), tt.wantErr) {
+					t.Errorf("expected error containing %q, got: %v", tt.wantErr, err)
+				}
+			}
+		})
 	}
 }

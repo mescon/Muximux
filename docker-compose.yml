@@ -8,8 +8,6 @@ services:
     restart: unless-stopped
     ports:
       - "8080:8080"
-      # Uncomment for embedded proxy with HTTPS
-      # - "8443:8443"
     volumes:
       - ./data:/app/data
     environment:

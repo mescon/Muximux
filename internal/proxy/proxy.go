@@ -1,14 +1,17 @@
 package proxy
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
+	"net"
+	"strconv"
 	"strings"
 	"sync"
 
 	"github.com/caddyserver/caddy/v2"
-	_ "github.com/caddyserver/caddy/v2/modules/standard" // Import standard Caddy modules
+	"github.com/caddyserver/caddy/v2/caddyconfig"
+	_ "github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile" // Register Caddyfile adapter
+	_ "github.com/caddyserver/caddy/v2/modules/standard"          // Import standard Caddy modules
 )
 
 // AppRoute represents a proxied app route
@@ -21,13 +24,13 @@ type AppRoute struct {
 
 // Config holds proxy configuration
 type Config struct {
-	Enabled      bool
-	Listen       string // e.g., ":8443"
-	UpstreamAddr string // Main server address to forward to, e.g., "localhost:8080"
-	AutoHTTPS    bool
-	ACMEEmail    string
-	TLSCert      string
-	TLSKey       string
+	ListenAddr   string // User-facing listen address (e.g., ":8080")
+	InternalAddr string // Where Go server lives (e.g., "127.0.0.1:18080")
+	Domain       string // For auto-HTTPS
+	Email        string // For auto-HTTPS
+	TLSCert      string // Manual TLS
+	TLSKey       string // Manual TLS
+	Gateway      string // Path to extra Caddyfile
 }
 
 // Proxy manages the embedded Caddy reverse proxy
@@ -46,6 +49,20 @@ func New(cfg Config) *Proxy {
 	}
 }
 
+// ComputeInternalAddr derives the internal Go server address from the user-facing listen address.
+// ":8080" → "127.0.0.1:18080", ":3000" → "127.0.0.1:13000"
+func ComputeInternalAddr(listen string) string {
+	_, port, _ := net.SplitHostPort(listen)
+	if port == "" {
+		port = strings.TrimPrefix(listen, ":")
+	}
+	portNum, _ := strconv.Atoi(port)
+	if portNum == 0 {
+		portNum = 8080
+	}
+	return fmt.Sprintf("127.0.0.1:%d", portNum+10000)
+}
+
 // SetRoutes updates the proxy routes (used for tracking which apps have proxy enabled).
 // Caddy itself doesn't need per-app routes — it forwards everything to the main server.
 func (p *Proxy) SetRoutes(routes []AppRoute) {
@@ -62,32 +79,29 @@ func (p *Proxy) SetRoutes(routes []AppRoute) {
 
 // Start starts the proxy server
 func (p *Proxy) Start() error {
-	if !p.config.Enabled {
-		log.Println("Proxy is disabled")
-		return nil
-	}
-
 	p.mu.Lock()
 	defer p.mu.Unlock()
 
-	cfg, err := p.buildConfig()
-	if err != nil {
-		return fmt.Errorf("failed to build proxy config: %w", err)
+	caddyfileText := p.buildCaddyfile()
+	log.Printf("Caddy config:\n%s", caddyfileText)
+
+	adapter := caddyconfig.GetAdapter("caddyfile")
+	if adapter == nil {
+		return fmt.Errorf("caddyfile adapter not registered")
 	}
 
-	cfgJSON, err := json.Marshal(cfg)
+	cfgJSON, _, err := adapter.Adapt([]byte(caddyfileText), nil)
 	if err != nil {
-		return fmt.Errorf("failed to marshal proxy config: %w", err)
+		return fmt.Errorf("caddyfile error: %w", err)
 	}
 
-	// Load the configuration
 	err = caddy.Load(cfgJSON, true)
 	if err != nil {
-		return fmt.Errorf("failed to load proxy config: %w", err)
+		return fmt.Errorf("caddy start failed: %w", err)
 	}
 
 	p.running = true
-	log.Printf("Proxy started on %s", p.config.Listen)
+	log.Printf("Caddy started, forwarding to %s", p.config.InternalAddr)
 	return nil
 }
 
@@ -106,109 +120,41 @@ func (p *Proxy) Stop() error {
 	}
 
 	p.running = false
-	log.Println("Proxy stopped")
+	log.Println("Caddy stopped")
 	return nil
 }
 
-// buildConfig builds the Caddy JSON configuration
-// Caddy acts as a TLS termination proxy, forwarding all requests to the main
-// Muximux server which handles authentication, routing, and content rewriting.
-func (p *Proxy) buildConfig() (map[string]interface{}, error) {
-	// Single route: forward everything to the main Muximux server
-	// This ensures all requests go through auth middleware
-	routes := []map[string]interface{}{
-		{
-			"handle": []map[string]interface{}{
-				{
-					"handler": "reverse_proxy",
-					"upstreams": []map[string]interface{}{
-						{
-							"dial": p.config.UpstreamAddr,
-						},
-					},
-					"headers": map[string]interface{}{
-						"request": map[string]interface{}{
-							"set": map[string][]string{
-								"X-Forwarded-Proto": {"{http.request.scheme}"},
-								"X-Forwarded-Host":  {"{http.request.host}"},
-								"X-Real-IP":         {"{http.request.remote.host}"},
-							},
-						},
-					},
-					"transport": map[string]interface{}{
-						"protocol": "http",
-					},
-				},
-			},
-		},
+// buildCaddyfile generates the Caddyfile configuration text.
+func (p *Proxy) buildCaddyfile() string {
+	var b strings.Builder
+
+	reverseProxyBlock := fmt.Sprintf(`	reverse_proxy %s {
+		header_up X-Forwarded-Proto {scheme}
+		header_up X-Forwarded-Host {host}
+		header_up X-Real-IP {remote_host}
+	}`, p.config.InternalAddr)
+
+	if p.config.Domain != "" {
+		// Auto-HTTPS with domain: Caddy manages ports 80+443 automatically
+		fmt.Fprintf(&b, "{\n\temail %s\n\tadmin off\n}\n\n", p.config.Email)
+		fmt.Fprintf(&b, "%s {\n%s\n}\n", p.config.Domain, reverseProxyBlock)
+	} else if p.config.TLSCert != "" {
+		// Manual TLS: serve HTTPS on the listen port
+		fmt.Fprintf(&b, "{\n\tauto_https off\n\tadmin off\n}\n\n")
+		fmt.Fprintf(&b, "%s {\n\ttls %s %s\n%s\n}\n",
+			p.config.ListenAddr, p.config.TLSCert, p.config.TLSKey, reverseProxyBlock)
+	} else {
+		// HTTP only (gateway mode, no TLS)
+		fmt.Fprintf(&b, "{\n\tauto_https off\n\tadmin off\n}\n\n")
+		fmt.Fprintf(&b, "%s {\n%s\n}\n", p.config.ListenAddr, reverseProxyBlock)
 	}
 
-	// Build the server configuration
-	server := map[string]interface{}{
-		"listen": []string{p.config.Listen},
-		"routes": routes,
+	// Append gateway Caddyfile import if configured
+	if p.config.Gateway != "" {
+		fmt.Fprintf(&b, "\nimport %s\n", p.config.Gateway)
 	}
 
-	// Configure TLS
-	if p.config.AutoHTTPS {
-		server["automatic_https"] = map[string]interface{}{
-			"disable": false,
-		}
-	} else if p.config.TLSCert != "" && p.config.TLSKey != "" {
-		server["tls_connection_policies"] = []map[string]interface{}{
-			{
-				"certificate_selection": map[string]interface{}{
-					"any_tag": []string{"muximux"},
-				},
-			},
-		}
-	}
-
-	// Build the full Caddy config
-	config := map[string]interface{}{
-		"apps": map[string]interface{}{
-			"http": map[string]interface{}{
-				"servers": map[string]interface{}{
-					"proxy": server,
-				},
-			},
-		},
-	}
-
-	// Add TLS certificates if provided
-	if p.config.TLSCert != "" && p.config.TLSKey != "" {
-		config["apps"].(map[string]interface{})["tls"] = map[string]interface{}{
-			"certificates": map[string]interface{}{
-				"load_files": []map[string]interface{}{
-					{
-						"certificate": p.config.TLSCert,
-						"key":         p.config.TLSKey,
-						"tags":        []string{"muximux"},
-					},
-				},
-			},
-		}
-	}
-
-	// Configure ACME if enabled
-	if p.config.AutoHTTPS && p.config.ACMEEmail != "" {
-		config["apps"].(map[string]interface{})["tls"] = map[string]interface{}{
-			"automation": map[string]interface{}{
-				"policies": []map[string]interface{}{
-					{
-						"issuers": []map[string]interface{}{
-							{
-								"module": "acme",
-								"email":  p.config.ACMEEmail,
-							},
-						},
-					},
-				},
-			},
-		}
-	}
-
-	return config, nil
+	return b.String()
 }
 
 // GetProxyURL returns the proxy URL for an app
@@ -220,6 +166,11 @@ func (p *Proxy) GetProxyURL(slug string) string {
 		return fmt.Sprintf("/proxy/%s/", slug)
 	}
 	return ""
+}
+
+// GetInternalAddr returns the internal address where the Go server should listen.
+func (p *Proxy) GetInternalAddr() string {
+	return p.config.InternalAddr
 }
 
 // IsRunning returns whether the proxy is running
@@ -245,4 +196,3 @@ func Slugify(name string) string {
 
 	return result.String()
 }
-

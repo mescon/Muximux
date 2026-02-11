@@ -1,6 +1,7 @@
 package config
 
 import (
+	"fmt"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -9,7 +10,6 @@ import (
 // Config holds all application configuration
 type Config struct {
 	Server      ServerConfig      `yaml:"server"`
-	Proxy       ProxyConfig       `yaml:"proxy"`
 	Auth        AuthConfig        `yaml:"auth"`
 	Navigation  NavigationConfig  `yaml:"navigation"`
 	Icons       IconsConfig       `yaml:"icons"`
@@ -43,20 +43,26 @@ type HealthConfig struct {
 	Timeout  string `yaml:"timeout"`  // Request timeout, e.g., "5s"
 }
 
-// ServerConfig holds HTTP server settings
-type ServerConfig struct {
-	Listen string `yaml:"listen"`
-	Title  string `yaml:"title"`
+// TLSConfig holds TLS/HTTPS settings
+type TLSConfig struct {
+	Domain string `yaml:"domain" json:"domain"`
+	Email  string `yaml:"email" json:"email"`
+	Cert   string `yaml:"cert" json:"cert"`
+	Key    string `yaml:"key" json:"key"`
 }
 
-// ProxyConfig holds embedded Caddy proxy settings
-type ProxyConfig struct {
-	Enabled   bool   `yaml:"enabled"`
-	Listen    string `yaml:"listen"`
-	AutoHTTPS bool   `yaml:"auto_https"`
-	ACMEEmail string `yaml:"acme_email"`
-	TLSCert   string `yaml:"tls_cert"`
-	TLSKey    string `yaml:"tls_key"`
+// ServerConfig holds HTTP server settings
+type ServerConfig struct {
+	Listen  string    `yaml:"listen" json:"listen"`
+	Title   string    `yaml:"title" json:"title"`
+	TLS     TLSConfig `yaml:"tls" json:"tls"`
+	Gateway string    `yaml:"gateway" json:"gateway"`
+}
+
+// NeedsCaddy returns true if TLS or Gateway is configured, meaning Caddy
+// should start to handle the user-facing port.
+func (c *ServerConfig) NeedsCaddy() bool {
+	return c.TLS.Domain != "" || c.TLS.Cert != "" || c.Gateway != ""
 }
 
 // AuthConfig holds authentication settings
@@ -191,7 +197,33 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	if err := cfg.validate(); err != nil {
+		return nil, err
+	}
+
 	return cfg, nil
+}
+
+// validate checks the configuration for contradictory or incomplete settings.
+func (c *Config) validate() error {
+	tls := c.Server.TLS
+
+	if tls.Domain != "" && tls.Email == "" {
+		return fmt.Errorf("tls.email is required when tls.domain is set")
+	}
+	if (tls.Cert != "") != (tls.Key != "") {
+		return fmt.Errorf("tls.cert and tls.key must both be set, or both empty")
+	}
+	if tls.Domain != "" && tls.Cert != "" {
+		return fmt.Errorf("use tls.domain or tls.cert/tls.key, not both")
+	}
+	if c.Server.Gateway != "" {
+		if _, err := os.Stat(c.Server.Gateway); err != nil {
+			return fmt.Errorf("gateway file not found: %s", c.Server.Gateway)
+		}
+	}
+
+	return nil
 }
 
 // Save writes configuration to a YAML file
@@ -209,10 +241,6 @@ func defaultConfig() *Config {
 		Server: ServerConfig{
 			Listen: ":8080",
 			Title:  "Muximux",
-		},
-		Proxy: ProxyConfig{
-			Enabled: false,
-			Listen:  ":8443",
 		},
 		Auth: AuthConfig{
 			Method: "none",

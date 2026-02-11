@@ -215,22 +215,13 @@ export async function triggerHealthCheck(appName: string): Promise<AppHealth> {
 export interface ProxyStatus {
   enabled: boolean;
   running: boolean;
-  listen?: string;
-}
-
-export interface AppProxyInfo {
-  name?: string;
-  slug: string;
-  proxy_url: string;
-  enabled: boolean;
+  tls: boolean;
+  domain?: string;
+  gateway?: string;
 }
 
 export async function getProxyStatus(): Promise<ProxyStatus> {
   return fetchJSON<ProxyStatus>('/proxy/status');
-}
-
-export async function getAppProxyUrl(slug: string): Promise<AppProxyInfo> {
-  return fetchJSON<AppProxyInfo>(`/proxy/app?slug=${encodeURIComponent(slug)}`);
 }
 
 // Helper to generate a slug from app name

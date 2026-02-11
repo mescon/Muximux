@@ -5,15 +5,16 @@ server:
   listen: ":8080"
   title: "Muximux"
 
-# Embedded Caddy proxy (optional)
-proxy:
-  enabled: false
-  listen: ":8443"
-  auto_https: true
-  # acme_email: admin@example.com
-  # Or use custom certs:
-  # tls_cert: /path/to/cert.pem
-  # tls_key: /path/to/key.pem
+  # Optional: enable HTTPS on this port
+  # tls:
+  #   domain: "muximux.example.com"  # Auto-HTTPS via Let's Encrypt
+  #   email: "admin@example.com"
+  #   # Or bring your own certs (use domain OR cert, not both):
+  #   # cert: /path/to/cert.pem
+  #   # key: /path/to/key.pem
+
+  # Optional: reverse proxy additional sites through this port (Caddyfile format)
+  # gateway: /path/to/sites.Caddyfile
 
 # Authentication
 auth:

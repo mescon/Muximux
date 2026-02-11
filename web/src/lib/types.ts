@@ -63,13 +63,11 @@ export interface AuthConfig {
   secure_cookies?: boolean;
 }
 
-export interface ProxyConfig {
-  enabled: boolean;
-  listen?: string;
-  auto_https?: boolean;
-  acme_email?: string;
-  tls_cert?: string;
-  tls_key?: string;
+export interface TLSConfig {
+  domain?: string;
+  email?: string;
+  cert?: string;
+  key?: string;
 }
 
 export interface KeyCombo {
@@ -89,7 +87,8 @@ export interface Config {
   navigation: NavigationConfig;
   health?: HealthConfig;
   auth?: AuthConfig;
-  proxy?: ProxyConfig;
+  tls?: TLSConfig;
+  gateway?: string;
   keybindings?: KeybindingsConfig;
   groups: Group[];
   apps: App[];
