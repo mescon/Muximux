@@ -7,7 +7,7 @@ RUN npm ci
 EXPOSE 5173
 
 # Backend development stage
-FROM golang:1.22-alpine AS backend
+FROM golang:1.26-alpine AS backend
 WORKDIR /app
 
 # Install air for hot reload
