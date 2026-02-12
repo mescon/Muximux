@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"bufio"
+	"bytes"
+	"compress/gzip"
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
@@ -1577,6 +1579,334 @@ func TestGetRoutes(t *testing.T) {
 }
 
 // TestStripIntegrity tests the SRI stripping logic.
+// TestRewriteCSSImports tests @import path rewriting.
+func TestRewriteCSSImports(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "double-quoted @import",
+			input:    `@import "/styles/main.css"`,
+			expected: `@import "/proxy/app/styles/main.css"`,
+		},
+		{
+			name:     "single-quoted @import",
+			input:    `@import '/fonts/custom.css'`,
+			expected: `@import '/proxy/app/fonts/custom.css'`,
+		},
+		{
+			name:     "@import url unquoted",
+			input:    `@import url(/vendor/normalize.css)`,
+			expected: `@import url(/proxy/app/vendor/normalize.css)`,
+		},
+		{
+			name:     "@import url quoted preserved",
+			input:    `@import url("/themes/dark.css")`,
+			expected: `@import url("/themes/dark.css")`,
+		},
+		{
+			name:     "already rewritten @import",
+			input:    `@import "/proxy/app/styles.css"`,
+			expected: `@import "/proxy/app/styles.css"`,
+		},
+		{
+			name:     "already rewritten url @import",
+			input:    `@import url(/proxy/app/styles.css)`,
+			expected: `@import url(/proxy/app/styles.css)`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.rewriteCSSImports(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteCSSImports() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewriteSVGHrefs tests SVG use/image href rewriting.
+func TestRewriteSVGHrefs(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "use href",
+			input:    `<use href="/icons/sprite.svg#icon-home"></use>`,
+			expected: `<use href="/proxy/app/icons/sprite.svg#icon-home"></use>`,
+		},
+		{
+			name:     "image href",
+			input:    `<image href="/images/logo.svg" width="100"/>`,
+			expected: `<image href="/proxy/app/images/logo.svg" width="100"/>`,
+		},
+		{
+			name:     "use xlink:href",
+			input:    `<use xlink:href="/sprites.svg#play"></use>`,
+			expected: `<use xlink:href="/proxy/app/sprites.svg#play"></use>`,
+		},
+		{
+			name:     "single-quoted href",
+			input:    `<use href='/icons/set.svg#arrow'></use>`,
+			expected: `<use href='/proxy/app/icons/set.svg#arrow'></use>`,
+		},
+		{
+			name:     "already rewritten",
+			input:    `<use href="/proxy/app/icons/sprite.svg#icon"></use>`,
+			expected: `<use href="/proxy/app/icons/sprite.svg#icon"></use>`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.rewriteSVGHrefs(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteSVGHrefs() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewriteBaseHref tests <base href> rewriting.
+func TestRewriteBaseHref(t *testing.T) {
+	tests := []struct {
+		name     string
+		prefix   string
+		target   string
+		input    string
+		expected string
+	}{
+		{
+			name:     "root base href",
+			prefix:   "/proxy/app",
+			target:   "",
+			input:    `<base href="/">`,
+			expected: `<base href="/proxy/app/">`,
+		},
+		{
+			name:     "target path base href",
+			prefix:   "/proxy/app",
+			target:   "/admin",
+			input:    `<base href="/admin/">`,
+			expected: `<base href="/proxy/app/">`,
+		},
+		{
+			name:     "already rewritten",
+			prefix:   "/proxy/app",
+			target:   "",
+			input:    `<base href="/proxy/app/">`,
+			expected: `<base href="/proxy/app/">`,
+		},
+		{
+			name:     "single-quoted base href",
+			prefix:   "/proxy/app",
+			target:   "",
+			input:    `<base href='/'>`,
+			expected: `<base href='/proxy/app/'>`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			rewriter := newContentRewriter(tt.prefix, tt.target, "")
+			result := rewriter.rewriteBaseHref(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteBaseHref() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewriteRootPathURLFunc tests CSS url() root path rewriting.
+func TestRewriteRootPathURLFunc(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "url with root path",
+			input:    `url("/fonts/roboto.woff2")`,
+			expected: `url("/proxy/app/fonts/roboto.woff2")`,
+		},
+		{
+			name:     "url already rewritten",
+			input:    `url("/proxy/app/fonts/roboto.woff2")`,
+			expected: `url("/proxy/app/fonts/roboto.woff2")`,
+		},
+		{
+			name:     "url single-quoted",
+			input:    `url('/images/bg.png')`,
+			expected: `url('/proxy/app/images/bg.png')`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.rewriteRootPathURLFunc(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteRootPathURLFunc() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewriteImageSet tests CSS image-set() rewriting.
+func TestRewriteImageSet(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "image-set with paths",
+			input:    `image-set("/img/1x.png" 1x, "/img/2x.png" 2x)`,
+			expected: `image-set("/proxy/app/img/1x.png" 1x, "/proxy/app/img/2x.png" 2x)`,
+		},
+		{
+			name:     "already rewritten",
+			input:    `image-set("/proxy/app/img/1x.png" 1x)`,
+			expected: `image-set("/proxy/app/img/1x.png" 1x)`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.rewriteImageSet(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteImageSet() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewriteJSONArrayPaths tests JSON array path rewriting.
+func TestRewriteJSONArrayPaths(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "array of paths",
+			input:    `["/css/style.css", "/js/app.js"]`,
+			expected: `["/proxy/app/css/style.css", "/proxy/app/js/app.js"]`,
+		},
+		{
+			name:     "already rewritten",
+			input:    `["/proxy/app/css/style.css"]`,
+			expected: `["/proxy/app/css/style.css"]`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.rewriteJSONArrayPaths(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteJSONArrayPaths() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewriteResponseBodyGzip tests response body rewriting with gzip encoding.
+func TestRewriteResponseBodyGzip(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	// Create gzipped content
+	var buf bytes.Buffer
+	gzw := gzip.NewWriter(&buf)
+	original := `<html><link href="/style.css"></html>`
+	if _, err := gzw.Write([]byte(original)); err != nil {
+		t.Fatal(err)
+	}
+	if err := gzw.Close(); err != nil {
+		t.Fatal(err)
+	}
+
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(bytes.NewReader(buf.Bytes())),
+		ContentLength: int64(buf.Len()),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+	resp.Header.Set("Content-Encoding", "gzip")
+
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	rewritten, _ := io.ReadAll(resp.Body)
+	if !strings.Contains(string(rewritten), "/proxy/app/style.css") {
+		t.Errorf("expected rewritten gzipped content, got: %s", string(rewritten))
+	}
+	// Content-Encoding should be removed after decompression
+	if resp.Header.Get("Content-Encoding") != "" {
+		t.Error("expected Content-Encoding to be removed")
+	}
+}
+
+// TestRewriteRootPathAttrs tests attribute root path rewriting.
+func TestRewriteRootPathAttrs(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "href with root path",
+			input:    `href="/dashboard/index.html"`,
+			expected: `href="/proxy/app/dashboard/index.html"`,
+		},
+		{
+			name:     "src with root path",
+			input:    `src="/js/app.js"`,
+			expected: `src="/proxy/app/js/app.js"`,
+		},
+		{
+			name:     "already has proxy prefix",
+			input:    `href="/proxy/app/index.html"`,
+			expected: `href="/proxy/app/index.html"`,
+		},
+		{
+			name:     "srcset skipped",
+			input:    `srcset="/img/sm.jpg 1x"`,
+			expected: `srcset="/img/sm.jpg 1x"`,
+		},
+		{
+			name:     "single-quoted attr",
+			input:    `href='/styles/main.css'`,
+			expected: `href='/proxy/app/styles/main.css'`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.rewriteRootPathAttrs(tt.input)
+			if result != tt.expected {
+				t.Errorf("rewriteRootPathAttrs() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestStripIntegrity(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "")
 

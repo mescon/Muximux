@@ -542,3 +542,22 @@ func TestOIDCCallback(t *testing.T) {
 		}
 	})
 }
+
+func TestSetOIDCProvider(t *testing.T) {
+	ss := auth.NewSessionStore("test", time.Hour, false)
+	us := auth.NewUserStore()
+	handler := NewAuthHandler(ss, us)
+
+	// Initially nil
+	if handler.oidcProvider != nil {
+		t.Error("expected nil oidcProvider initially")
+	}
+
+	// Set a provider
+	provider := &auth.OIDCProvider{}
+	handler.SetOIDCProvider(provider)
+
+	if handler.oidcProvider != provider {
+		t.Error("expected oidcProvider to be set")
+	}
+}

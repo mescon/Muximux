@@ -21,6 +21,7 @@ import {
   importKeybindings,
   initKeybindings,
   getKeybindingsForConfig,
+  getKeybindingsByCategory,
 } from './keybindingsStore';
 
 describe('keybindingsStore', () => {
@@ -316,6 +317,40 @@ describe('keybindingsStore', () => {
     it('should reject non-object JSON', () => {
       const success = importKeybindings('"string"');
       expect(success).toBe(false);
+    });
+
+    it('should reject null JSON', () => {
+      const success = importKeybindings('null');
+      expect(success).toBe(false);
+    });
+
+    it('should reject number JSON', () => {
+      const success = importKeybindings('42');
+      expect(success).toBe(false);
+    });
+
+    it('should accept array JSON (typeof array is object)', () => {
+      // Arrays are objects in JS, so importKeybindings accepts them
+      const success = importKeybindings('[]');
+      expect(success).toBe(true);
+    });
+  });
+
+  describe('getKeybindingsByCategory', () => {
+    it('should group bindings by category', () => {
+      const grouped = getKeybindingsByCategory();
+      expect(grouped).toHaveProperty('navigation');
+      expect(grouped).toHaveProperty('actions');
+      expect(grouped).toHaveProperty('apps');
+    });
+
+    it('should include all bindings across categories', () => {
+      const grouped = getKeybindingsByCategory();
+      const total = Object.values(grouped).reduce(
+        (sum: number, bindings) => sum + bindings.length,
+        0
+      );
+      expect(total).toBe(DEFAULT_KEYBINDINGS.length);
     });
   });
 

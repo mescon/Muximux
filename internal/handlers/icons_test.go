@@ -30,6 +30,77 @@ func TestGetDashboardIcon(t *testing.T) {
 			t.Errorf("expected status 400, got %d", w.Code)
 		}
 	})
+
+	t.Run("success from cache", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		// Pre-populate cache
+		if err := os.WriteFile(filepath.Join(cacheDir, "plex.svg"), []byte("<svg>plex</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/plex", nil)
+		w := httptest.NewRecorder()
+
+		handler.GetDashboardIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/svg+xml" {
+			t.Errorf("expected content-type 'image/svg+xml', got %q", w.Header().Get("Content-Type"))
+		}
+		if w.Header().Get("Cache-Control") != "public, max-age=86400" {
+			t.Errorf("expected cache-control header, got %q", w.Header().Get("Cache-Control"))
+		}
+		if w.Body.String() != "<svg>plex</svg>" {
+			t.Errorf("unexpected body: %s", w.Body.String())
+		}
+	})
+
+	t.Run("with variant query param", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "plex.png"), []byte("PNG_DATA"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/plex?variant=png", nil)
+		w := httptest.NewRecorder()
+
+		handler.GetDashboardIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/png" {
+			t.Errorf("expected content-type 'image/png', got %q", w.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("default variant is svg", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "radarr.svg"), []byte("<svg>radarr</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		// No variant query param - should default to svg
+		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/radarr", nil)
+		w := httptest.NewRecorder()
+
+		handler.GetDashboardIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+	})
 }
 
 func TestGetLucideIcon(t *testing.T) {
@@ -45,6 +116,54 @@ func TestGetLucideIcon(t *testing.T) {
 
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("success from cache", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "home.svg"), []byte("<svg>lucide-home</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide/home", nil)
+		w := httptest.NewRecorder()
+
+		handler.GetLucideIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/svg+xml" {
+			t.Errorf("expected content-type 'image/svg+xml', got %q", w.Header().Get("Content-Type"))
+		}
+		if w.Header().Get("Cache-Control") != "public, max-age=86400" {
+			t.Errorf("expected cache-control header")
+		}
+		if w.Body.String() != "<svg>lucide-home</svg>" {
+			t.Errorf("unexpected body: %s", w.Body.String())
+		}
+	})
+
+	t.Run("with svg extension", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+
+		// GetIcon strips .svg extension, so the path should still work
+		req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide/star.svg", nil)
+		w := httptest.NewRecorder()
+
+		handler.GetLucideIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
 		}
 	})
 }
@@ -179,6 +298,77 @@ func TestUploadCustomIcon(t *testing.T) {
 
 		if w.Code != http.StatusBadRequest {
 			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("content type detection for octet-stream", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		// Create with application/octet-stream content type
+		h := make(textproto.MIMEHeader)
+		h["Content-Disposition"] = []string{`form-data; name="icon"; filename="test.png"`}
+		h["Content-Type"] = []string{"application/octet-stream"}
+		part, err := writer.CreatePart(h)
+		if err != nil {
+			t.Fatal(err)
+		}
+		// Write a minimal PNG header so DetectContentType identifies it
+		pngHeader := []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}
+		if _, err = part.Write(pngHeader); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = writer.WriteField("name", "detected-icon"); err != nil {
+			t.Fatal(err)
+		}
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		w := httptest.NewRecorder()
+
+		handler.UploadCustomIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("unsupported file type", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		var buf bytes.Buffer
+		writer := multipart.NewWriter(&buf)
+
+		h := make(textproto.MIMEHeader)
+		h["Content-Disposition"] = []string{`form-data; name="icon"; filename="test.txt"`}
+		h["Content-Type"] = []string{"text/plain"}
+		part, err := writer.CreatePart(h)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if _, err = part.Write([]byte("not an image")); err != nil {
+			t.Fatal(err)
+		}
+
+		if err = writer.WriteField("name", "bad-icon"); err != nil {
+			t.Fatal(err)
+		}
+		writer.Close()
+
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom", &buf)
+		req.Header.Set("Content-Type", writer.FormDataContentType())
+		w := httptest.NewRecorder()
+
+		handler.UploadCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d: %s", w.Code, w.Body.String())
 		}
 	})
 
@@ -342,4 +532,183 @@ func TestServeIcon(t *testing.T) {
 			t.Errorf("expected status 404, got %d", w.Code)
 		}
 	})
+
+	t.Run("dashboard icon from cache", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.svg"), []byte("<svg>sonarr</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/svg+xml" {
+			t.Errorf("expected 'image/svg+xml', got %q", w.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("dashboard icon with variant query", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.png"), []byte("PNG"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr?variant=png", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/png" {
+			t.Errorf("expected 'image/png', got %q", w.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("dashboard icon with extension in name", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.png"), []byte("PNG"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		// Extension in URL path, no variant query param
+		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr.png", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/png" {
+			t.Errorf("expected 'image/png', got %q", w.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("dashboard icon no extension defaults to svg", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.svg"), []byte("<svg>sonarr</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(client, nil, t.TempDir())
+
+		// No extension and no variant query - should default to svg
+		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("lucide icon from cache", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/icons/lucide/star", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+		if w.Header().Get("Content-Type") != "image/svg+xml" {
+			t.Errorf("expected 'image/svg+xml', got %q", w.Header().Get("Content-Type"))
+		}
+	})
+
+	t.Run("lucide icon with .svg extension", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/icons/lucide/star.svg", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("lucide icon cached without extension", func(t *testing.T) {
+		cacheDir := t.TempDir()
+		if err := os.WriteFile(filepath.Join(cacheDir, "home.svg"), []byte("<svg>home</svg>"), 0644); err != nil {
+			t.Fatal(err)
+		}
+
+		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
+		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+
+		// Without .svg extension
+		req := httptest.NewRequest(http.MethodGet, "/icons/lucide/home", nil)
+		w := httptest.NewRecorder()
+
+		handler.ServeIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+}
+
+func TestListDashboardIcons(t *testing.T) {
+	cacheDir := t.TempDir()
+	client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
+	handler := NewIconHandler(client, nil, t.TempDir())
+
+	req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard", nil)
+	w := httptest.NewRecorder()
+
+	handler.ListDashboardIcons(w, req)
+
+	// May return empty list or error depending on cache/network state
+	if w.Code != http.StatusOK && w.Code != http.StatusInternalServerError {
+		t.Errorf("expected 200 or 500, got %d", w.Code)
+	}
+}
+
+func TestListLucideIcons(t *testing.T) {
+	cacheDir := t.TempDir()
+	lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
+	handler := NewIconHandler(nil, lucideClient, t.TempDir())
+
+	req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide", nil)
+	w := httptest.NewRecorder()
+
+	handler.ListLucideIcons(w, req)
+
+	if w.Code != http.StatusOK && w.Code != http.StatusInternalServerError {
+		t.Errorf("expected 200 or 500, got %d", w.Code)
+	}
 }

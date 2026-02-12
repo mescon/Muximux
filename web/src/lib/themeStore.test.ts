@@ -608,5 +608,208 @@ describe('themeStore', () => {
       const result = await deleteCustomThemeFromServer('nord-dark');
       expect(result).toBe(false);
     });
+
+    it('removes link element and refreshes custom themes on success', async () => {
+      const { deleteCustomThemeFromServer } = await import('./themeStore');
+
+      // Create a mock link element
+      const mockLink = document.createElement('link');
+      mockLink.id = 'theme-test-delete';
+      document.head.appendChild(mockLink);
+
+      // First call: DELETE succeeds
+      mockFetch.mockResolvedValueOnce({ ok: true });
+      // Second call: detectCustomThemes fetch
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) });
+
+      const result = await deleteCustomThemeFromServer('test-delete');
+      expect(result).toBe(true);
+      expect(document.getElementById('theme-test-delete')).toBeNull();
+    });
+  });
+
+  describe('saveCustomThemeToServer - success', () => {
+    it('saves theme, refreshes custom themes, and reloads CSS', async () => {
+      const { saveCustomThemeToServer } = await import('./themeStore');
+
+      // Auto-fire onload for any link elements that get created
+      const origCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string, opts?: ElementCreationOptions) => {
+        const el = origCreateElement(tag, opts);
+        if (tag === 'link') {
+          // Simulate load event after appending
+          setTimeout(() => {
+            if ((el as HTMLLinkElement).onload) {
+              (el as HTMLLinkElement).onload!(new Event('load'));
+            }
+          }, 0);
+        }
+        return el;
+      });
+
+      // First call: POST succeeds
+      mockFetch.mockResolvedValueOnce({ ok: true });
+      // Second call: detectCustomThemes fetch
+      mockFetch.mockResolvedValueOnce({ ok: true, json: () => Promise.resolve([]) });
+
+      const result = await saveCustomThemeToServer('My Theme', 'dark', true, {
+        '--bg-base': '#000',
+      });
+
+      expect(result).toBe(true);
+      expect(mockFetch).toHaveBeenCalledWith('/api/themes', expect.objectContaining({
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+      }));
+
+      vi.restoreAllMocks();
+    });
+  });
+
+  describe('detectCustomThemes - success', () => {
+    it('loads custom themes from API and sets customThemes store', async () => {
+      const { detectCustomThemes } = await import('./themeStore');
+
+      const themes = [
+        {
+          id: 'nord-dark',
+          name: 'Nord Dark',
+          isBuiltin: false,
+          isDark: true,
+          family: 'nord',
+          variant: 'dark',
+          familyName: 'Nord',
+        },
+      ];
+
+      // Auto-fire onload for any link elements
+      const origCreateElement = document.createElement.bind(document);
+      vi.spyOn(document, 'createElement').mockImplementation((tag: string, opts?: ElementCreationOptions) => {
+        const el = origCreateElement(tag, opts);
+        if (tag === 'link') {
+          setTimeout(() => {
+            if ((el as HTMLLinkElement).onload) {
+              (el as HTMLLinkElement).onload!(new Event('load'));
+            }
+          }, 0);
+        }
+        return el;
+      });
+
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: () => Promise.resolve(themes),
+      });
+
+      await detectCustomThemes();
+
+      const loadedThemes = get(customThemes);
+      expect(loadedThemes).toHaveLength(1);
+      expect(loadedThemes[0].id).toBe('nord-dark');
+
+      vi.restoreAllMocks();
+    });
+  });
+
+  describe('themeFamilies - theme variant assignment', () => {
+    it('assigns theme without variant based on isDark', () => {
+      customThemes.set([
+        {
+          id: 'solo-light',
+          name: 'Solo Light',
+          isBuiltin: false,
+          isDark: false,
+          // No variant property, no family property
+        },
+      ]);
+
+      const families = get(themeFamilies);
+      const soloFamily = families.find(f => f.id === 'solo-light');
+      expect(soloFamily).toBeDefined();
+      expect(soloFamily!.lightTheme).toBeDefined();
+    });
+
+    it('assigns theme without variant and isDark=true as dark', () => {
+      customThemes.set([
+        {
+          id: 'solo-dark',
+          name: 'Solo Dark',
+          isBuiltin: false,
+          isDark: true,
+          // No variant property
+        },
+      ]);
+
+      const families = get(themeFamilies);
+      const soloFamily = families.find(f => f.id === 'solo-dark');
+      expect(soloFamily).toBeDefined();
+      expect(soloFamily!.darkTheme).toBeDefined();
+    });
+  });
+
+  describe('initTheme - migration', () => {
+    it('migrates old system theme from localStorage', () => {
+      // Set up old format
+      localStorage.setItem('muximux_theme', 'system');
+
+      // Clear new format keys so migration runs
+      // (localStorage is already cleared in beforeEach, so we just set the old key)
+
+      initTheme();
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_family', 'default');
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_variant', 'system');
+    });
+
+    it('migrates old dark theme from localStorage', () => {
+      localStorage.setItem('muximux_theme', 'dark');
+
+      initTheme();
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_family', 'default');
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_variant', 'dark');
+    });
+
+    it('migrates old light theme from localStorage', () => {
+      localStorage.setItem('muximux_theme', 'light');
+
+      initTheme();
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_family', 'default');
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_variant', 'light');
+    });
+
+    it('migrates old custom theme from localStorage', () => {
+      localStorage.setItem('muximux_theme', 'nord');
+
+      initTheme();
+
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_family', 'nord');
+      expect(localStorage.setItem).toHaveBeenCalledWith('muximux_theme_variant', 'dark');
+    });
+
+    it('does not migrate if new format already exists', () => {
+      localStorage.setItem('muximux_theme_family', 'default');
+      localStorage.setItem('muximux_theme', 'nord');
+
+      mockFetch.mockResolvedValue({
+        ok: true,
+        json: () => Promise.resolve([]),
+      });
+
+      initTheme();
+
+      // Should not have tried to migrate
+      expect(localStorage.removeItem).not.toHaveBeenCalledWith('muximux_theme');
+    });
+  });
+
+  describe('syncFromConfig - edge cases', () => {
+    it('does not update when family is empty string', () => {
+      setThemeFamily('default');
+      syncFromConfig({ family: '', variant: 'dark' });
+      // Empty family should be falsy, so no update
+      expect(get(selectedFamily)).toBe('default');
+    });
   });
 });

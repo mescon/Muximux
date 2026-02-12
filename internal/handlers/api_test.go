@@ -355,6 +355,20 @@ func TestDeleteApp(t *testing.T) {
 	})
 }
 
+func TestCreateAppInvalidJSON(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader([]byte("not json")))
+	w := httptest.NewRecorder()
+
+	handler.CreateApp(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
+}
+
 func TestCreateGroup(t *testing.T) {
 	t.Run("valid group", func(t *testing.T) {
 		cfg := createTestConfig()
@@ -404,6 +418,37 @@ func TestCreateGroup(t *testing.T) {
 			t.Errorf("expected status 409, got %d", w.Code)
 		}
 	})
+}
+
+func TestCreateGroupInvalidJSON(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader([]byte("not json")))
+	w := httptest.NewRecorder()
+
+	handler.CreateGroup(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
+}
+
+func TestCreateGroupMissingName(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	group := config.GroupConfig{Color: "#ff0000"}
+	body, _ := json.Marshal(group)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.CreateGroup(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
 }
 
 func TestDeleteGroup(t *testing.T) {
@@ -992,6 +1037,266 @@ func TestSanitizeApp(t *testing.T) {
 			t.Errorf("expected proxyUrl '/proxy/test-app/', got %q", result.ProxyURL)
 		}
 	})
+}
+
+// Tests for save-failure error paths using an invalid configPath.
+// /dev/null/impossible is guaranteed to fail because /dev/null is a file, not a directory.
+func TestCreateAppSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	body, _ := json.Marshal(ClientAppConfig{
+		Name:    "NewApp",
+		URL:     "http://localhost:9999",
+		Enabled: true,
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateApp(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestUpdateAppSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	body, _ := json.Marshal(ClientAppConfig{
+		Name:    "App1",
+		URL:     "http://localhost:9999",
+		Enabled: true,
+	})
+	req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, req, "App1")
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestDeleteAppSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/apps/App1", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteApp(w, req, "App1")
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestCreateGroupSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	body, _ := json.Marshal(config.GroupConfig{Name: "NewGroup", Color: "#aabbcc"})
+	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateGroup(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestUpdateGroupSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	body, _ := json.Marshal(config.GroupConfig{Name: "Media", Color: "#112233"})
+	req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, req, "Media")
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestDeleteGroupSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/groups/Media", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteGroup(w, req, "Media")
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestSaveConfigSaveFails(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+
+	update := ClientConfigUpdate{
+		Title:      "Updated",
+		Navigation: cfg.Navigation,
+		Groups:     cfg.Groups,
+		Apps:       []ClientAppConfig{{Name: "App1", URL: "http://localhost:8080", Enabled: true}},
+	}
+	body, _ := json.Marshal(update)
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, req)
+
+	if w.Code != http.StatusInternalServerError {
+		t.Errorf("expected status 500, got %d", w.Code)
+	}
+}
+
+func TestCreateAppMissingName(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	body, _ := json.Marshal(ClientAppConfig{URL: "http://localhost:9999"})
+	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateApp(w, req)
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
+}
+
+func TestCreateAppDuplicate(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	body, _ := json.Marshal(ClientAppConfig{Name: "App1", URL: "http://localhost:9999"})
+	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateApp(w, req)
+
+	if w.Code != http.StatusConflict {
+		t.Errorf("expected status 409, got %d", w.Code)
+	}
+}
+
+func TestUpdateAppNotFound(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	body, _ := json.Marshal(ClientAppConfig{Name: "Ghost", URL: "http://localhost:9999"})
+	req := httptest.NewRequest(http.MethodPut, "/api/apps/Ghost", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, req, "Ghost")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestUpdateAppInvalidJSON(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader([]byte("not json")))
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, req, "App1")
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
+}
+
+func TestDeleteAppNotFound(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/apps/Ghost", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteApp(w, req, "Ghost")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestGetAppNotFound(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodGet, "/api/apps/Ghost", nil)
+	w := httptest.NewRecorder()
+	handler.GetApp(w, req, "Ghost")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestGetGroupNotFound(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodGet, "/api/groups/Ghost", nil)
+	w := httptest.NewRecorder()
+	handler.GetGroup(w, req, "Ghost")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestDeleteGroupNotFound(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodDelete, "/api/groups/Ghost", nil)
+	w := httptest.NewRecorder()
+	handler.DeleteGroup(w, req, "Ghost")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestUpdateGroupInvalidJSON(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader([]byte("not json")))
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, req, "Media")
+
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("expected status 400, got %d", w.Code)
+	}
+}
+
+func TestUpdateGroupNotFound(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	body, _ := json.Marshal(config.GroupConfig{Name: "Ghost"})
+	req := httptest.NewRequest(http.MethodPut, "/api/groups/Ghost", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateGroup(w, req, "Ghost")
+
+	if w.Code != http.StatusNotFound {
+		t.Errorf("expected status 404, got %d", w.Code)
+	}
+}
+
+func TestCreateGroupDuplicate(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "")
+
+	body, _ := json.Marshal(config.GroupConfig{Name: "Media", Color: "#ff0000"})
+	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateGroup(w, req)
+
+	if w.Code != http.StatusConflict {
+		t.Errorf("expected status 409, got %d", w.Code)
+	}
 }
 
 func TestSanitizeApps(t *testing.T) {
