@@ -209,6 +209,14 @@ func TestContentRewriter(t *testing.T) {
 			input:       `<image href="/images/logo.png" />`,
 			expected:    `<image href="/proxy/app/images/logo.png" />`,
 		},
+		{
+			name:        "rewrite CSS image-set()",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `background: image-set("/1x.png" 1x, "/2x.png" 2x)`,
+			expected:    `background: image-set("/proxy/app/1x.png" 1x, "/proxy/app/2x.png" 2x)`,
+		},
 	}
 
 	for _, tt := range tests {
@@ -679,6 +687,11 @@ func TestIsWebSocketUpgrade(t *testing.T) {
 		{
 			name:     "case insensitive",
 			headers:  map[string]string{"Connection": "Upgrade", "Upgrade": "WebSocket"},
+			expected: true,
+		},
+		{
+			name:     "multi-value connection header",
+			headers:  map[string]string{"Connection": "keep-alive, Upgrade", "Upgrade": "websocket"},
 			expected: true,
 		},
 		{

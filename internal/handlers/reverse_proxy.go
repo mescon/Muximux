@@ -237,7 +237,23 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 		return match[:firstQuote+1] + r.proxyPrefix + match[firstQuote+1:]
 	})
 
-	// 7. Rewrite JSON arrays of paths: ["/path1", "/path2"]
+	// 7. CSS image-set() function — must run before JSON array handler
+	// because `, "/2x.png"` inside image-set() would otherwise match the JSON array pattern.
+	// image-set("/1x.png" 1x, "/2x.png" 2x) -> image-set("/proxy/app/1x.png" 1x, "/proxy/app/2x.png" 2x)
+	imageSetPattern := regexp.MustCompile(`(image-set\s*\()([^)]+)(\))`)
+	result = imageSetPattern.ReplaceAllStringFunc(result, func(match string) string {
+		// Rewrite each quoted root-relative path inside image-set()
+		pathInSet := regexp.MustCompile(`(["'])/([a-zA-Z0-9_-][^"']*)(["'])`)
+		return pathInSet.ReplaceAllStringFunc(match, func(inner string) string {
+			if strings.Contains(inner, "/proxy/") {
+				return inner
+			}
+			q := string(inner[0])
+			return q + r.proxyPrefix + "/" + inner[2:len(inner)-1] + q
+		})
+	})
+
+	// 8. Rewrite JSON arrays of paths: ["/path1", "/path2"]
 	jsonArrayPathPattern := regexp.MustCompile(`(\[|,)\s*"(/[^"]+)"`)
 	result = jsonArrayPathPattern.ReplaceAllStringFunc(result, func(match string) string {
 		if strings.Contains(match, "/proxy/") {
@@ -605,8 +621,10 @@ func shouldRewriteContent(contentType string) bool {
 }
 
 // isWebSocketUpgrade returns true if the request is a WebSocket upgrade.
+// The Connection header can be comma-separated (e.g. "keep-alive, Upgrade"),
+// so we check whether "upgrade" appears anywhere in it, not as an exact match.
 func isWebSocketUpgrade(r *http.Request) bool {
-	return strings.EqualFold(r.Header.Get("Connection"), "upgrade") &&
+	return strings.Contains(strings.ToLower(r.Header.Get("Connection")), "upgrade") &&
 		strings.EqualFold(r.Header.Get("Upgrade"), "websocket")
 }
 
