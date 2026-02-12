@@ -228,7 +228,7 @@ func (r *contentRewriter) rewriteRootPaths(result string) string {
 }
 
 // rewriteURLBase rewrites JavaScript/JSON base path patterns for SPAs (e.g., Sonarr/Radarr).
-// Handles empty strings: urlBase: '' or "urlBase": ""
+// Handles empty base path strings like urlBase or basePath set to blank values.
 func (r *contentRewriter) rewriteURLBase(result string) string {
 	urlBaseEmptyPattern := regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
 	return urlBaseEmptyPattern.ReplaceAllString(result, `${1}${2}${3}: "`+r.proxyPrefix+`"`)

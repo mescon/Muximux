@@ -90,7 +90,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		}
 	})
 
-	registerAuthRoutes(mux, authHandler, authMiddleware, wsHub)
+	registerAuthRoutes(mux, authHandler, wsHub)
 
 	// API routes
 	api := handlers.NewAPIHandler(cfg, configPath)
@@ -228,7 +228,7 @@ func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *a
 }
 
 // registerAuthRoutes registers authentication and WebSocket endpoints.
-func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, authMiddleware *auth.Middleware, wsHub *websocket.Hub) {
+func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, wsHub *websocket.Hub) {
 	loginLimiter := newRateLimiter(5, 1*time.Minute) // 5 attempts per IP per minute
 	mux.HandleFunc("/api/auth/login", loginLimiter.wrap(authHandler.Login))
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
