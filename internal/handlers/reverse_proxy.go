@@ -693,12 +693,36 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	}
 	defer backendConn.Close()
 
+	// Add proxy headers to the original request before forwarding
+	clientIP := r.RemoteAddr
+	if host, _, splitErr := net.SplitHostPort(r.RemoteAddr); splitErr == nil {
+		clientIP = host
+	}
+	if prior := r.Header.Get("X-Forwarded-For"); prior != "" {
+		r.Header.Set("X-Forwarded-For", prior+", "+clientIP)
+	} else {
+		r.Header.Set("X-Forwarded-For", clientIP)
+	}
+	if r.Header.Get("X-Forwarded-Host") == "" {
+		r.Header.Set("X-Forwarded-Host", r.Host)
+	}
+	proto := "http"
+	if r.TLS != nil {
+		proto = "https"
+	}
+	if r.Header.Get("X-Forwarded-Proto") == "" {
+		r.Header.Set("X-Forwarded-Proto", proto)
+	}
+	if r.Header.Get("X-Real-IP") == "" {
+		r.Header.Set("X-Real-IP", clientIP)
+	}
+
 	// Build the upgrade request to send to the backend
 	var reqBuf bytes.Buffer
 	fmt.Fprintf(&reqBuf, "%s %s HTTP/1.1\r\n", r.Method, backendPath)
 	fmt.Fprintf(&reqBuf, "Host: %s\r\n", targetHost)
 
-	// Forward all client headers except Host (already set)
+	// Forward all client headers except Host (already set above)
 	for key, values := range r.Header {
 		if strings.EqualFold(key, "Host") {
 			continue
