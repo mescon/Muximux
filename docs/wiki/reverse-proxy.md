@@ -84,27 +84,19 @@ Leave `proxy: false` (or omit it) when:
 
 ## Why Some Apps May Not Work
 
-Even with the proxy enabled, some applications will not work correctly in an iframe. Here are the most common reasons:
+Even with the proxy enabled, some applications will not work correctly in an iframe. The most common reasons are:
 
-### JavaScript-Constructed Paths
+- **Runtime-constructed URLs** -- If the app builds URLs in JavaScript by concatenating variables or using template literals, the proxy cannot intercept these because they are only resolved in the browser.
+- **SPA routing conflicts** -- Single-page applications may not recognize the `/proxy/{slug}/` prefix in their client-side router.
+- **Service workers** -- Can cache responses under wrong paths or intercept requests before they reach the proxy.
+- **Strict origin validation** -- Apps that validate `Origin` or `Referer` headers may reject proxied requests.
+- **Binary protocols** -- gRPC, MessagePack, and other non-text formats cannot be rewritten.
 
-If an app builds URLs at runtime by concatenating strings or using template literals in JavaScript, the proxy cannot intercept these. The rewriting happens on the server side before the browser executes the JavaScript, but dynamically computed URLs are only known at execution time.
-
-### Client-Side Routing
-
-Single-page applications (SPAs) with client-side routers may not recognize the `/proxy/{slug}/` prefix. The proxy rewrites base path configuration where it can find it, but not all frameworks expose this in a way that can be rewritten.
+For detailed explanations of each limitation, symptoms, and workarounds, see the [Troubleshooting](troubleshooting.md#reverse-proxy-limitations) page.
 
 ### WebSocket Connections
 
-Apps that use WebSockets for real-time features (live logs, notifications, chat) may fail if the WebSocket URL is hardcoded or constructed in JavaScript rather than derived from the page's current location.
-
-### Service Workers
-
-Apps using service workers for caching or offline support may conflict with the proxy's path rewriting. The service worker may cache responses under the wrong paths or intercept requests before they reach the proxy.
-
-### Strict Authentication
-
-Apps that validate the `Origin` or `Referer` header may reject proxied requests because the hostname in those headers belongs to Muximux, not the app itself.
+WebSocket connections are fully supported. The proxy detects `Upgrade: websocket` requests and transparently proxies them by establishing a direct TCP connection to the backend. Path rewriting is applied to the initial HTTP upgrade request, then data flows bidirectionally without modification. Apps using WebSockets for live updates, logs, or chat should work through the proxy without additional configuration.
 
 ### Mixed Content
 

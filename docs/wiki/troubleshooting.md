@@ -32,6 +32,81 @@
 
 ---
 
+## Reverse Proxy Limitations
+
+The built-in reverse proxy rewrites paths in HTML, CSS, JavaScript, JSON, and HTTP headers so that apps work at `/proxy/{slug}/` instead of their original URL. However, some patterns cannot be rewritten. This section explains what is **not supported**, why, and what you can do about it.
+
+### JavaScript That Builds URLs at Runtime
+
+**Symptom:** The app loads but some features, API calls, or navigation links point to wrong paths. You see 404 errors in the Network tab for URLs that are missing the `/proxy/{slug}/` prefix.
+
+**What happens:** The proxy rewrites paths that appear as literal strings in the response body (e.g., `fetch("/api/data")`). However, when JavaScript constructs URLs at runtime by concatenating variables, using template literals, or calling `new URL()`, the final URL only exists in the browser's memory -- the proxy never sees it.
+
+**Patterns that cannot be rewritten:**
+
+| Pattern | Example | Why |
+|---------|---------|-----|
+| Template literals | `` `${base}/api/users` `` | The `base` variable is resolved by the browser |
+| String concatenation | `'/api' + '/users'` | Two separate strings joined at runtime |
+| `new URL()` | `new URL('/api', location.origin)` | URL constructed from parts at runtime |
+| `history.pushState` | `pushState({}, '', '/page')` | Client-side navigation bypasses the server |
+| `history.replaceState` | `replaceState({}, '', '/page')` | Same as above |
+| `location.pathname` | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
+
+**Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs, solving the problem at the source. Many popular apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Overseerr, Tautulli, etc.).
+
+### Single-Page App (SPA) Routing Issues
+
+**Symptom:** The app loads initially but navigating within it causes a blank page, a 404, or routes back to the home page.
+
+**What happens:** SPAs define client-side routes like `/dashboard` or `/users/settings`. When the app is proxied at `/proxy/my-app/`, the browser's URL becomes `/proxy/my-app/dashboard`. The app's router sees the full path including the `/proxy/my-app/` prefix, which it doesn't recognize, causing a route mismatch.
+
+The proxy mitigates this by rewriting base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/my-app"`), which helps many apps. However, apps that hardcode routes in their JavaScript or use a routing framework that doesn't respect the base path may still break.
+
+**Workaround:** Configure the app's base URL/path prefix setting to `/proxy/{slug}` if available. This is the most reliable fix because it makes the app aware of its actual path.
+
+### Service Workers
+
+**Symptom:** The app works on first load but breaks after a page refresh, or cached content appears stale, or the app tries to serve offline content at wrong paths.
+
+**What happens:** Service workers intercept network requests and serve cached responses. When an app is proxied, the service worker may cache responses under paths that don't include the proxy prefix, or its scope may not cover the `/proxy/{slug}/` path correctly. The proxy cannot modify service worker behavior after it has been registered in the browser.
+
+**Workaround:** If the app has a service worker toggle, try disabling it. Otherwise, clear the service worker from your browser: open DevTools > Application > Service Workers > Unregister. If the problem persists, use `open_mode: new_tab` instead.
+
+### Binary and Non-Text Protocols
+
+**Symptom:** Features that use gRPC, Protocol Buffers, MessagePack, or other binary protocols fail when the app is proxied.
+
+**What happens:** The proxy rewrites text-based content by matching patterns in the response body. Binary protocols encode data in non-text formats where path strings cannot be found or safely modified by regex-based rewriting.
+
+**Workaround:** No proxy-side fix is possible. Use `open_mode: new_tab` for apps that rely on binary protocols, or configure the app to use its non-binary API if one exists.
+
+### Large Responses and Memory
+
+**Symptom:** Muximux becomes slow or unresponsive when proxied apps serve very large responses (downloads, database exports, large media files).
+
+**What happens:** The proxy buffers the entire response body in memory to perform rewriting. For very large responses (hundreds of megabytes or more), this can cause significant memory pressure on the server.
+
+**Workaround:** Avoid proxying apps that serve large file downloads. Instead, access those apps directly via `open_mode: new_tab`, or use a custom `health_url` and access the download page directly. Binary content types like images, videos, and archives are not rewritten by the proxy, so they pass through with minimal overhead -- but the buffering still occurs.
+
+### Cookie Domain Attribute
+
+**Symptom:** Login sessions in a proxied app don't persist, or you need to log in repeatedly.
+
+**What happens:** The proxy rewrites the `Path` attribute of `Set-Cookie` headers so cookies are scoped to the proxy path. However, the `Domain` attribute is **not** rewritten. If the app sets a cookie with an explicit domain (e.g., `Domain=app.internal`), the browser may reject it because the cookie domain doesn't match the Muximux domain.
+
+**Workaround:** Configure the app to not set an explicit cookie domain, if possible. Most apps that are designed for reverse proxy use will work correctly without an explicit domain.
+
+### Strict Origin Validation
+
+**Symptom:** Proxied app rejects requests with CSRF errors, "invalid origin", or "forbidden" responses when submitting forms or making API calls.
+
+**What happens:** Some apps validate the `Origin` or `Referer` HTTP header to prevent cross-site request forgery (CSRF). When accessed through the proxy, these headers contain Muximux's hostname instead of the app's hostname, causing the app to reject the request.
+
+**Workaround:** Check the app's settings for a "trusted origins" or "CORS allowed origins" option and add Muximux's URL. Some apps also have a "disable CSRF" or "allow reverse proxy" toggle.
+
+---
+
 ## Health Checks Show Unhealthy But App Works
 
 **Causes:**
