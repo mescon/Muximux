@@ -96,7 +96,7 @@ If the `--config` flag is omitted, Muximux looks for `config.yaml` in the curren
 
 Building from source requires:
 
-- **Go 1.25** or newer
+- **Go 1.26** or newer
 - **Node.js 20** or newer (with npm)
 
 ```bash
