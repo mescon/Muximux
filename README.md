@@ -1,6 +1,6 @@
 # Muximux
 
-A self-hosted portal for your homelab. Access all your web applications from a single dashboard with health monitoring, keyboard navigation, and a built-in reverse proxy that makes stubborn apps work in iframes.
+A self-hosted homelab dashboard with an optional built-in reverse proxy that makes stubborn apps work in iframes.
 
 One binary. One port. One YAML config file.
 
@@ -16,9 +16,9 @@ One binary. One port. One YAML config file.
 
 ## What Is Muximux?
 
-If you run services like Sonarr, Radarr, Plex, Grafana, or Home Assistant in your homelab, you probably have a dozen browser bookmarks and port numbers to remember. Muximux gives you a single page where all of those apps live — organized into groups, with live health indicators showing what's up and what's down.
+If you run services like Sonarr, Radarr, Plex, Grafana, or Home Assistant in your homelab, you probably have a dozen browser bookmarks and port numbers to remember. Muximux gives you a single page where all of those apps live, organized into groups, with live health indicators showing what's up and what's down.
 
-Apps load inside the dashboard as iframes, so switching between them is instant — no page reloads, no losing your place. For apps that refuse to be embedded (most set `X-Frame-Options: DENY`), Muximux includes a reverse proxy that transparently strips those headers and rewrites paths so they work.
+Apps load inside the dashboard as iframes, so switching between them is instant - no page reloads, no losing your place. For apps that refuse to be embedded (most set `X-Frame-Options: DENY`), Muximux includes a reverse proxy that transparently strips those headers and rewrites paths so they work.
 
 Everything is configured in one YAML file. There's no database, no external dependencies, and the entire application ships as a single binary with the frontend embedded.
 
@@ -26,17 +26,17 @@ Everything is configured in one YAML file. There's no database, no external depe
 
 ## Why v3?
 
-Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mescon/Muximux/tree/v2) was a PHP application that served as a simple bookmark portal. v3 replaces it with a modern stack and a much broader feature set:
+Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mescon/Muximux/tree/v2.0) was a PHP application that served as a simple bookmark portal. v3 replaces it with a modern stack and a much broader feature set:
 
-- **Go backend** with the frontend embedded in the binary — no PHP, no web server, no runtime dependencies
+- **Go backend** with the frontend embedded in the binary - no PHP, no web server, no runtime dependencies
 - **Built-in reverse proxy** that rewrites HTML, CSS, JS, and headers so apps actually work inside iframes
-- **Real-time health monitoring** via WebSocket — see which apps are up or down without refreshing
-- **Built-in authentication** — username/password, forward auth (Authelia/Authentik), or OIDC
-- **Optional TLS and gateway** — an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
-- **Guided onboarding** — a setup wizard walks you through adding your first apps
+- **Real-time health monitoring** via WebSocket - see which apps are up or down without refreshing
+- **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC
+- **Optional TLS and gateway** - an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
+- **Guided onboarding** - a setup wizard walks you through adding your first apps
 - **1,600+ icons** from Lucide plus thousands of service-specific icons from [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)
-- **Keyboard shortcuts** for power users — switch apps, toggle navigation, search, all from the keyboard
-- **Themes** — built-in light and dark modes, plus custom themes via CSS
+- **Keyboard shortcuts** for power users - switch apps, toggle navigation, search, all from the keyboard
+- **Themes** - built-in light and dark modes, plus custom themes via CSS
 
 ---
 
@@ -50,11 +50,11 @@ You already have Traefik, nginx, or Caddy handling TLS and auth. Run Muximux beh
 
 ### Dashboard with the built-in reverse proxy
 
-Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux will proxy them through `/proxy/{slug}/`, stripping blocking headers and rewriting paths. This runs inside the Go server and works in every deployment mode — no extra configuration needed.
+Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux will proxy them through `/proxy/{slug}/`, stripping blocking headers and rewriting paths. This runs inside the Go server and works in every deployment mode - no extra configuration needed.
 
 ### Full reverse proxy appliance
 
-No existing proxy? Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS via Let's Encrypt and a `gateway` Caddyfile to serve your other services on their own domains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing — all from the same single binary.
+No existing proxy? Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS via Let's Encrypt and a `gateway` Caddyfile to serve your other services on their own domains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing - all from the same single binary.
 
 See the [Deployment Guide](docs/wiki/deployment.md) for Docker Compose examples for each setup.
 
@@ -139,9 +139,9 @@ For the full configuration reference, authentication options, TLS setup, and mor
 
 | | |
 |---|---|
-| **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip — makes apps work in iframes that normally refuse |
+| **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip - makes apps work in iframes that normally refuse |
 | **Health Monitoring** | Periodic health checks with real-time WebSocket updates and colored status indicators |
-| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC — or `none` if your proxy handles it |
+| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - or `none` if your proxy handles it |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Serve additional sites alongside Muximux using a standard Caddyfile |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), auto-hide, customizable width |
@@ -150,7 +150,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Themes** | Built-in light/dark modes, custom themes via CSS custom properties |
 | **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_LISTEN` and `MUXIMUX_CONFIG` overrides |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
-| **Single Binary** | Frontend embedded in the Go binary — one file to deploy, no runtime dependencies |
+| **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |
 
 ---
 
@@ -158,16 +158,16 @@ For the full configuration reference, authentication options, TLS setup, and mor
 
 Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 
-- [Installation](docs/wiki/installation.md) — Docker, binary, building from source
-- [Getting Started](docs/wiki/getting-started.md) — First launch and onboarding
-- [Configuration Reference](docs/wiki/configuration.md) — All config.yaml options
-- [Apps](docs/wiki/apps.md) — Adding and configuring applications
-- [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) — How the proxy works and when to use it
-- [Authentication](docs/wiki/authentication.md) — Auth methods and setup
-- [TLS & HTTPS](docs/wiki/tls-and-gateway.md) — Certificates and gateway mode
-- [Deployment Guide](docs/wiki/deployment.md) — Production deployment examples
-- [Themes](docs/wiki/themes.md) — Customizing the look
-- [API Reference](docs/wiki/api.md) — REST API endpoints
+- [Installation](docs/wiki/installation.md) - Docker, binary, building from source
+- [Getting Started](docs/wiki/getting-started.md) - First launch and onboarding
+- [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
+- [Apps](docs/wiki/apps.md) - Adding and configuring applications
+- [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
+- [Authentication](docs/wiki/authentication.md) - Auth methods and setup
+- [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
+- [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
+- [Themes](docs/wiki/themes.md) - Customizing the look
+- [API Reference](docs/wiki/api.md) - REST API endpoints
 
 ---
 
@@ -201,7 +201,7 @@ go build -ldflags "-X main.version=1.0.0" -o muximux ./cmd/muximux
 
 ## License
 
-GPL v2 — see [LICENSE](LICENSE) for details.
+GPL v2 - see [LICENSE](LICENSE) for details.
 
 ## Credits
 
