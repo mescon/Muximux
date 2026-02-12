@@ -39,6 +39,9 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Create embed placeholder
+        run: mkdir -p internal/server/dist && touch internal/server/dist/.gitkeep
+
       - name: Run golangci-lint
         uses: golangci/golangci-lint-action@v9
         with:
