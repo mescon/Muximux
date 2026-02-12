@@ -14,13 +14,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mescon/Muximux/internal/auth"
-	"github.com/mescon/Muximux/internal/config"
-	"github.com/mescon/Muximux/internal/handlers"
-	"github.com/mescon/Muximux/internal/health"
-	"github.com/mescon/Muximux/internal/icons"
-	"github.com/mescon/Muximux/internal/proxy"
-	"github.com/mescon/Muximux/internal/websocket"
+	"github.com/mescon/muximux/internal/auth"
+	"github.com/mescon/muximux/internal/config"
+	"github.com/mescon/muximux/internal/handlers"
+	"github.com/mescon/muximux/internal/health"
+	"github.com/mescon/muximux/internal/icons"
+	"github.com/mescon/muximux/internal/proxy"
+	"github.com/mescon/muximux/internal/websocket"
 )
 
 //go:embed all:dist

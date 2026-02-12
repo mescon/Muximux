@@ -1,4 +1,4 @@
-module github.com/mescon/Muximux
+module github.com/mescon/muximux
 
 go 1.25
 

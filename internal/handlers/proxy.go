@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mescon/Muximux/internal/config"
-	"github.com/mescon/Muximux/internal/proxy"
+	"github.com/mescon/muximux/internal/config"
+	"github.com/mescon/muximux/internal/proxy"
 )
 
 // ProxyHandler handles proxy-related API requests

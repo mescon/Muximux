@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/mescon/Muximux/internal/health"
+	"github.com/mescon/muximux/internal/health"
 )
 
 // HealthHandler handles health-related API requests

@@ -12,7 +12,7 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/mescon/Muximux/internal/config"
+	"github.com/mescon/muximux/internal/config"
 )
 
 // ReverseProxyHandler handles reverse proxy requests on the main server

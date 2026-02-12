@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"sync"
 
-	"github.com/mescon/Muximux/internal/config"
+	"github.com/mescon/muximux/internal/config"
 )
 
 // APIHandler handles API requests

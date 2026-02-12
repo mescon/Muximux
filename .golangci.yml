@@ -31,7 +31,7 @@ formatters:
   settings:
     goimports:
       local-prefixes:
-        - github.com/mescon/Muximux
+        - github.com/mescon/muximux
   exclusions:
     generated: lax
     paths:
