@@ -553,4 +553,60 @@ describe('themeStore', () => {
       expect(themeVariableGroups).toHaveProperty('Status');
     });
   });
+
+  describe('detectCustomThemes', () => {
+    it('handles API failure gracefully', async () => {
+      const { detectCustomThemes, customThemes } = await import('./themeStore');
+      customThemes.set([]);
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      await detectCustomThemes();
+      expect(get(customThemes)).toEqual([]);
+    });
+
+    it('handles non-ok response', async () => {
+      const { detectCustomThemes, customThemes } = await import('./themeStore');
+      customThemes.set([]);
+      mockFetch.mockResolvedValueOnce({ ok: false });
+
+      await detectCustomThemes();
+      expect(get(customThemes)).toEqual([]);
+    });
+  });
+
+  describe('saveCustomThemeToServer', () => {
+    it('returns false on API failure', async () => {
+      const { saveCustomThemeToServer } = await import('./themeStore');
+      mockFetch.mockResolvedValueOnce({ ok: false });
+
+      const result = await saveCustomThemeToServer('Test', 'dark', true, {});
+      expect(result).toBe(false);
+    });
+
+    it('returns false on network error', async () => {
+      const { saveCustomThemeToServer } = await import('./themeStore');
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      const result = await saveCustomThemeToServer('Test', 'dark', true, {});
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('deleteCustomThemeFromServer', () => {
+    it('returns false on API failure', async () => {
+      const { deleteCustomThemeFromServer } = await import('./themeStore');
+      mockFetch.mockResolvedValueOnce({ ok: false });
+
+      const result = await deleteCustomThemeFromServer('nord-dark');
+      expect(result).toBe(false);
+    });
+
+    it('returns false on network error', async () => {
+      const { deleteCustomThemeFromServer } = await import('./themeStore');
+      mockFetch.mockRejectedValueOnce(new Error('Network error'));
+
+      const result = await deleteCustomThemeFromServer('nord-dark');
+      expect(result).toBe(false);
+    });
+  });
 });

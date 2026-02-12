@@ -14,7 +14,7 @@ import { writable, derived, get } from 'svelte/store';
 export type BuiltinTheme = 'dark' | 'light';
 
 // Theme mode includes system preference option (kept for backward compat with App.svelte keybindings)
-export type ThemeMode = 'dark' | 'light' | 'system' | (string & {});
+export type ThemeMode = 'dark' | 'light' | 'system' | (string & Record<never, never>);
 
 // Variant mode for the family system
 export type VariantMode = 'dark' | 'light' | 'system';
@@ -98,19 +98,19 @@ const OLD_THEME_KEY = 'muximux_theme';
 
 // --- Helper: read from localStorage ---
 function getStoredFamily(): string {
-  if (typeof globalThis.window === 'undefined') return 'default';
+  if (globalThis.window === undefined) return 'default';
   return localStorage.getItem(FAMILY_KEY) || 'default';
 }
 
 function getStoredVariantMode(): VariantMode {
-  if (typeof globalThis.window === 'undefined') return 'system';
+  if (globalThis.window === undefined) return 'system';
   const stored = localStorage.getItem(VARIANT_KEY);
   if (stored === 'dark' || stored === 'light' || stored === 'system') return stored;
   return 'system';
 }
 
 function getSystemPreference(): BuiltinTheme {
-  if (typeof globalThis.window === 'undefined') return 'dark';
+  if (globalThis.window === undefined) return 'dark';
   return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
@@ -331,7 +331,7 @@ async function preloadFamilyCSS(familyId: string) {
 
 // Detect available custom themes from the API
 export async function detectCustomThemes(): Promise<void> {
-  if (typeof globalThis.window === 'undefined') return;
+  if (globalThis.window === undefined) return;
 
   try {
     const response = await fetch('/api/themes');
@@ -352,7 +352,7 @@ export async function detectCustomThemes(): Promise<void> {
 
 // Migrate from old localStorage format
 function migrateOldThemeStorage() {
-  if (typeof globalThis.window === 'undefined') return;
+  if (globalThis.window === undefined) return;
 
   // Already migrated?
   if (localStorage.getItem(FAMILY_KEY)) return;
@@ -400,7 +400,7 @@ function postLoadMigration() {
 
 // Initialize theme system
 export function initTheme() {
-  if (typeof globalThis.window === 'undefined') return;
+  if (globalThis.window === undefined) return;
 
   // Migrate old storage format first
   migrateOldThemeStorage();
@@ -440,7 +440,7 @@ export function syncFromConfig(theme: { family: string; variant: string }) {
 
 // Convert a theme name to a safe filesystem ID
 export function sanitizeThemeId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/(^-|-$)/g, '');
+  return name.toLowerCase().replaceAll(/[^a-z0-9-]/g, '-').replaceAll(/-+/g, '-').replaceAll(/(^-|-$)/g, '');
 }
 
 // Get theme info by ID
