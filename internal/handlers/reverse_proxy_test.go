@@ -838,7 +838,7 @@ func TestWebSocketProxy(t *testing.T) {
 		if err != nil {
 			return
 		}
-		conn.Write(msg[:n])
+		_, _ = conn.Write(msg[:n])
 	}))
 	defer wsBackend.Close()
 
@@ -946,7 +946,7 @@ func TestWebSocketNon101Response(t *testing.T) {
 			"\r\n",
 		proxyURL.Host)
 
-	conn.Write([]byte(upgrade))
+	_, _ = conn.Write([]byte(upgrade))
 
 	reader := bufio.NewReader(conn)
 	resp, err := http.ReadResponse(reader, nil)

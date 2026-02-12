@@ -56,6 +56,9 @@ jobs:
         with:
           go-version-file: go.mod
 
+      - name: Create embed placeholder
+        run: mkdir -p internal/server/dist && touch internal/server/dist/.gitkeep
+
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
 

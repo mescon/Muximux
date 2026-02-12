@@ -759,7 +759,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 		}
 		w.WriteHeader(resp.StatusCode)
 		if resp.Body != nil {
-			io.Copy(w, resp.Body)
+			_, _ = io.Copy(w, resp.Body)
 			resp.Body.Close()
 		}
 		return
@@ -806,10 +806,10 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 		// First drain any data already buffered in the reader
 		if backendBuf.Buffered() > 0 {
 			buffered, _ := backendBuf.Peek(backendBuf.Buffered())
-			clientConn.Write(buffered)
-			backendBuf.Discard(len(buffered))
+			_, _ = clientConn.Write(buffered)
+			_, _ = backendBuf.Discard(len(buffered))
 		}
-		io.Copy(clientConn, backendConn)
+		_, _ = io.Copy(clientConn, backendConn)
 	}()
 
 	// Client → Backend
@@ -818,10 +818,10 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 		// Drain any buffered client data
 		if clientBuf.Reader.Buffered() > 0 {
 			buffered, _ := clientBuf.Peek(clientBuf.Reader.Buffered())
-			backendConn.Write(buffered)
-			clientBuf.Reader.Discard(len(buffered))
+			_, _ = backendConn.Write(buffered)
+			_, _ = clientBuf.Discard(len(buffered))
 		}
-		io.Copy(backendConn, clientConn)
+		_, _ = io.Copy(backendConn, clientConn)
 	}()
 
 	wg.Wait()

@@ -25,7 +25,7 @@ RUN go mod download
 COPY . .
 
 # Copy frontend build
-COPY --from=frontend /app/web/dist ./internal/server/dist
+COPY --from=frontend /app/internal/server/dist ./internal/server/dist
 
 # Build binary
 ARG VERSION=dev
