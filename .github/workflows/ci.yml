@@ -59,12 +59,14 @@ jobs:
         run: mkdir -p internal/server/dist && touch internal/server/dist/.gitkeep
 
       - name: Run tests
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: go test -v -race -coverprofile=coverage.txt ./...
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
-          files: ./coverage.out
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: mescon/Muximux
+          files: ./coverage.txt
           flags: backend
           fail_ci_if_error: false
 
@@ -92,6 +94,8 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: mescon/Muximux
           files: web/coverage/lcov.info
           flags: frontend
           fail_ci_if_error: false
