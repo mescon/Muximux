@@ -82,9 +82,15 @@ export interface KeybindingsConfig {
   bindings?: Record<string, KeyCombo[]>;
 }
 
+export interface ThemeConfig {
+  family: string;
+  variant: 'dark' | 'light' | 'system';
+}
+
 export interface Config {
   title: string;
   navigation: NavigationConfig;
+  theme?: ThemeConfig;
   health?: HealthConfig;
   auth?: AuthConfig;
   tls?: TLSConfig;

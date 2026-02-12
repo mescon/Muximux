@@ -64,6 +64,11 @@ auth:
     display_name_claim: name
     admin_groups: []           # Groups that grant admin role
 
+# ─── Theme ─────────────────────────────────────
+theme:
+  family: default              # Theme family: default, nord, dracula, etc.
+  variant: system              # dark, light, system (follow OS preference)
+
 # ─── Navigation ─────────────────────────────────
 navigation:
   position: top                # top, left, right, bottom, floating

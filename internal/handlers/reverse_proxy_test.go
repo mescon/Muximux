@@ -1,6 +1,11 @@
 package handlers
 
 import (
+	"bufio"
+	"crypto/sha1"
+	"encoding/base64"
+	"fmt"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -657,5 +662,287 @@ func TestProxyIntegration(t *testing.T) {
 		if strings.Contains(body, unexpected) {
 			t.Errorf("body should not contain unrewritten path %q", unexpected)
 		}
+	}
+}
+
+func TestIsWebSocketUpgrade(t *testing.T) {
+	tests := []struct {
+		name     string
+		headers  map[string]string
+		expected bool
+	}{
+		{
+			name:     "standard websocket upgrade",
+			headers:  map[string]string{"Connection": "upgrade", "Upgrade": "websocket"},
+			expected: true,
+		},
+		{
+			name:     "case insensitive",
+			headers:  map[string]string{"Connection": "Upgrade", "Upgrade": "WebSocket"},
+			expected: true,
+		},
+		{
+			name:     "missing upgrade header",
+			headers:  map[string]string{"Connection": "upgrade"},
+			expected: false,
+		},
+		{
+			name:     "missing connection header",
+			headers:  map[string]string{"Upgrade": "websocket"},
+			expected: false,
+		},
+		{
+			name:     "normal HTTP request",
+			headers:  map[string]string{"Content-Type": "text/html"},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest("GET", "/proxy/app/ws", nil)
+			for k, v := range tt.headers {
+				req.Header.Set(k, v)
+			}
+			if got := isWebSocketUpgrade(req); got != tt.expected {
+				t.Errorf("isWebSocketUpgrade() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
+
+func TestResolveBackendPath(t *testing.T) {
+	tests := []struct {
+		name        string
+		proxyPrefix string
+		targetPath  string
+		requestPath string
+		expected    string
+	}{
+		{
+			name:        "app at root - simple path",
+			proxyPrefix: "/proxy/sonarr",
+			targetPath:  "/",
+			requestPath: "/proxy/sonarr/api/v3/series",
+			expected:    "/api/v3/series",
+		},
+		{
+			name:        "app with subpath",
+			proxyPrefix: "/proxy/pi-hole",
+			targetPath:  "/admin",
+			requestPath: "/proxy/pi-hole/settings",
+			expected:    "/admin/settings",
+		},
+		{
+			name:        "app with subpath - API at root",
+			proxyPrefix: "/proxy/pi-hole",
+			targetPath:  "/admin",
+			requestPath: "/proxy/pi-hole/api/auth",
+			expected:    "/api/auth",
+		},
+		{
+			name:        "root request",
+			proxyPrefix: "/proxy/sonarr",
+			targetPath:  "/",
+			requestPath: "/proxy/sonarr/",
+			expected:    "/",
+		},
+		{
+			name:        "websocket path",
+			proxyPrefix: "/proxy/portainer",
+			targetPath:  "/",
+			requestPath: "/proxy/portainer/api/websocket/exec",
+			expected:    "/api/websocket/exec",
+		},
+		{
+			name:        "double prefix stripping",
+			proxyPrefix: "/proxy/radarr",
+			targetPath:  "/",
+			requestPath: "/proxy/radarr/proxy/radarr/api/v3",
+			expected:    "/api/v3",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			targetURL, _ := url.Parse("http://192.0.2.1:8080" + tt.targetPath)
+			route := &proxyRoute{
+				proxyPrefix: tt.proxyPrefix,
+				targetPath:  tt.targetPath,
+				targetURL:   targetURL,
+			}
+			got := route.resolveBackendPath(tt.requestPath)
+			if got != tt.expected {
+				t.Errorf("resolveBackendPath(%q) = %q, want %q", tt.requestPath, got, tt.expected)
+			}
+		})
+	}
+}
+
+// computeWebSocketAccept computes the Sec-WebSocket-Accept value per RFC 6455
+func computeWebSocketAccept(key string) string {
+	h := sha1.New()
+	h.Write([]byte(key + "258EAFA5-E914-47DA-95CA-5AB5DC11D65A"))
+	return base64.StdEncoding.EncodeToString(h.Sum(nil))
+}
+
+func TestWebSocketProxy(t *testing.T) {
+	// Create a mock WebSocket backend that performs the upgrade handshake
+	// and echoes back a message
+	wsBackend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Verify it's a WebSocket upgrade
+		if !strings.EqualFold(r.Header.Get("Upgrade"), "websocket") {
+			http.Error(w, "not a websocket request", http.StatusBadRequest)
+			return
+		}
+
+		key := r.Header.Get("Sec-WebSocket-Key")
+		accept := computeWebSocketAccept(key)
+
+		// Hijack the connection to perform raw WebSocket
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			http.Error(w, "hijack not supported", http.StatusInternalServerError)
+			return
+		}
+		conn, buf, err := hj.Hijack()
+		if err != nil {
+			return
+		}
+		defer conn.Close()
+
+		// Send 101 upgrade response
+		fmt.Fprintf(buf, "HTTP/1.1 101 Switching Protocols\r\n")
+		fmt.Fprintf(buf, "Upgrade: websocket\r\n")
+		fmt.Fprintf(buf, "Connection: Upgrade\r\n")
+		fmt.Fprintf(buf, "Sec-WebSocket-Accept: %s\r\n", accept)
+		fmt.Fprintf(buf, "\r\n")
+		buf.Flush()
+
+		// Read whatever the client sends and echo it back
+		msg := make([]byte, 1024)
+		n, err := conn.Read(msg)
+		if err != nil {
+			return
+		}
+		conn.Write(msg[:n])
+	}))
+	defer wsBackend.Close()
+
+	// Create proxy handler pointing to the backend
+	apps := []config.AppConfig{
+		{Name: "WsApp", URL: wsBackend.URL, Enabled: true, Proxy: true},
+	}
+	handler := NewReverseProxyHandler(apps)
+
+	// Start an HTTP server using our proxy handler
+	proxyServer := httptest.NewServer(handler)
+	defer proxyServer.Close()
+
+	// Connect to the proxy as a WebSocket client
+	proxyURL, _ := url.Parse(proxyServer.URL)
+	conn, err := net.Dial("tcp", proxyURL.Host)
+	if err != nil {
+		t.Fatalf("failed to connect to proxy: %v", err)
+	}
+	defer conn.Close()
+
+	// Send WebSocket upgrade request through the proxy
+	wsKey := "dGhlIHNhbXBsZSBub25jZQ=="
+	upgrade := fmt.Sprintf(
+		"GET /proxy/wsapp/ws HTTP/1.1\r\n"+
+			"Host: %s\r\n"+
+			"Connection: upgrade\r\n"+
+			"Upgrade: websocket\r\n"+
+			"Sec-WebSocket-Key: %s\r\n"+
+			"Sec-WebSocket-Version: 13\r\n"+
+			"\r\n",
+		proxyURL.Host, wsKey)
+
+	if _, err := conn.Write([]byte(upgrade)); err != nil {
+		t.Fatalf("failed to send upgrade request: %v", err)
+	}
+
+	// Read the proxy's response
+	reader := bufio.NewReader(conn)
+	resp, err := http.ReadResponse(reader, nil)
+	if err != nil {
+		t.Fatalf("failed to read upgrade response: %v", err)
+	}
+
+	if resp.StatusCode != http.StatusSwitchingProtocols {
+		t.Fatalf("expected 101 Switching Protocols, got %d", resp.StatusCode)
+	}
+
+	if !strings.EqualFold(resp.Header.Get("Upgrade"), "websocket") {
+		t.Errorf("expected Upgrade: websocket header, got %q", resp.Header.Get("Upgrade"))
+	}
+
+	expectedAccept := computeWebSocketAccept(wsKey)
+	if resp.Header.Get("Sec-WebSocket-Accept") != expectedAccept {
+		t.Errorf("Sec-WebSocket-Accept = %q, want %q", resp.Header.Get("Sec-WebSocket-Accept"), expectedAccept)
+	}
+
+	// Send a test message through the WebSocket
+	testMsg := []byte("hello from proxy test")
+	if _, err := conn.Write(testMsg); err != nil {
+		t.Fatalf("failed to write test message: %v", err)
+	}
+
+	// Read the echo back
+	echoBuf := make([]byte, 1024)
+	n, err := conn.Read(echoBuf)
+	if err != nil {
+		t.Fatalf("failed to read echo: %v", err)
+	}
+
+	if string(echoBuf[:n]) != string(testMsg) {
+		t.Errorf("echo = %q, want %q", string(echoBuf[:n]), string(testMsg))
+	}
+}
+
+func TestWebSocketNon101Response(t *testing.T) {
+	// Backend that rejects WebSocket upgrades
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+	}))
+	defer backend.Close()
+
+	apps := []config.AppConfig{
+		{Name: "NoWs", URL: backend.URL, Enabled: true, Proxy: true},
+	}
+	handler := NewReverseProxyHandler(apps)
+
+	proxyServer := httptest.NewServer(handler)
+	defer proxyServer.Close()
+
+	proxyURL, _ := url.Parse(proxyServer.URL)
+	conn, err := net.Dial("tcp", proxyURL.Host)
+	if err != nil {
+		t.Fatalf("failed to connect: %v", err)
+	}
+	defer conn.Close()
+
+	upgrade := fmt.Sprintf(
+		"GET /proxy/nows/ws HTTP/1.1\r\n"+
+			"Host: %s\r\n"+
+			"Connection: upgrade\r\n"+
+			"Upgrade: websocket\r\n"+
+			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"+
+			"Sec-WebSocket-Version: 13\r\n"+
+			"\r\n",
+		proxyURL.Host)
+
+	conn.Write([]byte(upgrade))
+
+	reader := bufio.NewReader(conn)
+	resp, err := http.ReadResponse(reader, nil)
+	if err != nil {
+		t.Fatalf("failed to read response: %v", err)
+	}
+
+	// Should get the backend's 403, not a crash
+	if resp.StatusCode != http.StatusForbidden {
+		t.Errorf("expected 403, got %d", resp.StatusCode)
 	}
 }

@@ -7,11 +7,18 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// ThemeConfig holds theme selection
+type ThemeConfig struct {
+	Family  string `yaml:"family" json:"family"`   // "default", "nord", "dracula", etc.
+	Variant string `yaml:"variant" json:"variant"` // "dark", "light", "system"
+}
+
 // Config holds all application configuration
 type Config struct {
 	Server      ServerConfig      `yaml:"server"`
 	Auth        AuthConfig        `yaml:"auth"`
 	Navigation  NavigationConfig  `yaml:"navigation"`
+	Theme       ThemeConfig       `yaml:"theme" json:"theme"`
 	Icons       IconsConfig       `yaml:"icons"`
 	Health      HealthConfig      `yaml:"health"`
 	Keybindings KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
@@ -249,6 +256,10 @@ func defaultConfig() *Config {
 		},
 		Auth: AuthConfig{
 			Method: "none",
+		},
+		Theme: ThemeConfig{
+			Family:  "default",
+			Variant: "system",
 		},
 		Navigation: NavigationConfig{
 			Position:           "top",

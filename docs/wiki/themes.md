@@ -2,6 +2,18 @@
 
 Muximux uses a CSS custom properties system for theming. You can choose from built-in themes, create your own through the Settings panel, or edit theme CSS files directly.
 
+## Configuration
+
+The active theme is stored in your `config.yaml`:
+
+```yaml
+theme:
+  family: default              # Theme family: default, nord, dracula, etc.
+  variant: system              # dark, light, system
+```
+
+This is the authoritative source of truth and syncs across all browsers and devices. The browser also caches the current theme in localStorage for instant application on page load (avoiding a flash of unstyled content), but the server config always takes precedence when loaded.
+
 ## Built-in Themes
 
 Muximux ships with two built-in themes:
@@ -25,7 +37,9 @@ Each theme supports three variant modes:
 2. Go to the **Appearance** tab.
 3. Select a theme family and a variant mode.
 
-Changes apply instantly. No restart is needed.
+Changes apply instantly and are saved to `config.yaml` when you click Save. No restart is needed.
+
+You can also select a theme during the onboarding wizard when setting up Muximux for the first time.
 
 ## Custom Themes
 

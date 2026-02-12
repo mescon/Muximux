@@ -1,10 +1,10 @@
 import { writable, derived, get } from 'svelte/store';
 import type { App, Group, NavigationConfig } from './types';
 
-export type OnboardingStep = 'welcome' | 'apps' | 'navigation' | 'groups' | 'complete';
+export type OnboardingStep = 'welcome' | 'apps' | 'navigation' | 'theme' | 'complete';
 
 // Step order for navigation
-const STEP_ORDER: OnboardingStep[] = ['welcome', 'apps', 'navigation', 'groups', 'complete'];
+const STEP_ORDER: OnboardingStep[] = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
 
 // Current step in the wizard
 export const currentStep = writable<OnboardingStep>('welcome');

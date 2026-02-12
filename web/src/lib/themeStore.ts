@@ -433,6 +433,18 @@ export function initTheme() {
   });
 }
 
+// Sync theme stores from server-side config (called after config loads)
+export function syncFromConfig(theme: { family: string; variant: string }) {
+  if (!theme) return;
+  if (theme.family && theme.family !== get(selectedFamily)) {
+    setThemeFamily(theme.family);
+  }
+  const v = theme.variant as VariantMode;
+  if (v && (v === 'dark' || v === 'light' || v === 'system') && v !== get(variantMode)) {
+    setVariantMode(v);
+  }
+}
+
 // Convert a theme name to a safe filesystem ID
 export function sanitizeThemeId(name: string): string {
   return name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');

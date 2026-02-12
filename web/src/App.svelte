@@ -10,14 +10,14 @@
   import OnboardingWizard from './components/OnboardingWizard.svelte';
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
-  import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group } from './lib/types';
+  import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
   import { fetchConfig, saveConfig } from './lib/api';
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { authState, checkAuthStatus, logout, isAuthenticated, currentUser, isAdmin } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
-  import { initTheme, setTheme } from './lib/themeStore';
+  import { initTheme, setTheme, syncFromConfig } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
@@ -123,6 +123,11 @@
       apps = config.apps;
       authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined;
 
+      // Sync theme from server config (keeps localStorage in sync across browsers)
+      if (config.theme) {
+        syncFromConfig(config.theme);
+      }
+
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
@@ -142,6 +147,10 @@
         const newConfig = payload as Config;
         config = newConfig;
         apps = newConfig.apps;
+        // Sync theme if changed from another session
+        if (newConfig.theme) {
+          syncFromConfig(newConfig.theme);
+        }
         // Reset current app if it no longer exists
         if (currentApp && !apps.find(a => a.name === currentApp?.name)) {
           currentApp = null;
@@ -173,6 +182,11 @@
       config = await fetchConfig();
       apps = config.apps;
 
+      // Sync theme from server config
+      if (config.theme) {
+        syncFromConfig(config.theme);
+      }
+
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
@@ -195,8 +209,8 @@
     showSplash = true;
   }
 
-  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[] }) {
-    const { apps: newApps, navigation, groups } = detail;
+  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig }) {
+    const { apps: newApps, navigation, groups, theme } = detail;
 
     if (!config) return;
 
@@ -207,6 +221,7 @@
         ...config.navigation,
         ...navigation
       },
+      theme,
       groups,
       apps: newApps
     };

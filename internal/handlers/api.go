@@ -48,12 +48,14 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	clientConfig := struct {
 		Title       string                    `json:"title"`
 		Navigation  config.NavigationConfig   `json:"navigation"`
+		Theme       config.ThemeConfig        `json:"theme"`
 		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
 		Groups      []config.GroupConfig      `json:"groups"`
 		Apps        []ClientAppConfig         `json:"apps"`
 	}{
 		Title:      h.config.Server.Title,
 		Navigation: h.config.Navigation,
+		Theme:      h.config.Theme,
 		Groups:     h.config.Groups,
 		Apps:       sanitizeApps(h.config.Apps),
 	}
@@ -70,6 +72,7 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 type ClientConfigUpdate struct {
 	Title       string                    `json:"title"`
 	Navigation  config.NavigationConfig   `json:"navigation"`
+	Theme       config.ThemeConfig        `json:"theme"`
 	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Groups      []config.GroupConfig      `json:"groups"`
 	Apps        []ClientAppConfig         `json:"apps"`
@@ -94,6 +97,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	// Update the config
 	h.config.Server.Title = update.Title
 	h.config.Navigation = update.Navigation
+	h.config.Theme = update.Theme
 	h.config.Groups = update.Groups
 	if update.Keybindings != nil {
 		h.config.Keybindings = *update.Keybindings
@@ -158,12 +162,14 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	clientConfig := struct {
 		Title       string                    `json:"title"`
 		Navigation  config.NavigationConfig   `json:"navigation"`
+		Theme       config.ThemeConfig        `json:"theme"`
 		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
 		Groups      []config.GroupConfig      `json:"groups"`
 		Apps        []ClientAppConfig         `json:"apps"`
 	}{
 		Title:      h.config.Server.Title,
 		Navigation: h.config.Navigation,
+		Theme:      h.config.Theme,
 		Groups:     h.config.Groups,
 		Apps:       sanitizeApps(h.config.Apps),
 	}

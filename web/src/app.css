@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+button, [role="button"] {
+  cursor: pointer;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    MUXIMUX DESIGN SYSTEM
    A refined, information-dense interface for your application dashboard

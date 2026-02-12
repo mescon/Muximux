@@ -95,9 +95,12 @@ func NewMiddleware(config AuthConfig, sessionStore *SessionStore, userStore *Use
 // RequireAuth returns middleware that requires authentication
 func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Check if auth is disabled
+		// Check if auth is disabled — inject virtual admin so downstream
+		// handlers (e.g. RequireRole) always find a user in context.
 		if m.config.Method == AuthMethodNone {
-			next.ServeHTTP(w, r)
+			virtualAdmin := &User{ID: "admin", Username: "admin", Role: RoleAdmin}
+			ctx := context.WithValue(r.Context(), ContextKeyUser, virtualAdmin)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 

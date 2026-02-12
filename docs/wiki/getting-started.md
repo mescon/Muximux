@@ -20,9 +20,11 @@ The wizard has five steps. You can move forward and backward between steps at an
 
 A brief introduction to Muximux and its core features: embedded app views via iframes, health monitoring, and keyboard-driven navigation. Click **Let's Get Started** to begin.
 
-### Step 2: Apps
+### Step 2: Apps & Groups
 
-Browse a library of popular self-hosted application templates organized by category:
+This step uses a two-column layout (single column on mobile):
+
+**Left column** -- Browse popular self-hosted application templates organized by category:
 
 - **Media** -- Plex, Jellyfin, Emby, Tautulli, Overseerr, Navidrome
 - **Downloads** -- Sonarr, Radarr, Lidarr, Prowlarr, qBittorrent, SABnzbd, NZBGet, Transmission, Deluge
@@ -31,7 +33,17 @@ Browse a library of popular self-hosted application templates organized by categ
 
 Click on any app to select it. When selected, a URL field appears so you can enter the actual address of that service in your network (e.g., change `http://localhost:32400/web` to `http://192.168.1.50:32400/web`).
 
-You can also add **custom applications** that are not in the template list by clicking "Add custom application" at the bottom. Provide a name, URL, color, and optionally a group.
+At the top of the left column is the **Add Custom App** card. Click it to expand a form where you can provide a name, URL, icon (via the icon browser), color, and group. The group dropdown lists existing groups plus a "No Group" option.
+
+**Right column** -- Shows your current selections:
+
+- **Selected Apps** -- A live list of all selected template and custom apps, each with a remove button.
+- **Groups** -- Auto-populated based on the categories of your selected apps. Each group is fully editable:
+  - **Color** -- Click the color swatch to open a color picker.
+  - **Icon** -- Click the icon area to open the icon browser and choose from Dashboard Icons, Lucide icons, or custom uploads.
+  - **Name** -- Edit the group name inline.
+  - **Delete** -- Remove a group with the X button.
+  - **Add Group** -- Click "+ Add Group" to create a new group from scratch.
 
 ### Step 3: Navigation Style
 
@@ -47,17 +59,19 @@ Choose how the navigation bar appears in your dashboard:
 
 You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
 
-### Step 4: Groups
+### Step 4: Theme
 
-Based on the apps you selected, Muximux automatically suggests groups to organize them (e.g., Media, Downloads, System, Utilities). Each group shows how many of your selected apps belong to it.
+Choose a visual theme for your dashboard:
 
-If you selected apps from only one category, or no apps at all, this step may show no groups -- all apps will simply appear in a flat list.
+- Use the **variant selector** (Dark / System / Light) to control whether to follow the OS preference or force a specific mode.
+- Browse available **theme families** in a grid. Each card shows color swatches for background, surface, and accent colors. Click a family to select it.
+- Changes apply **live** -- you can see the theme update the wizard background as you click.
 
-Groups can be fully customized later in Settings.
+Custom themes can be created later in Settings. The selected theme is saved to `config.yaml` as part of the server-side configuration.
 
 ### Step 5: Complete
 
-A summary of your choices is displayed: number of apps, navigation position, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
+A summary of your choices is displayed: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
 
 ---
 
@@ -98,6 +112,10 @@ server:
 navigation:
   position: "left"
   show_labels: true
+
+theme:
+  family: "default"
+  variant: "system"
 
 health:
   enabled: true

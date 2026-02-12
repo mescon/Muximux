@@ -1,16 +1,20 @@
 package handlers
 
 import (
+	"bufio"
 	"bytes"
 	"compress/gzip"
+	"crypto/tls"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
 	"regexp"
 	"strings"
+	"sync"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -600,6 +604,187 @@ func shouldRewriteContent(contentType string) bool {
 	return false
 }
 
+// isWebSocketUpgrade returns true if the request is a WebSocket upgrade.
+func isWebSocketUpgrade(r *http.Request) bool {
+	return strings.EqualFold(r.Header.Get("Connection"), "upgrade") &&
+		strings.EqualFold(r.Header.Get("Upgrade"), "websocket")
+}
+
+// resolveBackendPath translates a proxy request path to the backend path,
+// applying the same logic as the Director (strip prefix, double-prefix, api bypass).
+func (route *proxyRoute) resolveBackendPath(reqPath string) string {
+	path := strings.TrimPrefix(reqPath, route.proxyPrefix)
+	if path == "" {
+		path = "/"
+	}
+
+	// Double-prefix stripping
+	if strings.Contains(path, route.proxyPrefix) {
+		path = strings.ReplaceAll(path, route.proxyPrefix, "")
+	}
+
+	trimmed := strings.TrimSuffix(route.targetPath, "/")
+	if trimmed != "" && trimmed != "/" {
+		if strings.HasPrefix(path, "/api/") || path == "/api" {
+			return path
+		}
+		if strings.HasPrefix(path, "/") {
+			return trimmed + path
+		}
+		return trimmed + "/" + path
+	}
+	return path
+}
+
+// handleWebSocket hijacks the client connection and proxies raw WebSocket frames
+// to/from the backend. Path rewriting uses the same logic as normal HTTP requests.
+func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request) {
+	// Resolve the backend path
+	backendPath := route.resolveBackendPath(r.URL.Path)
+	if r.URL.RawQuery != "" {
+		backendPath += "?" + r.URL.RawQuery
+	}
+
+	// Dial the backend
+	targetHost := route.targetURL.Host
+	scheme := route.targetURL.Scheme
+
+	var backendConn net.Conn
+	var err error
+	if scheme == "https" {
+		host := targetHost
+		if h, _, splitErr := net.SplitHostPort(targetHost); splitErr == nil {
+			host = h
+		}
+		backendConn, err = tls.Dial("tcp", targetHost, &tls.Config{
+			ServerName:         host,
+			InsecureSkipVerify: true, //nolint:gosec // internal network backends
+		})
+	} else {
+		// If no port in host, default to 80
+		dialHost := targetHost
+		if _, _, splitErr := net.SplitHostPort(targetHost); splitErr != nil {
+			dialHost = targetHost + ":80"
+		}
+		backendConn, err = net.Dial("tcp", dialHost)
+	}
+	if err != nil {
+		log.Printf("[proxy-ws] %s: failed to dial backend %s: %v", route.name, targetHost, err)
+		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		return
+	}
+	defer backendConn.Close()
+
+	// Build the upgrade request to send to the backend
+	var reqBuf bytes.Buffer
+	fmt.Fprintf(&reqBuf, "%s %s HTTP/1.1\r\n", r.Method, backendPath)
+	fmt.Fprintf(&reqBuf, "Host: %s\r\n", targetHost)
+
+	// Forward all client headers except Host (already set)
+	for key, values := range r.Header {
+		if strings.EqualFold(key, "Host") {
+			continue
+		}
+		for _, v := range values {
+			fmt.Fprintf(&reqBuf, "%s: %s\r\n", key, v)
+		}
+	}
+	reqBuf.WriteString("\r\n")
+
+	// Send upgrade request to backend
+	if _, err = backendConn.Write(reqBuf.Bytes()); err != nil {
+		log.Printf("[proxy-ws] %s: failed to write upgrade request: %v", route.name, err)
+		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		return
+	}
+
+	// Read the backend's response
+	backendBuf := bufio.NewReader(backendConn)
+	resp, err := http.ReadResponse(backendBuf, r)
+	if err != nil {
+		log.Printf("[proxy-ws] %s: failed to read upgrade response: %v", route.name, err)
+		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		return
+	}
+
+	// If backend didn't upgrade, forward the error response as-is
+	if resp.StatusCode != http.StatusSwitchingProtocols {
+		log.Printf("[proxy-ws] %s: backend returned %d instead of 101", route.name, resp.StatusCode)
+		for k, vs := range resp.Header {
+			for _, v := range vs {
+				w.Header().Add(k, v)
+			}
+		}
+		w.WriteHeader(resp.StatusCode)
+		if resp.Body != nil {
+			io.Copy(w, resp.Body)
+			resp.Body.Close()
+		}
+		return
+	}
+
+	// Hijack the client connection
+	hijacker, ok := w.(http.Hijacker)
+	if !ok {
+		log.Printf("[proxy-ws] %s: response writer does not support hijacking", route.name)
+		http.Error(w, "WebSocket not supported", http.StatusInternalServerError)
+		return
+	}
+	clientConn, clientBuf, err := hijacker.Hijack()
+	if err != nil {
+		log.Printf("[proxy-ws] %s: failed to hijack client connection: %v", route.name, err)
+		return
+	}
+	defer clientConn.Close()
+
+	// Forward the 101 response to the client
+	var respBuf bytes.Buffer
+	fmt.Fprintf(&respBuf, "HTTP/1.1 101 Switching Protocols\r\n")
+	for k, vs := range resp.Header {
+		for _, v := range vs {
+			fmt.Fprintf(&respBuf, "%s: %s\r\n", k, v)
+		}
+	}
+	respBuf.WriteString("\r\n")
+
+	if _, err = clientConn.Write(respBuf.Bytes()); err != nil {
+		log.Printf("[proxy-ws] %s: failed to write upgrade response to client: %v", route.name, err)
+		return
+	}
+
+	// Bidirectional copy: pipe frames between client and backend.
+	// If the backend's bufio reader has buffered data (e.g. a frame sent
+	// immediately after the handshake), flush it to the client first.
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	// Backend → Client
+	go func() {
+		defer wg.Done()
+		// First drain any data already buffered in the reader
+		if backendBuf.Buffered() > 0 {
+			buffered, _ := backendBuf.Peek(backendBuf.Buffered())
+			clientConn.Write(buffered)
+			backendBuf.Discard(len(buffered))
+		}
+		io.Copy(clientConn, backendConn)
+	}()
+
+	// Client → Backend
+	go func() {
+		defer wg.Done()
+		// Drain any buffered client data
+		if clientBuf.Reader.Buffered() > 0 {
+			buffered, _ := clientBuf.Peek(clientBuf.Reader.Buffered())
+			backendConn.Write(buffered)
+			clientBuf.Reader.Discard(len(buffered))
+		}
+		io.Copy(backendConn, clientConn)
+	}()
+
+	wg.Wait()
+}
+
 // ServeHTTP handles proxy requests
 func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/proxy/")
@@ -613,6 +798,12 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	route, exists := h.routes[slug]
 	if !exists {
 		http.Error(w, "App not found: "+slug, http.StatusNotFound)
+		return
+	}
+
+	// WebSocket upgrade requests use hijack-based proxying
+	if isWebSocketUpgrade(r) {
+		route.handleWebSocket(w, r)
 		return
 	}
 
