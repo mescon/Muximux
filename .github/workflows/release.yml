@@ -70,7 +70,7 @@ jobs:
             ./cmd/muximux
 
       - name: Upload artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: muximux-${{ matrix.goos }}-${{ matrix.goarch }}
           path: muximux-*
