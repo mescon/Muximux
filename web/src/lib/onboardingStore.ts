@@ -1,10 +1,26 @@
 import { writable, derived, get } from 'svelte/store';
 import type { App, Group, NavigationConfig } from './types';
 
-export type OnboardingStep = 'welcome' | 'apps' | 'navigation' | 'theme' | 'complete';
+export type OnboardingStep = 'welcome' | 'security' | 'apps' | 'navigation' | 'theme' | 'complete';
 
-// Step order for navigation
-const STEP_ORDER: OnboardingStep[] = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
+// Dynamic step order — set by configureSteps()
+let activeStepOrder: OnboardingStep[] = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
+
+export function configureSteps(includeSetup: boolean): void {
+  if (includeSetup) {
+    activeStepOrder = ['welcome', 'security', 'apps', 'navigation', 'theme', 'complete'];
+  } else {
+    activeStepOrder = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
+  }
+}
+
+export function getStepOrder(): OnboardingStep[] {
+  return activeStepOrder;
+}
+
+export function getTotalSteps(): number {
+  return activeStepOrder.length;
+}
 
 // Current step in the wizard
 export const currentStep = writable<OnboardingStep>('welcome');
@@ -28,23 +44,24 @@ export function resetOnboarding(): void {
   selectedNavigation.set('left');
   showLabels.set(true);
   selectedGroups.set([]);
+  activeStepOrder = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
 }
 
 // Navigate to next step
 export function nextStep(): void {
   const current = get(currentStep);
-  const currentIndex = STEP_ORDER.indexOf(current);
-  if (currentIndex < STEP_ORDER.length - 1) {
-    currentStep.set(STEP_ORDER[currentIndex + 1]);
+  const currentIndex = activeStepOrder.indexOf(current);
+  if (currentIndex < activeStepOrder.length - 1) {
+    currentStep.set(activeStepOrder[currentIndex + 1]);
   }
 }
 
 // Navigate to previous step
 export function prevStep(): void {
   const current = get(currentStep);
-  const currentIndex = STEP_ORDER.indexOf(current);
+  const currentIndex = activeStepOrder.indexOf(current);
   if (currentIndex > 0) {
-    currentStep.set(STEP_ORDER[currentIndex - 1]);
+    currentStep.set(activeStepOrder[currentIndex - 1]);
   }
 }
 
@@ -55,8 +72,5 @@ export function goToStep(step: OnboardingStep): void {
 
 // Get step progress (0-based index)
 export const stepProgress = derived(currentStep, ($step) => {
-  return STEP_ORDER.indexOf($step);
+  return activeStepOrder.indexOf($step);
 });
-
-// Get total steps
-export const totalSteps = STEP_ORDER.length;

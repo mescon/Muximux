@@ -72,7 +72,8 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	mux := http.NewServeMux()
 
 	// Auth endpoints (always accessible)
-	authHandler := handlers.NewAuthHandler(sessionStore, userStore)
+	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware)
+	authHandler.SetBypassRules(defaultBypassRules)
 	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
 
 	// Set up OIDC provider if configured
@@ -140,6 +141,45 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	})
 	mux.HandleFunc("/api/auth/password", func(w http.ResponseWriter, r *http.Request) {
 		authMiddleware.RequireAuth(http.HandlerFunc(authHandler.ChangePassword)).ServeHTTP(w, r)
+	})
+
+	// User management (auth-protected, admin-only)
+	mux.HandleFunc("/api/auth/users", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case http.MethodGet:
+				requireAdmin(authHandler.ListUsers)(w, r)
+			case http.MethodPost:
+				requireAdmin(authHandler.CreateUser)(w, r)
+			default:
+				http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			}
+		})).ServeHTTP(w, r)
+	})
+
+	// /api/auth/users/{username} — PUT, DELETE
+	mux.HandleFunc("/api/auth/users/", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case http.MethodPut:
+				requireAdmin(authHandler.UpdateUser)(w, r)
+			case http.MethodDelete:
+				requireAdmin(authHandler.DeleteUser)(w, r)
+			default:
+				http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			}
+		})).ServeHTTP(w, r)
+	})
+
+	// Auth method switching
+	mux.HandleFunc("/api/auth/method", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			if r.Method != http.MethodPut {
+				http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+				return
+			}
+			requireAdmin(authHandler.UpdateAuthMethod)(w, r)
+		})).ServeHTTP(w, r)
 	})
 
 	// Serve embedded frontend files

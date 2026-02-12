@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest } from './types';
 
 const API_BASE = '/api';
 
@@ -40,8 +40,41 @@ async function putJSON<T, R>(path: string, data: T): Promise<R> {
   return response.json();
 }
 
+async function deleteJSON(path: string): Promise<void> {
+  const response = await fetch(`${API_BASE}${path}`, {
+    method: 'DELETE',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error: ${response.status} ${text}`);
+  }
+}
+
 export async function submitSetup(data: SetupRequest): Promise<SetupResponse> {
   return postJSON<SetupRequest, SetupResponse>('/auth/setup', data);
+}
+
+export async function listUsers(): Promise<UserInfo[]> {
+  return fetchJSON<UserInfo[]>('/auth/users');
+}
+
+export async function createUser(data: CreateUserRequest): Promise<{ success: boolean; user?: UserInfo; message?: string }> {
+  return postJSON<CreateUserRequest, { success: boolean; user?: UserInfo; message?: string }>('/auth/users', data);
+}
+
+export async function updateUser(username: string, data: UpdateUserRequest): Promise<{ success: boolean; user?: UserInfo; message?: string }> {
+  return putJSON<UpdateUserRequest, { success: boolean; user?: UserInfo; message?: string }>(`/auth/users/${encodeURIComponent(username)}`, data);
+}
+
+export async function deleteUserAccount(username: string): Promise<void> {
+  await deleteJSON(`/auth/users/${encodeURIComponent(username)}`);
+}
+
+export async function changeAuthMethod(data: ChangeAuthMethodRequest): Promise<{ success: boolean; method?: string; message?: string }> {
+  return putJSON<ChangeAuthMethodRequest, { success: boolean; method?: string; message?: string }>('/auth/method', data);
 }
 
 export async function fetchConfig(): Promise<Config> {

@@ -11,7 +11,9 @@ import {
   prevStep,
   goToStep,
   stepProgress,
-  totalSteps,
+  getTotalSteps,
+  configureSteps,
+  getStepOrder,
   type OnboardingStep,
 } from './onboardingStore';
 
@@ -42,9 +44,32 @@ describe('onboardingStore', () => {
     });
   });
 
-  describe('totalSteps', () => {
-    it('equals 5', () => {
-      expect(totalSteps).toBe(5);
+  describe('getTotalSteps', () => {
+    it('equals 5 by default (no setup)', () => {
+      expect(getTotalSteps()).toBe(5);
+    });
+
+    it('equals 6 when setup is included', () => {
+      configureSteps(true);
+      expect(getTotalSteps()).toBe(6);
+    });
+
+    it('returns to 5 after reset', () => {
+      configureSteps(true);
+      resetOnboarding();
+      expect(getTotalSteps()).toBe(5);
+    });
+  });
+
+  describe('configureSteps', () => {
+    it('includes security step when setup needed', () => {
+      configureSteps(true);
+      expect(getStepOrder()).toEqual(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
+    });
+
+    it('excludes security step when no setup', () => {
+      configureSteps(false);
+      expect(getStepOrder()).toEqual(['welcome', 'apps', 'navigation', 'theme', 'complete']);
     });
   });
 
@@ -106,6 +131,18 @@ describe('onboardingStore', () => {
       const expectedReverse: OnboardingStep[] = ['theme', 'navigation', 'apps', 'welcome'];
       for (const expected of expectedReverse) {
         prevStep();
+        expect(get(currentStep)).toBe(expected);
+      }
+    });
+  });
+
+  describe('nextStep with security step', () => {
+    it('advances through all steps including security', () => {
+      configureSteps(true);
+      currentStep.set('welcome');
+      const expectedOrder: OnboardingStep[] = ['security', 'apps', 'navigation', 'theme', 'complete'];
+      for (const expected of expectedOrder) {
+        nextStep();
         expect(get(currentStep)).toBe(expected);
       }
     });

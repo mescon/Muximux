@@ -1099,7 +1099,7 @@ func TestRegisterAPIRoutes(t *testing.T) {
 func TestRegisterAuthRoutes(t *testing.T) {
 	ss := auth.NewSessionStore("test", time.Hour, false)
 	us := auth.NewUserStore()
-	authHandler := handlers.NewAuthHandler(ss, us)
+	authHandler := handlers.NewAuthHandler(ss, us, nil, "", nil)
 	wsHub := websocket.NewHub()
 	go wsHub.Run()
 

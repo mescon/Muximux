@@ -9,7 +9,9 @@
   import { get } from 'svelte/store';
   import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
-  import { exportConfig, parseImportedConfig } from '$lib/api';
+  import { exportConfig, parseImportedConfig, listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod } from '$lib/api';
+  import { changePassword, isAdmin, currentUser } from '$lib/authStore';
+  import type { UserInfo, ChangeAuthMethodRequest } from '$lib/types';
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
@@ -37,7 +39,7 @@
   });
 
   // Active tab
-  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings'>('general');
+  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security'>('general');
 
   // Local copy of config for editing
   let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
@@ -52,6 +54,37 @@
 
   // Track keybindings changes
   let keybindingsChanged = $state(false);
+
+  // Security tab state
+  let securityUsers = $state<UserInfo[]>([]);
+  let securityLoading = $state(false);
+  let securityError = $state<string | null>(null);
+  let securitySuccess = $state<string | null>(null);
+
+  // Change password
+  let cpCurrent = $state('');
+  let cpNew = $state('');
+  let cpConfirm = $state('');
+  let cpLoading = $state(false);
+  let cpMessage = $state<{ type: 'success' | 'error'; text: string } | null>(null);
+
+  // Add user
+  let showAddUser = $state(false);
+  let newUserName = $state('');
+  let newUserPassword = $state('');
+  let newUserRole = $state('user');
+  let addUserLoading = $state(false);
+  let addUserError = $state<string | null>(null);
+
+  // Delete user confirmation
+  let confirmDeleteUser = $state<string | null>(null);
+
+  // Auth method switching
+  let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'none'>('none');
+  let methodTrustedProxies = $state('');
+  let methodHeaders = $state<Record<string, string>>({});
+  let methodLoading = $state(false);
+  let methodError = $state<string | null>(null);
 
   // Track if changes have been made (declared below after snapshot variables)
 
@@ -130,6 +163,120 @@
     Object.values(acc).forEach(arr => arr.sort((a, b) => a.order - b.order));
     return acc;
   }
+
+  // Security tab functions
+  async function loadSecurityUsers() {
+    securityLoading = true;
+    securityError = null;
+    try {
+      securityUsers = await listUsers();
+    } catch (e) {
+      securityError = e instanceof Error ? e.message : 'Failed to load users';
+    } finally {
+      securityLoading = false;
+    }
+  }
+
+  async function handleChangePassword() {
+    if (cpNew.length < 8 || cpNew !== cpConfirm) return;
+    cpLoading = true;
+    cpMessage = null;
+    const result = await changePassword(cpCurrent, cpNew);
+    cpLoading = false;
+    if (result.success) {
+      cpMessage = { type: 'success', text: 'Password changed successfully' };
+      cpCurrent = '';
+      cpNew = '';
+      cpConfirm = '';
+    } else {
+      cpMessage = { type: 'error', text: result.message || 'Failed to change password' };
+    }
+  }
+
+  async function handleAddUser() {
+    if (!newUserName.trim() || newUserPassword.length < 8) return;
+    addUserLoading = true;
+    addUserError = null;
+    try {
+      const result = await createUser({
+        username: newUserName.trim(),
+        password: newUserPassword,
+        role: newUserRole,
+      });
+      if (result.success) {
+        newUserName = '';
+        newUserPassword = '';
+        newUserRole = 'user';
+        showAddUser = false;
+        await loadSecurityUsers();
+      } else {
+        addUserError = result.message || 'Failed to create user';
+      }
+    } catch (e) {
+      addUserError = e instanceof Error ? e.message : 'Failed to create user';
+    } finally {
+      addUserLoading = false;
+    }
+  }
+
+  async function handleUpdateUserRole(username: string, role: string) {
+    try {
+      await updateUser(username, { role });
+      await loadSecurityUsers();
+    } catch (e) {
+      securityError = e instanceof Error ? e.message : 'Failed to update user';
+    }
+  }
+
+  async function handleDeleteUser(username: string) {
+    try {
+      await deleteUserAccount(username);
+      confirmDeleteUser = null;
+      await loadSecurityUsers();
+    } catch (e) {
+      securityError = e instanceof Error ? e.message : 'Failed to delete user';
+    }
+  }
+
+  async function handleChangeAuthMethod() {
+    methodLoading = true;
+    methodError = null;
+    const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
+    if (selectedAuthMethod === 'forward_auth') {
+      req.trusted_proxies = methodTrustedProxies
+        .split(/[,\n]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      if (Object.keys(methodHeaders).length > 0) {
+        req.headers = methodHeaders;
+      }
+    }
+    try {
+      const result = await changeAuthMethod(req);
+      if (result.success) {
+        securitySuccess = `Authentication method changed to ${selectedAuthMethod}`;
+        setTimeout(() => securitySuccess = null, 3000);
+      } else {
+        methodError = result.message || 'Failed to change method';
+      }
+    } catch (e) {
+      methodError = e instanceof Error ? e.message : 'Failed to change method';
+    } finally {
+      methodLoading = false;
+    }
+  }
+
+  $effect(() => {
+    if (activeTab === 'security' && $isAdmin) {
+      loadSecurityUsers();
+    }
+  });
+
+  $effect(() => {
+    if (activeTab === 'security') {
+      selectedAuthMethod = (localConfig.auth?.method || 'none') as typeof selectedAuthMethod;
+    }
+  });
 
   function rebuildDndArrays() {
     dndGroups = [...localConfig.groups].sort((a, b) => a.order - b.order);
@@ -594,7 +741,8 @@
         { id: 'general', label: 'General' },
         { id: 'apps', label: 'Apps & Groups' },
         { id: 'theme', label: 'Theme' },
-        { id: 'keybindings', label: 'Keybindings' }
+        { id: 'keybindings', label: 'Keybindings' },
+        { id: 'security', label: 'Security' }
       ] as tab (tab.id)}
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
@@ -797,6 +945,28 @@
             <p class="text-xs text-gray-500 mt-2">
               Export your current configuration or import a previously saved one.
             </p>
+          </div>
+
+          <!-- About -->
+          <div class="pt-4 border-t border-gray-700">
+            <h3 class="text-sm font-medium text-gray-300 mb-3">About</h3>
+            <p class="text-sm text-gray-400">
+              Muximux is a unified homelab dashboard for managing and accessing your self-hosted services.
+            </p>
+            <a
+              href="https://github.com/mescon/muximux"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center gap-1.5 mt-2 text-sm text-brand-400 hover:text-brand-300 transition-colors"
+            >
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              GitHub
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+              </svg>
+            </a>
           </div>
         </div>
 
@@ -1387,6 +1557,295 @@
       <!-- Keybindings Settings -->
       {#if activeTab === 'keybindings'}
         <KeybindingsEditor onchange={() => keybindingsChanged = true} />
+      {/if}
+
+      <!-- Security Settings -->
+      {#if activeTab === 'security'}
+        <div class="space-y-8">
+          {#if securitySuccess}
+            <div class="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
+              {securitySuccess}
+            </div>
+          {/if}
+
+          <!-- Authentication Method -->
+          <div>
+            <h3 class="text-lg font-semibold text-white mb-1">Authentication Method</h3>
+            <p class="text-sm text-gray-400 mb-4">Choose how users authenticate with Muximux</p>
+
+            <div class="flex gap-2 mb-4">
+              {#each [
+                { value: 'builtin', label: 'Password' },
+                { value: 'forward_auth', label: 'Auth Proxy' },
+                { value: 'none', label: 'None' }
+              ] as opt (opt.value)}
+                <button
+                  class="px-4 py-2 text-sm rounded-lg border transition-all
+                         {selectedAuthMethod === opt.value
+                           ? 'border-brand-500 bg-brand-500/15 text-white'
+                           : 'border-gray-700 bg-gray-800/50 text-gray-400 hover:text-white hover:border-gray-600'}"
+                  onclick={() => selectedAuthMethod = opt.value as typeof selectedAuthMethod}
+                >
+                  {opt.label}
+                </button>
+              {/each}
+            </div>
+
+            {#if selectedAuthMethod === 'forward_auth'}
+              <div class="space-y-3 mb-4 p-4 rounded-lg bg-gray-800/50 border border-gray-700">
+                <div>
+                  <label for="method-proxies" class="block text-sm text-gray-400 mb-1">Trusted proxy IPs</label>
+                  <textarea
+                    id="method-proxies"
+                    bind:value={methodTrustedProxies}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="10.0.0.1/32&#10;172.16.0.0/12"
+                    rows="3"
+                  ></textarea>
+                </div>
+              </div>
+            {:else if selectedAuthMethod === 'none'}
+              <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm mb-4">
+                Without authentication, anyone with network access has full control of your dashboard.
+              </div>
+            {/if}
+
+            {#if methodError}
+              <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+                {methodError}
+              </div>
+            {/if}
+
+            {#if selectedAuthMethod !== (localConfig.auth?.method || 'none')}
+              <button
+                class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim())}
+                onclick={handleChangeAuthMethod}
+              >
+                {#if methodLoading}
+                  <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                {/if}
+                Update Method
+              </button>
+            {/if}
+          </div>
+
+          <!-- Change Password (visible when builtin) -->
+          {#if (localConfig.auth?.method || 'none') === 'builtin'}
+            <div>
+              <h3 class="text-lg font-semibold text-white mb-1">Change Password</h3>
+              <p class="text-sm text-gray-400 mb-4">Update your account password</p>
+
+              <div class="max-w-md space-y-3">
+                <div>
+                  <label for="cp-current" class="block text-sm text-gray-400 mb-1">Current password</label>
+                  <input
+                    id="cp-current"
+                    type="password"
+                    bind:value={cpCurrent}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    autocomplete="current-password"
+                  />
+                </div>
+                <div>
+                  <label for="cp-new" class="block text-sm text-gray-400 mb-1">New password</label>
+                  <input
+                    id="cp-new"
+                    type="password"
+                    bind:value={cpNew}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="Minimum 8 characters"
+                    autocomplete="new-password"
+                  />
+                  {#if cpNew.length > 0 && cpNew.length < 8}
+                    <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
+                  {/if}
+                </div>
+                <div>
+                  <label for="cp-confirm" class="block text-sm text-gray-400 mb-1">Confirm new password</label>
+                  <input
+                    id="cp-confirm"
+                    type="password"
+                    bind:value={cpConfirm}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    autocomplete="new-password"
+                  />
+                  {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
+                    <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
+                  {/if}
+                </div>
+
+                {#if cpMessage}
+                  <div class="p-3 rounded-lg text-sm {cpMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}">
+                    {cpMessage.text}
+                  </div>
+                {/if}
+
+                <button
+                  class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                  disabled={cpLoading || cpNew.length < 8 || cpNew !== cpConfirm || !cpCurrent}
+                  onclick={handleChangePassword}
+                >
+                  {#if cpLoading}
+                    <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                  {/if}
+                  Change Password
+                </button>
+              </div>
+            </div>
+          {/if}
+
+          <!-- User Management (visible when builtin + admin) -->
+          {#if (localConfig.auth?.method || 'none') === 'builtin' && $isAdmin}
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-lg font-semibold text-white mb-1">User Management</h3>
+                  <p class="text-sm text-gray-400">Manage dashboard users and roles</p>
+                </div>
+                <button
+                  class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors flex items-center gap-1.5"
+                  onclick={() => showAddUser = !showAddUser}
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                  </svg>
+                  Add User
+                </button>
+              </div>
+
+              {#if securityError}
+                <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+                  {securityError}
+                </div>
+              {/if}
+
+              <!-- Add user form -->
+              {#if showAddUser}
+                <div class="p-4 rounded-lg bg-gray-800/50 border border-gray-700 mb-4 space-y-3" in:fly={{ y: -10, duration: 150 }}>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label for="new-user-name" class="block text-sm text-gray-400 mb-1">Username</label>
+                      <input
+                        id="new-user-name"
+                        type="text"
+                        bind:value={newUserName}
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        placeholder="username"
+                      />
+                    </div>
+                    <div>
+                      <label for="new-user-password" class="block text-sm text-gray-400 mb-1">Password</label>
+                      <input
+                        id="new-user-password"
+                        type="password"
+                        bind:value={newUserPassword}
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        placeholder="Min 8 characters"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label for="new-user-role" class="block text-sm text-gray-400 mb-1">Role</label>
+                    <select
+                      id="new-user-role"
+                      bind:value={newUserRole}
+                      class="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                             focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    >
+                      <option value="admin">Admin</option>
+                      <option value="user">User</option>
+                      <option value="guest">Guest</option>
+                    </select>
+                  </div>
+
+                  {#if addUserError}
+                    <p class="text-red-400 text-sm">{addUserError}</p>
+                  {/if}
+
+                  <div class="flex gap-2">
+                    <button
+                      class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
+                      onclick={handleAddUser}
+                    >
+                      {#if addUserLoading}
+                        <span class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                      {/if}
+                      Add
+                    </button>
+                    <button
+                      class="px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700 transition-colors"
+                      onclick={() => showAddUser = false}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              {/if}
+
+              <!-- User list -->
+              {#if securityLoading}
+                <div class="text-center py-4 text-gray-400">Loading users...</div>
+              {:else}
+                <div class="space-y-2">
+                  {#each securityUsers as user (user.username)}
+                    <div class="flex items-center gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700">
+                      <div class="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium text-gray-300">
+                        {user.username.charAt(0).toUpperCase()}
+                      </div>
+                      <div class="flex-1 min-w-0">
+                        <div class="text-sm font-medium text-white">{user.username}</div>
+                        {#if user.email}
+                          <div class="text-xs text-gray-500">{user.email}</div>
+                        {/if}
+                      </div>
+                      <select
+                        value={user.role}
+                        onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
+                        class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white
+                               focus:outline-none focus:ring-1 focus:ring-brand-500"
+                      >
+                        <option value="admin">Admin</option>
+                        <option value="user">User</option>
+                        <option value="guest">Guest</option>
+                      </select>
+                      {#if confirmDeleteUser === user.username}
+                        <div class="flex items-center gap-1.5">
+                          <button
+                            class="px-2 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded"
+                            onclick={() => handleDeleteUser(user.username)}
+                          >Delete</button>
+                          <button
+                            class="px-2 py-1 text-xs bg-gray-600 hover:bg-gray-500 text-white rounded"
+                            onclick={() => confirmDeleteUser = null}
+                          >Cancel</button>
+                        </div>
+                      {:else}
+                        <button
+                          class="p-1.5 text-gray-500 hover:text-red-400 rounded transition-colors"
+                          onclick={() => confirmDeleteUser = user.username}
+                          disabled={user.username === $currentUser?.username}
+                          title={user.username === $currentUser?.username ? "Can't delete yourself" : 'Delete user'}
+                        >
+                          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      {/if}
+                    </div>
+                  {/each}
+                </div>
+              {/if}
+            </div>
+          {/if}
+        </div>
       {/if}
     </div>
   </div>

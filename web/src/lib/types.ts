@@ -113,3 +113,30 @@ export interface SetupResponse {
   method: string;
   error?: string;
 }
+
+export interface UserInfo {
+  username: string;
+  role: string;
+  email?: string;
+  display_name?: string;
+}
+
+export interface CreateUserRequest {
+  username: string;
+  password: string;
+  role: string;
+  email?: string;
+  display_name?: string;
+}
+
+export interface UpdateUserRequest {
+  role?: string;
+  email?: string;
+  display_name?: string;
+}
+
+export interface ChangeAuthMethodRequest {
+  method: 'builtin' | 'forward_auth' | 'none';
+  trusted_proxies?: string[];
+  headers?: Record<string, string>;
+}

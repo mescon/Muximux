@@ -84,7 +84,6 @@
   <!-- Status dot -->
   <span
     class="rounded-full {sizeClasses[size]} {getStatusColor(health?.status || 'unknown')}"
-    class:animate-pulse={health?.status === 'unhealthy'}
   ></span>
 
   <!-- Tooltip -->

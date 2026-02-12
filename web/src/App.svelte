@@ -8,7 +8,6 @@
   import CommandPalette from './components/CommandPalette.svelte';
   import Login from './components/Login.svelte';
   import OnboardingWizard from './components/OnboardingWizard.svelte';
-  import SetupWizard from './components/SetupWizard.svelte';
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
@@ -16,6 +15,7 @@
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
+  import { get } from 'svelte/store';
   import { checkAuthStatus, logout, isAuthenticated, setupRequired } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig } from './lib/themeStore';
@@ -117,6 +117,13 @@
     await checkAuthStatus();
     authChecked = true;
 
+    // If setup is needed, go straight to unified wizard
+    if (get(setupRequired)) {
+      showOnboarding = true;
+      loading = false;
+      return;
+    }
+
     // If not authenticated but auth is required, the API call will fail
     // Try to load config
     try {
@@ -210,11 +217,11 @@
     showSplash = true;
   }
 
-  async function handleSetupComplete() {
+  async function handleSetupPhaseComplete() {
     // Re-check auth status (setup_required will now be false)
     await checkAuthStatus();
 
-    // Try to load config
+    // Try to load config (guard is now down)
     try {
       config = await fetchConfig();
       apps = config.apps;
@@ -225,22 +232,9 @@
       }
 
       initKeybindings(config.keybindings);
-
-      // If no apps, show onboarding
-      if (apps.length === 0) {
-        resetOnboarding();
-        showOnboarding = true;
-      } else {
-        showDefaultApp();
-        startServices();
-      }
     } catch (e) {
-      // If we get a 401, auth is required (e.g. forward_auth not behind proxy)
-      if (e instanceof Error && e.message.includes('401')) {
-        authRequired = true;
-      } else {
-        error = e instanceof Error ? e.message : 'Failed to load configuration';
-      }
+      // Non-fatal — wizard continues, config loads later
+      console.error('Config fetch after setup:', e);
     }
   }
 
@@ -465,10 +459,12 @@
       <p class="mt-4" style="color: var(--text-muted);">Loading Muximux...</p>
     </div>
   </div>
-{:else if $setupRequired}
-  <SetupWizard oncomplete={handleSetupComplete} />
-{:else if showOnboarding}
-  <OnboardingWizard oncomplete={handleOnboardingComplete} />
+{:else if $setupRequired || showOnboarding}
+  <OnboardingWizard
+    needsSetup={$setupRequired}
+    oncomplete={handleOnboardingComplete}
+    onsetupcomplete={handleSetupPhaseComplete}
+  />
 {:else if authRequired && !$isAuthenticated}
   <Login onsuccess={handleLoginSuccess} />
 {:else if error}

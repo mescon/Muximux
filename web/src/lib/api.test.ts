@@ -28,8 +28,13 @@ import {
   fetchAppHealth,
   triggerHealthCheck,
   getProxyStatus,
+  listUsers,
+  createUser,
+  updateUser,
+  deleteUserAccount,
+  changeAuthMethod,
 } from './api';
-import type { Config } from './types';
+import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest } from './types';
 
 // --- Helpers ---
 function mockFetchOk(data: unknown) {
@@ -573,6 +578,161 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       const result = await getProxyStatus();
       expect(result).toEqual(status);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/proxy/status');
+    });
+  });
+
+  describe('listUsers', () => {
+    it('returns array of users on success', async () => {
+      const users = [
+        { username: 'admin', role: 'admin', email: 'admin@example.com' },
+        { username: 'viewer', role: 'viewer' },
+      ];
+      globalThis.fetch = mockFetchOk(users);
+      const result = await listUsers();
+      expect(result).toEqual(users);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users');
+    });
+
+    it('throws on non-OK response', async () => {
+      globalThis.fetch = mockFetchError(500, 'Internal Server Error');
+      await expect(listUsers()).rejects.toThrow('API error: 500 Internal Server Error');
+    });
+  });
+
+  describe('createUser', () => {
+    it('sends POST with user data and returns result', async () => {
+      const request: CreateUserRequest = {
+        username: 'newuser',
+        password: 'secret123',
+        role: 'viewer',
+        email: 'new@example.com',
+      };
+      const response = { success: true, user: { username: 'newuser', role: 'viewer', email: 'new@example.com' } };
+      globalThis.fetch = mockFetchOk(response);
+      const result = await createUser(request);
+      expect(result).toEqual(response);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(request),
+      });
+    });
+
+    it('throws on non-OK response', async () => {
+      const request: CreateUserRequest = { username: 'newuser', password: 'secret', role: 'viewer' };
+      globalThis.fetch = mockFetchError(400, 'Bad Request', 'Username already exists');
+      await expect(createUser(request)).rejects.toThrow('API error: 400 Username already exists');
+    });
+  });
+
+  describe('updateUser', () => {
+    it('sends PUT with encoded username and update data', async () => {
+      const data: UpdateUserRequest = { role: 'admin', display_name: 'Updated Name' };
+      const response = { success: true, user: { username: 'testuser', role: 'admin', display_name: 'Updated Name' } };
+      globalThis.fetch = mockFetchOk(response);
+      const result = await updateUser('testuser', data);
+      expect(result).toEqual(response);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/testuser', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    });
+
+    it('encodes special characters in username', async () => {
+      const data: UpdateUserRequest = { role: 'viewer' };
+      const response = { success: true };
+      globalThis.fetch = mockFetchOk(response);
+      await updateUser('user name/special', data);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/user%20name%2Fspecial', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    });
+
+    it('throws on non-OK response', async () => {
+      const data: UpdateUserRequest = { role: 'admin' };
+      globalThis.fetch = mockFetchError(404, 'Not Found', 'User not found');
+      await expect(updateUser('missing', data)).rejects.toThrow('API error: 404 User not found');
+    });
+  });
+
+  describe('deleteUserAccount', () => {
+    it('sends DELETE request for user', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        text: () => Promise.resolve(''),
+      });
+      await deleteUserAccount('testuser');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/testuser', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    });
+
+    it('encodes special characters in username', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: true,
+        status: 200,
+        statusText: 'OK',
+        text: () => Promise.resolve(''),
+      });
+      await deleteUserAccount('user name/special');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/user%20name%2Fspecial', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+      });
+    });
+
+    it('throws on non-OK response', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 403,
+        statusText: 'Forbidden',
+        text: () => Promise.resolve('Cannot delete own account'),
+      });
+      await expect(deleteUserAccount('admin')).rejects.toThrow('API error: 403 Cannot delete own account');
+    });
+  });
+
+  describe('changeAuthMethod', () => {
+    it('sends PUT with method data and returns result', async () => {
+      const data: ChangeAuthMethodRequest = { method: 'builtin' };
+      const response = { success: true, method: 'builtin' };
+      globalThis.fetch = mockFetchOk(response);
+      const result = await changeAuthMethod(data);
+      expect(result).toEqual(response);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/method', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    });
+
+    it('sends PUT with forward_auth config', async () => {
+      const data: ChangeAuthMethodRequest = {
+        method: 'forward_auth',
+        trusted_proxies: ['10.0.0.1'],
+        headers: { 'X-Forwarded-User': 'username' },
+      };
+      const response = { success: true, method: 'forward_auth' };
+      globalThis.fetch = mockFetchOk(response);
+      const result = await changeAuthMethod(data);
+      expect(result).toEqual(response);
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/method', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data),
+      });
+    });
+
+    it('throws on non-OK response', async () => {
+      const data: ChangeAuthMethodRequest = { method: 'none' };
+      globalThis.fetch = mockFetchError(400, 'Bad Request', 'Invalid method');
+      await expect(changeAuthMethod(data)).rejects.toThrow('API error: 400 Invalid method');
     });
   });
 });

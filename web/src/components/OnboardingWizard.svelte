@@ -3,7 +3,7 @@
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import { get } from 'svelte/store';
   import { fly, fade } from 'svelte/transition';
-  import type { App, AppIcon as AppIconConfig, Group, NavigationConfig, ThemeConfig } from '$lib/types';
+  import type { App, AppIcon as AppIconConfig, Group, NavigationConfig, ThemeConfig, SetupRequest } from '$lib/types';
   import {
     currentStep,
     selectedApps,
@@ -11,8 +11,12 @@
     showLabels,
     nextStep,
     prevStep,
-    stepProgress
+    stepProgress,
+    configureSteps,
+    getStepOrder,
+    type OnboardingStep
   } from '$lib/onboardingStore';
+  import { submitSetup } from '$lib/api';
   import { popularApps, getAllGroups, templateToApp } from '$lib/popularApps';
   import type { PopularAppTemplate } from '$lib/popularApps';
   import AppIcon from './AppIcon.svelte';
@@ -29,9 +33,13 @@
 
   // Props
   let {
-    oncomplete
+    oncomplete,
+    needsSetup = false,
+    onsetupcomplete
   }: {
     oncomplete?: (detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig }) => void;
+    needsSetup?: boolean;
+    onsetupcomplete?: () => void;
   } = $props();
 
   // Track which apps are selected with their URLs
@@ -57,8 +65,101 @@
   let iconBrowserContext = $state<'custom-app' | number | null>(null);
   let groupsInitialized = $state(false);
 
+  // Security step state
+  let authMethod = $state<'builtin' | 'forward_auth' | 'none' | null>(null);
+  let setupUsername = $state('admin');
+  let setupPassword = $state('');
+  let setupConfirmPassword = $state('');
+  let setupLoading = $state(false);
+  let setupError = $state<string | null>(null);
+  let setupDone = $state(false);
+
+  // Forward auth fields
+  let faPreset = $state<'authelia' | 'authentik' | 'custom'>('authelia');
+  let faTrustedProxies = $state('');
+  let faShowAdvanced = $state(false);
+  let faHeaderUser = $state('Remote-User');
+  let faHeaderEmail = $state('Remote-Email');
+  let faHeaderGroups = $state('Remote-Groups');
+  let faHeaderName = $state('Remote-Name');
+
+  // None
+  let acknowledgeRisk = $state(false);
+
+  // Preset configs
+  const faPresets = {
+    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
+    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name' },
+    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
+  };
+
+  function selectFaPreset(p: 'authelia' | 'authentik' | 'custom') {
+    faPreset = p;
+    const headers = faPresets[p];
+    faHeaderUser = headers.user;
+    faHeaderEmail = headers.email;
+    faHeaderGroups = headers.groups;
+    faHeaderName = headers.name;
+  }
+
+  // Validation
+  let builtinValid = $derived(
+    setupUsername.trim().length > 0 &&
+    setupPassword.length >= 8 &&
+    setupPassword === setupConfirmPassword
+  );
+  let forwardAuthValid = $derived(faTrustedProxies.trim().length > 0);
+  let noneValid = $derived(acknowledgeRisk);
+  let securityStepValid = $derived(
+    authMethod === 'builtin' ? builtinValid :
+    authMethod === 'forward_auth' ? forwardAuthValid :
+    authMethod === 'none' ? noneValid :
+    false
+  );
+
+  async function handleSecuritySubmit() {
+    if (!authMethod || !securityStepValid) return;
+    setupLoading = true;
+    setupError = null;
+
+    const req: SetupRequest = { method: authMethod };
+
+    if (authMethod === 'builtin') {
+      req.username = setupUsername.trim();
+      req.password = setupPassword;
+    } else if (authMethod === 'forward_auth') {
+      req.trusted_proxies = faTrustedProxies
+        .split(/[,\n]/)
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      req.headers = {
+        user: faHeaderUser,
+        email: faHeaderEmail,
+        groups: faHeaderGroups,
+        name: faHeaderName,
+      };
+    }
+
+    try {
+      const resp = await submitSetup(req);
+      if (resp.success) {
+        setupDone = true;
+        onsetupcomplete?.();
+        nextStep();
+      } else {
+        setupError = resp.error || 'Setup failed';
+      }
+    } catch (e) {
+      setupError = e instanceof Error ? e.message : 'Setup failed';
+    } finally {
+      setupLoading = false;
+    }
+  }
+
   // Initialize app selections and load custom themes
   onMount(() => {
+    configureSteps(needsSetup);
+
     Object.values(popularApps).flat().forEach(app => {
       appSelections.set(app.name, { selected: false, url: app.defaultUrl });
     });
@@ -306,8 +407,16 @@
     return colors[group] || '#22c55e';
   }
 
-  // Step indicators — 5 steps
-  const steps = ['Welcome', 'Apps', 'Style', 'Theme', 'Done'];
+  // Step indicators — dynamic based on configured steps
+  const stepLabelMap: Record<OnboardingStep, string> = {
+    welcome: 'Welcome',
+    security: 'Security',
+    apps: 'Apps',
+    navigation: 'Style',
+    theme: 'Theme',
+    complete: 'Done'
+  };
+  const steps = $derived(getStepOrder().map(s => stepLabelMap[s]));
 </script>
 
 <div class="fixed inset-0 z-50 bg-gray-900 overflow-hidden flex flex-col">
@@ -366,7 +475,9 @@
 
           <h1 class="text-4xl font-bold text-white mb-4">Welcome to Muximux</h1>
           <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
-            Your unified homelab dashboard. Let's set up your applications in a few quick steps.
+            {needsSetup
+              ? "Your unified homelab dashboard. Let's secure and set up your applications."
+              : "Your unified homelab dashboard. Let's set up your applications in a few quick steps."}
           </p>
 
           <!-- Feature highlights -->
@@ -408,6 +519,227 @@
           >
             Let's Get Started
           </button>
+        </div>
+
+      <!-- Security Step -->
+      {:else if $currentStep === 'security'}
+        <div class="py-6" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
+          <div class="text-center mb-8">
+            <h2 class="text-2xl font-bold text-white mb-2">Secure Your Dashboard</h2>
+            <p class="text-gray-400">Choose how you want to protect access to Muximux</p>
+          </div>
+
+          {#if setupDone}
+            <!-- Already completed -->
+            <div class="max-w-md mx-auto text-center">
+              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
+                <svg class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <p class="text-gray-300">Security has been configured.</p>
+            </div>
+          {:else}
+            <!-- Method selection cards -->
+            <div class="max-w-2xl mx-auto space-y-3 mb-6">
+              <!-- Builtin password -->
+              <button
+                class="w-full p-4 rounded-xl border text-left transition-all flex items-start gap-4
+                       {authMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+                onclick={() => authMethod = 'builtin'}
+              >
+                <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="11" width="18" height="11" rx="2" />
+                    <path d="M7 11V7a5 5 0 0110 0v4" />
+                  </svg>
+                </div>
+                <div class="flex-1">
+                  <div class="flex items-center gap-2">
+                    <h3 class="font-semibold text-white">Create a password</h3>
+                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">Recommended</span>
+                  </div>
+                  <p class="text-sm text-gray-400 mt-1">Set up a username and password to protect your dashboard</p>
+                </div>
+              </button>
+
+              <!-- Forward auth -->
+              <button
+                class="w-full p-4 rounded-xl border text-left transition-all flex items-start gap-4
+                       {authMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+                onclick={() => authMethod = 'forward_auth'}
+              >
+                <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-white">I use an auth proxy</h3>
+                  <p class="text-sm text-gray-400 mt-1">Authelia, Authentik, or another reverse proxy handles authentication</p>
+                </div>
+              </button>
+
+              <!-- None -->
+              <button
+                class="w-full p-4 rounded-xl border text-left transition-all flex items-start gap-4
+                       {authMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+                onclick={() => authMethod = 'none'}
+              >
+                <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" />
+                    <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                  </svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold text-white">No authentication</h3>
+                  <p class="text-sm text-gray-400 mt-1">Anyone with network access gets full control</p>
+                </div>
+              </button>
+            </div>
+
+            <!-- Configuration form (slides in when method selected) -->
+            {#if authMethod === 'builtin'}
+              <div class="max-w-md mx-auto space-y-4" in:fly={{ y: 10, duration: 200 }}>
+                <div>
+                  <label for="setup-username" class="block text-sm text-gray-400 mb-1">Username</label>
+                  <input
+                    id="setup-username"
+                    type="text"
+                    bind:value={setupUsername}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="admin"
+                    autocomplete="username"
+                  />
+                </div>
+                <div>
+                  <label for="setup-password" class="block text-sm text-gray-400 mb-1">Password</label>
+                  <input
+                    id="setup-password"
+                    type="password"
+                    bind:value={setupPassword}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="Minimum 8 characters"
+                    autocomplete="new-password"
+                  />
+                  {#if setupPassword.length > 0 && setupPassword.length < 8}
+                    <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
+                  {/if}
+                </div>
+                <div>
+                  <label for="setup-confirm" class="block text-sm text-gray-400 mb-1">Confirm password</label>
+                  <input
+                    id="setup-confirm"
+                    type="password"
+                    bind:value={setupConfirmPassword}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    placeholder="Re-enter password"
+                    autocomplete="new-password"
+                  />
+                  {#if setupConfirmPassword.length > 0 && setupPassword !== setupConfirmPassword}
+                    <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
+                  {/if}
+                </div>
+              </div>
+            {:else if authMethod === 'forward_auth'}
+              <div class="max-w-md mx-auto space-y-4" in:fly={{ y: 10, duration: 200 }}>
+                <!-- Preset selector -->
+                <div>
+                  <span class="block text-sm text-gray-400 mb-2">Proxy type</span>
+                  <div class="flex gap-2">
+                    {#each ['authelia', 'authentik', 'custom'] as p (p)}
+                      <button
+                        class="flex-1 px-3 py-2 text-sm rounded-md border transition-all
+                               {faPreset === p ? 'border-brand-500 bg-brand-500/15 text-white' : 'border-gray-600 bg-gray-700 text-gray-400 hover:text-white'}"
+                        onclick={() => selectFaPreset(p as 'authelia' | 'authentik' | 'custom')}
+                      >
+                        {p.charAt(0).toUpperCase() + p.slice(1)}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
+
+                <div>
+                  <label for="setup-proxies" class="block text-sm text-gray-400 mb-1">Trusted proxy IPs</label>
+                  <textarea
+                    id="setup-proxies"
+                    bind:value={faTrustedProxies}
+                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                           focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+                    placeholder="10.0.0.1/32&#10;172.16.0.0/12"
+                    rows="3"
+                  ></textarea>
+                  <p class="text-xs text-gray-500 mt-1">IP addresses or CIDR ranges, one per line</p>
+                </div>
+
+                <button
+                  class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+                  onclick={() => faShowAdvanced = !faShowAdvanced}
+                >
+                  <svg class="w-4 h-4 transition-transform {faShowAdvanced ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                  </svg>
+                  Advanced: Header names
+                </button>
+
+                {#if faShowAdvanced}
+                  <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700" in:fly={{ y: -10, duration: 150 }}>
+                    <div>
+                      <label for="fa-header-user" class="block text-xs text-gray-400 mb-1">User header</label>
+                      <input id="fa-header-user" type="text" bind:value={faHeaderUser}
+                        class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    </div>
+                    <div>
+                      <label for="fa-header-email" class="block text-xs text-gray-400 mb-1">Email header</label>
+                      <input id="fa-header-email" type="text" bind:value={faHeaderEmail}
+                        class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    </div>
+                    <div>
+                      <label for="fa-header-groups" class="block text-xs text-gray-400 mb-1">Groups header</label>
+                      <input id="fa-header-groups" type="text" bind:value={faHeaderGroups}
+                        class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    </div>
+                    <div>
+                      <label for="fa-header-name" class="block text-xs text-gray-400 mb-1">Name header</label>
+                      <input id="fa-header-name" type="text" bind:value={faHeaderName}
+                        class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {:else if authMethod === 'none'}
+              <div class="max-w-md mx-auto" in:fly={{ y: 10, duration: 200 }}>
+                <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
+                  <div class="flex gap-3">
+                    <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                      <line x1="12" y1="9" x2="12" y2="13" />
+                      <line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <div>
+                      <h4 class="font-semibold text-amber-400 text-sm mb-1">Security warning</h4>
+                      <p class="text-sm text-gray-400">Without authentication, anyone who can reach this port has full access to your dashboard and all configured services.</p>
+                    </div>
+                  </div>
+                </div>
+                <label class="flex items-start gap-3 cursor-pointer">
+                  <input type="checkbox" bind:checked={acknowledgeRisk}
+                    class="mt-1 w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  <span class="text-sm text-gray-400">I understand the risks and want to proceed without authentication</span>
+                </label>
+              </div>
+            {/if}
+
+            {#if setupError}
+              <div class="max-w-md mx-auto mt-4 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+                {setupError}
+              </div>
+            {/if}
+          {/if}
         </div>
 
       <!-- Step 2: Add Apps (two-column layout with groups) -->
@@ -1074,18 +1406,33 @@
       <div class="text-sm text-gray-500">
         {#if $currentStep === 'apps'}
           {selectedCount + $selectedApps.length} app{selectedCount + $selectedApps.length !== 1 ? 's' : ''} selected
+        {:else if $currentStep === 'security' && authMethod}
+          {authMethod === 'builtin' ? 'Password' : authMethod === 'forward_auth' ? 'Auth proxy' : 'No auth'}
         {/if}
       </div>
 
       <div>
         {#if $currentStep !== 'welcome' && $currentStep !== 'complete'}
-          <button
-            class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
-            disabled={$currentStep === 'apps' && selectedCount + $selectedApps.length === 0}
-            onclick={nextStep}
-          >
-            {$currentStep === 'theme' ? 'Finish' : 'Continue'}
-          </button>
+          {#if $currentStep === 'security'}
+            <button
+              class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+              disabled={!securityStepValid || setupLoading || setupDone}
+              onclick={handleSecuritySubmit}
+            >
+              {#if setupLoading}
+                <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              {/if}
+              {setupDone ? 'Configured' : 'Continue'}
+            </button>
+          {:else}
+            <button
+              class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
+              disabled={$currentStep === 'apps' && selectedCount + $selectedApps.length === 0}
+              onclick={nextStep}
+            >
+              {$currentStep === 'theme' ? 'Finish' : 'Continue'}
+            </button>
+          {/if}
         {/if}
       </div>
     </div>

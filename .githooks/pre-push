@@ -1,0 +1,84 @@
+#!/usr/bin/env bash
+#
+# Pre-push hook: runs tests with coverage checks before allowing push.
+# Mirrors CI pipeline (go test + vitest) to catch issues locally.
+#
+# To bypass in emergencies: git push --no-verify
+#
+
+set -euo pipefail
+
+# Color output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[0;33m'
+CYAN='\033[0;36m'
+BOLD='\033[1m'
+NC='\033[0m'
+
+# Coverage thresholds (percentage)
+GO_COVERAGE_THRESHOLD=80
+# Frontend lib/ coverage is what matters (components are 0% — that's normal for Svelte)
+# We only enforce Go coverage since SonarCloud gates on that
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+
+info()  { echo -e "${CYAN}▸${NC} $*"; }
+pass()  { echo -e "${GREEN}✓${NC} $*"; }
+fail()  { echo -e "${RED}✗${NC} $*"; }
+warn()  { echo -e "${YELLOW}!${NC} $*"; }
+
+errors=0
+
+# ─── Go tests with race detection + coverage ───────────────────────
+info "Running Go tests with coverage..."
+
+# Create embed placeholder if needed (same as CI)
+mkdir -p "$REPO_ROOT/internal/server/dist"
+touch "$REPO_ROOT/internal/server/dist/.gitkeep"
+
+GO_COVER_FILE=$(mktemp)
+if go test -count=1 -race -coverprofile="$GO_COVER_FILE" ./... 2>&1 | tail -20; then
+    pass "Go tests passed"
+
+    # Parse overall coverage
+    GO_COVERAGE=$(go tool cover -func="$GO_COVER_FILE" | grep "^total:" | awk '{print $NF}' | sed 's/%//')
+
+    if [ -n "$GO_COVERAGE" ]; then
+        # Compare as integers (bash doesn't do float comparison natively)
+        GO_COV_INT=$(echo "$GO_COVERAGE" | cut -d. -f1)
+        if [ "$GO_COV_INT" -ge "$GO_COVERAGE_THRESHOLD" ]; then
+            pass "Go coverage: ${GO_COVERAGE}% (threshold: ${GO_COVERAGE_THRESHOLD}%)"
+        else
+            fail "Go coverage: ${GO_COVERAGE}% — below ${GO_COVERAGE_THRESHOLD}% threshold"
+            errors=$((errors + 1))
+        fi
+    else
+        warn "Could not parse Go coverage"
+    fi
+else
+    fail "Go tests failed"
+    errors=$((errors + 1))
+fi
+rm -f "$GO_COVER_FILE"
+
+# ─── Frontend tests ────────────────────────────────────────────────
+info "Running frontend tests..."
+
+if (cd "$REPO_ROOT/web" && npm run test 2>&1 | tail -20); then
+    pass "Frontend tests passed"
+else
+    fail "Frontend tests failed"
+    errors=$((errors + 1))
+fi
+
+# ─── Summary ───────────────────────────────────────────────────────
+echo ""
+if [ "$errors" -gt 0 ]; then
+    echo -e "${RED}${BOLD}Push blocked:${NC} $errors check(s) failed."
+    echo -e "Fix issues above or use ${YELLOW}git push --no-verify${NC} to bypass."
+    exit 1
+else
+    echo -e "${GREEN}${BOLD}All checks passed.${NC} Pushing..."
+    exit 0
+fi

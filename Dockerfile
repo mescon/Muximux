@@ -1,5 +1,5 @@
 # Build stage - Frontend
-FROM node:25-alpine AS frontend
+FROM node:20-alpine AS frontend
 WORKDIR /app/web
 
 # Cache npm dependencies

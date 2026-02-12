@@ -3,6 +3,7 @@
   import type { App, Config, Group } from '$lib/types';
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
+  import { healthData } from '$lib/healthStore';
   import { currentUser, isAuthenticated, logout } from '$lib/authStore';
   import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
   import MuximuxLogo from './MuximuxLogo.svelte';
@@ -35,6 +36,10 @@
   async function handleLogout() {
     await logout();
     onlogout?.();
+  }
+
+  function isUnhealthy(appName: string): boolean {
+    return $healthData.get(appName)?.status === 'unhealthy';
   }
 
   // Sidebar width state (for left/right layouts)
@@ -338,7 +343,8 @@
                      {currentApp?.name === app.name
                        ? 'bg-gray-900 text-white'
                        : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
-                     {isCollapsedTop && currentApp?.name !== app.name ? 'opacity-40' : ''}"
+                     {isCollapsedTop && currentApp?.name !== app.name ? 'opacity-40' : ''}
+                     {showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
               style={config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}
               onclick={() => onselect?.(app)}
             >
@@ -510,7 +516,7 @@
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style="{isCollapsed && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
+                  style="opacity: {isCollapsed && currentApp?.name !== app.name ? 0.5 : showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 0.5 : 1};"
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
@@ -707,7 +713,7 @@
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style="{isCollapsedRight && currentApp?.name !== app.name ? 'opacity: 0.5;' : ''}"
+                  style="opacity: {isCollapsedRight && currentApp?.name !== app.name ? 0.5 : showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 0.5 : 1};"
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
@@ -837,6 +843,7 @@
           class="relative p-2 rounded-xl transition-all group
                  {currentApp?.name === app.name ? 'bg-gray-700' : 'hover:bg-gray-700/50'}
                  {isCollapsedBottom && currentApp?.name !== app.name ? 'opacity-40' : ''}
+                 {showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 'opacity-50' : ''}
                  {!isCollapsedBottom ? 'hover:scale-110' : ''}"
           onclick={() => onselect?.(app)}
           title={app.name}
@@ -938,7 +945,8 @@
         <button
           class="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-full shadow-lg
                  hover:bg-gray-700 transition-all hover:scale-105
-                 {currentApp?.name === app.name ? 'ring-2 ring-brand-500' : ''}"
+                 {currentApp?.name === app.name ? 'ring-2 ring-brand-500' : ''}
+                 {showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
           onclick={() => onselect?.(app)}
         >
           <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" showBackground={config.navigation.show_icon_background} />

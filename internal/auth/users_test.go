@@ -198,6 +198,63 @@ func TestUserStoreList(t *testing.T) {
 	}
 }
 
+func TestUserStoreListWithHashes(t *testing.T) {
+	store := NewUserStore()
+	store.LoadFromConfig([]UserConfig{
+		{Username: "user1", PasswordHash: mustHash("pass1"), Role: RoleUser, Email: "u1@example.com"},
+		{Username: "user2", PasswordHash: mustHash("pass2"), Role: RoleAdmin, DisplayName: "User Two"},
+	})
+
+	users := store.ListWithHashes()
+	if len(users) != 2 {
+		t.Fatalf("Expected 2 users, got %d", len(users))
+	}
+
+	// Verify password hashes ARE included (unlike List())
+	for _, u := range users {
+		if u.PasswordHash == "" {
+			t.Errorf("Expected non-empty password hash for user %q", u.Username)
+		}
+	}
+
+	// Verify all other fields are present
+	found := make(map[string]*User)
+	for _, u := range users {
+		found[u.Username] = u
+	}
+
+	u1, ok := found["user1"]
+	if !ok {
+		t.Fatal("Expected to find user1")
+	}
+	if u1.ID != "user1" {
+		t.Errorf("Expected ID 'user1', got %q", u1.ID)
+	}
+	if u1.Role != RoleUser {
+		t.Errorf("Expected role 'user', got %q", u1.Role)
+	}
+	if u1.Email != "u1@example.com" {
+		t.Errorf("Expected email 'u1@example.com', got %q", u1.Email)
+	}
+
+	u2, ok := found["user2"]
+	if !ok {
+		t.Fatal("Expected to find user2")
+	}
+	if u2.Role != RoleAdmin {
+		t.Errorf("Expected role 'admin', got %q", u2.Role)
+	}
+	if u2.DisplayName != "User Two" {
+		t.Errorf("Expected display name 'User Two', got %q", u2.DisplayName)
+	}
+
+	// Verify that the original password can be verified against the hash
+	err := bcrypt.CompareHashAndPassword([]byte(u1.PasswordHash), []byte("pass1"))
+	if err != nil {
+		t.Error("Expected user1 hash to verify against original password")
+	}
+}
+
 func mustHash(password string) string {
 	hash, err := HashPassword(password)
 	if err != nil {

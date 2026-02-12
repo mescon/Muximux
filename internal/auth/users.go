@@ -164,6 +164,26 @@ func (s *UserStore) List() []*User {
 	return users
 }
 
+// ListWithHashes returns all users including password hashes.
+// This is intended for server-side config persistence only.
+func (s *UserStore) ListWithHashes() []*User {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	users := make([]*User, 0, len(s.users))
+	for _, user := range s.users {
+		users = append(users, &User{
+			ID:           user.ID,
+			Username:     user.Username,
+			PasswordHash: user.PasswordHash,
+			Role:         user.Role,
+			Email:        user.Email,
+			DisplayName:  user.DisplayName,
+		})
+	}
+	return users
+}
+
 // Count returns the number of users
 func (s *UserStore) Count() int {
 	s.mu.RLock()
