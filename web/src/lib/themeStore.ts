@@ -13,8 +13,8 @@ import { writable, derived, get } from 'svelte/store';
 // Built-in themes
 export type BuiltinTheme = 'dark' | 'light';
 
-// Theme mode includes system preference option (kept for backward compat with App.svelte keybindings)
-export type ThemeMode = 'dark' | 'light' | 'system' | (string & Record<never, never>);
+// Theme mode: known values or custom family ID (kept for backward compat with App.svelte keybindings)
+export type ThemeMode = string;
 
 // Variant mode for the family system
 export type VariantMode = 'dark' | 'light' | 'system';
