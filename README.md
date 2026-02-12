@@ -4,8 +4,10 @@ A self-hosted portal for your homelab. Access all your web applications from a s
 
 One binary. One port. One YAML config file.
 
-![Go Version](https://img.shields.io/badge/Go-1.25+-00ADD8?logo=go&logoColor=white)
-![Svelte](https://img.shields.io/badge/Svelte-5-FF3E00?logo=svelte&logoColor=white)
+[![CI](https://github.com/mescon/Muximux/actions/workflows/ci.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mescon/Muximux)](https://goreportcard.com/report/github.com/mescon/Muximux)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mescon_Muximux)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
 
 <!-- screenshot here -->
