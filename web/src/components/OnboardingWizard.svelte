@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import { get } from 'svelte/store';
   import { fly, fade } from 'svelte/transition';
   import type { App, AppIcon as AppIconConfig, Group, NavigationConfig, ThemeConfig } from '$lib/types';
@@ -37,7 +38,7 @@
   } = $props();
 
   // Track which apps are selected with their URLs
-  let appSelections = $state<Map<string, { selected: boolean; url: string }>>(new Map());
+  let appSelections = new SvelteMap<string, { selected: boolean; url: string }>();
 
   // Custom app form
   let showCustomApp = $state(false);
@@ -61,11 +62,9 @@
 
   // Initialize app selections and load custom themes
   onMount(() => {
-    const initial = new Map<string, { selected: boolean; url: string }>();
     Object.values(popularApps).flat().forEach(app => {
-      initial.set(app.name, { selected: false, url: app.defaultUrl });
+      appSelections.set(app.name, { selected: false, url: app.defaultUrl });
     });
-    appSelections = initial;
 
     // Load custom themes for the theme picker
     detectCustomThemes();
@@ -75,9 +74,7 @@
   function toggleApp(app: PopularAppTemplate) {
     const current = appSelections.get(app.name);
     if (current) {
-      const updated = new Map(appSelections);
-      updated.set(app.name, { ...current, selected: !current.selected });
-      appSelections = updated;
+      appSelections.set(app.name, { ...current, selected: !current.selected });
     }
   }
 
@@ -85,9 +82,7 @@
   function updateAppUrl(appName: string, url: string) {
     const current = appSelections.get(appName);
     if (current) {
-      const updated = new Map(appSelections);
-      updated.set(appName, { ...current, url });
-      appSelections = updated;
+      appSelections.set(appName, { ...current, url });
     }
   }
 
@@ -96,7 +91,7 @@
 
   // Get suggested groups based on selected apps
   const suggestedGroups = $derived.by(() => {
-    const groupsWithApps = new Set<string>();
+    const groupsWithApps = new SvelteSet<string>();
     appSelections.forEach((value, key) => {
       if (value.selected) {
         const template = Object.values(popularApps).flat().find(a => a.name === key);

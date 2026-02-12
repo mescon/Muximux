@@ -2,7 +2,7 @@
  * Fullscreen Store - Manages fullscreen/kiosk mode
  */
 
-import { writable, derived } from 'svelte/store';
+import { writable } from 'svelte/store';
 
 // Whether fullscreen (navigation hidden) mode is active
 export const isFullscreen = writable(false);

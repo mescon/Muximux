@@ -22,10 +22,11 @@
     if (!icon) return null;
 
     switch (icon.type) {
-      case 'dashboard':
+      case 'dashboard': {
         if (!icon.name) return null;
         const variant = icon.variant || 'svg';
         return `/icons/dashboard/${icon.name}.${variant}`;
+      }
       case 'custom':
         if (!icon.file) return null;
         return `/icons/custom/${icon.file}`;

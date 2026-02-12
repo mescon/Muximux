@@ -208,7 +208,7 @@ export async function fetchAppHealth(appName: string): Promise<AppHealth> {
 }
 
 export async function triggerHealthCheck(appName: string): Promise<AppHealth> {
-  return postJSON<{}, AppHealth>(`/apps/${encodeURIComponent(appName)}/health/check`, {});
+  return postJSON<Record<string, unknown>, AppHealth>(`/apps/${encodeURIComponent(appName)}/health/check`, {});
 }
 
 // Proxy types and functions

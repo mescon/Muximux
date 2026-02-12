@@ -28,6 +28,10 @@ jobs:
         run: npm run check
         working-directory: web
 
+      - name: Lint
+        run: npm run lint
+        working-directory: web
+
   lint-backend:
     name: Lint Backend
     runs-on: ubuntu-latest
@@ -137,6 +141,12 @@ jobs:
 
       - name: SonarCloud Scan
         uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+      - name: SonarCloud Quality Gate
+        uses: SonarSource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 

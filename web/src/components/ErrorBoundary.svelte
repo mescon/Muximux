@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, untrack } from 'svelte';
+  import { onMount } from 'svelte';
   import type { Snippet } from 'svelte';
 
   let { error = null, resetError = null, children }: {
@@ -8,24 +8,20 @@
     children?: Snippet;
   } = $props();
 
-  let errorState = $state<Error | null>(untrack(() => error));
+  let localError = $state<Error | null>(null);
   let errorInfo = $state('');
-
-  // Sync external error prop
-  $effect(() => {
-    errorState = error;
-  });
+  let errorState = $derived(localError ?? error);
 
   // Global error handler
   onMount(() => {
     const handleError = (event: ErrorEvent) => {
-      errorState = event.error || new Error(event.message);
+      localError = event.error || new Error(event.message);
       errorInfo = `${event.filename}:${event.lineno}:${event.colno}`;
       event.preventDefault();
     };
 
     const handleRejection = (event: PromiseRejectionEvent) => {
-      errorState = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
+      localError = event.reason instanceof Error ? event.reason : new Error(String(event.reason));
       errorInfo = 'Unhandled Promise Rejection';
       event.preventDefault();
     };
@@ -40,7 +36,7 @@
   });
 
   function handleReset() {
-    errorState = null;
+    localError = null;
     errorInfo = '';
     if (resetError) {
       resetError();

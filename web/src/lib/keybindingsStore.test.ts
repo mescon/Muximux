@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach } from 'vitest';
 import { get } from 'svelte/store';
 import {
   keybindings,
@@ -21,8 +21,6 @@ import {
   importKeybindings,
   initKeybindings,
   getKeybindingsForConfig,
-  type KeyCombo,
-  type KeyAction,
 } from './keybindingsStore';
 
 describe('keybindingsStore', () => {

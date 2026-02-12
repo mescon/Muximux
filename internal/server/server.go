@@ -324,8 +324,11 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 			http.NotFound(w, r)
 			return
 		}
-		if _, err := os.Stat(localPath); err == nil {
-			http.ServeFile(w, r, localPath)
+		f, openErr := os.Open(localPath)
+		if openErr == nil {
+			defer f.Close()
+			stat, _ := f.Stat()
+			http.ServeContent(w, r, name, stat.ModTime(), f)
 			return
 		}
 		// Fall through to static handler (web/dist/themes/ or embedded)

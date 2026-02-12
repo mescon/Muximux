@@ -1,5 +1,4 @@
 import { writable, get } from 'svelte/store';
-import type { Config } from './types';
 import type { AppHealth } from './api';
 import { healthData } from './healthStore';
 
@@ -132,7 +131,7 @@ function handleEvent(event: WebSocketEvent): void {
       }
       break;
 
-    case 'app_health_changed':
+    case 'app_health_changed': {
       // Update single app health
       const { app, health } = event.payload as { app: string; health: AppHealth };
       healthData.update((data) => {
@@ -140,6 +139,7 @@ function handleEvent(event: WebSocketEvent): void {
         return data;
       });
       break;
+    }
 
     case 'config_updated':
       // Config updates are handled by registered handlers

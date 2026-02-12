@@ -405,12 +405,13 @@
       case 'app6':
       case 'app7':
       case 'app8':
-      case 'app9':
+      case 'app9': {
         const appIndex = parseInt(action.replace('app', '')) - 1;
         if (apps[appIndex]) {
           selectApp(apps[appIndex]);
         }
         break;
+      }
     }
   }
 </script>

@@ -8,14 +8,13 @@ on:
   schedule:
     - cron: '0 6 * * 1'  # Weekly Monday at 06:00 UTC
 
-permissions:
-  security-events: write
-  contents: read
-
 jobs:
   snyk-go:
     name: Snyk Go
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
     steps:
       - uses: actions/checkout@v6
 
@@ -30,6 +29,9 @@ jobs:
   snyk-docker:
     name: Snyk Docker
     runs-on: ubuntu-latest
+    permissions:
+      security-events: write
+      contents: read
     steps:
       - uses: actions/checkout@v6
 
@@ -48,6 +50,8 @@ jobs:
   govulncheck:
     name: Go Vulnerability Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v6
 
