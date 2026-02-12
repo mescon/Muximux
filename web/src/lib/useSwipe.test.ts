@@ -216,7 +216,7 @@ describe('useSwipe', () => {
     it('should return true when maxTouchPoints > 0', () => {
       // Remove ontouchstart
       const descriptor = Object.getOwnPropertyDescriptor(window, 'ontouchstart');
-      if (descriptor) delete (window as any).ontouchstart;
+      if (descriptor) delete (window as unknown as Record<string, unknown>).ontouchstart;
 
       Object.defineProperty(navigator, 'maxTouchPoints', { value: 5, configurable: true });
 
@@ -225,7 +225,7 @@ describe('useSwipe', () => {
 
     it('should return false for non-touch device', () => {
       const descriptor = Object.getOwnPropertyDescriptor(window, 'ontouchstart');
-      if (descriptor) delete (window as any).ontouchstart;
+      if (descriptor) delete (window as unknown as Record<string, unknown>).ontouchstart;
 
       Object.defineProperty(navigator, 'maxTouchPoints', { value: 0, configurable: true });
 

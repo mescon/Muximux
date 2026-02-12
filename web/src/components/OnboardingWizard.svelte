@@ -9,11 +9,9 @@
     selectedApps,
     selectedNavigation,
     showLabels,
-    selectedGroups,
     nextStep,
     prevStep,
-    stepProgress,
-    totalSteps
+    stepProgress
   } from '$lib/onboardingStore';
   import { popularApps, getAllGroups, templateToApp } from '$lib/popularApps';
   import type { PopularAppTemplate } from '$lib/popularApps';
@@ -26,8 +24,7 @@
     setThemeFamily,
     setVariantMode,
     detectCustomThemes,
-    type VariantMode,
-    type ThemeFamily
+    type VariantMode
   } from '$lib/themeStore';
 
   // Props
@@ -235,11 +232,11 @@
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
     if (iconBrowserContext === 'custom-app') {
-      customApp.icon = { type: detail.type as any, name: detail.name, file: '', url: '', variant: detail.variant };
+      customApp.icon = { type: detail.type as AppIconConfig['type'], name: detail.name, file: '', url: '', variant: detail.variant };
     } else if (typeof iconBrowserContext === 'number') {
       wizardGroups = wizardGroups.map((g, i) =>
         i === iconBrowserContext
-          ? { ...g, icon: { type: detail.type as any, name: detail.name, file: '', url: '', variant: detail.variant } }
+          ? { ...g, icon: { type: detail.type as AppIconConfig['type'], name: detail.name, file: '', url: '', variant: detail.variant } }
           : g
       );
     }
@@ -318,7 +315,7 @@
   <div class="flex-shrink-0 px-8 pt-6">
     <div class="max-w-3xl mx-auto">
       <div class="flex items-center justify-between mb-2">
-        {#each steps as step, i}
+        {#each steps as _step, i (i)}
           <div class="flex items-center">
             <div
               class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-medium transition-colors duration-300
@@ -339,7 +336,7 @@
         {/each}
       </div>
       <div class="flex justify-between text-xs text-gray-500">
-        {#each steps as step, i}
+        {#each steps as step, i (i)}
           <span class="w-8 text-center {i <= $stepProgress ? 'text-gray-300' : ''}">{step}</span>
           {#if i < steps.length - 1}
             <span class="w-12 sm:w-16"></span>
@@ -500,10 +497,10 @@
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
                       >
                         <option value="">No Group</option>
-                        {#each wizardGroups as g}
+                        {#each wizardGroups as g (g.name)}
                           <option value={g.name}>{g.name}</option>
                         {/each}
-                        {#each suggestedGroups.filter(sg => !wizardGroups.some(wg => wg.name === sg)) as sg}
+                        {#each suggestedGroups.filter(sg => !wizardGroups.some(wg => wg.name === sg)) as sg (sg)}
                           <option value={sg}>{sg}</option>
                         {/each}
                       </select>
@@ -609,7 +606,7 @@
               {/if}
 
               <!-- App categories (template apps) -->
-              {#each Object.entries(popularApps) as [category, apps]}
+              {#each Object.entries(popularApps) as [category, apps] (category)}
                 <div>
                   <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full" style="background-color: {getGroupColor(category)}"></span>
@@ -617,7 +614,7 @@
                   </h3>
 
                   <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {#each apps as app}
+                    {#each apps as app (app.name)}
                       {@const selection = appSelections.get(app.name)}
                       <div
                         class="relative p-3 rounded-lg border transition-all cursor-pointer
@@ -685,7 +682,7 @@
                   {:else}
                     <div class="space-y-1.5 max-h-[240px] overflow-y-auto">
                       <!-- Template apps -->
-                      {#each [...appSelections.entries()].filter(([, v]) => v.selected) as [name, sel]}
+                      {#each [...appSelections.entries()].filter(([, v]) => v.selected) as [name, sel] (name)}
                         {@const template = Object.values(popularApps).flat().find(a => a.name === name)}
                         {#if template}
                           <div class="flex items-center gap-2 p-2 rounded-md bg-gray-800/50 group">
@@ -712,7 +709,7 @@
                         {/if}
                       {/each}
                       <!-- Custom apps -->
-                      {#each $selectedApps as app}
+                      {#each $selectedApps as app (app.name)}
                         <div class="flex items-center gap-2 p-2 rounded-md bg-gray-800/50 group">
                           {#if app.icon.name}
                             <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" />
@@ -748,7 +745,7 @@
                   </h3>
                   {#if wizardGroups.length > 0}
                     <div class="space-y-2">
-                      {#each wizardGroups as group, i}
+                      {#each wizardGroups as group, i (i)}
                         {@const count = getGroupAppCount(group.name)}
                         <div class="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700">
                           <!-- Color picker -->
@@ -841,7 +838,7 @@
                 <div class="flex flex-col h-full transition-all duration-300">
                   <div class="flex items-center gap-3 px-4 py-2 bg-gray-800/80 border-b border-gray-700">
                     <div class="w-5 h-5 rounded bg-brand-500/60"></div>
-                    {#each mockNavItems as item}
+                    {#each mockNavItems as item (item.name)}
                       <div class="flex items-center gap-1.5">
                         <div class="w-3.5 h-3.5 rounded" style="background-color: {item.color}"></div>
                         {#if $showLabels}<span class="text-[10px] text-gray-400">{item.name}</span>{/if}
@@ -854,7 +851,7 @@
                 <div class="flex h-full transition-all duration-300">
                   <div class="flex flex-col items-center gap-2 py-3 px-2 bg-gray-800/80 border-r border-gray-700" style="width: {$showLabels ? '100px' : '44px'}">
                     <div class="w-5 h-5 rounded bg-brand-500/60 mb-1"></div>
-                    {#each mockNavItems as item}
+                    {#each mockNavItems as item (item.name)}
                       <div class="flex items-center gap-1.5 {$showLabels ? 'w-full px-1.5' : ''}">
                         <div class="w-3.5 h-3.5 rounded flex-shrink-0" style="background-color: {item.color}"></div>
                         {#if $showLabels}<span class="text-[9px] text-gray-400 truncate">{item.name}</span>{/if}
@@ -868,7 +865,7 @@
                   <div class="flex-1 p-3"><div class="w-full h-full rounded-lg bg-gray-800/40 border border-gray-800"></div></div>
                   <div class="flex flex-col items-center gap-2 py-3 px-2 bg-gray-800/80 border-l border-gray-700" style="width: {$showLabels ? '100px' : '44px'}">
                     <div class="w-5 h-5 rounded bg-brand-500/60 mb-1"></div>
-                    {#each mockNavItems as item}
+                    {#each mockNavItems as item (item.name)}
                       <div class="flex items-center gap-1.5 {$showLabels ? 'w-full px-1.5' : ''}">
                         <div class="w-3.5 h-3.5 rounded flex-shrink-0" style="background-color: {item.color}"></div>
                         {#if $showLabels}<span class="text-[9px] text-gray-400 truncate">{item.name}</span>{/if}
@@ -880,7 +877,7 @@
                 <div class="flex flex-col h-full transition-all duration-300">
                   <div class="flex-1 p-3"><div class="w-full h-full rounded-lg bg-gray-800/40 border border-gray-800"></div></div>
                   <div class="flex items-center justify-center gap-3 px-4 py-2 bg-gray-800/80 border-t border-gray-700">
-                    {#each mockNavItems as item}
+                    {#each mockNavItems as item (item.name)}
                       <div class="flex flex-col items-center gap-0.5">
                         <div class="w-3.5 h-3.5 rounded" style="background-color: {item.color}"></div>
                         {#if $showLabels}<span class="text-[8px] text-gray-400">{item.name}</span>{/if}
@@ -892,7 +889,7 @@
                 <div class="relative h-full transition-all duration-300">
                   <div class="absolute inset-3"><div class="w-full h-full rounded-lg bg-gray-800/40 border border-gray-800"></div></div>
                   <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 px-3 py-1.5 bg-gray-800/90 rounded-full border border-gray-700 backdrop-blur-sm">
-                    {#each mockNavItems as item}
+                    {#each mockNavItems as item (item.name)}
                       <div class="w-3.5 h-3.5 rounded" style="background-color: {item.color}"></div>
                     {/each}
                   </div>
@@ -903,7 +900,7 @@
 
           <!-- Position selector buttons -->
           <div class="flex flex-wrap justify-center gap-2 max-w-2xl mx-auto mb-6">
-            {#each navPositions as pos}
+            {#each navPositions as pos (pos.value)}
               <button
                 class="px-4 py-2 rounded-lg border text-sm font-medium transition-all
                        {$selectedNavigation === pos.value
@@ -943,7 +940,7 @@
           <!-- Variant mode selector (segmented control) -->
           <div class="flex justify-center mb-8">
             <div class="inline-flex bg-gray-800 rounded-lg p-1 border border-gray-700">
-              {#each variantOptions as opt}
+              {#each variantOptions as opt (opt.value)}
                 <button
                   class="px-5 py-2 text-sm font-medium rounded-md transition-all
                          {$variantMode === opt.value
@@ -959,7 +956,7 @@
 
           <!-- Theme family grid -->
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-4 max-w-3xl mx-auto">
-            {#each $themeFamilies as family}
+            {#each $themeFamilies as family (family.id)}
               {@const isSelected = $selectedFamily === family.id}
               {@const darkPreview = family.darkTheme?.preview}
               {@const lightPreview = family.lightTheme?.preview}

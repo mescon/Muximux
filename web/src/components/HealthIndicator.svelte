@@ -1,6 +1,6 @@
 <script lang="ts">
   import { healthData } from '$lib/healthStore';
-  import type { AppHealth, HealthStatus } from '$lib/api';
+  import type { HealthStatus } from '$lib/api';
   import { triggerHealthCheck } from '$lib/api';
 
   let { appName, showTooltip = true, size = 'sm' }: {

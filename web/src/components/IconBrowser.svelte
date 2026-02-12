@@ -109,7 +109,7 @@
     try {
       customIcons = (await listCustomIcons()) || [];
       applyFilter();
-    } catch (e) {
+    } catch {
       // Ignore
     }
   }
@@ -266,7 +266,7 @@
   <!-- Variant selector (only for dashboard icons) -->
   {#if activeTab === 'dashboard'}
     <div class="px-3 py-2 border-b border-gray-700 flex gap-2">
-      {#each ['svg', 'png', 'webp'] as variant}
+      {#each ['svg', 'png', 'webp'] as variant (variant)}
         <button
           class="px-3 py-1 text-xs rounded-full transition-colors
                  {selectedVariant === variant
@@ -335,7 +335,7 @@
       />
     {:else}
       <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
-        {#each currentIcons as icon}
+        {#each currentIcons as icon (icon.name)}
           <div class="relative group">
             <button
               class="aspect-square p-2 rounded-lg border transition-all w-full

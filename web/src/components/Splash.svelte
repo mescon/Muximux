@@ -105,7 +105,7 @@
     </header>
 
     <!-- App grid by groups -->
-    {#each groups as group, groupIndex}
+    {#each groups as group, groupIndex (group)}
       <section class="mb-8 md:mb-10">
         <!-- Group header -->
         {#if groups.length > 1 || group !== 'Ungrouped'}
@@ -123,7 +123,7 @@
 
         <!-- App cards grid -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-          {#each groupedApps[group] as app, appIndex}
+          {#each groupedApps[group] as app, appIndex (app.name)}
             {@const globalIndex = getAppIndex(app)}
             <button
               class="app-card group opacity-0"

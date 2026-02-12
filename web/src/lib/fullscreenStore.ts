@@ -22,36 +22,51 @@ export function exitFullscreen() {
   isFullscreen.set(false);
 }
 
+// Vendor-prefixed fullscreen types for Safari and legacy IE
+interface VendorHTMLElement extends HTMLElement {
+  webkitRequestFullscreen?: () => Promise<void>;
+  msRequestFullscreen?: () => void;
+}
+
+interface VendorDocument extends Document {
+  webkitExitFullscreen?: () => Promise<void>;
+  msExitFullscreen?: () => void;
+  webkitFullscreenElement?: Element | null;
+  msFullscreenElement?: Element | null;
+}
+
 // Request browser native fullscreen API
 export function requestBrowserFullscreen() {
-  const elem = document.documentElement;
+  const elem = document.documentElement as VendorHTMLElement;
   if (elem.requestFullscreen) {
     elem.requestFullscreen();
-  } else if ((elem as any).webkitRequestFullscreen) {
+  } else if (elem.webkitRequestFullscreen) {
     // Safari
-    (elem as any).webkitRequestFullscreen();
-  } else if ((elem as any).msRequestFullscreen) {
+    elem.webkitRequestFullscreen();
+  } else if (elem.msRequestFullscreen) {
     // IE11
-    (elem as any).msRequestFullscreen();
+    elem.msRequestFullscreen();
   }
 }
 
 // Exit browser native fullscreen
 export function exitBrowserFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  } else if ((document as any).webkitExitFullscreen) {
-    (document as any).webkitExitFullscreen();
-  } else if ((document as any).msExitFullscreen) {
-    (document as any).msExitFullscreen();
+  const doc = document as VendorDocument;
+  if (doc.exitFullscreen) {
+    doc.exitFullscreen();
+  } else if (doc.webkitExitFullscreen) {
+    doc.webkitExitFullscreen();
+  } else if (doc.msExitFullscreen) {
+    doc.msExitFullscreen();
   }
 }
 
 // Check if browser is in fullscreen mode
 export function isBrowserFullscreen(): boolean {
+  const doc = document as VendorDocument;
   return !!(
-    document.fullscreenElement ||
-    (document as any).webkitFullscreenElement ||
-    (document as any).msFullscreenElement
+    doc.fullscreenElement ||
+    doc.webkitFullscreenElement ||
+    doc.msFullscreenElement
   );
 }

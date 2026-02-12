@@ -332,7 +332,7 @@
 
         <!-- App tabs - always visible, labels hidden when collapsed -->
         <div class="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-[calc(100vw-300px)]">
-          {#each apps as app}
+          {#each apps as app (app.name)}
             <button
               class="px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
                      {currentApp?.name === app.name
@@ -464,7 +464,7 @@
     <!-- App list with groups -->
     <div class="flex-1 overflow-y-auto scrollbar-hide"
          style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
-      {#each groupNames as groupName}
+      {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
           <!-- Group header — icon stays visible when collapsed, text fades -->
@@ -504,7 +504,7 @@
           <!-- Apps in group -->
           <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName] || isCollapsed}>
             <div class="group-apps-inner mt-1 space-y-0.5">
-              {#each groupedApps[groupName] || [] as app}
+              {#each groupedApps[groupName] || [] as app (app.name)}
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
@@ -662,7 +662,7 @@
     <!-- App list with groups -->
     <div class="flex-1 overflow-y-auto scrollbar-hide"
          style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
-      {#each groupNames as groupName}
+      {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
           <!-- Group header — icon stays visible when collapsed, text fades -->
@@ -701,7 +701,7 @@
 
           <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName] || isCollapsedRight}>
             <div class="group-apps-inner mt-1 space-y-0.5">
-              {#each groupedApps[groupName] || [] as app}
+              {#each groupedApps[groupName] || [] as app (app.name)}
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
@@ -832,7 +832,7 @@
       {/if}
 
       <!-- App icons - consistent size in both states -->
-      {#each apps as app}
+      {#each apps as app (app.name)}
         <button
           class="relative p-2 rounded-xl transition-all group
                  {currentApp?.name === app.name ? 'bg-gray-700' : 'hover:bg-gray-700/50'}
@@ -934,7 +934,7 @@
   >
     <!-- Expanded menu -->
     <div class="flex flex-col-reverse items-end gap-2 mb-2">
-      {#each apps.slice(0, 6) as app}
+      {#each apps.slice(0, 6) as app (app.name)}
         <button
           class="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-full shadow-lg
                  hover:bg-gray-700 transition-all hover:scale-105

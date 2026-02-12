@@ -396,7 +396,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Recent</span>
           </div>
           <ul class="pb-2">
-            {#each recentCommands as cmd}
+            {#each recentCommands as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
@@ -438,7 +438,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Apps</span>
           </div>
           <ul class="pb-2">
-            {#each otherAppCommands as cmd}
+            {#each otherAppCommands as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
@@ -480,7 +480,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Actions</span>
           </div>
           <ul class="pb-2">
-            {#each actionCommands as cmd}
+            {#each actionCommands as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
@@ -516,7 +516,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Settings</span>
           </div>
           <ul class="pb-2">
-            {#each settingCommands as cmd}
+            {#each settingCommands as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button

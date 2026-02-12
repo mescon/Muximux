@@ -7,12 +7,12 @@
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
   import { get } from 'svelte/store';
-  import { themeMode, resolvedTheme, setTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode, type ThemeMode, type VariantMode, type ThemeFamily } from '$lib/themeStore';
+  import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
   import { exportConfig, parseImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
-  import { dndzone } from 'svelte-dnd-action';
+  import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
 
   let {
@@ -98,8 +98,8 @@
   let groupErrors = $state<Record<string, string>>({});
 
   // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
-  untrack(() => localApps).forEach(a => { (a as any).id = a.name; });
-  untrack(() => localConfig).groups.forEach(g => { (g as any).id = g.name; });
+  untrack(() => localApps).forEach(a => { (a as App & Record<string, unknown>).id = a.name; });
+  untrack(() => localConfig).groups.forEach(g => { (g as Group & Record<string, unknown>).id = g.name; });
 
   // Snapshot taken AFTER id fields are added, so hasChanges starts as false
   const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig));
@@ -108,7 +108,6 @@
   // Snapshot theme so we can revert on close without save
   const initialFamily = untrack(() => get(selectedFamily));
   const initialVariant = untrack(() => get(variantMode));
-  const initialTheme = untrack(() => get(themeMode) as ThemeMode);
 
   // Track if changes have been made
   let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
@@ -138,22 +137,22 @@
   }
 
   // DnD handlers for groups
-  function handleGroupDndConsider(e: CustomEvent<any>) {
+  function handleGroupDndConsider(e: CustomEvent<DndEvent<Group>>) {
     dndGroups = e.detail.items;
   }
-  function handleGroupDndFinalize(e: CustomEvent<any>) {
+  function handleGroupDndFinalize(e: CustomEvent<DndEvent<Group>>) {
     dndGroups = e.detail.items;
     dndGroups.forEach((g, i) => { g.order = i; });
     localConfig.groups = [...dndGroups];
   }
 
   // DnD handlers for apps within a group
-  function handleAppDndConsider(e: CustomEvent<any>, groupName: string) {
+  function handleAppDndConsider(e: CustomEvent<DndEvent<App>>, groupName: string) {
     dndGroupedApps[groupName] = e.detail.items;
   }
-  function handleAppDndFinalize(e: CustomEvent<any>, groupName: string) {
-    const newItems = e.detail.items as App[];
-    newItems.forEach((a, i) => { a.group = groupName; a.order = i; (a as any).id = a.name; });
+  function handleAppDndFinalize(e: CustomEvent<DndEvent<App>>, groupName: string) {
+    const newItems = e.detail.items;
+    newItems.forEach((a, i) => { a.group = groupName; a.order = i; (a as App & Record<string, unknown>).id = a.name; });
     dndGroupedApps[groupName] = newItems;
     // Sync back to localApps
     const otherApps = localApps.filter(a => (a.group || '') !== groupName && !newItems.find(n => n.name === a.name));
@@ -210,7 +209,7 @@
     }
     appErrors = {};
     newApp.order = localApps.length;
-    const app = { ...newApp } as any;
+    const app: App & Record<string, unknown> = { ...newApp };
     app.id = app.name;
     localApps = [...localApps, app];
     newApp = { ...newAppTemplate };
@@ -238,7 +237,7 @@
     }
     groupErrors = {};
     newGroup.order = localConfig.groups.length;
-    const group = { ...newGroup } as any;
+    const group: Group & Record<string, unknown> = { ...newGroup };
     group.id = group.name;
     localConfig.groups = [...localConfig.groups, group];
     newGroup = { ...newGroupTemplate };
@@ -256,7 +255,7 @@
       localApps = localApps.map(app =>
         app.group === confirmDeleteGroup!.name ? { ...app, group: '' } : app
       );
-      localApps.forEach(a => { (a as any).id = a.name; });
+      localApps.forEach(a => { (a as App & Record<string, unknown>).id = a.name; });
       confirmDeleteGroup = null;
       rebuildDndArrays();
     }
@@ -264,7 +263,7 @@
 
   function closeEditApp() {
     if (editingApp) {
-      (editingApp as any).id = editingApp.name;
+      (editingApp as App & Record<string, unknown>).id = editingApp.name;
       // Sync DnD app changes back to localApps before rebuilding
       const allApps: App[] = [];
       for (const apps of Object.values(dndGroupedApps)) {
@@ -278,7 +277,7 @@
 
   function closeEditGroup() {
     if (editingGroup) {
-      (editingGroup as any).id = editingGroup.name;
+      (editingGroup as Group & Record<string, unknown>).id = editingGroup.name;
       // Sync DnD group changes back to localConfig before rebuilding
       localConfig.groups = [...dndGroups];
     }
@@ -331,8 +330,8 @@
     localApps = pendingImport.apps;
 
     // Assign stable ids for svelte-dnd-action
-    localApps.forEach(a => { (a as any).id = a.name; });
-    localConfig.groups.forEach(g => { (g as any).id = g.name; });
+    localApps.forEach(a => { (a as App & Record<string, unknown>).id = a.name; });
+    localConfig.groups.forEach(g => { (g as Group & Record<string, unknown>).id = g.name; });
     rebuildDndArrays();
 
     showImportConfirm = false;
@@ -596,7 +595,7 @@
         { id: 'apps', label: 'Apps & Groups' },
         { id: 'theme', label: 'Theme' },
         { id: 'keybindings', label: 'Keybindings' }
-      ] as tab}
+      ] as tab (tab.id)}
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
                  {activeTab === tab.id
@@ -635,7 +634,7 @@
               Navigation Position
             </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {#each navPositions as pos}
+              {#each navPositions as pos (pos.value)}
                 <button
                   class="p-3 rounded-lg border text-left transition-colors
                          {localConfig.navigation.position === pos.value
@@ -842,7 +841,7 @@
 
           <!-- Groups with their apps (dnd-zone for group reordering) -->
           <div class="space-y-3" use:dndzone={{items: dndGroups, flipDurationMs, type: 'groups', dropTargetStyle: {}}} onconsider={handleGroupDndConsider} onfinalize={handleGroupDndFinalize}>
-            {#each dndGroups as group ((group as any).id)}
+            {#each dndGroups as group ((group as Group & Record<string, unknown>).id)}
               {@const appsInGroup = dndGroupedApps[group.name] || []}
               <div class="rounded-lg border border-gray-700" animate:flip={{duration: flipDurationMs}}>
                 <!-- Group header -->
@@ -901,7 +900,7 @@
                   {#if appsInGroup.length === 0}
                     <div class="text-center py-3 text-gray-500 text-sm italic">No apps in this group</div>
                   {/if}
-                  {#each appsInGroup as app ((app as any).id)}
+                  {#each appsInGroup as app ((app as App & Record<string, unknown>).id)}
                     <div
                       class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
                       animate:flip={{duration: flipDurationMs}}
@@ -994,7 +993,7 @@
                 </div>
               {/if}
               <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
-                {#each ungroupedApps as app ((app as any).id)}
+                {#each ungroupedApps as app ((app as App & Record<string, unknown>).id)}
                   <div
                     class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-gray-700/30 cursor-grab active:cursor-grabbing"
                     animate:flip={{duration: flipDurationMs}}
@@ -1100,7 +1099,7 @@
               </div>
               <!-- Three-way segmented control -->
               <div class="flex rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
-                {#each (['dark', 'system', 'light'] as const) as mode}
+                {#each (['dark', 'system', 'light'] as const) as mode (mode)}
                   <button
                     class="px-3 py-1.5 text-xs font-medium transition-colors"
                     style="
@@ -1299,11 +1298,11 @@
                 </div>
 
                 <div class="p-3 space-y-4" style="background: var(--bg-surface);">
-                  {#each Object.entries(themeVariableGroups) as [groupName, vars]}
+                  {#each Object.entries(themeVariableGroups) as [groupName, vars] (groupName)}
                     <div>
                       <div class="text-xs font-semibold uppercase tracking-wider mb-2" style="color: var(--text-muted);">{groupName}</div>
                       <div class="space-y-2">
-                        {#each vars as varName}
+                        {#each vars as varName (varName)}
                           {@const isColorVar = !themeEditorVars[varName]?.startsWith('rgba') && !themeEditorVars[varName]?.includes('px')}
                           <div class="flex items-center gap-2">
                             <span class="text-xs w-20 flex-shrink-0" style="color: var(--text-secondary);">{varLabels[varName] || varName.replace('--', '')}</span>
@@ -1480,7 +1479,7 @@
               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               <option value="">No group</option>
-              {#each localConfig.groups as group}
+              {#each localConfig.groups as group (group.name)}
                 <option value={group.name}>{group.name}</option>
               {/each}
             </select>
@@ -1493,7 +1492,7 @@
             bind:value={newApp.open_mode}
             class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            {#each openModes as mode}
+            {#each openModes as mode (mode.value)}
               <option value={mode.value}>{mode.label} - {mode.description}</option>
             {/each}
           </select>
@@ -1717,7 +1716,7 @@
             class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">No group</option>
-            {#each localConfig.groups as group}
+            {#each localConfig.groups as group (group.name)}
               <option value={group.name}>{group.name}</option>
             {/each}
           </select>
@@ -1745,7 +1744,7 @@
             bind:value={editingApp.open_mode}
             class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            {#each openModes as mode}
+            {#each openModes as mode (mode.value)}
               <option value={mode.value}>{mode.label}</option>
             {/each}
           </select>

@@ -15,7 +15,7 @@
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
-  import { authState, checkAuthStatus, logout, isAuthenticated, currentUser, isAdmin } from './lib/authStore';
+  import { checkAuthStatus, logout, isAuthenticated } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
@@ -465,6 +465,7 @@
         onsearch={() => showCommandPalette = true}
         onsplash={() => showSplash = true}
         onsettings={() => showSettings = !showSettings}
+        onlogout={handleLogout}
       />
     {/if}
 

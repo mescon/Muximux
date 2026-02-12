@@ -12,8 +12,7 @@
     resetAllKeybindings,
     isCustomized,
     findConflicts,
-    comboEquals,
-    DEFAULT_KEYBINDINGS
+    comboEquals
   } from '$lib/keybindingsStore';
 
   // Props
@@ -133,10 +132,6 @@
     confirmResetAll = false;
   }
 
-  function getDefaultCombos(action: KeyAction): KeyCombo[] {
-    const def = DEFAULT_KEYBINDINGS.find(b => b.action === action);
-    return def?.combos || [];
-  }
 </script>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -173,14 +168,14 @@
   </div>
 
   <!-- Keybindings by category -->
-  {#each Object.entries(groupedBindings) as [category, bindings]}
+  {#each Object.entries(groupedBindings) as [category, bindings] (category)}
     <div>
       <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
         {categoryLabels[category] || category}
       </h4>
 
       <div class="space-y-2">
-        {#each bindings as binding}
+        {#each bindings as binding (binding.action)}
           <div
             class="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg
                    {isCustomized(binding.action) ? 'ring-1 ring-brand-500/30' : ''}"
@@ -198,7 +193,7 @@
             <div class="flex items-center gap-2 ml-4">
               <!-- Key combos -->
               <div class="flex flex-wrap gap-1.5 justify-end">
-                {#each binding.combos as combo, i}
+                {#each binding.combos as combo, i (i)}
                   <div class="flex items-center">
                     {#if capturingAction === binding.action && capturingIndex === i}
                       <!-- Capturing mode for this combo -->

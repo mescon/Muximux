@@ -22,7 +22,7 @@
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {#each Array(6) as _}
+        {#each Array(6) as _, i (i)}
           <div class="flex flex-col items-center p-4 rounded-xl bg-gray-800/50 border border-gray-700">
             <Skeleton circle height="64px" class="mb-3" />
             <Skeleton width="80%" height="0.875rem" />
@@ -38,7 +38,7 @@
       </div>
 
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        {#each Array(4) as _}
+        {#each Array(4) as _, i (i)}
           <div class="flex flex-col items-center p-4 rounded-xl bg-gray-800/50 border border-gray-700">
             <Skeleton circle height="64px" class="mb-3" />
             <Skeleton width="80%" height="0.875rem" />

@@ -1,6 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { login, authState, checkAuthStatus } from '$lib/authStore';
+  import { login } from '$lib/authStore';
 
   let { onsuccess }: { onsuccess?: () => void } = $props();
 

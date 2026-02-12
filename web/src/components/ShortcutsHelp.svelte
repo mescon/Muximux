@@ -2,7 +2,7 @@
   import { onMount } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { isMobileViewport } from '$lib/useSwipe';
-  import { keybindings, formatKeybinding, type Keybinding } from '$lib/keybindingsStore';
+  import { keybindings, type Keybinding } from '$lib/keybindingsStore';
 
   interface Props {
     onclose?: () => void;
@@ -98,18 +98,18 @@
     <div class="p-6 max-h-[70vh] overflow-y-auto">
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <!-- Customizable shortcuts from keybindings store -->
-        {#each Object.entries(groupedBindings) as [category, bindings]}
+        {#each Object.entries(groupedBindings) as [category, bindings] (category)}
           {#if category !== 'apps'}
             <div>
               <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
                 {categoryLabels[category] || category}
               </h3>
               <div class="space-y-2">
-                {#each bindings as binding}
+                {#each bindings as binding (binding.action)}
                   <div class="flex items-center justify-between py-1">
                     <span style="color: var(--text-secondary);">{binding.label}</span>
                     <div class="flex items-center gap-1">
-                      {#each binding.combos as combo, i}
+                      {#each binding.combos as combo, i (i)}
                         {#if i > 0}
                           <span class="text-xs" style="color: var(--text-disabled);">or</span>
                         {/if}
@@ -143,17 +143,17 @@
         {/if}
 
         <!-- Additional non-customizable shortcuts -->
-        {#each additionalShortcuts as section}
+        {#each additionalShortcuts as section (section.category)}
           <div>
             <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
               {section.category}
             </h3>
             <div class="space-y-2">
-              {#each section.items as shortcut}
+              {#each section.items as shortcut (shortcut.description)}
                 <div class="flex items-center justify-between py-1">
                   <span style="color: var(--text-secondary);">{shortcut.description}</span>
                   <div class="flex items-center gap-1">
-                    {#each shortcut.keys as key, i}
+                    {#each shortcut.keys as key, i (i)}
                       {#if i > 0}
                         <span class="text-xs" style="color: var(--text-disabled);">or</span>
                       {/if}
