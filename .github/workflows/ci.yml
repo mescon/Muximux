@@ -73,6 +73,12 @@ jobs:
           flags: backend
           fail_ci_if_error: false
 
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-backend
+          path: coverage.txt
+
   test-frontend:
     name: Test Frontend
     runs-on: ubuntu-latest
@@ -102,6 +108,37 @@ jobs:
           files: web/coverage/lcov.info
           flags: frontend
           fail_ci_if_error: false
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v6
+        with:
+          name: coverage-frontend
+          path: web/coverage/lcov.info
+
+  sonarcloud:
+    name: SonarCloud Analysis
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download backend coverage
+        uses: actions/download-artifact@v7
+        with:
+          name: coverage-backend
+
+      - name: Download frontend coverage
+        uses: actions/download-artifact@v7
+        with:
+          name: coverage-frontend
+          path: web/coverage
+
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarqube-scan-action@v6
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   build:
     name: Build
