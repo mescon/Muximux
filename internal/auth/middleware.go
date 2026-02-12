@@ -7,6 +7,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"sync"
 )
 
 // ContextKey is a type for context keys
@@ -56,6 +57,7 @@ type BypassRule struct {
 
 // Middleware provides authentication middleware
 type Middleware struct {
+	mu           sync.RWMutex
 	config       AuthConfig
 	sessionStore *SessionStore
 	userStore    *UserStore
@@ -92,12 +94,42 @@ func NewMiddleware(config AuthConfig, sessionStore *SessionStore, userStore *Use
 	return m
 }
 
+// UpdateConfig replaces the auth configuration and re-parses trusted proxy networks.
+func (m *Middleware) UpdateConfig(config AuthConfig) {
+	var trustedNets []*net.IPNet
+	for _, cidr := range config.TrustedProxies {
+		_, network, err := net.ParseCIDR(cidr)
+		if err != nil {
+			ip := net.ParseIP(cidr)
+			if ip != nil {
+				if ip4 := ip.To4(); ip4 != nil {
+					_, network, _ = net.ParseCIDR(cidr + "/32")
+				} else {
+					_, network, _ = net.ParseCIDR(cidr + "/128")
+				}
+			}
+		}
+		if network != nil {
+			trustedNets = append(trustedNets, network)
+		}
+	}
+
+	m.mu.Lock()
+	m.config = config
+	m.trustedNets = trustedNets
+	m.mu.Unlock()
+}
+
 // RequireAuth returns middleware that requires authentication
 func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		m.mu.RLock()
+		method := m.config.Method
+		m.mu.RUnlock()
+
 		// Check if auth is disabled — inject virtual admin so downstream
 		// handlers (e.g. RequireRole) always find a user in context.
-		if m.config.Method == AuthMethodNone {
+		if method == AuthMethodNone {
 			virtualAdmin := &User{ID: "admin", Username: "admin", Role: RoleAdmin}
 			ctx := context.WithValue(r.Context(), ContextKeyUser, virtualAdmin)
 			next.ServeHTTP(w, r.WithContext(ctx))

@@ -8,6 +8,7 @@
   import CommandPalette from './components/CommandPalette.svelte';
   import Login from './components/Login.svelte';
   import OnboardingWizard from './components/OnboardingWizard.svelte';
+  import SetupWizard from './components/SetupWizard.svelte';
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
@@ -15,7 +16,7 @@
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
-  import { checkAuthStatus, logout, isAuthenticated } from './lib/authStore';
+  import { checkAuthStatus, logout, isAuthenticated, setupRequired } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
@@ -207,6 +208,40 @@
     apps = [];
     currentApp = null;
     showSplash = true;
+  }
+
+  async function handleSetupComplete() {
+    // Re-check auth status (setup_required will now be false)
+    await checkAuthStatus();
+
+    // Try to load config
+    try {
+      config = await fetchConfig();
+      apps = config.apps;
+      authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined;
+
+      if (config.theme) {
+        syncFromConfig(config.theme);
+      }
+
+      initKeybindings(config.keybindings);
+
+      // If no apps, show onboarding
+      if (apps.length === 0) {
+        resetOnboarding();
+        showOnboarding = true;
+      } else {
+        showDefaultApp();
+        startServices();
+      }
+    } catch (e) {
+      // If we get a 401, auth is required (e.g. forward_auth not behind proxy)
+      if (e instanceof Error && e.message.includes('401')) {
+        authRequired = true;
+      } else {
+        error = e instanceof Error ? e.message : 'Failed to load configuration';
+      }
+    }
   }
 
   async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig }) {
@@ -430,6 +465,8 @@
       <p class="mt-4" style="color: var(--text-muted);">Loading Muximux...</p>
     </div>
   </div>
+{:else if $setupRequired}
+  <SetupWizard oncomplete={handleSetupComplete} />
 {:else if showOnboarding}
   <OnboardingWizard oncomplete={handleOnboardingComplete} />
 {:else if authRequired && !$isAuthenticated}

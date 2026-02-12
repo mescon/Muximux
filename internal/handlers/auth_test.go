@@ -543,6 +543,56 @@ func TestOIDCCallback(t *testing.T) {
 	})
 }
 
+func TestAuthStatus_SetupRequired(t *testing.T) {
+	t.Run("setup_required true", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+		handler.SetSetupChecker(func() bool { return true })
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+		handler.AuthStatus(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected 200, got %d", w.Code)
+		}
+
+		var resp map[string]interface{}
+		json.NewDecoder(w.Body).Decode(&resp)
+		if resp["setup_required"] != true {
+			t.Errorf("expected setup_required=true, got %v", resp["setup_required"])
+		}
+	})
+
+	t.Run("setup_required false", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+		handler.SetSetupChecker(func() bool { return false })
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+		handler.AuthStatus(w, req)
+
+		var resp map[string]interface{}
+		json.NewDecoder(w.Body).Decode(&resp)
+		if resp["setup_required"] != false {
+			t.Errorf("expected setup_required=false, got %v", resp["setup_required"])
+		}
+	})
+
+	t.Run("no checker set", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+		handler.AuthStatus(w, req)
+
+		var resp map[string]interface{}
+		json.NewDecoder(w.Body).Decode(&resp)
+		if _, ok := resp["setup_required"]; ok {
+			t.Error("expected no setup_required field when checker is nil")
+		}
+	})
+}
+
 func TestSetOIDCProvider(t *testing.T) {
 	ss := auth.NewSessionStore("test", time.Hour, false)
 	us := auth.NewUserStore()

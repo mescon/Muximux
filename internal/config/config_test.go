@@ -302,3 +302,54 @@ server:
 		})
 	}
 }
+
+func TestNeedsSetup(t *testing.T) {
+	tests := []struct {
+		name string
+		cfg  Config
+		want bool
+	}{
+		{
+			name: "fresh install needs setup",
+			cfg:  *defaultConfig(),
+			want: true,
+		},
+		{
+			name: "setup_complete flag set",
+			cfg:  Config{Auth: AuthConfig{SetupComplete: true}},
+			want: false,
+		},
+		{
+			name: "existing apps",
+			cfg: Config{
+				Auth: AuthConfig{Method: "none"},
+				Apps: []AppConfig{{Name: "test", URL: "http://localhost"}},
+			},
+			want: false,
+		},
+		{
+			name: "non-default auth method",
+			cfg:  Config{Auth: AuthConfig{Method: "builtin"}},
+			want: false,
+		},
+		{
+			name: "existing users",
+			cfg: Config{
+				Auth: AuthConfig{
+					Method: "none",
+					Users:  []UserConfig{{Username: "admin"}},
+				},
+			},
+			want: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := tt.cfg.NeedsSetup()
+			if got != tt.want {
+				t.Errorf("NeedsSetup() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

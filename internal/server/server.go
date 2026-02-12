@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"embed"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/auth"
@@ -42,6 +44,7 @@ type Server struct {
 	authMiddleware *auth.Middleware
 	proxyServer    *proxy.Proxy
 	oidcProvider   *auth.OIDCProvider
+	needsSetup     atomic.Bool
 }
 
 // adminGuard is a function that wraps a handler to require admin role.
@@ -63,12 +66,14 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 		userStore:      userStore,
 		authMiddleware: authMiddleware,
 	}
+	s.needsSetup.Store(cfg.NeedsSetup())
 
 	// Set up routes
 	mux := http.NewServeMux()
 
 	// Auth endpoints (always accessible)
 	authHandler := handlers.NewAuthHandler(sessionStore, userStore)
+	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
 
 	// Set up OIDC provider if configured
 	if cfg.Auth.OIDC.Enabled {
@@ -95,6 +100,9 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	})
 
 	registerAuthRoutes(mux, authHandler, wsHub)
+
+	setupLimiter := newRateLimiter(5, 1*time.Minute)
+	mux.HandleFunc("/api/auth/setup", setupLimiter.wrap(s.handleSetup))
 
 	// API routes
 	api := handlers.NewAPIHandler(cfg, configPath)
@@ -147,7 +155,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	mux.Handle("/", staticHandler)
 
 	// Create the final handler with security middleware
-	handler := wrapMiddleware(mux, cfg, authMiddleware)
+	handler := s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware))
 
 	s.httpServer = &http.Server{
 		Addr:         goListenAddr,
@@ -158,6 +166,23 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	}
 
 	return s, nil
+}
+
+// defaultBypassRules defines paths that bypass authentication.
+var defaultBypassRules = []auth.BypassRule{
+	{Path: "/api/auth/login"},
+	{Path: "/api/auth/logout"},
+	{Path: "/api/auth/status"},
+	{Path: "/api/auth/setup"},
+	{Path: "/api/auth/oidc/*"},
+	{Path: "/assets/*"},
+	{Path: "/themes/*"},
+	{Path: "/*.js"},
+	{Path: "/*.css"},
+	{Path: "/*.ico"},
+	{Path: "/*.png"},
+	{Path: "/*.svg"},
+	{Path: "/login"},
 }
 
 // setupAuth creates the session store, user store, and auth middleware from config.
@@ -190,23 +215,7 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 			Groups: cfg.Auth.Headers["groups"],
 			Name:   cfg.Auth.Headers["name"],
 		},
-		BypassRules: []auth.BypassRule{
-			// Always allow auth endpoints
-			{Path: "/api/auth/login"},
-			{Path: "/api/auth/logout"},
-			{Path: "/api/auth/status"},
-			{Path: "/api/auth/oidc/*"},
-			// Always allow static assets
-			{Path: "/assets/*"},
-			{Path: "/themes/*"},
-			{Path: "/*.js"},
-			{Path: "/*.css"},
-			{Path: "/*.ico"},
-			{Path: "/*.png"},
-			{Path: "/*.svg"},
-			// Allow login page
-			{Path: "/login"},
-		},
+		BypassRules: defaultBypassRules,
 	}
 	authMiddleware := auth.NewMiddleware(authConfig, sessionStore, userStore)
 
@@ -488,15 +497,215 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 
 // wrapMiddleware applies auth and security middleware around the mux.
 func wrapMiddleware(mux *http.ServeMux, cfg *config.Config, authMiddleware *auth.Middleware) http.Handler {
-	var handler http.Handler = mux
-	if cfg.Auth.Method != "none" && cfg.Auth.Method != "" {
-		handler = authMiddleware.RequireAuth(mux)
-	}
+	// Always apply RequireAuth — it injects a virtual admin when auth is
+	// "none", which downstream adminGuard checks rely on.
+	handler := authMiddleware.RequireAuth(mux)
 	// Wrap with security middleware (outermost = runs first)
 	handler = securityHeadersMiddleware(handler)
 	handler = csrfMiddleware(handler)
 	handler = bodySizeLimitMiddleware(handler)
 	return handler
+}
+
+// setupGuardMiddleware blocks non-auth API endpoints while setup is pending.
+func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if !s.needsSetup.Load() {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		path := r.URL.Path
+
+		// Allow auth endpoints
+		if strings.HasPrefix(path, "/api/auth/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Allow health endpoint
+		if path == "/api/health" {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Allow non-API paths (static assets, SPA)
+		if !strings.HasPrefix(path, "/api/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		// Block all other API endpoints during setup
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusServiceUnavailable)
+		json.NewEncoder(w).Encode(map[string]string{"error": "setup_required"})
+	})
+}
+
+// setupRequest is the JSON body for POST /api/auth/setup
+type setupRequest struct {
+	Method         string            `json:"method"`
+	Username       string            `json:"username"`
+	Password       string            `json:"password"`
+	TrustedProxies []string          `json:"trusted_proxies"`
+	Headers        map[string]string `json:"headers"`
+}
+
+func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		return
+	}
+
+	if !s.needsSetup.Load() {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
+		return
+	}
+
+	var req setupRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		return
+	}
+
+	switch req.Method {
+	case "builtin":
+		if err := s.setupBuiltin(w, req); err != nil {
+			return // error already written
+		}
+	case "forward_auth":
+		if err := s.setupForwardAuth(req); err != nil {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusBadRequest)
+			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			return
+		}
+	case "none":
+		s.setupNone()
+	default:
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid method. Must be builtin, forward_auth, or none"})
+		return
+	}
+
+	s.config.Auth.SetupComplete = true
+	if err := s.config.Save(s.configPath); err != nil {
+		log.Printf("Failed to save config after setup: %v", err)
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
+		return
+	}
+
+	s.needsSetup.Store(false)
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"success": true,
+		"method":  req.Method,
+	})
+}
+
+func (s *Server) setupBuiltin(w http.ResponseWriter, req setupRequest) error {
+	if strings.TrimSpace(req.Username) == "" {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Username is required"})
+		return fmt.Errorf("username required")
+	}
+	if len(req.Password) < 8 {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Password must be at least 8 characters"})
+		return fmt.Errorf("password too short")
+	}
+
+	hash, err := auth.HashPassword(req.Password)
+	if err != nil {
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to hash password"})
+		return err
+	}
+
+	// Update config
+	s.config.Auth.Method = "builtin"
+	s.config.Auth.Users = []config.UserConfig{
+		{
+			Username:     req.Username,
+			PasswordHash: hash,
+			Role:         "admin",
+		},
+	}
+
+	// Update live user store
+	s.userStore.LoadFromConfig([]auth.UserConfig{
+		{
+			Username:     req.Username,
+			PasswordHash: hash,
+			Role:         "admin",
+		},
+	})
+
+	// Update auth middleware
+	s.authMiddleware.UpdateConfig(auth.AuthConfig{
+		Method:      auth.AuthMethodBuiltin,
+		BypassRules: defaultBypassRules,
+		APIKey:      s.config.Auth.APIKey,
+	})
+
+	// Create session so user is immediately logged in
+	session, err := s.sessionStore.Create(req.Username, req.Username, "admin")
+	if err != nil {
+		log.Printf("Failed to create session after setup: %v", err)
+		// Non-fatal — setup still succeeds, user just needs to log in manually
+		return nil
+	}
+	s.sessionStore.SetCookie(w, session)
+
+	return nil
+}
+
+func (s *Server) setupForwardAuth(req setupRequest) error {
+	if len(req.TrustedProxies) == 0 {
+		return fmt.Errorf("At least one trusted proxy is required for forward_auth")
+	}
+
+	// Update config
+	s.config.Auth.Method = "forward_auth"
+	s.config.Auth.TrustedProxies = req.TrustedProxies
+	if req.Headers != nil {
+		s.config.Auth.Headers = req.Headers
+	}
+
+	// Update auth middleware
+	headers := auth.ForwardAuthHeaders{}
+	if req.Headers != nil {
+		headers.User = req.Headers["user"]
+		headers.Email = req.Headers["email"]
+		headers.Groups = req.Headers["groups"]
+		headers.Name = req.Headers["name"]
+	}
+
+	s.authMiddleware.UpdateConfig(auth.AuthConfig{
+		Method:         auth.AuthMethodForwardAuth,
+		TrustedProxies: req.TrustedProxies,
+		Headers:        headers,
+		BypassRules:    defaultBypassRules,
+		APIKey:         s.config.Auth.APIKey,
+	})
+
+	return nil
+}
+
+func (s *Server) setupNone() {
+	s.config.Auth.Method = "none"
+	// Middleware stays as-is (virtual admin)
 }
 
 // Start begins serving HTTP requests

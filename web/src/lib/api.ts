@@ -1,4 +1,4 @@
-import type { Config, App, Group } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse } from './types';
 
 const API_BASE = '/api';
 
@@ -38,6 +38,10 @@ async function putJSON<T, R>(path: string, data: T): Promise<R> {
     throw new Error(`API error: ${response.status} ${text}`);
   }
   return response.json();
+}
+
+export async function submitSetup(data: SetupRequest): Promise<SetupResponse> {
+  return postJSON<SetupRequest, SetupResponse>('/auth/setup', data);
 }
 
 export async function fetchConfig(): Promise<Config> {

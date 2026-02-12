@@ -14,6 +14,7 @@ export interface AuthState {
   user: User | null;
   loading: boolean;
   error: string | null;
+  setupRequired: boolean;
 }
 
 // Initial state
@@ -22,6 +23,7 @@ const initialState: AuthState = {
   user: null,
   loading: true,
   error: null,
+  setupRequired: false,
 };
 
 // Create the store
@@ -32,6 +34,7 @@ export const isAuthenticated = derived(authState, ($state) => $state.authenticat
 export const currentUser = derived(authState, ($state) => $state.user);
 export const isAdmin = derived(authState, ($state) => $state.user?.role === 'admin');
 export const isLoading = derived(authState, ($state) => $state.loading);
+export const setupRequired = derived(authState, ($state) => $state.setupRequired);
 
 // API functions
 const API_BASE = '/api/auth';
@@ -49,6 +52,7 @@ export async function checkAuthStatus(): Promise<void> {
       user: data.user || null,
       loading: false,
       error: null,
+      setupRequired: data.setup_required || false,
     });
   } catch (e) {
     authState.set({
@@ -56,6 +60,7 @@ export async function checkAuthStatus(): Promise<void> {
       user: null,
       loading: false,
       error: e instanceof Error ? e.message : 'Failed to check auth status',
+      setupRequired: false,
     });
   }
 }
@@ -81,6 +86,7 @@ export async function login(username: string, password: string, rememberMe: bool
         user: data.user,
         loading: false,
         error: null,
+        setupRequired: false,
       });
       return { success: true };
     } else {
@@ -117,6 +123,7 @@ export async function logout(): Promise<void> {
     user: null,
     loading: false,
     error: null,
+    setupRequired: false,
   });
 }
 

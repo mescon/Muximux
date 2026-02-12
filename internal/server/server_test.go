@@ -2,11 +2,13 @@ package server
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"io/fs"
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"testing"
 	"testing/fstest"
@@ -1541,4 +1543,351 @@ func TestSetupHealthRoutes_AppSubPaths(t *testing.T) {
 			t.Errorf("expected 404, got %d", resp.StatusCode)
 		}
 	})
+}
+
+// --- Setup Mode ---
+
+func defaultTestConfig() *config.Config {
+	return &config.Config{
+		Server: config.ServerConfig{Listen: ":8080", Title: "Test"},
+		Auth:   config.AuthConfig{Method: "none"},
+	}
+}
+
+func TestSetupGuardMiddleware(t *testing.T) {
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte("OK"))
+	})
+
+	t.Run("allows all when setup complete", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(false)
+		handler := s.setupGuardMiddleware(inner)
+
+		req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Errorf("expected 200, got %d", rec.Code)
+		}
+	})
+
+	t.Run("allows auth endpoints during setup", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(true)
+		handler := s.setupGuardMiddleware(inner)
+
+		for _, path := range []string{"/api/auth/status", "/api/auth/setup", "/api/auth/login"} {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusOK {
+				t.Errorf("path %s: expected 200, got %d", path, rec.Code)
+			}
+		}
+	})
+
+	t.Run("allows health endpoint during setup", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(true)
+		handler := s.setupGuardMiddleware(inner)
+
+		req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Errorf("expected 200, got %d", rec.Code)
+		}
+	})
+
+	t.Run("allows static assets during setup", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(true)
+		handler := s.setupGuardMiddleware(inner)
+
+		for _, path := range []string{"/", "/login", "/assets/style.css", "/themes/dark.css"} {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusOK {
+				t.Errorf("path %s: expected 200, got %d", path, rec.Code)
+			}
+		}
+	})
+
+	t.Run("blocks API endpoints during setup", func(t *testing.T) {
+		s := &Server{}
+		s.needsSetup.Store(true)
+		handler := s.setupGuardMiddleware(inner)
+
+		for _, path := range []string{"/api/config", "/api/apps", "/api/groups"} {
+			req := httptest.NewRequest(http.MethodGet, path, nil)
+			rec := httptest.NewRecorder()
+			handler.ServeHTTP(rec, req)
+
+			if rec.Code != http.StatusServiceUnavailable {
+				t.Errorf("path %s: expected 503, got %d", path, rec.Code)
+			}
+
+			var body map[string]string
+			json.NewDecoder(rec.Body).Decode(&body)
+			if body["error"] != "setup_required" {
+				t.Errorf("expected error=setup_required, got %v", body["error"])
+			}
+		}
+	})
+}
+
+func TestHandleSetup_WrongMethod(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/setup", nil)
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_AlreadyComplete(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(false)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"none"}`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusConflict {
+		t.Errorf("expected 409, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_InvalidMethod(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"invalid"}`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_InvalidJSON(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`not json`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_Builtin_WeakPassword(t *testing.T) {
+	s := &Server{
+		config:     defaultTestConfig(),
+		configPath: filepath.Join(t.TempDir(), "config.yaml"),
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	body := `{"method":"builtin","username":"admin","password":"short"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_Builtin_EmptyUsername(t *testing.T) {
+	s := &Server{
+		config:     defaultTestConfig(),
+		configPath: filepath.Join(t.TempDir(), "config.yaml"),
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	body := `{"method":"builtin","username":"","password":"longenoughpassword"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_ForwardAuth_MissingProxy(t *testing.T) {
+	s := &Server{
+		config:     defaultTestConfig(),
+		configPath: filepath.Join(t.TempDir(), "config.yaml"),
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	body := `{"method":"forward_auth","trusted_proxies":[]}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_Builtin_Success(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	cfg := defaultTestConfig()
+	s := &Server{
+		config:     cfg,
+		configPath: configPath,
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	body := `{"method":"builtin","username":"admin","password":"securepass123"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	// Verify response
+	var resp map[string]interface{}
+	json.NewDecoder(rec.Body).Decode(&resp)
+	if resp["success"] != true {
+		t.Error("expected success=true")
+	}
+	if resp["method"] != "builtin" {
+		t.Errorf("expected method=builtin, got %v", resp["method"])
+	}
+
+	// Verify setup is complete
+	if s.needsSetup.Load() {
+		t.Error("expected needsSetup=false after setup")
+	}
+
+	// Verify config was updated
+	if s.config.Auth.Method != "builtin" {
+		t.Errorf("expected auth method builtin, got %s", s.config.Auth.Method)
+	}
+	if !s.config.Auth.SetupComplete {
+		t.Error("expected SetupComplete=true")
+	}
+	if len(s.config.Auth.Users) != 1 {
+		t.Errorf("expected 1 user, got %d", len(s.config.Auth.Users))
+	}
+
+	// Verify session cookie was set
+	cookies := rec.Result().Cookies()
+	found := false
+	for _, c := range cookies {
+		if c.Name == "test" {
+			found = true
+		}
+	}
+	if !found {
+		t.Error("expected session cookie to be set")
+	}
+
+	// Verify user was added to live store
+	if s.userStore.Get("admin") == nil {
+		t.Error("expected admin user in live store")
+	}
+
+	// Verify config was saved to disk
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		t.Error("expected config file to be saved")
+	}
+}
+
+func TestHandleSetup_ForwardAuth_Success(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	cfg := defaultTestConfig()
+	s := &Server{
+		config:     cfg,
+		configPath: configPath,
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	body := `{"method":"forward_auth","trusted_proxies":["10.0.0.0/8"],"headers":{"user":"Remote-User","email":"Remote-Email"}}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	if s.config.Auth.Method != "forward_auth" {
+		t.Errorf("expected forward_auth, got %s", s.config.Auth.Method)
+	}
+	if len(s.config.Auth.TrustedProxies) != 1 {
+		t.Errorf("expected 1 trusted proxy, got %d", len(s.config.Auth.TrustedProxies))
+	}
+}
+
+func TestHandleSetup_None_Success(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	cfg := defaultTestConfig()
+	s := &Server{
+		config:     cfg,
+		configPath: configPath,
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	body := `{"method":"none"}`
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	if s.config.Auth.Method != "none" {
+		t.Errorf("expected none, got %s", s.config.Auth.Method)
+	}
 }

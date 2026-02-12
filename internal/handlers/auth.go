@@ -12,6 +12,7 @@ type AuthHandler struct {
 	sessionStore *auth.SessionStore
 	userStore    *auth.UserStore
 	oidcProvider *auth.OIDCProvider
+	setupChecker func() bool
 }
 
 // NewAuthHandler creates a new auth handler
@@ -25,6 +26,11 @@ func NewAuthHandler(sessionStore *auth.SessionStore, userStore *auth.UserStore) 
 // SetOIDCProvider sets the OIDC provider for OIDC authentication
 func (h *AuthHandler) SetOIDCProvider(provider *auth.OIDCProvider) {
 	h.oidcProvider = provider
+}
+
+// SetSetupChecker sets the function used to check if setup is required.
+func (h *AuthHandler) SetSetupChecker(fn func() bool) {
+	h.setupChecker = fn
 }
 
 // LoginRequest represents a login request
@@ -263,6 +269,10 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 			Email:       user.Email,
 			DisplayName: user.DisplayName,
 		}
+	}
+
+	if h.setupChecker != nil {
+		response["setup_required"] = h.setupChecker()
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)

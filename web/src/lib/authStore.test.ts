@@ -27,6 +27,7 @@ describe('authStore', () => {
       user: null,
       loading: true,
       error: null,
+      setupRequired: false,
     });
   });
 
@@ -173,6 +174,7 @@ describe('authStore', () => {
         user: { username: 'testuser', role: 'user' },
         loading: false,
         error: null,
+        setupRequired: false,
       });
     });
 
@@ -270,6 +272,7 @@ describe('authStore', () => {
         user: { username: 'testuser', role: 'admin', email: 'test@example.com' },
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       const user = getUser();
@@ -287,6 +290,7 @@ describe('authStore', () => {
         user: null,
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       const user = getUser();
@@ -302,6 +306,7 @@ describe('authStore', () => {
         user: { username: 'admin', role: 'admin' },
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       expect(hasRole('admin')).toBe(true);
@@ -313,6 +318,7 @@ describe('authStore', () => {
         user: { username: 'user', role: 'user' },
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       expect(hasRole('admin')).toBe(false);
@@ -324,6 +330,7 @@ describe('authStore', () => {
         user: null,
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       expect(hasRole('admin')).toBe(false);
@@ -337,6 +344,7 @@ describe('authStore', () => {
         user: { username: 'normaluser', role: 'user' },
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       expect(get(isAdmin)).toBe(false);
@@ -346,6 +354,7 @@ describe('authStore', () => {
         user: { username: 'adminuser', role: 'admin' },
         loading: false,
         error: null,
+        setupRequired: false,
       });
 
       expect(get(isAdmin)).toBe(true);

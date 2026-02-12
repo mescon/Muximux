@@ -99,3 +99,17 @@ export interface Config {
   groups: Group[];
   apps: App[];
 }
+
+export interface SetupRequest {
+  method: 'builtin' | 'forward_auth' | 'none';
+  username?: string;
+  password?: string;
+  trusted_proxies?: string[];
+  headers?: Record<string, string>;
+}
+
+export interface SetupResponse {
+  success: boolean;
+  method: string;
+  error?: string;
+}

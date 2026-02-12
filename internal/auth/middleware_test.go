@@ -838,3 +838,80 @@ func TestHandleUnauthenticated(t *testing.T) {
 		}
 	})
 }
+
+func TestUpdateConfig_SwitchMethod(t *testing.T) {
+	cfg := AuthConfig{Method: AuthMethodNone}
+	m, ss, us := newTestMiddleware(cfg)
+
+	// Start with none — should get virtual admin
+	var captured *User
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		captured = GetUserFromContext(r.Context())
+		w.WriteHeader(http.StatusOK)
+	})
+
+	handler := m.RequireAuth(inner)
+	req := httptest.NewRequest(http.MethodGet, "/api/test", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if captured == nil || captured.Username != "admin" {
+		t.Fatal("expected virtual admin before update")
+	}
+
+	// Load a user and switch to builtin
+	hash, _ := HashPassword("testpass")
+	us.LoadFromConfig([]UserConfig{{Username: "alice", PasswordHash: hash, Role: RoleAdmin}})
+	session, _ := ss.Create("alice", "alice", RoleAdmin)
+
+	m.UpdateConfig(AuthConfig{Method: AuthMethodBuiltin})
+
+	// Now without a session, should get 401
+	captured = nil
+	req = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+	rec = httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401 after switching to builtin, got %d", rec.Code)
+	}
+
+	// With session, should get alice
+	captured = nil
+	req = httptest.NewRequest(http.MethodGet, "/api/test", nil)
+	req.AddCookie(&http.Cookie{Name: "test_session", Value: session.ID})
+	rec = httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if captured == nil || captured.Username != "alice" {
+		t.Fatal("expected alice after switching to builtin with session")
+	}
+}
+
+func TestUpdateConfig_TrustedProxies(t *testing.T) {
+	cfg := AuthConfig{Method: AuthMethodForwardAuth}
+	m, _, _ := newTestMiddleware(cfg)
+
+	// Before update — no trusted proxies, should reject
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "10.0.0.1:80"
+	req.Header.Set("Remote-User", "bob")
+	user, _ := m.authenticateRequest(req)
+	if user != nil {
+		t.Error("expected nil user before updating trusted proxies")
+	}
+
+	// Update with trusted proxies
+	m.UpdateConfig(AuthConfig{
+		Method:         AuthMethodForwardAuth,
+		TrustedProxies: []string{"10.0.0.0/8"},
+	})
+
+	user, _ = m.authenticateRequest(req)
+	if user == nil {
+		t.Fatal("expected user after updating trusted proxies")
+	}
+	if user.Username != "bob" {
+		t.Errorf("expected bob, got %s", user.Username)
+	}
+}

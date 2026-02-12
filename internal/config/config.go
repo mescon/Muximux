@@ -82,6 +82,7 @@ type AuthConfig struct {
 	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
 	SecureCookies  bool              `yaml:"secure_cookies"`
 	APIKey         string            `yaml:"api_key"`
+	SetupComplete  bool              `yaml:"setup_complete"`
 }
 
 // UserConfig holds local user credentials
@@ -245,6 +246,23 @@ func (c *Config) Save(path string) error {
 		return err
 	}
 	return os.WriteFile(path, data, 0600)
+}
+
+// NeedsSetup returns true when the application has not been configured yet.
+func (c *Config) NeedsSetup() bool {
+	if c.Auth.SetupComplete {
+		return false
+	}
+	if len(c.Apps) > 0 {
+		return false
+	}
+	if c.Auth.Method != "" && c.Auth.Method != "none" {
+		return false
+	}
+	if len(c.Auth.Users) > 0 {
+		return false
+	}
+	return true
 }
 
 // defaultConfig returns sensible defaults
