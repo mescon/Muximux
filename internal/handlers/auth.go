@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/mescon/muximux/internal/auth"
+	"github.com/mescon/muximux/v3/internal/auth"
 )
 
 // AuthHandler handles authentication endpoints

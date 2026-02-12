@@ -7,7 +7,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/mescon/muximux/internal/config"
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 // TestContentRewriter tests URL rewriting in HTML/CSS/JS content

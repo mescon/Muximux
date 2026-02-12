@@ -6,7 +6,7 @@ One binary. One port. One YAML config file.
 
 [![CI](https://github.com/mescon/Muximux/actions/workflows/ci.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/mescon/muximux)](https://goreportcard.com/report/github.com/mescon/muximux)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mescon/muximux/v3)](https://goreportcard.com/report/github.com/mescon/muximux/v3)
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mescon_Muximux)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
 

@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mescon/muximux/internal/icons"
+	"github.com/mescon/muximux/v3/internal/icons"
 )
 
 // IconHandler handles icon-related requests

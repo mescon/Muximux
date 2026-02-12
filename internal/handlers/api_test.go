@@ -8,7 +8,7 @@ import (
 	"os"
 	"testing"
 
-	"github.com/mescon/muximux/internal/config"
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 func createTestConfig() *config.Config {
