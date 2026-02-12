@@ -14,7 +14,7 @@ import (
 
 // setupAuthTest creates the auth handler with a session store and user store
 // pre-populated with a test user.
-func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore, *auth.UserStore) {
+func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore) {
 	t.Helper()
 
 	sessionStore := auth.NewSessionStore("muximux_session", 24*time.Hour, false)
@@ -37,12 +37,12 @@ func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore, *auth.UserSt
 	})
 
 	handler := NewAuthHandler(sessionStore, userStore)
-	return handler, sessionStore, userStore
+	return handler, sessionStore
 }
 
 func TestLogin(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		body, _ := json.Marshal(LoginRequest{
 			Username: "admin",
@@ -89,7 +89,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("bad credentials", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		body, _ := json.Marshal(LoginRequest{
 			Username: "admin",
@@ -114,7 +114,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("bad JSON", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/auth/login", bytes.NewReader([]byte("not json")))
 		w := httptest.NewRecorder()
@@ -127,7 +127,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("wrong method", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/login", nil)
 		w := httptest.NewRecorder()
@@ -140,7 +140,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("empty username", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		body, _ := json.Marshal(LoginRequest{
 			Username: "",
@@ -157,7 +157,7 @@ func TestLogin(t *testing.T) {
 	})
 
 	t.Run("empty password", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		body, _ := json.Marshal(LoginRequest{
 			Username: "admin",
@@ -176,7 +176,7 @@ func TestLogin(t *testing.T) {
 
 func TestLogout(t *testing.T) {
 	t.Run("with session", func(t *testing.T) {
-		handler, sessionStore, _ := setupAuthTest(t)
+		handler, sessionStore := setupAuthTest(t)
 
 		// Create a session first
 		session, err := sessionStore.Create("admin", "admin", "admin")
@@ -204,7 +204,7 @@ func TestLogout(t *testing.T) {
 	})
 
 	t.Run("without session", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/auth/logout", nil)
 		w := httptest.NewRecorder()
@@ -217,7 +217,7 @@ func TestLogout(t *testing.T) {
 	})
 
 	t.Run("wrong method", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/logout", nil)
 		w := httptest.NewRecorder()
@@ -232,7 +232,7 @@ func TestLogout(t *testing.T) {
 
 func TestMe(t *testing.T) {
 	t.Run("authenticated", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		user := &auth.User{
 			ID:          "admin",
@@ -270,7 +270,7 @@ func TestMe(t *testing.T) {
 	})
 
 	t.Run("unauthenticated", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/me", nil)
 		w := httptest.NewRecorder()
@@ -291,7 +291,7 @@ func TestMe(t *testing.T) {
 	})
 
 	t.Run("wrong method", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/auth/me", nil)
 		w := httptest.NewRecorder()
@@ -306,7 +306,7 @@ func TestMe(t *testing.T) {
 
 func TestChangePassword(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
-		handler, sessionStore, _ := setupAuthTest(t)
+		handler, sessionStore := setupAuthTest(t)
 
 		user := &auth.User{
 			ID:       "admin",
@@ -335,7 +335,7 @@ func TestChangePassword(t *testing.T) {
 	})
 
 	t.Run("unauthenticated", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		body, _ := json.Marshal(map[string]string{
 			"current_password": "testpass123",
@@ -352,7 +352,7 @@ func TestChangePassword(t *testing.T) {
 	})
 
 	t.Run("wrong method", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/password", nil)
 		w := httptest.NewRecorder()
@@ -365,7 +365,7 @@ func TestChangePassword(t *testing.T) {
 	})
 
 	t.Run("password too short", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		user := &auth.User{
 			ID:       "admin",
@@ -390,7 +390,7 @@ func TestChangePassword(t *testing.T) {
 	})
 
 	t.Run("wrong current password", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		user := &auth.User{
 			ID:       "admin",
@@ -415,7 +415,7 @@ func TestChangePassword(t *testing.T) {
 	})
 
 	t.Run("bad JSON", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		user := &auth.User{
 			ID:       "admin",
@@ -438,7 +438,7 @@ func TestChangePassword(t *testing.T) {
 
 func TestAuthStatus(t *testing.T) {
 	t.Run("unauthenticated no oidc", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
 		w := httptest.NewRecorder()
@@ -462,7 +462,7 @@ func TestAuthStatus(t *testing.T) {
 	})
 
 	t.Run("authenticated", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		user := &auth.User{
 			ID:          "admin",
@@ -500,7 +500,7 @@ func TestAuthStatus(t *testing.T) {
 	})
 
 	t.Run("wrong method", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/auth/status", nil)
 		w := httptest.NewRecorder()
@@ -515,7 +515,7 @@ func TestAuthStatus(t *testing.T) {
 
 func TestOIDCLogin(t *testing.T) {
 	t.Run("oidc not configured", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/login", nil)
 		w := httptest.NewRecorder()
@@ -530,7 +530,7 @@ func TestOIDCLogin(t *testing.T) {
 
 func TestOIDCCallback(t *testing.T) {
 	t.Run("oidc not configured", func(t *testing.T) {
-		handler, _, _ := setupAuthTest(t)
+		handler, _ := setupAuthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/callback", nil)
 		w := httptest.NewRecorder()

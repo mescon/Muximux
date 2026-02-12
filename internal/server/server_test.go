@@ -218,9 +218,9 @@ func TestSecurityHeadersMiddleware(t *testing.T) {
 
 	expected := map[string]string{
 		"X-Content-Type-Options": "nosniff",
-		"X-Frame-Options":       "SAMEORIGIN",
-		"Referrer-Policy":       "strict-origin-when-cross-origin",
-		"Permissions-Policy":    "camera=(), microphone=(), geolocation=()",
+		"X-Frame-Options":        "SAMEORIGIN",
+		"Referrer-Policy":        "strict-origin-when-cross-origin",
+		"Permissions-Policy":     "camera=(), microphone=(), geolocation=()",
 	}
 
 	for header, value := range expected {

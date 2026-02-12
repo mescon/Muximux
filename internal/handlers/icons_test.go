@@ -15,50 +15,6 @@ import (
 	"github.com/mescon/muximux/v3/internal/icons"
 )
 
-// setupDashboardIconServer creates a mock server that simulates the dashboard icons CDN
-// and returns the server and a DashboardIconsClient pointing to it.
-func setupDashboardIconServer(t *testing.T) (*httptest.Server, *icons.DashboardIconsClient) {
-	t.Helper()
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/svg/sonarr.svg" {
-			w.Header().Set("Content-Type", "image/svg+xml")
-			w.Write([]byte(`<svg>sonarr</svg>`))
-			return
-		}
-		if r.URL.Path == "/png/sonarr.png" {
-			w.Header().Set("Content-Type", "image/png")
-			w.Write([]byte("PNG DATA"))
-			return
-		}
-		http.NotFound(w, r)
-	}))
-
-	cacheDir := t.TempDir()
-	client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-
-	return server, client
-}
-
-// setupLucideIconServer creates a mock server for Lucide CDN.
-func setupLucideIconServer(t *testing.T) (*httptest.Server, *icons.LucideClient) {
-	t.Helper()
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/icons/home.svg" {
-			w.Header().Set("Content-Type", "image/svg+xml")
-			w.Write([]byte(`<svg>home</svg>`))
-			return
-		}
-		http.NotFound(w, r)
-	}))
-
-	cacheDir := t.TempDir()
-	client := icons.NewLucideClient(cacheDir, 1*time.Hour)
-
-	return server, client
-}
-
 func TestGetDashboardIcon(t *testing.T) {
 	t.Run("empty name", func(t *testing.T) {
 		cacheDir := t.TempDir()
@@ -164,10 +120,14 @@ func TestUploadCustomIcon(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		part.Write([]byte(`<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>`))
+		if _, err = part.Write([]byte(`<svg xmlns="http://www.w3.org/2000/svg"><rect width="100" height="100"/></svg>`)); err != nil {
+			t.Fatal(err)
+		}
 
 		// Add the name field
-		writer.WriteField("name", "test-icon")
+		if err = writer.WriteField("name", "test-icon"); err != nil {
+			t.Fatal(err)
+		}
 		writer.Close()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom", &buf)
@@ -236,7 +196,9 @@ func TestUploadCustomIcon(t *testing.T) {
 		if err != nil {
 			t.Fatal(err)
 		}
-		part.Write([]byte(`<svg></svg>`))
+		if _, err = part.Write([]byte(`<svg></svg>`)); err != nil {
+			t.Fatal(err)
+		}
 		writer.Close()
 
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom", &buf)

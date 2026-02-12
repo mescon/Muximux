@@ -10,7 +10,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/health"
 )
 
-func setupHealthTest(t *testing.T) (*HealthHandler, *health.Monitor) {
+func setupHealthTest(t *testing.T) *HealthHandler {
 	t.Helper()
 
 	monitor := health.NewMonitor(30*time.Second, 5*time.Second)
@@ -22,11 +22,11 @@ func setupHealthTest(t *testing.T) (*HealthHandler, *health.Monitor) {
 	})
 
 	handler := NewHealthHandler(monitor)
-	return handler, monitor
+	return handler
 }
 
 func TestGetAllHealth(t *testing.T) {
-	handler, _ := setupHealthTest(t)
+	handler := setupHealthTest(t)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
 	w := httptest.NewRecorder()
@@ -61,7 +61,7 @@ func TestGetAllHealth(t *testing.T) {
 
 func TestGetAppHealth(t *testing.T) {
 	t.Run("found", func(t *testing.T) {
-		handler, _ := setupHealthTest(t)
+		handler := setupHealthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/apps/sonarr/health", nil)
 		w := httptest.NewRecorder()
@@ -82,7 +82,7 @@ func TestGetAppHealth(t *testing.T) {
 	})
 
 	t.Run("not found", func(t *testing.T) {
-		handler, _ := setupHealthTest(t)
+		handler := setupHealthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/apps/nonexistent/health", nil)
 		w := httptest.NewRecorder()
@@ -95,7 +95,7 @@ func TestGetAppHealth(t *testing.T) {
 	})
 
 	t.Run("empty name", func(t *testing.T) {
-		handler, _ := setupHealthTest(t)
+		handler := setupHealthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/apps//health", nil)
 		w := httptest.NewRecorder()
@@ -110,7 +110,7 @@ func TestGetAppHealth(t *testing.T) {
 
 func TestCheckAppHealth(t *testing.T) {
 	t.Run("not found", func(t *testing.T) {
-		handler, _ := setupHealthTest(t)
+		handler := setupHealthTest(t)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/apps/nonexistent/health/check", nil)
 		w := httptest.NewRecorder()
@@ -123,7 +123,7 @@ func TestCheckAppHealth(t *testing.T) {
 	})
 
 	t.Run("wrong method", func(t *testing.T) {
-		handler, _ := setupHealthTest(t)
+		handler := setupHealthTest(t)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/apps/sonarr/health/check", nil)
 		w := httptest.NewRecorder()
@@ -136,7 +136,7 @@ func TestCheckAppHealth(t *testing.T) {
 	})
 
 	t.Run("empty name", func(t *testing.T) {
-		handler, _ := setupHealthTest(t)
+		handler := setupHealthTest(t)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/apps//health/check", nil)
 		w := httptest.NewRecorder()
