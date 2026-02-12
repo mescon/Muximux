@@ -360,10 +360,7 @@ func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
 		proxy := &httputil.ReverseProxy{
 			Director: func(req *http.Request) {
 				// Strip the /proxy/{slug} prefix from the request path
-				reqPath := req.URL.Path
-				if strings.HasPrefix(reqPath, capturedProxyPrefix) {
-					reqPath = strings.TrimPrefix(reqPath, capturedProxyPrefix)
-				}
+				reqPath := strings.TrimPrefix(req.URL.Path, capturedProxyPrefix)
 				if reqPath == "" {
 					reqPath = "/"
 				}

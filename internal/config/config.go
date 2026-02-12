@@ -103,17 +103,17 @@ type OIDCConfig struct {
 
 // NavigationConfig holds navigation layout settings
 type NavigationConfig struct {
-	Position            string `yaml:"position" json:"position"` // top, left, right, bottom, floating
-	Width               string `yaml:"width" json:"width"`
-	AutoHide            bool   `yaml:"auto_hide" json:"auto_hide"`
-	AutoHideDelay       string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
-	ShowOnHover         bool   `yaml:"show_on_hover" json:"show_on_hover"`
-	ShowLabels          bool   `yaml:"show_labels" json:"show_labels"`
-	ShowLogo            bool   `yaml:"show_logo" json:"show_logo"`
-	ShowAppColors       bool   `yaml:"show_app_colors" json:"show_app_colors"`
-	ShowIconBackground  bool   `yaml:"show_icon_background" json:"show_icon_background"`
-	ShowSplashOnStart   bool   `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
-	ShowShadow          bool   `yaml:"show_shadow" json:"show_shadow"`
+	Position           string `yaml:"position" json:"position"` // top, left, right, bottom, floating
+	Width              string `yaml:"width" json:"width"`
+	AutoHide           bool   `yaml:"auto_hide" json:"auto_hide"`
+	AutoHideDelay      string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
+	ShowOnHover        bool   `yaml:"show_on_hover" json:"show_on_hover"`
+	ShowLabels         bool   `yaml:"show_labels" json:"show_labels"`
+	ShowLogo           bool   `yaml:"show_logo" json:"show_logo"`
+	ShowAppColors      bool   `yaml:"show_app_colors" json:"show_app_colors"`
+	ShowIconBackground bool   `yaml:"show_icon_background" json:"show_icon_background"`
+	ShowSplashOnStart  bool   `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
+	ShowShadow         bool   `yaml:"show_shadow" json:"show_shadow"`
 }
 
 // IconsConfig holds icon settings
@@ -140,17 +140,17 @@ type GroupConfig struct {
 
 // AppConfig holds individual app settings
 type AppConfig struct {
-	Name       string           `yaml:"name"`
-	URL        string           `yaml:"url"`
-	HealthURL  string           `yaml:"health_url,omitempty"` // Optional custom health check URL
-	Icon       AppIconConfig    `yaml:"icon"`
-	Color      string           `yaml:"color"`
-	Group      string           `yaml:"group"`
-	Order      int              `yaml:"order"`
-	Enabled    bool             `yaml:"enabled"`
-	Default    bool             `yaml:"default"`
-	OpenMode   string           `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
-	Proxy      bool             `yaml:"proxy"`
+	Name                     string           `yaml:"name"`
+	URL                      string           `yaml:"url"`
+	HealthURL                string           `yaml:"health_url,omitempty"` // Optional custom health check URL
+	Icon                     AppIconConfig    `yaml:"icon"`
+	Color                    string           `yaml:"color"`
+	Group                    string           `yaml:"group"`
+	Order                    int              `yaml:"order"`
+	Enabled                  bool             `yaml:"enabled"`
+	Default                  bool             `yaml:"default"`
+	OpenMode                 string           `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
+	Proxy                    bool             `yaml:"proxy"`
 	Scale                    float64          `yaml:"scale"`
 	DisableKeyboardShortcuts bool             `yaml:"disable_keyboard_shortcuts,omitempty"`
 	AuthBypass               []AuthBypassRule `yaml:"auth_bypass"`

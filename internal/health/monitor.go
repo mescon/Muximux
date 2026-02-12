@@ -12,8 +12,8 @@ import (
 type Status string
 
 const (
-	StatusUnknown  Status = "unknown"
-	StatusHealthy  Status = "healthy"
+	StatusUnknown   Status = "unknown"
+	StatusHealthy   Status = "healthy"
 	StatusUnhealthy Status = "unhealthy"
 )
 
@@ -34,23 +34,23 @@ type HealthChangeCallback func(appName string, health *AppHealth)
 
 // Monitor handles health checks for all apps
 type Monitor struct {
-	apps             map[string]AppConfig
-	health           map[string]*AppHealth
-	mu               sync.RWMutex
-	interval         time.Duration
-	timeout          time.Duration
-	httpClient       *http.Client
-	ctx              context.Context
-	cancel           context.CancelFunc
-	onHealthChange   HealthChangeCallback
+	apps           map[string]AppConfig
+	health         map[string]*AppHealth
+	mu             sync.RWMutex
+	interval       time.Duration
+	timeout        time.Duration
+	httpClient     *http.Client
+	ctx            context.Context
+	cancel         context.CancelFunc
+	onHealthChange HealthChangeCallback
 }
 
 // AppConfig holds the configuration for health checking an app
 type AppConfig struct {
-	Name     string
-	URL      string
+	Name      string
+	URL       string
 	HealthURL string // Optional custom health check URL
-	Enabled  bool
+	Enabled   bool
 }
 
 // NewMonitor creates a new health monitor

@@ -46,11 +46,11 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 
 	// Return config without sensitive fields
 	clientConfig := struct {
-		Title       string                   `json:"title"`
-		Navigation  config.NavigationConfig  `json:"navigation"`
+		Title       string                    `json:"title"`
+		Navigation  config.NavigationConfig   `json:"navigation"`
 		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
-		Groups      []config.GroupConfig     `json:"groups"`
-		Apps        []ClientAppConfig        `json:"apps"`
+		Groups      []config.GroupConfig      `json:"groups"`
+		Apps        []ClientAppConfig         `json:"apps"`
 	}{
 		Title:      h.config.Server.Title,
 		Navigation: h.config.Navigation,
@@ -497,8 +497,8 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
 	Name                     string               `json:"name"`
-	URL                      string               `json:"url"`                         // Original target URL (for editing/config)
-	ProxyURL                 string               `json:"proxyUrl,omitempty"`           // Proxy path for iframe loading (when proxy enabled)
+	URL                      string               `json:"url"`                // Original target URL (for editing/config)
+	ProxyURL                 string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
 	Icon                     config.AppIconConfig `json:"icon"`
 	Color                    string               `json:"color"`
 	Group                    string               `json:"group"`

@@ -88,7 +88,7 @@ func TestNotFound(t *testing.T) {
 	}
 
 	var response APIError
-	json.NewDecoder(w.Body).Decode(&response)
+	_ = json.NewDecoder(w.Body).Decode(&response)
 	if response.Message != "Resource not found" {
 		t.Errorf("Expected default message, got %s", response.Message)
 	}
@@ -104,7 +104,7 @@ func TestWriteJSON(t *testing.T) {
 	}
 
 	var response map[string]string
-	json.NewDecoder(w.Body).Decode(&response)
+	_ = json.NewDecoder(w.Body).Decode(&response)
 	if response["hello"] != "world" {
 		t.Errorf("Expected hello=world, got %v", response)
 	}

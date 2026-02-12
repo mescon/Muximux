@@ -190,11 +190,9 @@ func (c *LucideClient) fetchIconList() ([]LucideIconInfo, error) {
 
 	// Invert categories map: category→[]iconName becomes iconName→[]category
 	iconCategories := make(map[string][]string)
-	if categoryMap != nil {
-		for category, iconNames := range categoryMap {
-			for _, name := range iconNames {
-				iconCategories[name] = append(iconCategories[name], category)
-			}
+	for category, iconNames := range categoryMap {
+		for _, name := range iconNames {
+			iconCategories[name] = append(iconCategories[name], category)
 		}
 	}
 

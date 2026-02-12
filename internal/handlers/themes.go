@@ -13,23 +13,23 @@ import (
 )
 
 var (
-	reNonAlnum     = regexp.MustCompile(`[^a-z0-9-]`)
-	reMultiDash    = regexp.MustCompile(`-+`)
-	reThemeMeta    = regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
-	reCSSVarName   = regexp.MustCompile(`^--[a-z][a-z0-9-]*$`)
-	reCSSBadValue  = regexp.MustCompile(`(?i)(url\s*\(|@import|expression\s*\(|javascript:|\\00)`)
+	reNonAlnum    = regexp.MustCompile(`[^a-z0-9-]`)
+	reMultiDash   = regexp.MustCompile(`-+`)
+	reThemeMeta   = regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
+	reCSSVarName  = regexp.MustCompile(`^--[a-z][a-z0-9-]*$`)
+	reCSSBadValue = regexp.MustCompile(`(?i)(url\s*\(|@import|expression\s*\(|javascript:|\\00)`)
 )
 
 // ThemeHandler handles custom theme CRUD operations
 type ThemeHandler struct {
-	themesDir  string
-	bundledFS  fs.FS // embedded filesystem containing bundled theme CSS files (themes/*.css)
+	themesDir string
+	bundledFS fs.FS // embedded filesystem containing bundled theme CSS files (themes/*.css)
 }
 
 // NewThemeHandler creates a new theme handler.
 // bundledFS should be the embedded dist filesystem (or nil if unavailable).
 func NewThemeHandler(themesDir string, bundledFS fs.FS) *ThemeHandler {
-	os.MkdirAll(themesDir, 0755)
+	_ = os.MkdirAll(themesDir, 0755)
 	return &ThemeHandler{themesDir: themesDir, bundledFS: bundledFS}
 }
 

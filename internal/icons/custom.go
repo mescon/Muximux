@@ -34,8 +34,7 @@ const MaxIconSize = 2 * 1024 * 1024
 
 // NewCustomIconsManager creates a new custom icons manager
 func NewCustomIconsManager(storageDir string) *CustomIconsManager {
-	// Ensure storage directory exists
-	os.MkdirAll(storageDir, 0755)
+	_ = os.MkdirAll(storageDir, 0755)
 	return &CustomIconsManager{
 		storageDir: storageDir,
 	}

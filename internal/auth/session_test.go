@@ -87,9 +87,9 @@ func TestSessionStore(t *testing.T) {
 	t.Run("count sessions", func(t *testing.T) {
 		countStore := NewSessionStore("count_session", time.Hour, false)
 
-		countStore.Create("u1", "user1", RoleUser)
-		countStore.Create("u2", "user2", RoleUser)
-		countStore.Create("u3", "user3", RoleAdmin)
+		_, _ = countStore.Create("u1", "user1", RoleUser)
+		_, _ = countStore.Create("u2", "user2", RoleUser)
+		_, _ = countStore.Create("u3", "user3", RoleAdmin)
 
 		if countStore.Count() != 3 {
 			t.Errorf("Expected 3 sessions, got %d", countStore.Count())
@@ -118,12 +118,12 @@ func TestSessionConcurrency(t *testing.T) {
 
 	// Create sessions concurrently
 	for i := 0; i < 100; i++ {
-		go func(n int) {
+		go func() {
 			session, _ := store.Create("user", "concurrent", RoleUser)
 			store.Get(session.ID)
 			store.Refresh(session.ID)
 			done <- true
-		}(i)
+		}()
 	}
 
 	// Wait for all goroutines

@@ -23,8 +23,8 @@ func main() {
 		fmt.Print("Enter password: ")
 
 		// Try to read without echo if terminal
-		if term.IsTerminal(int(syscall.Stdin)) {
-			bytePassword, err := term.ReadPassword(int(syscall.Stdin))
+		if term.IsTerminal(syscall.Stdin) {
+			bytePassword, err := term.ReadPassword(syscall.Stdin)
 			fmt.Println()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading password: %v\n", err)
