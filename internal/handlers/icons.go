@@ -31,7 +31,7 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 	// Extract icon name from path: /api/icons/dashboard/{name}
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/dashboard/")
 	if path == "" {
-		http.Error(w, "Icon name required", http.StatusBadRequest)
+		http.Error(w, errIconNameRequired, http.StatusBadRequest)
 		return
 	}
 
@@ -49,8 +49,8 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Cache-Control", "public, max-age=86400") // Cache for 24 hours
+	w.Header().Set(headerContentType, contentType)
+	w.Header().Set(headerCacheControl, cachePublic24h) // Cache for 24 hours
 	w.Write(data)
 }
 
@@ -72,7 +72,7 @@ func (h *IconHandler) ListDashboardIcons(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(iconList)
 }
 
@@ -94,7 +94,7 @@ func (h *IconHandler) ListLucideIcons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(iconList)
 }
 
@@ -102,7 +102,7 @@ func (h *IconHandler) ListLucideIcons(w http.ResponseWriter, r *http.Request) {
 func (h *IconHandler) GetLucideIcon(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/lucide/")
 	if path == "" {
-		http.Error(w, "Icon name required", http.StatusBadRequest)
+		http.Error(w, errIconNameRequired, http.StatusBadRequest)
 		return
 	}
 
@@ -112,8 +112,8 @@ func (h *IconHandler) GetLucideIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", contentType)
-	w.Header().Set("Cache-Control", "public, max-age=86400")
+	w.Header().Set(headerContentType, contentType)
+	w.Header().Set(headerCacheControl, cachePublic24h)
 	w.Write(data)
 }
 
@@ -150,8 +150,8 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("Content-Type", contentType)
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set(headerContentType, contentType)
+		w.Header().Set(headerCacheControl, cachePublic24h)
 		w.Write(data)
 
 	case "custom":
@@ -162,8 +162,8 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("Content-Type", contentType)
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set(headerContentType, contentType)
+		w.Header().Set(headerCacheControl, cachePublic24h)
 		w.Write(data)
 
 	case "lucide":
@@ -175,8 +175,8 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		w.Header().Set("Content-Type", contentType)
-		w.Header().Set("Cache-Control", "public, max-age=86400")
+		w.Header().Set(headerContentType, contentType)
+		w.Header().Set(headerCacheControl, cachePublic24h)
 		w.Write(data)
 
 	default:
@@ -192,14 +192,14 @@ func (h *IconHandler) ListCustomIcons(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(iconList)
 }
 
 // UploadCustomIcon handles custom icon file uploads
 func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -234,7 +234,7 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Determine content type
-	contentType := header.Header.Get("Content-Type")
+	contentType := header.Header.Get(headerContentType)
 	if contentType == "" || contentType == "application/octet-stream" {
 		// Detect from file content
 		contentType = http.DetectContentType(data)
@@ -246,7 +246,7 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"name":   name,
 		"status": "uploaded",
@@ -256,14 +256,14 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 // DeleteCustomIcon handles custom icon deletion
 func (h *IconHandler) DeleteCustomIcon(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
 	// Extract icon name from path: /api/icons/custom/{name}
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/custom/")
 	if path == "" {
-		http.Error(w, "Icon name required", http.StatusBadRequest)
+		http.Error(w, errIconNameRequired, http.StatusBadRequest)
 		return
 	}
 
@@ -272,7 +272,7 @@ func (h *IconHandler) DeleteCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "deleted",
 	})

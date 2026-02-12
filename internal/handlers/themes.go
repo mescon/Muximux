@@ -70,47 +70,10 @@ type ThemeSaveRequest struct {
 func (h *ThemeHandler) ListThemes(w http.ResponseWriter, r *http.Request) {
 	themeMap := make(map[string]ThemeInfo)
 
-	// 1. Scan bundled themes from embedded filesystem
-	if h.bundledFS != nil {
-		entries, err := fs.ReadDir(h.bundledFS, "themes")
-		if err == nil {
-			for _, entry := range entries {
-				if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
-					continue
-				}
-				data, err := fs.ReadFile(h.bundledFS, "themes/"+entry.Name())
-				if err != nil {
-					continue
-				}
-				theme := parseThemeMetadata(string(data), entry.Name())
-				if theme != nil {
-					theme.IsBuiltin = true
-					themeMap[theme.ID] = *theme
-				}
-			}
-		}
-	}
+	h.loadBundledThemes(themeMap)
+	h.loadUserThemes(themeMap)
 
-	// 2. Scan user-created themes from disk (override bundled if same ID)
-	entries, err := os.ReadDir(h.themesDir)
-	if err == nil {
-		for _, entry := range entries {
-			if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
-				continue
-			}
-			data, err := os.ReadFile(filepath.Join(h.themesDir, entry.Name()))
-			if err != nil {
-				continue
-			}
-			theme := parseThemeMetadata(string(data), entry.Name())
-			if theme != nil {
-				theme.IsBuiltin = false
-				themeMap[theme.ID] = *theme
-			}
-		}
-	}
-
-	// 3. Collect and sort by name
+	// Collect and sort by name
 	themes := make([]ThemeInfo, 0, len(themeMap))
 	for _, t := range themeMap {
 		themes = append(themes, t)
@@ -119,14 +82,62 @@ func (h *ThemeHandler) ListThemes(w http.ResponseWriter, r *http.Request) {
 		return themes[i].Name < themes[j].Name
 	})
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(themes)
+}
+
+// loadBundledThemes scans bundled themes from the embedded filesystem and adds them to the map.
+func (h *ThemeHandler) loadBundledThemes(themeMap map[string]ThemeInfo) {
+	if h.bundledFS == nil {
+		return
+	}
+	entries, err := fs.ReadDir(h.bundledFS, "themes")
+	if err != nil {
+		return
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
+			continue
+		}
+		data, err := fs.ReadFile(h.bundledFS, "themes/"+entry.Name())
+		if err != nil {
+			continue
+		}
+		theme := parseThemeMetadata(string(data), entry.Name())
+		if theme != nil {
+			theme.IsBuiltin = true
+			themeMap[theme.ID] = *theme
+		}
+	}
+}
+
+// loadUserThemes scans user-created themes from disk and adds them to the map,
+// overriding bundled themes with the same ID.
+func (h *ThemeHandler) loadUserThemes(themeMap map[string]ThemeInfo) {
+	entries, err := os.ReadDir(h.themesDir)
+	if err != nil {
+		return
+	}
+	for _, entry := range entries {
+		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
+			continue
+		}
+		data, err := os.ReadFile(filepath.Join(h.themesDir, entry.Name()))
+		if err != nil {
+			continue
+		}
+		theme := parseThemeMetadata(string(data), entry.Name())
+		if theme != nil {
+			theme.IsBuiltin = false
+			themeMap[theme.ID] = *theme
+		}
+	}
 }
 
 // SaveTheme creates or updates a custom theme
 func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -176,7 +187,7 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"id":     id,
 		"status": "saved",
@@ -186,7 +197,7 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 // DeleteTheme removes a custom theme
 func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -220,7 +231,7 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "deleted",
 	})
@@ -236,7 +247,7 @@ func (h *ThemeHandler) isBundledTheme(id string) bool {
 }
 
 // parseThemeMetadata extracts theme info from CSS file comments
-func parseThemeMetadata(content string, filename string) *ThemeInfo {
+func parseThemeMetadata(content, filename string) *ThemeInfo {
 	id := strings.TrimSuffix(filename, ".css")
 
 	theme := &ThemeInfo{

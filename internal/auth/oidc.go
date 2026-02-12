@@ -168,7 +168,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		errDesc := r.URL.Query().Get("error_description")
 		log.Printf("OIDC authentication error: %s - %s", errParam, errDesc)
-		http.Error(w, "Authentication failed. Please try again.", http.StatusUnauthorized)
+		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}
 
@@ -197,7 +197,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	tokens, err := p.exchangeCode(code)
 	if err != nil {
 		log.Printf("OIDC code exchange failed: %v", err)
-		http.Error(w, "Authentication failed. Please try again.", http.StatusInternalServerError)
+		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
 
@@ -205,7 +205,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	userInfo, err := p.getUserInfo(tokens.AccessToken)
 	if err != nil {
 		log.Printf("OIDC user info retrieval failed: %v", err)
-		http.Error(w, "Authentication failed. Please try again.", http.StatusInternalServerError)
+		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
 

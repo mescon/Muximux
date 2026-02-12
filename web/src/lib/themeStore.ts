@@ -14,10 +14,7 @@ import { writable, derived, get } from 'svelte/store';
 export type BuiltinTheme = 'dark' | 'light';
 
 // Theme mode includes system preference option (kept for backward compat with App.svelte keybindings)
-export type ThemeMode = BuiltinTheme | 'system' | string;
-
-// What actually gets applied
-export type ResolvedTheme = string;
+export type ThemeMode = 'dark' | 'light' | 'system' | (string & {});
 
 // Variant mode for the family system
 export type VariantMode = 'dark' | 'light' | 'system';
@@ -101,20 +98,20 @@ const OLD_THEME_KEY = 'muximux_theme';
 
 // --- Helper: read from localStorage ---
 function getStoredFamily(): string {
-  if (typeof window === 'undefined') return 'default';
+  if (typeof globalThis.window === 'undefined') return 'default';
   return localStorage.getItem(FAMILY_KEY) || 'default';
 }
 
 function getStoredVariantMode(): VariantMode {
-  if (typeof window === 'undefined') return 'system';
+  if (typeof globalThis.window === 'undefined') return 'system';
   const stored = localStorage.getItem(VARIANT_KEY);
   if (stored === 'dark' || stored === 'light' || stored === 'system') return stored;
   return 'system';
 }
 
 function getSystemPreference(): BuiltinTheme {
-  if (typeof window === 'undefined') return 'dark';
-  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  if (typeof globalThis.window === 'undefined') return 'dark';
+  return globalThis.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
 }
 
 // --- Stores ---
@@ -213,7 +210,7 @@ async function applyTheme(theme: string) {
   }
 
   // Set data-theme attribute
-  root.setAttribute('data-theme', theme);
+  root.dataset.theme = theme;
 
   // Maintain .dark class for Tailwind compatibility
   if (themeInfo?.isDark ?? theme === 'dark') {
@@ -334,7 +331,7 @@ async function preloadFamilyCSS(familyId: string) {
 
 // Detect available custom themes from the API
 export async function detectCustomThemes(): Promise<void> {
-  if (typeof window === 'undefined') return;
+  if (typeof globalThis.window === 'undefined') return;
 
   try {
     const response = await fetch('/api/themes');
@@ -355,7 +352,7 @@ export async function detectCustomThemes(): Promise<void> {
 
 // Migrate from old localStorage format
 function migrateOldThemeStorage() {
-  if (typeof window === 'undefined') return;
+  if (typeof globalThis.window === 'undefined') return;
 
   // Already migrated?
   if (localStorage.getItem(FAMILY_KEY)) return;
@@ -403,22 +400,18 @@ function postLoadMigration() {
 
 // Initialize theme system
 export function initTheme() {
-  if (typeof window === 'undefined') return;
+  if (typeof globalThis.window === 'undefined') return;
 
   // Migrate old storage format first
   migrateOldThemeStorage();
 
   // Listen for system preference changes
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+  const mediaQuery = globalThis.matchMedia('(prefers-color-scheme: dark)');
   const handleChange = (e: MediaQueryListEvent | MediaQueryList) => {
     systemTheme.set(e.matches ? 'dark' : 'light');
   };
 
-  if (mediaQuery.addEventListener) {
-    mediaQuery.addEventListener('change', handleChange);
-  } else {
-    mediaQuery.addListener(handleChange as (e: MediaQueryListEvent) => void);
-  }
+  mediaQuery.addEventListener('change', handleChange);
 
   handleChange(mediaQuery);
 
@@ -447,7 +440,7 @@ export function syncFromConfig(theme: { family: string; variant: string }) {
 
 // Convert a theme name to a safe filesystem ID
 export function sanitizeThemeId(name: string): string {
-  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
+  return name.toLowerCase().replace(/[^a-z0-9-]/g, '-').replace(/-+/g, '-').replace(/(^-|-$)/g, '');
 }
 
 // Get theme info by ID

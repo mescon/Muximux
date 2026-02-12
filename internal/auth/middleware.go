@@ -110,28 +110,7 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// Authenticate based on method
-		var user *User
-		var session *Session
-
-		switch m.config.Method {
-		case AuthMethodBuiltin:
-			session = m.sessionStore.GetFromRequest(r)
-			if session != nil {
-				user = m.userStore.GetByID(session.UserID)
-			}
-
-		case AuthMethodForwardAuth:
-			user = m.authenticateForwardAuth(r)
-
-		case AuthMethodOIDC:
-			// OIDC handled separately via callback
-			session = m.sessionStore.GetFromRequest(r)
-			if session != nil {
-				user = m.userStore.GetByID(session.UserID)
-			}
-		}
-
+		user, session := m.authenticateRequest(r)
 		if user == nil {
 			m.handleUnauthenticated(w, r)
 			return
@@ -147,6 +126,26 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
+}
+
+// authenticateRequest attempts to authenticate the request based on the configured auth method.
+// Returns the authenticated user and session (if applicable).
+func (m *Middleware) authenticateRequest(r *http.Request) (*User, *Session) {
+	switch m.config.Method {
+	case AuthMethodBuiltin, AuthMethodOIDC:
+		session := m.sessionStore.GetFromRequest(r)
+		if session != nil {
+			user := m.userStore.GetByID(session.UserID)
+			return user, session
+		}
+		return nil, nil
+
+	case AuthMethodForwardAuth:
+		return m.authenticateForwardAuth(r), nil
+
+	default:
+		return nil, nil
+	}
 }
 
 // RequireRole returns middleware that requires a specific role

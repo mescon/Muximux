@@ -2,7 +2,7 @@ import { writable, derived, get } from 'svelte/store';
 import type { KeyCombo, KeybindingsConfig } from './types';
 
 // Re-export KeyCombo for convenience
-export type { KeyCombo };
+export { type KeyCombo } from './types';
 
 /**
  * Keybinding action identifiers

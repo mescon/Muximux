@@ -31,7 +31,7 @@ type ProxyStatusResponse struct {
 // GetStatus returns the proxy status
 func (h *ProxyHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -43,6 +43,6 @@ func (h *ProxyHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 		Gateway: h.serverConfig.Gateway,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(status)
 }

@@ -1,7 +1,7 @@
 import { writable } from 'svelte/store';
 
-const stored = typeof localStorage !== 'undefined'
-  ? localStorage.getItem('muximux_capture_keybindings') : null;
+const stored = typeof localStorage === 'undefined'
+  ? null : localStorage.getItem('muximux_capture_keybindings');
 
 export const captureKeybindings = writable<boolean>(stored === null ? true : stored === 'true');
 

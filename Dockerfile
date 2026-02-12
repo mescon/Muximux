@@ -4,7 +4,7 @@ WORKDIR /app/web
 
 # Cache npm dependencies
 COPY web/package*.json ./
-RUN npm ci --no-audit
+RUN npm ci --no-audit --ignore-scripts
 
 # Build frontend
 COPY web/ ./
@@ -22,7 +22,8 @@ COPY go.mod go.sum ./
 RUN go mod download
 
 # Copy source code
-COPY . .
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
 
 # Copy frontend build
 COPY --from=frontend /app/internal/server/dist ./internal/server/dist
@@ -38,15 +39,11 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 # Final stage - minimal runtime
 FROM alpine:3.23
 
-# Install runtime dependencies
-RUN apk add --no-cache ca-certificates tzdata wget
-
-# Create non-root user
-RUN addgroup -g 1000 muximux && \
-    adduser -D -u 1000 -G muximux muximux
-
-# Create data directory
-RUN mkdir -p /app/data && chown -R muximux:muximux /app
+# Install runtime dependencies, create non-root user and data directory
+RUN apk add --no-cache ca-certificates tzdata wget && \
+    addgroup -g 1000 muximux && \
+    adduser -D -u 1000 -G muximux muximux && \
+    mkdir -p /app/data && chown -R muximux:muximux /app
 
 USER muximux
 WORKDIR /app

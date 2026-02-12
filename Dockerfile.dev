@@ -2,8 +2,9 @@
 FROM node:25-alpine AS frontend
 WORKDIR /app
 COPY web/package*.json ./
-RUN npm ci
+RUN npm ci --ignore-scripts
 # Source mounted as volume, just need node_modules
+USER 1000
 EXPOSE 5173
 
 # Backend development stage
@@ -17,4 +18,5 @@ RUN go install github.com/air-verse/air@latest
 COPY go.mod go.sum ./
 RUN go mod download
 
+USER 1000
 EXPOSE 8080
