@@ -8,8 +8,8 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/mescon/muximux3/internal/config"
-	"github.com/mescon/muximux3/internal/server"
+	"github.com/mescon/Muximux/internal/config"
+	"github.com/mescon/Muximux/internal/server"
 )
 
 var (
