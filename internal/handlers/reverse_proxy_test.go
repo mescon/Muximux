@@ -5,6 +5,7 @@ import (
 	"crypto/sha1"
 	"encoding/base64"
 	"fmt"
+	"io"
 	"net"
 	"net/http"
 	"net/http/httptest"
@@ -957,5 +958,656 @@ func TestWebSocketNon101Response(t *testing.T) {
 	// Should get the backend's 403, not a crash
 	if resp.StatusCode != http.StatusForbidden {
 		t.Errorf("expected 403, got %d", resp.StatusCode)
+	}
+}
+
+// TestRewriteLocationHeaders tests that Location, Content-Location, and Refresh headers
+// are properly rewritten to use the proxy prefix.
+func TestRewriteLocationHeaders(t *testing.T) {
+	tests := []struct {
+		name            string
+		proxyPrefix     string
+		targetPath      string
+		targetHost      string
+		headers         map[string]string
+		expectedHeaders map[string]string
+	}{
+		{
+			name:        "rewrite Location",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/admin",
+			targetHost:  "",
+			headers:     map[string]string{"Location": "/admin/dashboard"},
+			expectedHeaders: map[string]string{
+				"Location": "/proxy/app/dashboard",
+			},
+		},
+		{
+			name:        "rewrite Content-Location",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			headers:     map[string]string{"Content-Location": "/api/data"},
+			expectedHeaders: map[string]string{
+				"Content-Location": "/proxy/app/api/data",
+			},
+		},
+		{
+			name:        "rewrite Refresh header",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			headers:     map[string]string{"Refresh": "5; url=/login"},
+			expectedHeaders: map[string]string{
+				"Refresh": "5; url=/proxy/app/login",
+			},
+		},
+		{
+			name:        "no Location header",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			headers:     map[string]string{},
+			expectedHeaders: map[string]string{
+				"Location":         "",
+				"Content-Location": "",
+			},
+		},
+		{
+			name:        "absolute URL Location matching target host",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "192.0.2.10:8080",
+			headers:     map[string]string{"Location": "http://192.0.2.10:8080/page"},
+			expectedHeaders: map[string]string{
+				"Location": "/proxy/app/page",
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &http.Response{
+				Header: make(http.Header),
+			}
+			for k, v := range tt.headers {
+				resp.Header.Set(k, v)
+			}
+
+			rewriteLocationHeaders(resp, tt.proxyPrefix, tt.targetPath, tt.targetHost)
+
+			for k, expected := range tt.expectedHeaders {
+				got := resp.Header.Get(k)
+				if got != expected {
+					t.Errorf("header %q = %q, want %q", k, got, expected)
+				}
+			}
+		})
+	}
+}
+
+// TestRewriteCookieHeaders tests that Set-Cookie Path attributes are rewritten.
+func TestRewriteCookieHeaders(t *testing.T) {
+	tests := []struct {
+		name        string
+		proxyPrefix string
+		targetPath  string
+		cookies     []string
+		wantCookies []string
+	}{
+		{
+			name:        "single cookie with path",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/admin",
+			cookies:     []string{"session=abc; Path=/admin; HttpOnly"},
+			wantCookies: []string{"session=abc; Path=/proxy/app/; HttpOnly"},
+		},
+		{
+			name:        "multiple cookies",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookies: []string{
+				"token=xyz; Path=/; Secure",
+				"pref=dark; Path=/settings; HttpOnly",
+			},
+			wantCookies: []string{
+				"token=xyz; Path=/proxy/app/; Secure",
+				"pref=dark; Path=/proxy/app/settings; HttpOnly",
+			},
+		},
+		{
+			name:        "no cookies",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookies:     nil,
+			wantCookies: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &http.Response{
+				Header: make(http.Header),
+			}
+			for _, c := range tt.cookies {
+				resp.Header.Add("Set-Cookie", c)
+			}
+
+			rewriter := newContentRewriter(tt.proxyPrefix, tt.targetPath, "")
+			rewriteCookieHeaders(resp, rewriter)
+
+			got := resp.Header.Values("Set-Cookie")
+			if len(got) != len(tt.wantCookies) {
+				t.Fatalf("cookie count = %d, want %d", len(got), len(tt.wantCookies))
+			}
+			for i, want := range tt.wantCookies {
+				if got[i] != want {
+					t.Errorf("cookie[%d] = %q, want %q", i, got[i], want)
+				}
+			}
+		})
+	}
+}
+
+// TestRewriteLinkHeaders tests that Link header paths are rewritten.
+func TestRewriteLinkHeaders(t *testing.T) {
+	tests := []struct {
+		name        string
+		proxyPrefix string
+		links       []string
+		wantLinks   []string
+	}{
+		{
+			name:        "single link",
+			proxyPrefix: "/proxy/app",
+			links:       []string{`</styles/main.css>; rel="preload"; as="style"`},
+			wantLinks:   []string{`</proxy/app/styles/main.css>; rel="preload"; as="style"`},
+		},
+		{
+			name:        "already proxied link",
+			proxyPrefix: "/proxy/app",
+			links:       []string{`</proxy/app/styles.css>; rel="preload"`},
+			wantLinks:   []string{`</proxy/app/styles.css>; rel="preload"`},
+		},
+		{
+			name:        "multiple links",
+			proxyPrefix: "/proxy/app",
+			links: []string{
+				`</js/app.js>; rel="preload"; as="script"`,
+				`</css/style.css>; rel="preload"; as="style"`,
+			},
+			wantLinks: []string{
+				`</proxy/app/js/app.js>; rel="preload"; as="script"`,
+				`</proxy/app/css/style.css>; rel="preload"; as="style"`,
+			},
+		},
+		{
+			name:        "no links",
+			proxyPrefix: "/proxy/app",
+			links:       nil,
+			wantLinks:   nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &http.Response{
+				Header: make(http.Header),
+			}
+			for _, l := range tt.links {
+				resp.Header.Add("Link", l)
+			}
+
+			rewriteLinkHeaders(resp, tt.proxyPrefix)
+
+			got := resp.Header.Values("Link")
+			if len(got) != len(tt.wantLinks) {
+				t.Fatalf("link count = %d, want %d", len(got), len(tt.wantLinks))
+			}
+			for i, want := range tt.wantLinks {
+				if got[i] != want {
+					t.Errorf("link[%d] = %q, want %q", i, got[i], want)
+				}
+			}
+		})
+	}
+}
+
+// TestRewriteResponseBody tests body rewriting for different content types.
+func TestRewriteResponseBody(t *testing.T) {
+	t.Run("rewrites HTML body", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/app", "", "")
+
+		body := `<html><head><link href="/style.css"></head></html>`
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}
+		resp.Header.Set("Content-Type", "text/html")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		rewritten, _ := io.ReadAll(resp.Body)
+		if !strings.Contains(string(rewritten), "/proxy/app/style.css") {
+			t.Errorf("expected rewritten path, got: %s", string(rewritten))
+		}
+	})
+
+	t.Run("skips binary content", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/app", "", "")
+
+		body := "binary data here"
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}
+		resp.Header.Set("Content-Type", "image/png")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		// Body should be untouched for binary content
+		result, _ := io.ReadAll(resp.Body)
+		if string(result) != body {
+			t.Errorf("expected body to be unchanged for binary content")
+		}
+	})
+
+	t.Run("rewrites JSON body", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/app", "", "")
+
+		body := `{"apiRoot": "/api/v3"}`
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}
+		resp.Header.Set("Content-Type", "application/json")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		rewritten, _ := io.ReadAll(resp.Body)
+		if !strings.Contains(string(rewritten), "/proxy/app/api/v3") {
+			t.Errorf("expected rewritten JSON path, got: %s", string(rewritten))
+		}
+	})
+}
+
+// TestResolveAbsoluteLocation tests absolute URL to path resolution.
+func TestResolveAbsoluteLocation(t *testing.T) {
+	tests := []struct {
+		name       string
+		location   string
+		targetHost string
+		expected   string
+	}{
+		{
+			name:       "matching host",
+			location:   "http://192.0.2.10:8080/web/index.html",
+			targetHost: "192.0.2.10:8080",
+			expected:   "/web/index.html",
+		},
+		{
+			name:       "matching host with query",
+			location:   "http://192.0.2.10:8080/login?redirect=1",
+			targetHost: "192.0.2.10:8080",
+			expected:   "/login?redirect=1",
+		},
+		{
+			name:       "different host",
+			location:   "https://external.com/page",
+			targetHost: "192.0.2.10:8080",
+			expected:   "https://external.com/page",
+		},
+		{
+			name:       "not an absolute URL",
+			location:   "/relative/path",
+			targetHost: "192.0.2.10:8080",
+			expected:   "/relative/path",
+		},
+		{
+			name:       "empty location",
+			location:   "",
+			targetHost: "192.0.2.10:8080",
+			expected:   "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := resolveAbsoluteLocation(tt.location, tt.targetHost)
+			if result != tt.expected {
+				t.Errorf("resolveAbsoluteLocation(%q, %q) = %q, want %q",
+					tt.location, tt.targetHost, result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestRewritePathWithTarget tests path rewriting with target path stripping.
+func TestRewritePathWithTarget(t *testing.T) {
+	tests := []struct {
+		name        string
+		location    string
+		proxyPrefix string
+		targetPath  string
+		expected    string
+	}{
+		{
+			name:        "strip target path",
+			location:    "/admin/settings",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/admin",
+			expected:    "/proxy/app/settings",
+		},
+		{
+			name:        "exact target path",
+			location:    "/admin",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/admin",
+			expected:    "/proxy/app/",
+		},
+		{
+			name:        "no target path",
+			location:    "/login",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			expected:    "/proxy/app/login",
+		},
+		{
+			name:        "root target path",
+			location:    "/api/data",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/",
+			expected:    "/proxy/app/api/data",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewritePathWithTarget(tt.location, tt.proxyPrefix, tt.targetPath)
+			if result != tt.expected {
+				t.Errorf("rewritePathWithTarget(%q, %q, %q) = %q, want %q",
+					tt.location, tt.proxyPrefix, tt.targetPath, result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestBuildSingleProxyRoute tests route creation from app config.
+func TestBuildSingleProxyRoute(t *testing.T) {
+	t.Run("valid app", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:    "Test App",
+			URL:     "http://192.0.2.1:8080/admin",
+			Enabled: true,
+			Proxy:   true,
+		}
+
+		route := buildSingleProxyRoute(app)
+
+		if route == nil {
+			t.Fatal("expected non-nil route")
+		}
+		if route.name != "Test App" {
+			t.Errorf("expected name 'Test App', got %q", route.name)
+		}
+		if route.slug != "test-app" {
+			t.Errorf("expected slug 'test-app', got %q", route.slug)
+		}
+		if route.proxyPrefix != "/proxy/test-app" {
+			t.Errorf("expected proxyPrefix '/proxy/test-app', got %q", route.proxyPrefix)
+		}
+		if route.targetPath != "/admin" {
+			t.Errorf("expected targetPath '/admin', got %q", route.targetPath)
+		}
+		if route.targetURL.Host != "192.0.2.1:8080" {
+			t.Errorf("expected host '192.0.2.1:8080', got %q", route.targetURL.Host)
+		}
+	})
+
+	t.Run("invalid URL", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:    "Bad",
+			URL:     "://invalid",
+			Enabled: true,
+			Proxy:   true,
+		}
+
+		route := buildSingleProxyRoute(app)
+
+		if route != nil {
+			t.Error("expected nil route for invalid URL")
+		}
+	})
+
+	t.Run("already proxy path", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:    "Loop",
+			URL:     "/proxy/loop/",
+			Enabled: true,
+			Proxy:   true,
+		}
+
+		route := buildSingleProxyRoute(app)
+
+		if route != nil {
+			t.Error("expected nil route for app with proxy path URL")
+		}
+	})
+
+	t.Run("empty target path defaults to /", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:    "Root",
+			URL:     "http://192.0.2.1:8080",
+			Enabled: true,
+			Proxy:   true,
+		}
+
+		route := buildSingleProxyRoute(app)
+
+		if route == nil {
+			t.Fatal("expected non-nil route")
+		}
+		if route.targetPath != "/" {
+			t.Errorf("expected targetPath '/', got %q", route.targetPath)
+		}
+	})
+}
+
+// TestResolveBackendRequestPath tests the backend path resolution logic.
+func TestResolveBackendRequestPath(t *testing.T) {
+	tests := []struct {
+		name       string
+		reqPath    string
+		targetPath string
+		expected   string
+	}{
+		{
+			name:       "root target, simple path",
+			reqPath:    "/page",
+			targetPath: "/",
+			expected:   "/page",
+		},
+		{
+			name:       "root target, root request",
+			reqPath:    "/",
+			targetPath: "/",
+			expected:   "/",
+		},
+		{
+			name:       "subpath target, normal path",
+			reqPath:    "/settings",
+			targetPath: "/admin",
+			expected:   "/admin/settings",
+		},
+		{
+			name:       "subpath target, API path bypasses",
+			reqPath:    "/api/auth",
+			targetPath: "/admin",
+			expected:   "/api/auth",
+		},
+		{
+			name:       "subpath target, /api exact",
+			reqPath:    "/api",
+			targetPath: "/admin",
+			expected:   "/api",
+		},
+		{
+			name:       "empty target path",
+			reqPath:    "/page",
+			targetPath: "",
+			expected:   "/page",
+		},
+		{
+			name:       "subpath target, non-slash path",
+			reqPath:    "relative",
+			targetPath: "/admin",
+			expected:   "/admin/relative",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := resolveBackendRequestPath(tt.reqPath, tt.targetPath)
+			if result != tt.expected {
+				t.Errorf("resolveBackendRequestPath(%q, %q) = %q, want %q",
+					tt.reqPath, tt.targetPath, result, tt.expected)
+			}
+		})
+	}
+}
+
+// TestSetProxyHeaders tests that proxy headers are correctly added.
+func TestSetProxyHeaders(t *testing.T) {
+	t.Run("basic headers", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/proxy/app/page", nil)
+		req.RemoteAddr = "192.168.1.100:12345"
+
+		setProxyHeaders(req)
+
+		if got := req.Header.Get("X-Forwarded-For"); got != "192.168.1.100" {
+			t.Errorf("X-Forwarded-For = %q, want '192.168.1.100'", got)
+		}
+		if got := req.Header.Get("X-Real-IP"); got != "192.168.1.100" {
+			t.Errorf("X-Real-IP = %q, want '192.168.1.100'", got)
+		}
+		if got := req.Header.Get("X-Forwarded-Proto"); got != "http" {
+			t.Errorf("X-Forwarded-Proto = %q, want 'http'", got)
+		}
+	})
+
+	t.Run("appends to existing X-Forwarded-For", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/proxy/app/page", nil)
+		req.RemoteAddr = "10.0.0.1:5555"
+		req.Header.Set("X-Forwarded-For", "1.2.3.4")
+
+		setProxyHeaders(req)
+
+		if got := req.Header.Get("X-Forwarded-For"); got != "1.2.3.4, 10.0.0.1" {
+			t.Errorf("X-Forwarded-For = %q, want '1.2.3.4, 10.0.0.1'", got)
+		}
+	})
+
+	t.Run("preserves existing X-Forwarded-Proto", func(t *testing.T) {
+		req := httptest.NewRequest("GET", "/proxy/app/page", nil)
+		req.RemoteAddr = "10.0.0.1:5555"
+		req.Header.Set("X-Forwarded-Proto", "https")
+
+		setProxyHeaders(req)
+
+		if got := req.Header.Get("X-Forwarded-Proto"); got != "https" {
+			t.Errorf("X-Forwarded-Proto = %q, want 'https'", got)
+		}
+	})
+}
+
+// TestHasRoutes and TestGetRoutes test route introspection methods.
+func TestHasRoutes(t *testing.T) {
+	t.Run("no routes", func(t *testing.T) {
+		handler := NewReverseProxyHandler(nil)
+		if handler.HasRoutes() {
+			t.Error("expected HasRoutes() = false for empty handler")
+		}
+	})
+
+	t.Run("with routes", func(t *testing.T) {
+		apps := []config.AppConfig{
+			{Name: "App", URL: "http://host:8080", Enabled: true, Proxy: true},
+		}
+		handler := NewReverseProxyHandler(apps)
+		if !handler.HasRoutes() {
+			t.Error("expected HasRoutes() = true")
+		}
+	})
+}
+
+func TestGetRoutes(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "App One", URL: "http://host1:8080", Enabled: true, Proxy: true},
+		{Name: "App Two", URL: "http://host2:9090", Enabled: true, Proxy: true},
+	}
+	handler := NewReverseProxyHandler(apps)
+
+	routes := handler.GetRoutes()
+	if len(routes) != 2 {
+		t.Errorf("expected 2 routes, got %d", len(routes))
+	}
+
+	routeSet := make(map[string]bool)
+	for _, r := range routes {
+		routeSet[r] = true
+	}
+	if !routeSet["app-one"] {
+		t.Error("expected route 'app-one'")
+	}
+	if !routeSet["app-two"] {
+		t.Error("expected route 'app-two'")
+	}
+}
+
+// TestStripIntegrity tests the SRI stripping logic.
+func TestStripIntegrity(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "strip integrity attribute",
+			input:    `<script src="/app.js" integrity="sha256-abc123" crossorigin="anonymous"></script>`,
+			expected: `<script src="/app.js"></script>`,
+		},
+		{
+			name:     "strip dynamic SRI",
+			input:    `b.integrity=b.sriHashes[c],`,
+			expected: ``,
+		},
+		{
+			name:     "neutralize sriHashes object",
+			input:    `b.sriHashes={foo:"bar",baz:"qux"}`,
+			expected: `b.sriHashes={}`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := rewriter.stripIntegrity(tt.input)
+			if result != tt.expected {
+				t.Errorf("stripIntegrity() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
 	}
 }

@@ -516,3 +516,501 @@ func TestGetConfigRef(t *testing.T) {
 		t.Errorf("expected title 'Test Dashboard', got '%s'", ref.Server.Title)
 	}
 }
+
+func TestUpdateApp(t *testing.T) {
+	t.Run("existing app", func(t *testing.T) {
+		cfg := createTestConfig()
+		tmpFile, err := os.CreateTemp("", "config-*.yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer os.Remove(tmpFile.Name())
+
+		handler := NewAPIHandler(cfg, tmpFile.Name())
+
+		updated := ClientAppConfig{
+			Name:    "App1",
+			URL:     "http://localhost:9999",
+			Color:   "#0000ff",
+			Group:   "Tools",
+			Order:   5,
+			Enabled: true,
+		}
+		body, _ := json.Marshal(updated)
+
+		req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateApp(w, req, "App1")
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		var resp ClientAppConfig
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if resp.URL != "http://localhost:9999" {
+			t.Errorf("expected URL 'http://localhost:9999', got %q", resp.URL)
+		}
+		if resp.Color != "#0000ff" {
+			t.Errorf("expected color '#0000ff', got %q", resp.Color)
+		}
+	})
+
+	t.Run("non-existing app", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "")
+
+		updated := ClientAppConfig{
+			Name: "NonExistent",
+			URL:  "http://localhost:9999",
+		}
+		body, _ := json.Marshal(updated)
+
+		req := httptest.NewRequest(http.MethodPut, "/api/apps/NonExistent", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateApp(w, req, "NonExistent")
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("expected status 404, got %d", w.Code)
+		}
+	})
+
+	t.Run("invalid JSON", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "")
+
+		req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader([]byte("not json")))
+		w := httptest.NewRecorder()
+
+		handler.UpdateApp(w, req, "App1")
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("preserves auth bypass", func(t *testing.T) {
+		cfg := createTestConfig()
+		// Add auth bypass to existing app
+		cfg.Apps[0].AuthBypass = []config.AuthBypassRule{
+			{Path: "/api/*", Methods: []string{"GET"}},
+		}
+		cfg.Apps[0].Access = config.AppAccessConfig{
+			Roles: []string{"admin"},
+		}
+
+		tmpFile, err := os.CreateTemp("", "config-*.yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer os.Remove(tmpFile.Name())
+
+		handler := NewAPIHandler(cfg, tmpFile.Name())
+
+		updated := ClientAppConfig{
+			Name:    "App1",
+			URL:     "http://localhost:9999",
+			Enabled: true,
+		}
+		body, _ := json.Marshal(updated)
+
+		req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateApp(w, req, "App1")
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		// Verify auth bypass was preserved
+		if len(cfg.Apps[0].AuthBypass) != 1 {
+			t.Errorf("expected 1 auth bypass rule, got %d", len(cfg.Apps[0].AuthBypass))
+		}
+		if len(cfg.Apps[0].Access.Roles) != 1 {
+			t.Errorf("expected 1 access role, got %d", len(cfg.Apps[0].Access.Roles))
+		}
+	})
+}
+
+func TestUpdateGroup(t *testing.T) {
+	t.Run("existing group", func(t *testing.T) {
+		cfg := createTestConfig()
+		tmpFile, err := os.CreateTemp("", "config-*.yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer os.Remove(tmpFile.Name())
+
+		handler := NewAPIHandler(cfg, tmpFile.Name())
+
+		updated := config.GroupConfig{
+			Name:     "Media",
+			Color:    "#0000ff",
+			Order:    10,
+			Expanded: true,
+		}
+		body, _ := json.Marshal(updated)
+
+		req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateGroup(w, req, "Media")
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		var resp config.GroupConfig
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if resp.Color != "#0000ff" {
+			t.Errorf("expected color '#0000ff', got %q", resp.Color)
+		}
+		if !resp.Expanded {
+			t.Error("expected expanded=true")
+		}
+	})
+
+	t.Run("non-existing group", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "")
+
+		updated := config.GroupConfig{Name: "NonExistent"}
+		body, _ := json.Marshal(updated)
+
+		req := httptest.NewRequest(http.MethodPut, "/api/groups/NonExistent", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateGroup(w, req, "NonExistent")
+
+		if w.Code != http.StatusNotFound {
+			t.Errorf("expected status 404, got %d", w.Code)
+		}
+	})
+
+	t.Run("invalid JSON", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "")
+
+		req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader([]byte("not json")))
+		w := httptest.NewRecorder()
+
+		handler.UpdateGroup(w, req, "Media")
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+}
+
+func TestMergeConfigUpdate(t *testing.T) {
+	t.Run("basic merge", func(t *testing.T) {
+		cfg := createTestConfig()
+
+		update := &ClientConfigUpdate{
+			Title: "New Title",
+			Navigation: config.NavigationConfig{
+				Position:   "top",
+				ShowLabels: false,
+			},
+			Theme: config.ThemeConfig{
+				Family:  "nord",
+				Variant: "dark",
+			},
+			Groups: []config.GroupConfig{
+				{Name: "NewGroup", Color: "#ff00ff"},
+			},
+			Apps: []ClientAppConfig{
+				{
+					Name:    "App1",
+					URL:     "http://localhost:9090",
+					Enabled: true,
+				},
+			},
+		}
+
+		mergeConfigUpdate(cfg, update)
+
+		if cfg.Server.Title != "New Title" {
+			t.Errorf("expected title 'New Title', got %q", cfg.Server.Title)
+		}
+		if cfg.Navigation.Position != "top" {
+			t.Errorf("expected position 'top', got %q", cfg.Navigation.Position)
+		}
+		if cfg.Theme.Family != "nord" {
+			t.Errorf("expected theme family 'nord', got %q", cfg.Theme.Family)
+		}
+		if len(cfg.Groups) != 1 {
+			t.Errorf("expected 1 group, got %d", len(cfg.Groups))
+		}
+		if len(cfg.Apps) != 1 {
+			t.Errorf("expected 1 app, got %d", len(cfg.Apps))
+		}
+	})
+
+	t.Run("preserves proxy URL", func(t *testing.T) {
+		cfg := createTestConfig()
+		originalURL := cfg.Apps[1].URL // App2 is proxied
+
+		update := &ClientConfigUpdate{
+			Title: "Test",
+			Apps: []ClientAppConfig{
+				{
+					Name:    "App2",
+					URL:     "/proxy/app2/", // Client sends proxy URL
+					Proxy:   true,
+					Enabled: true,
+				},
+			},
+		}
+
+		mergeConfigUpdate(cfg, update)
+
+		// Should preserve original URL for proxied apps
+		if len(cfg.Apps) != 1 {
+			t.Fatalf("expected 1 app, got %d", len(cfg.Apps))
+		}
+		if cfg.Apps[0].URL != originalURL {
+			t.Errorf("expected original URL %q to be preserved, got %q", originalURL, cfg.Apps[0].URL)
+		}
+	})
+
+	t.Run("with keybindings", func(t *testing.T) {
+		cfg := createTestConfig()
+
+		kb := &config.KeybindingsConfig{
+			Bindings: map[string][]config.KeyCombo{
+				"search": {{Key: "k", Ctrl: true}},
+			},
+		}
+
+		update := &ClientConfigUpdate{
+			Title:       "Test",
+			Keybindings: kb,
+			Apps:        []ClientAppConfig{},
+		}
+
+		mergeConfigUpdate(cfg, update)
+
+		if cfg.Keybindings.Bindings == nil {
+			t.Fatal("expected keybindings to be set")
+		}
+		if len(cfg.Keybindings.Bindings["search"]) != 1 {
+			t.Errorf("expected 1 search keybinding, got %d", len(cfg.Keybindings.Bindings["search"]))
+		}
+	})
+}
+
+func TestMergeClientApp(t *testing.T) {
+	t.Run("new app", func(t *testing.T) {
+		existing := map[string]config.AppConfig{}
+		clientApp := ClientAppConfig{
+			Name:    "NewApp",
+			URL:     "http://localhost:9000",
+			Enabled: true,
+			Color:   "#ff0000",
+		}
+
+		result := mergeClientApp(clientApp, existing)
+
+		if result.Name != "NewApp" {
+			t.Errorf("expected name 'NewApp', got %q", result.Name)
+		}
+		if result.URL != "http://localhost:9000" {
+			t.Errorf("expected URL 'http://localhost:9000', got %q", result.URL)
+		}
+	})
+
+	t.Run("existing proxied app preserves URL", func(t *testing.T) {
+		existing := map[string]config.AppConfig{
+			"ProxiedApp": {
+				Name:    "ProxiedApp",
+				URL:     "http://internal:8080",
+				Proxy:   true,
+				Enabled: true,
+				AuthBypass: []config.AuthBypassRule{
+					{Path: "/api/*"},
+				},
+			},
+		}
+		clientApp := ClientAppConfig{
+			Name:    "ProxiedApp",
+			URL:     "/proxy/proxiedapp/", // The proxy URL sent by the client
+			Proxy:   true,
+			Enabled: true,
+		}
+
+		result := mergeClientApp(clientApp, existing)
+
+		if result.URL != "http://internal:8080" {
+			t.Errorf("expected preserved URL 'http://internal:8080', got %q", result.URL)
+		}
+		if len(result.AuthBypass) != 1 {
+			t.Errorf("expected 1 auth bypass rule, got %d", len(result.AuthBypass))
+		}
+	})
+
+	t.Run("existing non-proxied app updates URL", func(t *testing.T) {
+		existing := map[string]config.AppConfig{
+			"App": {
+				Name:    "App",
+				URL:     "http://old:8080",
+				Proxy:   false,
+				Enabled: true,
+			},
+		}
+		clientApp := ClientAppConfig{
+			Name:    "App",
+			URL:     "http://new:9090",
+			Proxy:   false,
+			Enabled: true,
+		}
+
+		result := mergeClientApp(clientApp, existing)
+
+		if result.URL != "http://new:9090" {
+			t.Errorf("expected new URL 'http://new:9090', got %q", result.URL)
+		}
+	})
+}
+
+func TestBuildClientConfigResponse(t *testing.T) {
+	cfg := createTestConfig()
+
+	resp := buildClientConfigResponse(cfg)
+
+	if resp.Title != "Test Dashboard" {
+		t.Errorf("expected title 'Test Dashboard', got %q", resp.Title)
+	}
+	if resp.Navigation.Position != "left" {
+		t.Errorf("expected navigation position 'left', got %q", resp.Navigation.Position)
+	}
+	if len(resp.Groups) != 2 {
+		t.Errorf("expected 2 groups, got %d", len(resp.Groups))
+	}
+	// Only enabled apps should be in the response
+	if len(resp.Apps) != 2 {
+		t.Errorf("expected 2 enabled apps, got %d", len(resp.Apps))
+	}
+	// Keybindings should be nil when empty
+	if resp.Keybindings != nil {
+		t.Error("expected keybindings to be nil for empty bindings")
+	}
+
+	// Test with keybindings
+	cfg.Keybindings = config.KeybindingsConfig{
+		Bindings: map[string][]config.KeyCombo{
+			"search": {{Key: "k", Ctrl: true}},
+		},
+	}
+	resp = buildClientConfigResponse(cfg)
+	if resp.Keybindings == nil {
+		t.Error("expected keybindings to be set")
+	}
+}
+
+func TestSaveConfigSuccess(t *testing.T) {
+	cfg := createTestConfig()
+	tmpFile, err := os.CreateTemp("", "config-*.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tmpFile.Name())
+
+	handler := NewAPIHandler(cfg, tmpFile.Name())
+
+	update := ClientConfigUpdate{
+		Title: "Updated Title",
+		Navigation: config.NavigationConfig{
+			Position: "top",
+		},
+		Groups: cfg.Groups,
+		Apps: []ClientAppConfig{
+			{
+				Name:    "App1",
+				URL:     "http://localhost:8080",
+				Enabled: true,
+			},
+		},
+	}
+	body, _ := json.Marshal(update)
+
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+
+	handler.SaveConfig(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	var resp clientConfigResponse
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp.Title != "Updated Title" {
+		t.Errorf("expected title 'Updated Title', got %q", resp.Title)
+	}
+}
+
+func TestSanitizeApp(t *testing.T) {
+	t.Run("non-proxied app", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:    "Test",
+			URL:     "http://localhost:8080",
+			Enabled: true,
+			Proxy:   false,
+		}
+
+		result := sanitizeApp(app)
+
+		if result.ProxyURL != "" {
+			t.Errorf("expected empty proxyUrl for non-proxied app, got %q", result.ProxyURL)
+		}
+		if result.URL != "http://localhost:8080" {
+			t.Errorf("expected URL 'http://localhost:8080', got %q", result.URL)
+		}
+	})
+
+	t.Run("proxied app", func(t *testing.T) {
+		app := config.AppConfig{
+			Name:    "Test App",
+			URL:     "http://internal:9090",
+			Enabled: true,
+			Proxy:   true,
+		}
+
+		result := sanitizeApp(app)
+
+		if result.ProxyURL != "/proxy/test-app/" {
+			t.Errorf("expected proxyUrl '/proxy/test-app/', got %q", result.ProxyURL)
+		}
+	})
+}
+
+func TestSanitizeApps(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Enabled1", URL: "http://a:8080", Enabled: true},
+		{Name: "Disabled", URL: "http://b:8080", Enabled: false},
+		{Name: "Enabled2", URL: "http://c:8080", Enabled: true, Proxy: true},
+	}
+
+	result := sanitizeApps(apps)
+
+	if len(result) != 2 {
+		t.Errorf("expected 2 enabled apps, got %d", len(result))
+	}
+
+	// Verify disabled apps are excluded
+	for _, app := range result {
+		if app.Name == "Disabled" {
+			t.Error("disabled app should not be in sanitized list")
+		}
+	}
+}

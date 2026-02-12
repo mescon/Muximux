@@ -8,7 +8,7 @@ SERVER_DIST="$PROJECT_DIR/internal/server/dist"
 
 INPUT=$(cat)
 COMMAND=$(echo "$INPUT" | jq -r '.tool_input.command // empty' 2>/dev/null)
-[ -z "$COMMAND" ] && exit 0
+[[ -z "$COMMAND" ]] && exit 0
 
 # Only act on go build / make build commands that reference this project
 case "$COMMAND" in
@@ -17,13 +17,13 @@ case "$COMMAND" in
 esac
 
 # Check if web/dist exists
-[ ! -f "$WEB_DIST/index.html" ] && exit 0
+[[ ! -f "$WEB_DIST/index.html" ]] && exit 0
 
 # Compare by checking if the JS bundle filename matches
 WEB_JS=$(basename "$(ls "$WEB_DIST/assets/"index-*.js 2>/dev/null | head -1)" 2>/dev/null)
 SERVER_JS=$(basename "$(ls "$SERVER_DIST/assets/"index-*.js 2>/dev/null | head -1)" 2>/dev/null)
 
-if [ "$WEB_JS" != "$SERVER_JS" ]; then
+if [[ "$WEB_JS" != "$SERVER_JS" ]]; then
   echo "Syncing web/dist/ → internal/server/dist/" >&2
   rm -rf "$SERVER_DIST"
   cp -r "$WEB_DIST" "$SERVER_DIST"

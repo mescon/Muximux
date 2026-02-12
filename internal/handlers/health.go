@@ -28,7 +28,7 @@ func (h *HealthHandler) GetAllHealth(w http.ResponseWriter, r *http.Request) {
 		result = append(result, appHealth)
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(result)
 }
 
@@ -46,18 +46,18 @@ func (h *HealthHandler) GetAppHealth(w http.ResponseWriter, r *http.Request) {
 
 	appHealth := h.monitor.GetHealth(appName)
 	if appHealth == nil {
-		http.Error(w, "App not found", http.StatusNotFound)
+		http.Error(w, errAppNotFound, http.StatusNotFound)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(appHealth)
 }
 
 // CheckAppHealth triggers an immediate health check for an app
 func (h *HealthHandler) CheckAppHealth(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -73,10 +73,10 @@ func (h *HealthHandler) CheckAppHealth(w http.ResponseWriter, r *http.Request) {
 
 	appHealth := h.monitor.CheckNow(appName)
 	if appHealth == nil {
-		http.Error(w, "App not found", http.StatusNotFound)
+		http.Error(w, errAppNotFound, http.StatusNotFound)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(appHealth)
 }

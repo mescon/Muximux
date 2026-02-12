@@ -87,7 +87,7 @@ func (s *UserStore) GetByID(id string) *User {
 func (s *UserStore) Authenticate(username, password string) (*User, error) {
 	user := s.Get(username)
 	if user == nil {
-		return nil, errors.New("user not found")
+		return nil, errors.New(errUserNotFound)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
@@ -125,7 +125,7 @@ func (s *UserStore) Update(user *User) error {
 	defer s.mu.Unlock()
 
 	if _, exists := s.users[user.Username]; !exists {
-		return errors.New("user not found")
+		return errors.New(errUserNotFound)
 	}
 
 	s.users[user.Username] = user
@@ -138,7 +138,7 @@ func (s *UserStore) Delete(username string) error {
 	defer s.mu.Unlock()
 
 	if _, exists := s.users[username]; !exists {
-		return errors.New("user not found")
+		return errors.New(errUserNotFound)
 	}
 
 	delete(s.users, username)

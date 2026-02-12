@@ -40,7 +40,6 @@ type Monitor struct {
 	interval       time.Duration
 	timeout        time.Duration
 	httpClient     *http.Client
-	ctx            context.Context
 	cancel         context.CancelFunc
 	onHealthChange HealthChangeCallback
 }
@@ -55,7 +54,6 @@ type AppConfig struct {
 
 // NewMonitor creates a new health monitor
 func NewMonitor(interval, timeout time.Duration) *Monitor {
-	ctx, cancel := context.WithCancel(context.Background())
 	return &Monitor{
 		apps:     make(map[string]AppConfig),
 		health:   make(map[string]*AppHealth),
@@ -71,8 +69,6 @@ func NewMonitor(interval, timeout time.Duration) *Monitor {
 				return nil
 			},
 		},
-		ctx:    ctx,
-		cancel: cancel,
 	}
 }
 
@@ -113,34 +109,38 @@ func (m *Monitor) SetApps(apps []AppConfig) {
 
 // Start begins the health check loop
 func (m *Monitor) Start() {
-	go m.run()
+	ctx, cancel := context.WithCancel(context.Background())
+	m.cancel = cancel
+	go m.run(ctx)
 }
 
 // Stop stops the health check loop
 func (m *Monitor) Stop() {
-	m.cancel()
+	if m.cancel != nil {
+		m.cancel()
+	}
 }
 
 // run is the main health check loop
-func (m *Monitor) run() {
+func (m *Monitor) run(ctx context.Context) {
 	// Do an initial check immediately
-	m.checkAll()
+	m.checkAll(ctx)
 
 	ticker := time.NewTicker(m.interval)
 	defer ticker.Stop()
 
 	for {
 		select {
-		case <-m.ctx.Done():
+		case <-ctx.Done():
 			return
 		case <-ticker.C:
-			m.checkAll()
+			m.checkAll(ctx)
 		}
 	}
 }
 
 // checkAll checks the health of all apps
-func (m *Monitor) checkAll() {
+func (m *Monitor) checkAll(ctx context.Context) {
 	m.mu.RLock()
 	apps := make([]AppConfig, 0, len(m.apps))
 	for _, app := range m.apps {
@@ -156,21 +156,21 @@ func (m *Monitor) checkAll() {
 		wg.Add(1)
 		go func(app AppConfig) {
 			defer wg.Done()
-			m.checkApp(app)
+			m.checkApp(ctx, app)
 		}(app)
 	}
 	wg.Wait()
 }
 
 // checkApp checks the health of a single app
-func (m *Monitor) checkApp(app AppConfig) {
+func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 	url := app.HealthURL
 	if url == "" {
 		url = app.URL
 	}
 
 	start := time.Now()
-	req, err := http.NewRequestWithContext(m.ctx, http.MethodGet, url, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		m.updateHealth(app.Name, StatusUnhealthy, 0, err.Error())
 		return
@@ -275,6 +275,6 @@ func (m *Monitor) CheckNow(name string) *AppHealth {
 		return nil
 	}
 
-	m.checkApp(app)
+	m.checkApp(context.Background(), app)
 	return m.GetHealth(name)
 }

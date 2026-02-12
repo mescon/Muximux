@@ -175,6 +175,17 @@ describe('useSwipe', () => {
       expect(onSwipeOpen).toHaveBeenCalled();
     });
 
+    it('should detect right edge swipe close', () => {
+      const handlers = createEdgeSwipeHandlers('right', onSwipeOpen, onSwipeClose);
+
+      // Start at right edge, swipe right (positive deltaX ≥ 50px threshold)
+      handlers.onpointerdown(createPointerEvent('pointerdown', { clientX: 1010, clientY: 100 }));
+      handlers.onpointerup(createPointerEvent('pointerup', { clientX: 1080, clientY: 100 }));
+
+      expect(onSwipeClose).toHaveBeenCalled();
+      expect(onSwipeOpen).not.toHaveBeenCalled();
+    });
+
     it('should not trigger for non-edge swipes', () => {
       const handlers = createEdgeSwipeHandlers('left', onSwipeOpen, onSwipeClose);
 

@@ -34,7 +34,7 @@ func WriteError(w http.ResponseWriter, status int, code, message string) {
 		Status:  status,
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(apiErr)
 }
@@ -88,7 +88,7 @@ func ValidationError(w http.ResponseWriter, message string) {
 
 // WriteJSON writes a JSON response with the given status code
 func WriteJSON(w http.ResponseWriter, status int, data interface{}) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(status)
 	json.NewEncoder(w).Encode(data)
 }

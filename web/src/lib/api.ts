@@ -228,8 +228,8 @@ export async function getProxyStatus(): Promise<ProxyStatus> {
 export function slugify(name: string): string {
   return name
     .toLowerCase()
-    .replace(/\s+/g, '-')
-    .replace(/[^a-z0-9-]/g, '');
+    .replaceAll(/\s+/g, '-')
+    .replaceAll(/[^a-z0-9-]/g, '');
 }
 
 // Config export/import helpers
@@ -265,7 +265,7 @@ export function exportConfig(config: Config): void {
   a.download = `muximux-config-${new Date().toISOString().split('T')[0]}.json`;
   document.body.appendChild(a);
   a.click();
-  document.body.removeChild(a);
+  a.remove();
   URL.revokeObjectURL(url);
 }
 
@@ -288,19 +288,19 @@ export function parseImportedConfig(content: string): ExportedConfig {
 
   // Validate required fields
   if (typeof obj.title !== 'string') {
-    throw new Error('Missing or invalid "title" field');
+    throw new TypeError('Missing or invalid "title" field');
   }
 
   if (!obj.navigation || typeof obj.navigation !== 'object') {
-    throw new Error('Missing or invalid "navigation" field');
+    throw new TypeError('Missing or invalid "navigation" field');
   }
 
   if (!Array.isArray(obj.groups)) {
-    throw new Error('Missing or invalid "groups" field');
+    throw new TypeError('Missing or invalid "groups" field');
   }
 
   if (!Array.isArray(obj.apps)) {
-    throw new Error('Missing or invalid "apps" field');
+    throw new TypeError('Missing or invalid "apps" field');
   }
 
   // Validate apps have required fields

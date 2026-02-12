@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -25,6 +26,9 @@ import (
 
 //go:embed all:dist
 var embeddedFiles embed.FS
+
+// validThemeName only allows safe CSS theme filenames (allowlist approach)
+var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
 
 // Server holds the HTTP server and related components
 type Server struct {
@@ -111,7 +115,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
 	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps)
 	if reverseProxyHandler.HasRoutes() {
-		mux.Handle("/proxy/", reverseProxyHandler)
+		mux.Handle(proxyPathPrefix, reverseProxyHandler)
 		fmt.Printf("Integrated reverse proxy enabled for: %v\n", reverseProxyHandler.GetRoutes())
 	}
 
@@ -252,7 +256,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 		case http.MethodPut:
 			requireAdmin(api.SaveConfig)(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -264,7 +268,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 		case http.MethodPost:
 			requireAdmin(api.CreateApp)(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -276,7 +280,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 		case http.MethodPost:
 			requireAdmin(api.CreateGroup)(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -299,7 +303,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 				api.DeleteApp(w, r, name)
 			})(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -322,7 +326,7 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 				api.DeleteGroup(w, r, name)
 			})(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 
@@ -376,7 +380,7 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 // staticHandler is a pointer so the /themes/ closure can reference the handler
 // that gets assigned later (forward declaration pattern).
 func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler) {
-	themeHandler := handlers.NewThemeHandler("data/themes", distFS)
+	themeHandler := handlers.NewThemeHandler(themesDataDir, distFS)
 	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -384,26 +388,26 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 		case http.MethodPost:
 			requireAdmin(themeHandler.SaveTheme)(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 	mux.HandleFunc("/api/themes/", requireAdmin(themeHandler.DeleteTheme))
 	// Serve theme CSS files: try data/themes/ first (user-created), fall back to static assets (bundled)
 	mux.HandleFunc("/themes/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/themes/")
-		// Reject path traversal attempts — only allow safe filenames
-		if name == "" || strings.Contains(name, "..") || strings.ContainsAny(name, "/\\") {
+		// Only allow safe CSS theme filenames (allowlist approach)
+		if !validThemeName.MatchString(name) {
 			http.NotFound(w, r)
 			return
 		}
-		localPath := filepath.Join("data/themes", name)
+		localPath := filepath.Join(themesDataDir, name)
 		// Double-check resolved path is within the themes directory
 		absPath, err := filepath.Abs(localPath)
 		if err != nil {
 			http.NotFound(w, r)
 			return
 		}
-		absThemesDir, _ := filepath.Abs("data/themes")
+		absThemesDir, _ := filepath.Abs(themesDataDir)
 		if !strings.HasPrefix(absPath, absThemesDir+string(filepath.Separator)) {
 			http.NotFound(w, r)
 			return
@@ -438,7 +442,7 @@ func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adm
 		case http.MethodPost:
 			requireAdmin(iconHandler.UploadCustomIcon)(w, r)
 		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
 	mux.HandleFunc("/api/icons/custom/", requireAdmin(iconHandler.DeleteCustomIcon))
@@ -551,7 +555,7 @@ func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) ht
 		// For root or paths without extension (likely SPA routes), serve index.html directly
 		// We use http.ServeFile instead of FileServer to avoid redirect loops
 		// Exclude /api/, /ws, /proxy/, and /icons/ paths
-		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, "/proxy/") && !strings.HasPrefix(path, "/icons/")) {
+		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, proxyPathPrefix) && !strings.HasPrefix(path, "/icons/")) {
 			http.ServeFile(w, r, distDir+"/"+indexPath)
 			return
 		}
@@ -574,7 +578,7 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, indexPath string) http
 
 		// For root or paths without extension (likely SPA routes), serve index.html directly
 		// Exclude /api/, /ws, /proxy/, and /icons/ paths
-		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, "/proxy/") && !strings.HasPrefix(path, "/icons/")) {
+		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, proxyPathPrefix) && !strings.HasPrefix(path, "/icons/")) {
 			w.Header().Set("Content-Type", "text/html; charset=utf-8")
 			w.Write(indexContent)
 			return
@@ -667,29 +671,36 @@ func newRateLimiter(max int, window time.Duration) *rateLimiter {
 		max:      max,
 		window:   window,
 	}
-	// Periodic cleanup of stale entries
-	go func() {
-		for range time.Tick(5 * time.Minute) {
-			rl.mu.Lock()
-			now := time.Now()
-			for ip, times := range rl.attempts {
-				// Remove entries older than the window
-				valid := times[:0]
-				for _, t := range times {
-					if now.Sub(t) < rl.window {
-						valid = append(valid, t)
-					}
-				}
-				if len(valid) == 0 {
-					delete(rl.attempts, ip)
-				} else {
-					rl.attempts[ip] = valid
-				}
-			}
-			rl.mu.Unlock()
-		}
-	}()
+	go rl.cleanup()
 	return rl
+}
+
+// cleanup periodically removes stale rate-limit entries.
+func (rl *rateLimiter) cleanup() {
+	for range time.Tick(5 * time.Minute) {
+		rl.purgeStaleEntries()
+	}
+}
+
+// purgeStaleEntries removes entries older than the rate-limit window.
+func (rl *rateLimiter) purgeStaleEntries() {
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+
+	now := time.Now()
+	for ip, times := range rl.attempts {
+		valid := times[:0]
+		for _, t := range times {
+			if now.Sub(t) < rl.window {
+				valid = append(valid, t)
+			}
+		}
+		if len(valid) == 0 {
+			delete(rl.attempts, ip)
+		} else {
+			rl.attempts[ip] = valid
+		}
+	}
 }
 
 func (rl *rateLimiter) allow(ip string) bool {

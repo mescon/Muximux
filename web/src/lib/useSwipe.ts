@@ -252,11 +252,10 @@ export function createEdgeSwipeHandlers(
     const screenWidth = window.innerWidth;
 
     // Check if touch starts at edge
-    if (edge === 'left' && x <= edgeWidth) {
-      isEdgeSwipe = true;
-      startX = x;
-      startY = e.clientY;
-    } else if (edge === 'right' && x >= screenWidth - edgeWidth) {
+    if (
+      (edge === 'left' && x <= edgeWidth) ||
+      (edge === 'right' && x >= screenWidth - edgeWidth)
+    ) {
       isEdgeSwipe = true;
       startX = x;
       startY = e.clientY;
@@ -276,9 +275,10 @@ export function createEdgeSwipeHandlers(
       if (edge === 'left') {
         if (deltaX > 0) onSwipeOpen();
         else onSwipeClose();
+      } else if (deltaX < 0) {
+        onSwipeOpen();
       } else {
-        if (deltaX < 0) onSwipeOpen();
-        else onSwipeClose();
+        onSwipeClose();
       }
     }
 

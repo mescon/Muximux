@@ -33,7 +33,7 @@ func (h *APIHandler) GetConfigRef() *config.Config {
 
 // Health returns server health status
 func (h *APIHandler) Health(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "ok",
 	})
@@ -44,28 +44,33 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	// Return config without sensitive fields
-	clientConfig := struct {
-		Title       string                    `json:"title"`
-		Navigation  config.NavigationConfig   `json:"navigation"`
-		Theme       config.ThemeConfig        `json:"theme"`
-		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
-		Groups      []config.GroupConfig      `json:"groups"`
-		Apps        []ClientAppConfig         `json:"apps"`
-	}{
-		Title:      h.config.Server.Title,
-		Navigation: h.config.Navigation,
-		Theme:      h.config.Theme,
-		Groups:     h.config.Groups,
-		Apps:       sanitizeApps(h.config.Apps),
-	}
-	// Only include keybindings if there are custom bindings
-	if len(h.config.Keybindings.Bindings) > 0 {
-		clientConfig.Keybindings = &h.config.Keybindings
-	}
+	w.Header().Set(headerContentType, contentTypeJSON)
+	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
+}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(clientConfig)
+// clientConfigResponse is the sanitized config structure sent to the frontend.
+type clientConfigResponse struct {
+	Title       string                    `json:"title"`
+	Navigation  config.NavigationConfig   `json:"navigation"`
+	Theme       config.ThemeConfig        `json:"theme"`
+	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Groups      []config.GroupConfig      `json:"groups"`
+	Apps        []ClientAppConfig         `json:"apps"`
+}
+
+// buildClientConfigResponse creates a sanitized config response from the server config.
+func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
+	resp := clientConfigResponse{
+		Title:      cfg.Server.Title,
+		Navigation: cfg.Navigation,
+		Theme:      cfg.Theme,
+		Groups:     cfg.Groups,
+		Apps:       sanitizeApps(cfg.Apps),
+	}
+	if len(cfg.Keybindings.Bindings) > 0 {
+		resp.Keybindings = &cfg.Keybindings
+	}
+	return resp
 }
 
 // ClientConfigUpdate represents the configuration update from the frontend
@@ -81,7 +86,7 @@ type ClientConfigUpdate struct {
 // SaveConfig updates and saves the configuration
 func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
 
@@ -94,102 +99,94 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
-	// Update the config
-	h.config.Server.Title = update.Title
-	h.config.Navigation = update.Navigation
-	h.config.Theme = update.Theme
-	h.config.Groups = update.Groups
-	if update.Keybindings != nil {
-		h.config.Keybindings = *update.Keybindings
-	}
-
-	// Convert client apps back to full app configs
-	// Preserve existing sensitive data (auth_bypass, access) for apps that still exist
-	existingApps := make(map[string]config.AppConfig)
-	for _, app := range h.config.Apps {
-		existingApps[app.Name] = app
-	}
-
-	newApps := make([]config.AppConfig, 0, len(update.Apps))
-	for _, clientApp := range update.Apps {
-		// Get original URL if this was a proxied app
-		url := clientApp.URL
-		if clientApp.Proxy {
-			if existing, ok := existingApps[clientApp.Name]; ok {
-				url = existing.URL // Preserve original URL for proxied apps
-			}
-		}
-
-		app := config.AppConfig{
-			Name:                     clientApp.Name,
-			URL:                      url,
-			Icon:                     clientApp.Icon,
-			Color:                    clientApp.Color,
-			Group:                    clientApp.Group,
-			Order:                    clientApp.Order,
-			Enabled:                  clientApp.Enabled,
-			Default:                  clientApp.Default,
-			OpenMode:                 clientApp.OpenMode,
-			Proxy:                    clientApp.Proxy,
-			Scale:                    clientApp.Scale,
-			DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
-		}
-
-		// Preserve auth bypass and access rules if app existed before
-		if existing, ok := existingApps[clientApp.Name]; ok {
-			app.AuthBypass = existing.AuthBypass
-			app.Access = existing.Access
-			// If URL wasn't proxied, use the new one
-			if !clientApp.Proxy {
-				app.URL = clientApp.URL
-			}
-		}
-
-		newApps = append(newApps, app)
-	}
-	h.config.Apps = newApps
+	mergeConfigUpdate(h.config, &update)
 
 	// Save to file
 	if err := h.config.Save(h.configPath); err != nil {
 		log.Printf("Failed to save config: %v", err)
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
 	log.Printf("Configuration saved successfully")
 
-	// Return the updated config
-	clientConfig := struct {
-		Title       string                    `json:"title"`
-		Navigation  config.NavigationConfig   `json:"navigation"`
-		Theme       config.ThemeConfig        `json:"theme"`
-		Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
-		Groups      []config.GroupConfig      `json:"groups"`
-		Apps        []ClientAppConfig         `json:"apps"`
-	}{
-		Title:      h.config.Server.Title,
-		Navigation: h.config.Navigation,
-		Theme:      h.config.Theme,
-		Groups:     h.config.Groups,
-		Apps:       sanitizeApps(h.config.Apps),
-	}
-	if len(h.config.Keybindings.Bindings) > 0 {
-		clientConfig.Keybindings = &h.config.Keybindings
+	w.Header().Set(headerContentType, contentTypeJSON)
+	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
+}
+
+// mergeConfigUpdate applies a client config update to the server config,
+// preserving sensitive fields (auth bypass, access rules, original proxy URLs).
+func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
+	cfg.Server.Title = update.Title
+	cfg.Navigation = update.Navigation
+	cfg.Theme = update.Theme
+	cfg.Groups = update.Groups
+	if update.Keybindings != nil {
+		cfg.Keybindings = *update.Keybindings
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(clientConfig)
+	// Build lookup of existing apps to preserve sensitive data
+	existingApps := make(map[string]config.AppConfig)
+	for _, app := range cfg.Apps {
+		existingApps[app.Name] = app
+	}
+
+	newApps := make([]config.AppConfig, 0, len(update.Apps))
+	for _, clientApp := range update.Apps {
+		app := mergeClientApp(clientApp, existingApps)
+		newApps = append(newApps, app)
+	}
+	cfg.Apps = newApps
+}
+
+// mergeClientApp converts a client app config back to a full app config,
+// preserving sensitive fields from the existing app if it was previously configured.
+func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
+	// Get original URL if this was a proxied app
+	appURL := clientApp.URL
+	if clientApp.Proxy {
+		if existing, ok := existingApps[clientApp.Name]; ok {
+			appURL = existing.URL // Preserve original URL for proxied apps
+		}
+	}
+
+	app := config.AppConfig{
+		Name:                     clientApp.Name,
+		URL:                      appURL,
+		Icon:                     clientApp.Icon,
+		Color:                    clientApp.Color,
+		Group:                    clientApp.Group,
+		Order:                    clientApp.Order,
+		Enabled:                  clientApp.Enabled,
+		Default:                  clientApp.Default,
+		OpenMode:                 clientApp.OpenMode,
+		Proxy:                    clientApp.Proxy,
+		Scale:                    clientApp.Scale,
+		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+	}
+
+	// Preserve auth bypass and access rules if app existed before
+	if existing, ok := existingApps[clientApp.Name]; ok {
+		app.AuthBypass = existing.AuthBypass
+		app.Access = existing.Access
+		// If URL wasn't proxied, use the new one
+		if !clientApp.Proxy {
+			app.URL = clientApp.URL
+		}
+	}
+
+	return app
 }
 
 // GetApps returns the list of apps
 func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps))
 }
 
 // GetGroups returns the list of groups
 func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(h.config.Groups)
 }
 
@@ -200,13 +197,13 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 
 	for _, app := range h.config.Apps {
 		if app.Name == name {
-			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set(headerContentType, contentTypeJSON)
 			json.NewEncoder(w).Encode(sanitizeApp(app))
 			return
 		}
 	}
 
-	http.Error(w, "App not found", http.StatusNotFound)
+	http.Error(w, errAppNotFound, http.StatusNotFound)
 }
 
 // CreateApp creates a new app
@@ -253,11 +250,11 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(sanitizeApp(newApp))
 }
@@ -283,7 +280,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	if idx == -1 {
-		http.Error(w, "App not found", http.StatusNotFound)
+		http.Error(w, errAppNotFound, http.StatusNotFound)
 		return
 	}
 
@@ -310,11 +307,11 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(sanitizeApp(h.config.Apps[idx]))
 }
 
@@ -333,7 +330,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	if idx == -1 {
-		http.Error(w, "App not found", http.StatusNotFound)
+		http.Error(w, errAppNotFound, http.StatusNotFound)
 		return
 	}
 
@@ -341,7 +338,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
@@ -355,13 +352,13 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 
 	for _, group := range h.config.Groups {
 		if group.Name == name {
-			w.Header().Set("Content-Type", "application/json")
+			w.Header().Set(headerContentType, contentTypeJSON)
 			json.NewEncoder(w).Encode(group)
 			return
 		}
 	}
 
-	http.Error(w, "Group not found", http.StatusNotFound)
+	http.Error(w, errGroupNotFound, http.StatusNotFound)
 }
 
 // CreateGroup creates a new group
@@ -393,11 +390,11 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(group)
 }
@@ -423,7 +420,7 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 	}
 
 	if idx == -1 {
-		http.Error(w, "Group not found", http.StatusNotFound)
+		http.Error(w, errGroupNotFound, http.StatusNotFound)
 		return
 	}
 
@@ -431,11 +428,11 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
-	w.Header().Set("Content-Type", "application/json")
+	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(group)
 }
 
@@ -454,7 +451,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 	}
 
 	if idx == -1 {
-		http.Error(w, "Group not found", http.StatusNotFound)
+		http.Error(w, errGroupNotFound, http.StatusNotFound)
 		return
 	}
 
@@ -470,7 +467,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		http.Error(w, "Failed to save configuration", http.StatusInternalServerError)
+		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
@@ -481,7 +478,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 func sanitizeApp(app config.AppConfig) ClientAppConfig {
 	var proxyURL string
 	if app.Proxy {
-		proxyURL = "/proxy/" + slugify(app.Name) + "/"
+		proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
 	}
 	return ClientAppConfig{
 		Name:                     app.Name,
@@ -529,7 +526,7 @@ func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
 		// ProxyURL is set when proxy is enabled (for iframe loading)
 		var proxyURL string
 		if app.Proxy {
-			proxyURL = "/proxy/" + slugify(app.Name) + "/"
+			proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
 		}
 
 		result = append(result, ClientAppConfig{

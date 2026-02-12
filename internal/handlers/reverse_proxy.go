@@ -145,7 +145,7 @@ func (r *contentRewriter) rewriteSrcset(result string) string {
 		parts := strings.Split(srcsetValue, ",")
 		for i, part := range parts {
 			trimmed := strings.TrimSpace(part)
-			if strings.HasPrefix(trimmed, "/") && !strings.HasPrefix(trimmed, "/proxy/") {
+			if strings.HasPrefix(trimmed, "/") && !strings.HasPrefix(trimmed, proxyPathPrefix) {
 				leadingSpace := ""
 				if len(part) > 0 && part[0] == ' ' {
 					leadingSpace = " "
@@ -160,10 +160,18 @@ func (r *contentRewriter) rewriteSrcset(result string) string {
 // rewriteRootPaths rewrites root-relative paths (/) that don't start with /proxy/,
 // including attribute values, CSS url(), and <base href="..."> tags.
 func (r *contentRewriter) rewriteRootPaths(result string) string {
-	// Attribute values starting with / but not /proxy/ (skip srcset, handled above)
+	result = r.rewriteRootPathAttrs(result)
+	result = r.rewriteRootPathURLFunc(result)
+	result = r.rewriteBaseHref(result)
+	return result
+}
+
+// rewriteRootPathAttrs rewrites attribute values starting with / but not /proxy/,
+// skipping srcset (handled separately).
+func (r *contentRewriter) rewriteRootPathAttrs(result string) string {
 	rootPathAttrPattern := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
-	result = rootPathAttrPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+	return rootPathAttrPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		if strings.HasPrefix(strings.ToLower(match), "srcset") {
@@ -180,11 +188,13 @@ func (r *contentRewriter) rewriteRootPaths(result string) string {
 		path := match[quoteIdx+1:]
 		return prefix + r.proxyPrefix + path
 	})
+}
 
-	// CSS url() with root paths
+// rewriteRootPathURLFunc rewrites CSS url() values with root-relative paths.
+func (r *contentRewriter) rewriteRootPathURLFunc(result string) string {
 	rootPathUrlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
-	result = rootPathUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+	return rootPathUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		idx := strings.Index(match, "/")
@@ -193,10 +203,12 @@ func (r *contentRewriter) rewriteRootPaths(result string) string {
 		}
 		return match[:idx] + r.proxyPrefix + match[idx:]
 	})
+}
 
-	// <base href="..."> tag
+// rewriteBaseHref rewrites <base href="..."> tags to use the proxy prefix.
+func (r *contentRewriter) rewriteBaseHref(result string) string {
 	basePattern := regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
-	result = basePattern.ReplaceAllStringFunc(result, func(match string) string {
+	return basePattern.ReplaceAllStringFunc(result, func(match string) string {
 		startQuote := strings.Index(match, `href`)
 		if startQuote == -1 {
 			return match
@@ -217,14 +229,12 @@ func (r *contentRewriter) rewriteRootPaths(result string) string {
 
 		if r.targetPath != "" && strings.HasPrefix(href, r.targetPath) {
 			href = r.proxyPrefix + strings.TrimPrefix(href, r.targetPath)
-		} else if strings.HasPrefix(href, "/") && !strings.HasPrefix(href, "/proxy/") {
+		} else if strings.HasPrefix(href, "/") && !strings.HasPrefix(href, proxyPathPrefix) {
 			href = r.proxyPrefix + href
 		}
 
 		return match[:quoteStart+1] + href + match[quoteEnd:]
 	})
-
-	return result
 }
 
 // rewriteURLBase rewrites JavaScript/JSON base path patterns for SPAs (e.g., Sonarr/Radarr).
@@ -239,7 +249,7 @@ func (r *contentRewriter) rewriteURLBase(result string) string {
 func (r *contentRewriter) rewriteJSONPaths(result string) string {
 	jsonPathPattern := regexp.MustCompile(`("[\w]+"\s*:\s*")(/[^"/][^"]*)(")`)
 	return jsonPathPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		firstQuote := strings.Index(match, `"/`)
@@ -257,7 +267,7 @@ func (r *contentRewriter) rewriteImageSet(result string) string {
 	return imageSetPattern.ReplaceAllStringFunc(result, func(match string) string {
 		pathInSet := regexp.MustCompile(`(["'])/([a-zA-Z0-9_-][^"']*)(["'])`)
 		return pathInSet.ReplaceAllStringFunc(match, func(inner string) string {
-			if strings.Contains(inner, "/proxy/") {
+			if strings.Contains(inner, proxyPathPrefix) {
 				return inner
 			}
 			q := string(inner[0])
@@ -270,7 +280,7 @@ func (r *contentRewriter) rewriteImageSet(result string) string {
 func (r *contentRewriter) rewriteJSONArrayPaths(result string) string {
 	jsonArrayPathPattern := regexp.MustCompile(`(\[|,)\s*"(/[^"]+)"`)
 	return jsonArrayPathPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		idx := strings.Index(match, `"/`)
@@ -286,7 +296,7 @@ func (r *contentRewriter) rewriteCSSImports(result string) string {
 	// @import "/styles.css" or @import '/styles.css'
 	cssImportPattern := regexp.MustCompile(`(@import\s+["'])(/[^"']+)(["'])`)
 	result = cssImportPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		idx := strings.Index(match, `"/`)
@@ -302,7 +312,7 @@ func (r *contentRewriter) rewriteCSSImports(result string) string {
 	// @import url("/styles.css") or @import url('/styles.css')
 	cssImportUrlPattern := regexp.MustCompile(`(@import\s+url\s*\(\s*["']?)(/[^"')]+)(["']?\s*\))`)
 	result = cssImportUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		idx := strings.Index(match, `(/`)
@@ -319,7 +329,7 @@ func (r *contentRewriter) rewriteCSSImports(result string) string {
 func (r *contentRewriter) rewriteSVGHrefs(result string) string {
 	svgHrefPattern := regexp.MustCompile(`(<(?:use|image)[^>]*(?:href|xlink:href)\s*=\s*["'])(/[^"'#]+)(#[^"']*)?(['"])`)
 	return svgHrefPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, "/proxy/") {
+		if strings.Contains(match, proxyPathPrefix) {
 			return match
 		}
 		idx := strings.Index(match, `"/`)
@@ -362,94 +372,104 @@ func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
 	h := &ReverseProxyHandler{
 		routes: make(map[string]*proxyRoute),
 	}
+	buildProxyRoutes(h, apps)
+	return h
+}
 
+// buildProxyRoutes iterates over app configs and creates proxy routes for
+// enabled apps with proxying turned on.
+func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig) {
 	for _, app := range apps {
 		if !app.Proxy || !app.Enabled {
 			continue
 		}
-
-		targetURL, err := url.Parse(app.URL)
-		if err != nil {
-			continue
-		}
-
-		// Skip apps that already use a proxy path (to avoid loops)
-		if strings.HasPrefix(app.URL, "/proxy/") {
-			continue
-		}
-
-		slug := slugify(app.Name)
-		proxyPrefix := "/proxy/" + slug
-		targetPath := targetURL.Path
-		if targetPath == "" {
-			targetPath = "/"
-		}
-
-		// Create content rewriter
-		rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
-
-		// Capture variables for closure
-		capturedProxyPrefix := proxyPrefix
-		capturedTargetPath := targetPath
-		capturedTargetURL := targetURL
-
-		proxy := &httputil.ReverseProxy{
-			Director: func(req *http.Request) {
-				// Strip the /proxy/{slug} prefix from the request path
-				reqPath := strings.TrimPrefix(req.URL.Path, capturedProxyPrefix)
-				if reqPath == "" {
-					reqPath = "/"
-				}
-
-				// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint
-				// e.g., /api/v3/proxy/radarr/movie should become /api/v3/movie
-				// This happens when the app does urlBase + endpoint before AJAX adds apiRoot
-				if strings.Contains(reqPath, capturedProxyPrefix) {
-					reqPath = strings.ReplaceAll(reqPath, capturedProxyPrefix, "")
-				}
-
-				// Join target path with remaining request path
-				// Exception: /api paths typically live at root, not under the target path
-				// This handles apps like Pi-hole where UI is at /admin but API is at /api
-				trimmedTargetPath := strings.TrimSuffix(capturedTargetPath, "/")
-				if trimmedTargetPath != "" && trimmedTargetPath != "/" {
-					// Check if this is an API path that should bypass the target path
-					if strings.HasPrefix(reqPath, "/api/") || reqPath == "/api" {
-						req.URL.Path = reqPath
-					} else if strings.HasPrefix(reqPath, "/") {
-						req.URL.Path = trimmedTargetPath + reqPath
-					} else {
-						req.URL.Path = trimmedTargetPath + "/" + reqPath
-					}
-				} else {
-					req.URL.Path = reqPath
-				}
-
-				req.URL.Scheme = capturedTargetURL.Scheme
-				req.URL.Host = capturedTargetURL.Host
-
-				// Set standard proxy forwarding headers
-				setProxyHeaders(req)
-
-				// Now set the target host
-				req.Host = capturedTargetURL.Host
-				req.Header.Set("Accept-Encoding", "gzip, identity")
-			},
-			ModifyResponse: createModifyResponse(capturedProxyPrefix, capturedTargetPath, rewriter),
-		}
-
-		h.routes[slug] = &proxyRoute{
-			name:        app.Name,
-			slug:        slug,
-			proxyPrefix: proxyPrefix,
-			targetURL:   targetURL,
-			targetPath:  targetPath,
-			proxy:       proxy,
-			rewriter:    rewriter,
+		route := buildSingleProxyRoute(app)
+		if route != nil {
+			h.routes[route.slug] = route
 		}
 	}
+}
 
-	return h
+// buildSingleProxyRoute creates a proxyRoute for a single app config.
+// Returns nil if the app URL is invalid or already uses a proxy path.
+func buildSingleProxyRoute(app config.AppConfig) *proxyRoute {
+	targetURL, err := url.Parse(app.URL)
+	if err != nil {
+		return nil
+	}
+
+	// Skip apps that already use a proxy path (to avoid loops)
+	if strings.HasPrefix(app.URL, proxyPathPrefix) {
+		return nil
+	}
+
+	slug := slugify(app.Name)
+	proxyPrefix := proxyPathPrefix + slug
+	targetPath := targetURL.Path
+	if targetPath == "" {
+		targetPath = "/"
+	}
+
+	rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
+
+	proxy := &httputil.ReverseProxy{
+		Director:       buildDirector(proxyPrefix, targetPath, targetURL),
+		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter),
+	}
+
+	return &proxyRoute{
+		name:        app.Name,
+		slug:        slug,
+		proxyPrefix: proxyPrefix,
+		targetURL:   targetURL,
+		targetPath:  targetPath,
+		proxy:       proxy,
+		rewriter:    rewriter,
+	}
+}
+
+// buildDirector creates the Director function for a reverse proxy that rewrites
+// incoming request paths from the proxy prefix to the backend target.
+func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL) func(*http.Request) {
+	return func(req *http.Request) {
+		// Strip the /proxy/{slug} prefix from the request path
+		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
+		if reqPath == "" {
+			reqPath = "/"
+		}
+
+		// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint
+		if strings.Contains(reqPath, proxyPrefix) {
+			reqPath = strings.ReplaceAll(reqPath, proxyPrefix, "")
+		}
+
+		req.URL.Path = resolveBackendRequestPath(reqPath, targetPath)
+		req.URL.Scheme = targetURL.Scheme
+		req.URL.Host = targetURL.Host
+
+		setProxyHeaders(req)
+
+		req.Host = targetURL.Host
+		req.Header.Set("Accept-Encoding", "gzip, identity")
+	}
+}
+
+// resolveBackendRequestPath joins the request path with the target path,
+// bypassing the target path prefix for /api paths.
+func resolveBackendRequestPath(reqPath, targetPath string) string {
+	trimmedTargetPath := strings.TrimSuffix(targetPath, "/")
+	if trimmedTargetPath == "" || trimmedTargetPath == "/" {
+		return reqPath
+	}
+
+	// API paths typically live at root, not under the target path
+	if strings.HasPrefix(reqPath, "/api/") || reqPath == "/api" {
+		return reqPath
+	}
+	if strings.HasPrefix(reqPath, "/") {
+		return trimmedTargetPath + reqPath
+	}
+	return trimmedTargetPath + "/" + reqPath
 }
 
 func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewriter) func(*http.Response) error {
@@ -458,119 +478,141 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 		resp.Header.Del("X-Frame-Options")
 		resp.Header.Del("Content-Security-Policy")
 
-		// Rewrite Location headers for redirects (301, 302, 303, 307, 308)
-		if location := resp.Header.Get("Location"); location != "" {
-			location = rewriteLocation(location, proxyPrefix, targetPath, rewriter.targetHost)
-			resp.Header.Set("Location", location)
-		}
+		rewriteLocationHeaders(resp, proxyPrefix, targetPath, rewriter.targetHost)
+		rewriteCookieHeaders(resp, rewriter)
+		rewriteLinkHeaders(resp, proxyPrefix)
 
-		// Rewrite Content-Location header
-		if contentLoc := resp.Header.Get("Content-Location"); contentLoc != "" {
-			contentLoc = rewriteLocation(contentLoc, proxyPrefix, targetPath, rewriter.targetHost)
-			resp.Header.Set("Content-Location", contentLoc)
-		}
+		return rewriteResponseBody(resp, rewriter)
+	}
+}
 
-		// Rewrite Refresh header if present (meta refresh redirects)
-		if refresh := resp.Header.Get("Refresh"); refresh != "" {
-			if idx := strings.Index(strings.ToLower(refresh), "url="); idx != -1 {
-				urlPart := strings.TrimSpace(refresh[idx+4:])
-				urlPart = rewriteLocation(urlPart, proxyPrefix, targetPath, rewriter.targetHost)
-				resp.Header.Set("Refresh", refresh[:idx+4]+urlPart)
+// rewriteLocationHeaders rewrites Location, Content-Location, and Refresh headers
+// so that redirects point through the proxy path.
+func rewriteLocationHeaders(resp *http.Response, proxyPrefix, targetPath, targetHost string) {
+	if location := resp.Header.Get("Location"); location != "" {
+		location = rewriteLocation(location, proxyPrefix, targetPath, targetHost)
+		resp.Header.Set("Location", location)
+	}
+
+	if contentLoc := resp.Header.Get("Content-Location"); contentLoc != "" {
+		contentLoc = rewriteLocation(contentLoc, proxyPrefix, targetPath, targetHost)
+		resp.Header.Set("Content-Location", contentLoc)
+	}
+
+	if refresh := resp.Header.Get("Refresh"); refresh != "" {
+		if idx := strings.Index(strings.ToLower(refresh), "url="); idx != -1 {
+			urlPart := strings.TrimSpace(refresh[idx+4:])
+			urlPart = rewriteLocation(urlPart, proxyPrefix, targetPath, targetHost)
+			resp.Header.Set("Refresh", refresh[:idx+4]+urlPart)
+		}
+	}
+}
+
+// rewriteCookieHeaders rewrites Set-Cookie Path attributes to use the proxy prefix.
+func rewriteCookieHeaders(resp *http.Response, rewriter *contentRewriter) {
+	cookies := resp.Header.Values(headerSetCookie)
+	if len(cookies) == 0 {
+		return
+	}
+	resp.Header.Del(headerSetCookie)
+	for _, cookie := range cookies {
+		rewritten := rewriter.rewriteCookiePath(cookie)
+		resp.Header.Add(headerSetCookie, rewritten)
+	}
+}
+
+// rewriteLinkHeaders rewrites Link headers (preload, prefetch) to use the proxy prefix.
+func rewriteLinkHeaders(resp *http.Response, proxyPrefix string) {
+	linkHeaders := resp.Header.Values("Link")
+	if len(linkHeaders) == 0 {
+		return
+	}
+	resp.Header.Del("Link")
+	linkPathPattern := regexp.MustCompile(`<(/[^>]+)>`)
+	for _, link := range linkHeaders {
+		rewritten := linkPathPattern.ReplaceAllStringFunc(link, func(match string) string {
+			if strings.Contains(match, proxyPathPrefix) {
+				return match
 			}
-		}
+			path := match[1 : len(match)-1]
+			return "<" + proxyPrefix + path + ">"
+		})
+		resp.Header.Add("Link", rewritten)
+	}
+}
 
-		// Rewrite Set-Cookie headers
-		cookies := resp.Header.Values("Set-Cookie")
-		if len(cookies) > 0 {
-			resp.Header.Del("Set-Cookie")
-			for _, cookie := range cookies {
-				rewritten := rewriter.rewriteCookiePath(cookie)
-				resp.Header.Add("Set-Cookie", rewritten)
-			}
-		}
+// rewriteResponseBody reads, decompresses (if gzipped), rewrites, and replaces the
+// response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
+func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
+	contentType := resp.Header.Get(headerContentType)
+	if !shouldRewriteContent(contentType) {
+		return nil
+	}
 
-		// Rewrite Link headers (for preload, prefetch, etc.)
-		// Link: </style.css>; rel=preload -> Link: </proxy/app/style.css>; rel=preload
-		linkHeaders := resp.Header.Values("Link")
-		if len(linkHeaders) > 0 {
-			resp.Header.Del("Link")
-			linkPathPattern := regexp.MustCompile(`<(/[^>]+)>`)
-			for _, link := range linkHeaders {
-				rewritten := linkPathPattern.ReplaceAllStringFunc(link, func(match string) string {
-					if strings.Contains(match, "/proxy/") {
-						return match
-					}
-					// Extract path between < and >
-					path := match[1 : len(match)-1]
-					return "<" + proxyPrefix + path + ">"
-				})
-				resp.Header.Add("Link", rewritten)
-			}
-		}
+	var reader io.Reader = resp.Body
+	isGzipped := strings.Contains(resp.Header.Get("Content-Encoding"), "gzip")
 
-		// Check if we should rewrite content
-		contentType := resp.Header.Get("Content-Type")
-		if !shouldRewriteContent(contentType) {
-			return nil
-		}
-
-		// Read and potentially decompress response body
-		var reader io.Reader = resp.Body
-		isGzipped := strings.Contains(resp.Header.Get("Content-Encoding"), "gzip")
-
-		if isGzipped {
-			gzReader, err := gzip.NewReader(resp.Body)
-			if err != nil {
-				return nil
-			}
-			reader = gzReader
-			defer gzReader.Close()
-		}
-
-		body, err := io.ReadAll(reader)
+	if isGzipped {
+		gzReader, err := gzip.NewReader(resp.Body)
 		if err != nil {
 			return nil
 		}
-		resp.Body.Close()
+		reader = gzReader
+		defer gzReader.Close()
+	}
 
-		// Rewrite content
-		rewritten := rewriter.rewrite(body)
-
-		// Update response
-		resp.Body = io.NopCloser(bytes.NewReader(rewritten))
-		resp.ContentLength = int64(len(rewritten))
-		resp.Header.Set("Content-Length", fmt.Sprintf("%d", len(rewritten)))
-		resp.Header.Del("Content-Encoding")
-
+	body, err := io.ReadAll(reader)
+	if err != nil {
 		return nil
 	}
+	resp.Body.Close()
+
+	rewritten := rewriter.rewrite(body)
+
+	resp.Body = io.NopCloser(bytes.NewReader(rewritten))
+	resp.ContentLength = int64(len(rewritten))
+	resp.Header.Set("Content-Length", fmt.Sprintf("%d", len(rewritten)))
+	resp.Header.Del("Content-Encoding")
+
+	return nil
 }
 
 func rewriteLocation(location, proxyPrefix, targetPath, targetHost string) string {
 	// Handle absolute URLs pointing to the target server
 	// e.g., http://192.0.2.10:32400/web/index.html -> /proxy/plex/index.html
-	if strings.HasPrefix(location, "http://") || strings.HasPrefix(location, "https://") {
-		parsed, err := url.Parse(location)
-		if err != nil {
-			return location
-		}
-		// Only rewrite if it's pointing to our target host
-		if parsed.Host == targetHost {
-			location = parsed.Path
-			if parsed.RawQuery != "" {
-				location += "?" + parsed.RawQuery
-			}
-			// Fall through to path rewriting below
-		} else {
-			return location // Different host, don't rewrite
-		}
-	}
+	location = resolveAbsoluteLocation(location, targetHost)
 
 	// Skip if already rewritten or not a path
-	if !strings.HasPrefix(location, "/") || strings.HasPrefix(location, "/proxy/") {
+	if !strings.HasPrefix(location, "/") || strings.HasPrefix(location, proxyPathPrefix) {
 		return location
 	}
 
+	return rewritePathWithTarget(location, proxyPrefix, targetPath)
+}
+
+// resolveAbsoluteLocation converts an absolute URL to a path if it points to the target host.
+// Returns the original location unchanged if it's not an absolute URL or points to a different host.
+func resolveAbsoluteLocation(location, targetHost string) string {
+	if !strings.HasPrefix(location, "http://") && !strings.HasPrefix(location, "https://") {
+		return location
+	}
+	parsed, err := url.Parse(location)
+	if err != nil {
+		return location
+	}
+	if parsed.Host != targetHost {
+		return location
+	}
+	result := parsed.Path
+	if parsed.RawQuery != "" {
+		result += "?" + parsed.RawQuery
+	}
+	return result
+}
+
+// rewritePathWithTarget rewrites a root-relative path, stripping the target path prefix
+// if present and prepending the proxy prefix.
+func rewritePathWithTarget(location, proxyPrefix, targetPath string) string {
 	trimmedTarget := strings.TrimSuffix(targetPath, "/")
 	if trimmedTarget != "" && strings.HasPrefix(location, trimmedTarget) {
 		remaining := strings.TrimPrefix(location, trimmedTarget)
@@ -579,7 +621,6 @@ func rewriteLocation(location, proxyPrefix, targetPath, targetHost string) strin
 		}
 		return proxyPrefix + remaining
 	}
-
 	return proxyPrefix + location
 }
 
@@ -648,10 +689,10 @@ func setProxyHeaders(r *http.Request) {
 	}
 
 	// X-Forwarded-For: Client IP (append to existing if present)
-	if prior := r.Header.Get("X-Forwarded-For"); prior != "" {
-		r.Header.Set("X-Forwarded-For", prior+", "+clientIP)
+	if prior := r.Header.Get(headerXForwardedFor); prior != "" {
+		r.Header.Set(headerXForwardedFor, prior+", "+clientIP)
 	} else {
-		r.Header.Set("X-Forwarded-For", clientIP)
+		r.Header.Set(headerXForwardedFor, clientIP)
 	}
 
 	// X-Forwarded-Host: Original host requested by client
@@ -779,7 +820,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	backendConn, err := route.dialBackend()
 	if err != nil {
 		log.Printf("[proxy-ws] %s: failed to dial backend %s: %v", route.name, targetHost, err)
-		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		http.Error(w, errBadGateway, http.StatusBadGateway)
 		return
 	}
 	defer backendConn.Close()
@@ -791,7 +832,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	upgradeReq := route.buildUpgradeRequest(r, backendPath, targetHost)
 	if _, err = backendConn.Write(upgradeReq); err != nil {
 		log.Printf("[proxy-ws] %s: failed to write upgrade request: %v", route.name, err)
-		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		http.Error(w, errBadGateway, http.StatusBadGateway)
 		return
 	}
 
@@ -800,7 +841,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	resp, err := http.ReadResponse(backendBuf, r)
 	if err != nil {
 		log.Printf("[proxy-ws] %s: failed to read upgrade response: %v", route.name, err)
-		http.Error(w, "Bad Gateway", http.StatusBadGateway)
+		http.Error(w, errBadGateway, http.StatusBadGateway)
 		return
 	}
 
@@ -848,7 +889,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 
 // ServeHTTP handles proxy requests
 func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	path := strings.TrimPrefix(r.URL.Path, "/proxy/")
+	path := strings.TrimPrefix(r.URL.Path, proxyPathPrefix)
 	parts := strings.SplitN(path, "/", 2)
 	if len(parts) == 0 {
 		http.Error(w, "Invalid proxy path", http.StatusBadRequest)
