@@ -40,12 +40,124 @@ type Server struct {
 	oidcProvider   *auth.OIDCProvider
 }
 
+// adminGuard is a function that wraps a handler to require admin role.
+type adminGuard func(next http.HandlerFunc) http.HandlerFunc
+
 // New creates a new server instance
 func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Create WebSocket hub
 	wsHub := websocket.NewHub()
 
 	// Set up authentication
+	sessionStore, userStore, authMiddleware := setupAuth(cfg)
+
+	s := &Server{
+		config:         cfg,
+		configPath:     configPath,
+		wsHub:          wsHub,
+		sessionStore:   sessionStore,
+		userStore:      userStore,
+		authMiddleware: authMiddleware,
+	}
+
+	// Set up routes
+	mux := http.NewServeMux()
+
+	// Auth endpoints (always accessible)
+	authHandler := handlers.NewAuthHandler(sessionStore, userStore)
+
+	// Set up OIDC provider if configured
+	if cfg.Auth.OIDC.Enabled {
+		oidcProvider := setupOIDC(cfg, sessionStore, userStore)
+		authHandler.SetOIDCProvider(oidcProvider)
+		s.oidcProvider = oidcProvider
+	}
+
+	// requireAdmin checks that the authenticated user has admin role.
+	// Used to protect state-changing API endpoints.
+	requireAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
+		return func(w http.ResponseWriter, r *http.Request) {
+			user := auth.GetUserFromContext(r.Context())
+			if user == nil {
+				http.Error(w, "Unauthorized", http.StatusUnauthorized)
+				return
+			}
+			if user.Role != auth.RoleAdmin {
+				http.Error(w, "Forbidden: admin role required", http.StatusForbidden)
+				return
+			}
+			next(w, r)
+		}
+	})
+
+	registerAuthRoutes(mux, authHandler, authMiddleware, wsHub)
+
+	// API routes
+	api := handlers.NewAPIHandler(cfg, configPath)
+	registerAPIRoutes(mux, api, requireAdmin)
+
+	// Health monitoring
+	s.setupHealthRoutes(mux, cfg, wsHub)
+
+	// Forward-declare so /themes/ handler closure can reference it
+	var staticHandler http.Handler
+
+	// Extract embedded dist filesystem (used for bundled themes + static serving)
+	distFS, distErr := fs.Sub(embeddedFiles, "dist")
+
+	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler)
+	registerIconRoutes(mux, cfg, requireAdmin)
+
+	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
+	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps)
+	if reverseProxyHandler.HasRoutes() {
+		mux.Handle("/proxy/", reverseProxyHandler)
+		fmt.Printf("Integrated reverse proxy enabled for: %v\n", reverseProxyHandler.GetRoutes())
+	}
+
+	// Caddy setup
+	goListenAddr := setupCaddy(s, cfg)
+
+	// Proxy API routes (always registered so the endpoint responds gracefully)
+	proxyHandler := handlers.NewProxyHandler(s.proxyServer, cfg.Server)
+	mux.HandleFunc("/api/proxy/status", proxyHandler.GetStatus)
+
+	// Auth-protected endpoints
+	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(authHandler.Me)).ServeHTTP(w, r)
+	})
+	mux.HandleFunc("/api/auth/password", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(authHandler.ChangePassword)).ServeHTTP(w, r)
+	})
+
+	// Serve embedded frontend files
+	if distErr != nil {
+		// Fallback to serving from web/dist during development
+		fileServer := http.FileServer(http.Dir("web/dist"))
+		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
+	} else {
+		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html")
+	}
+
+	// Serve static files with SPA fallback
+	mux.Handle("/", staticHandler)
+
+	// Create the final handler with security middleware
+	handler := wrapMiddleware(mux, cfg, authMiddleware)
+
+	s.httpServer = &http.Server{
+		Addr:         goListenAddr,
+		Handler:      handler,
+		ReadTimeout:  15 * time.Second,
+		WriteTimeout: 15 * time.Second,
+		IdleTimeout:  60 * time.Second,
+	}
+
+	return s, nil
+}
+
+// setupAuth creates the session store, user store, and auth middleware from config.
+func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.Middleware) {
 	sessionMaxAge := parseDuration(cfg.Auth.SessionMaxAge, 24*time.Hour)
 	sessionStore := auth.NewSessionStore("muximux_session", sessionMaxAge, cfg.Auth.SecureCookies)
 	userStore := auth.NewUserStore()
@@ -94,42 +206,29 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	}
 	authMiddleware := auth.NewMiddleware(authConfig, sessionStore, userStore)
 
-	s := &Server{
-		config:         cfg,
-		configPath:     configPath,
-		wsHub:          wsHub,
-		sessionStore:   sessionStore,
-		userStore:      userStore,
-		authMiddleware: authMiddleware,
+	return sessionStore, userStore, authMiddleware
+}
+
+// setupOIDC configures and returns the OIDC provider.
+func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *auth.UserStore) *auth.OIDCProvider {
+	oidcConfig := auth.OIDCConfig{
+		Enabled:          cfg.Auth.OIDC.Enabled,
+		IssuerURL:        cfg.Auth.OIDC.IssuerURL,
+		ClientID:         cfg.Auth.OIDC.ClientID,
+		ClientSecret:     cfg.Auth.OIDC.ClientSecret,
+		RedirectURL:      cfg.Auth.OIDC.RedirectURL,
+		Scopes:           cfg.Auth.OIDC.Scopes,
+		UsernameClaim:    cfg.Auth.OIDC.UsernameClaim,
+		EmailClaim:       cfg.Auth.OIDC.EmailClaim,
+		GroupsClaim:      cfg.Auth.OIDC.GroupsClaim,
+		DisplayNameClaim: cfg.Auth.OIDC.DisplayNameClaim,
+		AdminGroups:      cfg.Auth.OIDC.AdminGroups,
 	}
+	return auth.NewOIDCProvider(oidcConfig, sessionStore, userStore)
+}
 
-	// Set up routes
-	mux := http.NewServeMux()
-
-	// Auth endpoints (always accessible)
-	authHandler := handlers.NewAuthHandler(sessionStore, userStore)
-
-	// Set up OIDC provider if configured
-	var oidcProvider *auth.OIDCProvider
-	if cfg.Auth.OIDC.Enabled {
-		oidcConfig := auth.OIDCConfig{
-			Enabled:          cfg.Auth.OIDC.Enabled,
-			IssuerURL:        cfg.Auth.OIDC.IssuerURL,
-			ClientID:         cfg.Auth.OIDC.ClientID,
-			ClientSecret:     cfg.Auth.OIDC.ClientSecret,
-			RedirectURL:      cfg.Auth.OIDC.RedirectURL,
-			Scopes:           cfg.Auth.OIDC.Scopes,
-			UsernameClaim:    cfg.Auth.OIDC.UsernameClaim,
-			EmailClaim:       cfg.Auth.OIDC.EmailClaim,
-			GroupsClaim:      cfg.Auth.OIDC.GroupsClaim,
-			DisplayNameClaim: cfg.Auth.OIDC.DisplayNameClaim,
-			AdminGroups:      cfg.Auth.OIDC.AdminGroups,
-		}
-		oidcProvider = auth.NewOIDCProvider(oidcConfig, sessionStore, userStore)
-		authHandler.SetOIDCProvider(oidcProvider)
-		s.oidcProvider = oidcProvider
-	}
-
+// registerAuthRoutes registers authentication and WebSocket endpoints.
+func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, authMiddleware *auth.Middleware, wsHub *websocket.Hub) {
 	loginLimiter := newRateLimiter(5, 1*time.Minute) // 5 attempts per IP per minute
 	mux.HandleFunc("/api/auth/login", loginLimiter.wrap(authHandler.Login))
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
@@ -141,27 +240,10 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(wsHub, w, r)
 	})
+}
 
-	// requireAdmin checks that the authenticated user has admin role.
-	// Used to protect state-changing API endpoints.
-	requireAdmin := func(next http.HandlerFunc) http.HandlerFunc {
-		return func(w http.ResponseWriter, r *http.Request) {
-			user := auth.GetUserFromContext(r.Context())
-			if user == nil {
-				http.Error(w, "Unauthorized", http.StatusUnauthorized)
-				return
-			}
-			if user.Role != auth.RoleAdmin {
-				http.Error(w, "Forbidden: admin role required", http.StatusForbidden)
-				return
-			}
-			next(w, r)
-		}
-	}
-
-	// API routes
-	api := handlers.NewAPIHandler(cfg, configPath)
-
+// registerAPIRoutes registers config, apps, and groups CRUD endpoints.
+func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmin adminGuard) {
 	// Config endpoint - handle both GET and PUT
 	mux.HandleFunc("/api/config", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -245,53 +327,55 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	})
 
 	mux.HandleFunc("/api/health", api.Health)
+}
 
-	// Health monitoring
-	if cfg.Health.Enabled {
-		healthInterval := parseDuration(cfg.Health.Interval, 30*time.Second)
-		healthTimeout := parseDuration(cfg.Health.Timeout, 5*time.Second)
-		s.healthMonitor = health.NewMonitor(healthInterval, healthTimeout)
-
-		// Configure apps for health monitoring
-		healthApps := make([]health.AppConfig, 0, len(cfg.Apps))
-		for _, app := range cfg.Apps {
-			healthApps = append(healthApps, health.AppConfig{
-				Name:      app.Name,
-				URL:       app.URL,
-				HealthURL: app.HealthURL,
-				Enabled:   app.Enabled,
-			})
-		}
-		s.healthMonitor.SetApps(healthApps)
-
-		// Broadcast health changes via WebSocket
-		s.healthMonitor.SetHealthChangeCallback(func(appName string, appHealth *health.AppHealth) {
-			wsHub.BroadcastAppHealthUpdate(appName, appHealth)
-		})
-
-		// Health check routes
-		healthHandler := handlers.NewHealthHandler(s.healthMonitor)
-		mux.HandleFunc("/api/apps/health", healthHandler.GetAllHealth)
-		mux.HandleFunc("/api/apps/", func(w http.ResponseWriter, r *http.Request) {
-			// Route /api/apps/{name}/health and /api/apps/{name}/health/check
-			path := r.URL.Path
-			if strings.HasSuffix(path, "/health/check") {
-				healthHandler.CheckAppHealth(w, r)
-			} else if strings.HasSuffix(path, "/health") {
-				healthHandler.GetAppHealth(w, r)
-			} else {
-				http.Error(w, "Not found", http.StatusNotFound)
-			}
-		})
+// setupHealthRoutes configures health monitoring and registers health check routes.
+func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub *websocket.Hub) {
+	if !cfg.Health.Enabled {
+		return
 	}
 
-	// Forward-declare so /themes/ handler closure can reference it
-	var staticHandler http.Handler
+	healthInterval := parseDuration(cfg.Health.Interval, 30*time.Second)
+	healthTimeout := parseDuration(cfg.Health.Timeout, 5*time.Second)
+	s.healthMonitor = health.NewMonitor(healthInterval, healthTimeout)
 
-	// Extract embedded dist filesystem (used for bundled themes + static serving)
-	distFS, distErr := fs.Sub(embeddedFiles, "dist")
+	// Configure apps for health monitoring
+	healthApps := make([]health.AppConfig, 0, len(cfg.Apps))
+	for _, app := range cfg.Apps {
+		healthApps = append(healthApps, health.AppConfig{
+			Name:      app.Name,
+			URL:       app.URL,
+			HealthURL: app.HealthURL,
+			Enabled:   app.Enabled,
+		})
+	}
+	s.healthMonitor.SetApps(healthApps)
 
-	// Theme routes (custom theme CRUD API)
+	// Broadcast health changes via WebSocket
+	s.healthMonitor.SetHealthChangeCallback(func(appName string, appHealth *health.AppHealth) {
+		wsHub.BroadcastAppHealthUpdate(appName, appHealth)
+	})
+
+	// Health check routes
+	healthHandler := handlers.NewHealthHandler(s.healthMonitor)
+	mux.HandleFunc("/api/apps/health", healthHandler.GetAllHealth)
+	mux.HandleFunc("/api/apps/", func(w http.ResponseWriter, r *http.Request) {
+		// Route /api/apps/{name}/health and /api/apps/{name}/health/check
+		path := r.URL.Path
+		if strings.HasSuffix(path, "/health/check") {
+			healthHandler.CheckAppHealth(w, r)
+		} else if strings.HasSuffix(path, "/health") {
+			healthHandler.GetAppHealth(w, r)
+		} else {
+			http.Error(w, "Not found", http.StatusNotFound)
+		}
+	})
+}
+
+// registerThemeRoutes registers theme API and CSS serving routes.
+// staticHandler is a pointer so the /themes/ closure can reference the handler
+// that gets assigned later (forward declaration pattern).
+func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler) {
 	themeHandler := handlers.NewThemeHandler("data/themes", distFS)
 	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
@@ -332,10 +416,12 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 			return
 		}
 		// Fall through to static handler (web/dist/themes/ or embedded)
-		staticHandler.ServeHTTP(w, r)
+		(*staticHandler).ServeHTTP(w, r)
 	})
+}
 
-	// Icon routes
+// registerIconRoutes registers icon API and serving routes.
+func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard) {
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
 	dashboardClient := icons.NewDashboardIconsClient(cfg.Icons.DashboardIcons.CacheDir, cacheTTL)
 	lucideClient := icons.NewLucideClient("data/icons/lucide", cacheTTL)
@@ -357,72 +443,47 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	})
 	mux.HandleFunc("/api/icons/custom/", requireAdmin(iconHandler.DeleteCustomIcon))
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
+}
 
-	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
-	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps)
-	if reverseProxyHandler.HasRoutes() {
-		mux.Handle("/proxy/", reverseProxyHandler)
-		fmt.Printf("Integrated reverse proxy enabled for: %v\n", reverseProxyHandler.GetRoutes())
-	}
-
-	// Caddy setup: when TLS or Gateway is configured, Caddy serves the
-	// user-facing port and Go moves to an internal address.
+// setupCaddy configures the Caddy reverse proxy when TLS or Gateway is active.
+// It sets s.proxyServer and returns the Go server's listen address.
+func setupCaddy(s *Server, cfg *config.Config) string {
 	goListenAddr := cfg.Server.Listen
-	if cfg.Server.NeedsCaddy() {
-		internalAddr := proxy.ComputeInternalAddr(cfg.Server.Listen)
-		proxyConfig := proxy.Config{
-			ListenAddr:   cfg.Server.Listen,
-			InternalAddr: internalAddr,
-			Domain:       cfg.Server.TLS.Domain,
-			Email:        cfg.Server.TLS.Email,
-			TLSCert:      cfg.Server.TLS.Cert,
-			TLSKey:       cfg.Server.TLS.Key,
-			Gateway:      cfg.Server.Gateway,
-		}
-		s.proxyServer = proxy.New(proxyConfig)
-
-		// Configure proxy routes for apps with proxy enabled
-		var proxyRoutes []proxy.AppRoute
-		for _, app := range cfg.Apps {
-			if app.Proxy && app.Enabled {
-				proxyRoutes = append(proxyRoutes, proxy.AppRoute{
-					Name:      app.Name,
-					Slug:      proxy.Slugify(app.Name),
-					TargetURL: app.URL,
-					Enabled:   true,
-				})
-			}
-		}
-		s.proxyServer.SetRoutes(proxyRoutes)
-
-		goListenAddr = internalAddr
+	if !cfg.Server.NeedsCaddy() {
+		return goListenAddr
 	}
 
-	// Proxy API routes (always registered so the endpoint responds gracefully)
-	proxyHandler := handlers.NewProxyHandler(s.proxyServer, cfg.Server)
-	mux.HandleFunc("/api/proxy/status", proxyHandler.GetStatus)
-
-	// Auth-protected endpoints
-	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {
-		authMiddleware.RequireAuth(http.HandlerFunc(authHandler.Me)).ServeHTTP(w, r)
-	})
-	mux.HandleFunc("/api/auth/password", func(w http.ResponseWriter, r *http.Request) {
-		authMiddleware.RequireAuth(http.HandlerFunc(authHandler.ChangePassword)).ServeHTTP(w, r)
-	})
-
-	// Serve embedded frontend files
-	if distErr != nil {
-		// Fallback to serving from web/dist during development
-		fileServer := http.FileServer(http.Dir("web/dist"))
-		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
-	} else {
-		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html")
+	internalAddr := proxy.ComputeInternalAddr(cfg.Server.Listen)
+	proxyConfig := proxy.Config{
+		ListenAddr:   cfg.Server.Listen,
+		InternalAddr: internalAddr,
+		Domain:       cfg.Server.TLS.Domain,
+		Email:        cfg.Server.TLS.Email,
+		TLSCert:      cfg.Server.TLS.Cert,
+		TLSKey:       cfg.Server.TLS.Key,
+		Gateway:      cfg.Server.Gateway,
 	}
+	s.proxyServer = proxy.New(proxyConfig)
 
-	// Serve static files with SPA fallback
-	mux.Handle("/", staticHandler)
+	// Configure proxy routes for apps with proxy enabled
+	var proxyRoutes []proxy.AppRoute
+	for _, app := range cfg.Apps {
+		if app.Proxy && app.Enabled {
+			proxyRoutes = append(proxyRoutes, proxy.AppRoute{
+				Name:      app.Name,
+				Slug:      proxy.Slugify(app.Name),
+				TargetURL: app.URL,
+				Enabled:   true,
+			})
+		}
+	}
+	s.proxyServer.SetRoutes(proxyRoutes)
 
-	// Create the final handler with security middleware
+	return internalAddr
+}
+
+// wrapMiddleware applies auth and security middleware around the mux.
+func wrapMiddleware(mux *http.ServeMux, cfg *config.Config, authMiddleware *auth.Middleware) http.Handler {
 	var handler http.Handler = mux
 	if cfg.Auth.Method != "none" && cfg.Auth.Method != "" {
 		handler = authMiddleware.RequireAuth(mux)
@@ -431,16 +492,7 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	handler = securityHeadersMiddleware(handler)
 	handler = csrfMiddleware(handler)
 	handler = bodySizeLimitMiddleware(handler)
-
-	s.httpServer = &http.Server{
-		Addr:         goListenAddr,
-		Handler:      handler,
-		ReadTimeout:  15 * time.Second,
-		WriteTimeout: 15 * time.Second,
-		IdleTimeout:  60 * time.Second,
-	}
-
-	return s, nil
+	return handler
 }
 
 // Start begins serving HTTP requests

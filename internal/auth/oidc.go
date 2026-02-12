@@ -219,18 +219,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	groups := getStringListClaim(userInfo, p.config.GroupsClaim)
 
 	// Determine role
-	role := RoleUser
-	for _, group := range groups {
-		for _, adminGroup := range p.config.AdminGroups {
-			if strings.EqualFold(group, adminGroup) {
-				role = RoleAdmin
-				break
-			}
-		}
-		if role == RoleAdmin {
-			break
-		}
-	}
+	role := determineOIDCRole(groups, p.config.AdminGroups)
 
 	// Create or update user
 	user := &User{
@@ -252,11 +241,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	p.sessionStore.SetCookie(w, session)
 
 	// Redirect to original destination or home
-	// Validate redirect is a safe relative path (prevent open redirect)
-	redirectURL := entry.redirectURL
-	if redirectURL == "" || !strings.HasPrefix(redirectURL, "/") || strings.HasPrefix(redirectURL, "//") {
-		redirectURL = "/"
-	}
+	redirectURL := sanitizeRedirectURL(entry.redirectURL)
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
@@ -395,13 +380,31 @@ func getStringListClaim(claims map[string]interface{}, key string) []string {
 	return nil
 }
 
+// determineOIDCRole checks if any of the user's groups match the admin groups
+// and returns the appropriate role
+func determineOIDCRole(groups []string, adminGroups []string) string {
+	for _, group := range groups {
+		for _, adminGroup := range adminGroups {
+			if strings.EqualFold(group, adminGroup) {
+				return RoleAdmin
+			}
+		}
+	}
+	return RoleUser
+}
+
+// sanitizeRedirectURL validates that the redirect URL is a safe relative path
+// to prevent open redirect vulnerabilities
+func sanitizeRedirectURL(redirectURL string) string {
+	if redirectURL == "" || !strings.HasPrefix(redirectURL, "/") || strings.HasPrefix(redirectURL, "//") {
+		return "/"
+	}
+	return redirectURL
+}
+
 // HandleLogin redirects to the OIDC provider for authentication
 func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	redirectAfter := r.URL.Query().Get("redirect")
-	// Only allow safe relative paths
-	if redirectAfter == "" || !strings.HasPrefix(redirectAfter, "/") || strings.HasPrefix(redirectAfter, "//") {
-		redirectAfter = "/"
-	}
+	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"))
 
 	authURL, err := p.GetAuthorizationURL(redirectAfter)
 	if err != nil {

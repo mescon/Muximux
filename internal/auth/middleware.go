@@ -183,65 +183,75 @@ func (m *Middleware) shouldBypass(r *http.Request) bool {
 
 // matchBypassRule checks if a request matches a bypass rule
 func (m *Middleware) matchBypassRule(r *http.Request, rule BypassRule) bool {
-	// Check path
-	if rule.Path != "" {
-		if strings.HasSuffix(rule.Path, "*") {
-			prefix := strings.TrimSuffix(rule.Path, "*")
-			if !strings.HasPrefix(r.URL.Path, prefix) {
-				return false
-			}
-		} else if r.URL.Path != rule.Path {
-			return false
-		}
+	if !matchPath(r.URL.Path, rule) {
+		return false
 	}
-
-	// Check method
-	if len(rule.Methods) > 0 {
-		methodMatch := false
-		for _, method := range rule.Methods {
-			if strings.EqualFold(r.Method, method) {
-				methodMatch = true
-				break
-			}
-		}
-		if !methodMatch {
-			return false
-		}
+	if !matchMethod(r.Method, rule) {
+		return false
 	}
-
-	// Check API key requirement
-	if rule.RequireAPIKey {
-		provided := r.Header.Get("X-Api-Key")
-		if provided == "" || m.config.APIKey == "" {
-			return false
-		}
-		if subtle.ConstantTimeCompare([]byte(provided), []byte(m.config.APIKey)) != 1 {
-			return false
-		}
+	if !m.matchAPIKey(r, rule) {
+		return false
 	}
-
-	// Check IP allowlist
-	if len(rule.AllowedIPs) > 0 {
-		clientIP := m.getClientIP(r)
-		ipAllowed := false
-		for _, allowed := range rule.AllowedIPs {
-			if clientIP == allowed {
-				ipAllowed = true
-				break
-			}
-			// Check CIDR
-			_, network, err := net.ParseCIDR(allowed)
-			if err == nil && network.Contains(net.ParseIP(clientIP)) {
-				ipAllowed = true
-				break
-			}
-		}
-		if !ipAllowed {
-			return false
-		}
+	if !m.matchAllowedIPs(r, rule) {
+		return false
 	}
-
 	return true
+}
+
+// matchPath checks if the request path matches the rule path (supports wildcard suffix)
+func matchPath(requestPath string, rule BypassRule) bool {
+	if rule.Path == "" {
+		return true
+	}
+	if strings.HasSuffix(rule.Path, "*") {
+		prefix := strings.TrimSuffix(rule.Path, "*")
+		return strings.HasPrefix(requestPath, prefix)
+	}
+	return requestPath == rule.Path
+}
+
+// matchMethod checks if the HTTP method matches the rule methods
+func matchMethod(method string, rule BypassRule) bool {
+	if len(rule.Methods) == 0 {
+		return true
+	}
+	for _, m := range rule.Methods {
+		if strings.EqualFold(method, m) {
+			return true
+		}
+	}
+	return false
+}
+
+// matchAPIKey verifies the API key using constant-time comparison
+func (m *Middleware) matchAPIKey(r *http.Request, rule BypassRule) bool {
+	if !rule.RequireAPIKey {
+		return true
+	}
+	provided := r.Header.Get("X-Api-Key")
+	if provided == "" || m.config.APIKey == "" {
+		return false
+	}
+	return subtle.ConstantTimeCompare([]byte(provided), []byte(m.config.APIKey)) == 1
+}
+
+// matchAllowedIPs checks the IP allowlist with CIDR support
+func (m *Middleware) matchAllowedIPs(r *http.Request, rule BypassRule) bool {
+	if len(rule.AllowedIPs) == 0 {
+		return true
+	}
+	clientIP := m.getClientIP(r)
+	for _, allowed := range rule.AllowedIPs {
+		if clientIP == allowed {
+			return true
+		}
+		// Check CIDR
+		_, network, err := net.ParseCIDR(allowed)
+		if err == nil && network.Contains(net.ParseIP(clientIP)) {
+			return true
+		}
+	}
+	return false
 }
 
 // authenticateForwardAuth extracts user info from forward auth headers
