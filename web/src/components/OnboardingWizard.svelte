@@ -3,6 +3,8 @@
   import { SvelteMap, SvelteSet } from 'svelte/reactivity';
   import { get } from 'svelte/store';
   import { fly, fade } from 'svelte/transition';
+  import { flip } from 'svelte/animate';
+  import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import type { App, AppIcon as AppIconConfig, Group, NavigationConfig, ThemeConfig, SetupRequest } from '$lib/types';
   import {
     currentStep,
@@ -13,7 +15,7 @@
     prevStep,
     stepProgress,
     configureSteps,
-    getStepOrder,
+    activeStepOrder,
     type OnboardingStep
   } from '$lib/onboardingStore';
   import { submitSetup } from '$lib/api';
@@ -64,6 +66,11 @@
   let wizardGroups = $state<Group[]>([]);
   let iconBrowserContext = $state<'custom-app' | number | null>(null);
   let groupsInitialized = $state(false);
+
+  const flipDurationMs = 200;
+
+  let dndUnsorted = $state<{id: string; name: string}[]>([]);
+  let dndGroupApps = $state<Record<string, {id: string; name: string}[]>>({});
 
   // Security step state
   let authMethod = $state<'builtin' | 'forward_auth' | 'none' | null>(null);
@@ -172,7 +179,15 @@
   function toggleApp(app: PopularAppTemplate) {
     const current = appSelections.get(app.name);
     if (current) {
-      appSelections.set(app.name, { ...current, selected: !current.selected });
+      const nowSelected = !current.selected;
+      appSelections.set(app.name, { ...current, selected: nowSelected });
+      if (!nowSelected) {
+        dndUnsorted = dndUnsorted.filter(item => item.name !== app.name);
+        for (const groupName of Object.keys(dndGroupApps)) {
+          dndGroupApps[groupName] = dndGroupApps[groupName].filter(item => item.name !== app.name);
+        }
+      }
+      rebuildDndFromSelections();
     }
   }
 
@@ -212,26 +227,9 @@
         expanded: true
       }));
       groupsInitialized = true;
+      rebuildDndFromSelections();
     }
   });
-
-  // Count apps in a group
-  function getGroupAppCount(groupName: string): number {
-    let count = 0;
-    appSelections.forEach((value, key) => {
-      if (value.selected) {
-        const template = Object.values(popularApps).flat().find(a => a.name === key);
-        if (template && template.group === groupName) {
-          count++;
-        }
-      }
-    });
-    // Also count custom apps in this group
-    for (const app of get(selectedApps)) {
-      if (app.group === groupName) count++;
-    }
-    return count;
-  }
 
   // Navigation position options
   const navPositions: { value: NavigationConfig['position']; label: string; description: string; icon: string }[] = [
@@ -306,10 +304,16 @@
     customApp = { name: '', url: '', icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' } as AppIconConfig, color: '#22c55e', group: '', open_mode: 'iframe', proxy: false, health_url: '', scale: 1 };
     showAdvanced = false;
     showCustomApp = false;
+    rebuildDndFromSelections();
   }
 
   // Group editing functions
   function updateGroupName(index: number, name: string) {
+    const oldName = wizardGroups[index].name;
+    if (oldName !== name && dndGroupApps[oldName]) {
+      dndGroupApps[name] = dndGroupApps[oldName];
+      delete dndGroupApps[oldName];
+    }
     wizardGroups = wizardGroups.map((g, i) => i === index ? { ...g, name } : g);
   }
 
@@ -318,6 +322,11 @@
   }
 
   function deleteGroup(index: number) {
+    const groupName = wizardGroups[index].name;
+    if (dndGroupApps[groupName]) {
+      dndUnsorted = [...dndUnsorted, ...dndGroupApps[groupName]];
+      delete dndGroupApps[groupName];
+    }
     wizardGroups = wizardGroups.filter((_, i) => i !== index);
   }
 
@@ -329,6 +338,7 @@
       order: wizardGroups.length,
       expanded: true
     }];
+    dndGroupApps['New Group'] = [];
   }
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
@@ -365,6 +375,18 @@
       apps.push({ ...app, order: order++ });
     });
 
+    // Assign groups based on DnD state
+    for (const [groupName, items] of Object.entries(dndGroupApps)) {
+      for (const item of items) {
+        const app = apps.find(a => a.name === item.name);
+        if (app) app.group = groupName;
+      }
+    }
+    for (const item of dndUnsorted) {
+      const app = apps.find(a => a.name === item.name);
+      if (app) app.group = '';
+    }
+
     // Set first app as default if any
     if (apps.length > 0) {
       apps[0].default = true;
@@ -397,6 +419,59 @@
     oncomplete?.({ apps, navigation, groups, theme });
   }
 
+  function rebuildDndFromSelections() {
+    const allSelected = new SvelteSet<string>();
+    appSelections.forEach((value, key) => {
+      if (value.selected) allSelected.add(key);
+    });
+    for (const app of get(selectedApps)) {
+      allSelected.add(app.name);
+    }
+
+    const placed = new SvelteSet<string>();
+    for (const items of Object.values(dndGroupApps)) {
+      for (const item of items) placed.add(item.name);
+    }
+
+    const newUnsorted = dndUnsorted.filter(item => allSelected.has(item.name));
+    for (const name of allSelected) {
+      if (!placed.has(name) && !newUnsorted.some(item => item.name === name)) {
+        newUnsorted.push({ id: name, name });
+      }
+    }
+    dndUnsorted = newUnsorted;
+
+    for (const groupName of Object.keys(dndGroupApps)) {
+      dndGroupApps[groupName] = dndGroupApps[groupName].filter(item => allSelected.has(item.name));
+    }
+
+    for (const group of wizardGroups) {
+      if (!dndGroupApps[group.name]) {
+        dndGroupApps[group.name] = [];
+      }
+    }
+
+    const validGroupNames = new SvelteSet(wizardGroups.map(g => g.name));
+    for (const key of Object.keys(dndGroupApps)) {
+      if (!validGroupNames.has(key)) {
+        delete dndGroupApps[key];
+      }
+    }
+  }
+
+  function handleUnsortedConsider(e: CustomEvent<DndEvent<{id: string; name: string}>>) {
+    dndUnsorted = e.detail.items;
+  }
+  function handleUnsortedFinalize(e: CustomEvent<DndEvent<{id: string; name: string}>>) {
+    dndUnsorted = e.detail.items;
+  }
+  function handleGroupAppConsider(e: CustomEvent<DndEvent<{id: string; name: string}>>, groupName: string) {
+    dndGroupApps[groupName] = e.detail.items;
+  }
+  function handleGroupAppFinalize(e: CustomEvent<DndEvent<{id: string; name: string}>>, groupName: string) {
+    dndGroupApps[groupName] = e.detail.items;
+  }
+
   function getGroupColor(group: string): string {
     const colors: Record<string, string> = {
       'Media': '#E5A00D',
@@ -416,7 +491,7 @@
     theme: 'Theme',
     complete: 'Done'
   };
-  const steps = $derived(getStepOrder().map(s => stepLabelMap[s]));
+  const steps = $derived($activeStepOrder.map(s => stepLabelMap[s]));
 </script>
 
 <div class="fixed inset-0 z-50 bg-gray-900 overflow-hidden flex flex-col">
@@ -1004,61 +1079,44 @@
             <!-- RIGHT COLUMN: Selected apps + Groups (sticky on desktop) -->
             <div class="apps-right-col">
               <div class="apps-right-sticky space-y-6">
-                <!-- Selected Apps -->
                 <div>
                   <h3 class="text-sm font-semibold text-gray-300 mb-3">
-                    Selected Apps ({selectedCount + $selectedApps.length})
+                    Unsorted Apps ({dndUnsorted.length})
                   </h3>
                   {#if selectedCount + $selectedApps.length === 0}
-                    <p class="text-sm text-gray-500 italic">No apps selected yet</p>
+                    <p class="text-sm text-gray-500 italic">Select apps from the left to get started</p>
+                  {:else if dndUnsorted.length === 0}
+                    <p class="text-sm text-gray-500 italic">All apps have been sorted into groups</p>
                   {:else}
-                    <div class="space-y-1.5 max-h-[240px] overflow-y-auto">
-                      <!-- Template apps -->
-                      {#each [...appSelections.entries()].filter(([, v]) => v.selected) as [name, sel] (name)}
-                        {@const template = Object.values(popularApps).flat().find(a => a.name === name)}
-                        {#if template}
-                          <div class="flex items-center gap-2 p-2 rounded-md bg-gray-800/50 group">
+                    <div class="space-y-1 min-h-[36px] p-2 rounded-lg border border-dashed border-gray-700 bg-gray-800/30"
+                         use:dndzone={{items: dndUnsorted, flipDurationMs, type: 'wizard-apps', dropTargetStyle: {}}}
+                         onconsider={handleUnsortedConsider}
+                         onfinalize={handleUnsortedFinalize}>
+                      {#each dndUnsorted as item (item.id)}
+                        {@const template = Object.values(popularApps).flat().find(a => a.name === item.name)}
+                        <div class="flex items-center gap-2 p-2 rounded-md bg-gray-800/50 cursor-grab"
+                             animate:flip={{duration: flipDurationMs}}>
+                          {#if template}
                             <AppIcon
                               icon={{ type: 'dashboard', name: template.icon, file: '', url: '', variant: 'svg' }}
                               name={template.name}
                               color={template.color}
                               size="sm"
                             />
-                            <div class="flex-1 min-w-0">
-                              <div class="text-sm text-white truncate">{template.name}</div>
-                              <div class="text-xs text-gray-500 truncate">{sel.url}</div>
-                            </div>
-                            <button
-                              class="p-1 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onclick={() => toggleApp(template)}
-                              aria-label="Remove {template.name}"
-                            >
-                              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                        {/if}
-                      {/each}
-                      <!-- Custom apps -->
-                      {#each $selectedApps as app (app.name)}
-                        <div class="flex items-center gap-2 p-2 rounded-md bg-gray-800/50 group">
-                          {#if app.icon.name}
-                            <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" />
                           {:else}
-                            <div class="w-6 h-6 rounded flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                                 style="background-color: {app.color}">
-                              {app.name.charAt(0).toUpperCase()}
+                            <div class="w-6 h-6 rounded bg-gray-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
+                              {item.name.charAt(0).toUpperCase()}
                             </div>
                           {/if}
-                          <div class="flex-1 min-w-0">
-                            <div class="text-sm text-white truncate">{app.name}</div>
-                            <div class="text-xs text-gray-500 truncate">{app.url}</div>
-                          </div>
+                          <span class="text-sm text-white truncate">{item.name}</span>
                           <button
-                            class="p-1 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity"
-                            onclick={() => selectedApps.update(apps => apps.filter(a => a.name !== app.name))}
-                            aria-label="Remove {app.name}"
+                            class="ml-auto p-1 text-gray-500 hover:text-red-400 transition-opacity"
+                            onclick={() => {
+                              const t = Object.values(popularApps).flat().find(a => a.name === item.name);
+                              if (t) toggleApp(t);
+                              else selectedApps.update(apps => apps.filter(a => a.name !== item.name));
+                            }}
+                            aria-label="Remove {item.name}"
                           >
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1070,66 +1128,86 @@
                   {/if}
                 </div>
 
-                <!-- Groups -->
                 <div>
                   <h3 class="text-sm font-semibold text-gray-300 mb-3">
                     Groups ({wizardGroups.length})
                   </h3>
                   {#if wizardGroups.length > 0}
                     <div class="space-y-2">
-                      {#each wizardGroups as group, i (i)}
-                        {@const count = getGroupAppCount(group.name)}
-                        <div class="flex items-center gap-2 p-2.5 rounded-lg bg-gray-800/50 border border-gray-700">
-                          <!-- Color picker -->
-                          <input
-                            type="color"
-                            value={group.color}
-                            oninput={(e) => updateGroupColor(i, e.currentTarget.value)}
-                            class="w-7 h-7 rounded cursor-pointer border-0 p-0 flex-shrink-0"
-                            style="background-color: {group.color}"
-                          />
-
-                          <!-- Icon -->
-                          <button
-                            class="flex-shrink-0 w-7 h-7 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
-                            onclick={() => iconBrowserContext = i}
-                            title="Change icon"
-                          >
-                            {#if group.icon.name}
-                              <AppIcon icon={group.icon} name={group.name} color={group.color} size="sm" />
-                            {:else}
-                              <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                              </svg>
-                            {/if}
-                          </button>
-
-                          <!-- Name -->
-                          <div class="flex-1 min-w-0">
+                      {#each wizardGroups as group, i (group.name)}
+                        {@const groupApps = dndGroupApps[group.name] || []}
+                        <div class="rounded-lg border border-gray-700 bg-gray-800/30 overflow-hidden">
+                          <div class="flex items-center gap-2 p-2.5">
                             <input
-                              type="text"
-                              value={group.name}
-                              oninput={(e) => updateGroupName(i, e.currentTarget.value)}
-                              class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-gray-600
-                                     focus:border-brand-500 text-sm text-white font-medium
-                                     focus:outline-none transition-colors"
+                              type="color"
+                              value={group.color}
+                              oninput={(e) => updateGroupColor(i, e.currentTarget.value)}
+                              class="w-7 h-7 rounded cursor-pointer border-0 p-0 flex-shrink-0"
+                              style="background-color: {group.color}"
                             />
-                            <div class="text-xs text-gray-500 px-1.5">
-                              {count} {count === 1 ? 'app' : 'apps'}
+                            <button
+                              class="flex-shrink-0 w-7 h-7 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+                              onclick={() => iconBrowserContext = i}
+                              title="Change icon"
+                            >
+                              {#if group.icon.name}
+                                <AppIcon icon={group.icon} name={group.name} color={group.color} size="sm" />
+                              {:else}
+                                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                </svg>
+                              {/if}
+                            </button>
+                            <div class="flex-1 min-w-0">
+                              <input
+                                type="text"
+                                value={group.name}
+                                oninput={(e) => updateGroupName(i, e.currentTarget.value)}
+                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-gray-600
+                                       focus:border-brand-500 text-sm text-white font-medium
+                                       focus:outline-none transition-colors"
+                              />
+                            </div>
+                            <button
+                              class="flex-shrink-0 p-1 text-gray-500 hover:text-red-400 rounded transition-colors"
+                              onclick={() => deleteGroup(i)}
+                              aria-label="Remove group"
+                            >
+                              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                              </svg>
+                            </button>
+                          </div>
+                          <div class="px-2.5 pb-2.5">
+                            <div class="space-y-1 min-h-[36px] p-2 rounded-md border border-dashed border-gray-600 bg-gray-900/30"
+                                 use:dndzone={{items: groupApps, flipDurationMs, type: 'wizard-apps', dropTargetStyle: {}}}
+                                 onconsider={(e) => handleGroupAppConsider(e, group.name)}
+                                 onfinalize={(e) => handleGroupAppFinalize(e, group.name)}>
+                              {#each groupApps as item (item.id)}
+                                {@const template = Object.values(popularApps).flat().find(a => a.name === item.name)}
+                                <div class="flex items-center gap-2 p-1.5 rounded bg-gray-800/70 cursor-grab text-sm text-white"
+                                     animate:flip={{duration: flipDurationMs}}>
+                                  {#if template}
+                                    <AppIcon
+                                      icon={{ type: 'dashboard', name: template.icon, file: '', url: '', variant: 'svg' }}
+                                      name={template.name}
+                                      color={template.color}
+                                      size="sm"
+                                    />
+                                  {:else}
+                                    <div class="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
+                                      {item.name.charAt(0).toUpperCase()}
+                                    </div>
+                                  {/if}
+                                  <span class="truncate">{item.name}</span>
+                                </div>
+                              {/each}
+                              {#if groupApps.length === 0}
+                                <p class="text-xs text-gray-600 text-center py-1">Drop apps here</p>
+                              {/if}
                             </div>
                           </div>
-
-                          <!-- Delete -->
-                          <button
-                            class="flex-shrink-0 p-1 text-gray-500 hover:text-red-400 rounded transition-colors"
-                            onclick={() => deleteGroup(i)}
-                            aria-label="Remove group"
-                          >
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                          </button>
                         </div>
                       {/each}
                     </div>
@@ -1137,7 +1215,6 @@
                     <p class="text-sm text-gray-500 italic">Groups auto-appear when you select apps</p>
                   {/if}
 
-                  <!-- Add group button -->
                   <button
                     class="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md
                            hover:bg-gray-800 transition-colors"

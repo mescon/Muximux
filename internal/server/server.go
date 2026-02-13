@@ -569,6 +569,12 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
+		// Allow theme listing during setup (read-only, needed for onboarding theme picker)
+		if path == "/api/themes" && r.Method == http.MethodGet {
+			next.ServeHTTP(w, r)
+			return
+		}
+
 		// Allow non-API paths (static assets, SPA)
 		if !strings.HasPrefix(path, "/api/") {
 			next.ServeHTTP(w, r)

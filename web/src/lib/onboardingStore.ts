@@ -4,22 +4,22 @@ import type { App, Group, NavigationConfig } from './types';
 export type OnboardingStep = 'welcome' | 'security' | 'apps' | 'navigation' | 'theme' | 'complete';
 
 // Dynamic step order — set by configureSteps()
-let activeStepOrder: OnboardingStep[] = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
+export const activeStepOrder = writable<OnboardingStep[]>(['welcome', 'apps', 'navigation', 'theme', 'complete']);
 
 export function configureSteps(includeSetup: boolean): void {
   if (includeSetup) {
-    activeStepOrder = ['welcome', 'security', 'apps', 'navigation', 'theme', 'complete'];
+    activeStepOrder.set(['welcome', 'security', 'apps', 'navigation', 'theme', 'complete']);
   } else {
-    activeStepOrder = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
+    activeStepOrder.set(['welcome', 'apps', 'navigation', 'theme', 'complete']);
   }
 }
 
 export function getStepOrder(): OnboardingStep[] {
-  return activeStepOrder;
+  return get(activeStepOrder);
 }
 
 export function getTotalSteps(): number {
-  return activeStepOrder.length;
+  return get(activeStepOrder).length;
 }
 
 // Current step in the wizard
@@ -44,24 +44,26 @@ export function resetOnboarding(): void {
   selectedNavigation.set('left');
   showLabels.set(true);
   selectedGroups.set([]);
-  activeStepOrder = ['welcome', 'apps', 'navigation', 'theme', 'complete'];
+  activeStepOrder.set(['welcome', 'apps', 'navigation', 'theme', 'complete']);
 }
 
 // Navigate to next step
 export function nextStep(): void {
   const current = get(currentStep);
-  const currentIndex = activeStepOrder.indexOf(current);
-  if (currentIndex < activeStepOrder.length - 1) {
-    currentStep.set(activeStepOrder[currentIndex + 1]);
+  const order = get(activeStepOrder);
+  const currentIndex = order.indexOf(current);
+  if (currentIndex < order.length - 1) {
+    currentStep.set(order[currentIndex + 1]);
   }
 }
 
 // Navigate to previous step
 export function prevStep(): void {
   const current = get(currentStep);
-  const currentIndex = activeStepOrder.indexOf(current);
+  const order = get(activeStepOrder);
+  const currentIndex = order.indexOf(current);
   if (currentIndex > 0) {
-    currentStep.set(activeStepOrder[currentIndex - 1]);
+    currentStep.set(order[currentIndex - 1]);
   }
 }
 
@@ -71,6 +73,6 @@ export function goToStep(step: OnboardingStep): void {
 }
 
 // Get step progress (0-based index)
-export const stepProgress = derived(currentStep, ($step) => {
-  return activeStepOrder.indexOf($step);
+export const stepProgress = derived([currentStep, activeStepOrder], ([$step, $order]) => {
+  return $order.indexOf($step);
 });
