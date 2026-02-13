@@ -954,7 +954,7 @@
               Muximux is a unified homelab dashboard for managing and accessing your self-hosted services.
             </p>
             <a
-              href="https://github.com/mescon/muximux"
+              href="https://github.com/mescon/Muximux"
               target="_blank"
               rel="noopener noreferrer"
               class="inline-flex items-center gap-1.5 mt-2 text-sm text-brand-400 hover:text-brand-300 transition-colors"
