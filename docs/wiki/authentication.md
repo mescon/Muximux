@@ -77,8 +77,9 @@ python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-secret-password', bcrypt.gen
 
 ### Roles
 
-- **`admin`** -- Full access. Can modify settings, manage apps, groups, themes, and icons.
-- **`user`** -- Read-only dashboard access. Can view and interact with apps but cannot change configuration.
+- **`admin`** -- Full access. Can modify settings, manage apps, groups, themes, icons, and users.
+- **`user`** -- Dashboard access. Can view and interact with apps but cannot change configuration.
+- **`guest`** -- Limited access. Can view the dashboard only.
 
 ### Sessions
 
@@ -185,8 +186,42 @@ The API key is checked using constant-time comparison to prevent timing attacks.
 
 ---
 
+## First-Run Setup
+
+When Muximux starts with no configuration, the onboarding wizard includes a **Security** step that lets you configure authentication before anything else. You can choose between password authentication, forward auth, or no authentication. This ensures the dashboard is secured from the first launch.
+
+If authentication is already configured (or you're running behind an auth proxy), the security step is skipped and the wizard proceeds directly to app setup.
+
+---
+
+## Managing Users
+
+Admin users can manage accounts from **Settings > Security > User Management**:
+
+- **Add users** -- Set a username, password (minimum 8 characters), and role
+- **Change roles** -- Promote or demote users via the role dropdown
+- **Delete users** -- Remove accounts (you cannot delete yourself or the last admin)
+
+These changes take effect immediately and are persisted to `config.yaml`. Users can also be managed via the [User Management API](api.md#user-management).
+
+---
+
+## Switching Auth Methods
+
+Admin users can switch the authentication method from **Settings > Security** without restarting Muximux. The available options are:
+
+- **Password** -- Built-in username/password authentication
+- **Auth Proxy** -- Forward auth via Authelia, Authentik, etc. (requires trusted proxy IPs)
+- **None** -- No authentication
+
+When switching to a different method, existing user accounts are preserved in the configuration but only authenticate when the method matches. For example, switching from `builtin` to `forward_auth` means password logins stop working, but the user records remain in `config.yaml` and will work again if you switch back.
+
+Auth method changes can also be made via the [API](api.md#auth-method-switching).
+
+---
+
 ## Changing Passwords
 
-Users can change their own password via the Settings panel or the `POST /api/auth/password` endpoint. Changing a password invalidates all other sessions for that user (except the current one).
+Users can change their own password via **Settings > Security** or the `POST /api/auth/password` endpoint. Changing a password invalidates all other sessions for that user (except the current one).
 
 **Password requirements:** minimum 8 characters.

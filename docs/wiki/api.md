@@ -17,6 +17,11 @@ When authentication is enabled, most endpoints require a valid session cookie or
 | `/api/auth/status` | GET | No | Check auth status and current user |
 | `/api/auth/me` | GET | Yes | Get current user details |
 | `/api/auth/password` | POST | Yes | Change password (builtin auth only) |
+| `/api/auth/users` | GET | Admin | List all users |
+| `/api/auth/users` | POST | Admin | Create a new user |
+| `/api/auth/users/{username}` | PUT | Admin | Update user role/email/display name |
+| `/api/auth/users/{username}` | DELETE | Admin | Delete a user |
+| `/api/auth/method` | PUT | Admin | Switch authentication method |
 | `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider |
 | `/api/auth/oidc/callback` | GET | No | OIDC callback handler |
 
@@ -53,6 +58,73 @@ X-Api-Key: your-api-key-here
 
 The API key is configured in `auth.api_key` in your config file.
 
+### User Management
+
+**List users:**
+```
+GET /api/auth/users
+```
+
+Returns an array of users (without password hashes):
+```json
+[
+  {"username": "admin", "role": "admin", "email": "admin@example.com", "display_name": "Admin User"},
+  {"username": "viewer", "role": "user", "email": "", "display_name": ""}
+]
+```
+
+**Create user:**
+```json
+POST /api/auth/users
+{
+  "username": "newuser",
+  "password": "minimum8chars",
+  "role": "user",
+  "email": "user@example.com",
+  "display_name": "New User"
+}
+```
+
+Validation: username is required, password must be at least 8 characters. Valid roles: `admin`, `user`, `guest`. If the role is omitted or invalid, it defaults to `user`.
+
+**Update user:**
+```json
+PUT /api/auth/users/newuser
+{
+  "role": "admin",
+  "email": "updated@example.com",
+  "display_name": "Updated Name"
+}
+```
+
+All fields are optional -- only provided fields are updated.
+
+**Delete user:**
+```
+DELETE /api/auth/users/newuser
+```
+
+Constraints: you cannot delete your own account, and you cannot delete the last admin user.
+
+### Auth Method Switching
+
+**Switch authentication method:**
+```json
+PUT /api/auth/method
+{
+  "method": "forward_auth",
+  "trusted_proxies": ["10.0.0.0/8"],
+  "headers": {
+    "user": "Remote-User",
+    "email": "Remote-Email",
+    "groups": "Remote-Groups",
+    "name": "Remote-Name"
+  }
+}
+```
+
+Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` requires at least one user to exist. Switching to `forward_auth` requires `trusted_proxies`. The change takes effect immediately without a restart.
+
 ---
 
 ## Configuration
@@ -62,7 +134,7 @@ The API key is configured in `auth.api_key` in your config file.
 | `/api/config` | GET | Any | Get full configuration |
 | `/api/config` | PUT | Admin | Update full configuration |
 
-The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) and auth method changes require a restart.
+The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) require a restart. Auth method changes can be made live via `PUT /api/auth/method`.
 
 ---
 

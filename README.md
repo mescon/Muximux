@@ -33,7 +33,7 @@ Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mes
 - **Real-time health monitoring** via WebSocket - see which apps are up or down without refreshing
 - **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC
 - **Optional TLS and gateway** - an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
-- **Guided onboarding** - a setup wizard walks you through adding your first apps
+- **Guided onboarding** - a setup wizard walks you through security setup and adding your first apps
 - **1,600+ icons** from Lucide plus thousands of service-specific icons from [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)
 - **Keyboard shortcuts** for power users - switch apps, toggle navigation, search, all from the keyboard
 - **Themes** - built-in light and dark modes, plus custom themes via CSS
@@ -72,7 +72,7 @@ docker run -d \
   ghcr.io/mescon/muximux:latest
 ```
 
-Open `http://localhost:8080`. If no config file exists, an onboarding wizard will guide you through setup.
+Open `http://localhost:8080`. If no config file exists, an onboarding wizard will guide you through security and initial setup.
 
 ### Docker Compose
 
@@ -141,7 +141,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 |---|---|
 | **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip - makes apps work in iframes that normally refuse |
 | **Health Monitoring** | Periodic health checks with real-time WebSocket updates and colored status indicators |
-| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - or `none` if your proxy handles it |
+| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and live method switching in Settings |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Serve additional sites alongside Muximux using a standard Caddyfile |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), auto-hide, customizable width |
@@ -176,6 +176,9 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 ```bash
 git clone https://github.com/mescon/Muximux.git
 cd Muximux
+
+# Enable git hooks (pre-push runs tests with coverage checks)
+git config core.hooksPath .githooks
 
 # Frontend dev server (hot reload)
 cd web && npm install && npm run dev &

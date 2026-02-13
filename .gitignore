@@ -1,16 +1,11 @@
-# Development artifacts - not for version control
-/dev/
-
 # Dependencies
-/node_modules/
+node_modules/
 /vendor/
-/web/node_modules/
 
 # Build outputs
 /bin/
 /dist/
 /build/
-/.cache/
 /web/dist/
 /internal/server/dist/
 /muximux
@@ -18,19 +13,23 @@
 
 # Test coverage
 /web/coverage/
+coverage.txt
+*.coverprofile
 
 # Config (user-specific)
 config.yaml
 
-# Data directory
+# Data directory (runtime + test artifacts)
 /data/
+/internal/server/data/
 
 # Environment files
 .env
 .env.local
 .env.*.local
 
-# IDE
+# IDE and tools
+.claude/
 .idea/
 .vscode/
 *.swp
@@ -41,10 +40,16 @@ config.yaml
 .DS_Store
 Thumbs.db
 
-# Logs
+# Logs and diagnostics
 *.log
+*.pid
+*.pid.lock
+*.seed
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Go
+# Go binaries and artifacts
 *.exe
 *.exe~
 *.dll
@@ -53,3 +58,13 @@ Thumbs.db
 *.test
 *.out
 go.work
+go.work.sum
+
+# TypeScript / Svelte build cache
+*.tsbuildinfo
+.eslintcache
+.svelte-kit
+
+# Development artifacts
+/dev/
+/.cache/
