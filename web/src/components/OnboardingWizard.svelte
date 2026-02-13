@@ -62,9 +62,13 @@
     scale: 1
   });
 
+  // Per-app customization overrides (color, icon)
+  let appOverrides = new SvelteMap<string, { color: string; icon: AppIconConfig }>();
+
   // Groups editing state
   let wizardGroups = $state<Group[]>([]);
-  let iconBrowserContext = $state<'custom-app' | number | null>(null);
+  let iconBrowserContext = $state<'custom-app' | 'app-override' | number | null>(null);
+  let iconBrowserAppName = $state<string>('');
   let groupsInitialized = $state(false);
 
   const flipDurationMs = 200;
@@ -342,12 +346,19 @@
   }
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
+    const newIcon: AppIconConfig = { type: detail.type as AppIconConfig['type'], name: detail.name, file: '', url: '', variant: detail.variant };
     if (iconBrowserContext === 'custom-app') {
-      customApp.icon = { type: detail.type as AppIconConfig['type'], name: detail.name, file: '', url: '', variant: detail.variant };
+      customApp.icon = newIcon;
+    } else if (iconBrowserContext === 'app-override') {
+      const existing = appOverrides.get(iconBrowserAppName);
+      appOverrides.set(iconBrowserAppName, {
+        color: existing?.color || getAppDisplayColor(iconBrowserAppName),
+        icon: newIcon
+      });
     } else if (typeof iconBrowserContext === 'number') {
       wizardGroups = wizardGroups.map((g, i) =>
         i === iconBrowserContext
-          ? { ...g, icon: { type: detail.type as AppIconConfig['type'], name: detail.name, file: '', url: '', variant: detail.variant } }
+          ? { ...g, icon: newIcon }
           : g
       );
     }
@@ -374,6 +385,15 @@
     get(selectedApps).forEach(app => {
       apps.push({ ...app, order: order++ });
     });
+
+    // Apply per-app customizations (color, icon)
+    for (const app of apps) {
+      const override = appOverrides.get(app.name);
+      if (override) {
+        app.color = override.color;
+        if (override.icon.name) app.icon = override.icon;
+      }
+    }
 
     // Assign groups based on DnD state
     for (const [groupName, items] of Object.entries(dndGroupApps)) {
@@ -405,7 +425,7 @@
       show_labels: get(showLabels),
       show_logo: true,
       show_app_colors: true,
-      show_icon_background: true,
+      show_icon_background: false,
       show_splash_on_startup: true,
       show_shadow: true
     };
@@ -482,6 +502,39 @@
     return colors[group] || '#22c55e';
   }
 
+  function getAppDisplayColor(appName: string): string {
+    const override = appOverrides.get(appName);
+    if (override) return override.color;
+    const template = Object.values(popularApps).flat().find(a => a.name === appName);
+    if (template) return template.color;
+    const custom = get(selectedApps).find(a => a.name === appName);
+    if (custom) return custom.color;
+    return '#22c55e';
+  }
+
+  function getAppDisplayIcon(appName: string): AppIconConfig {
+    const override = appOverrides.get(appName);
+    if (override?.icon.name) return override.icon;
+    const template = Object.values(popularApps).flat().find(a => a.name === appName);
+    if (template) return { type: 'dashboard', name: template.icon, file: '', url: '', variant: 'svg' };
+    const custom = get(selectedApps).find(a => a.name === appName);
+    if (custom) return custom.icon;
+    return { type: 'dashboard', name: '', file: '', url: '', variant: '' };
+  }
+
+  function updateAppColor(appName: string, color: string) {
+    const existing = appOverrides.get(appName);
+    appOverrides.set(appName, {
+      color,
+      icon: existing?.icon || getAppDisplayIcon(appName)
+    });
+  }
+
+  function openAppIconBrowser(appName: string) {
+    iconBrowserAppName = appName;
+    iconBrowserContext = 'app-override';
+  }
+
   // Step indicators — dynamic based on configured steps
   const stepLabelMap: Record<OnboardingStep, string> = {
     welcome: 'Welcome',
@@ -492,9 +545,32 @@
     complete: 'Done'
   };
   const steps = $derived($activeStepOrder.map(s => stepLabelMap[s]));
+
+  function handleGlobalKeydown(e: KeyboardEvent) {
+    if (e.key !== 'Enter') return;
+    // Don't intercept Enter inside textareas, selects, or buttons
+    const tag = (e.target as HTMLElement)?.tagName;
+    if (tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'BUTTON') return;
+    // Don't intercept if icon browser is open
+    if (iconBrowserContext !== null) return;
+
+    const step = get(currentStep);
+    if (step === 'welcome') {
+      nextStep();
+    } else if (step === 'security') {
+      if (securityStepValid && !setupLoading && !setupDone) handleSecuritySubmit();
+    } else if (step === 'apps') {
+      if (selectedCount + $selectedApps.length > 0) nextStep();
+    } else if (step === 'navigation' || step === 'theme') {
+      nextStep();
+    } else if (step === 'complete') {
+      handleComplete();
+    }
+  }
 </script>
 
-<div class="fixed inset-0 z-50 bg-gray-900 overflow-hidden flex flex-col">
+<!-- svelte-ignore a11y_no_noninteractive_tabindex -->
+<div class="fixed inset-0 z-50 bg-gray-900 overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-label="Setup wizard" tabindex="0">
   <!-- Progress bar -->
   <div class="flex-shrink-0 px-8 pt-6">
     <div class="max-w-3xl mx-auto">
@@ -1093,24 +1169,33 @@
                          onconsider={handleUnsortedConsider}
                          onfinalize={handleUnsortedFinalize}>
                       {#each dndUnsorted as item (item.id)}
-                        {@const template = Object.values(popularApps).flat().find(a => a.name === item.name)}
-                        <div class="flex items-center gap-2 p-2 rounded-md bg-gray-800/50 cursor-grab"
+                        {@const appColor = getAppDisplayColor(item.name)}
+                        {@const appIcon = getAppDisplayIcon(item.name)}
+                        <div class="flex items-center gap-1.5 p-2 rounded-md bg-gray-800/50 cursor-grab"
                              animate:flip={{duration: flipDurationMs}}>
-                          {#if template}
-                            <AppIcon
-                              icon={{ type: 'dashboard', name: template.icon, file: '', url: '', variant: 'svg' }}
-                              name={template.name}
-                              color={template.color}
-                              size="sm"
-                            />
-                          {:else}
-                            <div class="w-6 h-6 rounded bg-gray-600 flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                              {item.name.charAt(0).toUpperCase()}
-                            </div>
-                          {/if}
-                          <span class="text-sm text-white truncate">{item.name}</span>
+                          <input
+                            type="color"
+                            value={appColor}
+                            oninput={(e) => updateAppColor(item.name, e.currentTarget.value)}
+                            onclick={(e) => e.stopPropagation()}
+                            class="w-6 h-6 rounded cursor-pointer border-0 p-0 flex-shrink-0"
+                          />
                           <button
-                            class="ml-auto p-1 text-gray-500 hover:text-red-400 transition-opacity"
+                            class="flex-shrink-0 w-6 h-6 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+                            onclick={() => openAppIconBrowser(item.name)}
+                            title="Change icon"
+                          >
+                            {#if appIcon.name}
+                              <AppIcon icon={appIcon} name={item.name} color={appColor} size="sm" />
+                            {:else}
+                              <div class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-gray-400">
+                                {item.name.charAt(0).toUpperCase()}
+                              </div>
+                            {/if}
+                          </button>
+                          <span class="text-sm text-white truncate flex-1">{item.name}</span>
+                          <button
+                            class="p-1 text-gray-500 hover:text-red-400 transition-opacity flex-shrink-0"
                             onclick={() => {
                               const t = Object.values(popularApps).flat().find(a => a.name === item.name);
                               if (t) toggleApp(t);
@@ -1185,22 +1270,31 @@
                                  onconsider={(e) => handleGroupAppConsider(e, group.name)}
                                  onfinalize={(e) => handleGroupAppFinalize(e, group.name)}>
                               {#each groupApps as item (item.id)}
-                                {@const template = Object.values(popularApps).flat().find(a => a.name === item.name)}
-                                <div class="flex items-center gap-2 p-1.5 rounded bg-gray-800/70 cursor-grab text-sm text-white"
+                                {@const appColor = getAppDisplayColor(item.name)}
+                                {@const appIcon = getAppDisplayIcon(item.name)}
+                                <div class="flex items-center gap-1.5 p-1.5 rounded bg-gray-800/70 cursor-grab text-sm text-white"
                                      animate:flip={{duration: flipDurationMs}}>
-                                  {#if template}
-                                    <AppIcon
-                                      icon={{ type: 'dashboard', name: template.icon, file: '', url: '', variant: 'svg' }}
-                                      name={template.name}
-                                      color={template.color}
-                                      size="sm"
-                                    />
-                                  {:else}
-                                    <div class="w-5 h-5 rounded bg-gray-600 flex items-center justify-center text-[10px] font-bold text-white flex-shrink-0">
-                                      {item.name.charAt(0).toUpperCase()}
-                                    </div>
-                                  {/if}
-                                  <span class="truncate">{item.name}</span>
+                                  <input
+                                    type="color"
+                                    value={appColor}
+                                    oninput={(e) => updateAppColor(item.name, e.currentTarget.value)}
+                                    onclick={(e) => e.stopPropagation()}
+                                    class="w-5 h-5 rounded cursor-pointer border-0 p-0 flex-shrink-0"
+                                  />
+                                  <button
+                                    class="flex-shrink-0 w-5 h-5 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+                                    onclick={() => openAppIconBrowser(item.name)}
+                                    title="Change icon"
+                                  >
+                                    {#if appIcon.name}
+                                      <AppIcon icon={appIcon} name={item.name} color={appColor} size="sm" />
+                                    {:else}
+                                      <div class="text-[9px] font-bold text-gray-400">
+                                        {item.name.charAt(0).toUpperCase()}
+                                      </div>
+                                    {/if}
+                                  </button>
+                                  <span class="truncate flex-1">{item.name}</span>
                                 </div>
                               {/each}
                               {#if groupApps.length === 0}
@@ -1520,6 +1614,8 @@
 {#if iconBrowserContext !== null}
   {@const browserIcon = iconBrowserContext === 'custom-app'
     ? customApp.icon
+    : iconBrowserContext === 'app-override'
+    ? appOverrides.get(iconBrowserAppName)?.icon || getAppDisplayIcon(iconBrowserAppName)
     : wizardGroups[iconBrowserContext]?.icon}
   <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
     <div class="w-full max-w-4xl max-h-[80vh] bg-gray-900 rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
