@@ -560,7 +560,9 @@ func TestAuthStatus_SetupRequired(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["setup_required"] != true {
 			t.Errorf("expected setup_required=true, got %v", resp["setup_required"])
 		}
@@ -575,7 +577,9 @@ func TestAuthStatus_SetupRequired(t *testing.T) {
 		handler.AuthStatus(w, req)
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["setup_required"] != false {
 			t.Errorf("expected setup_required=false, got %v", resp["setup_required"])
 		}
@@ -589,7 +593,9 @@ func TestAuthStatus_SetupRequired(t *testing.T) {
 		handler.AuthStatus(w, req)
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if _, ok := resp["setup_required"]; ok {
 			t.Error("expected no setup_required field when checker is nil")
 		}
@@ -675,13 +681,15 @@ func TestListUsers(t *testing.T) {
 
 		// Add a second user
 		hash, _ := auth.HashPassword("secondpass123")
-		handler.userStore.Add(&auth.User{
-			ID:       "viewer",
-			Username: "viewer",
+		if err := handler.userStore.Add(&auth.User{
+			ID:           "viewer",
+			Username:     "viewer",
 			PasswordHash: hash,
-			Role:     "user",
-			Email:    "viewer@example.com",
-		})
+			Role:         "user",
+			Email:        "viewer@example.com",
+		}); err != nil {
+			t.Fatalf("failed to add user: %v", err)
+		}
 
 		req := httptest.NewRequest(http.MethodGet, "/api/auth/users", nil)
 		w := httptest.NewRecorder()
@@ -761,7 +769,9 @@ func TestCreateUser(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		userMap := resp["user"].(map[string]interface{})
 		if userMap["role"] != "user" {
 			t.Errorf("expected role to default to 'user', got %v", userMap["role"])
@@ -856,12 +866,14 @@ func TestUpdateUser(t *testing.T) {
 
 		// Add a user to update
 		hash, _ := auth.HashPassword("password123")
-		handler.userStore.Add(&auth.User{
-			ID:       "testuser",
-			Username: "testuser",
+		if err := handler.userStore.Add(&auth.User{
+			ID:           "testuser",
+			Username:     "testuser",
 			PasswordHash: hash,
-			Role:     "user",
-		})
+			Role:         "user",
+		}); err != nil {
+			t.Fatalf("failed to add user: %v", err)
+		}
 
 		body, _ := json.Marshal(map[string]string{
 			"role":         "admin",
@@ -878,7 +890,9 @@ func TestUpdateUser(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != true {
 			t.Error("expected success=true")
 		}
@@ -959,12 +973,14 @@ func TestDeleteUser(t *testing.T) {
 
 		// Add a second user to delete
 		hash, _ := auth.HashPassword("password123")
-		handler.userStore.Add(&auth.User{
-			ID:       "victim",
-			Username: "victim",
+		if err := handler.userStore.Add(&auth.User{
+			ID:           "victim",
+			Username:     "victim",
 			PasswordHash: hash,
-			Role:     "user",
-		})
+			Role:         "user",
+		}); err != nil {
+			t.Fatalf("failed to add user: %v", err)
+		}
 
 		// Set current user in context
 		currentUser := &auth.User{ID: "admin", Username: "admin", Role: "admin"}
@@ -980,7 +996,9 @@ func TestDeleteUser(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != true {
 			t.Error("expected success=true")
 		}
@@ -1007,7 +1025,9 @@ func TestDeleteUser(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != false {
 			t.Error("expected success=false")
 		}
@@ -1018,11 +1038,11 @@ func TestDeleteUser(t *testing.T) {
 
 		// "admin" is the only admin user; try to delete as a different user
 		hash, _ := auth.HashPassword("password123")
-		handler.userStore.Add(&auth.User{
-			ID:       "operator",
-			Username: "operator",
+		handler.userStore.Add(&auth.User{ //nolint:errcheck // test setup
+			ID:           "operator",
+			Username:     "operator",
 			PasswordHash: hash,
-			Role:     "user",
+			Role:         "user",
 		})
 
 		currentUser := &auth.User{ID: "operator", Username: "operator", Role: "user"}
@@ -1038,7 +1058,9 @@ func TestDeleteUser(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["message"] != "Cannot delete the last admin user" {
 			t.Errorf("expected last admin message, got %v", resp["message"])
 		}
@@ -1076,7 +1098,7 @@ func TestDeleteUser(t *testing.T) {
 
 // setupAuthTestWithConfig creates an auth handler with a real config, temp config
 // file, and auth middleware - needed for UpdateAuthMethod and syncUsersToConfig tests.
-func setupAuthTestWithConfig(t *testing.T) (*AuthHandler, *auth.SessionStore, string) {
+func setupAuthTestWithConfig(t *testing.T) (*AuthHandler, string) {
 	t.Helper()
 
 	sessionStore := auth.NewSessionStore("muximux_session", 24*time.Hour, false)
@@ -1110,12 +1132,12 @@ func setupAuthTestWithConfig(t *testing.T) (*AuthHandler, *auth.SessionStore, st
 	}, sessionStore, userStore)
 
 	handler := NewAuthHandler(sessionStore, userStore, cfg, configPath, middleware)
-	return handler, sessionStore, configPath
+	return handler, configPath
 }
 
 func TestUpdateAuthMethod(t *testing.T) {
 	t.Run("switch to none", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		body, _ := json.Marshal(map[string]string{"method": "none"})
 		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
@@ -1128,7 +1150,9 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != true {
 			t.Error("expected success=true")
 		}
@@ -1143,7 +1167,7 @@ func TestUpdateAuthMethod(t *testing.T) {
 	})
 
 	t.Run("switch to builtin with users", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		body, _ := json.Marshal(map[string]string{"method": "builtin"})
 		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
@@ -1156,7 +1180,9 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != true {
 			t.Error("expected success=true")
 		}
@@ -1170,10 +1196,12 @@ func TestUpdateAuthMethod(t *testing.T) {
 	})
 
 	t.Run("builtin no users", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		// Remove all users so the store is empty
-		handler.userStore.Delete("admin")
+		if err := handler.userStore.Delete("admin"); err != nil {
+			t.Fatalf("failed to delete user: %v", err)
+		}
 
 		body, _ := json.Marshal(map[string]string{"method": "builtin"})
 		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
@@ -1186,14 +1214,16 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != false {
 			t.Error("expected success=false")
 		}
 	})
 
 	t.Run("forward_auth with proxies", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		body, _ := json.Marshal(map[string]interface{}{
 			"method":          "forward_auth",
@@ -1213,7 +1243,9 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != true {
 			t.Error("expected success=true")
 		}
@@ -1230,7 +1262,7 @@ func TestUpdateAuthMethod(t *testing.T) {
 	})
 
 	t.Run("forward_auth no proxies", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		body, _ := json.Marshal(map[string]interface{}{
 			"method":          "forward_auth",
@@ -1247,7 +1279,7 @@ func TestUpdateAuthMethod(t *testing.T) {
 	})
 
 	t.Run("invalid method", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		body, _ := json.Marshal(map[string]string{"method": "magic"})
 		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
@@ -1260,14 +1292,16 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 
 		var resp map[string]interface{}
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["success"] != false {
 			t.Error("expected success=false")
 		}
 	})
 
 	t.Run("bad JSON", func(t *testing.T) {
-		handler, _, _ := setupAuthTestWithConfig(t)
+		handler, _ := setupAuthTestWithConfig(t)
 
 		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader([]byte("not json")))
 		w := httptest.NewRecorder()
@@ -1280,7 +1314,7 @@ func TestUpdateAuthMethod(t *testing.T) {
 	})
 
 	t.Run("config file is persisted", func(t *testing.T) {
-		handler, _, configPath := setupAuthTestWithConfig(t)
+		handler, configPath := setupAuthTestWithConfig(t)
 
 		body, _ := json.Marshal(map[string]string{"method": "builtin"})
 		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
@@ -1314,18 +1348,20 @@ func TestSyncUsersToConfig(t *testing.T) {
 	})
 
 	t.Run("persists users to config file", func(t *testing.T) {
-		handler, _, configPath := setupAuthTestWithConfig(t)
+		handler, configPath := setupAuthTestWithConfig(t)
 
 		// Add another user before syncing
 		hash, _ := auth.HashPassword("password123")
-		handler.userStore.Add(&auth.User{
+		if err := handler.userStore.Add(&auth.User{
 			ID:           "newuser",
 			Username:     "newuser",
 			PasswordHash: hash,
 			Role:         "user",
 			Email:        "new@example.com",
 			DisplayName:  "New User",
-		})
+		}); err != nil {
+			t.Fatalf("failed to add user: %v", err)
+		}
 
 		err := handler.syncUsersToConfig()
 		if err != nil {

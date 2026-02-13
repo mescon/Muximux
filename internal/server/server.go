@@ -536,7 +536,7 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 }
 
 // wrapMiddleware applies auth and security middleware around the mux.
-func wrapMiddleware(mux *http.ServeMux, cfg *config.Config, authMiddleware *auth.Middleware) http.Handler {
+func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.Middleware) http.Handler {
 	// Always apply RequireAuth — it injects a virtual admin when auth is
 	// "none", which downstream adminGuard checks rely on.
 	handler := authMiddleware.RequireAuth(mux)
@@ -713,7 +713,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req setupRequest) error {
 
 func (s *Server) setupForwardAuth(req setupRequest) error {
 	if len(req.TrustedProxies) == 0 {
-		return fmt.Errorf("At least one trusted proxy is required for forward_auth")
+		return fmt.Errorf("at least one trusted proxy is required for forward_auth")
 	}
 
 	// Update config
