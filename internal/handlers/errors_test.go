@@ -88,7 +88,9 @@ func TestNotFound(t *testing.T) {
 	}
 
 	var response APIError
-	_ = json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if response.Message != "Resource not found" {
 		t.Errorf("Expected default message, got %s", response.Message)
 	}
@@ -104,7 +106,9 @@ func TestWriteJSON(t *testing.T) {
 	}
 
 	var response map[string]string
-	_ = json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if response["hello"] != "world" {
 		t.Errorf("Expected hello=world, got %v", response)
 	}
@@ -138,7 +142,9 @@ func TestUnauthorized(t *testing.T) {
 		}
 
 		var response APIError
-		_ = json.NewDecoder(w.Body).Decode(&response)
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if response.Message != "Token expired" {
 			t.Errorf("Expected message 'Token expired', got %s", response.Message)
 		}
@@ -152,7 +158,9 @@ func TestUnauthorized(t *testing.T) {
 		Unauthorized(w, "")
 
 		var response APIError
-		_ = json.NewDecoder(w.Body).Decode(&response)
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if response.Message != "Authentication required" {
 			t.Errorf("Expected default message 'Authentication required', got %s", response.Message)
 		}
@@ -169,7 +177,9 @@ func TestForbidden(t *testing.T) {
 		}
 
 		var response APIError
-		_ = json.NewDecoder(w.Body).Decode(&response)
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if response.Message != "Admin only" {
 			t.Errorf("Expected message 'Admin only', got %s", response.Message)
 		}
@@ -180,7 +190,9 @@ func TestForbidden(t *testing.T) {
 		Forbidden(w, "")
 
 		var response APIError
-		_ = json.NewDecoder(w.Body).Decode(&response)
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if response.Message != "Access denied" {
 			t.Errorf("Expected default message 'Access denied', got %s", response.Message)
 		}
@@ -196,7 +208,9 @@ func TestConflict(t *testing.T) {
 	}
 
 	var response APIError
-	_ = json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if response.Code != ErrCodeConflict {
 		t.Errorf("Expected code %s, got %s", ErrCodeConflict, response.Code)
 	}
@@ -212,7 +226,9 @@ func TestInternalError(t *testing.T) {
 		}
 
 		var response APIError
-		_ = json.NewDecoder(w.Body).Decode(&response)
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if response.Message != "Database down" {
 			t.Errorf("Expected message 'Database down', got %s", response.Message)
 		}
@@ -223,7 +239,9 @@ func TestInternalError(t *testing.T) {
 		InternalError(w, "")
 
 		var response APIError
-		_ = json.NewDecoder(w.Body).Decode(&response)
+		if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if response.Message != "An internal error occurred" {
 			t.Errorf("Expected default message 'An internal error occurred', got %s", response.Message)
 		}
@@ -239,7 +257,9 @@ func TestValidationError(t *testing.T) {
 	}
 
 	var response APIError
-	_ = json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if response.Code != ErrCodeValidation {
 		t.Errorf("Expected code %s, got %s", ErrCodeValidation, response.Code)
 	}
@@ -253,7 +273,9 @@ func TestNotFound_WithMessage(t *testing.T) {
 	NotFound(w, "App not found")
 
 	var response APIError
-	_ = json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if response.Message != "App not found" {
 		t.Errorf("Expected message 'App not found', got %s", response.Message)
 	}
@@ -274,7 +296,9 @@ func TestWriteError_ErrorField(t *testing.T) {
 	WriteError(w, http.StatusNotFound, ErrCodeNotFound, "test")
 
 	var response APIError
-	_ = json.NewDecoder(w.Body).Decode(&response)
+	if err := json.NewDecoder(w.Body).Decode(&response); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
 	if response.Error != "Not Found" {
 		t.Errorf("Expected Error 'Not Found', got %s", response.Error)
 	}
