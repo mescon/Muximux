@@ -1038,12 +1038,14 @@ func TestDeleteUser(t *testing.T) {
 
 		// "admin" is the only admin user; try to delete as a different user
 		hash, _ := auth.HashPassword("password123")
-		handler.userStore.Add(&auth.User{ //nolint:errcheck // test setup
+		if err := handler.userStore.Add(&auth.User{
 			ID:           "operator",
 			Username:     "operator",
 			PasswordHash: hash,
 			Role:         "user",
-		})
+		}); err != nil {
+			t.Fatalf("failed to add user: %v", err)
+		}
 
 		currentUser := &auth.User{ID: "operator", Username: "operator", Role: "user"}
 		req := httptest.NewRequest(http.MethodDelete, "/api/auth/users/admin", nil)

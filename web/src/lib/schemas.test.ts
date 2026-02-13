@@ -1,5 +1,4 @@
 import { describe, it, expect } from 'vitest';
-import type { z } from 'zod';
 import { appSchema, groupSchema, extractErrors } from './schemas';
 
 describe('schemas', () => {
@@ -105,7 +104,7 @@ describe('schemas', () => {
           ],
         },
       };
-      const errors = extractErrors(mockResult as z.SafeParseReturnType<unknown, unknown>);
+      const errors = extractErrors(mockResult as unknown as Parameters<typeof extractErrors>[0]);
       // Empty path should result in no field key being set
       expect(Object.keys(errors)).toHaveLength(0);
     });

@@ -89,14 +89,20 @@
     loading = true;
     error = null;
     try {
+      const failed: string[] = [];
       const [dashboard, lucide, custom] = await Promise.all([
-        listDashboardIcons().catch(() => []),
-        listLucideIcons().catch(() => []),
-        listCustomIcons().catch(() => [])
+        listDashboardIcons().catch(() => { failed.push('Dashboard'); return [] as IconInfo[]; }),
+        listLucideIcons().catch(() => { failed.push('Lucide'); return [] as LucideIconInfo[]; }),
+        listCustomIcons().catch(() => { failed.push('Custom'); return [] as CustomIconInfo[]; })
       ]);
       dashboardIcons = dashboard || [];
       lucideIcons = lucide || [];
       customIcons = custom || [];
+      if (failed.length > 0 && failed.length < 3) {
+        toasts.warning(`Some icon sources failed to load: ${failed.join(', ')}`);
+      } else if (failed.length === 3) {
+        error = 'Failed to load icons from any source';
+      }
       applyFilter();
     } catch (e) {
       error = e instanceof Error ? e.message : 'Failed to load icons';
@@ -110,7 +116,7 @@
       customIcons = (await listCustomIcons()) || [];
       applyFilter();
     } catch {
-      // Ignore
+      toasts.error('Failed to reload custom icons');
     }
   }
 

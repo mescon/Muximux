@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
+	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -29,7 +30,9 @@ type ThemeHandler struct {
 // NewThemeHandler creates a new theme handler.
 // bundledFS should be the embedded dist filesystem (or nil if unavailable).
 func NewThemeHandler(themesDir string, bundledFS fs.FS) *ThemeHandler {
-	_ = os.MkdirAll(themesDir, 0755)
+	if err := os.MkdirAll(themesDir, 0755); err != nil {
+		log.Printf("[themes] failed to create themes directory %s: %v", themesDir, err)
+	}
 	return &ThemeHandler{themesDir: themesDir, bundledFS: bundledFS}
 }
 

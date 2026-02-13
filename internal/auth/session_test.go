@@ -89,9 +89,15 @@ func TestSessionStore(t *testing.T) {
 	t.Run("count sessions", func(t *testing.T) {
 		countStore := NewSessionStore("count_session", time.Hour, false)
 
-		_, _ = countStore.Create("u1", "user1", RoleUser)
-		_, _ = countStore.Create("u2", "user2", RoleUser)
-		_, _ = countStore.Create("u3", "user3", RoleAdmin)
+		if _, err := countStore.Create("u1", "user1", RoleUser); err != nil {
+			t.Fatalf("failed to create session: %v", err)
+		}
+		if _, err := countStore.Create("u2", "user2", RoleUser); err != nil {
+			t.Fatalf("failed to create session: %v", err)
+		}
+		if _, err := countStore.Create("u3", "user3", RoleAdmin); err != nil {
+			t.Fatalf("failed to create session: %v", err)
+		}
 
 		if countStore.Count() != 3 {
 			t.Errorf("Expected 3 sessions, got %d", countStore.Count())

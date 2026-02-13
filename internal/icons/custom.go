@@ -3,6 +3,7 @@ package icons
 import (
 	"fmt"
 	"io"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -34,7 +35,9 @@ const MaxIconSize = 2 * 1024 * 1024
 
 // NewCustomIconsManager creates a new custom icons manager
 func NewCustomIconsManager(storageDir string) *CustomIconsManager {
-	_ = os.MkdirAll(storageDir, 0755)
+	if err := os.MkdirAll(storageDir, 0755); err != nil {
+		log.Printf("[icons] failed to create custom icons directory %s: %v", storageDir, err)
+	}
 	return &CustomIconsManager{
 		storageDir: storageDir,
 	}
