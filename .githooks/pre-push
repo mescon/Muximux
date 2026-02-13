@@ -37,8 +37,13 @@ info "Running Go tests with coverage..."
 mkdir -p "$REPO_ROOT/internal/server/dist"
 touch "$REPO_ROOT/internal/server/dist/.gitkeep"
 
+# Exclude cmd/ packages — they're main() entry points with no tests, and
+# compiling them with -race can trigger toolchain version mismatch errors
+# when the system Go differs from go.mod's toolchain directive.
+GO_PACKAGES=$(go list ./... | grep -v '/cmd/')
+
 GO_COVER_FILE=$(mktemp)
-if go test -count=1 -race -coverprofile="$GO_COVER_FILE" ./... 2>&1 | tail -20; then
+if go test -count=1 -race -coverprofile="$GO_COVER_FILE" $GO_PACKAGES 2>&1 | tail -20; then
     pass "Go tests passed"
 
     # Parse overall coverage
