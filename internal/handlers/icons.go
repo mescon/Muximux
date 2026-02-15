@@ -28,21 +28,27 @@ func NewIconHandler(dashboardClient *icons.DashboardIconsClient, lucideClient *i
 
 // GetDashboardIcon serves a dashboard icon
 func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
-	// Extract icon name from path: /api/icons/dashboard/{name}
+	// Extract icon name from path: /api/icons/dashboard/{name}.{ext}
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/dashboard/")
 	if path == "" {
 		http.Error(w, errIconNameRequired, http.StatusBadRequest)
 		return
 	}
 
-	// Parse name and variant
+	// Parse name and variant from extension or query param
 	name := path
 	variant := r.URL.Query().Get("variant")
 	if variant == "" {
-		variant = "svg"
+		ext := filepath.Ext(name)
+		if ext != "" {
+			variant = strings.TrimPrefix(ext, ".")
+			name = strings.TrimSuffix(name, ext)
+		} else {
+			variant = "svg"
+		}
 	}
 
-	// Get the icon
+	// Get the icon (falls back through svg → webp → png)
 	data, contentType, err := h.dashboardClient.GetIcon(name, variant)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusNotFound)
@@ -50,7 +56,7 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set(headerContentType, contentType)
-	w.Header().Set(headerCacheControl, cachePublic24h) // Cache for 24 hours
+	w.Header().Set(headerCacheControl, cachePublic24h)
 	w.Write(data)
 }
 

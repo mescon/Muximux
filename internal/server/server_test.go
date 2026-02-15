@@ -1170,7 +1170,7 @@ func TestRegisterThemeRoutes(t *testing.T) {
 	staticHandler := http.FileServer(http.FS(testFS))
 
 	mux := http.NewServeMux()
-	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler)
+	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, t.TempDir())
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -1261,15 +1261,11 @@ func TestRegisterThemeRoutes(t *testing.T) {
 }
 
 func TestRegisterThemeRoutes_ServeLocalTheme(t *testing.T) {
-	// Create a temporary theme file in data/themes/ (relative to test working dir)
-	if err := os.MkdirAll(themesDataDir, 0o755); err != nil {
-		t.Fatal(err)
-	}
-	testFile := themesDataDir + "/local-test-theme.css"
+	themesDir := t.TempDir()
+	testFile := filepath.Join(themesDir, "local-test-theme.css")
 	if err := os.WriteFile(testFile, []byte("/* test theme */\n:root { --bg: #000; }"), 0o644); err != nil {
 		t.Fatal(err)
 	}
-	defer os.Remove(testFile)
 
 	testFS := fstest.MapFS{}
 	distFS, _ := fs.Sub(testFS, ".")
@@ -1277,7 +1273,7 @@ func TestRegisterThemeRoutes_ServeLocalTheme(t *testing.T) {
 	staticHandler := http.FileServer(http.FS(testFS))
 
 	mux := http.NewServeMux()
-	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler)
+	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, themesDir)
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -1308,7 +1304,7 @@ func TestRegisterIconRoutes(t *testing.T) {
 	})
 
 	mux := http.NewServeMux()
-	registerIconRoutes(mux, cfg, noopAdmin)
+	registerIconRoutes(mux, cfg, noopAdmin, t.TempDir())
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
