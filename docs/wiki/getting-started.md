@@ -6,7 +6,7 @@ This page walks you through what happens the first time you launch Muximux and h
 
 ## First Launch
 
-When Muximux starts with no apps configured (either no `config.yaml` exists or the file has an empty `apps` list), it shows the **Onboarding Wizard** -- a guided setup that walks you through initial configuration.
+When Muximux starts with no apps configured (either no `data/config.yaml` exists or the file has an empty `apps` list), it shows the **Onboarding Wizard** -- a guided setup that walks you through initial configuration.
 
 Open your browser and navigate to Muximux (by default, `http://your-server:8080`).
 
@@ -79,7 +79,7 @@ A summary of your choices is displayed: number of apps, navigation position, the
 
 Once the wizard completes:
 
-- Your configuration is saved to `config.yaml`.
+- Your configuration is saved to `data/config.yaml`.
 - The first app in your list is automatically set as the **default app**, which loads when you open the dashboard.
 - **Health monitoring** starts automatically, checking each app at the configured interval (default: every 30 seconds).
 - The onboarding wizard will appear automatically whenever no apps are configured. Once you add apps, it will not appear again unless all apps are removed.
@@ -93,7 +93,7 @@ You can open **Settings** at any time from the navigation bar to modify apps, gr
 To completely start fresh and see the onboarding wizard again:
 
 1. **Stop Muximux** (or the container).
-2. **Delete or rename** the `config.yaml` file.
+2. **Delete or rename** the `data/config.yaml` file (or the config file in your configured data directory).
 3. **Start Muximux** again.
 
 The onboarding wizard will appear automatically because no apps are configured. No browser state needs to be cleared.
@@ -102,7 +102,7 @@ The onboarding wizard will appear automatically because no apps are configured. 
 
 ## Quick Manual Setup
 
-If you prefer to skip the onboarding wizard entirely, you can create a `config.yaml` by hand before starting Muximux. Here is a minimal example:
+If you prefer to skip the onboarding wizard entirely, you can create a `data/config.yaml` by hand before starting Muximux. Here is a minimal example:
 
 ```yaml
 server:

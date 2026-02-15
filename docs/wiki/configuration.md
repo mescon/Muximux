@@ -2,9 +2,13 @@
 
 ## Overview
 
-Muximux is configured via a single YAML file. By default, this is `config.yaml` in the working directory. You can specify a different path at startup:
+Muximux is configured via a single YAML file. By default, this is `data/config.yaml` (inside the data directory). The data directory defaults to `data/` and can be changed with `--data` or `MUXIMUX_DATA`. You can also override the config path directly:
 
 ```bash
+# Change the data directory (config will be at /opt/muximux/data/config.yaml)
+muximux --data /opt/muximux/data
+
+# Or override the config path explicitly
 muximux --config /path/to/config.yaml
 ```
 
@@ -88,7 +92,7 @@ icons:
   dashboard_icons:
     enabled: true
     mode: on_demand            # on_demand, prefetch, offline
-    cache_dir: data/icons/dashboard
+    cache_dir: icons/dashboard
     cache_ttl: 7d
 
 # ─── Health Monitoring ──────────────────────────
@@ -141,7 +145,8 @@ apps:
 
 ```
 muximux [flags]
-  --config PATH    Path to config file (default: config.yaml, env: MUXIMUX_CONFIG)
+  --data PATH      Base data directory (default: data, env: MUXIMUX_DATA)
+  --config PATH    Override config file path (default: <data>/config.yaml, env: MUXIMUX_CONFIG)
   --listen ADDR    Override listen address (env: MUXIMUX_LISTEN)
   --version        Show version and exit
 ```
@@ -171,7 +176,8 @@ These override the corresponding config file values without needing `${VAR}` syn
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MUXIMUX_CONFIG` | Path to config file | `config.yaml` |
+| `MUXIMUX_DATA` | Base data directory | `data` |
+| `MUXIMUX_CONFIG` | Override config file path | `<data>/config.yaml` |
 | `MUXIMUX_LISTEN` | Listen address (e.g., `:9090`) | From config file |
 
 ## Validation Rules
@@ -185,7 +191,7 @@ Muximux validates the configuration on startup and will refuse to start if the c
 
 ## Live Configuration
 
-Most settings can be changed through the Settings panel while Muximux is running. Changes are saved to `config.yaml` immediately and take effect without restarting.
+Most settings can be changed through the Settings panel while Muximux is running. Changes are saved to `data/config.yaml` immediately and take effect without restarting.
 
 The following settings **require a restart** to take effect:
 - `server.listen` (listen address/port)

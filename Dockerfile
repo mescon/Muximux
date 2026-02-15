@@ -62,4 +62,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD wget -qO- http://localhost:8080/api/health || exit 1
 
 ENTRYPOINT ["./muximux"]
-CMD ["--config", "/app/data/config.yaml"]
+CMD ["--data", "/app/data"]

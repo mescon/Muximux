@@ -210,7 +210,7 @@ The proxy mitigates this by rewriting base path configuration variables (e.g., `
 
 The onboarding wizard appears automatically whenever no apps are configured (the `apps` list in config.yaml is empty or absent).
 
-If you deleted your config.yaml but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. Check the server logs to confirm config loading.
+If you deleted your `data/config.yaml` but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. Check the server logs to confirm config loading.
 
 ---
 

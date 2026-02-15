@@ -4,7 +4,7 @@ Muximux uses a CSS custom properties system for theming. You can choose from bui
 
 ## Configuration
 
-The active theme is stored in your `config.yaml`:
+The active theme is stored in your `data/config.yaml`:
 
 ```yaml
 theme:

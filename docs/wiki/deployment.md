@@ -88,7 +88,7 @@ Type=simple
 User=muximux
 Group=muximux
 WorkingDirectory=/opt/muximux
-ExecStart=/opt/muximux/muximux --config /opt/muximux/data/config.yaml
+ExecStart=/opt/muximux/muximux --data /opt/muximux/data
 Restart=on-failure
 RestartSec=5
 

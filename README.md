@@ -90,8 +90,10 @@ services:
 ### Binary
 
 ```bash
-./muximux --config data/config.yaml
+./muximux
 ```
+
+By default, Muximux uses `data/` as its data directory (containing config, themes, icons). Override it with `--data` or the `MUXIMUX_DATA` environment variable.
 
 See [docker-compose.yml](docker-compose.yml) for a full example with environment variables, health checks, and optional TLS/gateway ports.
 
@@ -129,7 +131,7 @@ groups:
     color: "#27ae60"
 ```
 
-Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var.
+Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. The data directory (where config, themes, and icons live) defaults to `data/` and can be set via `--data` or `MUXIMUX_DATA`.
 
 For the full configuration reference, authentication options, TLS setup, and more, see the **[Wiki](docs/wiki/README.md)**.
 
@@ -148,7 +150,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Configurable keybindings for switching apps, toggling navigation, search |
 | **Themes** | Built-in light/dark modes, custom themes via CSS custom properties |
-| **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_LISTEN` and `MUXIMUX_CONFIG` overrides |
+| **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
 | **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |
 
@@ -183,8 +185,8 @@ git config core.hooksPath .githooks
 # Frontend dev server (hot reload)
 cd web && npm install && npm run dev &
 
-# Backend
-go run ./cmd/muximux --config data/config.yaml
+# Backend (uses data/ directory by default for config, themes, icons)
+go run ./cmd/muximux
 ```
 
 ### Building

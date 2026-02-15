@@ -2,7 +2,7 @@
 # Usage: docker compose up -d
 #
 # Environment variables can be used in two ways:
-#   1. Direct overrides: MUXIMUX_LISTEN, MUXIMUX_CONFIG (see below)
+#   1. Direct overrides: MUXIMUX_DATA, MUXIMUX_LISTEN, MUXIMUX_CONFIG (see below)
 #   2. Config file expansion: Any ${VAR} in config.yaml is replaced with
 #      the environment variable value. Pass vars here and reference them
 #      in your config.yaml (e.g., client_secret: ${OIDC_CLIENT_SECRET}).
@@ -28,10 +28,13 @@ services:
       # ── Direct Overrides ────────────────────────────────────────
       # These override the corresponding config.yaml values.
       #
+      # Override the data directory (default: /app/data in Docker)
+      # - MUXIMUX_DATA=/app/data
+      #
       # Override the listen address (default: :8080)
       # - MUXIMUX_LISTEN=:8080
       #
-      # Override the config file path (default: /app/data/config.yaml)
+      # Override the config file path (default: derived from data dir)
       # - MUXIMUX_CONFIG=/app/data/config.yaml
 
       # ── Config File Variable Expansion ──────────────────────────

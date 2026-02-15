@@ -1,5 +1,5 @@
 # Muximux 3 Configuration Example
-# Copy this file to config.yaml and customize as needed
+# Copy this file to data/config.yaml and customize as needed
 #
 # Environment variable expansion:
 #   Use ${VAR_NAME} in any string value to reference environment variables.
@@ -78,7 +78,7 @@ icons:
   dashboard_icons:
     enabled: true
     mode: on_demand  # on_demand, prefetch, offline
-    cache_dir: data/icons/dashboard
+    cache_dir: icons/dashboard
     cache_ttl: 7d
 
 # App groups

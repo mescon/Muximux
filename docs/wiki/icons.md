@@ -22,7 +22,7 @@ icons:
   dashboard_icons:
     enabled: true
     mode: on_demand    # on_demand, prefetch, or offline
-    cache_dir: data/icons/dashboard
+    cache_dir: icons/dashboard
     cache_ttl: 7d      # How long to cache icons
 ```
 
