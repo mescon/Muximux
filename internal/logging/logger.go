@@ -191,6 +191,7 @@ func (h *BroadcastHandler) WithGroup(name string) slog.Handler {
 var (
 	defaultLogger *slog.Logger
 	buffer        *LogBuffer
+	levelVar      slog.LevelVar
 )
 
 // Init initializes the global logger with a BroadcastHandler that captures
@@ -199,7 +200,7 @@ var (
 func Init(cfg Config) error {
 	buffer = NewLogBuffer(1000)
 
-	level := parseLevel(cfg.Level)
+	levelVar.Set(parseLevel(cfg.Level))
 
 	var output io.Writer
 	switch strings.ToLower(cfg.Output) {
@@ -227,7 +228,7 @@ func Init(cfg Config) error {
 		output = io.MultiWriter(output, file)
 	}
 
-	opts := &slog.HandlerOptions{Level: level}
+	opts := &slog.HandlerOptions{Level: &levelVar}
 
 	var inner slog.Handler
 	if strings.ToLower(cfg.Format) == "json" {
@@ -260,6 +261,11 @@ func parseLevel(l Level) slog.Level {
 	default:
 		return slog.LevelInfo
 	}
+}
+
+// SetLevel dynamically changes the log level without restarting.
+func SetLevel(l Level) {
+	levelVar.Set(parseLevel(l))
 }
 
 // Logger returns the default logger

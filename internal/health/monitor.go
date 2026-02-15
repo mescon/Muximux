@@ -151,6 +151,8 @@ func (m *Monitor) checkAll(ctx context.Context) {
 	}
 	m.mu.RUnlock()
 
+	logging.Debug("Running health checks", "source", "health", "app_count", len(apps))
+
 	// Check apps concurrently
 	var wg sync.WaitGroup
 	for _, app := range apps {

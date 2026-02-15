@@ -139,15 +139,19 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 
 		// Check bypass rules
 		if m.shouldBypass(r) {
+			logging.Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
 			next.ServeHTTP(w, r)
 			return
 		}
 
 		user, session := m.authenticateRequest(r)
 		if user == nil {
+			logging.Debug("Unauthenticated request", "source", "auth", "path", r.URL.Path, "method", r.Method)
 			m.handleUnauthenticated(w, r)
 			return
 		}
+
+		logging.Debug("Authenticated request", "source", "auth", "user", user.Username, "path", r.URL.Path)
 
 		// Add user and session to context
 		ctx := context.WithValue(r.Context(), ContextKeyUser, user)
