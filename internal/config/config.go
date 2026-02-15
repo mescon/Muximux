@@ -3,6 +3,7 @@ package config
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"gopkg.in/yaml.v3"
 )
@@ -60,10 +61,11 @@ type TLSConfig struct {
 
 // ServerConfig holds HTTP server settings
 type ServerConfig struct {
-	Listen  string    `yaml:"listen" json:"listen"`
-	Title   string    `yaml:"title" json:"title"`
-	TLS     TLSConfig `yaml:"tls" json:"tls"`
-	Gateway string    `yaml:"gateway" json:"gateway"`
+	Listen   string    `yaml:"listen" json:"listen"`
+	Title    string    `yaml:"title" json:"title"`
+	LogLevel string    `yaml:"log_level" json:"log_level"`
+	TLS      TLSConfig `yaml:"tls" json:"tls"`
+	Gateway  string    `yaml:"gateway" json:"gateway"`
 }
 
 // NeedsCaddy returns true if TLS or Gateway is configured, meaning Caddy
@@ -119,9 +121,10 @@ type NavigationConfig struct {
 	ShowLabels         bool   `yaml:"show_labels" json:"show_labels"`
 	ShowLogo           bool   `yaml:"show_logo" json:"show_logo"`
 	ShowAppColors      bool   `yaml:"show_app_colors" json:"show_app_colors"`
-	ShowIconBackground bool   `yaml:"show_icon_background" json:"show_icon_background"`
-	ShowSplashOnStart  bool   `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
-	ShowShadow         bool   `yaml:"show_shadow" json:"show_shadow"`
+	ShowIconBackground bool    `yaml:"show_icon_background" json:"show_icon_background"`
+	IconScale          float64 `yaml:"icon_scale" json:"icon_scale"`
+	ShowSplashOnStart  bool    `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
+	ShowShadow         bool    `yaml:"show_shadow" json:"show_shadow"`
 }
 
 // IconsConfig holds icon settings
@@ -210,6 +213,11 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
+	// Normalize zero-value fields that have non-zero defaults
+	if cfg.Navigation.IconScale <= 0 {
+		cfg.Navigation.IconScale = 1.0
+	}
+
 	if err := cfg.validate(); err != nil {
 		return nil, err
 	}
@@ -241,6 +249,11 @@ func (c *Config) validate() error {
 
 // Save writes configuration to a YAML file
 func (c *Config) Save(path string) error {
+	if dir := filepath.Dir(path); dir != "." {
+		if err := os.MkdirAll(dir, 0700); err != nil {
+			return err
+		}
+	}
 	data, err := yaml.Marshal(c)
 	if err != nil {
 		return err
@@ -269,8 +282,9 @@ func (c *Config) NeedsSetup() bool {
 func defaultConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Listen: ":8080",
-			Title:  "Muximux",
+			Listen:   ":8080",
+			Title:    "Muximux",
+			LogLevel: "info",
 		},
 		Auth: AuthConfig{
 			Method: "none",
@@ -283,12 +297,13 @@ func defaultConfig() *Config {
 			Position:           "top",
 			Width:              "220px",
 			AutoHide:           false,
-			AutoHideDelay:      "3s",
+			AutoHideDelay:      "0.5s",
 			ShowOnHover:        true,
 			ShowLabels:         true,
 			ShowLogo:           true,
 			ShowAppColors:      true,
 			ShowIconBackground: true,
+			IconScale:          1.0,
 			ShowSplashOnStart:  false,
 			ShowShadow:         true,
 		},
@@ -296,7 +311,7 @@ func defaultConfig() *Config {
 			DashboardIcons: DashboardIconsConfig{
 				Enabled:  true,
 				Mode:     "on_demand",
-				CacheDir: "data/icons/dashboard",
+				CacheDir: "icons/dashboard",
 				CacheTTL: "7d",
 			},
 		},

@@ -1,10 +1,13 @@
 package logging
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"os"
 	"strings"
+	"sync"
+	"time"
 )
 
 // Level represents log levels
@@ -24,10 +27,177 @@ type Config struct {
 	Output string // "stdout", "stderr", or file path
 }
 
-var defaultLogger *slog.Logger
+// LogEntry represents a single log entry stored in the ring buffer
+type LogEntry struct {
+	Timestamp time.Time `json:"timestamp"`
+	Level     string    `json:"level"`
+	Message   string    `json:"message"`
+	Source    string    `json:"source"`
+}
 
-// Init initializes the global logger
+// LogBuffer is a thread-safe ring buffer that stores log entries and supports
+// real-time subscriptions via channels.
+type LogBuffer struct {
+	entries []LogEntry
+	size    int
+	head    int
+	count   int
+	mu      sync.RWMutex
+
+	subMu       sync.Mutex
+	subscribers map[chan LogEntry]struct{}
+}
+
+// NewLogBuffer creates a new ring buffer with the given capacity.
+func NewLogBuffer(size int) *LogBuffer {
+	return &LogBuffer{
+		entries:     make([]LogEntry, size),
+		size:        size,
+		subscribers: make(map[chan LogEntry]struct{}),
+	}
+}
+
+// Add appends an entry to the ring buffer and notifies all subscribers.
+func (b *LogBuffer) Add(entry LogEntry) {
+	b.mu.Lock()
+	b.entries[b.head] = entry
+	b.head = (b.head + 1) % b.size
+	if b.count < b.size {
+		b.count++
+	}
+	b.mu.Unlock()
+
+	// Notify subscribers (non-blocking send)
+	b.subMu.Lock()
+	for ch := range b.subscribers {
+		select {
+		case ch <- entry:
+		default:
+			// Drop entry if subscriber is too slow
+		}
+	}
+	b.subMu.Unlock()
+}
+
+// Recent returns the last n log entries in chronological order.
+func (b *LogBuffer) Recent(n int) []LogEntry {
+	b.mu.RLock()
+	defer b.mu.RUnlock()
+
+	if n > b.count {
+		n = b.count
+	}
+	if n == 0 {
+		return nil
+	}
+
+	result := make([]LogEntry, n)
+	// Start index: the oldest entry we want
+	start := (b.head - n + b.size) % b.size
+	for i := 0; i < n; i++ {
+		result[i] = b.entries[(start+i)%b.size]
+	}
+	return result
+}
+
+// Subscribe creates a buffered channel that receives new log entries in real time.
+func (b *LogBuffer) Subscribe() chan LogEntry {
+	ch := make(chan LogEntry, 64)
+	b.subMu.Lock()
+	b.subscribers[ch] = struct{}{}
+	b.subMu.Unlock()
+	return ch
+}
+
+// Unsubscribe removes a subscription channel and closes it.
+func (b *LogBuffer) Unsubscribe(ch chan LogEntry) {
+	b.subMu.Lock()
+	delete(b.subscribers, ch)
+	b.subMu.Unlock()
+	close(ch)
+}
+
+// BroadcastHandler is an slog.Handler that captures log records into a LogBuffer
+// while forwarding them to an underlying handler.
+type BroadcastHandler struct {
+	inner  slog.Handler
+	buffer *LogBuffer
+	attrs  []slog.Attr
+	groups []string
+}
+
+// NewBroadcastHandler wraps an existing slog.Handler to also write to a LogBuffer.
+func NewBroadcastHandler(inner slog.Handler, buf *LogBuffer) *BroadcastHandler {
+	return &BroadcastHandler{
+		inner:  inner,
+		buffer: buf,
+	}
+}
+
+func (h *BroadcastHandler) Enabled(ctx context.Context, level slog.Level) bool {
+	return h.inner.Enabled(ctx, level)
+}
+
+func (h *BroadcastHandler) Handle(ctx context.Context, r slog.Record) error {
+	// Extract source attribute from record and pre-set attrs
+	source := ""
+
+	// Check pre-set attrs first (from WithAttrs)
+	for _, a := range h.attrs {
+		if a.Key == "source" {
+			source = a.Value.String()
+			break
+		}
+	}
+
+	// Then check record-level attrs (override pre-set)
+	r.Attrs(func(a slog.Attr) bool {
+		if a.Key == "source" {
+			source = a.Value.String()
+			return false
+		}
+		return true
+	})
+
+	entry := LogEntry{
+		Timestamp: r.Time,
+		Level:     r.Level.String(),
+		Message:   r.Message,
+		Source:    source,
+	}
+	h.buffer.Add(entry)
+
+	return h.inner.Handle(ctx, r)
+}
+
+func (h *BroadcastHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
+	return &BroadcastHandler{
+		inner:  h.inner.WithAttrs(attrs),
+		buffer: h.buffer,
+		attrs:  append(append([]slog.Attr{}, h.attrs...), attrs...),
+		groups: h.groups,
+	}
+}
+
+func (h *BroadcastHandler) WithGroup(name string) slog.Handler {
+	return &BroadcastHandler{
+		inner:  h.inner.WithGroup(name),
+		buffer: h.buffer,
+		attrs:  h.attrs,
+		groups: append(append([]string{}, h.groups...), name),
+	}
+}
+
+var (
+	defaultLogger *slog.Logger
+	buffer        *LogBuffer
+)
+
+// Init initializes the global logger with a BroadcastHandler that captures
+// log entries into an in-memory ring buffer.
 func Init(cfg Config) error {
+	buffer = NewLogBuffer(1000)
+
 	level := parseLevel(cfg.Level)
 
 	var output io.Writer
@@ -44,21 +214,25 @@ func Init(cfg Config) error {
 		output = file
 	}
 
-	var handler slog.Handler
-	opts := &slog.HandlerOptions{
-		Level: level,
-	}
+	opts := &slog.HandlerOptions{Level: level}
 
+	var inner slog.Handler
 	if strings.ToLower(cfg.Format) == "json" {
-		handler = slog.NewJSONHandler(output, opts)
+		inner = slog.NewJSONHandler(output, opts)
 	} else {
-		handler = slog.NewTextHandler(output, opts)
+		inner = slog.NewTextHandler(output, opts)
 	}
 
+	handler := NewBroadcastHandler(inner, buffer)
 	defaultLogger = slog.New(handler)
 	slog.SetDefault(defaultLogger)
 
 	return nil
+}
+
+// Buffer returns the global log buffer, or nil if Init has not been called.
+func Buffer() *LogBuffer {
+	return buffer
 }
 
 // parseLevel converts a string level to slog.Level

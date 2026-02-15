@@ -6,9 +6,11 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"syscall"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 	"github.com/mescon/muximux/v3/internal/server"
 )
 
@@ -28,10 +30,16 @@ func envOrDefault(envKey, fallback string) string {
 
 func main() {
 	// Command line flags (env vars used as defaults where applicable)
-	configPath := flag.String("config", envOrDefault("MUXIMUX_CONFIG", "config.yaml"), "Path to configuration file (env: MUXIMUX_CONFIG)")
+	dataDir := flag.String("data", envOrDefault("MUXIMUX_DATA", "data"), "Data directory for config, themes, icons (env: MUXIMUX_DATA)")
+	configPath := flag.String("config", envOrDefault("MUXIMUX_CONFIG", ""), "Override config file path (env: MUXIMUX_CONFIG)")
 	listenAddr := flag.String("listen", "", "Override listen address, e.g. :9090 (env: MUXIMUX_LISTEN)")
 	showVersion := flag.Bool("version", false, "Show version information")
 	flag.Parse()
+
+	// Derive config path from data dir if not explicitly set
+	if *configPath == "" {
+		*configPath = filepath.Join(*dataDir, "config.yaml")
+	}
 
 	if *showVersion {
 		fmt.Printf("Muximux %s (commit: %s, built: %s)\n", version, commit, buildDate)
@@ -44,6 +52,15 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	// Initialize structured logging
+	if err := logging.Init(logging.Config{
+		Level:  logging.Level(cfg.Server.LogLevel),
+		Format: "text",
+		Output: "stdout",
+	}); err != nil {
+		log.Fatalf("Failed to initialize logging: %v", err)
+	}
+
 	// Apply CLI/env overrides
 	if *listenAddr != "" {
 		cfg.Server.Listen = *listenAddr
@@ -52,9 +69,10 @@ func main() {
 	}
 
 	// Create and start server
-	srv, err := server.New(cfg, *configPath)
+	srv, err := server.New(cfg, *configPath, *dataDir, version, commit, buildDate)
 	if err != nil {
-		log.Fatalf("Failed to create server: %v", err)
+		logging.Error("Failed to create server", "source", "server", "error", err)
+		os.Exit(1)
 	}
 
 	// Handle graceful shutdown
@@ -63,18 +81,19 @@ func main() {
 
 	go func() {
 		if err := srv.Start(); err != nil {
-			log.Fatalf("Server error: %v", err)
+			logging.Error("Server error", "source", "server", "error", err)
+			os.Exit(1)
 		}
 	}()
 
-	log.Printf("Muximux %s started on %s", version, cfg.Server.Listen)
+	logging.Info("Muximux started", "source", "server", "version", version, "listen", cfg.Server.Listen)
 
 	<-quit
-	log.Println("Shutting down...")
+	logging.Info("Shutting down", "source", "server")
 
 	if err := srv.Stop(); err != nil {
-		log.Printf("Error during shutdown: %v", err)
+		logging.Error("Error during shutdown", "source", "server", "error", err)
 	}
 
-	log.Println("Goodbye!")
+	logging.Info("Goodbye!", "source", "server")
 }
