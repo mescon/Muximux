@@ -52,11 +52,13 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	// Initialize structured logging
+	// Initialize structured logging — always write to stdout + data/muximux.log
+	logFile := filepath.Join(*dataDir, "muximux.log")
 	if err := logging.Init(logging.Config{
-		Level:  logging.Level(cfg.Server.LogLevel),
-		Format: "text",
-		Output: "stdout",
+		Level:   logging.Level(cfg.Server.LogLevel),
+		Format:  "text",
+		Output:  "stdout",
+		LogFile: logFile,
 	}); err != nil {
 		log.Fatalf("Failed to initialize logging: %v", err)
 	}

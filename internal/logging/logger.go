@@ -2,9 +2,11 @@ package logging
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"time"
@@ -22,9 +24,10 @@ const (
 
 // Config holds logging configuration
 type Config struct {
-	Level  Level
-	Format string // "json" or "text"
-	Output string // "stdout", "stderr", or file path
+	Level   Level
+	Format  string // "json" or "text"
+	Output  string // "stdout", "stderr", or file path
+	LogFile string // optional additional log file path (tees output)
 }
 
 // LogEntry represents a single log entry stored in the ring buffer
@@ -192,6 +195,7 @@ var (
 
 // Init initializes the global logger with a BroadcastHandler that captures
 // log entries into an in-memory ring buffer.
+// If LogFile is set, logs are written to both stdout and the file.
 func Init(cfg Config) error {
 	buffer = NewLogBuffer(1000)
 
@@ -209,6 +213,18 @@ func Init(cfg Config) error {
 			return err
 		}
 		output = file
+	}
+
+	// If a log file is configured, tee output to both the primary writer and the file.
+	if cfg.LogFile != "" {
+		if err := os.MkdirAll(filepath.Dir(cfg.LogFile), 0755); err != nil {
+			return fmt.Errorf("create log directory: %w", err)
+		}
+		file, err := os.OpenFile(cfg.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		if err != nil {
+			return fmt.Errorf("open log file: %w", err)
+		}
+		output = io.MultiWriter(output, file)
 	}
 
 	opts := &slog.HandlerOptions{Level: level}

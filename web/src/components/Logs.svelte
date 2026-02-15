@@ -86,6 +86,23 @@
     }
   }
 
+  function handleDownload() {
+    const entries = filteredEntries;
+    if (entries.length === 0) return;
+
+    const lines = entries.map(e => {
+      const ts = e.timestamp.replace('T', ' ').replace(/\+.*$/, '');
+      return `${ts} ${e.level.toUpperCase().padEnd(5)} [${e.source}] ${e.message}`;
+    });
+    const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `muximux-logs-${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.log`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   function handleScroll() {
     if (!logContainer) return;
     const { scrollTop, scrollHeight, clientHeight } = logContainer;
@@ -173,6 +190,17 @@
           </svg>
           Pause
         {/if}
+      </button>
+      <button
+        class="log-action-btn"
+        onclick={handleDownload}
+        title="Download filtered logs as .log file"
+        disabled={filteredEntries.length === 0}
+      >
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+        Download
       </button>
       <button
         class="log-action-btn"
@@ -357,9 +385,14 @@
     transition: background 0.15s ease, color 0.15s ease;
   }
 
-  .log-action-btn:hover {
+  .log-action-btn:hover:not(:disabled) {
     background: var(--bg-hover);
     color: var(--text-primary);
+  }
+
+  .log-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
   }
 
   .log-action-btn-active {

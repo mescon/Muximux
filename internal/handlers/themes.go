@@ -191,6 +191,7 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Info("Theme saved", "source", "themes", "theme", id)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"id":     id,
@@ -235,6 +236,7 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Info("Theme deleted", "source", "themes", "theme", name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "deleted",

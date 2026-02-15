@@ -277,6 +277,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Info("App created", "source", "config", "app", newApp.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(sanitizeApp(newApp))
@@ -334,6 +335,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
+	logging.Info("App updated", "source", "config", "app", clientApp.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(sanitizeApp(h.config.Apps[idx]))
 }
@@ -365,6 +367,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
+	logging.Info("App deleted", "source", "config", "app", name)
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -417,6 +420,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Info("Group created", "source", "config", "group", group.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(group)
@@ -455,6 +459,7 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
+	logging.Info("Group updated", "source", "config", "group", group.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(group)
 }
@@ -494,6 +499,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
+	logging.Info("Group deleted", "source", "config", "group", name)
 	w.WriteHeader(http.StatusNoContent)
 }
 

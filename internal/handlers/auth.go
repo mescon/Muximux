@@ -105,6 +105,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Authenticate
 	user, err := h.userStore.Authenticate(req.Username, req.Password)
 	if err != nil {
+		logging.Warn("Login failed", "source", "auth", "user", req.Username)
 		w.Header().Set(headerContentType, contentTypeJSON)
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(LoginResponse{
@@ -128,6 +129,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Set session cookie
 	h.sessionStore.SetCookie(w, session)
+	logging.Info("User logged in", "source", "auth", "user", user.Username)
 
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(LoginResponse{
@@ -265,6 +267,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	h.sessionStore.DeleteByUserID(user.ID, exceptID)
 
+	logging.Info("Password changed", "source", "auth", "user", user.Username)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -418,6 +421,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		logging.Error("Failed to persist user creation", "source", "auth", "error", err)
 	}
 
+	logging.Info("User created", "source", "auth", "user", user.Username, "role", user.Role)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
@@ -539,6 +543,7 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		logging.Error("Failed to persist user deletion", "source", "auth", "error", err)
 	}
 
+	logging.Info("User deleted", "source", "auth", "user", username)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -636,6 +641,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Info("Auth method changed", "source", "auth", "method", req.Method)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
