@@ -48,6 +48,7 @@
     'fullscreen': 'fullscreen',
     'refresh': 'refresh',
     'home': 'home',
+    'logs': 'logs',
   };
 
   // Get shortcut string for an action from keybindings store
@@ -68,6 +69,7 @@
     { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
     { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
     { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
+    { id: 'logs', type: 'action' as const, label: 'View Logs', shortcut: getShortcut('logs'), icon: 'logs' },
     { id: 'toggle-keybindings', type: 'action' as const, label: $captureKeybindings ? 'Pause Keyboard Shortcuts' : 'Resume Keyboard Shortcuts', icon: 'keyboard' },
     { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
     { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
@@ -312,6 +314,8 @@
         return 'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15';
       case 'home':
         return 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6';
+      case 'logs':
+        return 'M4 6h16M4 10h16M4 14h16M4 18h12';
       case 'keyboard':
         return 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4';
       case 'moon':
@@ -377,7 +381,6 @@
           type="text"
           placeholder="Search apps and commands..."
           class="command-palette-input flex-1 bg-transparent outline-none text-lg min-w-0"
-          onkeydown={handleKeydown}
         />
         <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">esc</kbd>
       </div>

@@ -11,6 +11,7 @@ export type KeyAction =
   | 'search'
   | 'settings'
   | 'shortcuts'
+  | 'logs'
   | 'refresh'
   | 'fullscreen'
   | 'home'
@@ -81,6 +82,16 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     description: 'Return to the splash screen',
     combos: [
       { key: 'h', alt: true }
+    ],
+    category: 'navigation',
+    editable: true
+  },
+  {
+    action: 'logs',
+    label: 'View Logs',
+    description: 'Open the log viewer',
+    combos: [
+      { key: 'l' }
     ],
     category: 'navigation',
     editable: true

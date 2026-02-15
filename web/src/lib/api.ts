@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry } from './types';
 
 const API_BASE = '/api';
 
@@ -75,6 +75,11 @@ export async function deleteUserAccount(username: string): Promise<void> {
 
 export async function changeAuthMethod(data: ChangeAuthMethodRequest): Promise<{ success: boolean; method?: string; message?: string }> {
   return putJSON<ChangeAuthMethodRequest, { success: boolean; method?: string; message?: string }>('/auth/method', data);
+}
+
+export async function fetchRecentLogs(limit?: number): Promise<LogEntry[]> {
+  const params = limit ? `?limit=${limit}` : '';
+  return fetchJSON<LogEntry[]>(`/logs/recent${params}`);
 }
 
 export async function fetchConfig(): Promise<Config> {
@@ -351,4 +356,12 @@ export function parseImportedConfig(content: string): ExportedConfig {
   }
 
   return obj as unknown as ExportedConfig;
+}
+
+export async function fetchSystemInfo(): Promise<SystemInfo> {
+  return fetchJSON<SystemInfo>('/system/info');
+}
+
+export async function checkForUpdates(): Promise<UpdateInfo> {
+  return fetchJSON<UpdateInfo>('/system/updates');
 }

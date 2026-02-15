@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { onMount, untrack } from 'svelte';
+  import { onMount, tick, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import type { App, Config, Group } from '$lib/types';
@@ -9,13 +9,16 @@
   import { get } from 'svelte/store';
   import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
-  import { exportConfig, parseImportedConfig, listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod } from '$lib/api';
+  import { exportConfig, parseImportedConfig, listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, fetchSystemInfo, checkForUpdates } from '$lib/api';
+  import type { SystemInfo, UpdateInfo } from '$lib/types';
   import { changePassword, isAdmin, currentUser } from '$lib/authStore';
   import type { UserInfo, ChangeAuthMethodRequest } from '$lib/types';
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
+  import { marked } from 'marked';
+  import { popularApps, templateToApp, type PopularAppTemplate } from '$lib/popularApps';
 
   let {
     config,
@@ -39,7 +42,7 @@
   });
 
   // Active tab
-  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security'>('general');
+  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
 
   // Local copy of config for editing
   let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
@@ -86,12 +89,71 @@
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
 
+  // Forward auth preset & header fields
+  let faPreset = $state<'authelia' | 'authentik' | 'custom'>('authelia');
+  let faShowAdvanced = $state(false);
+  let faHeaderUser = $state('Remote-User');
+  let faHeaderEmail = $state('Remote-Email');
+  let faHeaderGroups = $state('Remote-Groups');
+  let faHeaderName = $state('Remote-Name');
+
+  const faPresets = {
+    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
+    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name' },
+    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
+  };
+
+  function selectFaPreset(p: 'authelia' | 'authentik' | 'custom') {
+    faPreset = p;
+    const headers = faPresets[p];
+    faHeaderUser = headers.user;
+    faHeaderEmail = headers.email;
+    faHeaderGroups = headers.groups;
+    faHeaderName = headers.name;
+  }
+
+  // About tab state
+  let systemInfo = $state<SystemInfo | null>(null);
+  let updateInfo = $state<UpdateInfo | null>(null);
+  let aboutLoading = $state(false);
+  let aboutError = $state<string | null>(null);
+  let updateInstructionsExpanded = $state(false);
+  let changelogExpanded = $state(false);
+
+  $effect(() => {
+    if (activeTab === 'about' && !systemInfo) {
+      loadAboutData();
+    }
+  });
+
+  async function loadAboutData() {
+    aboutLoading = true;
+    aboutError = null;
+    try {
+      const [sysInfo, updInfo] = await Promise.all([
+        fetchSystemInfo(),
+        checkForUpdates().catch(() => null)
+      ]);
+      systemInfo = sysInfo;
+      updateInfo = updInfo;
+      if (updInfo?.changelog) changelogExpanded = true;
+      if (updInfo?.update_available) updateInstructionsExpanded = true;
+    } catch (e) {
+      aboutError = e instanceof Error ? e.message : 'Failed to load';
+    } finally {
+      aboutLoading = false;
+    }
+  }
+
   // Track if changes have been made (declared below after snapshot variables)
 
   // Editing state
   let editingApp = $state<App | null>(null);
   let editingGroup = $state<Group | null>(null);
   let showAddApp = $state(false);
+  let addAppStep = $state<'choose' | 'configure'>('choose');
+  let addAppSearch = $state('');
+  let addAppSearchLower = $derived(addAppSearch.toLowerCase());
   let showAddGroup = $state(false);
 
   // Import/export state
@@ -247,9 +309,12 @@
         .split(/[,\n]/)
         .map(s => s.trim())
         .filter(s => s.length > 0);
-      if (Object.keys(methodHeaders).length > 0) {
-        req.headers = methodHeaders;
-      }
+      req.headers = {
+        user: faHeaderUser,
+        email: faHeaderEmail,
+        groups: faHeaderGroups,
+        name: faHeaderName,
+      };
     }
     try {
       const result = await changeAuthMethod(req);
@@ -275,6 +340,20 @@
   $effect(() => {
     if (activeTab === 'security') {
       selectedAuthMethod = (localConfig.auth?.method || 'none') as typeof selectedAuthMethod;
+      // Pre-fill forward auth fields from existing config
+      const proxies = localConfig.auth?.trusted_proxies;
+      methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
+      const h = localConfig.auth?.headers;
+      if (h) {
+        faHeaderUser = h.user || 'Remote-User';
+        faHeaderEmail = h.email || 'Remote-Email';
+        faHeaderGroups = h.groups || 'Remote-Groups';
+        faHeaderName = h.name || 'Remote-Name';
+        // Detect preset from header values
+        const matchesAuthelia = faHeaderUser === faPresets.authelia.user && faHeaderEmail === faPresets.authelia.email;
+        const matchesAuthentik = faHeaderUser === faPresets.authentik.user && faHeaderEmail === faPresets.authentik.email;
+        faPreset = matchesAuthentik ? 'authentik' : matchesAuthelia ? 'authelia' : 'custom';
+      }
     }
   });
 
@@ -346,6 +425,17 @@
   function revertTheme() {
     setThemeFamily(initialFamily);
     setVariantMode(initialVariant);
+  }
+
+  function selectPopularApp(template: PopularAppTemplate) {
+    const app = templateToApp(template, template.defaultUrl, localApps.length);
+    newApp = { ...app };
+    addAppStep = 'configure';
+  }
+
+  function startCustomApp() {
+    newApp = { ...newAppTemplate };
+    addAppStep = 'configure';
   }
 
   function addApp() {
@@ -742,7 +832,8 @@
         { id: 'apps', label: 'Apps & Groups' },
         { id: 'theme', label: 'Theme' },
         { id: 'keybindings', label: 'Keybindings' },
-        { id: 'security', label: 'Security' }
+        { id: 'security', label: 'Security' },
+        { id: 'about', label: 'About' }
       ] as tab (tab.id)}
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
@@ -774,6 +865,35 @@
                      focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
               placeholder="Muximux"
             />
+            <p class="text-xs text-gray-500 mt-1.5">
+              Variables: <code class="text-gray-400">%title%</code> (app name),
+              <code class="text-gray-400">%group%</code>,
+              <code class="text-gray-400">%version%</code>,
+              <code class="text-gray-400">%count%</code> (total apps),
+              <code class="text-gray-400">%url%</code>.
+              Example: <code class="text-gray-400">Muximux - %title%</code>
+            </p>
+          </div>
+
+          <!-- Log Level -->
+          <div>
+            <label for="log-level" class="block text-sm font-medium text-gray-300 mb-2">
+              Log Level
+            </label>
+            <select
+              id="log-level"
+              bind:value={localConfig.log_level}
+              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                     focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+            >
+              <option value="debug">Debug</option>
+              <option value="info">Info</option>
+              <option value="warn">Warning</option>
+              <option value="error">Error</option>
+            </select>
+            <p class="text-xs text-gray-500 mt-1.5">
+              Controls which log messages are captured. Takes effect on restart.
+            </p>
           </div>
 
           <!-- Navigation Position -->
@@ -802,24 +922,24 @@
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={localConfig.navigation.show_logo}
+                bind:checked={localConfig.navigation.show_labels}
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
-                <div class="text-sm text-white">Show Logo</div>
-                <div class="text-xs text-gray-400">Display dashboard title in navigation</div>
+                <div class="text-sm text-white">Show Labels</div>
+                <div class="text-xs text-gray-400">Display app names next to icons</div>
               </div>
             </label>
 
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={localConfig.navigation.show_labels}
+                bind:checked={localConfig.navigation.show_logo}
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
-                <div class="text-sm text-white">Show Labels</div>
-                <div class="text-xs text-gray-400">Display app names in navigation</div>
+                <div class="text-sm text-white">Show Logo</div>
+                <div class="text-xs text-gray-400">Display the Muximux logo in the menu</div>
               </div>
             </label>
 
@@ -831,7 +951,7 @@
               />
               <div>
                 <div class="text-sm text-white">App Color Accents</div>
-                <div class="text-xs text-gray-400">Show colored borders on app items</div>
+                <div class="text-xs text-gray-400">Highlight the active app with its color</div>
               </div>
             </label>
 
@@ -843,9 +963,22 @@
               />
               <div>
                 <div class="text-sm text-white">Icon Background</div>
-                <div class="text-xs text-gray-400">Show colored background behind app icons</div>
+                <div class="text-xs text-gray-400">Show colored circle behind app icons</div>
               </div>
             </label>
+
+            <div class="p-3 bg-gray-700/50 rounded-lg sm:col-span-2">
+              <div class="flex items-center justify-between mb-2">
+                <div>
+                  <div class="text-sm text-white">Icon Size</div>
+                  <div class="text-xs text-gray-400">Scale app icons in the navigation</div>
+                </div>
+                <span class="text-sm text-gray-300 tabular-nums">{localConfig.navigation.icon_scale}×</span>
+              </div>
+              <input type="range" min="0.5" max="2" step="0.25"
+                bind:value={localConfig.navigation.icon_scale}
+                class="w-full accent-brand-500" />
+            </div>
 
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
               <input
@@ -854,12 +987,12 @@
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
-                <div class="text-sm text-white">Show Splash on Startup</div>
-                <div class="text-xs text-gray-400">Show the overview screen instead of the default app on load</div>
+                <div class="text-sm text-white">Start on Overview</div>
+                <div class="text-xs text-gray-400">Show the dashboard overview when Muximux opens</div>
               </div>
             </label>
 
-            <div class="p-3 bg-gray-700/50 rounded-lg">
+            <div class="p-3 bg-gray-700/50 rounded-lg sm:col-span-2">
               <label class="flex items-center gap-3 cursor-pointer">
                 <input
                   type="checkbox"
@@ -867,11 +1000,10 @@
                   class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
                 />
                 <div class="flex-1">
-                  <div class="text-sm text-white">Auto-hide Navigation</div>
-                  <div class="text-xs text-gray-400">Hide navigation after inactivity</div>
+                  <div class="text-sm text-white">Auto-hide Menu</div>
+                  <div class="text-xs text-gray-400">Automatically collapse the menu after inactivity</div>
                 </div>
               </label>
-              <!-- Hide delay dropdown - nested inside, only shown when enabled -->
               {#if localConfig.navigation.auto_hide}
                 <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-600">
                   <div class="flex-1 text-xs text-gray-400 pl-7">Hide after</div>
@@ -879,37 +1011,23 @@
                     bind:value={localConfig.navigation.auto_hide_delay}
                     class="px-2 py-1 text-xs bg-gray-600 border border-gray-500 rounded text-white focus:ring-brand-500 focus:border-brand-500"
                   >
+                    <option value="0.25s">0.25s</option>
                     <option value="0.5s">0.5s</option>
                     <option value="1s">1s</option>
                     <option value="2s">2s</option>
                     <option value="3s">3s</option>
-                    <option value="5s">5s</option>
                   </select>
                 </div>
-                <label class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-600 cursor-pointer">
+                <label class="flex items-center gap-3 mt-2 pl-7 cursor-pointer">
                   <input
                     type="checkbox"
                     bind:checked={localConfig.navigation.show_shadow}
-                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500 ml-7"
+                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
                   />
-                  <div>
-                    <div class="text-xs text-gray-400">Show shadow</div>
-                  </div>
+                  <div class="text-xs text-gray-400">Shadow — show a drop shadow on the expanded menu</div>
                 </label>
               {/if}
             </div>
-
-            <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
-              <input
-                type="checkbox"
-                bind:checked={localConfig.navigation.show_on_hover}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-              />
-              <div>
-                <div class="text-sm text-white">Show on Hover</div>
-                <div class="text-xs text-gray-400">Show navigation when mouse is near edge</div>
-              </div>
-            </label>
           </div>
 
           <!-- Import/Export Configuration -->
@@ -947,27 +1065,6 @@
             </p>
           </div>
 
-          <!-- About -->
-          <div class="pt-4 border-t border-gray-700">
-            <h3 class="text-sm font-medium text-gray-300 mb-3">About</h3>
-            <p class="text-sm text-gray-400">
-              Muximux is a unified homelab dashboard for managing and accessing your self-hosted services.
-            </p>
-            <a
-              href="https://github.com/mescon/Muximux"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="inline-flex items-center gap-1.5 mt-2 text-sm text-brand-400 hover:text-brand-300 transition-colors"
-            >
-              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
-              </svg>
-              GitHub
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-              </svg>
-            </a>
-          </div>
         </div>
 
       <!-- Apps & Groups Settings -->
@@ -988,7 +1085,7 @@
               </button>
               <button
                 class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center gap-1"
-                onclick={() => { appErrors = {}; showAddApp = true; }}
+                onclick={() => { appErrors = {}; addAppStep = 'choose'; addAppSearch = ''; showAddApp = true; }}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -1130,14 +1227,16 @@
                                   onclick={() => confirmDeleteApp = null}>No</button>
                         </div>
                       {:else}
-                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
+                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity">
                           <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                  tabindex="-1"
                                   onclick={() => editingApp = app} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
                           <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                                  tabindex="-1"
                                   onclick={() => deleteApp(app)} title="Delete">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1221,14 +1320,16 @@
                                 onclick={() => confirmDeleteApp = null}>No</button>
                       </div>
                     {:else}
-                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 transition-opacity">
+                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity">
                         <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                                tabindex="-1"
                                 onclick={() => editingApp = app} title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
                         <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                                tabindex="-1"
                                 onclick={() => deleteApp(app)} title="Delete">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1316,8 +1417,9 @@
                   <div class="absolute top-3 right-3 flex items-center gap-1">
                     {#if isCustom}
                       <button
-                        class="w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        class="w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
                         style="background: var(--status-error); color: white;"
+                        tabindex="-1"
                         onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                         title="Delete theme"
                         aria-label="Delete theme"
@@ -1561,6 +1663,16 @@
 
       <!-- Security Settings -->
       {#if activeTab === 'security'}
+        {@const currentMethod = localConfig.auth?.method || 'none'}
+        {@const methodChanged = selectedAuthMethod !== currentMethod}
+        {@const faFieldsChanged = selectedAuthMethod === 'forward_auth' && currentMethod === 'forward_auth' && (
+          methodTrustedProxies !== (localConfig.auth?.trusted_proxies?.join('\n') || '') ||
+          faHeaderUser !== (localConfig.auth?.headers?.user || 'Remote-User') ||
+          faHeaderEmail !== (localConfig.auth?.headers?.email || 'Remote-Email') ||
+          faHeaderGroups !== (localConfig.auth?.headers?.groups || 'Remote-Groups') ||
+          faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name')
+        )}
+        {@const showUpdateBtn = methodChanged || faFieldsChanged}
         <div class="space-y-8">
           {#if securitySuccess}
             <div class="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-green-400 text-sm">
@@ -1573,53 +1685,228 @@
             <h3 class="text-lg font-semibold text-white mb-1">Authentication Method</h3>
             <p class="text-sm text-gray-400 mb-4">Choose how users authenticate with Muximux</p>
 
-            <div class="flex gap-2 mb-4">
-              {#each [
-                { value: 'builtin', label: 'Password' },
-                { value: 'forward_auth', label: 'Auth Proxy' },
-                { value: 'none', label: 'None' }
-              ] as opt (opt.value)}
-                <button
-                  class="px-4 py-2 text-sm rounded-lg border transition-all
-                         {selectedAuthMethod === opt.value
-                           ? 'border-brand-500 bg-brand-500/15 text-white'
-                           : 'border-gray-700 bg-gray-800/50 text-gray-400 hover:text-white hover:border-gray-600'}"
-                  onclick={() => selectedAuthMethod = opt.value as typeof selectedAuthMethod}
-                >
-                  {opt.label}
+            <div class="space-y-3">
+              <!-- Password card -->
+              <div
+                class="rounded-xl border text-left transition-all overflow-hidden
+                       {selectedAuthMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+              >
+                <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'builtin'; }}>
+                  <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="11" width="18" height="11" rx="2" />
+                      <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-semibold text-white">Password authentication</h3>
+                      {#if currentMethod === 'builtin'}
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">Current</span>
+                      {/if}
+                    </div>
+                    <p class="text-sm text-gray-400 mt-1">Set up a username and password to protect your dashboard</p>
+                  </div>
                 </button>
-              {/each}
+                {#if selectedAuthMethod === 'builtin'}
+                  <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                    <div class="border-t border-gray-700 pt-4">
+                      {#if currentMethod === 'builtin'}
+                        <p class="text-sm text-gray-400">Password authentication is active. Manage users and change passwords below.</p>
+                      {:else if securityUsers.length > 0}
+                        <p class="text-sm text-gray-400">Switch to password authentication using existing users.</p>
+                      {:else}
+                        <p class="text-sm text-gray-400 mb-3">Create your first user to enable password authentication.</p>
+                        <div class="space-y-3 max-w-sm">
+                          <div>
+                            <label for="setup-username" class="block text-xs text-gray-400 mb-1">Username</label>
+                            <input
+                              id="setup-username"
+                              type="text"
+                              bind:value={newUserName}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              placeholder="admin"
+                            />
+                          </div>
+                          <div>
+                            <label for="setup-password" class="block text-xs text-gray-400 mb-1">Password <span class="text-gray-500">(min 8 characters)</span></label>
+                            <input
+                              id="setup-password"
+                              type="password"
+                              bind:value={newUserPassword}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              placeholder="••••••••"
+                            />
+                          </div>
+                          {#if addUserError}
+                            <p class="text-red-400 text-xs">{addUserError}</p>
+                          {/if}
+                          <button
+                            class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                            disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
+                            onclick={async () => {
+                              await handleAddUser();
+                              if (securityUsers.length > 0) {
+                                await handleChangeAuthMethod();
+                              }
+                            }}
+                          >
+                            {#if addUserLoading || methodLoading}
+                              <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            {/if}
+                            Create User & Enable
+                          </button>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+              </div>
+
+              <!-- Auth Proxy card -->
+              <div
+                class="rounded-xl border text-left transition-all overflow-hidden
+                       {selectedAuthMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+              >
+                <button class="w-full p-4 flex items-start gap-4" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
+                  <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5 text-brand-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-semibold text-white">Auth proxy</h3>
+                      {#if currentMethod === 'forward_auth'}
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">Current</span>
+                      {/if}
+                    </div>
+                    <p class="text-sm text-gray-400 mt-1">Authelia, Authentik, or another reverse proxy handles authentication</p>
+                  </div>
+                </button>
+                {#if selectedAuthMethod === 'forward_auth'}
+                  <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                    <div class="border-t border-gray-700 pt-4">
+                      <span class="block text-sm text-gray-400 mb-2">Proxy type</span>
+                      <div class="flex gap-2">
+                        {#each ['authelia', 'authentik', 'custom'] as p (p)}
+                          <button
+                            class="flex-1 px-3 py-2 text-sm rounded-md border transition-all
+                                   {faPreset === p ? 'border-brand-500 bg-brand-500/15 text-white' : 'border-gray-600 bg-gray-700 text-gray-400 hover:text-white'}"
+                            onclick={() => selectFaPreset(p as 'authelia' | 'authentik' | 'custom')}
+                          >
+                            {p.charAt(0).toUpperCase() + p.slice(1)}
+                          </button>
+                        {/each}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label for="settings-proxies" class="block text-sm text-gray-400 mb-1">Trusted proxy IPs</label>
+                      <textarea
+                        id="settings-proxies"
+                        bind:value={methodTrustedProxies}
+                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        placeholder="10.0.0.1/32&#10;172.16.0.0/12"
+                        rows="3"
+                      ></textarea>
+                      <p class="text-xs text-gray-500 mt-1">IP addresses or CIDR ranges, one per line</p>
+                    </div>
+
+                    <button
+                      class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+                      onclick={() => faShowAdvanced = !faShowAdvanced}
+                    >
+                      <svg class="w-4 h-4 transition-transform {faShowAdvanced ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                      </svg>
+                      Advanced: Header names
+                    </button>
+
+                    {#if faShowAdvanced}
+                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700" in:fly={{ y: -10, duration: 150 }}>
+                        <div>
+                          <label for="settings-header-user" class="block text-xs text-gray-400 mb-1">User header</label>
+                          <input id="settings-header-user" type="text" bind:value={faHeaderUser}
+                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                        </div>
+                        <div>
+                          <label for="settings-header-email" class="block text-xs text-gray-400 mb-1">Email header</label>
+                          <input id="settings-header-email" type="text" bind:value={faHeaderEmail}
+                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                        </div>
+                        <div>
+                          <label for="settings-header-groups" class="block text-xs text-gray-400 mb-1">Groups header</label>
+                          <input id="settings-header-groups" type="text" bind:value={faHeaderGroups}
+                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                        </div>
+                        <div>
+                          <label for="settings-header-name" class="block text-xs text-gray-400 mb-1">Name header</label>
+                          <input id="settings-header-name" type="text" bind:value={faHeaderName}
+                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                        </div>
+                      </div>
+                    {/if}
+                  </div>
+                {/if}
+              </div>
+
+              <!-- No authentication card -->
+              <div
+                class="rounded-xl border text-left transition-all overflow-hidden
+                       {selectedAuthMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+              >
+                <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'none'; }}>
+                  <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <svg class="w-5 h-5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+                    </svg>
+                  </div>
+                  <div class="flex-1 text-left">
+                    <div class="flex items-center gap-2">
+                      <h3 class="font-semibold text-white">No authentication</h3>
+                      {#if currentMethod === 'none'}
+                        <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">Current</span>
+                      {/if}
+                    </div>
+                    <p class="text-sm text-gray-400 mt-1">Anyone with network access gets full control</p>
+                  </div>
+                </button>
+                {#if selectedAuthMethod === 'none'}
+                  <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                    <div class="border-t border-gray-700 pt-4">
+                      <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                        <div class="flex gap-3">
+                          <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" />
+                            <line x1="12" y1="9" x2="12" y2="13" />
+                            <line x1="12" y1="17" x2="12.01" y2="17" />
+                          </svg>
+                          <div>
+                            <h4 class="font-semibold text-amber-400 text-sm mb-1">Security warning</h4>
+                            <p class="text-sm text-gray-400">Without authentication, anyone who can reach this port has full access to your dashboard and all configured services.</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                {/if}
+              </div>
             </div>
 
-            {#if selectedAuthMethod === 'forward_auth'}
-              <div class="space-y-3 mb-4 p-4 rounded-lg bg-gray-800/50 border border-gray-700">
-                <div>
-                  <label for="method-proxies" class="block text-sm text-gray-400 mb-1">Trusted proxy IPs</label>
-                  <textarea
-                    id="method-proxies"
-                    bind:value={methodTrustedProxies}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    placeholder="10.0.0.1/32&#10;172.16.0.0/12"
-                    rows="3"
-                  ></textarea>
-                </div>
-              </div>
-            {:else if selectedAuthMethod === 'none'}
-              <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-400 text-sm mb-4">
-                Without authentication, anyone with network access has full control of your dashboard.
-              </div>
-            {/if}
-
             {#if methodError}
-              <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm mb-4">
+              <div class="p-3 mt-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
                 {methodError}
               </div>
             {/if}
 
-            {#if selectedAuthMethod !== (localConfig.auth?.method || 'none')}
+            {#if showUpdateBtn}
               <button
-                class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                class="mt-4 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
                 disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim())}
                 onclick={handleChangeAuthMethod}
               >
@@ -1632,7 +1919,7 @@
           </div>
 
           <!-- Change Password (visible when builtin) -->
-          {#if (localConfig.auth?.method || 'none') === 'builtin'}
+          {#if currentMethod === 'builtin'}
             <div>
               <h3 class="text-lg font-semibold text-white mb-1">Change Password</h3>
               <p class="text-sm text-gray-400 mb-4">Update your account password</p>
@@ -1700,7 +1987,7 @@
           {/if}
 
           <!-- User Management (visible when builtin + admin) -->
-          {#if (localConfig.auth?.method || 'none') === 'builtin' && $isAdmin}
+          {#if currentMethod === 'builtin' && $isAdmin}
             <div>
               <div class="flex items-center justify-between mb-4">
                 <div>
@@ -1847,6 +2134,328 @@
           {/if}
         </div>
       {/if}
+
+      <!-- About -->
+      {#if activeTab === 'about'}
+        <div class="space-y-6">
+          {#if aboutLoading}
+            <div class="flex items-center justify-center py-16">
+              <svg class="w-6 h-6 text-brand-400 animate-spin" viewBox="0 0 24 24" fill="none">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span class="ml-3 text-gray-400">Loading system info...</span>
+            </div>
+          {:else if aboutError}
+            <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
+              <div class="flex items-center justify-between">
+                <span class="text-sm">{aboutError}</span>
+                <button
+                  class="px-3 py-1 text-xs bg-red-500/20 hover:bg-red-500/30 rounded text-red-300 transition-colors"
+                  onclick={() => { systemInfo = null; loadAboutData(); }}
+                >Retry</button>
+              </div>
+            </div>
+          {:else if systemInfo}
+            <!-- Version Status -->
+            <div class="rounded-xl border p-5 {updateInfo?.update_available ? 'border-amber-500/30 bg-amber-500/5' : 'border-green-500/30 bg-green-500/5'}">
+              <div class="flex items-start gap-4">
+                {#if updateInfo?.update_available}
+                  <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-amber-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 10l7-7m0 0l7 7m-7-7v18" />
+                    </svg>
+                  </div>
+                {:else}
+                  <div class="w-10 h-10 rounded-lg bg-green-500/20 flex items-center justify-center flex-shrink-0">
+                    <svg class="w-5 h-5 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  </div>
+                {/if}
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h3 class="text-lg font-semibold text-white">
+                      {updateInfo?.update_available ? 'Update Available' : "You're up to date"}
+                    </h3>
+                    {#if updateInfo?.update_available}
+                      <span class="px-2 py-0.5 text-xs font-medium bg-amber-500/20 text-amber-300 rounded-full">
+                        v{updateInfo.latest_version}
+                      </span>
+                    {/if}
+                  </div>
+                  <div class="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-sm text-gray-400">
+                    <span>Current: <span class="text-white font-mono">{systemInfo.version}</span></span>
+                    {#if updateInfo}
+                      <span>Latest: <span class="text-white font-mono">{updateInfo.latest_version}</span></span>
+                      {#if updateInfo.published_at}
+                        <span>Released: {new Date(updateInfo.published_at).toLocaleDateString()}</span>
+                      {/if}
+                    {/if}
+                  </div>
+                </div>
+                {#if updateInfo?.release_url}
+                  <a
+                    href={updateInfo.release_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="px-3 py-1.5 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-lg flex items-center gap-1.5 transition-colors flex-shrink-0"
+                  >
+                    View on GitHub
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                  </a>
+                {/if}
+              </div>
+            </div>
+
+            <!-- Release Notes (collapsible) -->
+            {#if updateInfo?.changelog}
+              <div class="rounded-xl border border-gray-700 overflow-hidden">
+                <button
+                  class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-800/50 transition-colors"
+                  onclick={() => changelogExpanded = !changelogExpanded}
+                >
+                  <h3 class="text-sm font-semibold text-white">Release Notes</h3>
+                  <svg
+                    class="w-4 h-4 text-gray-400 transition-transform {changelogExpanded ? 'rotate-180' : ''}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {#if changelogExpanded}
+                  <div class="px-4 pb-4 border-t border-gray-700/50">
+                    <div class="mt-3 text-sm text-gray-300 leading-relaxed max-h-64 overflow-y-auto changelog-content">
+                      {@html marked.parse(updateInfo.changelog)}
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+            <!-- How to Update (collapsible) -->
+            {#if updateInfo}
+              <div class="rounded-xl border border-gray-700 overflow-hidden">
+                <button
+                  class="w-full flex items-center justify-between p-4 text-left hover:bg-gray-800/50 transition-colors"
+                  onclick={() => updateInstructionsExpanded = !updateInstructionsExpanded}
+                >
+                  <h3 class="text-sm font-semibold text-white">How to Update</h3>
+                  <svg
+                    class="w-4 h-4 text-gray-400 transition-transform {updateInstructionsExpanded ? 'rotate-180' : ''}"
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+                  >
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+                {#if updateInstructionsExpanded}
+                  <div class="border-t border-gray-700/50 divide-y divide-gray-700/50">
+                    <!-- Docker -->
+                    <div class="p-4">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.186.186 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.186v1.887c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.083.185.185.185m-2.964 0h2.119a.186.186 0 00.185-.185V9.006a.186.186 0 00-.185-.186H5.136a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.687 11.687 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-white">Docker</span>
+                        {#if systemInfo.environment === 'docker'}
+                          <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">Your Platform</span>
+                        {/if}
+                      </div>
+                      <pre class="text-xs text-gray-300 bg-gray-900/50 rounded-lg p-3 overflow-x-auto font-mono">cd /path/to/muximux
+docker compose pull
+docker compose up -d</pre>
+                    </div>
+
+                    <!-- Linux -->
+                    <div class="p-4">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-yellow-400" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M12.504 0c-.155 0-.315.008-.48.021-4.226.333-3.105 4.807-3.17 6.298-.076 1.092-.3 1.953-1.05 3.02-.885 1.051-2.127 2.75-2.716 4.521-.278.832-.41 1.684-.287 2.489a.424.424 0 00-.11.135c-.26.268-.45.6-.663.839-.199.199-.485.267-.797.4-.313.136-.658.269-.864.68-.09.189-.136.394-.132.602 0 .199.027.4.055.536.058.399.116.728.04.97-.249.68-.28 1.145-.106 1.484.174.334.535.47.94.601.81.2 1.91.135 2.774.6.926.466 1.866.67 2.616.47.526-.116.97-.464 1.208-.946.587-.003 1.23-.269 2.26-.334.699-.058 1.574.267 2.577.2.025.134.063.198.114.333l.003.003c.391.778 1.113 1.368 1.884 1.43.199.023.4-.002.64-.078.66-.27.735-.95.791-1.573.042-.468-.017-1.006.017-1.57.265-.112.49-.292.662-.545.272-.352.287-.803.163-1.202-.124-.398-.37-.724-.593-.975-.363-.4-.551-.486-.64-.608-.082-.125-.06-.312-.001-.524.104-.34.349-.608.606-.87.263-.268.545-.565.639-1.014.018-.013.033-.027.05-.04.28-.27.434-.556.469-.96.002-.395-.147-.742-.344-1.075-.2-.34-.432-.588-.595-.85-.115-.2-.131-.529.053-.779.223-.267.333-.485.3-.792-.03-.29-.201-.571-.424-.739-.322-.208-.583-.183-.757-.263-.168-.074-.277-.24-.432-.57-.097-.198-.237-.537-.427-.669-.19-.13-.45-.065-.585.002-.162.074-.27.068-.352.036-.05-.025-.088-.065-.074-.156.15-.4.24-.86.205-1.345-.046-.672-.202-1.349-.392-1.972-.19-.623-.428-1.206-.628-1.67-.36-.873-.663-1.432-.663-1.432z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-white">Linux</span>
+                        {#if systemInfo.environment === 'native' && systemInfo.os === 'linux'}
+                          <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">Your Platform</span>
+                        {/if}
+                      </div>
+                      <pre class="text-xs text-gray-300 bg-gray-900/50 rounded-lg p-3 overflow-x-auto font-mono"># Stop the running instance, then:
+curl -LO https://github.com/mescon/Muximux/releases/latest/download/muximux-linux-amd64
+chmod +x muximux-linux-amd64
+./muximux-linux-amd64</pre>
+                      {#if updateInfo.download_urls?.linux_amd64}
+                        <div class="flex gap-2 mt-2">
+                          <a href={updateInfo.download_urls.linux_amd64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">Download linux-amd64</a>
+                          {#if updateInfo.download_urls?.linux_arm64}
+                            <span class="text-gray-600">|</span>
+                            <a href={updateInfo.download_urls.linux_arm64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">Download linux-arm64</a>
+                          {/if}
+                        </div>
+                      {/if}
+                    </div>
+
+                    <!-- macOS -->
+                    <div class="p-4">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-gray-300" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.8-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z"/>
+                        </svg>
+                        <span class="text-sm font-medium text-white">macOS</span>
+                        {#if systemInfo.environment === 'native' && systemInfo.os === 'darwin'}
+                          <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">Your Platform</span>
+                        {/if}
+                      </div>
+                      <pre class="text-xs text-gray-300 bg-gray-900/50 rounded-lg p-3 overflow-x-auto font-mono">curl -LO https://github.com/mescon/Muximux/releases/latest/download/muximux-darwin-arm64
+chmod +x muximux-darwin-arm64
+./muximux-darwin-arm64</pre>
+                      {#if updateInfo.download_urls?.darwin_arm64}
+                        <div class="flex gap-2 mt-2">
+                          <a href={updateInfo.download_urls.darwin_arm64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">Download darwin-arm64</a>
+                          {#if updateInfo.download_urls?.darwin_amd64}
+                            <span class="text-gray-600">|</span>
+                            <a href={updateInfo.download_urls.darwin_amd64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">Download darwin-amd64</a>
+                          {/if}
+                        </div>
+                      {/if}
+                    </div>
+
+                    <!-- Windows -->
+                    <div class="p-4">
+                      <div class="flex items-center gap-2 mb-2">
+                        <svg class="w-5 h-5 text-cyan-400" viewBox="0 0 24 24" fill="currentColor">
+                          <path d="M0 3.449L9.75 2.1v9.451H0m10.949-9.602L24 0v11.4H10.949M0 12.6h9.75v9.451L0 20.699M10.949 12.6H24V24l-12.9-1.801"/>
+                        </svg>
+                        <span class="text-sm font-medium text-white">Windows</span>
+                        {#if systemInfo.environment === 'native' && systemInfo.os === 'windows'}
+                          <span class="px-1.5 py-0.5 text-[10px] font-semibold bg-brand-500/20 text-brand-300 rounded uppercase tracking-wider">Your Platform</span>
+                        {/if}
+                      </div>
+                      <pre class="text-xs text-gray-300 bg-gray-900/50 rounded-lg p-3 overflow-x-auto font-mono"># Download muximux-windows-amd64.exe from the release page
+# Replace the existing executable
+# Restart</pre>
+                      {#if updateInfo.download_urls?.windows_amd64}
+                        <div class="mt-2">
+                          <a href={updateInfo.download_urls.windows_amd64} class="text-xs text-brand-400 hover:text-brand-300 transition-colors">Download windows-amd64</a>
+                        </div>
+                      {/if}
+                    </div>
+                  </div>
+                {/if}
+              </div>
+            {/if}
+
+            <!-- System Information -->
+            <div>
+              <h3 class="text-sm font-semibold text-white mb-3">System Information</h3>
+              <div class="grid grid-cols-3 gap-3 mb-3">
+                <div class="rounded-lg bg-gray-800/50 border border-gray-700 p-3 text-center">
+                  <div class="flex items-center justify-center gap-1.5 mb-1">
+                    {#if systemInfo.environment === 'docker'}
+                      <svg class="w-4 h-4 text-blue-400" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M13.983 11.078h2.119a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.119a.186.186 0 00-.185.186v1.887c0 .102.083.185.185.185m-2.954-5.43h2.118a.186.186 0 00.186-.186V3.574a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.888c0 .102.082.185.185.186m0 2.716h2.118a.187.187 0 00.186-.186V6.29a.186.186 0 00-.186-.185h-2.118a.186.186 0 00-.185.185v1.887c0 .102.082.186.185.186m-2.93 0h2.12a.186.186 0 00.184-.186V6.29a.185.185 0 00-.185-.185H8.1a.186.186 0 00-.185.185v1.887c0 .102.083.186.185.186m-2.964 0h2.119a.186.186 0 00.185-.186V6.29a.186.186 0 00-.185-.185H5.136a.186.186 0 00-.186.185v1.887c0 .102.084.186.186.186m5.893 2.715h2.118a.186.186 0 00.186-.185V9.006a.186.186 0 00-.186-.186h-2.118a.185.185 0 00-.185.186v1.887c0 .102.082.185.185.185m-2.93 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.083.185.185.185m-2.964 0h2.119a.186.186 0 00.185-.185V9.006a.186.186 0 00-.185-.186H5.136a.186.186 0 00-.186.186v1.887c0 .102.084.185.186.185m-2.92 0h2.12a.185.185 0 00.184-.185V9.006a.185.185 0 00-.184-.186h-2.12a.185.185 0 00-.184.186v1.887c0 .102.082.185.185.185M23.763 9.89c-.065-.051-.672-.51-1.954-.51-.338.001-.676.03-1.01.087-.248-1.7-1.653-2.53-1.716-2.566l-.344-.199-.226.327c-.284.438-.49.922-.612 1.43-.23.97-.09 1.882.403 2.661-.595.332-1.55.413-1.744.42H.751a.751.751 0 00-.75.748 11.687 11.687 0 00.692 4.062c.545 1.428 1.355 2.48 2.41 3.124 1.18.723 3.1 1.137 5.275 1.137.983.003 1.963-.086 2.93-.266a12.248 12.248 0 003.823-1.389c.98-.567 1.86-1.288 2.61-2.136 1.252-1.418 1.998-2.997 2.553-4.4h.221c1.372 0 2.215-.549 2.68-1.009.309-.293.55-.65.707-1.046l.098-.288z"/>
+                      </svg>
+                    {:else}
+                      <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="3" width="20" height="14" rx="2" /><path d="M8 21h8m-4-4v4" />
+                      </svg>
+                    {/if}
+                  </div>
+                  <div class="text-xs text-gray-500 mb-0.5">Environment</div>
+                  <div class="text-sm text-white capitalize">{systemInfo.environment}</div>
+                </div>
+                <div class="rounded-lg bg-gray-800/50 border border-gray-700 p-3 text-center">
+                  <div class="flex items-center justify-center gap-1.5 mb-1">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                    </svg>
+                  </div>
+                  <div class="text-xs text-gray-500 mb-0.5">Platform</div>
+                  <div class="text-sm text-white">{systemInfo.os}/{systemInfo.arch}</div>
+                </div>
+                <div class="rounded-lg bg-gray-800/50 border border-gray-700 p-3 text-center">
+                  <div class="flex items-center justify-center gap-1.5 mb-1">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M12 6v6l4 2" />
+                    </svg>
+                  </div>
+                  <div class="text-xs text-gray-500 mb-0.5">Uptime</div>
+                  <div class="text-sm text-white">{systemInfo.uptime}</div>
+                </div>
+              </div>
+
+              <div class="rounded-lg bg-gray-800/50 border border-gray-700 divide-y divide-gray-700/50">
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <span class="text-xs text-gray-500">Data Directory</span>
+                  <span class="text-xs text-gray-300 font-mono">{systemInfo.data_dir}</span>
+                </div>
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <span class="text-xs text-gray-500">Go Version</span>
+                  <span class="text-xs text-gray-300 font-mono">{systemInfo.go_version}</span>
+                </div>
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <span class="text-xs text-gray-500">Build Date</span>
+                  <span class="text-xs text-gray-300 font-mono">{systemInfo.build_date}</span>
+                </div>
+                <div class="flex items-center justify-between px-4 py-2.5">
+                  <span class="text-xs text-gray-500">Commit</span>
+                  <span class="text-xs text-gray-300 font-mono">{systemInfo.commit.length > 8 ? systemInfo.commit.slice(0, 8) : systemInfo.commit}</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Links -->
+            <div>
+              <h3 class="text-sm font-semibold text-white mb-3">Links</h3>
+              <div class="flex flex-wrap gap-2">
+                <a
+                  href={systemInfo.links.github}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                >
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                  </svg>
+                  GitHub
+                </a>
+                <a
+                  href={systemInfo.links.issues}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" /><path d="M12 8v4m0 4h.01" />
+                  </svg>
+                  Issues
+                </a>
+                <a
+                  href={systemInfo.links.releases}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A2 2 0 013 12V7a4 4 0 014-4z" />
+                  </svg>
+                  Releases
+                </a>
+                <a
+                  href={systemInfo.links.wiki}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm bg-gray-800 hover:bg-gray-700 border border-gray-700 text-gray-300 hover:text-white rounded-lg transition-colors"
+                >
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                  </svg>
+                  Wiki
+                </a>
+              </div>
+            </div>
+          {/if}
+        </div>
+      {/if}
     </div>
   </div>
 </div>
@@ -1858,12 +2467,25 @@
     transition:fade={{ duration: 100 }}
   >
     <div
-      class="bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg border border-gray-700"
+      class="bg-gray-800 rounded-xl shadow-2xl w-full border border-gray-700 {addAppStep === 'choose' ? 'max-w-2xl' : 'max-w-lg'}"
       in:fly={{ y: 10, duration: 150 }}
       out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-gray-700">
-        <h3 class="text-lg font-semibold text-white">Add Application</h3>
+        <div class="flex items-center gap-2">
+          {#if addAppStep === 'configure'}
+            <button
+              class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+              onclick={() => { addAppStep = 'choose'; addAppSearch = ''; }}
+              aria-label="Back"
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          {/if}
+          <h3 class="text-lg font-semibold text-white">{addAppStep === 'choose' ? 'Add Application' : 'Configure ' + (newApp.name || 'App')}</h3>
+        </div>
         <button
           class="p-1 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={() => showAddApp = false}
@@ -1874,130 +2496,255 @@
           </svg>
         </button>
       </div>
-      <div class="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
-        <div>
-          <label for="app-name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
-          <input
-            id="app-name"
-            type="text"
-            bind:value={newApp.name}
-            oninput={() => { delete appErrors.name; appErrors = appErrors; }}
-            class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {appErrors.name ? 'border-red-500' : 'border-gray-600'}"
-            placeholder="My App"
-          />
-          {#if appErrors.name}<p class="text-red-400 text-xs mt-1">{appErrors.name}</p>{/if}
-        </div>
-        <div>
-          <label for="app-url" class="block text-sm font-medium text-gray-300 mb-1">URL</label>
-          <input
-            id="app-url"
-            type="url"
-            bind:value={newApp.url}
-            oninput={() => { delete appErrors.url; appErrors = appErrors; }}
-            class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {appErrors.url ? 'border-red-500' : 'border-gray-600'}"
-            placeholder="http://localhost:8080"
-          />
-          {#if appErrors.url}<p class="text-red-400 text-xs mt-1">{appErrors.url}</p>{/if}
-        </div>
-        <div>
-          <span class="block text-sm font-medium text-gray-300 mb-1">Icon</span>
-          <div class="flex items-center gap-3">
-            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newApp')}>
-              <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
-            </button>
-            <button
-              class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
-              onclick={() => openIconBrowser('newApp')}
-            >
-              {newApp.icon?.name || 'Choose icon...'}
-            </button>
+
+      {#if addAppStep === 'choose'}
+        <!-- Step 1: Choose from popular apps or custom -->
+        <div class="p-4 max-h-[65vh] overflow-y-auto">
+          <!-- Search -->
+          <div class="mb-4">
+            <input
+              type="text"
+              bind:value={addAppSearch}
+              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              placeholder="Search apps..."
+            />
           </div>
+
+          <!-- Custom App card -->
+          {#if !addAppSearch}
+            <button
+              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-gray-600 hover:border-brand-500 hover:bg-gray-700/50 transition-colors text-left"
+              onclick={startCustomApp}
+            >
+              <div class="w-10 h-10 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-white">Custom App</div>
+                <div class="text-xs text-gray-400">Add any app with a custom URL and icon</div>
+              </div>
+            </button>
+          {/if}
+
+          <!-- Popular apps by category -->
+          {#each Object.entries(popularApps) as [category, templates] (category)}
+            {@const filtered = addAppSearch ? templates.filter(t => t.name.toLowerCase().includes(addAppSearchLower) || t.description.toLowerCase().includes(addAppSearchLower)) : templates}
+            {#if filtered.length > 0}
+              <div class="mb-4">
+                <h4 class="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">{category}</h4>
+                <div class="grid grid-cols-2 gap-2">
+                  {#each filtered as template (template.name)}
+                    {@const alreadyAdded = localApps.some(a => a.name === template.name)}
+                    <button
+                      class="flex items-center gap-3 p-2.5 rounded-lg text-left transition-colors hover:bg-gray-700/50 {alreadyAdded ? 'bg-gray-700/30' : 'bg-gray-800/50'}"
+                      onclick={() => selectPopularApp(template)}
+                      title={template.description}
+                    >
+                      <div class="flex-shrink-0">
+                        <AppIcon icon={{ type: template.iconType || 'dashboard', name: template.icon, file: '', url: '', variant: 'svg', background: template.iconBackground }} name={template.name} color={template.color} size="sm" showBackground={localConfig.navigation.show_icon_background} />
+                      </div>
+                      <div class="min-w-0">
+                        <div class="text-sm font-medium text-white truncate flex items-center gap-1.5">
+                          {template.name}
+                          {#if alreadyAdded}
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-gray-600 text-gray-400 font-normal flex-shrink-0">added</span>
+                          {/if}
+                        </div>
+                        <div class="text-xs text-gray-500 truncate">{template.description}</div>
+                      </div>
+                    </button>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          {/each}
+
+          {#if addAppSearch && Object.values(popularApps).every(templates => templates.every(t => !t.name.toLowerCase().includes(addAppSearchLower) && !t.description.toLowerCase().includes(addAppSearchLower)))}
+            <div class="text-center py-6">
+              <p class="text-gray-400 text-sm mb-3">No matching apps found</p>
+              <button
+                class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+                onclick={startCustomApp}
+              >
+                Add as Custom App
+              </button>
+            </div>
+          {/if}
         </div>
-        <div class="grid grid-cols-2 gap-4">
+      {:else}
+        <!-- Step 2: Configure app details -->
+        <div class="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
           <div>
-            <label for="app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
-            <div class="flex items-center gap-2">
-              <input
-                id="app-color"
-                type="color"
-                bind:value={newApp.color}
-                class="w-10 h-10 rounded cursor-pointer"
-              />
-              <input
-                type="text"
-                bind:value={newApp.color}
-                class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
-              />
+            <label for="app-name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+            <input
+              id="app-name"
+              type="text"
+              bind:value={newApp.name}
+              oninput={() => { delete appErrors.name; appErrors = appErrors; }}
+              class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {appErrors.name ? 'border-red-500' : 'border-gray-600'}"
+              placeholder="My App"
+            />
+            {#if appErrors.name}<p class="text-red-400 text-xs mt-1">{appErrors.name}</p>{/if}
+          </div>
+          <div>
+            <label for="app-url" class="block text-sm font-medium text-gray-300 mb-1">URL</label>
+            <input
+              id="app-url"
+              type="url"
+              bind:value={newApp.url}
+              oninput={() => { delete appErrors.url; appErrors = appErrors; }}
+              class="w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 {appErrors.url ? 'border-red-500' : 'border-gray-600'}"
+              placeholder="http://localhost:8080"
+            />
+            {#if appErrors.url}<p class="text-red-400 text-xs mt-1">{appErrors.url}</p>{/if}
+          </div>
+          <div>
+            <span class="block text-sm font-medium text-gray-300 mb-1">Icon</span>
+            <div class="flex items-center gap-3">
+              <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newApp')}>
+                <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
+              </button>
+              <button
+                class="px-3 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex-1 text-left"
+                onclick={() => openIconBrowser('newApp')}
+              >
+                {newApp.icon?.name || 'Choose icon...'}
+              </button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label for="app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
+              <div class="flex items-center gap-2">
+                <input
+                  id="app-color"
+                  type="color"
+                  bind:value={newApp.color}
+                  class="w-10 h-10 rounded cursor-pointer"
+                />
+                <input
+                  type="text"
+                  bind:value={newApp.color}
+                  class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+                />
+              </div>
+            </div>
+            <div>
+              <label for="app-group" class="block text-sm font-medium text-gray-300 mb-1">Group</label>
+              <select
+                id="app-group"
+                bind:value={newApp.group}
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="">No group</option>
+                {#each localConfig.groups as group (group.name)}
+                  <option value={group.name}>{group.name}</option>
+                {/each}
+              </select>
             </div>
           </div>
           <div>
-            <label for="app-group" class="block text-sm font-medium text-gray-300 mb-1">Group</label>
+            <label for="app-mode" class="block text-sm font-medium text-gray-300 mb-1">
+              Open Mode
+              <span class="help-trigger relative ml-1 inline-block align-middle">
+                <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                <span class="help-tooltip">
+                  <b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/>
+                  <b>New Tab</b> — opens in a separate browser tab.<br/>
+                  <b>New Window</b> — opens in a popup window.
+                </span>
+              </span>
+            </label>
             <select
-              id="app-group"
-              bind:value={newApp.group}
+              id="app-mode"
+              bind:value={newApp.open_mode}
               class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              <option value="">No group</option>
-              {#each localConfig.groups as group (group.name)}
-                <option value={group.name}>{group.name}</option>
+              {#each openModes as mode (mode.value)}
+                <option value={mode.value}>{mode.label} - {mode.description}</option>
               {/each}
             </select>
           </div>
-        </div>
-        <div>
-          <label for="app-mode" class="block text-sm font-medium text-gray-300 mb-1">Open Mode</label>
-          <select
-            id="app-mode"
-            bind:value={newApp.open_mode}
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-          >
-            {#each openModes as mode (mode.value)}
-              <option value={mode.value}>{mode.label} - {mode.description}</option>
-            {/each}
-          </select>
-        </div>
-        <div>
-          <label for="app-scale" class="block text-sm font-medium text-gray-300 mb-1">
-            Scale: {Math.round(newApp.scale * 100)}%
-          </label>
-          <input
-            id="app-scale"
-            type="range"
-            min="0.25"
-            max="5"
-            step="0.05"
-            bind:value={newApp.scale}
-            class="w-full"
-          />
-        </div>
-        <div class="space-y-2">
-          <label class="flex items-center gap-3 cursor-pointer">
+          <div>
+            <label for="app-scale" class="block text-sm font-medium text-gray-300 mb-1">
+              Scale: {Math.round(newApp.scale * 100)}%
+            </label>
             <input
-              type="checkbox"
-              bind:checked={newApp.disable_keyboard_shortcuts}
-              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              id="app-scale"
+              type="range"
+              min="0.25"
+              max="5"
+              step="0.05"
+              bind:value={newApp.scale}
+              class="w-full"
             />
-            <div>
-              <span class="text-sm text-white">Let app use keyboard shortcuts</span>
-              <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
-            </div>
-          </label>
+          </div>
+          <div class="space-y-2">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.enabled}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Enabled</span>
+                <p class="text-xs text-gray-400">Show this app in the navigation</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.default}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Default app</span>
+                <p class="text-xs text-gray-400">Automatically load this app on startup instead of the overview</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.proxy}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Use reverse proxy</span>
+                <p class="text-xs text-gray-400">Route traffic through the built-in Caddy proxy to avoid CORS and mixed-content issues</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.disable_keyboard_shortcuts}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Let app use keyboard shortcuts</span>
+                <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
+              </div>
+            </label>
+          </div>
         </div>
-      </div>
-      <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
-        <button
-          class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          onclick={() => showAddApp = false}
-        >
-          Cancel
-        </button>
-        <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
-          onclick={addApp}
-        >
-          Add App
-        </button>
-      </div>
+        <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
+          <button
+            class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            onclick={() => showAddApp = false}
+          >
+            Cancel
+          </button>
+          <button
+            class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+            onclick={addApp}
+          >
+            Add App
+          </button>
+        </div>
+      {/if}
     </div>
   </div>
 {/if}
@@ -2168,7 +2915,17 @@
           {/if}
         </div>
         <div>
-          <label for="edit-app-group" class="block text-sm font-medium text-gray-300 mb-1">Group</label>
+          <label for="edit-app-group" class="block text-sm font-medium text-gray-300 mb-1">
+            Group
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                Groups organize apps into collapsible sections in the sidebar. Apps with no group appear under "Ungrouped."
+              </span>
+            </span>
+          </label>
           <select
             id="edit-app-group"
             bind:value={editingApp.group}
@@ -2181,7 +2938,17 @@
           </select>
         </div>
         <div>
-          <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
+          <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">
+            Color
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                Used as the active tab indicator, icon background, and sidebar accent when "Show App Colors" is enabled.
+              </span>
+            </span>
+          </label>
           <div class="flex items-center gap-2">
             <input
               id="edit-app-color"
@@ -2197,7 +2964,19 @@
           </div>
         </div>
         <div>
-          <label for="edit-app-mode" class="block text-sm font-medium text-gray-300 mb-1">Open Mode</label>
+          <label for="edit-app-mode" class="block text-sm font-medium text-gray-300 mb-1">
+            Open Mode
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                <b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/>
+                <b>New Tab</b> — opens in a separate browser tab.<br/>
+                <b>New Window</b> — opens in a popup window.
+              </span>
+            </span>
+          </label>
           <select
             id="edit-app-mode"
             bind:value={editingApp.open_mode}
@@ -2211,6 +2990,14 @@
         <div>
           <label for="edit-app-scale" class="block text-sm font-medium text-gray-300 mb-1">
             Scale: {Math.round(editingApp.scale * 100)}%
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                Zoom level for the embedded iframe. Useful for apps with small or large UIs. Only applies to iframe open mode.
+              </span>
+            </span>
           </label>
           <input
             id="edit-app-scale"
@@ -2229,7 +3016,10 @@
               bind:checked={editingApp.enabled}
               class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
             />
-            <span class="text-sm text-white">Enabled</span>
+            <div>
+              <span class="text-sm text-white">Enabled</span>
+              <p class="text-xs text-gray-400">Show this app in the navigation</p>
+            </div>
           </label>
           <label class="flex items-center gap-3 cursor-pointer">
             <input
@@ -2237,7 +3027,10 @@
               bind:checked={editingApp.default}
               class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
             />
-            <span class="text-sm text-white">Default app (load on start)</span>
+            <div>
+              <span class="text-sm text-white">Default app</span>
+              <p class="text-xs text-gray-400">Automatically load this app on startup instead of the overview</p>
+            </div>
           </label>
           <label class="flex items-center gap-3 cursor-pointer">
             <input
@@ -2245,7 +3038,10 @@
               bind:checked={editingApp.proxy}
               class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
             />
-            <span class="text-sm text-white">Use proxy (if enabled)</span>
+            <div>
+              <span class="text-sm text-white">Use reverse proxy</span>
+              <p class="text-xs text-gray-400">Route traffic through the built-in Caddy proxy to avoid CORS and mixed-content issues</p>
+            </div>
           </label>
           <label class="flex items-center gap-3 cursor-pointer">
             <input
@@ -2570,5 +3366,97 @@
     border-radius: 1px;
     margin: 0 8px;
     box-shadow: 0 0 6px var(--accent-primary);
+  }
+
+  /* Help tooltips */
+  .help-tooltip {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    width: 240px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #1f2937;
+    border: 1px solid #374151;
+    color: #d1d5db;
+    font-size: 11px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 70;
+    pointer-events: none;
+  }
+
+  .help-trigger:hover > .help-tooltip {
+    display: block;
+  }
+
+  /* Markdown changelog styling */
+  .changelog-content :global(h1),
+  .changelog-content :global(h2),
+  .changelog-content :global(h3) {
+    font-weight: 600;
+    color: var(--text-primary, #fff);
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+  }
+  .changelog-content :global(h1) { font-size: 1.25rem; }
+  .changelog-content :global(h2) { font-size: 1.1rem; }
+  .changelog-content :global(h3) { font-size: 1rem; }
+
+  .changelog-content :global(ul),
+  .changelog-content :global(ol) {
+    padding-left: 1.5em;
+    margin: 0.5em 0;
+  }
+  .changelog-content :global(ul) { list-style: disc; }
+  .changelog-content :global(ol) { list-style: decimal; }
+
+  .changelog-content :global(li) {
+    margin: 0.25em 0;
+  }
+
+  .changelog-content :global(a) {
+    color: var(--accent-primary, #3b82f6);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .changelog-content :global(a:hover) {
+    opacity: 0.8;
+  }
+
+  .changelog-content :global(code) {
+    background: rgba(255,255,255,0.1);
+    padding: 0.15em 0.4em;
+    border-radius: 4px;
+    font-size: 0.9em;
+  }
+
+  .changelog-content :global(pre) {
+    background: rgba(0,0,0,0.3);
+    padding: 0.75em 1em;
+    border-radius: 6px;
+    overflow-x: auto;
+    margin: 0.5em 0;
+  }
+  .changelog-content :global(pre code) {
+    background: none;
+    padding: 0;
+  }
+
+  .changelog-content :global(p) {
+    margin: 0.5em 0;
+  }
+
+  .changelog-content :global(strong) {
+    color: var(--text-primary, #fff);
+    font-weight: 600;
+  }
+
+  .changelog-content :global(blockquote) {
+    border-left: 3px solid var(--border-subtle, #374151);
+    padding-left: 1em;
+    margin: 0.5em 0;
+    color: var(--text-secondary, #9ca3af);
   }
 </style>

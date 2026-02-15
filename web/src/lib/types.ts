@@ -47,6 +47,7 @@ export interface NavigationConfig {
   show_logo: boolean;
   show_app_colors: boolean;
   show_icon_background: boolean;
+  icon_scale: number;
   show_splash_on_startup: boolean;
   show_shadow: boolean;
 }
@@ -59,6 +60,8 @@ export interface HealthConfig {
 
 export interface AuthConfig {
   method: 'none' | 'builtin' | 'forward_auth' | 'oidc';
+  trusted_proxies?: string[];
+  headers?: Record<string, string>;
   session_max_age?: string;
   secure_cookies?: boolean;
 }
@@ -87,8 +90,16 @@ export interface ThemeConfig {
   variant: 'dark' | 'light' | 'system';
 }
 
+export interface LogEntry {
+  timestamp: string;
+  level: 'debug' | 'info' | 'warn' | 'error';
+  message: string;
+  source: string;
+}
+
 export interface Config {
   title: string;
+  log_level?: string;
   navigation: NavigationConfig;
   theme?: ThemeConfig;
   health?: HealthConfig;
@@ -139,4 +150,36 @@ export interface ChangeAuthMethodRequest {
   method: 'builtin' | 'forward_auth' | 'none';
   trusted_proxies?: string[];
   headers?: Record<string, string>;
+}
+
+export interface SystemInfo {
+  version: string;
+  commit: string;
+  build_date: string;
+  go_version: string;
+  os: string;
+  arch: string;
+  environment: 'docker' | 'native';
+  uptime: string;
+  uptime_seconds: number;
+  started_at: string;
+  data_dir: string;
+  links: SystemLinks;
+}
+
+export interface SystemLinks {
+  github: string;
+  issues: string;
+  releases: string;
+  wiki: string;
+}
+
+export interface UpdateInfo {
+  current_version: string;
+  latest_version: string;
+  update_available: boolean;
+  release_url: string;
+  changelog: string;
+  published_at: string;
+  download_urls: Record<string, string>;
 }

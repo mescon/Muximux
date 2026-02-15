@@ -3,7 +3,7 @@ import type { AppHealth } from './api';
 import { healthData } from './healthStore';
 
 // Event types from server
-export type EventType = 'config_updated' | 'health_changed' | 'app_health_changed';
+export type EventType = 'config_updated' | 'health_changed' | 'app_health_changed' | 'log_entry';
 
 export interface WebSocketEvent {
   type: EventType;

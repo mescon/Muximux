@@ -8,13 +8,15 @@
   import CommandPalette from './components/CommandPalette.svelte';
   import Login from './components/Login.svelte';
   import OnboardingWizard from './components/OnboardingWizard.svelte';
+  import Logs from './components/Logs.svelte';
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
-  import { fetchConfig, saveConfig } from './lib/api';
+  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo } from './lib/api';
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
+  import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, logout, isAuthenticated, setupRequired } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
@@ -31,6 +33,7 @@
   let showSettings = $state(false);
   let showShortcuts = $state(false);
   let showCommandPalette = $state(false);
+  let showLogs = $state(false);
   let loading = $state(true);
   let error = $state<string | null>(null);
 
@@ -40,6 +43,37 @@
 
   // Onboarding state
   let showOnboarding = $state(false);
+
+  // Version info (fetched once for title variables)
+  let appVersion = $state('');
+  fetchSystemInfo().then(info => appVersion = info.version).catch(() => {});
+
+  /**
+   * Resolve template variables in the dashboard title.
+   * Supported: %title%, %url%, %group%, %version%, %count%
+   * When a variable resolves to empty, surrounding separators are cleaned up.
+   */
+  function resolveTitle(template: string, app: App | null): string {
+    if (!template) return 'Muximux';
+    const hasVariables = template.includes('%');
+    if (!hasVariables) {
+      // Legacy behavior: prepend app name if no variables are used
+      return app ? `${app.name} — ${template}` : template;
+    }
+
+    let result = template
+      .replaceAll('%title%', app?.name || '')
+      .replaceAll('%url%', app?.url || '')
+      .replaceAll('%group%', app?.group || '')
+      .replaceAll('%version%', appVersion)
+      .replaceAll('%count%', String(apps.length));
+
+    // Clean up dangling separators around empty values
+    // e.g. "Muximux -  - " → "Muximux"
+    result = result.replaceAll(/\s*[—–\-|:]\s*(?=[—–\-|:\s]*$)/g, '');
+    result = result.replaceAll(/\s*[—–\-|:]\s*[—–\-|:]\s*/g, ' — ');
+    return result.trim() || 'Muximux';
+  }
 
   // Computed layout properties
   let navPosition = $derived(config?.navigation.position || 'top');
@@ -76,6 +110,7 @@
       startHealthPolling(intervalMs);
     }
     connectWs();
+    initLogStore();
   }
 
   // Swipe gesture handlers for app switching on mobile
@@ -206,66 +241,55 @@
   }
 
   async function handleLogout() {
-    await logout();
-    // Stop services
+    // logout() is already called by Navigation before this fires,
+    // so just clean up services and reset client state.
     stopHealthPolling();
     disconnectWs();
-    // Reset state
     config = null;
     apps = [];
     currentApp = null;
     showSplash = true;
   }
 
-  async function handleSetupPhaseComplete() {
-    // Re-check auth status (setup_required will now be false)
-    await checkAuthStatus();
+  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: import('./lib/types').SetupRequest }) {
+    const { apps: newApps, navigation, groups, theme, setup } = detail;
 
-    // Try to load config (guard is now down)
     try {
-      config = await fetchConfig();
-      apps = config.apps;
-      authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined;
-
-      if (config.theme) {
-        syncFromConfig(config.theme);
+      // Submit security setup first (if this was initial setup)
+      if (setup) {
+        const resp = await submitSetup(setup);
+        if (!resp.success) {
+          toasts.error(resp.error || 'Security setup failed');
+          return;
+        }
+        // Re-check auth status and load config now that guard is down
+        await checkAuthStatus();
+        config = await fetchConfig();
+        apps = config.apps;
+        authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined;
       }
 
-      initKeybindings(config.keybindings);
-    } catch (e) {
-      // Non-fatal — wizard continues, config loads later
-      console.error('Config fetch after setup:', e);
-    }
-  }
+      if (!config) return;
 
-  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig }) {
-    const { apps: newApps, navigation, groups, theme } = detail;
+      // Update config with onboarding selections
+      const newConfig: Config = {
+        ...config,
+        navigation: {
+          ...config.navigation,
+          ...navigation
+        },
+        theme,
+        groups,
+        apps: newApps
+      };
 
-    if (!config) return;
-
-    // Update config with onboarding selections
-    const newConfig: Config = {
-      ...config,
-      navigation: {
-        ...config.navigation,
-        ...navigation
-      },
-      theme,
-      groups,
-      apps: newApps
-    };
-
-    try {
       const saved = await saveConfig(newConfig);
       config = saved;
       apps = saved.apps;
 
-      // Set first app as current if available
-      if (apps.length > 0) {
-        const defaultApp = apps.find(a => a.default) || apps[0];
-        currentApp = defaultApp;
-        showSplash = false;
-      }
+      // After onboarding, always show the overview (splash) page
+      showSplash = true;
+      currentApp = null;
 
       startServices();
 
@@ -330,6 +354,11 @@
       case 'home':
         showSplash = true;
         break;
+      case 'logs':
+        showLogs = true;
+        showSplash = false;
+        currentApp = null;
+        break;
       case 'toggle-keybindings':
         toggleCaptureKeybindings();
         toasts.success($captureKeybindings ? 'Keyboard shortcuts enabled' : 'Keyboard shortcuts paused');
@@ -374,6 +403,7 @@
       if (showCommandPalette) showCommandPalette = false;
       else if (showSettings) showSettings = false;
       else if (showShortcuts) showShortcuts = false;
+      else if (showLogs) { showLogs = false; showSplash = true; }
       else if (!showSplash && currentApp) showSplash = true;
       return;
     }
@@ -402,6 +432,11 @@
         break;
       case 'home':
         showSplash = true;
+        break;
+      case 'logs':
+        showLogs = true;
+        showSplash = false;
+        currentApp = null;
         break;
       case 'refresh':
         if (currentApp && !showSplash) {
@@ -447,7 +482,7 @@
 
 <!-- Dynamic page title -->
 <svelte:head>
-  <title>{currentApp ? `${currentApp.name} — ${config?.title || 'Muximux'}` : config?.title || 'Muximux'}</title>
+  <title>{resolveTitle(config?.title || 'Muximux', currentApp)}</title>
 </svelte:head>
 
 <svelte:window onkeydown={handleKeydown} />
@@ -463,7 +498,6 @@
   <OnboardingWizard
     needsSetup={$setupRequired}
     oncomplete={handleOnboardingComplete}
-    onsetupcomplete={handleSetupPhaseComplete}
   />
 {:else if authRequired && !$isAuthenticated}
   <Login onsuccess={handleLoginSuccess} />
@@ -498,6 +532,7 @@
         onsearch={() => showCommandPalette = true}
         onsplash={() => showSplash = true}
         onsettings={() => showSettings = !showSettings}
+        onlogs={() => { showLogs = true; showSplash = false; currentApp = null; }}
         onlogout={handleLogout}
       />
     {/if}
@@ -513,6 +548,8 @@
     >
       {#if showSplash && !$isFullscreen}
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} />
+      {:else if showLogs}
+        <Logs onclose={() => { showLogs = false; showSplash = true; }} />
       {:else if currentApp}
         <AppFrame app={currentApp} />
       {:else if $isFullscreen}
