@@ -14,6 +14,7 @@ import (
 	"net/url"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
@@ -447,7 +448,7 @@ func TestDirectorPathMapping(t *testing.T) {
 					Proxy:   true,
 				},
 			}
-			handler := NewReverseProxyHandler(apps)
+			handler := NewReverseProxyHandler(apps, "30s")
 
 			// Find the route
 			slug := slugify(tt.appName)
@@ -486,7 +487,7 @@ func TestProxyRouteCreation(t *testing.T) {
 		{Name: "App with Spaces", URL: "http://host5:5050", Enabled: true, Proxy: true},
 	}
 
-	handler := NewReverseProxyHandler(apps)
+	handler := NewReverseProxyHandler(apps, "30s")
 
 	// Should have routes for enabled proxy apps only
 	expectedSlugs := []string{"app-one", "app-two", "app-with-spaces"}
@@ -526,7 +527,7 @@ func TestProxyServeHTTP(t *testing.T) {
 		{Name: "TestApp", URL: backend.URL, Enabled: true, Proxy: true},
 	}
 
-	handler := NewReverseProxyHandler(apps)
+	handler := NewReverseProxyHandler(apps, "30s")
 
 	tests := []struct {
 		name           string
@@ -638,7 +639,7 @@ func TestProxyIntegration(t *testing.T) {
 		{Name: "TestApp", URL: backend.URL, Enabled: true, Proxy: true},
 	}
 
-	handler := NewReverseProxyHandler(apps)
+	handler := NewReverseProxyHandler(apps, "30s")
 
 	req := httptest.NewRequest("GET", "/proxy/testapp/", nil)
 	rec := httptest.NewRecorder()
@@ -849,7 +850,7 @@ func TestWebSocketProxy(t *testing.T) {
 	apps := []config.AppConfig{
 		{Name: "WsApp", URL: wsBackend.URL, Enabled: true, Proxy: true},
 	}
-	handler := NewReverseProxyHandler(apps)
+	handler := NewReverseProxyHandler(apps, "30s")
 
 	// Start an HTTP server using our proxy handler
 	proxyServer := httptest.NewServer(handler)
@@ -927,7 +928,7 @@ func TestWebSocketNon101Response(t *testing.T) {
 	apps := []config.AppConfig{
 		{Name: "NoWs", URL: backend.URL, Enabled: true, Proxy: true},
 	}
-	handler := NewReverseProxyHandler(apps)
+	handler := NewReverseProxyHandler(apps, "30s")
 
 	proxyServer := httptest.NewServer(handler)
 	defer proxyServer.Close()
@@ -1356,7 +1357,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app)
+		route := buildSingleProxyRoute(app, 30*time.Second)
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
@@ -1386,7 +1387,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app)
+		route := buildSingleProxyRoute(app, 30*time.Second)
 
 		if route != nil {
 			t.Error("expected nil route for invalid URL")
@@ -1401,7 +1402,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app)
+		route := buildSingleProxyRoute(app, 30*time.Second)
 
 		if route != nil {
 			t.Error("expected nil route for app with proxy path URL")
@@ -1416,7 +1417,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app)
+		route := buildSingleProxyRoute(app, 30*time.Second)
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
@@ -1537,7 +1538,7 @@ func TestSetProxyHeaders(t *testing.T) {
 // TestHasRoutes and TestGetRoutes test route introspection methods.
 func TestHasRoutes(t *testing.T) {
 	t.Run("no routes", func(t *testing.T) {
-		handler := NewReverseProxyHandler(nil)
+		handler := NewReverseProxyHandler(nil, "30s")
 		if handler.HasRoutes() {
 			t.Error("expected HasRoutes() = false for empty handler")
 		}
@@ -1547,7 +1548,7 @@ func TestHasRoutes(t *testing.T) {
 		apps := []config.AppConfig{
 			{Name: "App", URL: "http://host:8080", Enabled: true, Proxy: true},
 		}
-		handler := NewReverseProxyHandler(apps)
+		handler := NewReverseProxyHandler(apps, "30s")
 		if !handler.HasRoutes() {
 			t.Error("expected HasRoutes() = true")
 		}
@@ -1559,7 +1560,7 @@ func TestGetRoutes(t *testing.T) {
 		{Name: "App One", URL: "http://host1:8080", Enabled: true, Proxy: true},
 		{Name: "App Two", URL: "http://host2:9090", Enabled: true, Proxy: true},
 	}
-	handler := NewReverseProxyHandler(apps)
+	handler := NewReverseProxyHandler(apps, "30s")
 
 	routes := handler.GetRoutes()
 	if len(routes) != 2 {

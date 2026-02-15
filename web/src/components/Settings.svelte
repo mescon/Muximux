@@ -9,7 +9,7 @@
   import { get } from 'svelte/store';
   import { resolvedTheme, allThemes, isDarkTheme, saveCustomThemeToServer, deleteCustomThemeFromServer, getCurrentThemeVariables, themeVariableGroups, sanitizeThemeId, selectedFamily, variantMode, themeFamilies, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
-  import { exportConfig, parseImportedConfig, listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, fetchSystemInfo, checkForUpdates } from '$lib/api';
+  import { exportConfig, parseImportedConfig, type ImportedConfig, listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, fetchSystemInfo, checkForUpdates } from '$lib/api';
   import type { SystemInfo, UpdateInfo } from '$lib/types';
   import { changePassword, isAdmin, currentUser } from '$lib/authStore';
   import type { UserInfo, ChangeAuthMethodRequest } from '$lib/types';
@@ -159,7 +159,7 @@
   // Import/export state
   let importFileInput = $state<HTMLInputElement | undefined>(undefined);
   let showImportConfirm = $state(false);
-  let pendingImport = $state<ReturnType<typeof parseImportedConfig> | null>(null);
+  let pendingImport = $state<ImportedConfig | null>(null);
 
   // New app/group templates
   const newAppTemplate: App = {
@@ -522,33 +522,25 @@
     rebuildDndArrays();
   }
 
-  // Export config to JSON file
+  // Export config as YAML file
   function handleExport() {
-    const exportData = {
-      ...localConfig,
-      apps: localApps,
-    };
-    exportConfig(exportData as Config);
+    exportConfig();
     toasts.success('Configuration exported');
   }
 
   // Handle import file selection
-  function handleImportSelect(e: Event) {
+  async function handleImportSelect(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const content = event.target?.result as string;
-        pendingImport = parseImportedConfig(content);
-        showImportConfirm = true;
-      } catch (err) {
-        toasts.error(err instanceof Error ? err.message : 'Failed to parse config file');
-      }
-    };
-    reader.readAsText(file);
+    try {
+      const content = await file.text();
+      pendingImport = await parseImportedConfig(content);
+      showImportConfirm = true;
+    } catch (err) {
+      toasts.error(err instanceof Error ? err.message : 'Failed to parse config file');
+    }
 
     // Reset input so same file can be selected again
     input.value = '';
@@ -1028,6 +1020,19 @@
               <span class="text-xs text-gray-500">Takes effect on restart</span>
             </div>
 
+            <div class="flex items-center gap-3 mb-4">
+              <label for="proxy-timeout" class="text-sm text-gray-400 whitespace-nowrap">Proxy Timeout</label>
+              <input
+                id="proxy-timeout"
+                type="text"
+                bind:value={localConfig.proxy_timeout}
+                placeholder="30s"
+                class="w-20 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded-md text-white
+                       focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              />
+              <span class="text-xs text-gray-500">Max wait time for proxied backends (e.g. 30s, 1m)</span>
+            </div>
+
             <div class="flex flex-wrap gap-3">
               <button
                 class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex items-center gap-2"
@@ -1050,7 +1055,7 @@
               <input
                 bind:this={importFileInput}
                 type="file"
-                accept=".json"
+                accept=".yaml,.yml"
                 class="hidden"
                 onchange={handleImportSelect}
               />
@@ -1250,12 +1255,14 @@
           {#if (dndGroupedApps[''] || []).length > 0 || localConfig.groups.length > 0}
             {@const ungroupedApps = dndGroupedApps[''] || []}
             <div class="rounded-lg border border-gray-700 border-dashed" class:hidden={ungroupedApps.length === 0 && localConfig.groups.length === 0}>
-              {#if ungroupedApps.length > 0}
-                <div class="p-3 bg-gray-700/20 rounded-t-lg">
-                  <span class="text-sm font-medium text-gray-400">Ungrouped</span>
+              <div class="p-3 bg-gray-700/20 rounded-t-lg">
+                <span class="text-sm font-medium text-gray-400">Ungrouped</span>
+                {#if ungroupedApps.length > 0}
                   <span class="text-xs text-gray-500 ml-2">{ungroupedApps.length} apps</span>
-                </div>
-              {/if}
+                {:else}
+                  <span class="text-xs text-gray-600 ml-2">Drag apps here to ungroup them</span>
+                {/if}
+              </div>
               <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
                 {#each ungroupedApps as app ((app as App & Record<string, unknown>).id)}
                   <div
@@ -1578,7 +1585,7 @@
                                 type="color"
                                 value={cssColorToHex(themeEditorVars[varName] || '#000000')}
                                 oninput={(e) => updateThemeVar(varName, e.currentTarget.value)}
-                                class="w-8 h-8 rounded cursor-pointer border-0 p-0"
+                                class="w-8 h-8 rounded cursor-pointer"
                               />
                             {/if}
                             <input
@@ -2893,14 +2900,14 @@ chmod +x muximux-darwin-arm64
             <div class="flex items-center gap-4 mt-2">
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Icon color
-                <input type="color" value={editingApp!.icon.color || '#ffffff'} oninput={(e) => editingApp!.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <input type="color" value={editingApp!.icon.color || '#ffffff'} oninput={(e) => editingApp!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
                 {#if editingApp!.icon.color}
                   <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.color = ''} title="Reset to theme default">&times;</button>
                 {/if}
               </label>
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Background
-                <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
                 <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp!.icon.background = 'transparent'} title="Transparent">none</button>
                 {#if editingApp!.icon.background}
                   <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.background = ''} title="Reset to app color">&times;</button>
@@ -3035,9 +3042,72 @@ chmod +x muximux-darwin-arm64
             />
             <div>
               <span class="text-sm text-white">Use reverse proxy</span>
-              <p class="text-xs text-gray-400">Route traffic through the built-in Caddy proxy to avoid CORS and mixed-content issues</p>
+              <p class="text-xs text-gray-400">Route traffic through the built-in proxy to avoid CORS and mixed-content issues</p>
             </div>
           </label>
+          {#if editingApp.proxy}
+            <div class="ml-7 space-y-3 border-l-2 border-gray-700 pl-4 min-w-0 overflow-hidden">
+              <label class="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={editingApp.proxy_skip_tls_verify !== false}
+                  onchange={(e) => { editingApp!.proxy_skip_tls_verify = (e.target as HTMLInputElement).checked ? undefined : false; }}
+                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+                />
+                <div>
+                  <span class="text-sm text-white">Skip TLS verification</span>
+                  <p class="text-xs text-gray-400">Disable for backends with valid certificates</p>
+                </div>
+              </label>
+              <div>
+                <label class="block text-sm text-gray-400 mb-1">Custom headers</label>
+                <p class="text-xs text-gray-500 mb-2">Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key)</p>
+                {#each Object.entries(editingApp.proxy_headers ?? {}) as [key, value], i}
+                  <div class="flex gap-2 mb-2">
+                    <input type="text" value={key} placeholder="Header name"
+                      class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+                      onchange={(e) => {
+                        const app = editingApp!;
+                        const headers = { ...(app.proxy_headers ?? {}) };
+                        const oldKey = key;
+                        const newKey = (e.target as HTMLInputElement).value.trim();
+                        if (newKey && newKey !== oldKey) {
+                          delete headers[oldKey];
+                          headers[newKey] = value;
+                          app.proxy_headers = headers;
+                        }
+                      }}
+                    />
+                    <input type="text" value={value} placeholder="Value"
+                      class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+                      onchange={(e) => {
+                        const app = editingApp!;
+                        const headers = { ...(app.proxy_headers ?? {}) };
+                        headers[key] = (e.target as HTMLInputElement).value;
+                        app.proxy_headers = headers;
+                      }}
+                    />
+                    <button class="px-2 py-1 text-gray-400 hover:text-red-400"
+                      onclick={() => {
+                        const app = editingApp!;
+                        const headers = { ...(app.proxy_headers ?? {}) };
+                        delete headers[key];
+                        app.proxy_headers = Object.keys(headers).length > 0 ? headers : undefined;
+                      }}
+                    >
+                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                  </div>
+                {/each}
+                <button class="text-xs text-brand-400 hover:text-brand-300"
+                  onclick={() => {
+                    const app = editingApp!;
+                    app.proxy_headers = { ...(app.proxy_headers ?? {}), '': '' };
+                  }}
+                >+ Add header</button>
+              </div>
+            </div>
+          {/if}
           <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -3118,14 +3188,14 @@ chmod +x muximux-darwin-arm64
             <div class="flex items-center gap-4 mt-2">
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Icon color
-                <input type="color" value={editingGroup!.icon.color || '#ffffff'} oninput={(e) => editingGroup!.icon.color = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <input type="color" value={editingGroup!.icon.color || '#ffffff'} oninput={(e) => editingGroup!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
                 {#if editingGroup!.icon.color}
                   <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup!.icon.color = ''} title="Reset to theme default">&times;</button>
                 {/if}
               </label>
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Background
-                <input type="color" value={editingGroup!.icon.background || editingGroup!.color || '#374151'} oninput={(e) => editingGroup!.icon.background = (e.target as HTMLInputElement).value} class="w-6 h-6 rounded cursor-pointer bg-transparent border-0" />
+                <input type="color" value={editingGroup!.icon.background || editingGroup!.color || '#374151'} oninput={(e) => editingGroup!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
                 <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title="Transparent">none</button>
                 {#if editingGroup!.icon.background}
                   <button class="text-gray-500 hover:text-gray-300" onclick={() => editingGroup!.icon.background = ''} title="Reset to group color">&times;</button>
@@ -3232,11 +3302,6 @@ chmod +x muximux-darwin-arm64
           <div class="text-gray-400 text-xs mt-1">
             {pendingImport.apps.length} apps, {pendingImport.groups.length} groups
           </div>
-          {#if pendingImport.exportedAt}
-            <div class="text-gray-500 text-xs mt-1">
-              Exported: {new Date(pendingImport.exportedAt).toLocaleDateString()}
-            </div>
-          {/if}
         </div>
         <p class="text-yellow-400 text-sm flex items-center gap-2">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

@@ -61,11 +61,12 @@ type TLSConfig struct {
 
 // ServerConfig holds HTTP server settings
 type ServerConfig struct {
-	Listen   string    `yaml:"listen" json:"listen"`
-	Title    string    `yaml:"title" json:"title"`
-	LogLevel string    `yaml:"log_level" json:"log_level"`
-	TLS      TLSConfig `yaml:"tls" json:"tls"`
-	Gateway  string    `yaml:"gateway" json:"gateway"`
+	Listen       string    `yaml:"listen" json:"listen"`
+	Title        string    `yaml:"title" json:"title"`
+	LogLevel     string    `yaml:"log_level" json:"log_level"`
+	ProxyTimeout string    `yaml:"proxy_timeout" json:"proxy_timeout"` // e.g. "30s", "1m" — timeout for proxied requests
+	TLS          TLSConfig `yaml:"tls" json:"tls"`
+	Gateway      string    `yaml:"gateway" json:"gateway"`
 }
 
 // NeedsCaddy returns true if TLS or Gateway is configured, meaning Caddy
@@ -151,21 +152,23 @@ type GroupConfig struct {
 
 // AppConfig holds individual app settings
 type AppConfig struct {
-	Name                     string           `yaml:"name"`
-	URL                      string           `yaml:"url"`
-	HealthURL                string           `yaml:"health_url,omitempty"` // Optional custom health check URL
-	Icon                     AppIconConfig    `yaml:"icon"`
-	Color                    string           `yaml:"color"`
-	Group                    string           `yaml:"group"`
-	Order                    int              `yaml:"order"`
-	Enabled                  bool             `yaml:"enabled"`
-	Default                  bool             `yaml:"default"`
-	OpenMode                 string           `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
-	Proxy                    bool             `yaml:"proxy"`
-	Scale                    float64          `yaml:"scale"`
-	DisableKeyboardShortcuts bool             `yaml:"disable_keyboard_shortcuts,omitempty"`
-	AuthBypass               []AuthBypassRule `yaml:"auth_bypass"`
-	Access                   AppAccessConfig  `yaml:"access"`
+	Name                     string            `yaml:"name"`
+	URL                      string            `yaml:"url"`
+	HealthURL                string            `yaml:"health_url,omitempty"` // Optional custom health check URL
+	Icon                     AppIconConfig     `yaml:"icon"`
+	Color                    string            `yaml:"color"`
+	Group                    string            `yaml:"group"`
+	Order                    int               `yaml:"order"`
+	Enabled                  bool              `yaml:"enabled"`
+	Default                  bool              `yaml:"default"`
+	OpenMode                 string            `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
+	Proxy                    bool              `yaml:"proxy"`
+	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
+	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
+	Scale                    float64           `yaml:"scale"`
+	DisableKeyboardShortcuts bool              `yaml:"disable_keyboard_shortcuts,omitempty"`
+	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
+	Access                   AppAccessConfig   `yaml:"access"`
 }
 
 // AppIconConfig holds app icon settings
@@ -282,9 +285,10 @@ func (c *Config) NeedsSetup() bool {
 func defaultConfig() *Config {
 	return &Config{
 		Server: ServerConfig{
-			Listen:   ":8080",
-			Title:    "Muximux",
-			LogLevel: "info",
+			Listen:       ":8080",
+			Title:        "Muximux",
+			LogLevel:     "info",
+			ProxyTimeout: "30s",
 		},
 		Auth: AuthConfig{
 			Method: "none",

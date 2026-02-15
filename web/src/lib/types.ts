@@ -11,6 +11,8 @@ export interface App {
   default: boolean;
   open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
   proxy: boolean;
+  proxy_skip_tls_verify?: boolean;
+  proxy_headers?: Record<string, string>;
   scale: number;
   disable_keyboard_shortcuts: boolean;
 }
@@ -100,6 +102,7 @@ export interface LogEntry {
 export interface Config {
   title: string;
   log_level?: string;
+  proxy_timeout?: string;
   navigation: NavigationConfig;
   theme?: ThemeConfig;
   health?: HealthConfig;

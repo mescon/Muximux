@@ -14,6 +14,7 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -25,13 +26,14 @@ type ReverseProxyHandler struct {
 }
 
 type proxyRoute struct {
-	name        string
-	slug        string
-	proxyPrefix string
-	targetURL   *url.URL
-	targetPath  string
-	proxy       *httputil.ReverseProxy
-	rewriter    *contentRewriter
+	name           string
+	slug           string
+	proxyPrefix    string
+	targetURL      *url.URL
+	targetPath     string
+	skipTLSVerify  bool
+	proxy          *httputil.ReverseProxy
+	rewriter       *contentRewriter
 }
 
 // contentRewriter handles URL rewriting in response content
@@ -367,23 +369,29 @@ func (r *contentRewriter) rewriteCookiePath(setCookie string) string {
 	return strings.Join(parts, ";")
 }
 
-// NewReverseProxyHandler creates a new reverse proxy handler
-func NewReverseProxyHandler(apps []config.AppConfig) *ReverseProxyHandler {
+// NewReverseProxyHandler creates a new reverse proxy handler.
+// proxyTimeout is the global timeout for proxied HTTP requests (e.g. "30s").
+func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string) *ReverseProxyHandler {
+	timeout, err := time.ParseDuration(proxyTimeout)
+	if err != nil || timeout <= 0 {
+		timeout = 30 * time.Second
+	}
+
 	h := &ReverseProxyHandler{
 		routes: make(map[string]*proxyRoute),
 	}
-	buildProxyRoutes(h, apps)
+	buildProxyRoutes(h, apps, timeout)
 	return h
 }
 
 // buildProxyRoutes iterates over app configs and creates proxy routes for
 // enabled apps with proxying turned on.
-func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig) {
+func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig, timeout time.Duration) {
 	for _, app := range apps {
 		if !app.Proxy || !app.Enabled {
 			continue
 		}
-		route := buildSingleProxyRoute(app)
+		route := buildSingleProxyRoute(app, timeout)
 		if route != nil {
 			h.routes[route.slug] = route
 		}
@@ -392,7 +400,7 @@ func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig) {
 
 // buildSingleProxyRoute creates a proxyRoute for a single app config.
 // Returns nil if the app URL is invalid or already uses a proxy path.
-func buildSingleProxyRoute(app config.AppConfig) *proxyRoute {
+func buildSingleProxyRoute(app config.AppConfig, timeout time.Duration) *proxyRoute {
 	targetURL, err := url.Parse(app.URL)
 	if err != nil {
 		return nil
@@ -410,27 +418,40 @@ func buildSingleProxyRoute(app config.AppConfig) *proxyRoute {
 		targetPath = "/"
 	}
 
+	// Per-app TLS verification: nil (default) = skip, explicit false = verify
+	skipTLS := app.ProxySkipTLSVerify == nil || *app.ProxySkipTLSVerify
+
+	transport := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			InsecureSkipVerify: skipTLS, //nolint:gosec // configurable per-app
+		},
+		ResponseHeaderTimeout: timeout,
+	}
+
 	rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
 
 	proxy := &httputil.ReverseProxy{
-		Director:       buildDirector(proxyPrefix, targetPath, targetURL),
+		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders),
 		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter),
+		Transport:      transport,
 	}
 
 	return &proxyRoute{
-		name:        app.Name,
-		slug:        slug,
-		proxyPrefix: proxyPrefix,
-		targetURL:   targetURL,
-		targetPath:  targetPath,
-		proxy:       proxy,
-		rewriter:    rewriter,
+		name:          app.Name,
+		slug:          slug,
+		proxyPrefix:   proxyPrefix,
+		targetURL:     targetURL,
+		targetPath:    targetPath,
+		skipTLSVerify: skipTLS,
+		proxy:         proxy,
+		rewriter:      rewriter,
 	}
 }
 
 // buildDirector creates the Director function for a reverse proxy that rewrites
 // incoming request paths from the proxy prefix to the backend target.
-func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL) func(*http.Request) {
+// customHeaders are injected into every proxied request.
+func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string) func(*http.Request) {
 	return func(req *http.Request) {
 		// Strip the /proxy/{slug} prefix from the request path
 		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
@@ -448,6 +469,11 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL) func(*htt
 		req.URL.Host = targetURL.Host
 
 		setProxyHeaders(req)
+
+		// Inject per-app custom headers (e.g., Authorization, X-Api-Key)
+		for k, v := range customHeaders {
+			req.Header.Set(k, v)
+		}
 
 		req.Host = targetURL.Host
 		req.Header.Set("Accept-Encoding", "gzip, identity")
@@ -727,7 +753,7 @@ func (route *proxyRoute) dialBackend() (net.Conn, error) {
 		}
 		return tls.Dial("tcp", targetHost, &tls.Config{
 			ServerName:         host,
-			InsecureSkipVerify: true, //nolint:gosec // internal network backends
+			InsecureSkipVerify: route.skipTLSVerify, //nolint:gosec // configurable per-app
 		})
 	}
 
@@ -903,8 +929,11 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	logging.Debug("Proxying request", "source", "proxy", "app", slug, "method", r.Method, "path", r.URL.Path)
+
 	// WebSocket upgrade requests use hijack-based proxying
 	if isWebSocketUpgrade(r) {
+		logging.Debug("WebSocket upgrade detected", "source", "proxy", "app", slug)
 		route.handleWebSocket(w, r)
 		return
 	}
