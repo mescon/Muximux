@@ -80,7 +80,7 @@
   }
 </script>
 
-<div class="relative group inline-flex items-center">
+<div class="relative group/health inline-flex items-center">
   <!-- Status dot -->
   <span
     class="rounded-full {sizeClasses[size]} {getStatusColor(health?.status || 'unknown')}"
@@ -91,7 +91,7 @@
     <div
       class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2
              bg-gray-900 border border-gray-700 rounded-lg shadow-lg
-             opacity-0 invisible group-hover:opacity-100 group-hover:visible
+             opacity-0 invisible group-hover/health:opacity-100 group-hover/health:visible
              transition-all duration-200 z-50 min-w-[180px] text-xs"
     >
       <div class="flex items-center justify-between mb-1">

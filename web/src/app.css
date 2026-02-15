@@ -5,6 +5,29 @@ button, [role="button"] {
   cursor: pointer;
 }
 
+input[type="color"] {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  border: 1px solid var(--border-default, #4b5563);
+  padding: 2px;
+  background: transparent;
+}
+
+input[type="color"]::-webkit-color-swatch-wrapper {
+  padding: 0;
+}
+
+input[type="color"]::-webkit-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
+input[type="color"]::-moz-color-swatch {
+  border: none;
+  border-radius: 4px;
+}
+
 /* ═══════════════════════════════════════════════════════════════════════════
    MUXIMUX DESIGN SYSTEM
    A refined, information-dense interface for your application dashboard
@@ -502,25 +525,11 @@ html.theme-switching *::after {
     overflow: hidden;
   }
 
-  .app-card::before {
-    content: '';
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    opacity: 0;
-    transition: opacity var(--transition-base);
-    pointer-events: none;
-  }
-
   .app-card:hover {
     background: var(--bg-hover);
     border-color: var(--border-default);
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
-  }
-
-  .app-card:hover::before {
-    opacity: 1;
   }
 
   .app-card:active {
