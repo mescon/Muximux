@@ -50,7 +50,7 @@
 
   /**
    * Resolve template variables in the dashboard title.
-   * Supported: %title%, %url%, %group%, %version%, %count%
+   * Supported: %title%, %url%, %group%, %version%
    * When a variable resolves to empty, surrounding separators are cleaned up.
    */
   function resolveTitle(template: string, app: App | null): string {
@@ -65,8 +65,7 @@
       .replaceAll('%title%', app?.name || '')
       .replaceAll('%url%', app?.url || '')
       .replaceAll('%group%', app?.group || '')
-      .replaceAll('%version%', appVersion)
-      .replaceAll('%count%', String(apps.length));
+      .replaceAll('%version%', appVersion);
 
     // Clean up dangling separators around empty values
     // e.g. "Muximux -  - " → "Muximux"

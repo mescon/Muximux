@@ -869,30 +869,8 @@
               Variables: <code class="text-gray-400">%title%</code> (app name),
               <code class="text-gray-400">%group%</code>,
               <code class="text-gray-400">%version%</code>,
-              <code class="text-gray-400">%count%</code> (total apps),
               <code class="text-gray-400">%url%</code>.
               Example: <code class="text-gray-400">Muximux - %title%</code>
-            </p>
-          </div>
-
-          <!-- Log Level -->
-          <div>
-            <label for="log-level" class="block text-sm font-medium text-gray-300 mb-2">
-              Log Level
-            </label>
-            <select
-              id="log-level"
-              bind:value={localConfig.log_level}
-              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                     focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-            >
-              <option value="debug">Debug</option>
-              <option value="info">Info</option>
-              <option value="warn">Warning</option>
-              <option value="error">Error</option>
-            </select>
-            <p class="text-xs text-gray-500 mt-1.5">
-              Controls which log messages are captured. Takes effect on restart.
             </p>
           </div>
 
@@ -1030,9 +1008,26 @@
             </div>
           </div>
 
-          <!-- Import/Export Configuration -->
+          <!-- Advanced -->
           <div class="pt-4 border-t border-gray-700">
-            <h3 class="text-sm font-medium text-gray-300 mb-3">Configuration</h3>
+            <h3 class="text-sm font-medium text-gray-300 mb-3">Advanced</h3>
+
+            <div class="flex items-center gap-3 mb-4">
+              <label for="log-level" class="text-sm text-gray-400 whitespace-nowrap">Log Level</label>
+              <select
+                id="log-level"
+                bind:value={localConfig.log_level}
+                class="px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded-md text-white
+                       focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+              >
+                <option value="debug">Debug</option>
+                <option value="info">Info</option>
+                <option value="warn">Warning</option>
+                <option value="error">Error</option>
+              </select>
+              <span class="text-xs text-gray-500">Takes effect on restart</span>
+            </div>
+
             <div class="flex flex-wrap gap-3">
               <button
                 class="px-4 py-2 text-sm bg-gray-700 hover:bg-gray-600 text-white rounded-md flex items-center gap-2"
