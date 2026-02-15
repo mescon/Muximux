@@ -141,15 +141,17 @@ For the full configuration reference, authentication options, TLS setup, and mor
 
 | | |
 |---|---|
-| **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip - makes apps work in iframes that normally refuse |
+| **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip - makes apps work in iframes that normally refuse. Per-app TLS settings, custom headers, and configurable timeout |
 | **Health Monitoring** | Periodic health checks with real-time WebSocket updates and colored status indicators |
+| **Real-Time Log Viewer** | In-app log viewer with level/source filtering, search, auto-scroll, pause/resume, and download. Debug level exposes detailed request tracing |
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and live method switching in Settings |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Serve additional sites alongside Muximux using a standard Caddyfile |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Configurable keybindings for switching apps, toggling navigation, search |
-| **Themes** | Built-in light/dark modes, custom themes via CSS custom properties |
+| **Themes** | Built-in light/dark modes, Dracula, Catppuccin, and custom themes via CSS custom properties |
+| **Config Export/Import** | Export config as YAML, import to preview and apply - sensitive data stripped on export |
 | **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
 | **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |

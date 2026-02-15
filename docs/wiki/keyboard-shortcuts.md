@@ -11,6 +11,7 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 | `/` or `Ctrl+K` or `Ctrl+Shift+P` | Open Command Palette |
 | `Ctrl+,` | Open Settings |
 | `?` | Show Keyboard Shortcuts Help |
+| `L` | View Logs |
 | `Alt+H` | Go to Splash Screen |
 
 ### Actions
@@ -32,7 +33,7 @@ The command palette (opened with `/` or `Ctrl+K`) provides quick access to apps 
 The palette supports the following:
 
 - **App search** -- Type an app name to quickly switch to it. Recently used apps appear first.
-- **Actions** -- Open Settings, Show Shortcuts, Toggle Fullscreen, Refresh, Go Home.
+- **Actions** -- Open Settings, Show Shortcuts, Toggle Fullscreen, Refresh, View Logs, Go Home.
 - **Theme commands** -- Set Dark Theme, Set Light Theme, Use System Theme.
 
 Use the **arrow keys** to navigate results, **Enter** to select, and **Escape** to close.

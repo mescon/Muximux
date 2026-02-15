@@ -21,7 +21,7 @@
   import { popularApps, getAllGroups, templateToApp } from '$lib/popularApps';
   import type { PopularAppTemplate } from '$lib/popularApps';
   import AppIcon from './AppIcon.svelte';
-  import MuximuxLogo from './MuximuxLogo.svelte';
+  // MuximuxLogo available but not currently used in wizard layout
   import Navigation from './Navigation.svelte';
   import IconBrowser from './IconBrowser.svelte';
   import {
@@ -202,7 +202,7 @@
 
   // Add a numbered duplicate of a popular app template
   function addInstanceOf(app: PopularAppTemplate) {
-    const allNames = new Set<string>();
+    const allNames = new SvelteSet<string>();
     appSelections.forEach((v, k) => { if (v.selected) allNames.add(k); });
     get(selectedApps).forEach(a => allNames.add(a.name));
 
@@ -361,7 +361,7 @@
   });
 
   const previewGroups = $derived(wizardGroups.map(g => ({
-    name: g.name, color: g.color, icon: g.icon, order: g.order
+    name: g.name, color: g.color, icon: g.icon, order: g.order, expanded: true
   })));
 
   const previewConfig = $derived<Config>({
@@ -598,7 +598,7 @@
   // Deduplicate DnD items by id (svelte-dnd-action can produce transient duplicates
   // during cross-zone drags, which triggers Svelte's each_key_duplicate error)
   function dedup(items: DndItem[]): DndItem[] {
-    const seen = new Set<string>();
+    const seen = new SvelteSet<string>();
     return items.filter(item => {
       if (seen.has(item.id)) return false;
       seen.add(item.id);

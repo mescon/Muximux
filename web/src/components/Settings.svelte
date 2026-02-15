@@ -96,7 +96,7 @@
   // Auth method switching
   let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'none'>('none');
   let methodTrustedProxies = $state('');
-  let methodHeaders = $state<Record<string, string>>({});
+  let _methodHeaders = $state<Record<string, string>>({});
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
 
@@ -2241,6 +2241,7 @@
                 {#if changelogExpanded}
                   <div class="px-4 pb-4 border-t border-gray-700/50">
                     <div class="mt-3 text-sm text-gray-300 leading-relaxed max-h-64 overflow-y-auto changelog-content">
+                      <!-- eslint-disable-next-line svelte/no-at-html-tags -- changelog from GitHub release notes, sanitized by marked -->
                       {@html marked.parse(updateInfo.changelog)}
                     </div>
                   </div>
@@ -3071,9 +3072,9 @@ chmod +x muximux-darwin-arm64
                 </div>
               </label>
               <div>
-                <label class="block text-sm text-gray-400 mb-1">Custom headers</label>
+                <span class="block text-sm text-gray-400 mb-1">Custom headers</span>
                 <p class="text-xs text-gray-500 mb-2">Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key)</p>
-                {#each Object.entries(editingApp.proxy_headers ?? {}) as [key, value], i}
+                {#each Object.entries(editingApp.proxy_headers ?? {}) as [key, value] (key)}
                   <div class="flex gap-2 mb-2">
                     <input type="text" value={key} placeholder="Header name"
                       class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
@@ -3098,7 +3099,7 @@ chmod +x muximux-darwin-arm64
                         app.proxy_headers = headers;
                       }}
                     />
-                    <button class="px-2 py-1 text-gray-400 hover:text-red-400"
+                    <button class="px-2 py-1 text-gray-400 hover:text-red-400" title="Remove header"
                       onclick={() => {
                         const app = editingApp!;
                         const headers = { ...(app.proxy_headers ?? {}) };

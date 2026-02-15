@@ -133,8 +133,25 @@ Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` require
 |----------|--------|------|-------------|
 | `/api/config` | GET | Any | Get full configuration |
 | `/api/config` | PUT | Admin | Update full configuration |
+| `/api/config/export` | GET | Admin | Download config as YAML (sensitive data stripped) |
+| `/api/config/import` | POST | Admin | Parse and validate uploaded YAML, returns preview |
 
 The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) require a restart. Auth method changes can be made live via `PUT /api/auth/method`.
+
+**Export config:**
+```
+GET /api/config/export
+```
+Returns a downloadable YAML file with password hashes, OIDC client secrets, and API keys removed. The filename includes the current date (e.g., `muximux-config-2025-01-15.yaml`).
+
+**Import config (preview):**
+```
+POST /api/config/import
+Content-Type: application/x-yaml
+
+(YAML body, max 1 MB)
+```
+Validates the YAML and returns the parsed config as JSON for preview. The frontend can then apply it via `PUT /api/config`. Validation requires at least one app with a name and URL.
 
 ---
 
@@ -246,6 +263,41 @@ Accepted formats: PNG, SVG, JPG, WebP. Maximum file size: 5MB.
 
 ---
 
+## Logs
+
+| Endpoint | Method | Auth Required | Description |
+|----------|--------|---------------|-------------|
+| `/api/logs/recent` | GET | Yes | Get recent log entries from the in-memory buffer |
+
+**Query parameters:**
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `limit` | int | 200 | Maximum number of entries to return |
+| `level` | string | | Filter by log level (`debug`, `info`, `warn`, `error`) |
+| `source` | string | | Filter by source tag (`server`, `proxy`, `health`, `auth`, `websocket`, `caddy`, `config`, `icons`, `themes`) |
+
+**Example:**
+```
+GET /api/logs/recent?limit=50&level=error
+```
+
+**Response:**
+```json
+[
+  {
+    "timestamp": "2025-01-15T14:23:01.234Z",
+    "level": "error",
+    "message": "Dial failed: connection refused",
+    "source": "proxy"
+  }
+]
+```
+
+Logs are stored in a 1000-entry ring buffer. When the buffer is full, the oldest entries are dropped. Entries are also broadcast in real-time via WebSocket (see below).
+
+---
+
 ## Proxy Status
 
 | Endpoint | Method | Description |
@@ -285,6 +337,7 @@ Connect to `/ws` to receive real-time updates. Events are sent as JSON messages:
 | `config_updated` | Full config object | Configuration was changed (via Settings panel or API) |
 | `health_changed` | Array of health statuses | Health status changed for one or more apps |
 | `app_health_changed` | `{"app": "name", "health": {...}}` | Health status changed for a specific app |
+| `log_entry` | `LogEntry` object | A new log entry was recorded (see Logs section above) |
 
 The WebSocket client automatically reconnects if the connection drops, using exponential backoff (up to 30 seconds between retries, max 10 attempts).
 

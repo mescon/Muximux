@@ -44,7 +44,7 @@
 
   // Discovered sources from entries
   let discoveredSources = $derived.by(() => {
-    const sources = new Set<string>();
+    const sources = new Set<string>(); // eslint-disable-line svelte/prefer-svelte-reactivity -- read-only derived, not reactive state
     for (const entry of currentEntries) {
       if (entry.source) sources.add(entry.source);
     }
@@ -237,7 +237,7 @@
         {/if}
       </div>
       <div class="log-level-btns">
-        {#each ['debug', 'info', 'warn', 'error'] as level}
+        {#each ['debug', 'info', 'warn', 'error'] as level (level)}
           <button
             class="log-level-btn {levelBtnClass(level)}"
             onclick={() => toggleLevel(level)}
@@ -257,7 +257,7 @@
       >
         All
       </button>
-      {#each discoveredSources.length > 0 ? discoveredSources : ALL_SOURCES as source}
+      {#each discoveredSources.length > 0 ? discoveredSources : ALL_SOURCES as source (source)}
         <button
           class="log-source-pill"
           class:log-source-pill-active={enabledSources[source]}

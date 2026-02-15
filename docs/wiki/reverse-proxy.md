@@ -64,6 +64,30 @@ Compressed responses are transparently decompressed before rewriting, then re-co
 
 ## When to Use It
 
+### Per-App Proxy Settings
+
+When `proxy: true`, you can fine-tune the proxy behavior per app:
+
+```yaml
+apps:
+  - name: Sonarr
+    url: https://sonarr.internal:8989
+    proxy: true
+    proxy_skip_tls_verify: true      # Skip TLS cert verification (default: true)
+    proxy_headers:                    # Custom headers sent to the backend
+      X-Api-Key: "your-api-key"
+      Authorization: "Bearer token"
+```
+
+| Setting | Default | Description |
+|---------|---------|-------------|
+| `proxy_skip_tls_verify` | `true` | When the backend uses HTTPS with a self-signed or internal CA certificate, this skips verification. Set to `false` if you want strict TLS validation. |
+| `proxy_headers` | (none) | Key-value map of headers added to every request forwarded to the backend. Useful for API keys or auth tokens the app requires. |
+
+The global `server.proxy_timeout` (default: `30s`) controls how long the proxy waits for a backend response before timing out. This applies to all proxied apps.
+
+### When to Use It
+
 Enable `proxy: true` when:
 
 - The app refuses to load in an iframe. You see a blank frame, a "refused to connect" error, or a message saying the page cannot be displayed in a frame.

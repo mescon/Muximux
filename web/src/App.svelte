@@ -18,7 +18,7 @@
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
-  import { checkAuthStatus, logout, isAuthenticated, setupRequired } from './lib/authStore';
+  import { checkAuthStatus, isAuthenticated, setupRequired } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
   import { initTheme, setTheme, syncFromConfig } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';

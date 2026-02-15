@@ -19,6 +19,8 @@ muximux --config /path/to/config.yaml
 server:
   listen: ":8080"              # Listen address (default: ":8080")
   title: "Muximux"             # Page title shown in browser tab
+  log_level: info              # Log verbosity: debug, info, warn, error
+  proxy_timeout: 30s           # Global timeout for proxied requests
 
   # Optional: TLS / HTTPS
   tls:
@@ -133,6 +135,9 @@ apps:
     default: true
     open_mode: iframe          # iframe, new_tab, new_window, redirect
     proxy: false
+    proxy_skip_tls_verify: true  # Skip TLS certificate verification (default: true)
+    proxy_headers:               # Custom headers sent to the backend
+      X-Custom-Header: value
     scale: 1.0
     disable_keyboard_shortcuts: false
     auth_bypass: []
@@ -199,7 +204,16 @@ The following settings **require a restart** to take effect:
 - `server.gateway` (Caddyfile path)
 - `auth.method` (authentication method)
 
-Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring -- is applied immediately.
+Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level -- is applied immediately.
+
+## Config Export and Import
+
+You can export your configuration as a downloadable YAML file and import it on another instance:
+
+- **Export** strips sensitive data (password hashes, OIDC secrets, API keys) before download.
+- **Import** parses the uploaded YAML, validates it, and shows a preview so you can review before applying.
+
+This is available in the Settings panel under the General tab, or via the API (see [API Reference](api.md)).
 
 ## Config API
 

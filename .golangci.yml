@@ -3,7 +3,13 @@ run:
   tests: true
 linters:
   enable:
+    - bodyclose
+    - durationcheck
+    - errname
+    - gocritic
+    - gosec
     - misspell
+    - nilerr
     - unconvert
     - unparam
   exclusions:
@@ -24,6 +30,16 @@ linters:
       - third_party$
       - builtin$
       - examples$
+linters-settings:
+  gocritic:
+    enabled-tags:
+      - diagnostic
+      - performance
+  gosec:
+    excludes:
+      - G104  # unhandled errors on deferred Close()
+      - G304  # file path from variable (validated)
+      - G402  # TLS InsecureSkipVerify (user-configurable per app)
 formatters:
   enable:
     - gofmt

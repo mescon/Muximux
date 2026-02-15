@@ -160,7 +160,6 @@ describe('parseImportedConfig', () => {
 
 describe('exportConfig', () => {
   it('redirects to the YAML export endpoint', () => {
-    const originalHref = window.location.href;
     // exportConfig sets window.location.href — just verify it doesn't throw
     // (full navigation test requires browser env)
     expect(() => exportConfig()).not.toThrow();
