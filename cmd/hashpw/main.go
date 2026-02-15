@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"syscall"
 
 	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
@@ -23,8 +22,9 @@ func main() {
 		fmt.Print("Enter password: ")
 
 		// Try to read without echo if terminal
-		if term.IsTerminal(syscall.Stdin) {
-			bytePassword, err := term.ReadPassword(syscall.Stdin)
+		fd := int(os.Stdin.Fd())
+		if term.IsTerminal(fd) {
+			bytePassword, err := term.ReadPassword(fd)
 			fmt.Println()
 			if err != nil {
 				fmt.Fprintf(os.Stderr, "Error reading password: %v\n", err)

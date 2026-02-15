@@ -191,15 +191,21 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 
 // detectEnvironment returns "docker" if running inside a container, "native" otherwise.
 func detectEnvironment() string {
-	// Check for /.dockerenv
+	// Check for /.dockerenv (Linux)
 	if _, err := os.Stat("/.dockerenv"); err == nil {
 		return "docker"
 	}
-	// Check /proc/1/cgroup for container runtimes
+	// Check /proc/1/cgroup for container runtimes (Linux)
 	data, err := os.ReadFile("/proc/1/cgroup")
 	if err == nil {
 		content := string(data)
 		if strings.Contains(content, "docker") || strings.Contains(content, "containerd") {
+			return "docker"
+		}
+	}
+	// Check common container environment variables (works on all platforms)
+	for _, env := range []string{"DOCKER_CONTAINER", "container", "KUBERNETES_SERVICE_HOST"} {
+		if os.Getenv(env) != "" {
 			return "docker"
 		}
 	}

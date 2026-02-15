@@ -851,7 +851,7 @@ func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) ht
 		// We use http.ServeFile instead of FileServer to avoid redirect loops
 		// Exclude /api/, /ws, /proxy/, and /icons/ paths
 		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, proxyPathPrefix) && !strings.HasPrefix(path, "/icons/")) {
-			http.ServeFile(w, r, distDir+"/"+indexPath)
+			http.ServeFile(w, r, filepath.Join(distDir, indexPath))
 			return
 		}
 
