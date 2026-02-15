@@ -7,7 +7,6 @@ import (
 	"crypto/tls"
 	"fmt"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"net/http/httputil"
@@ -17,6 +16,7 @@ import (
 	"sync"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // ReverseProxyHandler handles reverse proxy requests on the main server
@@ -819,7 +819,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	targetHost := route.targetURL.Host
 	backendConn, err := route.dialBackend()
 	if err != nil {
-		log.Printf("[proxy-ws] %s: failed to dial backend %s: %v", route.name, targetHost, err)
+		logging.Error("Failed to dial backend", "source", "proxy", "app", route.name, "target", targetHost, "error", err)
 		http.Error(w, errBadGateway, http.StatusBadGateway)
 		return
 	}
@@ -831,7 +831,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	// Send upgrade request to backend
 	upgradeReq := route.buildUpgradeRequest(r, backendPath, targetHost)
 	if _, err = backendConn.Write(upgradeReq); err != nil {
-		log.Printf("[proxy-ws] %s: failed to write upgrade request: %v", route.name, err)
+		logging.Error("Failed to write upgrade request", "source", "proxy", "app", route.name, "error", err)
 		http.Error(w, errBadGateway, http.StatusBadGateway)
 		return
 	}
@@ -840,14 +840,14 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	backendBuf := bufio.NewReader(backendConn)
 	resp, err := http.ReadResponse(backendBuf, r)
 	if err != nil {
-		log.Printf("[proxy-ws] %s: failed to read upgrade response: %v", route.name, err)
+		logging.Error("Failed to read upgrade response", "source", "proxy", "app", route.name, "error", err)
 		http.Error(w, errBadGateway, http.StatusBadGateway)
 		return
 	}
 
 	// If backend didn't upgrade, forward the error response as-is
 	if resp.StatusCode != http.StatusSwitchingProtocols {
-		log.Printf("[proxy-ws] %s: backend returned %d instead of 101", route.name, resp.StatusCode)
+		logging.Warn("Backend did not upgrade to WebSocket", "source", "proxy", "app", route.name, "status_code", resp.StatusCode)
 		for k, vs := range resp.Header {
 			for _, v := range vs {
 				w.Header().Add(k, v)
@@ -864,20 +864,20 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	// Hijack the client connection
 	hijacker, ok := w.(http.Hijacker)
 	if !ok {
-		log.Printf("[proxy-ws] %s: response writer does not support hijacking", route.name)
+		logging.Error("Response writer does not support hijacking", "source", "proxy", "app", route.name)
 		http.Error(w, "WebSocket not supported", http.StatusInternalServerError)
 		return
 	}
 	clientConn, clientBuf, err := hijacker.Hijack()
 	if err != nil {
-		log.Printf("[proxy-ws] %s: failed to hijack client connection: %v", route.name, err)
+		logging.Error("Failed to hijack client connection", "source", "proxy", "app", route.name, "error", err)
 		return
 	}
 	defer clientConn.Close()
 
 	// Forward the 101 response to the client
 	if err = route.forwardUpgradeResponse(clientConn, resp); err != nil {
-		log.Printf("[proxy-ws] %s: failed to write upgrade response to client: %v", route.name, err)
+		logging.Error("Failed to write upgrade response to client", "source", "proxy", "app", route.name, "error", err)
 		return
 	}
 

@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"log"
 	"net"
 	"net/http"
 	"os"
@@ -22,6 +21,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/handlers"
 	"github.com/mescon/muximux/v3/internal/health"
 	"github.com/mescon/muximux/v3/internal/icons"
+	"github.com/mescon/muximux/v3/internal/logging"
 	"github.com/mescon/muximux/v3/internal/proxy"
 	"github.com/mescon/muximux/v3/internal/websocket"
 )
@@ -36,6 +36,7 @@ var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
 type Server struct {
 	config         *config.Config
 	configPath     string
+	dataDir        string
 	httpServer     *http.Server
 	healthMonitor  *health.Monitor
 	wsHub          *websocket.Hub
@@ -45,13 +46,17 @@ type Server struct {
 	proxyServer    *proxy.Proxy
 	oidcProvider   *auth.OIDCProvider
 	needsSetup     atomic.Bool
+	version        string
+	commit         string
+	buildDate      string
 }
 
 // adminGuard is a function that wraps a handler to require admin role.
 type adminGuard func(next http.HandlerFunc) http.HandlerFunc
 
-// New creates a new server instance
-func New(cfg *config.Config, configPath string) (*Server, error) {
+// New creates a new server instance.
+// dataDir is the base directory for all mutable data (config, themes, icons).
+func New(cfg *config.Config, configPath string, dataDir string, version, commit, buildDate string) (*Server, error) {
 	// Create WebSocket hub
 	wsHub := websocket.NewHub()
 
@@ -61,10 +66,14 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	s := &Server{
 		config:         cfg,
 		configPath:     configPath,
+		dataDir:        dataDir,
 		wsHub:          wsHub,
 		sessionStore:   sessionStore,
 		userStore:      userStore,
 		authMiddleware: authMiddleware,
+		version:        version,
+		commit:         commit,
+		buildDate:      buildDate,
 	}
 	s.needsSetup.Store(cfg.NeedsSetup())
 
@@ -112,20 +121,26 @@ func New(cfg *config.Config, configPath string) (*Server, error) {
 	// Health monitoring
 	s.setupHealthRoutes(mux, cfg, wsHub)
 
+	// System info endpoints (no auth required — non-sensitive)
+	systemHandler := handlers.NewSystemHandler(version, commit, buildDate, dataDir)
+	mux.HandleFunc("/api/system/info", systemHandler.GetInfo)
+	mux.HandleFunc("/api/system/updates", systemHandler.CheckUpdate)
+
 	// Forward-declare so /themes/ handler closure can reference it
 	var staticHandler http.Handler
 
 	// Extract embedded dist filesystem (used for bundled themes + static serving)
 	distFS, distErr := fs.Sub(embeddedFiles, "dist")
 
-	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler)
-	registerIconRoutes(mux, cfg, requireAdmin)
+	themesDir := filepath.Join(dataDir, "themes")
+	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler, themesDir)
+	registerIconRoutes(mux, cfg, requireAdmin, dataDir)
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
 	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps)
 	if reverseProxyHandler.HasRoutes() {
 		mux.Handle(proxyPathPrefix, reverseProxyHandler)
-		fmt.Printf("Integrated reverse proxy enabled for: %v\n", reverseProxyHandler.GetRoutes())
+		logging.Info("Integrated reverse proxy enabled", "source", "server", "routes", reverseProxyHandler.GetRoutes())
 	}
 
 	// Caddy setup
@@ -428,8 +443,8 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 // registerThemeRoutes registers theme API and CSS serving routes.
 // staticHandler is a pointer so the /themes/ closure can reference the handler
 // that gets assigned later (forward declaration pattern).
-func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler) {
-	themeHandler := handlers.NewThemeHandler(themesDataDir, distFS)
+func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler, themesDir string) {
+	themeHandler := handlers.NewThemeHandler(themesDir, distFS)
 	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -441,7 +456,7 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 		}
 	})
 	mux.HandleFunc("/api/themes/", requireAdmin(themeHandler.DeleteTheme))
-	// Serve theme CSS files: try data/themes/ first (user-created), fall back to static assets (bundled)
+	// Serve theme CSS files: try themesDir first (user-created), fall back to static assets (bundled)
 	mux.HandleFunc("/themes/", func(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimPrefix(r.URL.Path, "/themes/")
 		// Only allow safe CSS theme filenames (allowlist approach)
@@ -449,14 +464,14 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 			http.NotFound(w, r)
 			return
 		}
-		localPath := filepath.Join(themesDataDir, name)
+		localPath := filepath.Join(themesDir, name)
 		// Double-check resolved path is within the themes directory
 		absPath, err := filepath.Abs(localPath)
 		if err != nil {
 			http.NotFound(w, r)
 			return
 		}
-		absThemesDir, _ := filepath.Abs(themesDataDir)
+		absThemesDir, _ := filepath.Abs(themesDir)
 		if !strings.HasPrefix(absPath, absThemesDir+string(filepath.Separator)) {
 			http.NotFound(w, r)
 			return
@@ -474,11 +489,16 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 }
 
 // registerIconRoutes registers icon API and serving routes.
-func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard) {
+func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard, dataDir string) {
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
-	dashboardClient := icons.NewDashboardIconsClient(cfg.Icons.DashboardIcons.CacheDir, cacheTTL)
-	lucideClient := icons.NewLucideClient("data/icons/lucide", cacheTTL)
-	iconHandler := handlers.NewIconHandler(dashboardClient, lucideClient, "data/icons/custom")
+	// Resolve CacheDir relative to dataDir unless it's an absolute path
+	cacheDir := cfg.Icons.DashboardIcons.CacheDir
+	if !filepath.IsAbs(cacheDir) {
+		cacheDir = filepath.Join(dataDir, cacheDir)
+	}
+	dashboardClient := icons.NewDashboardIconsClient(cacheDir, cacheTTL)
+	lucideClient := icons.NewLucideClient(filepath.Join(dataDir, "icons", "lucide"), cacheTTL)
+	iconHandler := handlers.NewIconHandler(dashboardClient, lucideClient, filepath.Join(dataDir, "icons", "custom"))
 
 	mux.HandleFunc("/api/icons/dashboard", iconHandler.ListDashboardIcons)
 	mux.HandleFunc("/api/icons/dashboard/", iconHandler.GetDashboardIcon)
@@ -569,10 +589,14 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		// Allow theme listing during setup (read-only, needed for onboarding theme picker)
-		if path == "/api/themes" && r.Method == http.MethodGet {
-			next.ServeHTTP(w, r)
-			return
+		// Allow read-only endpoints needed for onboarding wizard and system info
+		if r.Method == http.MethodGet {
+			if path == "/api/themes" ||
+				strings.HasPrefix(path, "/api/icons/") ||
+				strings.HasPrefix(path, "/api/system/") {
+				next.ServeHTTP(w, r)
+				return
+			}
 		}
 
 		// Allow non-API paths (static assets, SPA)
@@ -641,7 +665,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 
 	s.config.Auth.SetupComplete = true
 	if err := s.config.Save(s.configPath); err != nil {
-		log.Printf("Failed to save config after setup: %v", err)
+		logging.Error("Failed to save config after setup", "source", "server", "error", err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
@@ -708,7 +732,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req setupRequest) error {
 	// Create session so user is immediately logged in
 	session, err := s.sessionStore.Create(req.Username, req.Username, "admin")
 	if err != nil {
-		log.Printf("Failed to create session after setup: %v", err)
+		logging.Warn("Failed to create session after setup", "source", "server", "error", err)
 		// Non-fatal — setup still succeeds, user just needs to log in manually
 		return nil
 	}
@@ -769,10 +793,9 @@ func (s *Server) Start() error {
 		if err := s.proxyServer.Start(); err != nil {
 			return fmt.Errorf("failed to start caddy: %w", err)
 		}
-		log.Printf("Muximux started on %s (Caddy on user port, Go on %s)",
-			s.config.Server.Listen, s.proxyServer.GetInternalAddr())
+		logging.Info("Muximux started", "source", "server", "listen", s.config.Server.Listen, "internal_addr", s.proxyServer.GetInternalAddr(), "caddy", true)
 	} else {
-		log.Printf("Muximux started on %s", s.config.Server.Listen)
+		logging.Info("Muximux started", "source", "server", "listen", s.config.Server.Listen)
 	}
 
 	return s.httpServer.ListenAndServe()
@@ -793,7 +816,7 @@ func (s *Server) Stop() error {
 	// Stop Caddy
 	if s.proxyServer != nil {
 		if err := s.proxyServer.Stop(); err != nil {
-			fmt.Printf("Warning: failed to stop caddy: %v\n", err)
+			logging.Warn("Failed to stop Caddy", "source", "server", "error", err)
 		}
 	}
 
@@ -996,7 +1019,7 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 			ip = r.RemoteAddr
 		}
 		if !rl.allow(ip) {
-			log.Printf("Rate limit exceeded for IP %s on %s", ip, r.URL.Path)
+			logging.Warn("Rate limit exceeded", "source", "server", "ip", ip, "path", r.URL.Path)
 			w.Header().Set("Retry-After", fmt.Sprintf("%d", int(rl.window.Seconds())))
 			http.Error(w, "Too many requests", http.StatusTooManyRequests)
 			return

@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // DashboardIconsClient handles fetching icons from dashboardicons.com
@@ -48,20 +50,41 @@ func NewDashboardIconsClient(cacheDir string, cacheTTL time.Duration) *Dashboard
 	}
 }
 
-// GetIcon returns the icon data for the given name and variant
+// variantPreference is the fallback order when a requested variant is unavailable.
+var variantPreference = []string{"svg", "webp", "png"}
+
+// GetIcon returns the icon data for the given name and variant.
+// If the requested variant is not available, it falls back through
+// svg → webp → png until one succeeds.
 func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, error) {
 	if variant == "" {
 		variant = "svg"
 	}
 
-	// Check cache first
-	cached, contentType, err := c.getFromCache(name, variant)
-	if err == nil {
+	// Check cache first for the requested variant
+	if cached, contentType, err := c.getFromCache(name, variant); err == nil {
 		return cached, contentType, nil
 	}
 
-	// Download from GitHub
-	return c.downloadIcon(name, variant)
+	// Try downloading the requested variant
+	if data, contentType, err := c.downloadIcon(name, variant); err == nil {
+		return data, contentType, nil
+	}
+
+	// Fallback: try other variants in preference order
+	for _, fallback := range variantPreference {
+		if fallback == variant {
+			continue // already tried
+		}
+		if cached, contentType, err := c.getFromCache(name, fallback); err == nil {
+			return cached, contentType, nil
+		}
+		if data, contentType, err := c.downloadIcon(name, fallback); err == nil {
+			return data, contentType, nil
+		}
+	}
+
+	return nil, "", fmt.Errorf("icon not found: %s (tried all variants)", name)
 }
 
 // GetIconPath returns the local file path for a cached icon
@@ -177,7 +200,7 @@ func (c *DashboardIconsClient) downloadIcon(name, variant string) ([]byte, strin
 	// Cache the icon
 	if err := c.saveToCache(name, variant, data); err != nil {
 		// Log but don't fail - caching is optional
-		fmt.Printf("Warning: failed to cache icon %s: %v\n", name, err)
+		logging.Warn("Failed to cache icon", "source", "icons", "name", name, "error", err)
 	}
 
 	return data, getContentType(variant), nil
@@ -225,20 +248,42 @@ func (c *DashboardIconsClient) fetchIconList() ([]IconInfo, error) {
 		return nil, fmt.Errorf("failed to parse icon tree: %w", err)
 	}
 
-	// Collect unique icon names from svg/ directory
-	iconSet := make(map[string]bool)
-	for _, entry := range tree.Tree {
-		if entry.Type == "blob" && strings.HasPrefix(entry.Path, "svg/") && strings.HasSuffix(entry.Path, ".svg") {
-			name := strings.TrimSuffix(strings.TrimPrefix(entry.Path, "svg/"), ".svg")
-			iconSet[name] = true
+	// Collect icons from all variant directories (svg/, png/, webp/)
+	type variantDir struct {
+		prefix string
+		suffix string
+		label  string
+	}
+	dirs := []variantDir{
+		{"svg/", ".svg", "svg"},
+		{"png/", ".png", "png"},
+		{"webp/", ".webp", "webp"},
+	}
+
+	iconVariants := make(map[string]map[string]bool)
+	for _, dir := range dirs {
+		for _, entry := range tree.Tree {
+			if entry.Type == "blob" && strings.HasPrefix(entry.Path, dir.prefix) && strings.HasSuffix(entry.Path, dir.suffix) {
+				name := strings.TrimSuffix(strings.TrimPrefix(entry.Path, dir.prefix), dir.suffix)
+				if iconVariants[name] == nil {
+					iconVariants[name] = make(map[string]bool)
+				}
+				iconVariants[name][dir.label] = true
+			}
 		}
 	}
 
 	var icons []IconInfo
-	for name := range iconSet {
+	for name, variants := range iconVariants {
+		var variantList []string
+		for _, v := range variantPreference {
+			if variants[v] {
+				variantList = append(variantList, v)
+			}
+		}
 		icons = append(icons, IconInfo{
 			Name:     name,
-			Variants: []string{"svg", "png", "webp"},
+			Variants: variantList,
 		})
 	}
 

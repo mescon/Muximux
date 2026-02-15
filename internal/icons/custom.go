@@ -3,10 +3,11 @@ package icons
 import (
 	"fmt"
 	"io"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // CustomIconInfo represents a custom uploaded icon
@@ -36,7 +37,7 @@ const MaxIconSize = 2 * 1024 * 1024
 // NewCustomIconsManager creates a new custom icons manager
 func NewCustomIconsManager(storageDir string) *CustomIconsManager {
 	if err := os.MkdirAll(storageDir, 0755); err != nil {
-		log.Printf("[icons] failed to create custom icons directory %s: %v", storageDir, err)
+		logging.Error("Failed to create custom icons directory", "source", "icons", "path", storageDir, "error", err)
 	}
 	return &CustomIconsManager{
 		storageDir: storageDir,

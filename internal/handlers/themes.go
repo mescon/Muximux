@@ -4,13 +4,14 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/fs"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 var (
@@ -31,7 +32,7 @@ type ThemeHandler struct {
 // bundledFS should be the embedded dist filesystem (or nil if unavailable).
 func NewThemeHandler(themesDir string, bundledFS fs.FS) *ThemeHandler {
 	if err := os.MkdirAll(themesDir, 0755); err != nil {
-		log.Printf("[themes] failed to create themes directory %s: %v", themesDir, err)
+		logging.Error("Failed to create themes directory", "source", "themes", "path", themesDir, "error", err)
 	}
 	return &ThemeHandler{themesDir: themesDir, bundledFS: bundledFS}
 }

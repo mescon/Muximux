@@ -2,7 +2,6 @@ package proxy
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"strconv"
 	"strings"
@@ -12,6 +11,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	_ "github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile" // Register Caddyfile adapter
 	_ "github.com/caddyserver/caddy/v2/modules/standard"          // Import standard Caddy modules
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // AppRoute represents a proxied app route
@@ -83,7 +83,7 @@ func (p *Proxy) Start() error {
 	defer p.mu.Unlock()
 
 	caddyfileText := p.buildCaddyfile()
-	log.Printf("Caddy config:\n%s", caddyfileText)
+	logging.Debug("Caddy configuration generated", "source", "caddy", "config", caddyfileText)
 
 	adapter := caddyconfig.GetAdapter("caddyfile")
 	if adapter == nil {
@@ -101,7 +101,7 @@ func (p *Proxy) Start() error {
 	}
 
 	p.running = true
-	log.Printf("Caddy started, forwarding to %s", p.config.InternalAddr)
+	logging.Info("Caddy started", "source", "caddy", "internal_addr", p.config.InternalAddr)
 	return nil
 }
 
@@ -120,7 +120,7 @@ func (p *Proxy) Stop() error {
 	}
 
 	p.running = false
-	log.Println("Caddy stopped")
+	logging.Info("Caddy stopped", "source", "caddy")
 	return nil
 }
 

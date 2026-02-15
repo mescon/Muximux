@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"sync"
 
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // APIHandler handles API requests
@@ -54,8 +54,17 @@ type clientConfigResponse struct {
 	Navigation  config.NavigationConfig   `json:"navigation"`
 	Theme       config.ThemeConfig        `json:"theme"`
 	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Auth        *clientAuthConfig         `json:"auth,omitempty"`
 	Groups      []config.GroupConfig      `json:"groups"`
 	Apps        []ClientAppConfig         `json:"apps"`
+}
+
+// clientAuthConfig is the sanitized auth config sent to the frontend.
+// Excludes sensitive fields (users, api_key, etc).
+type clientAuthConfig struct {
+	Method         string            `json:"method"`
+	TrustedProxies []string          `json:"trusted_proxies,omitempty"`
+	Headers        map[string]string `json:"headers,omitempty"`
 }
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
@@ -69,6 +78,16 @@ func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
+	}
+	if cfg.Auth.Method != "" {
+		authCfg := &clientAuthConfig{Method: cfg.Auth.Method}
+		if len(cfg.Auth.TrustedProxies) > 0 {
+			authCfg.TrustedProxies = cfg.Auth.TrustedProxies
+		}
+		if len(cfg.Auth.Headers) > 0 {
+			authCfg.Headers = cfg.Auth.Headers
+		}
+		resp.Auth = authCfg
 	}
 	return resp
 }
@@ -103,12 +122,12 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	// Save to file
 	if err := h.config.Save(h.configPath); err != nil {
-		log.Printf("Failed to save config: %v", err)
+		logging.Error("Failed to save config", "source", "config", "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
 
-	log.Printf("Configuration saved successfully")
+	logging.Info("Configuration saved successfully", "source", "config")
 
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))

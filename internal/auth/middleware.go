@@ -3,11 +3,12 @@ package auth
 import (
 	"context"
 	"crypto/subtle"
-	"log"
 	"net"
 	"net/http"
 	"strings"
 	"sync"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // ContextKey is a type for context keys
@@ -289,7 +290,7 @@ func (m *Middleware) matchAllowedIPs(r *http.Request, rule BypassRule) bool {
 func (m *Middleware) authenticateForwardAuth(r *http.Request) *User {
 	// Verify request is from trusted proxy
 	if !m.isFromTrustedProxy(r) {
-		log.Printf("Forward auth request not from trusted proxy: %s", m.getClientIP(r))
+		logging.Warn("Forward auth request not from trusted proxy", "source", "auth", "client_ip", m.getClientIP(r))
 		return nil
 	}
 
@@ -349,7 +350,7 @@ func (m *Middleware) authenticateForwardAuth(r *http.Request) *User {
 func (m *Middleware) isFromTrustedProxy(r *http.Request) bool {
 	if len(m.trustedNets) == 0 {
 		// No trusted proxies configured — fail closed for security
-		log.Printf("WARNING: forward_auth enabled but no trusted_proxies configured; rejecting request")
+		logging.Warn("Forward auth enabled but no trusted_proxies configured; rejecting request", "source", "auth")
 		return false
 	}
 

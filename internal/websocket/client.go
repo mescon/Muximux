@@ -1,11 +1,11 @@
 package websocket
 
 import (
-	"log"
 	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 const (
@@ -70,7 +70,7 @@ func (c *Client) ReadPump() {
 		_, _, err := c.conn.ReadMessage()
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
-				log.Printf("WebSocket error: %v", err)
+				logging.Warn("Unexpected WebSocket close", "source", "websocket", "error", err)
 			}
 			break
 		}
@@ -126,7 +126,7 @@ func (c *Client) WritePump() {
 func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
-		log.Printf("WebSocket upgrade error: %v", err)
+		logging.Error("WebSocket upgrade failed", "source", "websocket", "error", err)
 		return
 	}
 

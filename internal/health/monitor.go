@@ -2,10 +2,11 @@ package health
 
 import (
 	"context"
-	"log"
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // Status represents the health status of an app
@@ -231,7 +232,7 @@ func (m *Monitor) updateHealth(name string, status Status, responseTime time.Dur
 
 	m.mu.Unlock()
 
-	log.Printf("Health check for %s: %s (%.0fms)", name, status, float64(responseTime.Milliseconds()))
+	logging.Debug("Health check completed", "source", "health", "app", name, "status", string(status), "response_time_ms", responseTime.Milliseconds())
 
 	// Notify callback outside of lock (only on status change)
 	if healthCopy != nil {

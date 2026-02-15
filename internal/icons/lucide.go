@@ -11,6 +11,8 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // LucideIconInfo represents metadata about a Lucide icon
@@ -148,7 +150,7 @@ func (c *LucideClient) downloadIcon(name string) ([]byte, string, error) {
 	}
 
 	if err := c.saveToCache(name, data); err != nil {
-		fmt.Printf("Warning: failed to cache lucide icon %s: %v\n", name, err)
+		logging.Warn("Failed to cache lucide icon", "source", "icons", "name", name, "error", err)
 	}
 
 	return data, "image/svg+xml", nil

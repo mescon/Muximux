@@ -2,8 +2,9 @@ package websocket
 
 import (
 	"encoding/json"
-	"log"
 	"sync"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // EventType defines the type of WebSocket event
@@ -48,7 +49,7 @@ func (h *Hub) Run() {
 			h.mu.Lock()
 			h.clients[client] = true
 			h.mu.Unlock()
-			log.Printf("WebSocket client connected. Total clients: %d", len(h.clients))
+			logging.Info("WebSocket client connected", "source", "websocket", "total_clients", len(h.clients))
 
 		case client := <-h.unregister:
 			h.mu.Lock()
@@ -57,12 +58,12 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 			h.mu.Unlock()
-			log.Printf("WebSocket client disconnected. Total clients: %d", len(h.clients))
+			logging.Info("WebSocket client disconnected", "source", "websocket", "total_clients", len(h.clients))
 
 		case event := <-h.broadcast:
 			data, err := json.Marshal(event)
 			if err != nil {
-				log.Printf("Error marshaling event: %v", err)
+				logging.Error("Error marshaling event", "source", "websocket", "error", err)
 				continue
 			}
 

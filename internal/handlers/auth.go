@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"encoding/json"
-	"log"
 	"net/http"
 	"strings"
 	"sync"
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // AuthHandler handles authentication endpoints
@@ -254,7 +254,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		log.Printf("Failed to persist password change: %v", err)
+		logging.Error("Failed to persist password change", "source", "auth", "error", err)
 	}
 
 	// Invalidate all other sessions for this user
@@ -415,7 +415,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		log.Printf("Failed to persist user creation: %v", err)
+		logging.Error("Failed to persist user creation", "source", "auth", "error", err)
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)
@@ -476,7 +476,7 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		log.Printf("Failed to persist user update: %v", err)
+		logging.Error("Failed to persist user update", "source", "auth", "error", err)
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)
@@ -536,7 +536,7 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		log.Printf("Failed to persist user deletion: %v", err)
+		logging.Error("Failed to persist user deletion", "source", "auth", "error", err)
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)

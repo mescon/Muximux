@@ -7,12 +7,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // OIDCConfig holds OIDC provider configuration
@@ -167,7 +168,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Check for errors from provider
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		errDesc := r.URL.Query().Get("error_description")
-		log.Printf("OIDC authentication error: %s - %s", errParam, errDesc)
+		logging.Error("OIDC authentication error", "source", "auth", "error", errParam, "description", errDesc)
 		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}
@@ -196,7 +197,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Exchange code for tokens
 	tokens, err := p.exchangeCode(code)
 	if err != nil {
-		log.Printf("OIDC code exchange failed: %v", err)
+		logging.Error("OIDC code exchange failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
@@ -204,7 +205,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Get user info
 	userInfo, err := p.getUserInfo(tokens.AccessToken)
 	if err != nil {
-		log.Printf("OIDC user info retrieval failed: %v", err)
+		logging.Error("OIDC user info retrieval failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
