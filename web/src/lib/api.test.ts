@@ -70,6 +70,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
       show_logo: true,
       show_app_colors: true,
       show_icon_background: true,
+      icon_scale: 1,
       show_splash_on_startup: true,
       show_shadow: true,
     },
