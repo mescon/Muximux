@@ -77,6 +77,51 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#0D1F3D',
       group: 'Media',
       description: 'Personal music streaming'
+    },
+    {
+      name: 'Jellyseerr',
+      defaultUrl: 'http://localhost:5055',
+      icon: 'jellyseerr',
+      color: '#763DCD',
+      iconBackground: '#150D2E',
+      group: 'Media',
+      description: 'Media requests for Jellyfin'
+    },
+    {
+      name: 'Audiobookshelf',
+      defaultUrl: 'http://localhost:13378',
+      icon: 'audiobookshelf',
+      color: '#875D27',
+      iconBackground: '#2D1800',
+      group: 'Media',
+      description: 'Audiobook & podcast server'
+    },
+    {
+      name: 'Kavita',
+      defaultUrl: 'http://localhost:5000',
+      icon: 'kavita',
+      color: '#4AC694',
+      iconBackground: '#0D2E1A',
+      group: 'Media',
+      description: 'Comics, manga & ebook reader'
+    },
+    {
+      name: 'Komga',
+      defaultUrl: 'http://localhost:25600',
+      icon: 'komga',
+      color: '#005ED3',
+      iconBackground: '#0D1F3D',
+      group: 'Media',
+      description: 'Comics & manga media server'
+    },
+    {
+      name: 'Calibre-Web',
+      defaultUrl: 'http://localhost:8083',
+      icon: 'calibre-web',
+      color: '#45B29D',
+      iconBackground: '#0D2E1A',
+      group: 'Media',
+      description: 'Ebook library & reader'
     }
   ],
 
@@ -197,6 +242,15 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#2D1800',
       group: 'Downloads',
       description: 'Missing media hunter'
+    },
+    {
+      name: 'Readarr',
+      defaultUrl: 'http://localhost:8787',
+      icon: 'readarr',
+      color: '#8E2222',
+      iconBackground: '#2D0C07',
+      group: 'Downloads',
+      description: 'Book management'
     }
   ],
 
@@ -390,6 +444,87 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#150D2E',
       group: 'System',
       description: 'Plex collections manager'
+    },
+    {
+      name: 'Authentik',
+      defaultUrl: 'http://localhost:9000',
+      icon: 'authentik',
+      color: '#FD4B2D',
+      iconBackground: '#2D0C07',
+      group: 'System',
+      description: 'Identity provider & SSO'
+    },
+    {
+      name: 'Authelia',
+      defaultUrl: 'http://localhost:9091',
+      icon: 'authelia',
+      color: '#3F51B4',
+      iconBackground: '#0D1F3D',
+      group: 'System',
+      description: 'Authentication & 2FA portal'
+    },
+    {
+      name: 'Tailscale',
+      defaultUrl: 'https://login.tailscale.com/admin',
+      icon: 'tailscale',
+      color: '#242424',
+      iconBackground: '#1A1A1A',
+      group: 'System',
+      description: 'Mesh VPN'
+    },
+    {
+      name: 'WireGuard',
+      defaultUrl: 'http://localhost:51821',
+      icon: 'wireguard',
+      color: '#88171A',
+      iconBackground: '#2D0C07',
+      group: 'System',
+      description: 'VPN server'
+    },
+    {
+      name: 'Watchtower',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'watchtower',
+      color: '#003343',
+      iconBackground: '#0D2633',
+      group: 'System',
+      description: 'Automatic Docker updates'
+    },
+    {
+      name: 'CrowdSec',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'crowdsec',
+      color: '#4E4A99',
+      iconBackground: '#150D2E',
+      group: 'System',
+      description: 'Collaborative intrusion prevention'
+    },
+    {
+      name: 'Dozzle',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'dozzle',
+      color: '#F5A623',
+      iconBackground: '#2D2200',
+      group: 'System',
+      description: 'Real-time Docker log viewer'
+    },
+    {
+      name: 'Glances',
+      defaultUrl: 'http://localhost:61208',
+      icon: 'glances',
+      color: '#57CB6A',
+      iconBackground: '#0D2E1A',
+      group: 'System',
+      description: 'System monitoring dashboard'
+    },
+    {
+      name: 'Netdata',
+      defaultUrl: 'http://localhost:19999',
+      icon: 'netdata',
+      color: '#00AB44',
+      iconBackground: '#0D2E1A',
+      group: 'System',
+      description: 'Real-time performance monitoring'
     }
   ],
 
@@ -483,6 +618,90 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconBackground: '#0D1F3D',
       group: 'Utilities',
       description: 'Documentation wiki'
+    },
+    {
+      name: 'Wiki.js',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'wikijs',
+      color: '#02BEF3',
+      iconBackground: '#0D2633',
+      group: 'Utilities',
+      description: 'Modern documentation wiki'
+    },
+    {
+      name: 'Stirling-PDF',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'stirling-pdf',
+      color: '#8E3131',
+      iconBackground: '#2D0C07',
+      group: 'Utilities',
+      description: 'PDF tools & manipulation'
+    },
+    {
+      name: 'IT-Tools',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'it-tools',
+      color: '#18A058',
+      iconBackground: '#0D2E1A',
+      group: 'Utilities',
+      description: 'Developer & sysadmin toolkit'
+    },
+    {
+      name: 'Excalidraw',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'excalidraw',
+      color: '#6965DB',
+      iconBackground: '#150D2E',
+      group: 'Utilities',
+      description: 'Collaborative whiteboard'
+    },
+    {
+      name: 'Changedetection.io',
+      defaultUrl: 'http://localhost:5000',
+      icon: 'changedetection',
+      color: '#3056D3',
+      iconBackground: '#0D1F3D',
+      group: 'Utilities',
+      description: 'Website change monitoring'
+    },
+    {
+      name: 'FreshRSS',
+      defaultUrl: 'http://localhost:8080',
+      icon: 'freshrss',
+      color: '#0062BE',
+      iconBackground: '#0D1F3D',
+      group: 'Utilities',
+      description: 'RSS feed aggregator'
+    },
+    {
+      name: 'Linkding',
+      defaultUrl: 'http://localhost:9090',
+      icon: 'linkding',
+      color: '#5856E0',
+      iconBackground: '#150D2E',
+      group: 'Utilities',
+      description: 'Bookmark manager'
+    }
+  ],
+
+  'AI': [
+    {
+      name: 'Ollama',
+      defaultUrl: 'http://localhost:11434',
+      icon: 'ollama',
+      color: '#000000',
+      iconBackground: '#1A1A1A',
+      group: 'AI',
+      description: 'Local LLM inference server'
+    },
+    {
+      name: 'Open WebUI',
+      defaultUrl: 'http://localhost:3000',
+      icon: 'open-webui',
+      color: '#000000',
+      iconBackground: '#1A1A1A',
+      group: 'AI',
+      description: 'Chat interface for local LLMs'
     }
   ]
 };

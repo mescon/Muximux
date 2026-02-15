@@ -14,6 +14,7 @@ describe('popularApps', () => {
       expect(Object.keys(popularApps)).toContain('Downloads');
       expect(Object.keys(popularApps)).toContain('System');
       expect(Object.keys(popularApps)).toContain('Utilities');
+      expect(Object.keys(popularApps)).toContain('AI');
     });
 
     it('each category has at least one app', () => {
