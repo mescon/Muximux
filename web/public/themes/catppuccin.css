@@ -70,8 +70,8 @@
   /* Text hierarchy */
   --text-primary: #cdd6f4;
   --text-secondary: #bac2de;
-  --text-muted: #b5b9d6;
-  --text-disabled: #7e819b;
+  --text-muted: #a6adc8;
+  --text-disabled: #6c7086;
 
   /* Borders */
   --border-subtle: rgba(205, 214, 244, 0.06);
