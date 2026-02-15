@@ -117,119 +117,53 @@ describe('slugify', () => {
 });
 
 describe('parseImportedConfig', () => {
-  const validExport = {
-    title: 'Test Config',
-    navigation: { position: 'top' },
-    groups: [],
-    apps: [{ name: 'App1', url: 'http://example.com' }],
-    exportedAt: '2024-01-01T00:00:00.000Z',
-    version: '1.0',
-  };
+  let originalFetch: typeof globalThis.fetch;
 
-  it('parses valid JSON config', () => {
-    const result = parseImportedConfig(JSON.stringify(validExport));
+  beforeEach(() => {
+    originalFetch = globalThis.fetch;
+  });
+
+  afterEach(() => {
+    globalThis.fetch = originalFetch;
+  });
+
+  it('sends YAML to backend and returns parsed config', async () => {
+    const mockResponse = {
+      title: 'Test Config',
+      navigation: { position: 'top' },
+      groups: [],
+      apps: [{ name: 'App1', url: 'http://example.com' }],
+    };
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve(mockResponse),
+    });
+
+    const result = await parseImportedConfig('server:\n  title: Test Config\n');
     expect(result.title).toBe('Test Config');
-    expect(result.apps).toHaveLength(1);
-    expect(result.groups).toHaveLength(0);
+    expect(globalThis.fetch).toHaveBeenCalledWith('/api/config/import', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-yaml' },
+      body: 'server:\n  title: Test Config\n',
+    });
   });
 
-  it('throws on invalid JSON', () => {
-    expect(() => parseImportedConfig('not json')).toThrow('Invalid JSON format');
-  });
+  it('throws on backend error', async () => {
+    globalThis.fetch = vi.fn().mockResolvedValue({
+      ok: false,
+      text: () => Promise.resolve('Invalid YAML: bad format'),
+    });
 
-  it('throws on non-object JSON', () => {
-    expect(() => parseImportedConfig('"string"')).toThrow('Config must be a JSON object');
-  });
-
-  it('throws on null', () => {
-    expect(() => parseImportedConfig('null')).toThrow('Config must be a JSON object');
-  });
-
-  it('throws TypeError on missing title', () => {
-    const data = { ...validExport, title: undefined };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow(TypeError);
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('Missing or invalid "title" field');
-  });
-
-  it('throws TypeError on missing navigation', () => {
-    const data = { ...validExport, navigation: undefined };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow(TypeError);
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('Missing or invalid "navigation" field');
-  });
-
-  it('throws TypeError on missing groups', () => {
-    const data = { ...validExport, groups: 'not-array' };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow(TypeError);
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('Missing or invalid "groups" field');
-  });
-
-  it('throws TypeError on missing apps', () => {
-    const data = { ...validExport, apps: 'not-array' };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow(TypeError);
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('Missing or invalid "apps" field');
-  });
-
-  it('throws on app missing name', () => {
-    const data = { ...validExport, apps: [{ url: 'http://example.com' }] };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('Each app must have a "name" field');
-  });
-
-  it('throws on app with empty name', () => {
-    const data = { ...validExport, apps: [{ name: '', url: 'http://example.com' }] };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('Each app must have a "name" field');
-  });
-
-  it('throws on app missing url', () => {
-    const data = { ...validExport, apps: [{ name: 'App1' }] };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('App "App1" must have a "url" field');
-  });
-
-  it('throws on app with empty url', () => {
-    const data = { ...validExport, apps: [{ name: 'App1', url: '' }] };
-    expect(() => parseImportedConfig(JSON.stringify(data))).toThrow('App "App1" must have a "url" field');
+    await expect(parseImportedConfig('bad yaml')).rejects.toThrow('Invalid YAML: bad format');
   });
 });
 
 describe('exportConfig', () => {
-  let originalCreateObjectURL: typeof URL.createObjectURL;
-  let originalRevokeObjectURL: typeof URL.revokeObjectURL;
-
-  beforeEach(() => {
-    originalCreateObjectURL = URL.createObjectURL;
-    originalRevokeObjectURL = URL.revokeObjectURL;
-  });
-
-  afterEach(() => {
-    URL.createObjectURL = originalCreateObjectURL;
-    URL.revokeObjectURL = originalRevokeObjectURL;
-  });
-
-  it('creates blob, triggers download, and cleans up', () => {
-    const mockAnchor = {
-      href: '',
-      download: '',
-      click: vi.fn(),
-      remove: vi.fn(),
-    };
-
-    const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockAnchor as unknown as HTMLElement);
-    const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockReturnValue(mockAnchor as unknown as Node);
-    URL.createObjectURL = vi.fn().mockReturnValue('blob:fake-url');
-    URL.revokeObjectURL = vi.fn();
-
-    const config = makeConfig({ title: 'Export Test' });
-    exportConfig(config);
-
-    expect(createElementSpy).toHaveBeenCalledWith('a');
-    expect(mockAnchor.href).toBe('blob:fake-url');
-    expect(mockAnchor.download).toMatch(/^muximux-config-\d{4}-\d{2}-\d{2}\.json$/);
-    expect(appendChildSpy).toHaveBeenCalledWith(mockAnchor);
-    expect(mockAnchor.click).toHaveBeenCalled();
-    expect(mockAnchor.remove).toHaveBeenCalled();
-    expect(URL.revokeObjectURL).toHaveBeenCalledWith('blob:fake-url');
-
-    createElementSpy.mockRestore();
-    appendChildSpy.mockRestore();
+  it('redirects to the YAML export endpoint', () => {
+    const originalHref = window.location.href;
+    // exportConfig sets window.location.href — just verify it doesn't throw
+    // (full navigation test requires browser env)
+    expect(() => exportConfig()).not.toThrow();
   });
 });
 

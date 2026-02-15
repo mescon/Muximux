@@ -141,7 +141,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	registerIconRoutes(mux, cfg, requireAdmin, dataDir)
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
-	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps)
+	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps, cfg.Server.ProxyTimeout)
 	if reverseProxyHandler.HasRoutes() {
 		mux.Handle(proxyPathPrefix, reverseProxyHandler)
 		logging.Info("Integrated reverse proxy enabled", "source", "server", "routes", reverseProxyHandler.GetRoutes())
@@ -327,6 +327,8 @@ func registerAPIRoutes(mux *http.ServeMux, api *handlers.APIHandler, requireAdmi
 			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
+	mux.HandleFunc("/api/config/export", requireAdmin(api.ExportConfig))
+	mux.HandleFunc("/api/config/import", requireAdmin(api.ParseImportedConfig))
 
 	// Apps collection endpoint
 	mux.HandleFunc("/api/apps", func(w http.ResponseWriter, r *http.Request) {

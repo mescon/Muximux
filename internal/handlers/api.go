@@ -2,11 +2,15 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
+	"gopkg.in/yaml.v3"
 )
 
 // APIHandler handles API requests
@@ -48,16 +52,84 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
 }
 
+// ExportConfig returns the full configuration as a downloadable YAML file,
+// with sensitive auth fields (password hashes, secrets, API keys) stripped.
+func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
+	h.mu.RLock()
+	cfg := *h.config
+	h.mu.RUnlock()
+
+	// Strip sensitive auth data
+	for i := range cfg.Auth.Users {
+		cfg.Auth.Users[i].PasswordHash = ""
+	}
+	cfg.Auth.APIKey = ""
+	cfg.Auth.OIDC.ClientSecret = ""
+
+	data, err := yaml.Marshal(&cfg)
+	if err != nil {
+		http.Error(w, "Failed to marshal config", http.StatusInternalServerError)
+		return
+	}
+
+	filename := fmt.Sprintf("muximux-config-%s.yaml", time.Now().Format("2006-01-02"))
+	w.Header().Set("Content-Type", "application/x-yaml")
+	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
+	w.Write(data)
+}
+
+// ParseImportedConfig accepts a YAML config file via POST, validates it, and
+// returns the parsed config as JSON so the frontend can preview before applying.
+func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		return
+	}
+
+	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20)) // 1 MB limit
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+
+	var cfg config.Config
+	if err := yaml.Unmarshal(body, &cfg); err != nil {
+		http.Error(w, fmt.Sprintf("Invalid YAML: %s", err.Error()), http.StatusBadRequest)
+		return
+	}
+
+	if len(cfg.Apps) == 0 {
+		http.Error(w, "Config must contain at least one app", http.StatusBadRequest)
+		return
+	}
+
+	for _, app := range cfg.Apps {
+		if app.Name == "" {
+			http.Error(w, "Each app must have a name", http.StatusBadRequest)
+			return
+		}
+		if app.URL == "" {
+			http.Error(w, fmt.Sprintf("App %q must have a URL", app.Name), http.StatusBadRequest)
+			return
+		}
+	}
+
+	// Return as the same sanitized JSON format the frontend expects
+	w.Header().Set(headerContentType, contentTypeJSON)
+	json.NewEncoder(w).Encode(buildClientConfigResponse(&cfg))
+}
+
 // clientConfigResponse is the sanitized config structure sent to the frontend.
 type clientConfigResponse struct {
-	Title       string                    `json:"title"`
-	LogLevel    string                    `json:"log_level"`
-	Navigation  config.NavigationConfig   `json:"navigation"`
-	Theme       config.ThemeConfig        `json:"theme"`
-	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
-	Auth        *clientAuthConfig         `json:"auth,omitempty"`
-	Groups      []config.GroupConfig      `json:"groups"`
-	Apps        []ClientAppConfig         `json:"apps"`
+	Title        string                    `json:"title"`
+	LogLevel     string                    `json:"log_level"`
+	ProxyTimeout string                    `json:"proxy_timeout,omitempty"`
+	Navigation   config.NavigationConfig   `json:"navigation"`
+	Theme        config.ThemeConfig        `json:"theme"`
+	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Auth         *clientAuthConfig         `json:"auth,omitempty"`
+	Groups       []config.GroupConfig      `json:"groups"`
+	Apps         []ClientAppConfig         `json:"apps"`
 }
 
 // clientAuthConfig is the sanitized auth config sent to the frontend.
@@ -71,12 +143,13 @@ type clientAuthConfig struct {
 // buildClientConfigResponse creates a sanitized config response from the server config.
 func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 	resp := clientConfigResponse{
-		Title:      cfg.Server.Title,
-		LogLevel:   cfg.Server.LogLevel,
-		Navigation: cfg.Navigation,
-		Theme:      cfg.Theme,
-		Groups:     cfg.Groups,
-		Apps:       sanitizeApps(cfg.Apps),
+		Title:        cfg.Server.Title,
+		LogLevel:     cfg.Server.LogLevel,
+		ProxyTimeout: cfg.Server.ProxyTimeout,
+		Navigation:   cfg.Navigation,
+		Theme:        cfg.Theme,
+		Groups:       cfg.Groups,
+		Apps:         sanitizeApps(cfg.Apps),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -96,13 +169,14 @@ func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 
 // ClientConfigUpdate represents the configuration update from the frontend
 type ClientConfigUpdate struct {
-	Title       string                    `json:"title"`
-	LogLevel    string                    `json:"log_level"`
-	Navigation  config.NavigationConfig   `json:"navigation"`
-	Theme       config.ThemeConfig        `json:"theme"`
-	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
-	Groups      []config.GroupConfig      `json:"groups"`
-	Apps        []ClientAppConfig         `json:"apps"`
+	Title        string                    `json:"title"`
+	LogLevel     string                    `json:"log_level"`
+	ProxyTimeout string                    `json:"proxy_timeout"`
+	Navigation   config.NavigationConfig   `json:"navigation"`
+	Theme        config.ThemeConfig        `json:"theme"`
+	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Groups       []config.GroupConfig      `json:"groups"`
+	Apps         []ClientAppConfig         `json:"apps"`
 }
 
 // SaveConfig updates and saves the configuration
@@ -132,6 +206,12 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	logging.Info("Configuration saved successfully", "source", "config")
 
+	// Apply log level change at runtime
+	if h.config.Server.LogLevel != "" {
+		logging.SetLevel(logging.Level(h.config.Server.LogLevel))
+		logging.Info("Log level changed", "source", "config", "level", h.config.Server.LogLevel)
+	}
+
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
 }
@@ -141,6 +221,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	cfg.Server.Title = update.Title
 	cfg.Server.LogLevel = update.LogLevel
+	if update.ProxyTimeout != "" {
+		cfg.Server.ProxyTimeout = update.ProxyTimeout
+	}
 	cfg.Navigation = update.Navigation
 	cfg.Theme = update.Theme
 	cfg.Groups = update.Groups
@@ -184,6 +267,8 @@ func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.Ap
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
+		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 	}
@@ -265,6 +350,8 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
+		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 	}
@@ -323,6 +410,8 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
+		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 		AuthBypass:               existing.AuthBypass,
@@ -521,6 +610,8 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 		Default:                  app.Default,
 		OpenMode:                 app.OpenMode,
 		Proxy:                    app.Proxy,
+		ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
+		ProxyHeaders:             app.ProxyHeaders,
 		Scale:                    app.Scale,
 		DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 	}
@@ -529,8 +620,8 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
 	Name                     string               `json:"name"`
-	URL                      string               `json:"url"`                // Original target URL (for editing/config)
-	ProxyURL                 string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
+	URL                      string               `json:"url"`                              // Original target URL (for editing/config)
+	ProxyURL                 string               `json:"proxyUrl,omitempty"`               // Proxy path for iframe loading (when proxy enabled)
 	Icon                     config.AppIconConfig `json:"icon"`
 	Color                    string               `json:"color"`
 	Group                    string               `json:"group"`
@@ -539,6 +630,8 @@ type ClientAppConfig struct {
 	Default                  bool                 `json:"default"`
 	OpenMode                 string               `json:"open_mode"`
 	Proxy                    bool                 `json:"proxy"`
+	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"`  // nil = true (default)
+	ProxyHeaders             map[string]string    `json:"proxy_headers,omitempty"`
 	Scale                    float64              `json:"scale"`
 	DisableKeyboardShortcuts bool                 `json:"disable_keyboard_shortcuts"`
 }
@@ -570,6 +663,8 @@ func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
 			Default:                  app.Default,
 			OpenMode:                 app.OpenMode,
 			Proxy:                    app.Proxy,
+			ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
+			ProxyHeaders:             app.ProxyHeaders,
 			Scale:                    app.Scale,
 			DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 		})
