@@ -113,6 +113,7 @@ export async function logout(): Promise<void> {
   try {
     await fetch(`${API_BASE}/logout`, {
       method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
     });
   } catch (e) {
     console.error('Logout error:', e);

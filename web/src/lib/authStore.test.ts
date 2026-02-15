@@ -194,6 +194,7 @@ describe('authStore', () => {
 
       expect(mockFetch).toHaveBeenCalledWith('/api/auth/logout', {
         method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
       });
     });
 
