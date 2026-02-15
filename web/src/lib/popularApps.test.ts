@@ -77,6 +77,7 @@ describe('popularApps', () => {
       defaultUrl: 'http://localhost:32400/web',
       icon: 'plex',
       color: '#E5A00D',
+      iconBackground: '#2D2200',
       group: 'Media',
       description: 'Stream your media library',
     };
@@ -117,6 +118,7 @@ describe('popularApps', () => {
       expect(app.icon.file).toBe('');
       expect(app.icon.url).toBe('');
       expect(app.icon.variant).toBe('svg');
+      expect(app.icon.background).toBe('#2D2200');
     });
   });
 });
