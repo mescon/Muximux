@@ -123,7 +123,6 @@ type BroadcastHandler struct {
 	inner  slog.Handler
 	buffer *LogBuffer
 	attrs  []slog.Attr
-	groups []string
 }
 
 // NewBroadcastHandler wraps an existing slog.Handler to also write to a LogBuffer.
@@ -161,7 +160,7 @@ func (h *BroadcastHandler) Handle(ctx context.Context, r slog.Record) error {
 
 	entry := LogEntry{
 		Timestamp: r.Time,
-		Level:     r.Level.String(),
+		Level:     strings.ToLower(r.Level.String()),
 		Message:   r.Message,
 		Source:    source,
 	}
@@ -175,7 +174,6 @@ func (h *BroadcastHandler) WithAttrs(attrs []slog.Attr) slog.Handler {
 		inner:  h.inner.WithAttrs(attrs),
 		buffer: h.buffer,
 		attrs:  append(append([]slog.Attr{}, h.attrs...), attrs...),
-		groups: h.groups,
 	}
 }
 
@@ -184,7 +182,6 @@ func (h *BroadcastHandler) WithGroup(name string) slog.Handler {
 		inner:  h.inner.WithGroup(name),
 		buffer: h.buffer,
 		attrs:  h.attrs,
-		groups: append(append([]string{}, h.groups...), name),
 	}
 }
 

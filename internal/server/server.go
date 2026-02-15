@@ -789,12 +789,14 @@ func (s *Server) Start() error {
 	go s.wsHub.Run()
 
 	// Bridge log entries to WebSocket
-	logCh := logging.Buffer().Subscribe()
-	go func() {
-		for entry := range logCh {
-			s.wsHub.BroadcastLogEntry(entry)
-		}
-	}()
+	if buf := logging.Buffer(); buf != nil {
+		logCh := buf.Subscribe()
+		go func() {
+			for entry := range logCh {
+				s.wsHub.BroadcastLogEntry(entry)
+			}
+		}()
+	}
 
 	// Start health monitoring if enabled
 	if s.healthMonitor != nil {

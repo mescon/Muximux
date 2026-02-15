@@ -1,7 +1,7 @@
 <script lang="ts">
-  import { onMount, tick } from 'svelte';
+  import { tick } from 'svelte';
   import type { LogEntry } from '$lib/types';
-  import { logEntries, loadLogHistory, clearLogs } from '$lib/logStore';
+  import { logEntries, clearLogs } from '$lib/logStore';
 
   let { onclose }: { onclose?: () => void } = $props();
 
@@ -133,19 +133,10 @@
   }
 
   function levelBtnClass(level: string): string {
-    const enabled = enabledLevels[level];
-    switch (level) {
-      case 'debug': return enabled ? 'log-btn-debug-active' : 'log-btn-inactive';
-      case 'info': return enabled ? 'log-btn-info-active' : 'log-btn-inactive';
-      case 'warn': return enabled ? 'log-btn-warn-active' : 'log-btn-inactive';
-      case 'error': return enabled ? 'log-btn-error-active' : 'log-btn-inactive';
-      default: return 'log-btn-inactive';
-    }
+    if (!enabledLevels[level]) return 'log-btn-inactive';
+    return `log-btn-${level}-active`;
   }
 
-  onMount(() => {
-    loadLogHistory();
-  });
 </script>
 
 <div class="log-viewer">

@@ -116,7 +116,10 @@ export function disconnect(): void {
 
 // Handle incoming events
 function handleEvent(event: WebSocketEvent): void {
-  console.log('WebSocket event:', event.type, event.payload);
+  // Skip verbose logging for high-frequency log_entry events
+  if (event.type !== 'log_entry') {
+    console.log('WebSocket event:', event.type, event.payload);
+  }
 
   // Built-in event handling
   switch (event.type) {

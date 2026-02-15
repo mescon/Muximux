@@ -25,6 +25,13 @@ func (h *LogsHandler) GetRecent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	buf := logging.Buffer()
+	if buf == nil {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode([]logging.LogEntry{})
+		return
+	}
+
 	limit := 200
 	if l := r.URL.Query().Get("limit"); l != "" {
 		if parsed, err := strconv.Atoi(l); err == nil && parsed > 0 {
@@ -32,12 +39,11 @@ func (h *LogsHandler) GetRecent(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	entries := logging.Buffer().Recent(limit)
+	entries := buf.Recent(limit)
 
 	// Optional filtering by level
 	if levelFilter := r.URL.Query().Get("level"); levelFilter != "" {
-		levelFilter = strings.ToUpper(levelFilter)
-		filtered := make([]logging.LogEntry, 0)
+		filtered := make([]logging.LogEntry, 0, len(entries))
 		for _, e := range entries {
 			if strings.EqualFold(e.Level, levelFilter) {
 				filtered = append(filtered, e)
@@ -48,7 +54,7 @@ func (h *LogsHandler) GetRecent(w http.ResponseWriter, r *http.Request) {
 
 	// Optional filtering by source
 	if sourceFilter := r.URL.Query().Get("source"); sourceFilter != "" {
-		filtered := make([]logging.LogEntry, 0)
+		filtered := make([]logging.LogEntry, 0, len(entries))
 		for _, e := range entries {
 			if strings.EqualFold(e.Source, sourceFilter) {
 				filtered = append(filtered, e)
