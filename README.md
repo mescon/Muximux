@@ -150,7 +150,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Navigation** | 5 positions (top, left, right, bottom, floating), auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Configurable keybindings for switching apps, toggling navigation, search |
-| **Themes** | Built-in light/dark modes, Dracula, Catppuccin, and custom themes via CSS custom properties |
+| **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Plex, Rose Pine) with dark/light variants, plus custom themes via CSS |
 | **Config Export/Import** | Export config as YAML, import to preview and apply - sensitive data stripped on export |
 | **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |

@@ -15,6 +15,8 @@ apps:
       type: dashboard               # dashboard, lucide, custom, or url
       name: sonarr                   # Icon name from chosen source
       variant: light                 # light or dark (dashboard icons only)
+      file: ""                      # Filename (for type: custom)
+      url: ""                       # URL (for type: url)
       color: "#ff9600"              # Optional icon tint color
       background: "#ffffff"          # Optional icon background
     color: "#3498db"                # App accent color (used in nav)
@@ -24,8 +26,14 @@ apps:
     default: false                  # Load this app on startup
     open_mode: iframe               # How to open (see below)
     proxy: true                     # Route through built-in reverse proxy
+    proxy_skip_tls_verify: true     # Skip TLS cert verification for proxy (default: true)
+    proxy_headers:                  # Custom headers sent to the backend
+      X-Api-Key: "your-key"
     scale: 1.0                      # Zoom level for iframe (0.5 - 2.0)
     disable_keyboard_shortcuts: false # Disable global shortcuts when this app is active
+    access:                         # Restrict access to specific roles/users
+      roles: []
+      users: []
 ```
 
 Most fields are optional. A minimal app definition only needs `name` and `url`:

@@ -35,6 +35,7 @@ server:
 # ─── Authentication ─────────────────────────────
 auth:
   method: none                 # none, builtin, forward_auth, oidc
+  setup_complete: false        # Set automatically after onboarding wizard completes
 
   session_max_age: 24h         # Session duration (default: 24h)
   secure_cookies: false        # Require HTTPS for session cookies
@@ -80,7 +81,7 @@ navigation:
   position: top                # top, left, right, bottom, floating
   width: 220px                 # Sidebar width
   auto_hide: false
-  auto_hide_delay: 3s
+  auto_hide_delay: 0.5s
   show_on_hover: true
   show_labels: true
   show_logo: true
@@ -88,6 +89,7 @@ navigation:
   show_icon_background: true
   show_splash_on_startup: false
   show_shadow: true
+  icon_scale: 1.0              # Icon zoom multiplier
 
 # ─── Icons ──────────────────────────────────────
 icons:
@@ -126,6 +128,8 @@ apps:
       type: dashboard
       name: plex
       variant: light
+      file: ""                 # Filename for type: custom
+      url: ""                  # URL for type: url
       color: ""
       background: ""
     color: "#e5a00d"

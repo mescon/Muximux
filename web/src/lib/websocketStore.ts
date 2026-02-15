@@ -51,20 +51,17 @@ export function connect(): void {
     ws = new WebSocket(url);
 
     ws.onopen = () => {
-      console.log('WebSocket connected');
       connectionState.set('connected');
       reconnectAttempts = 0;
     };
 
-    ws.onclose = (event) => {
-      console.log('WebSocket disconnected', event.code, event.reason);
+    ws.onclose = () => {
       connectionState.set('disconnected');
       ws = null;
 
       // Attempt to reconnect
       if (reconnectAttempts < maxReconnectAttempts) {
         const delay = getReconnectDelay();
-        console.log(`Reconnecting in ${Math.round(delay / 1000)}s...`);
         reconnectTimeout = setTimeout(() => {
           reconnectAttempts++;
           connect();
@@ -116,11 +113,6 @@ export function disconnect(): void {
 
 // Handle incoming events
 function handleEvent(event: WebSocketEvent): void {
-  // Skip verbose logging for high-frequency log_entry events
-  if (event.type !== 'log_entry') {
-    console.log('WebSocket event:', event.type, event.payload);
-  }
-
   // Built-in event handling
   switch (event.type) {
     case 'health_changed':

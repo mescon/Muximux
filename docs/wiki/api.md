@@ -22,6 +22,7 @@ When authentication is enabled, most endpoints require a valid session cookie or
 | `/api/auth/users/{username}` | PUT | Admin | Update user role/email/display name |
 | `/api/auth/users/{username}` | DELETE | Admin | Delete a user |
 | `/api/auth/method` | PUT | Admin | Switch authentication method |
+| `/api/auth/setup` | POST | No | Initial setup (onboarding wizard) |
 | `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider |
 | `/api/auth/oidc/callback` | GET | No | OIDC callback handler |
 
@@ -298,6 +299,40 @@ Logs are stored in a 1000-entry ring buffer. When the buffer is full, the oldest
 
 ---
 
+## System
+
+| Endpoint | Method | Auth Required | Description |
+|----------|--------|---------------|-------------|
+| `/api/system/info` | GET | No | Get system information |
+| `/api/system/updates` | GET | No | Check for available updates |
+
+**System info response:**
+```json
+{
+  "version": "3.0.0",
+  "commit": "abc1234",
+  "build_date": "2025-01-15T00:00:00Z",
+  "go_version": "go1.26.0",
+  "os": "linux",
+  "arch": "amd64",
+  "uptime": "2d 5h 30m",
+  "environment": "docker"
+}
+```
+
+**Update check response:**
+```json
+{
+  "current_version": "3.0.0",
+  "latest_version": "3.1.0",
+  "update_available": true,
+  "release_url": "https://github.com/mescon/Muximux/releases/tag/v3.1.0",
+  "changelog": "..."
+}
+```
+
+---
+
 ## Proxy Status
 
 | Endpoint | Method | Description |
@@ -345,6 +380,9 @@ The WebSocket client automatically reconnects if the connection drops, using exp
 
 ## Rate Limiting
 
-The login endpoint (`POST /api/auth/login`) is rate-limited to **5 attempts per IP address per minute** to prevent brute-force attacks. If the limit is exceeded, the endpoint returns HTTP 429 (Too Many Requests).
+The following endpoints are rate-limited to **5 attempts per IP address per minute** to prevent brute-force attacks. If the limit is exceeded, the endpoint returns HTTP 429 (Too Many Requests).
+
+- `POST /api/auth/login` -- Login attempts
+- `POST /api/auth/setup` -- Initial setup attempts
 
 Other API endpoints are not rate-limited.

@@ -16,10 +16,17 @@ This is the authoritative source of truth and syncs across all browsers and devi
 
 ## Built-in Themes
 
-Muximux ships with two built-in themes:
+Muximux ships with multiple built-in theme families, each with dark and light variants:
 
-- **Dark** -- Deep charcoal background with teal accents. This is the default theme.
-- **Light** -- Clean and bright with subtle shadows for depth.
+- **Default** -- Deep charcoal (dark) or clean and bright (light) with teal accents. This is the default theme.
+- **Nord** -- Arctic, blue-grey palette inspired by the Nord color scheme.
+- **Dracula** -- Dark purple tones from the popular Dracula theme.
+- **Catppuccin** -- Warm, pastel tones from the Catppuccin palette.
+- **Solarized** -- Ethan Schoonover's precision-crafted color scheme.
+- **Tokyo Night** -- Inspired by Tokyo city lights at night.
+- **Gruvbox** -- Retro groove with warm, earthy colors.
+- **Plex** -- Inspired by the Plex media player interface.
+- **Rose Pine** -- Soft, muted tones with a natural feel.
 
 Built-in themes cannot be deleted.
 
