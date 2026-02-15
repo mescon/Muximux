@@ -336,8 +336,11 @@ func TestDashboardClient_ListIcons(t *testing.T) {
 	treeResponse := map[string]interface{}{
 		"tree": []map[string]string{
 			{"path": "svg/plex.svg", "type": "blob"},
-			{"path": "svg/sonarr.svg", "type": "blob"},
 			{"path": "png/plex.png", "type": "blob"},
+			{"path": "webp/plex.webp", "type": "blob"},
+			{"path": "svg/sonarr.svg", "type": "blob"},
+			{"path": "png/sonarr.png", "type": "blob"},
+			{"path": "webp/sonarr.webp", "type": "blob"},
 			{"path": "README.md", "type": "blob"},
 			{"path": "svg", "type": "tree"},
 		},
