@@ -51,6 +51,7 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 // clientConfigResponse is the sanitized config structure sent to the frontend.
 type clientConfigResponse struct {
 	Title       string                    `json:"title"`
+	LogLevel    string                    `json:"log_level"`
 	Navigation  config.NavigationConfig   `json:"navigation"`
 	Theme       config.ThemeConfig        `json:"theme"`
 	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
@@ -71,6 +72,7 @@ type clientAuthConfig struct {
 func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 	resp := clientConfigResponse{
 		Title:      cfg.Server.Title,
+		LogLevel:   cfg.Server.LogLevel,
 		Navigation: cfg.Navigation,
 		Theme:      cfg.Theme,
 		Groups:     cfg.Groups,
@@ -95,6 +97,7 @@ func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 // ClientConfigUpdate represents the configuration update from the frontend
 type ClientConfigUpdate struct {
 	Title       string                    `json:"title"`
+	LogLevel    string                    `json:"log_level"`
 	Navigation  config.NavigationConfig   `json:"navigation"`
 	Theme       config.ThemeConfig        `json:"theme"`
 	Keybindings *config.KeybindingsConfig `json:"keybindings,omitempty"`
@@ -137,6 +140,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 // preserving sensitive fields (auth bypass, access rules, original proxy URLs).
 func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	cfg.Server.Title = update.Title
+	cfg.Server.LogLevel = update.LogLevel
 	cfg.Navigation = update.Navigation
 	cfg.Theme = update.Theme
 	cfg.Groups = update.Groups
