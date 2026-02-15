@@ -12,6 +12,16 @@ linters:
     - nilerr
     - unconvert
     - unparam
+  settings:
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - performance
+    gosec:
+      excludes:
+        - G104
+        - G304
+        - G402
   exclusions:
     generated: lax
     presets:
@@ -30,16 +40,6 @@ linters:
       - third_party$
       - builtin$
       - examples$
-linters-settings:
-  gocritic:
-    enabled-tags:
-      - diagnostic
-      - performance
-  gosec:
-    excludes:
-      - G104  # unhandled errors on deferred Close()
-      - G304  # file path from variable (validated)
-      - G402  # TLS InsecureSkipVerify (user-configurable per app)
 formatters:
   enable:
     - gofmt
