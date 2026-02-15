@@ -14,6 +14,7 @@ const (
 	EventConfigUpdated    EventType = "config_updated"
 	EventHealthChanged    EventType = "health_changed"
 	EventAppHealthChanged EventType = "app_health_changed"
+	EventLogEntry         EventType = "log_entry"
 )
 
 // Event represents a WebSocket event
@@ -125,6 +126,14 @@ func (h *Hub) BroadcastAppHealthUpdate(appName string, health interface{}) {
 			"app":    appName,
 			"health": health,
 		},
+	})
+}
+
+// BroadcastLogEntry sends a log entry event to all connected clients
+func (h *Hub) BroadcastLogEntry(entry interface{}) {
+	h.Broadcast(Event{
+		Type:    EventLogEntry,
+		Payload: entry,
 	})
 }
 

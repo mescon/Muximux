@@ -126,6 +126,10 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.HandleFunc("/api/system/info", systemHandler.GetInfo)
 	mux.HandleFunc("/api/system/updates", systemHandler.CheckUpdate)
 
+	// Logs endpoint
+	logsHandler := handlers.NewLogsHandler()
+	mux.HandleFunc("/api/logs/recent", logsHandler.GetRecent)
+
 	// Forward-declare so /themes/ handler closure can reference it
 	var staticHandler http.Handler
 
@@ -593,7 +597,8 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 		if r.Method == http.MethodGet {
 			if path == "/api/themes" ||
 				strings.HasPrefix(path, "/api/icons/") ||
-				strings.HasPrefix(path, "/api/system/") {
+				strings.HasPrefix(path, "/api/system/") ||
+				strings.HasPrefix(path, "/api/logs/") {
 				next.ServeHTTP(w, r)
 				return
 			}
@@ -782,6 +787,14 @@ func (s *Server) setupNone() {
 func (s *Server) Start() error {
 	// Start WebSocket hub
 	go s.wsHub.Run()
+
+	// Bridge log entries to WebSocket
+	logCh := logging.Buffer().Subscribe()
+	go func() {
+		for entry := range logCh {
+			s.wsHub.BroadcastLogEntry(entry)
+		}
+	}()
 
 	// Start health monitoring if enabled
 	if s.healthMonitor != nil {
