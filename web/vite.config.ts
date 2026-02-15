@@ -13,6 +13,7 @@ export default defineConfig({
   build: {
     outDir: '../internal/server/dist',
     emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
   },
   server: {
     proxy: {

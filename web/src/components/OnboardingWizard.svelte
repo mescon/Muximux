@@ -66,7 +66,7 @@
   ];
 
   // Groups editing state — each group gets a stable id for keyed-each
-  type WizardGroup = Group & { _id: string };
+  type WizardGroup = Group & { id: string };
   let groupIdCounter = 0;
   let wizardGroups = $state<WizardGroup[]>([]);
   let iconBrowserContext = $state<'app-override' | number | null>(null);
@@ -85,9 +85,9 @@
 
   const flipDurationMs = 200;
 
-  // Unified DnD state: '' key = unsorted, group name keys = grouped apps
+  // Unified DnD state: group name keys = grouped apps
   type DndItem = {id: string; name: string};
-  let dndApps = $state<Record<string, DndItem[]>>({'': []});
+  let dndApps = $state<Record<string, DndItem[]>>({});
 
   // Security step state
   let authMethod = $state<'builtin' | 'forward_auth' | 'none' | null>(null);
@@ -185,47 +185,13 @@
     detectCustomThemes();
   });
 
-  // Toggle app selection — first click selects, subsequent clicks add another instance
+  // Toggle app selection on/off
   function toggleApp(app: PopularAppTemplate) {
     const current = appSelections.get(app.name);
     if (current) {
-      if (!current.selected) {
-        // First select
-        appSelections.set(app.name, { ...current, selected: true });
-        rebuildDndFromSelections();
-      } else {
-        // Already selected — add another instance
-        addInstanceOf(app);
-      }
+      appSelections.set(app.name, { ...current, selected: !current.selected });
+      rebuildDndFromSelections();
     }
-  }
-
-  // Add a numbered duplicate of a popular app template
-  function addInstanceOf(app: PopularAppTemplate) {
-    const allNames = new SvelteSet<string>();
-    appSelections.forEach((v, k) => { if (v.selected) allNames.add(k); });
-    get(selectedApps).forEach(a => allNames.add(a.name));
-
-    let num = 2;
-    while (allNames.has(`${app.name} ${num}`)) num++;
-
-    const newApp: App = {
-      name: `${app.name} ${num}`,
-      url: app.defaultUrl,
-      icon: { type: 'dashboard', name: app.icon, file: '', url: '', variant: 'svg' },
-      color: app.color,
-      group: '',
-      order: selectedCount + get(selectedApps).length,
-      enabled: true,
-      default: false,
-      open_mode: 'iframe',
-      proxy: false,
-      scale: 1,
-      disable_keyboard_shortcuts: false
-    };
-
-    selectedApps.update(apps => [...apps, newApp]);
-    rebuildDndFromSelections();
   }
 
   // Get app URL (popular or custom)
@@ -269,18 +235,27 @@
     'Media': 'play',
     'Downloads': 'download',
     'System': 'server',
-    'Utilities': 'wrench'
+    'Utilities': 'wrench',
+    'AI': 'brain',
+    'Other': 'folder'
   };
 
-  // Auto-add groups when new categories appear from selected apps
+  // Auto-add groups when new categories appear from selected apps or custom apps need "Other"
   $effect(() => {
     const existingNames = new Set(wizardGroups.map(g => g.name));
     const toAdd = suggestedGroups.filter(name => !existingNames.has(name));
+
+    // Check if custom apps exist that need an "Other" group
+    const hasCustomApps = get(selectedApps).length > 0;
+    if (hasCustomApps && !existingNames.has('Other') && !toAdd.includes('Other') && wizardGroups.length === 0) {
+      toAdd.push('Other');
+    }
+
     if (toAdd.length > 0) {
       wizardGroups = [
         ...wizardGroups,
         ...toAdd.map((name, i) => ({
-          _id: `grp-${++groupIdCounter}`,
+          id: `grp-${++groupIdCounter}`,
           name,
           icon: { type: 'lucide' as const, name: defaultGroupIcons[name] || '', file: '', url: '', variant: 'svg' },
           color: getGroupColor(name),
@@ -434,25 +409,36 @@
   function deleteGroup(index: number) {
     const groupName = wizardGroups[index].name;
     if (dndApps[groupName]) {
-      // Move group's apps to unsorted, skipping any that are already there
-      const existingIds = new Set(dndApps[''].map(item => item.id));
-      const toMove = dndApps[groupName].filter(item => !existingIds.has(item.id));
-      dndApps[''] = [...dndApps[''], ...toMove];
+      // Deselect all apps in this group
+      for (const item of dndApps[groupName]) {
+        const sel = appSelections.get(item.name);
+        if (sel) {
+          appSelections.set(item.name, { ...sel, selected: false });
+        }
+        // Remove from custom apps store too
+        selectedApps.update(apps => apps.filter(a => a.name !== item.name));
+      }
       delete dndApps[groupName];
     }
     wizardGroups = wizardGroups.filter((_, i) => i !== index);
   }
 
   function addGroup() {
+    const existingNames = new Set(wizardGroups.map(g => g.name));
+    let name = 'New Group';
+    let num = 2;
+    while (existingNames.has(name)) {
+      name = `New Group ${num++}`;
+    }
     wizardGroups = [...wizardGroups, {
-      _id: `grp-${++groupIdCounter}`,
-      name: 'New Group',
+      id: `grp-${++groupIdCounter}`,
+      name,
       icon: { type: 'lucide' as const, name: '', file: '', url: '', variant: '' },
       color: '#22c55e',
       order: wizardGroups.length,
       expanded: true
     }];
-    dndApps['New Group'] = [];
+    dndApps[name] = [];
   }
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
@@ -507,7 +493,7 @@
       }
     }
 
-    // Assign groups based on DnD state ('' key = ungrouped)
+    // Assign groups based on DnD state
     for (const [groupName, items] of Object.entries(dndApps)) {
       for (const item of items) {
         const app = apps.find(a => a.name === item.name);
@@ -521,7 +507,7 @@
     }
 
     // Build groups from wizard state (strip internal _id)
-    const groups: Group[] = wizardGroups.map(({ _id, ...g }, i) => ({ ...g, order: i }));
+    const groups: Group[] = wizardGroups.map(({ id, ...g }, i) => ({ ...g, order: i }));
 
     // Build navigation config
     const navigation: NavigationConfig = {
@@ -557,39 +543,48 @@
       allSelected.add(app.name);
     }
 
-    // First, remove deselected apps from ALL zones and deduplicate
+    // Remove deselected apps from ALL zones and deduplicate
     for (const groupName of Object.keys(dndApps)) {
       dndApps[groupName] = dedup(dndApps[groupName].filter(item => allSelected.has(item.name)));
     }
 
-    // Track which apps are placed in any group (not unsorted)
-    const placedInGroup = new SvelteSet<string>();
-    for (const [key, items] of Object.entries(dndApps)) {
-      if (key !== '') {
-        for (const item of items) placedInGroup.add(item.name);
-      }
+    // Track which apps are already placed in a group
+    const placed = new SvelteSet<string>();
+    for (const items of Object.values(dndApps)) {
+      for (const item of items) placed.add(item.name);
     }
 
-    // Remove from unsorted anything that's now in a group, then add new unplaced apps
-    const unsortedIds = new Set(dndApps[''].map(item => item.id));
-    dndApps[''] = dndApps[''].filter(item => !placedInGroup.has(item.name));
+    // Place unplaced apps into their matching category group
     for (const name of allSelected) {
-      if (!placedInGroup.has(name) && !unsortedIds.has(name)) {
-        dndApps[''].push({ id: name, name });
+      if (placed.has(name)) continue;
+
+      // Find the template to determine group
+      const template = Object.values(popularApps).flat().find(a => a.name === name);
+      const targetGroup = template?.group || null;
+
+      if (targetGroup) {
+        // Ensure the group bucket exists (the $effect will auto-create the wizardGroup entry)
+        if (!dndApps[targetGroup]) dndApps[targetGroup] = [];
+        dndApps[targetGroup].push({ id: name, name });
+      } else {
+        // Custom app: use first existing group, or create "Other"
+        const firstGroup = wizardGroups.length > 0 ? wizardGroups[0].name : 'Other';
+        if (!dndApps[firstGroup]) dndApps[firstGroup] = [];
+        dndApps[firstGroup].push({ id: name, name });
       }
     }
 
-    // Ensure group buckets exist
+    // Ensure group buckets exist for all wizard groups
     for (const group of wizardGroups) {
       if (!dndApps[group.name]) {
         dndApps[group.name] = [];
       }
     }
 
-    // Remove stale group buckets
+    // Remove stale group buckets (no matching wizardGroup and empty)
     const validGroupNames = new SvelteSet(wizardGroups.map(g => g.name));
     for (const key of Object.keys(dndApps)) {
-      if (key !== '' && !validGroupNames.has(key)) {
+      if (!validGroupNames.has(key) && (!dndApps[key] || dndApps[key].length === 0)) {
         delete dndApps[key];
       }
     }
@@ -613,12 +608,22 @@
     dndApps[groupName] = dedup(e.detail.items);
   }
 
+  // Group reordering via DnD
+  function handleGroupDndConsider(e: CustomEvent<DndEvent<WizardGroup>>) {
+    wizardGroups = e.detail.items;
+  }
+  function handleGroupDndFinalize(e: CustomEvent<DndEvent<WizardGroup>>) {
+    wizardGroups = e.detail.items;
+  }
+
   function getGroupColor(group: string): string {
     const colors: Record<string, string> = {
       'Media': '#E5A00D',
       'Downloads': '#00CCFF',
       'System': '#F46800',
-      'Utilities': '#0082C9'
+      'Utilities': '#0082C9',
+      'AI': '#A855F7',
+      'Other': '#22c55e'
     };
     return colors[group] || '#22c55e';
   }
@@ -705,6 +710,31 @@
     // Remove from DnD state
     for (const key of Object.keys(dndApps)) {
       dndApps[key] = dndApps[key].filter(item => item.name !== appName);
+    }
+  }
+
+  function renameApp(oldName: string, newName: string) {
+    const trimmed = newName.trim();
+    if (!trimmed || trimmed === oldName) return;
+    // Update appSelections (popular apps)
+    const sel = appSelections.get(oldName);
+    if (sel) {
+      appSelections.delete(oldName);
+      appSelections.set(trimmed, sel);
+    }
+    // Update custom apps
+    selectedApps.update(apps => apps.map(a =>
+      a.name === oldName ? { ...a, name: trimmed } : a));
+    // Update overrides
+    const ovr = appOverrides.get(oldName);
+    if (ovr) {
+      appOverrides.delete(oldName);
+      appOverrides.set(trimmed, ovr);
+    }
+    // Update DnD state
+    for (const key of Object.keys(dndApps)) {
+      dndApps[key] = dndApps[key].map(item =>
+        item.name === oldName ? { ...item, name: trimmed } : item);
     }
   }
 
@@ -1024,7 +1054,7 @@
           </div>
 
           <h1 class="text-4xl font-bold text-white mb-4">Welcome to Muximux</h1>
-          <p class="text-xl text-gray-400 mb-8 max-w-2xl mx-auto">
+          <p class="text-xl text-gray-400 mb-8 max-w-3xl mx-auto">
             {needsSetup
               ? "Your unified homelab dashboard. Let's secure and set up your applications."
               : "Your unified homelab dashboard. Let's set up your applications in a few quick steps."}
@@ -1295,13 +1325,22 @@
       {:else if $currentStep === 'apps'}
         <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-white mb-2">Choose Your Apps</h2>
-            <p class="text-gray-400">Select from popular apps or add your own</p>
+            <h2 class="text-2xl font-bold text-white mb-2">What apps do you have?</h2>
+            <p class="text-gray-400">Select the services you're already running</p>
           </div>
 
           <div class="apps-two-col gap-6">
             <!-- LEFT COLUMN: Custom app + template apps (scrollable) -->
             <div class="apps-left-col space-y-6">
+              <div class="flex items-center gap-2 pb-2 border-b border-gray-700/50">
+                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-300">App Catalog</h3>
+                  <p class="text-xs text-gray-500">Click to add apps to your menu</p>
+                </div>
+              </div>
               <!-- Custom App Quick Add -->
               <div class="flex gap-2 items-end">
                 <div class="flex-1">
@@ -1387,126 +1426,39 @@
               {/each}
             </div>
 
-            <!-- RIGHT COLUMN: Selected apps + Groups (sticky on desktop) -->
+            <!-- RIGHT COLUMN: Groups (sticky on desktop) -->
             <div class="apps-right-col">
               <div class="apps-right-sticky space-y-6">
-                <div>
-                  <h3 class="text-sm font-semibold text-gray-300 mb-3">
-                    Unsorted Apps ({dndApps[''].length})
-                  </h3>
-                  {#if selectedCount + $selectedApps.length === 0}
-                    <p class="text-sm text-gray-500 italic">Select apps from the left to get started</p>
-                  {:else}
-                    <div class="space-y-1 min-h-[36px] p-2 rounded-lg border border-dashed border-gray-700 bg-gray-800/30"
-                         use:dndzone={{items: dndApps[''], flipDurationMs, type: 'wizard-apps', dropTargetStyle: {}}}
-                         onconsider={(e) => handleDndConsider(e, '')}
-                         onfinalize={(e) => handleDndFinalize(e, '')}>
-                      {#if dndApps[''].length === 0}
-                        <p class="text-sm text-gray-500 italic py-1">All apps have been sorted into groups</p>
-                      {/if}
-                      {#each dndApps[''] as item (item.id)}
-                        {@const appColor = getAppDisplayColor(item.name)}
-                        {@const appIcon = getAppDisplayIcon(item.name)}
-                        <div class="p-2 rounded-md bg-gray-800/50 cursor-grab"
-                             animate:flip={{duration: flipDurationMs}}>
-                          <div class="flex items-center gap-1.5">
-                            <input
-                              type="color"
-                              value={appColor}
-                              oninput={(e) => updateAppColor(item.name, e.currentTarget.value)}
-                              onclick={(e) => e.stopPropagation()}
-                              class="w-6 h-6 rounded cursor-pointer border-0 p-0 flex-shrink-0"
-                            />
-                            <button
-                              class="flex-shrink-0 w-6 h-6 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
-                              onclick={() => openAppIconBrowser(item.name)}
-                              title="Change icon"
-                            >
-                              {#if appIcon.name}
-                                <AppIcon icon={appIcon} name={item.name} color={appColor} size="sm" />
-                              {:else}
-                                <div class="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-gray-400">
-                                  {item.name.charAt(0).toUpperCase()}
-                                </div>
-                              {/if}
-                            </button>
-                            <span class="text-sm text-white truncate flex-1">{item.name}</span>
-                            <button
-                              class="p-1 text-gray-500 hover:text-red-400 transition-opacity flex-shrink-0"
-                              onclick={() => removeApp(item.name)}
-                              aria-label="Remove {item.name}"
-                            >
-                              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                              </svg>
-                            </button>
-                          </div>
-                          <input
-                            type="url"
-                            value={getAppUrl(item.name)}
-                            oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
-                            onclick={(e) => e.stopPropagation()}
-                            class="w-full mt-1.5 ml-[58px] pr-2 px-1.5 py-0.5 text-[11px] bg-gray-700 border border-gray-600 rounded
-                                   text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                            placeholder="http://localhost:8080"
-                            style="width: calc(100% - 58px)"
-                          />
-                          <div class="flex items-center gap-2 mt-1 ml-[58px]">
-                            <select
-                              value={getAppOpenMode(item.name)}
-                              onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
-                              onclick={(e) => e.stopPropagation()}
-                              class="text-[11px] px-1.5 py-0.5 bg-gray-700 border border-gray-600 rounded text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-500"
-                            >
-                              {#each openModes as mode (mode.value)}
-                                <option value={mode.value}>{mode.label}</option>
-                              {/each}
-                            </select>
-                            <span class="help-trigger relative ml-0.5" use:positionTooltip>
-                              <svg class="w-3 h-3 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                              </svg>
-                              <span class="help-tooltip">
-                                <b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/>
-                                <b>New Tab</b> — opens in a separate browser tab.<br/>
-                                <b>New Window</b> — opens in a popup window.
-                              </span>
-                            </span>
-                            <label class="flex items-center gap-1 cursor-pointer">
-                              <input
-                                type="checkbox"
-                                checked={getAppProxy(item.name)}
-                                onclick={(e) => e.stopPropagation()}
-                                onchange={(e) => updateAppSetting(item.name, 'proxy', e.currentTarget.checked)}
-                                class="w-3 h-3 rounded border-gray-600 text-brand-500"
-                              />
-                              <span class="text-[11px] text-gray-400">Proxy</span>
-                              <span class="help-trigger relative ml-0.5" use:positionTooltip>
-                                <svg class="w-3 h-3 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                                  <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                                </svg>
-                                <span class="help-tooltip">
-                                  Routes traffic through Muximux so the app doesn't need to be directly reachable from your browser. Enable this if the app is on an internal network or a different host that your browser can't access directly.
-                                </span>
-                              </span>
-                            </label>
-                          </div>
-                        </div>
-                      {/each}
-                    </div>
-                  {/if}
+                <div class="flex items-center gap-2 pb-2 border-b border-gray-700/50">
+                  <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+                  </svg>
+                  <div>
+                    <h3 class="text-sm font-semibold text-gray-300">Your Menu</h3>
+                    <p class="text-xs text-gray-500">Drag apps between groups to organize</p>
+                  </div>
                 </div>
 
+                {#if selectedCount + $selectedApps.length === 0}
+                  <p class="text-sm text-gray-500 italic">Select apps from the left to get started</p>
+                {:else}
                 <div>
                   <h3 class="text-sm font-semibold text-gray-300 mb-3">
                     Groups ({wizardGroups.length})
                   </h3>
                   {#if wizardGroups.length > 0}
-                    <div class="space-y-2">
-                      {#each wizardGroups as group, i (group._id)}
+                    <div class="space-y-2"
+                         use:dndzone={{items: wizardGroups, flipDurationMs, type: 'wizard-groups', dropTargetStyle: {}}}
+                         onconsider={handleGroupDndConsider}
+                         onfinalize={handleGroupDndFinalize}>
+                      {#each wizardGroups as group, i (group.id)}
                         {@const groupApps = dndApps[group.name] || []}
-                        <div class="rounded-lg border border-gray-700 bg-gray-800/30 overflow-hidden">
-                          <div class="flex items-center gap-2 p-2.5">
+                        <div class="rounded-lg border border-gray-700 bg-gray-800/30 overflow-hidden cursor-grab"
+                             animate:flip={{duration: flipDurationMs}}>
+                          <div class="flex items-center gap-2 p-2.5 group/grpdrag">
+                            <svg class="w-4 h-4 text-gray-600 group-hover/grpdrag:text-gray-400 flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                              <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+                            </svg>
                             <input
                               type="color"
                               value={group.color}
@@ -1556,9 +1508,12 @@
                               {#each groupApps as item (item.id)}
                                 {@const appColor = getAppDisplayColor(item.name)}
                                 {@const appIcon = getAppDisplayIcon(item.name)}
-                                <div class="p-1.5 rounded bg-gray-800/70 cursor-grab text-sm text-white"
+                                <div class="p-1.5 rounded bg-gray-800/70 cursor-grab group/drag text-sm text-white"
                                      animate:flip={{duration: flipDurationMs}}>
                                   <div class="flex items-center gap-1.5">
+                                    <svg class="w-3.5 h-3.5 text-gray-600 group-hover/drag:text-gray-400 flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                                      <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
+                                    </svg>
                                     <input
                                       type="color"
                                       value={appColor}
@@ -1579,7 +1534,13 @@
                                         </div>
                                       {/if}
                                     </button>
-                                    <span class="truncate flex-1">{item.name}</span>
+                                    <input
+                                      type="text"
+                                      value={item.name}
+                                      onchange={(e) => renameApp(item.name, e.currentTarget.value)}
+                                      onclick={(e) => e.stopPropagation()}
+                                      class="text-sm text-white truncate flex-1 bg-transparent border-0 border-b border-transparent hover:border-gray-600 focus:border-brand-500 focus:outline-none px-0 py-0"
+                                    />
                                     <button
                                       class="p-0.5 text-gray-500 hover:text-red-400 transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}
@@ -1595,12 +1556,12 @@
                                     value={getAppUrl(item.name)}
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
                                     onclick={(e) => e.stopPropagation()}
-                                    class="mt-1 ml-[46px] px-1.5 py-0.5 text-[11px] bg-gray-700 border border-gray-600 rounded
+                                    class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-gray-700 border border-gray-600 rounded
                                            text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
                                     placeholder="http://localhost:8080"
-                                    style="width: calc(100% - 46px)"
+                                    style="width: calc(100% - 66px)"
                                   />
-                                  <div class="flex items-center gap-2 mt-1 ml-[46px]">
+                                  <div class="flex items-center gap-2 mt-1 ml-[66px]">
                                     <select
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
@@ -1665,6 +1626,7 @@
                     Add Group
                   </button>
                 </div>
+                {/if}
               </div>
             </div>
           </div>
@@ -1910,8 +1872,6 @@
     }
 
     .apps-right-sticky {
-      position: sticky;
-      top: 0;
     }
   }
 
