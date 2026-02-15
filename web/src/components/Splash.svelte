@@ -141,7 +141,7 @@
               <!-- Keyboard shortcut badge (1-9) -->
               {#if globalIndex < 9}
                 <div class="absolute top-2.5 left-2.5 z-10">
-                  <span class="kbd opacity-0 group-hover:opacity-100 transition-opacity">
+                  <span class="kbd">
                     {globalIndex + 1}
                   </span>
                 </div>
