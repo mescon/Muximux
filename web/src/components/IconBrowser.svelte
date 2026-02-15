@@ -341,7 +341,7 @@
       />
     {:else}
       <div class="grid grid-cols-6 sm:grid-cols-8 md:grid-cols-10 gap-2">
-        {#each currentIcons as icon (icon.name)}
+        {#each currentIcons as icon, idx (`${icon.name}-${idx}`)}
           <div class="relative group">
             <button
               class="aspect-square p-2 rounded-lg border transition-all w-full
