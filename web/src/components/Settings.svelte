@@ -32,6 +32,17 @@
     onsave?: (config: Config) => void;
   } = $props();
 
+  // Exported: returns true if Escape was consumed by closing an inner sub-modal.
+  export function handleEscape(): boolean {
+    if (showIconBrowser) { showIconBrowser = false; iconBrowserTarget = null; return true; }
+    if (editingApp) { editingApp = null; return true; }
+    if (editingGroup) { editingGroup = null; return true; }
+    if (showAddApp) { showAddApp = false; return true; }
+    if (showAddGroup) { showAddGroup = false; return true; }
+    if (pendingImport) { pendingImport = null; showImportConfirm = false; return true; }
+    return false; // No sub-modal was open; caller should close Settings
+  }
+
   let isMobile = $state(false);
 
   onMount(() => {

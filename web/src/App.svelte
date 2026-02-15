@@ -31,6 +31,7 @@
   let currentApp = $state<App | null>(null);
   let showSplash = $state(true);
   let showSettings = $state(false);
+  let settingsRef = $state<Settings | undefined>(undefined);
   let showShortcuts = $state(false);
   let showCommandPalette = $state(false);
   let showLogs = $state(false);
@@ -386,8 +387,10 @@
     // Don't trigger shortcuts when typing in inputs (except Escape)
     if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
       if (event.key === 'Escape') {
-        showCommandPalette = false;
-        showSettings = false;
+        if (showCommandPalette) showCommandPalette = false;
+        else if (showSettings) {
+          if (!settingsRef?.handleEscape()) showSettings = false;
+        }
       }
       return;
     }
@@ -400,7 +403,10 @@
     // Escape is always hardcoded for closing modals
     if (event.key === 'Escape') {
       if (showCommandPalette) showCommandPalette = false;
-      else if (showSettings) showSettings = false;
+      else if (showSettings) {
+        // Let Settings close its sub-modals first; only close Settings itself if no sub-modal was open
+        if (!settingsRef?.handleEscape()) showSettings = false;
+      }
       else if (showShortcuts) showShortcuts = false;
       else if (showLogs) { showLogs = false; showSplash = true; }
       else if (!showSplash && currentApp) showSplash = true;
@@ -576,6 +582,7 @@
   <!-- Settings panel -->
   {#if showSettings}
     <Settings
+      bind:this={settingsRef}
       {config}
       {apps}
       onclose={() => showSettings = false}
