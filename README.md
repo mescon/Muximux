@@ -10,7 +10,9 @@ One binary. One port. One YAML config file.
 [![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mescon_Muximux)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
 
-<!-- screenshot here -->
+![Muximux Dashboard](docs/screenshots/dashboard.png)
+
+![Real-Time Log Viewer](docs/screenshots/logs.png)
 
 ---
 
