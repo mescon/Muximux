@@ -144,6 +144,7 @@ type NavigationConfig struct {
 	ShowShadow         bool    `yaml:"show_shadow" json:"show_shadow"`
 	FloatingPosition   string  `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
 	BarStyle           string  `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
+	HideSidebarFooter  bool    `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
 }
 
 // IconsConfig holds icon settings
@@ -187,7 +188,7 @@ type AppConfig struct {
 	Scale                    float64           `yaml:"scale"`
 	Shortcut                 *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
 	DisableKeyboardShortcuts bool              `yaml:"disable_keyboard_shortcuts,omitempty"`
-	MinRole                  string            `yaml:"min_role,omitempty"`            // minimum role to see this app (default: "user")
+	MinRole                  string            `yaml:"min_role,omitempty"`              // minimum role to see this app (default: "user")
 	ForceIconBackground      bool              `yaml:"force_icon_background,omitempty"` // show icon background even when global setting is off
 	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
 	Access                   AppAccessConfig   `yaml:"access"`
@@ -285,20 +286,16 @@ func (c *Config) Migrate() bool {
 			switch c.Auth.Users[i].Role {
 			case "guest":
 				c.Auth.Users[i].Role = "user"
-				changed = true
 			case "user":
 				c.Auth.Users[i].Role = "power-user"
-				changed = true
 			}
 		}
 		for i := range c.Apps {
 			switch c.Apps[i].MinRole {
 			case "guest":
 				c.Apps[i].MinRole = "user"
-				changed = true
 			case "user":
 				c.Apps[i].MinRole = "power-user"
-				changed = true
 			}
 		}
 		c.ConfigVersion = 2

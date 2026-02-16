@@ -381,7 +381,8 @@
       show_splash_on_startup: navShowSplash,
       show_shadow: navShowShadow,
       floating_position: navFloatingPosition,
-      bar_style: navBarStyle
+      bar_style: navBarStyle,
+      hide_sidebar_footer: false
     },
     groups: previewGroups, apps: previewApps
   });
@@ -556,7 +557,8 @@
       show_splash_on_startup: navShowSplash,
       show_shadow: navShowShadow,
       floating_position: navFloatingPosition,
-      bar_style: navBarStyle
+      bar_style: navBarStyle,
+      hide_sidebar_footer: false
     };
 
     // Capture current theme from stores
@@ -929,7 +931,7 @@
                            {navBarStyle === style.value
                              ? 'border-brand-500 bg-brand-500/15 text-white'
                              : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
-                    onclick={() => navBarStyle = style.value}
+                    onclick={() => navBarStyle = style.value as typeof navBarStyle}
                   >
                     {style.label}
                   </button>
@@ -951,7 +953,7 @@
                            {navFloatingPosition === fp.value
                              ? 'border-brand-500 bg-brand-500/15 text-white'
                              : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
-                    onclick={() => navFloatingPosition = fp.value}
+                    onclick={() => navFloatingPosition = fp.value as typeof navFloatingPosition}
                   >
                     {fp.label}
                   </button>
@@ -1974,9 +1976,6 @@
 
     .apps-right-col {
       flex: 2;
-    }
-
-    .apps-right-sticky {
     }
   }
 

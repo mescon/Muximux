@@ -925,7 +925,7 @@
                            {(localConfig.navigation.bar_style || 'grouped') === style.value
                              ? 'border-brand-500 bg-brand-500/10 text-white'
                              : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
-                    onclick={() => localConfig.navigation.bar_style = style.value}
+                    onclick={() => localConfig.navigation.bar_style = style.value as 'grouped' | 'flat'}
                   >
                     <div class="font-medium text-sm">{style.label}</div>
                     <div class="text-xs text-gray-400 mt-1">{style.description}</div>
@@ -953,7 +953,7 @@
                            {(localConfig.navigation.floating_position || 'bottom-right') === fp.value
                              ? 'border-brand-500 bg-brand-500/10 text-white'
                              : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
-                    onclick={() => localConfig.navigation.floating_position = fp.value}
+                    onclick={() => localConfig.navigation.floating_position = fp.value as 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'}
                   >
                     {fp.label}
                   </button>
@@ -1073,6 +1073,22 @@
                 </label>
               {/if}
             </div>
+
+            {#if localConfig.navigation.position === 'left' || localConfig.navigation.position === 'right'}
+              <div class="p-3 bg-gray-700/50 rounded-lg sm:col-span-2">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    bind:checked={localConfig.navigation.hide_sidebar_footer}
+                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+                  />
+                  <div class="flex-1">
+                    <div class="text-sm text-white">Collapsible Footer</div>
+                    <div class="text-xs text-gray-400">Hide utility buttons in a drawer that reveals on hover</div>
+                  </div>
+                </label>
+              </div>
+            {/if}
           </div>
 
           <!-- Health Monitoring bulk actions -->
