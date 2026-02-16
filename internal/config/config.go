@@ -129,20 +129,20 @@ type OIDCConfig struct {
 
 // NavigationConfig holds navigation layout settings
 type NavigationConfig struct {
-	Position           string `yaml:"position" json:"position"` // top, left, right, bottom, floating
-	Width              string `yaml:"width" json:"width"`
-	AutoHide           bool   `yaml:"auto_hide" json:"auto_hide"`
-	AutoHideDelay      string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
-	ShowOnHover        bool   `yaml:"show_on_hover" json:"show_on_hover"`
-	ShowLabels         bool   `yaml:"show_labels" json:"show_labels"`
-	ShowLogo           bool   `yaml:"show_logo" json:"show_logo"`
-	ShowAppColors      bool   `yaml:"show_app_colors" json:"show_app_colors"`
+	Position           string  `yaml:"position" json:"position"` // top, left, right, bottom, floating
+	Width              string  `yaml:"width" json:"width"`
+	AutoHide           bool    `yaml:"auto_hide" json:"auto_hide"`
+	AutoHideDelay      string  `yaml:"auto_hide_delay" json:"auto_hide_delay"`
+	ShowOnHover        bool    `yaml:"show_on_hover" json:"show_on_hover"`
+	ShowLabels         bool    `yaml:"show_labels" json:"show_labels"`
+	ShowLogo           bool    `yaml:"show_logo" json:"show_logo"`
+	ShowAppColors      bool    `yaml:"show_app_colors" json:"show_app_colors"`
 	ShowIconBackground bool    `yaml:"show_icon_background" json:"show_icon_background"`
 	IconScale          float64 `yaml:"icon_scale" json:"icon_scale"`
 	ShowSplashOnStart  bool    `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
-	ShowShadow         bool   `yaml:"show_shadow" json:"show_shadow"`
-	FloatingPosition   string `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
-	BarStyle           string `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
+	ShowShadow         bool    `yaml:"show_shadow" json:"show_shadow"`
+	FloatingPosition   string  `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
+	BarStyle           string  `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
 }
 
 // IconsConfig holds icon settings
@@ -178,7 +178,7 @@ type AppConfig struct {
 	Order                    int               `yaml:"order"`
 	Enabled                  bool              `yaml:"enabled"`
 	Default                  bool              `yaml:"default"`
-	OpenMode                 string            `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
+	OpenMode                 string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
 	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // nil/true = enabled, false = disabled
 	Proxy                    bool              `yaml:"proxy"`
 	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)

@@ -634,8 +634,8 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
 	Name                     string               `json:"name"`
-	URL                      string               `json:"url"`                              // Original target URL (for editing/config)
-	ProxyURL                 string               `json:"proxyUrl,omitempty"`               // Proxy path for iframe loading (when proxy enabled)
+	URL                      string               `json:"url"`                // Original target URL (for editing/config)
+	ProxyURL                 string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
 	Icon                     config.AppIconConfig `json:"icon"`
 	Color                    string               `json:"color"`
 	Group                    string               `json:"group"`
@@ -644,8 +644,8 @@ type ClientAppConfig struct {
 	Default                  bool                 `json:"default"`
 	OpenMode                 string               `json:"open_mode"`
 	Proxy                    bool                 `json:"proxy"`
-	HealthCheck              *bool                `json:"health_check,omitempty"`           // nil/true = enabled, false = disabled
-	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"`  // nil = true (default)
+	HealthCheck              *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
+	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
 	ProxyHeaders             map[string]string    `json:"proxy_headers,omitempty"`
 	Scale                    float64              `json:"scale"`
 	Shortcut                 *int                 `json:"shortcut,omitempty"`

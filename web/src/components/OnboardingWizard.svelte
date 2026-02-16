@@ -540,7 +540,7 @@
     }
 
     // Build groups from wizard state (strip internal _id)
-    const groups: Group[] = wizardGroups.map(({ id, ...g }, i) => ({ ...g, order: i }));
+    const groups: Group[] = wizardGroups.map(({ id: _id, ...g }, i) => ({ ...g, order: i }));
 
     // Build navigation config
     const navigation: NavigationConfig = {
@@ -720,17 +720,6 @@
 
   function getAppOpenMode(appName: string): App['open_mode'] {
     return appOverrides.get(appName)?.open_mode || 'iframe';
-  }
-
-  function cycleOpenMode(appName: string) {
-    const order: App['open_mode'][] = ['iframe', 'new_tab', 'new_window'];
-    const current = getAppOpenMode(appName);
-    const next = order[(order.indexOf(current) + 1) % order.length];
-    updateAppSetting(appName, 'open_mode', next);
-  }
-
-  function openModeLabel(mode: App['open_mode']): string {
-    return mode === 'iframe' ? 'Embedded' : mode === 'new_tab' ? 'New Tab' : 'New Window';
   }
 
   function getAppProxy(appName: string): boolean {

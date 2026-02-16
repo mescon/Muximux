@@ -29,7 +29,7 @@
   }: {
     config: Config;
     apps: App[];
-    initialTab?: string;
+    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about';
     onclose?: () => void;
     onsave?: (config: Config) => void;
   } = $props();
@@ -55,7 +55,7 @@
   });
 
   // Active tab
-  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>(initialTab as any);
+  let activeTab = $state(initialTab ?? 'general');
 
   // Local copy of config for editing
   let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
@@ -3221,7 +3221,7 @@ chmod +x muximux-darwin-arm64
               class="px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-500 focus:border-brand-500"
             >
               <option value="">None</option>
-              {#each [1,2,3,4,5,6,7,8,9] as n}
+              {#each [1,2,3,4,5,6,7,8,9] as n (n)}
                 {@const taken = localApps.find(a => a.shortcut === n && a.name !== editingApp?.name)}
                 <option value={n} disabled={!!taken}>{n}{taken ? ` (${taken.name})` : ''}</option>
               {/each}

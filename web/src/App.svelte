@@ -31,7 +31,7 @@
   let currentApp = $state<App | null>(null);
   let showSplash = $state(true);
   let showSettings = $state(false);
-  let settingsInitialTab = $state<string>('general');
+  let settingsInitialTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
   let settingsRef = $state<Settings | undefined>(undefined);
   let showShortcuts = $state(false);
   let showCommandPalette = $state(false);

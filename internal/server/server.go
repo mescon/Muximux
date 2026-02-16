@@ -215,7 +215,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.Handle("/", staticHandler)
 
 	// Create the final handler with security middleware
-	var handler http.Handler = s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware))
+	handler := s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware))
 
 	// Wrap with base path stripping if configured
 	basePath := cfg.Server.NormalizedBasePath()

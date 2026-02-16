@@ -508,7 +508,7 @@ func TestSPAHandlerEmbed(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "index.html")
+	handler := spaHandlerEmbed(fileServer, testFS, "index.html", "")
 
 	t.Run("root serves index.html", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -570,7 +570,7 @@ func TestSPAHandlerEmbed_MissingIndex(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "index.html")
+	handler := spaHandlerEmbed(fileServer, testFS, "index.html", "")
 
 	if handler == nil {
 		t.Fatal("expected non-nil handler even with missing index")
