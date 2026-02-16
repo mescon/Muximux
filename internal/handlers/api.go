@@ -269,6 +269,7 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 	app := config.AppConfig{
 		Name:                     clientApp.Name,
 		URL:                      appURL,
+		HealthURL:                clientApp.HealthURL,
 		Icon:                     clientApp.Icon,
 		Color:                    clientApp.Color,
 		Group:                    clientApp.Group,
@@ -357,6 +358,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	newApp := config.AppConfig{
 		Name:                     clientApp.Name,
 		URL:                      clientApp.URL,
+		HealthURL:                clientApp.HealthURL,
 		Icon:                     clientApp.Icon,
 		Color:                    clientApp.Color,
 		Group:                    clientApp.Group,
@@ -421,6 +423,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	h.config.Apps[idx] = config.AppConfig{
 		Name:                     clientApp.Name,
 		URL:                      clientApp.URL,
+		HealthURL:                clientApp.HealthURL,
 		Icon:                     clientApp.Icon,
 		Color:                    clientApp.Color,
 		Group:                    clientApp.Group,
@@ -435,6 +438,8 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		Scale:                    clientApp.Scale,
 		Shortcut:                 clientApp.Shortcut,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		MinRole:                  clientApp.MinRole,
+		ForceIconBackground:      clientApp.ForceIconBackground,
 		AuthBypass:               existing.AuthBypass,
 		Access:                   existing.Access,
 	}
@@ -622,6 +627,7 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 	return ClientAppConfig{
 		Name:                     app.Name,
 		URL:                      app.URL,
+		HealthURL:                app.HealthURL,
 		ProxyURL:                 proxyURL,
 		Icon:                     app.Icon,
 		Color:                    app.Color,
@@ -646,6 +652,7 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 type ClientAppConfig struct {
 	Name                     string               `json:"name"`
 	URL                      string               `json:"url"`                // Original target URL (for editing/config)
+	HealthURL                string               `json:"health_url,omitempty"`
 	ProxyURL                 string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
 	Icon                     config.AppIconConfig `json:"icon"`
 	Color                    string               `json:"color"`
