@@ -138,10 +138,21 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// Check bypass rules
+		// Check bypass rules — still attempt best-effort auth so that
+		// bypassed endpoints (e.g. /api/auth/status) can see the user.
 		if m.shouldBypass(r) {
 			logging.Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
-			next.ServeHTTP(w, r)
+			user, session := m.authenticateRequest(r)
+			if user != nil {
+				ctx := context.WithValue(r.Context(), ContextKeyUser, user)
+				if session != nil {
+					ctx = context.WithValue(ctx, ContextKeySession, session)
+					m.sessionStore.Refresh(session.ID)
+				}
+				next.ServeHTTP(w, r.WithContext(ctx))
+			} else {
+				next.ServeHTTP(w, r)
+			}
 			return
 		}
 
