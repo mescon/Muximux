@@ -813,7 +813,7 @@ func TestNewOIDCProvider_Defaults(t *testing.T) {
 	ss := NewSessionStore("test", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := OIDCConfig{
+	cfg := &OIDCConfig{
 		Enabled:   true,
 		IssuerURL: "http://idp.example.com",
 		ClientID:  "client",
@@ -842,7 +842,7 @@ func TestNewOIDCProvider_CustomClaims(t *testing.T) {
 	ss := NewSessionStore("test", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := OIDCConfig{
+	cfg := &OIDCConfig{
 		Enabled:          true,
 		IssuerURL:        "http://idp.example.com",
 		ClientID:         "client",

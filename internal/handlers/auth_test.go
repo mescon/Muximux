@@ -1129,7 +1129,7 @@ func setupAuthTestWithConfig(t *testing.T) (*AuthHandler, string) {
 		t.Fatalf("failed to seed config file: %v", err)
 	}
 
-	middleware := auth.NewMiddleware(auth.AuthConfig{
+	middleware := auth.NewMiddleware(&auth.AuthConfig{
 		Method: auth.AuthMethodNone,
 	}, sessionStore, userStore)
 

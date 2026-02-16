@@ -862,7 +862,7 @@ func TestMergeClientApp(t *testing.T) {
 			Color:   "#ff0000",
 		}
 
-		result := mergeClientApp(clientApp, existing)
+		result := mergeClientApp(&clientApp, existing)
 
 		if result.Name != "NewApp" {
 			t.Errorf("expected name 'NewApp', got %q", result.Name)
@@ -891,7 +891,7 @@ func TestMergeClientApp(t *testing.T) {
 			Enabled: true,
 		}
 
-		result := mergeClientApp(clientApp, existing)
+		result := mergeClientApp(&clientApp, existing)
 
 		if result.URL != "http://internal:8080" {
 			t.Errorf("expected preserved URL 'http://internal:8080', got %q", result.URL)
@@ -917,7 +917,7 @@ func TestMergeClientApp(t *testing.T) {
 			Enabled: true,
 		}
 
-		result := mergeClientApp(clientApp, existing)
+		result := mergeClientApp(&clientApp, existing)
 
 		if result.URL != "http://new:9090" {
 			t.Errorf("expected new URL 'http://new:9090', got %q", result.URL)
@@ -1013,7 +1013,7 @@ func TestSanitizeApp(t *testing.T) {
 			Proxy:   false,
 		}
 
-		result := sanitizeApp(app)
+		result := sanitizeApp(&app)
 
 		if result.ProxyURL != "" {
 			t.Errorf("expected empty proxyUrl for non-proxied app, got %q", result.ProxyURL)
@@ -1031,7 +1031,7 @@ func TestSanitizeApp(t *testing.T) {
 			Proxy:   true,
 		}
 
-		result := sanitizeApp(app)
+		result := sanitizeApp(&app)
 
 		if result.ProxyURL != "/proxy/test-app/" {
 			t.Errorf("expected proxyUrl '/proxy/test-app/', got %q", result.ProxyURL)

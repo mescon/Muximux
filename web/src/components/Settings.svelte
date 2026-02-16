@@ -55,7 +55,7 @@
   });
 
   // Active tab
-  let activeTab = $state(initialTab ?? 'general');
+  let activeTab = $state(untrack(() => initialTab ?? 'general'));
 
   // Local copy of config for editing
   let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));

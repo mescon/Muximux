@@ -15,8 +15,8 @@ type ProxyHandler struct {
 }
 
 // NewProxyHandler creates a new proxy handler
-func NewProxyHandler(p *proxy.Proxy, serverCfg config.ServerConfig) *ProxyHandler {
-	return &ProxyHandler{proxy: p, serverConfig: serverCfg}
+func NewProxyHandler(p *proxy.Proxy, serverCfg *config.ServerConfig) *ProxyHandler {
+	return &ProxyHandler{proxy: p, serverConfig: *serverCfg}
 }
 
 // ProxyStatusResponse represents the proxy status

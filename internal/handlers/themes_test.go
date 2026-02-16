@@ -173,7 +173,7 @@ func TestListThemes(t *testing.T) {
 
 	t.Run("user themes", func(t *testing.T) {
 		dir := t.TempDir()
-		err := os.WriteFile(filepath.Join(dir, "custom.css"), []byte(`/* @theme-name: Custom */`), 0644)
+		err := os.WriteFile(filepath.Join(dir, "custom.css"), []byte(`/* @theme-name: Custom */`), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -200,7 +200,7 @@ func TestListThemes(t *testing.T) {
 	t.Run("user overrides bundled", func(t *testing.T) {
 		dir := t.TempDir()
 		// Multi-line comment format so @theme-name line ends cleanly (regex captures to EOL)
-		err := os.WriteFile(filepath.Join(dir, "nord-dark.css"), []byte("/**\n * @theme-name: My Nord Dark\n */\n"), 0644)
+		err := os.WriteFile(filepath.Join(dir, "nord-dark.css"), []byte("/**\n * @theme-name: My Nord Dark\n */\n"), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -380,7 +380,7 @@ func TestSaveTheme(t *testing.T) {
 func TestDeleteTheme(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		dir := t.TempDir()
-		err := os.WriteFile(filepath.Join(dir, "my-theme.css"), []byte("/* custom */"), 0644)
+		err := os.WriteFile(filepath.Join(dir, "my-theme.css"), []byte("/* custom */"), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -504,7 +504,7 @@ func TestGenerateThemeCSS(t *testing.T) {
 		},
 	}
 
-	css := generateThemeCSS("test-theme", req)
+	css := generateThemeCSS("test-theme", &req)
 
 	// Check that metadata comments are present
 	if !bytes.Contains([]byte(css), []byte("@theme-id: test-theme")) {
@@ -525,7 +525,7 @@ func TestGenerateThemeCSS(t *testing.T) {
 
 	// Test light theme
 	req.IsDark = false
-	css = generateThemeCSS("test-light", req)
+	css = generateThemeCSS("test-light", &req)
 	if !bytes.Contains([]byte(css), []byte("color-scheme: light")) {
 		t.Error("expected color-scheme: light in CSS")
 	}

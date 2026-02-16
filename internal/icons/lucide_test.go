@@ -2,6 +2,7 @@ package icons
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -30,7 +31,7 @@ func TestLucideClient_GetIcon_FromCDN(t *testing.T) {
 
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "image/svg+xml")
-		w.Write([]byte(svgContent))
+		_, _ = io.WriteString(w, svgContent)
 	}))
 	defer server.Close()
 
@@ -51,7 +52,7 @@ func TestLucideClient_GetIcon_FromCDN(t *testing.T) {
 		handler: func(req *http.Request) (*http.Response, error) {
 			w := httptest.NewRecorder()
 			w.Header().Set("Content-Type", "image/svg+xml")
-			w.Write([]byte(svgContent))
+			w.WriteString(svgContent)
 			return w.Result(), nil
 		},
 	}
@@ -82,7 +83,7 @@ func TestLucideClient_GetIcon_FromCache(t *testing.T) {
 	svgContent := `<svg>cached</svg>`
 
 	// Pre-populate cache
-	err := os.WriteFile(filepath.Join(cacheDir, "cached-icon.svg"), []byte(svgContent), 0644)
+	err := os.WriteFile(filepath.Join(cacheDir, "cached-icon.svg"), []byte(svgContent), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -105,7 +106,7 @@ func TestLucideClient_GetIcon_StripsSvgExtension(t *testing.T) {
 	cacheDir := t.TempDir()
 	svgContent := `<svg>ext-test</svg>`
 
-	err := os.WriteFile(filepath.Join(cacheDir, "myicon.svg"), []byte(svgContent), 0644)
+	err := os.WriteFile(filepath.Join(cacheDir, "myicon.svg"), []byte(svgContent), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,7 +130,7 @@ func TestLucideClient_GetIcon_CacheExpired(t *testing.T) {
 
 	// Write cached file
 	cachePath := filepath.Join(cacheDir, "expiring.svg")
-	err := os.WriteFile(cachePath, []byte(svgContent), 0644)
+	err := os.WriteFile(cachePath, []byte(svgContent), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -146,7 +147,7 @@ func TestLucideClient_GetIcon_CacheExpired(t *testing.T) {
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
 				w.Header().Set("Content-Type", "image/svg+xml")
-				w.Write([]byte(freshContent))
+				w.WriteString(freshContent)
 				return w.Result(), nil
 			},
 		},
@@ -441,7 +442,7 @@ func TestLucideClient_SearchIcons_FetchError(t *testing.T) {
 func TestLucideClient_getCachePath(t *testing.T) {
 	client := NewLucideClient("/cache/dir", 1*time.Hour)
 	path := client.getCachePath("test-icon")
-	expected := filepath.Join("/cache/dir", "test-icon.svg")
+	expected := "/cache/dir/test-icon.svg"
 	if path != expected {
 		t.Errorf("expected %q, got %q", expected, path)
 	}
@@ -497,7 +498,7 @@ func TestLucideClient_getFromCache_ZeroTTL(t *testing.T) {
 
 	// Write a cache file with old modification time
 	cachePath := filepath.Join(cacheDir, "old-icon.svg")
-	err := os.WriteFile(cachePath, []byte(content), 0644)
+	err := os.WriteFile(cachePath, []byte(content), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -545,7 +546,7 @@ func TestLucideClient_fetchCategories_InvalidJSON(t *testing.T) {
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("not json"))
+				w.WriteString("not json")
 				return w.Result(), nil
 			},
 		},
@@ -565,7 +566,7 @@ func TestLucideClient_fetchTreeNames_InvalidJSON(t *testing.T) {
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("not json"))
+				w.WriteString("not json")
 				return w.Result(), nil
 			},
 		},

@@ -67,9 +67,9 @@ type Middleware struct {
 }
 
 // NewMiddleware creates a new auth middleware
-func NewMiddleware(config AuthConfig, sessionStore *SessionStore, userStore *UserStore) *Middleware {
+func NewMiddleware(config *AuthConfig, sessionStore *SessionStore, userStore *UserStore) *Middleware {
 	m := &Middleware{
-		config:       config,
+		config:       *config,
 		sessionStore: sessionStore,
 		userStore:    userStore,
 	}
@@ -97,7 +97,7 @@ func NewMiddleware(config AuthConfig, sessionStore *SessionStore, userStore *Use
 }
 
 // UpdateConfig replaces the auth configuration and re-parses trusted proxy networks.
-func (m *Middleware) UpdateConfig(config AuthConfig) {
+func (m *Middleware) UpdateConfig(config *AuthConfig) {
 	var trustedNets []*net.IPNet
 	for _, cidr := range config.TrustedProxies {
 		_, network, err := net.ParseCIDR(cidr)
@@ -117,7 +117,7 @@ func (m *Middleware) UpdateConfig(config AuthConfig) {
 	}
 
 	m.mu.Lock()
-	m.config = config
+	m.config = *config
 	m.trustedNets = trustedNets
 	m.mu.Unlock()
 }

@@ -56,6 +56,7 @@ func TestServeWs(t *testing.T) {
 		t.Fatalf("failed to connect: %v", err)
 	}
 	defer conn.Close()
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusSwitchingProtocols {
 		t.Errorf("expected 101, got %d", resp.StatusCode)
@@ -90,13 +91,14 @@ func TestClient_ReceiveBroadcast(t *testing.T) {
 	wsURL := "ws" + strings.TrimPrefix(srv.URL, "http") + "/"
 
 	dialer := websocket.Dialer{}
-	conn, _, err := dialer.Dial(wsURL, http.Header{
+	conn, resp, err := dialer.Dial(wsURL, http.Header{
 		"Origin": []string{srv.URL},
 	})
 	if err != nil {
 		t.Fatalf("failed to connect: %v", err)
 	}
 	defer conn.Close()
+	defer resp.Body.Close()
 
 	// Wait for registration
 	time.Sleep(50 * time.Millisecond)
@@ -136,12 +138,13 @@ func TestClient_MultipleConnections(t *testing.T) {
 	connections := make([]*websocket.Conn, 5)
 	for i := 0; i < 5; i++ {
 		dialer := websocket.Dialer{}
-		conn, _, err := dialer.Dial(wsURL, http.Header{
+		conn, resp, err := dialer.Dial(wsURL, http.Header{
 			"Origin": []string{srv.URL},
 		})
 		if err != nil {
 			t.Fatalf("failed to connect client %d: %v", i, err)
 		}
+		resp.Body.Close()
 		connections[i] = conn
 	}
 
@@ -197,31 +200,36 @@ func TestUpgrader_OriginCheck(t *testing.T) {
 
 	t.Run("same origin allowed", func(t *testing.T) {
 		dialer := websocket.Dialer{}
-		conn, _, err := dialer.Dial(wsURL, http.Header{
+		conn, resp, err := dialer.Dial(wsURL, http.Header{
 			"Origin": []string{srv.URL},
 		})
 		if err != nil {
 			t.Fatalf("same origin should be allowed: %v", err)
 		}
+		resp.Body.Close()
 		conn.Close()
 		time.Sleep(50 * time.Millisecond)
 	})
 
 	t.Run("no origin allowed", func(t *testing.T) {
 		dialer := websocket.Dialer{}
-		conn, _, err := dialer.Dial(wsURL, nil) // No origin header
+		conn, resp, err := dialer.Dial(wsURL, nil) // No origin header
 		if err != nil {
 			t.Fatalf("no origin should be allowed: %v", err)
 		}
+		resp.Body.Close()
 		conn.Close()
 		time.Sleep(50 * time.Millisecond)
 	})
 
 	t.Run("cross origin rejected", func(t *testing.T) {
 		dialer := websocket.Dialer{}
-		_, _, err := dialer.Dial(wsURL, http.Header{
+		_, resp, err := dialer.Dial(wsURL, http.Header{
 			"Origin": []string{"http://evil.com"},
 		})
+		if resp != nil {
+			resp.Body.Close()
+		}
 		if err == nil {
 			t.Error("cross-origin should be rejected")
 		}
@@ -238,12 +246,13 @@ func TestClient_ConnectionDrop(t *testing.T) {
 	wsURL := "ws" + strings.TrimPrefix(srv.URL, "http") + "/"
 
 	dialer := websocket.Dialer{}
-	conn, _, err := dialer.Dial(wsURL, http.Header{
+	conn, resp, err := dialer.Dial(wsURL, http.Header{
 		"Origin": []string{srv.URL},
 	})
 	if err != nil {
 		t.Fatalf("failed to connect: %v", err)
 	}
+	defer resp.Body.Close()
 
 	time.Sleep(50 * time.Millisecond)
 

@@ -571,7 +571,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 
 		h.configMu.Lock()
 		h.config.Auth.Method = "builtin"
-		h.authMiddleware.UpdateConfig(auth.AuthConfig{
+		h.authMiddleware.UpdateConfig(&auth.AuthConfig{
 			Method:      auth.AuthMethodBuiltin,
 			BypassRules: h.bypassRules,
 			APIKey:      h.config.Auth.APIKey,
@@ -605,7 +605,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		if req.Headers != nil {
 			h.config.Auth.Headers = req.Headers
 		}
-		h.authMiddleware.UpdateConfig(auth.AuthConfig{
+		h.authMiddleware.UpdateConfig(&auth.AuthConfig{
 			Method:         auth.AuthMethodForwardAuth,
 			TrustedProxies: req.TrustedProxies,
 			Headers:        headers,
@@ -622,7 +622,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	case "none":
 		h.configMu.Lock()
 		h.config.Auth.Method = "none"
-		h.authMiddleware.UpdateConfig(auth.AuthConfig{
+		h.authMiddleware.UpdateConfig(&auth.AuthConfig{
 			Method:      auth.AuthMethodNone,
 			BypassRules: h.bypassRules,
 			APIKey:      h.config.Auth.APIKey,

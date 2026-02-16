@@ -58,9 +58,9 @@ type stateEntry struct {
 }
 
 // NewOIDCProvider creates a new OIDC provider
-func NewOIDCProvider(config OIDCConfig, sessionStore *SessionStore, userStore *UserStore) *OIDCProvider {
+func NewOIDCProvider(config *OIDCConfig, sessionStore *SessionStore, userStore *UserStore) *OIDCProvider {
 	p := &OIDCProvider{
-		config:       config,
+		config:       *config,
 		httpClient:   &http.Client{Timeout: 30 * time.Second},
 		sessionStore: sessionStore,
 		userStore:    userStore,

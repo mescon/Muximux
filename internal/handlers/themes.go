@@ -182,11 +182,11 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Generate CSS content
-	css := generateThemeCSS(id, req)
+	css := generateThemeCSS(id, &req)
 
 	// Write to file
 	filename := filepath.Join(h.themesDir, id+".css")
-	if err := os.WriteFile(filename, []byte(css), 0644); err != nil {
+	if err := os.WriteFile(filename, []byte(css), 0600); err != nil {
 		http.Error(w, "Failed to save theme", http.StatusInternalServerError)
 		return
 	}
@@ -312,7 +312,7 @@ func sanitizeThemeID(name string) string {
 }
 
 // generateThemeCSS creates a complete CSS file for a custom theme
-func generateThemeCSS(id string, req ThemeSaveRequest) string {
+func generateThemeCSS(id string, req *ThemeSaveRequest) string {
 	// Determine preview colors from variables
 	previewBG := req.Variables["--bg-base"]
 	previewSurface := req.Variables["--bg-surface"]
@@ -363,7 +363,7 @@ func generateThemeCSS(id string, req ThemeSaveRequest) string {
 	sb.WriteString(" */\n\n")
 
 	// CSS selector
-	sb.WriteString(fmt.Sprintf("[data-theme=\"%s\"] {\n", id))
+	fmt.Fprintf(&sb, "[data-theme=%q] {\n", id)
 	sb.WriteString(fmt.Sprintf("  color-scheme: %s;\n\n", colorScheme))
 
 	// Write all variables

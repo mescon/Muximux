@@ -152,7 +152,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	goListenAddr := setupCaddy(s, cfg)
 
 	// Proxy API routes (always registered so the endpoint responds gracefully)
-	proxyHandler := handlers.NewProxyHandler(s.proxyServer, cfg.Server)
+	proxyHandler := handlers.NewProxyHandler(s.proxyServer, &cfg.Server)
 	mux.HandleFunc("/api/proxy/status", proxyHandler.GetStatus)
 
 	// Auth-protected endpoints
@@ -208,7 +208,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		fileServer := http.FileServer(http.Dir("web/dist"))
 		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
 	} else {
-		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html", cfg.Server.NormalizedBasePath())
+		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, cfg.Server.NormalizedBasePath())
 	}
 
 	// Serve static files with SPA fallback
@@ -296,7 +296,7 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 		},
 		BypassRules: defaultBypassRules,
 	}
-	authMiddleware := auth.NewMiddleware(authConfig, sessionStore, userStore)
+	authMiddleware := auth.NewMiddleware(&authConfig, sessionStore, userStore)
 
 	return sessionStore, userStore, authMiddleware
 }
@@ -317,7 +317,7 @@ func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *a
 		AdminGroups:      cfg.Auth.OIDC.AdminGroups,
 		BasePath:         cfg.Server.NormalizedBasePath(),
 	}
-	return auth.NewOIDCProvider(oidcConfig, sessionStore, userStore)
+	return auth.NewOIDCProvider(&oidcConfig, sessionStore, userStore)
 }
 
 // registerAuthRoutes registers authentication and WebSocket endpoints.
@@ -436,12 +436,12 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 
 	// Configure apps for health monitoring
 	healthApps := make([]health.AppConfig, 0, len(cfg.Apps))
-	for _, app := range cfg.Apps {
+	for i := range cfg.Apps {
 		healthApps = append(healthApps, health.AppConfig{
-			Name:      app.Name,
-			URL:       app.URL,
-			HealthURL: app.HealthURL,
-			Enabled:   app.Enabled,
+			Name:      cfg.Apps[i].Name,
+			URL:       cfg.Apps[i].URL,
+			HealthURL: cfg.Apps[i].HealthURL,
+			Enabled:   cfg.Apps[i].Enabled,
 		})
 	}
 	s.healthMonitor.SetApps(healthApps)
@@ -457,11 +457,12 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 	mux.HandleFunc("/api/apps/", func(w http.ResponseWriter, r *http.Request) {
 		// Route /api/apps/{name}/health and /api/apps/{name}/health/check
 		path := r.URL.Path
-		if strings.HasSuffix(path, "/health/check") {
+		switch {
+		case strings.HasSuffix(path, "/health/check"):
 			healthHandler.CheckAppHealth(w, r)
-		} else if strings.HasSuffix(path, "/health") {
+		case strings.HasSuffix(path, "/health"):
 			healthHandler.GetAppHealth(w, r)
-		} else {
+		default:
 			http.Error(w, "Not found", http.StatusNotFound)
 		}
 	})
@@ -563,16 +564,16 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 		TLSKey:       cfg.Server.TLS.Key,
 		Gateway:      cfg.Server.Gateway,
 	}
-	s.proxyServer = proxy.New(proxyConfig)
+	s.proxyServer = proxy.New(&proxyConfig)
 
 	// Configure proxy routes for apps with proxy enabled
 	var proxyRoutes []proxy.AppRoute
-	for _, app := range cfg.Apps {
-		if app.Proxy && app.Enabled {
+	for i := range cfg.Apps {
+		if cfg.Apps[i].Proxy && cfg.Apps[i].Enabled {
 			proxyRoutes = append(proxyRoutes, proxy.AppRoute{
-				Name:      app.Name,
-				Slug:      proxy.Slugify(app.Name),
-				TargetURL: app.URL,
+				Name:      cfg.Apps[i].Name,
+				Slug:      proxy.Slugify(cfg.Apps[i].Name),
+				TargetURL: cfg.Apps[i].URL,
 				Enabled:   true,
 			})
 		}
@@ -672,11 +673,11 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 
 	switch req.Method {
 	case "builtin":
-		if err := s.setupBuiltin(w, req); err != nil {
+		if err := s.setupBuiltin(w, &req); err != nil {
 			return // error already written
 		}
 	case "forward_auth":
-		if err := s.setupForwardAuth(req); err != nil {
+		if err := s.setupForwardAuth(&req); err != nil {
 			w.Header().Set("Content-Type", "application/json")
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
@@ -709,7 +710,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-func (s *Server) setupBuiltin(w http.ResponseWriter, req setupRequest) error {
+func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 	if strings.TrimSpace(req.Username) == "" {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -751,7 +752,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req setupRequest) error {
 	})
 
 	// Update auth middleware
-	s.authMiddleware.UpdateConfig(auth.AuthConfig{
+	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
 		Method:      auth.AuthMethodBuiltin,
 		BypassRules: defaultBypassRules,
 		APIKey:      s.config.Auth.APIKey,
@@ -769,7 +770,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req setupRequest) error {
 	return nil
 }
 
-func (s *Server) setupForwardAuth(req setupRequest) error {
+func (s *Server) setupForwardAuth(req *setupRequest) error {
 	if len(req.TrustedProxies) == 0 {
 		return fmt.Errorf("at least one trusted proxy is required for forward_auth")
 	}
@@ -790,7 +791,7 @@ func (s *Server) setupForwardAuth(req setupRequest) error {
 		headers.Name = req.Headers["name"]
 	}
 
-	s.authMiddleware.UpdateConfig(auth.AuthConfig{
+	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
 		Method:         auth.AuthMethodForwardAuth,
 		TrustedProxies: req.TrustedProxies,
 		Headers:        headers,
@@ -882,7 +883,8 @@ func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) ht
 
 // spaHandlerEmbed wraps a file server for embedded files.
 // basePath is injected into index.html as window.__MUXIMUX_BASE__ for frontend API calls.
-func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, indexPath string, basePath string) http.Handler {
+func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) http.Handler {
+	const indexPath = "index.html"
 	// Pre-read the index.html content for SPA routes
 	indexContent, err := fs.ReadFile(fsys, indexPath)
 	if err != nil {

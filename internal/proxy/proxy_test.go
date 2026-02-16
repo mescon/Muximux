@@ -6,7 +6,7 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	cfg := Config{
+	cfg := &Config{
 		ListenAddr:   ":8080",
 		InternalAddr: "127.0.0.1:18080",
 	}
@@ -54,7 +54,7 @@ func TestComputeInternalAddr(t *testing.T) {
 }
 
 func TestProxy_SetRoutes(t *testing.T) {
-	p := New(Config{})
+	p := New(&Config{})
 
 	routes := []AppRoute{
 		{Name: "App1", Slug: "app1", TargetURL: "http://localhost:8080", Enabled: true},
@@ -84,7 +84,7 @@ func TestProxy_SetRoutes(t *testing.T) {
 }
 
 func TestProxy_SetRoutes_ClearsOld(t *testing.T) {
-	p := New(Config{})
+	p := New(&Config{})
 
 	// Set initial routes
 	p.SetRoutes([]AppRoute{
@@ -111,7 +111,7 @@ func TestProxy_SetRoutes_ClearsOld(t *testing.T) {
 }
 
 func TestProxy_GetProxyURL(t *testing.T) {
-	p := New(Config{})
+	p := New(&Config{})
 
 	p.SetRoutes([]AppRoute{
 		{Name: "App1", Slug: "app1", TargetURL: "http://localhost:8080", Enabled: true},
@@ -133,7 +133,7 @@ func TestProxy_GetProxyURL(t *testing.T) {
 }
 
 func TestProxy_GetInternalAddr(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		InternalAddr: "127.0.0.1:18080",
 	})
 
@@ -144,7 +144,7 @@ func TestProxy_GetInternalAddr(t *testing.T) {
 }
 
 func TestProxy_IsRunning(t *testing.T) {
-	p := New(Config{})
+	p := New(&Config{})
 
 	if p.IsRunning() {
 		t.Error("expected not running initially")
@@ -161,7 +161,7 @@ func TestProxy_IsRunning(t *testing.T) {
 }
 
 func TestProxy_Stop_NotRunning(t *testing.T) {
-	p := New(Config{})
+	p := New(&Config{})
 
 	// Stop when not running should be a no-op
 	err := p.Stop()
@@ -200,7 +200,7 @@ func TestSlugify(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_HTTPOnly(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":8080",
 		InternalAddr: "127.0.0.1:18080",
 	})
@@ -232,7 +232,7 @@ func TestProxy_buildCaddyfile_HTTPOnly(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_AutoHTTPS(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":443",
 		InternalAddr: "127.0.0.1:10443",
 		Domain:       "example.com",
@@ -260,7 +260,7 @@ func TestProxy_buildCaddyfile_AutoHTTPS(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_ManualTLS(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":443",
 		InternalAddr: "127.0.0.1:10443",
 		TLSCert:      "/path/to/cert.pem",
@@ -281,7 +281,7 @@ func TestProxy_buildCaddyfile_ManualTLS(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_ManualTLS_WithGateway(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":443",
 		InternalAddr: "127.0.0.1:10443",
 		TLSCert:      "/path/to/cert.pem",
@@ -301,7 +301,7 @@ func TestProxy_buildCaddyfile_ManualTLS_WithGateway(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_HTTPWithGateway(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":8080",
 		InternalAddr: "127.0.0.1:18080",
 		Gateway:      "/etc/caddy/gateway.conf",
@@ -319,7 +319,7 @@ func TestProxy_buildCaddyfile_HTTPWithGateway(t *testing.T) {
 }
 
 func TestProxy_buildCaddyfile_NoGateway(t *testing.T) {
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":8080",
 		InternalAddr: "127.0.0.1:18080",
 	})
@@ -333,7 +333,7 @@ func TestProxy_buildCaddyfile_NoGateway(t *testing.T) {
 
 func TestProxy_StartAndStop(t *testing.T) {
 	// Use an ephemeral port to avoid conflicts
-	p := New(Config{
+	p := New(&Config{
 		ListenAddr:   ":19876",
 		InternalAddr: "127.0.0.1:29876",
 	})

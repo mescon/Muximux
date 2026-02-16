@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 

@@ -140,7 +140,7 @@ func (h *BroadcastHandler) Enabled(ctx context.Context, level slog.Level) bool {
 	return h.inner.Enabled(ctx, level)
 }
 
-func (h *BroadcastHandler) Handle(ctx context.Context, r slog.Record) error {
+func (h *BroadcastHandler) Handle(ctx context.Context, r slog.Record) error { //nolint:gocritic // slog.Handler interface requires value receiver
 	// Extract source attribute from record and pre-set attrs
 	source := ""
 
@@ -231,7 +231,7 @@ func Init(cfg Config) error {
 	opts := &slog.HandlerOptions{Level: &levelVar}
 
 	var inner slog.Handler
-	if strings.ToLower(cfg.Format) == "json" {
+	if strings.EqualFold(cfg.Format, "json") {
 		inner = slog.NewJSONHandler(output, opts)
 	} else {
 		inner = slog.NewTextHandler(output, opts)

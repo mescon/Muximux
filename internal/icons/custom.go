@@ -67,7 +67,7 @@ func (m *CustomIconsManager) SaveIcon(name string, data []byte, contentType stri
 	filename := name + ext
 	path := filepath.Join(m.storageDir, filename)
 
-	return os.WriteFile(path, data, 0644)
+	return os.WriteFile(path, data, 0600)
 }
 
 // GetIcon retrieves a custom icon by name

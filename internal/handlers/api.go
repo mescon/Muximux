@@ -8,9 +8,10 @@ import (
 	"sync"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
-	"gopkg.in/yaml.v3"
 )
 
 // APIHandler handles API requests
@@ -103,13 +104,13 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	for _, app := range cfg.Apps {
-		if app.Name == "" {
+	for i := range cfg.Apps {
+		if cfg.Apps[i].Name == "" {
 			http.Error(w, "Each app must have a name", http.StatusBadRequest)
 			return
 		}
-		if app.URL == "" {
-			http.Error(w, fmt.Sprintf("App %q must have a URL", app.Name), http.StatusBadRequest)
+		if cfg.Apps[i].URL == "" {
+			http.Error(w, fmt.Sprintf("App %q must have a URL", cfg.Apps[i].Name), http.StatusBadRequest)
 			return
 		}
 	}
@@ -239,13 +240,13 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 
 	// Build lookup of existing apps to preserve sensitive data
 	existingApps := make(map[string]config.AppConfig)
-	for _, app := range cfg.Apps {
-		existingApps[app.Name] = app
+	for i := range cfg.Apps {
+		existingApps[cfg.Apps[i].Name] = cfg.Apps[i]
 	}
 
 	newApps := make([]config.AppConfig, 0, len(update.Apps))
-	for _, clientApp := range update.Apps {
-		app := mergeClientApp(clientApp, existingApps)
+	for i := range update.Apps {
+		app := mergeClientApp(&update.Apps[i], existingApps)
 		newApps = append(newApps, app)
 	}
 	cfg.Apps = newApps
@@ -253,7 +254,7 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 
 // mergeClientApp converts a client app config back to a full app config,
 // preserving sensitive fields from the existing app if it was previously configured.
-func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
+func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
 	// Get original URL if this was a proxied app
 	appURL := clientApp.URL
 	if clientApp.Proxy {
@@ -311,10 +312,10 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	for _, app := range h.config.Apps {
-		if app.Name == name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == name {
 			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(sanitizeApp(app))
+			json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[i]))
 			return
 		}
 	}
@@ -339,8 +340,8 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.Unlock()
 
 	// Check if app already exists
-	for _, app := range h.config.Apps {
-		if app.Name == clientApp.Name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == clientApp.Name {
 			http.Error(w, "App already exists", http.StatusConflict)
 			return
 		}
@@ -377,7 +378,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	logging.Info("App created", "source", "config", "app", newApp.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(sanitizeApp(newApp))
+	json.NewEncoder(w).Encode(sanitizeApp(&newApp))
 }
 
 // UpdateApp updates an existing app
@@ -393,8 +394,8 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Find the app
 	idx := -1
-	for i, app := range h.config.Apps {
-		if app.Name == name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == name {
 			idx = i
 			break
 		}
@@ -438,7 +439,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	logging.Info("App updated", "source", "config", "app", clientApp.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(sanitizeApp(h.config.Apps[idx]))
+	json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[idx]))
 }
 
 // DeleteApp removes an app
@@ -448,8 +449,8 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Find and remove the app
 	idx := -1
-	for i, app := range h.config.Apps {
-		if app.Name == name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == name {
 			idx = i
 			break
 		}
@@ -477,10 +478,10 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	for _, group := range h.config.Groups {
-		if group.Name == name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == name {
 			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(group)
+			json.NewEncoder(w).Encode(h.config.Groups[i])
 			return
 		}
 	}
@@ -505,8 +506,8 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.Unlock()
 
 	// Check if group already exists
-	for _, g := range h.config.Groups {
-		if g.Name == group.Name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == group.Name {
 			http.Error(w, "Group already exists", http.StatusConflict)
 			return
 		}
@@ -540,8 +541,8 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Find the group
 	idx := -1
-	for i, g := range h.config.Groups {
-		if g.Name == name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == name {
 			idx = i
 			break
 		}
@@ -572,8 +573,8 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Find and remove the group
 	idx := -1
-	for i, g := range h.config.Groups {
-		if g.Name == name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == name {
 			idx = i
 			break
 		}
@@ -588,8 +589,8 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Optionally: Move apps in this group to "ungrouped"
 	deletedName := name
-	for i, app := range h.config.Apps {
-		if app.Group == deletedName {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Group == deletedName {
 			h.config.Apps[i].Group = ""
 		}
 	}
@@ -605,7 +606,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 }
 
 // sanitizeApp converts a single app config to client format
-func sanitizeApp(app config.AppConfig) ClientAppConfig {
+func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 	var proxyURL string
 	if app.Proxy {
 		proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
@@ -655,37 +656,11 @@ type ClientAppConfig struct {
 // sanitizeApps removes sensitive fields from app configs
 func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
 	result := make([]ClientAppConfig, 0, len(apps))
-	for _, app := range apps {
-		if !app.Enabled {
+	for i := range apps {
+		if !apps[i].Enabled {
 			continue
 		}
-
-		// URL is always the original target URL
-		// ProxyURL is set when proxy is enabled (for iframe loading)
-		var proxyURL string
-		if app.Proxy {
-			proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
-		}
-
-		result = append(result, ClientAppConfig{
-			Name:                     app.Name,
-			URL:                      app.URL,
-			ProxyURL:                 proxyURL,
-			Icon:                     app.Icon,
-			Color:                    app.Color,
-			Group:                    app.Group,
-			Order:                    app.Order,
-			Enabled:                  app.Enabled,
-			Default:                  app.Default,
-			OpenMode:                 app.OpenMode,
-			Proxy:                    app.Proxy,
-			HealthCheck:              app.HealthCheck,
-			ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
-			ProxyHeaders:             app.ProxyHeaders,
-			Scale:                    app.Scale,
-			Shortcut:                 app.Shortcut,
-			DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
-		})
+		result = append(result, sanitizeApp(&apps[i]))
 	}
 	return result
 }
@@ -695,11 +670,12 @@ func slugify(name string) string {
 	// Simple slugify - replace spaces with dashes, lowercase
 	result := make([]byte, 0, len(name))
 	for _, c := range name {
-		if c >= 'A' && c <= 'Z' {
+		switch {
+		case c >= 'A' && c <= 'Z':
 			result = append(result, byte(c+32)) // lowercase
-		} else if c >= 'a' && c <= 'z' || c >= '0' && c <= '9' {
+		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
 			result = append(result, byte(c))
-		} else if c == ' ' || c == '-' || c == '_' {
+		case c == ' ', c == '-', c == '_':
 			result = append(result, '-')
 		}
 	}
