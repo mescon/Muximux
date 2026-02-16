@@ -38,6 +38,7 @@ type AuthConfig struct {
 	Headers        ForwardAuthHeaders
 	BypassRules    []BypassRule
 	APIKey         string
+	BasePath       string // e.g. "/muximux" — prepended to login redirect
 }
 
 // ForwardAuthHeaders defines the header names for forward auth
@@ -410,7 +411,7 @@ func (m *Middleware) handleUnauthenticated(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Redirect to login page for browser requests
-	http.Redirect(w, r, "/login", http.StatusFound)
+	http.Redirect(w, r, m.config.BasePath+"/login", http.StatusFound)
 }
 
 // GetUserFromContext extracts the user from request context

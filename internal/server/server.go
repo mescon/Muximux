@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"embed"
 	"encoding/json"
@@ -207,14 +208,32 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		fileServer := http.FileServer(http.Dir("web/dist"))
 		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
 	} else {
-		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html")
+		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, "index.html", cfg.Server.NormalizedBasePath())
 	}
 
 	// Serve static files with SPA fallback
 	mux.Handle("/", staticHandler)
 
 	// Create the final handler with security middleware
-	handler := s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware))
+	var handler http.Handler = s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware))
+
+	// Wrap with base path stripping if configured
+	basePath := cfg.Server.NormalizedBasePath()
+	if basePath != "" {
+		inner := handler
+		handler = http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			// Redirect requests to base path without trailing slash
+			if r.URL.Path == basePath {
+				http.Redirect(w, r, basePath+"/", http.StatusMovedPermanently)
+				return
+			}
+			if !strings.HasPrefix(r.URL.Path, basePath+"/") {
+				http.NotFound(w, r)
+				return
+			}
+			http.StripPrefix(basePath, inner).ServeHTTP(w, r)
+		})
+	}
 
 	s.httpServer = &http.Server{
 		Addr:         goListenAddr,
@@ -268,6 +287,7 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 		Method:         auth.AuthMethod(cfg.Auth.Method),
 		TrustedProxies: cfg.Auth.TrustedProxies,
 		APIKey:         cfg.Auth.APIKey,
+		BasePath:       cfg.Server.NormalizedBasePath(),
 		Headers: auth.ForwardAuthHeaders{
 			User:   cfg.Auth.Headers["user"],
 			Email:  cfg.Auth.Headers["email"],
@@ -295,6 +315,7 @@ func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *a
 		GroupsClaim:      cfg.Auth.OIDC.GroupsClaim,
 		DisplayNameClaim: cfg.Auth.OIDC.DisplayNameClaim,
 		AdminGroups:      cfg.Auth.OIDC.AdminGroups,
+		BasePath:         cfg.Server.NormalizedBasePath(),
 	}
 	return auth.NewOIDCProvider(oidcConfig, sessionStore, userStore)
 }
@@ -859,13 +880,20 @@ func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) ht
 	})
 }
 
-// spaHandlerEmbed wraps a file server for embedded files
-func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, indexPath string) http.Handler {
+// spaHandlerEmbed wraps a file server for embedded files.
+// basePath is injected into index.html as window.__MUXIMUX_BASE__ for frontend API calls.
+func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, indexPath string, basePath string) http.Handler {
 	// Pre-read the index.html content for SPA routes
 	indexContent, err := fs.ReadFile(fsys, indexPath)
 	if err != nil {
 		// Fallback to letting fileServer handle it
 		return fileServer
+	}
+
+	// Inject base path into index.html if configured
+	if basePath != "" {
+		injection := []byte(fmt.Sprintf(`<script>window.__MUXIMUX_BASE__=%q;</script></head>`, basePath))
+		indexContent = bytes.Replace(indexContent, []byte("</head>"), injection, 1)
 	}
 
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

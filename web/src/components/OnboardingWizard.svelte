@@ -82,6 +82,8 @@
   let navAutoHideDelay = $state('0.5s');
   let navShowShadow = $state(true);
   let navShowOnHover = $state(true);
+  let navFloatingPosition = $state<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
+  let navBarStyle = $state<'grouped' | 'flat'>('grouped');
 
   const flipDurationMs = 200;
 
@@ -194,6 +196,35 @@
     }
   }
 
+  // Add a numbered duplicate of a popular app template
+  function addInstanceOf(app: PopularAppTemplate) {
+    const allNames = new SvelteSet<string>();
+    appSelections.forEach((v, k) => { if (v.selected) allNames.add(k); });
+    get(selectedApps).forEach(a => allNames.add(a.name));
+
+    let num = 2;
+    while (allNames.has(`${app.name} ${num}`)) num++;
+
+    const targetGroup = app.group;
+    const newApp: App = {
+      name: `${app.name} ${num}`,
+      url: app.defaultUrl,
+      icon: { type: 'dashboard', name: app.icon, file: '', url: '', variant: 'svg' },
+      color: app.color,
+      group: targetGroup,
+      order: selectedCount + get(selectedApps).length,
+      enabled: true,
+      default: false,
+      open_mode: 'iframe',
+      proxy: false,
+      scale: 1,
+      disable_keyboard_shortcuts: false
+    };
+
+    selectedApps.update(apps => [...apps, newApp]);
+    rebuildDndFromSelections();
+  }
+
   // Get app URL (popular or custom)
   function getAppUrl(appName: string): string {
     const sel = appSelections.get(appName);
@@ -276,8 +307,8 @@
     { value: 'top', label: 'Top Bar', description: 'Horizontal navigation at the top', icon: 'top' },
     { value: 'left', label: 'Left Sidebar', description: 'Vertical sidebar on the left', icon: 'left' },
     { value: 'right', label: 'Right Sidebar', description: 'Vertical sidebar on the right', icon: 'right' },
-    { value: 'bottom', label: 'Bottom Dock', description: 'macOS-style dock at the bottom', icon: 'bottom' },
-    { value: 'floating', label: 'Floating', description: 'Minimal floating buttons', icon: 'floating' }
+    { value: 'bottom', label: 'Bottom Bar', description: 'Horizontal bar at the bottom', icon: 'bottom' },
+    { value: 'floating', label: 'Floating', description: 'Minimal floating button', icon: 'floating' }
   ];
 
   // Build the full preview app list — mirrors completeOnboarding() so the preview
@@ -349,7 +380,9 @@
       show_icon_background: navShowIconBg,
       icon_scale: navIconScale,
       show_splash_on_startup: navShowSplash,
-      show_shadow: navShowShadow
+      show_shadow: navShowShadow,
+      floating_position: navFloatingPosition,
+      bar_style: navBarStyle
     },
     groups: previewGroups, apps: previewApps
   });
@@ -522,7 +555,9 @@
       show_icon_background: navShowIconBg,
       icon_scale: navIconScale,
       show_splash_on_startup: navShowSplash,
-      show_shadow: navShowShadow
+      show_shadow: navShowShadow,
+      floating_position: navFloatingPosition,
+      bar_style: navBarStyle
     };
 
     // Capture current theme from stores
@@ -560,9 +595,11 @@
 
       // Find the template to determine group
       const template = Object.values(popularApps).flat().find(a => a.name === name);
-      const targetGroup = template?.group || null;
+      // Also check custom apps (e.g. "Radarr 2" created by addInstanceOf) which store their group
+      const customApp = get(selectedApps).find(a => a.name === name);
+      const targetGroup = template?.group || customApp?.group || null;
 
-      if (targetGroup) {
+      if (targetGroup && (wizardGroups.some(g => g.name === targetGroup) || template)) {
         // Ensure the group bucket exists (the $effect will auto-create the wizardGroup entry)
         if (!dndApps[targetGroup]) dndApps[targetGroup] = [];
         dndApps[targetGroup].push({ id: name, name });
@@ -685,6 +722,17 @@
     return appOverrides.get(appName)?.open_mode || 'iframe';
   }
 
+  function cycleOpenMode(appName: string) {
+    const order: App['open_mode'][] = ['iframe', 'new_tab', 'new_window'];
+    const current = getAppOpenMode(appName);
+    const next = order[(order.indexOf(current) + 1) % order.length];
+    updateAppSetting(appName, 'open_mode', next);
+  }
+
+  function openModeLabel(mode: App['open_mode']): string {
+    return mode === 'iframe' ? 'Embedded' : mode === 'new_tab' ? 'New Tab' : 'New Window';
+  }
+
   function getAppProxy(appName: string): boolean {
     return appOverrides.get(appName)?.proxy || false;
   }
@@ -778,8 +826,21 @@
 </script>
 
 <div class="fixed inset-0 z-50 bg-gray-900 overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-label="Setup wizard" tabindex="0">
+  <!-- Top bar nav preview — rendered as wizard root flex child so it sits above the stepper -->
+  {#if ($currentStep === 'navigation' || $currentStep === 'theme') && $selectedNavigation === 'top'}
+    <div class="flex-shrink-0" style="z-index: 20;">
+      <Navigation
+        apps={previewApps}
+        currentApp={previewCurrentApp}
+        config={previewConfig}
+        showHealth={false}
+        onselect={(app) => { previewCurrentAppOverride = app; }}
+      />
+    </div>
+  {/if}
+
   <!-- Progress stepper -->
-  <div class="flex-shrink-0 px-8 pt-6">
+  <div class="flex-shrink-0 px-8 pt-6 relative z-10" style="background: inherit;">
     <div class="max-w-2xl mx-auto">
       <div class="stepper-track">
         <!-- Background rail -->
@@ -814,19 +875,17 @@
     {#if $currentStep === 'navigation' || $currentStep === 'theme'}
       <!-- Style + Theme steps: live Navigation preview alongside content -->
       <div
-        class="overflow-hidden"
+        class="overflow-hidden h-full"
         style="grid-area: 1/1;"
-        class:flex={$selectedNavigation !== 'floating'}
+        class:flex={$selectedNavigation === 'left' || $selectedNavigation === 'right'}
         class:flex-row={$selectedNavigation === 'left'}
         class:flex-row-reverse={$selectedNavigation === 'right'}
-        class:flex-col={$selectedNavigation === 'top'}
-        class:flex-col-reverse={$selectedNavigation === 'bottom'}
         in:fly={{ x: 30, duration: 300 }}
         out:fade={{ duration: 150 }}
       >
-        <!-- Fixed-size wrapper prevents layout shift when auto-hide toggles -->
+        <!-- Fixed-size wrapper — absolute positioning lets nav span full wizard height/width -->
         {#if $selectedNavigation === 'left' || $selectedNavigation === 'right'}
-          <div style="flex-shrink: 0; min-width: 220px; position: relative; overflow: visible;{$selectedNavigation === 'right' ? ' display: flex; justify-content: flex-end;' : ''}">
+          <div style="flex-shrink: 0; min-width: 220px; position: absolute; top: 0; bottom: 0; {$selectedNavigation === 'right' ? 'right: 0; display: flex; justify-content: flex-end;' : 'left: 0;'} overflow: visible; z-index: 20;">
             <Navigation
               apps={previewApps}
               currentApp={previewCurrentApp}
@@ -835,6 +894,8 @@
               onselect={(app) => { previewCurrentAppOverride = app; }}
             />
           </div>
+        {:else if $selectedNavigation === 'top' || $selectedNavigation === 'bottom'}
+          <!-- Top/bottom nav is rendered outside the content grid as a wizard root flex child -->
         {:else}
           <Navigation
             apps={previewApps}
@@ -845,7 +906,7 @@
           />
         {/if}
 
-        <div class="flex-1 overflow-y-auto px-8 py-6 relative" style="background: var(--bg-base);">
+        <div class="flex-1 overflow-y-auto px-8 py-6 relative" style="background: var(--bg-base); {$selectedNavigation === 'left' ? 'margin-left: 220px;' : $selectedNavigation === 'right' ? 'margin-right: 220px;' : ''}">
           <div class="max-w-3xl mx-auto">
             {#if $currentStep === 'navigation'}
             <div class="text-center mb-6">
@@ -867,6 +928,48 @@
                 </button>
               {/each}
             </div>
+
+            <!-- Bar Style (right below position selector, only for top/bottom) -->
+            {#if $selectedNavigation === 'top' || $selectedNavigation === 'bottom'}
+              <div class="flex justify-center gap-2 mb-4">
+                {#each [
+                  { value: 'grouped', label: 'Group Dropdowns' },
+                  { value: 'flat', label: 'Flat List' }
+                ] as style (style.value)}
+                  <button
+                    class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
+                           {navBarStyle === style.value
+                             ? 'border-brand-500 bg-brand-500/15 text-white'
+                             : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
+                    onclick={() => navBarStyle = style.value}
+                  >
+                    {style.label}
+                  </button>
+                {/each}
+              </div>
+            {/if}
+
+            <!-- Floating position selector -->
+            {#if $selectedNavigation === 'floating'}
+              <div class="flex flex-wrap justify-center gap-2 mb-4">
+                {#each [
+                  { value: 'bottom-right', label: 'Bottom Right' },
+                  { value: 'bottom-left', label: 'Bottom Left' },
+                  { value: 'top-right', label: 'Top Right' },
+                  { value: 'top-left', label: 'Top Left' }
+                ] as fp (fp.value)}
+                  <button
+                    class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
+                           {navFloatingPosition === fp.value
+                             ? 'border-brand-500 bg-brand-500/15 text-white'
+                             : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
+                    onclick={() => navFloatingPosition = fp.value}
+                  >
+                    {fp.label}
+                  </button>
+                {/each}
+              </div>
+            {/if}
 
             <!-- Settings controls -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
@@ -956,6 +1059,7 @@
                   </label>
                 {/if}
               </div>
+
             </div>
             {:else}
             <!-- Theme step content -->
@@ -1395,8 +1499,20 @@
                         aria-checked={selection?.selected}
                         tabindex="0"
                       >
-                        <!-- Checkbox -->
-                        <div class="absolute top-2.5 right-2.5">
+                        <!-- Checkbox + Add Instance -->
+                        <div class="absolute top-2.5 right-2.5 flex items-center gap-1">
+                          {#if selection?.selected}
+                            <button
+                              class="w-5 h-5 rounded border border-brand-500 bg-brand-500/20 flex items-center justify-center
+                                     hover:bg-brand-500/40 transition-colors"
+                              onclick={(e) => { e.stopPropagation(); addInstanceOf(app); }}
+                              title="Add another {app.name}"
+                            >
+                              <svg class="w-3 h-3 text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
+                              </svg>
+                            </button>
+                          {/if}
                           <div class="w-5 h-5 rounded border flex items-center justify-center
                                       {selection?.selected ? 'bg-brand-500 border-brand-500' : 'border-gray-600'}">
                             {#if selection?.selected}
@@ -1508,9 +1624,9 @@
                               {#each groupApps as item (item.id)}
                                 {@const appColor = getAppDisplayColor(item.name)}
                                 {@const appIcon = getAppDisplayIcon(item.name)}
-                                <div class="p-1.5 rounded bg-gray-800/70 cursor-grab group/drag text-sm text-white"
+                                <div class="p-2 rounded bg-gray-800/70 cursor-grab group/drag text-sm text-white"
                                      animate:flip={{duration: flipDurationMs}}>
-                                  <div class="flex items-center gap-1.5">
+                                  <div class="flex items-center gap-1.5 min-w-0">
                                     <svg class="w-3.5 h-3.5 text-gray-600 group-hover/drag:text-gray-400 flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                                       <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                                     </svg>
@@ -1539,10 +1655,10 @@
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-sm text-white truncate flex-1 bg-transparent border-0 border-b border-transparent hover:border-gray-600 focus:border-brand-500 focus:outline-none px-0 py-0"
+                                      class="text-sm text-white truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-gray-600 focus:border-brand-500 focus:outline-none px-0 py-0"
                                     />
                                     <button
-                                      class="p-0.5 text-gray-500 hover:text-red-400 transition-opacity flex-shrink-0"
+                                      class="p-1 text-gray-500 hover:text-red-400 transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}
                                       aria-label="Remove {item.name}"
                                     >
@@ -1731,6 +1847,19 @@
       </div>
     </div>
   </div>
+
+  <!-- Bottom dock nav preview — rendered as wizard root flex child so it sits below buttons -->
+  {#if ($currentStep === 'navigation' || $currentStep === 'theme') && $selectedNavigation === 'bottom'}
+    <div class="flex-shrink-0" style="z-index: 20;">
+      <Navigation
+        apps={previewApps}
+        currentApp={previewCurrentApp}
+        config={previewConfig}
+        showHealth={false}
+        onselect={(app) => { previewCurrentAppOverride = app; }}
+      />
+    </div>
+  {/if}
 </div>
 
 <!-- Icon Browser modal -->

@@ -23,11 +23,13 @@
   let {
     config,
     apps,
+    initialTab = 'general',
     onclose,
     onsave,
   }: {
     config: Config;
     apps: App[];
+    initialTab?: string;
     onclose?: () => void;
     onsave?: (config: Config) => void;
   } = $props();
@@ -53,7 +55,7 @@
   });
 
   // Active tab
-  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
+  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>(initialTab as any);
 
   // Local copy of config for editing
   let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
@@ -617,11 +619,11 @@
   }
 
   const navPositions = [
-    { value: 'top', label: 'Top', description: 'Horizontal bar at the top' },
+    { value: 'top', label: 'Top Bar', description: 'Horizontal bar at the top' },
     { value: 'left', label: 'Left Sidebar', description: 'Vertical sidebar on the left' },
     { value: 'right', label: 'Right Sidebar', description: 'Vertical sidebar on the right' },
-    { value: 'bottom', label: 'Bottom Dock', description: 'macOS-style dock at the bottom' },
-    { value: 'floating', label: 'Floating', description: 'Minimal floating buttons' }
+    { value: 'bottom', label: 'Bottom Bar', description: 'Horizontal bar at the bottom' },
+    { value: 'floating', label: 'Floating', description: 'Minimal floating button' }
   ] as const;
 
   const openModes = [
@@ -898,6 +900,59 @@
             </div>
           </div>
 
+          <!-- Bar Style (only shown when top or bottom is selected) -->
+          {#if localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
+            <div>
+              <span class="block text-sm font-medium text-gray-300 mb-2">
+                Bar Style
+              </span>
+              <div class="grid grid-cols-2 gap-3">
+                {#each [
+                  { value: 'grouped', label: 'Group Dropdowns', description: 'Apps organized in dropdown menus by group' },
+                  { value: 'flat', label: 'Flat List', description: 'All apps in a single scrollable row' }
+                ] as style (style.value)}
+                  <button
+                    class="p-3 rounded-lg border text-left transition-colors
+                           {(localConfig.navigation.bar_style || 'grouped') === style.value
+                             ? 'border-brand-500 bg-brand-500/10 text-white'
+                             : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
+                    onclick={() => localConfig.navigation.bar_style = style.value}
+                  >
+                    <div class="font-medium text-sm">{style.label}</div>
+                    <div class="text-xs text-gray-400 mt-1">{style.description}</div>
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
+          <!-- Floating Position (only shown when floating is selected) -->
+          {#if localConfig.navigation.position === 'floating'}
+            <div>
+              <span class="block text-sm font-medium text-gray-300 mb-2">
+                Floating Button Position
+              </span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {#each [
+                  { value: 'bottom-right', label: 'Bottom Right' },
+                  { value: 'bottom-left', label: 'Bottom Left' },
+                  { value: 'top-right', label: 'Top Right' },
+                  { value: 'top-left', label: 'Top Left' }
+                ] as fp (fp.value)}
+                  <button
+                    class="p-2 rounded-lg border text-center text-sm transition-colors
+                           {(localConfig.navigation.floating_position || 'bottom-right') === fp.value
+                             ? 'border-brand-500 bg-brand-500/10 text-white'
+                             : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
+                    onclick={() => localConfig.navigation.floating_position = fp.value}
+                  >
+                    {fp.label}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
           <!-- Navigation Options -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
@@ -1009,6 +1064,24 @@
                 </label>
               {/if}
             </div>
+          </div>
+
+          <!-- Health Monitoring bulk actions -->
+          <div class="pt-4 border-t border-gray-700">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-sm font-medium text-gray-300">Health Checks</h3>
+              <div class="flex gap-2">
+                <button
+                  class="text-xs px-2 py-1 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                  onclick={() => localApps.forEach(a => a.health_check = undefined)}
+                >Enable all</button>
+                <button
+                  class="text-xs px-2 py-1 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                  onclick={() => localApps.forEach(a => a.health_check = false)}
+                >Disable all</button>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500">Toggle per app in the app editor</p>
           </div>
 
           <!-- Advanced -->
@@ -3120,6 +3193,40 @@ chmod +x muximux-darwin-arm64
               </div>
             </div>
           {/if}
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={editingApp.health_check !== false}
+              onchange={(e) => {
+                editingApp!.health_check = (e.target as HTMLInputElement).checked ? undefined : false;
+              }}
+              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+            />
+            <div>
+              <span class="text-sm text-white">Health check</span>
+              <p class="text-xs text-gray-400">Monitor availability of this app</p>
+            </div>
+          </label>
+          <div class="flex items-center gap-3">
+            <div class="flex-1">
+              <span class="text-sm text-white">Keyboard Shortcut</span>
+              <p class="text-xs text-gray-400">Press this number key to switch to this app</p>
+            </div>
+            <select
+              value={editingApp.shortcut ?? ''}
+              onchange={(e) => {
+                const val = (e.target as HTMLSelectElement).value;
+                editingApp!.shortcut = val ? parseInt(val) : undefined;
+              }}
+              class="px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-500 focus:border-brand-500"
+            >
+              <option value="">None</option>
+              {#each [1,2,3,4,5,6,7,8,9] as n}
+                {@const taken = localApps.find(a => a.shortcut === n && a.name !== editingApp?.name)}
+                <option value={n} disabled={!!taken}>{n}{taken ? ` (${taken.name})` : ''}</option>
+              {/each}
+            </select>
+          </div>
           <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"

@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { AppIcon as AppIconType } from '$lib/types';
+  import { getBase } from '$lib/api';
 
   let { icon, name, color = '#374151', size = 'md', showBackground = true, scale }: {
     icon: AppIconType;
@@ -26,20 +27,21 @@
   function getIconUrl(): string | null {
     if (!icon) return null;
 
+    const base = getBase();
     switch (icon.type) {
       case 'dashboard': {
         if (!icon.name) return null;
         const variant = icon.variant || 'svg';
-        return `/icons/dashboard/${icon.name}.${variant}`;
+        return `${base}/icons/dashboard/${icon.name}.${variant}`;
       }
       case 'custom':
         if (!icon.file) return null;
-        return `/icons/custom/${icon.file}`;
+        return `${base}/icons/custom/${icon.file}`;
       case 'url':
         return icon.url || null;
       case 'lucide':
         if (!icon.name) return null;
-        return `/icons/lucide/${icon.name}.svg`;
+        return `${base}/icons/lucide/${icon.name}.svg`;
       default:
         return null;
     }

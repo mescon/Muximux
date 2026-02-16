@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -62,11 +63,25 @@ type TLSConfig struct {
 // ServerConfig holds HTTP server settings
 type ServerConfig struct {
 	Listen       string    `yaml:"listen" json:"listen"`
+	BasePath     string    `yaml:"base_path" json:"base_path"` // e.g. "/muximux" — for serving behind a reverse proxy subpath
 	Title        string    `yaml:"title" json:"title"`
 	LogLevel     string    `yaml:"log_level" json:"log_level"`
 	ProxyTimeout string    `yaml:"proxy_timeout" json:"proxy_timeout"` // e.g. "30s", "1m" — timeout for proxied requests
 	TLS          TLSConfig `yaml:"tls" json:"tls"`
 	Gateway      string    `yaml:"gateway" json:"gateway"`
+}
+
+// NormalizedBasePath returns the base path with a leading slash and no trailing slash.
+// Returns "" if no base path is configured.
+func (c *ServerConfig) NormalizedBasePath() string {
+	p := strings.TrimRight(c.BasePath, "/")
+	if p == "" {
+		return ""
+	}
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return p
 }
 
 // NeedsCaddy returns true if TLS or Gateway is configured, meaning Caddy
@@ -125,7 +140,9 @@ type NavigationConfig struct {
 	ShowIconBackground bool    `yaml:"show_icon_background" json:"show_icon_background"`
 	IconScale          float64 `yaml:"icon_scale" json:"icon_scale"`
 	ShowSplashOnStart  bool    `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
-	ShowShadow         bool    `yaml:"show_shadow" json:"show_shadow"`
+	ShowShadow         bool   `yaml:"show_shadow" json:"show_shadow"`
+	FloatingPosition   string `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
+	BarStyle           string `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
 }
 
 // IconsConfig holds icon settings
@@ -162,10 +179,12 @@ type AppConfig struct {
 	Enabled                  bool              `yaml:"enabled"`
 	Default                  bool              `yaml:"default"`
 	OpenMode                 string            `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
+	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // nil/true = enabled, false = disabled
 	Proxy                    bool              `yaml:"proxy"`
 	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
 	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
 	Scale                    float64           `yaml:"scale"`
+	Shortcut                 *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
 	DisableKeyboardShortcuts bool              `yaml:"disable_keyboard_shortcuts,omitempty"`
 	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
 	Access                   AppAccessConfig   `yaml:"access"`
@@ -306,10 +325,12 @@ func defaultConfig() *Config {
 			ShowLabels:         true,
 			ShowLogo:           true,
 			ShowAppColors:      true,
-			ShowIconBackground: true,
+			ShowIconBackground: false,
 			IconScale:          1.0,
 			ShowSplashOnStart:  false,
 			ShowShadow:         true,
+			FloatingPosition:   "bottom-right",
+			BarStyle:           "grouped",
 		},
 		Icons: IconsConfig{
 			DashboardIcons: DashboardIconsConfig{

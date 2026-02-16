@@ -6,12 +6,13 @@
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
 
-  let { apps, config, showHealth = true, onselect, onsettings }: {
+  let { apps, config, showHealth = true, onselect, onsettings, onabout }: {
     apps: App[];
     config: Config;
     showHealth?: boolean;
     onselect?: (app: App) => void;
     onsettings?: () => void;
+    onabout?: () => void;
   } = $props();
 
   let mounted = $state(false);
@@ -131,8 +132,8 @@
               style="animation-delay: {getStaggerDelay(groupIndex, appIndex)};"
               onclick={() => onselect?.(app)}
             >
-              <!-- Health indicator -->
-              {#if showHealth}
+              <!-- Health indicator — per-app control -->
+              {#if showHealth && app.health_check !== false}
                 <div class="absolute top-2.5 right-2.5 z-10">
                   <HealthIndicator appName={app.name} size="sm" />
                 </div>
@@ -228,6 +229,16 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             Settings
+          </button>
+          <button
+            class="flex items-center gap-1.5 hover:text-[var(--text-secondary)] transition-colors"
+            onclick={() => onabout?.()}
+          >
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            About
           </button>
         </div>
       </footer>

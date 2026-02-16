@@ -40,8 +40,18 @@
     onlogout?.();
   }
 
-  function isUnhealthy(appName: string): boolean {
-    return $healthData.get(appName)?.status === 'unhealthy';
+  // Whether health indicators should be shown for a given app
+  // Global ON (default): show for all apps unless app.health_check === false
+  // Global OFF: show for no apps unless app.health_check === true
+  // Per-app health check: undefined/true = show, false = hide
+  function shouldShowHealth(app: App): boolean {
+    if (!showHealth) return false;
+    return app.health_check !== false;
+  }
+
+  function isUnhealthy(app: App): boolean {
+    if (!shouldShowHealth(app)) return false;
+    return $healthData.get(app.name)?.status === 'unhealthy';
   }
 
   // Sidebar width state (for left/right layouts)
@@ -67,7 +77,34 @@
   // The expanded sidebar overlays the content instead of pushing it.
   let effectiveSidebarWidth = $derived((config.navigation.auto_hide || !config.navigation.show_labels) && !isMobile ? collapsedStripWidth : sidebarWidth);
   let mobileMenuOpen = $state(false);
+  let panelOpen = $state(false);
   let hasTouchSupport = $state(false);
+
+  // Group dropdown state for top/bottom bars
+  let openGroupDropdown = $state<string | null>(null);
+  let dropdownCloseTimeout: ReturnType<typeof setTimeout> | null = null;
+
+  function openDropdown(groupName: string) {
+    if (dropdownCloseTimeout) { clearTimeout(dropdownCloseTimeout); dropdownCloseTimeout = null; }
+    openGroupDropdown = groupName;
+  }
+  function scheduleDropdownClose() {
+    dropdownCloseTimeout = setTimeout(() => { openGroupDropdown = null; }, 150);
+  }
+  function cancelDropdownClose() {
+    if (dropdownCloseTimeout) { clearTimeout(dropdownCloseTimeout); dropdownCloseTimeout = null; }
+  }
+
+  // Hovered group in flat bar mode (highlights member apps)
+  let hoveredGroup = $state<string | null>(null);
+
+  // Convert vertical mouse wheel to horizontal scroll for flat bar mode
+  function handleBarWheel(e: WheelEvent) {
+    const el = e.currentTarget as HTMLElement;
+    if (!el || el.scrollWidth <= el.clientWidth) return;
+    e.preventDefault();
+    el.scrollLeft += e.deltaY || e.deltaX;
+  }
 
   // Group apps by their group, sorted by order
   let groupedApps = $derived.by(() => {
@@ -91,6 +128,12 @@
     ...sortedGroups.map(g => g.name),
     ...(groupedApps['Ungrouped'] ? ['Ungrouped'] : [])
   ].filter(name => groupedApps[name]));
+
+  // Whether we have real groups (not just one "Ungrouped" bucket)
+  let hasRealGroups = $derived(groupNames.length > 1 || (groupNames.length === 1 && groupNames[0] !== 'Ungrouped'));
+
+  // Top/bottom bar mode: grouped dropdowns vs flat scrollable list
+  let useGroupDropdowns = $derived(hasRealGroups && config.navigation.bar_style !== 'flat');
 
   // Initialize expanded state from localStorage
   onMount(() => {
@@ -125,12 +168,15 @@
     // Set up edge swipe for mobile sidebar
     setupEdgeSwipe();
 
+    window.addEventListener('keydown', handlePanelKeydown);
+
     return () => {
       window.removeEventListener('resize', checkResponsive);
       document.removeEventListener('pointermove', handleResizeMove);
       document.removeEventListener('pointerup', handleResizeEnd);
       document.removeEventListener('pointercancel', handleResizeEnd);
       cleanupEdgeSwipe();
+      window.removeEventListener('keydown', handlePanelKeydown);
     };
   });
 
@@ -245,6 +291,13 @@
     }
   }
 
+  function handlePanelKeydown(e: KeyboardEvent) {
+    if (e.key === 'Escape') {
+      if (openGroupDropdown) { openGroupDropdown = null; return; }
+      if (panelOpen) { panelOpen = false; }
+    }
+  }
+
   // Auto-hide handling
   // Nav element enter/leave: controls hide timer based on whether mouse is inside the nav
   function handleNavEnter() {
@@ -259,6 +312,7 @@
     const delayMs = parseDelay(config.navigation.auto_hide_delay);
     hideTimeout = setTimeout(() => {
       isHidden = true;
+      if (config.navigation.position === 'floating') panelOpen = false;
     }, delayMs);
   }
 
@@ -328,6 +382,7 @@
       class="top-nav-panel border-b"
       style="background: var(--bg-surface); border-color: var(--border-subtle);"
       style:height="{isCollapsedTop ? collapsedBarHeight : 56}px"
+      style:overflow={isCollapsedTop ? 'hidden' : 'visible'}
       style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow ? '0 4px 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide ? 'absolute' : null}
       style:top={config.navigation.auto_hide ? '0' : null}
@@ -336,61 +391,158 @@
       style:z-index={config.navigation.auto_hide ? '30' : null}
     >
     <div
-      class="flex items-center justify-between px-4"
+      class="flex items-center gap-4 px-4"
       style="height: 56px;"
     >
-      <!-- Logo + app tabs -->
-      <div class="flex items-center space-x-4">
-        {#if config.navigation.show_logo}
-          <button
-            class="flex-shrink-0 hover:opacity-80"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-            onclick={() => onsplash?.()}
-            title={config.title}
-          >
-            <MuximuxLogo height="24" />
-          </button>
-        {:else}
-          <button
-            class="flex-shrink-0 p-1 rounded-md hover:bg-gray-700 transition-all"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-            onclick={() => onsplash?.()}
-            title="Overview"
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-            </svg>
-          </button>
-        {/if}
+      <!-- Logo — fixed -->
+      {#if config.navigation.show_logo}
+        <button
+          class="flex-shrink-0 hover:opacity-80"
+          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+          onclick={() => onsplash?.()}
+          title={config.title}
+        >
+          <MuximuxLogo height="24" />
+        </button>
+      {:else}
+        <button
+          class="flex-shrink-0 p-1 rounded-md hover:bg-gray-700 transition-all"
+          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+          onclick={() => onsplash?.()}
+          title="Overview"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+          </svg>
+        </button>
+      {/if}
 
-        <!-- App tabs - always visible, labels hidden when collapsed -->
-        <div class="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-[calc(100vw-300px)]">
-          {#each apps as app (app.name)}
-            <button
-              class="relative group px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
-                     {currentApp?.name === app.name
-                       ? 'bg-gray-900 text-white'
-                       : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
-                     {showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
-              style={config.navigation.show_app_colors && currentApp?.name === app.name ? `border-bottom: 2px solid ${app.color || '#22c55e'}` : ''}
-              onclick={() => onselect?.(app)}
+      <!-- App tabs — flex-1 so it fills between logo and actions -->
+      {#if useGroupDropdowns}
+        <!-- Grouped: dropdown buttons, no scroll needed (overflow visible for dropdowns) -->
+        <div class="flex-1 min-w-0 flex items-center space-x-1" style="overflow: visible;">
+          {#each groupNames as groupName (groupName)}
+            {@const groupConfig = getGroupConfig(groupName)}
+            {@const groupApps = groupedApps[groupName] || []}
+            {@const hasActiveApp = groupApps.some(a => currentApp?.name === a.name)}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div class="relative"
+              onmouseenter={() => openDropdown(groupName)}
+              onmouseleave={scheduleDropdownClose}
             >
-              <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
-              {#if config.navigation.show_labels}
-                <span>{app.name}</span>
-              {:else}
-                <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+              <button
+                class="px-2.5 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5
+                       {hasActiveApp
+                         ? 'text-white'
+                         : openGroupDropdown === groupName ? 'bg-gray-700/50 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}"
+                style={hasActiveApp && config.navigation.show_app_colors ? `border-bottom: 2px solid ${currentApp?.color || 'var(--accent-primary)'}` : ''}
+                onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
+              >
+                {#if groupConfig?.icon?.name}
+                  <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
+                {/if}
+                <span>{groupName}</span>
+                <svg class="w-3 h-3 opacity-50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {#if openGroupDropdown === groupName}
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div
+                  class="absolute top-full left-0 mt-1 min-w-[200px] max-w-[280px] rounded-lg border shadow-xl overflow-hidden z-50"
+                  style="background: var(--bg-surface); border-color: var(--border-subtle);"
+                  onmouseenter={cancelDropdownClose}
+                  onmouseleave={scheduleDropdownClose}
+                >
+                  <div class="py-1 max-h-[60vh] overflow-y-auto scrollbar-styled">
+                    {#each groupApps as app (app.name)}
+                      <button
+                        class="group-dropdown-item w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors
+                               {currentApp?.name === app.name
+                                 ? 'text-white'
+                                 : 'text-gray-300 hover:text-white'}
+                               {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
+                        style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
+                        onclick={() => { onselect?.(app); openGroupDropdown = null; }}
+                      >
+                        {#if config.navigation.show_app_colors && currentApp?.name === app.name}
+                          <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                        {/if}
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                        <span class="truncate">{app.name}</span>
+                        {#if shouldShowHealth(app)}
+                          <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
+                        {/if}
+                        {#if app.open_mode !== 'iframe'}
+                          <span class="text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
+                        {/if}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
               {/if}
-              {#if showHealth}
-                <HealthIndicator appName={app.name} size="sm" />
-              {/if}
-              {#if app.open_mode !== 'iframe'}
-                <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
-              {/if}
-            </button>
+            </div>
           {/each}
         </div>
-      </div>
+      {:else}
+        <!-- Flat: scrollable app list with group icon dividers -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="flat-bar-scroll flex-1 min-w-0 flex items-center" onwheel={handleBarWheel} onmouseleave={() => hoveredGroup = null}>
+          {#each groupNames as groupName, gi (groupName)}
+            {@const groupConfig = getGroupConfig(groupName)}
+            {#if hasRealGroups}
+              <!-- Group icon divider -->
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
+              <div
+                class="flat-group-divider flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
+                       {hoveredGroup === groupName ? 'bg-gray-700/60' : ''}"
+                style="{gi > 0 ? 'margin-left: 2px;' : ''}"
+                onmouseenter={() => hoveredGroup = groupName}
+                title={groupName}
+              >
+                {#if groupConfig?.icon?.name}
+                  <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
+                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
+                  </span>
+                {:else}
+                  <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
+                {/if}
+                <span
+                  class="overflow-hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider transition-all duration-200"
+                  style="max-width: {hoveredGroup === groupName ? '80px' : '0px'}; opacity: {hoveredGroup === groupName ? '0.7' : '0'}; margin-left: {hoveredGroup === groupName ? '4px' : '0px'}; color: var(--text-disabled);"
+                >{groupName}</span>
+              </div>
+            {/if}
+            {#each groupedApps[groupName] || [] as app (app.name)}
+              <button
+                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1
+                       {currentApp?.name === app.name
+                         ? 'bg-gray-900 text-white'
+                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                       {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
+                style="border-bottom: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
+                       {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
+                onclick={() => onselect?.(app)}
+                onmouseenter={() => hoveredGroup = null}
+              >
+                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                {#if config.navigation.show_labels}
+                  <span>{app.name}</span>
+                {:else}
+                  <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+                {/if}
+                {#if shouldShowHealth(app)}
+                  <HealthIndicator appName={app.name} size="sm" />
+                {/if}
+                {#if app.open_mode !== 'iframe'}
+                  <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                {/if}
+              </button>
+            {/each}
+          {/each}
+        </div>
+      {/if}
 
       <!-- Right side actions -->
       <div class="flex items-center space-x-2">
@@ -520,8 +672,8 @@
       </button>
     </div>
 
-    <!-- App list with groups -->
-    <div class="flex-1 overflow-y-auto scrollbar-hide"
+    <!-- App list with groups + footer (scrolls together) -->
+    <div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col"
          style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
@@ -561,28 +713,28 @@
           </button>
 
           <!-- Apps in group -->
-          <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName] || isCollapsed}>
+          <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
             <div class="group-apps-inner mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app (app.name)}
+                {@const shouldDim = (isCollapsed && currentApp?.name !== app.name) || (isUnhealthy(app) && currentApp?.name !== app.name)}
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style="opacity: {isCollapsed && currentApp?.name !== app.name ? 0.5 : showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 0.5 : 1};"
-                  tabindex={expandedGroups[groupName] || isCollapsed ? 0 : -1}
+                  tabindex={expandedGroups[groupName] ? 0 : -1}
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
-                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
                     <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
-                    <span class="truncate" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
+                    <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
-                  {#if showHealth}
+                  {#if shouldShowHealth(app)}
                     <span class="ml-auto pr-2" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
@@ -596,70 +748,69 @@
           </div>
         </div>
       {/each}
-    </div>
 
-    <!-- Footer — settings cog always visible, text fades smoothly -->
-    <div class="border-t border-gray-700"
-         style="padding: 8px {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
-      <button
-        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
-        title="Logs"
-      >
-        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
-          </svg>
-        </div>
-        <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
-      </button>
-
-      <button
-        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        onclick={() => onsettings?.()}
-        title="Settings"
-      >
-        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
-      </button>
-
-      <button
-        class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
-        class:text-brand-400={shortcutsActive}
-        class:text-gray-500={!shortcutsActive}
-        style="opacity: {isCollapsed && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-        onclick={() => toggleCaptureKeybindings()}
-        title={keyboardTooltip}
-      >
-        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-        </div>
-        <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
-      </button>
-
-      {#if hasRealAuth && $isAuthenticated && $currentUser}
+      <!-- Footer — scrolls with app list, pushed to bottom via mt-auto -->
+      <div class="mt-auto pt-2 border-t" style="border-color: var(--border-subtle);">
         <button
-          class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
-          style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
-          tabindex={isCollapsed ? -1 : 0}
-          onclick={handleLogout}
-          title="Sign out"
+          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+          onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
+          title="Logs"
         >
           <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
             </svg>
           </div>
-          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
+          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
-      {/if}
+
+        <button
+          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+          onclick={() => onsettings?.()}
+          title="Settings"
+        >
+          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
+        </button>
+
+        <button
+          class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          class:text-brand-400={shortcutsActive}
+          class:text-gray-500={!shortcutsActive}
+          style="opacity: {isCollapsed && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
+          onclick={() => toggleCaptureKeybindings()}
+          title={keyboardTooltip}
+        >
+          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
+        </button>
+
+        {#if hasRealAuth && $isAuthenticated && $currentUser}
+          <button
+            class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+            style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
+            tabindex={isCollapsed ? -1 : 0}
+            onclick={handleLogout}
+            title="Sign out"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
+          </button>
+        {/if}
+      </div>
     </div>
     </div> <!-- End content wrapper -->
 
@@ -749,8 +900,8 @@
       </button>
     </div>
 
-    <!-- App list with groups -->
-    <div class="flex-1 overflow-y-auto scrollbar-hide"
+    <!-- App list with groups + footer (scrolls together) -->
+    <div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col"
          style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
@@ -789,28 +940,28 @@
             </div>
           </button>
 
-          <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName] || isCollapsedRight}>
+          <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
             <div class="group-apps-inner mt-1 space-y-0.5">
               {#each groupedApps[groupName] || [] as app (app.name)}
+                {@const shouldDim = (isCollapsedRight && currentApp?.name !== app.name) || (isUnhealthy(app) && currentApp?.name !== app.name)}
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
                            ? 'bg-gray-700 text-white'
                            : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
-                  style="opacity: {isCollapsedRight && currentApp?.name !== app.name ? 0.5 : showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 0.5 : 1};"
-                  tabindex={expandedGroups[groupName] || isCollapsedRight ? 0 : -1}
+                  tabindex={expandedGroups[groupName] ? 0 : -1}
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                     <div class="absolute right-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
-                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
                     <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
-                    <span class="truncate" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
+                    <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
-                  {#if showHealth}
+                  {#if shouldShowHealth(app)}
                     <span class="ml-auto pr-2" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
@@ -824,70 +975,69 @@
           </div>
         </div>
       {/each}
-    </div>
 
-    <!-- Footer — settings cog always visible, text fades smoothly -->
-    <div class="border-t border-gray-700"
-         style="padding: 8px {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
-      <button
-        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
-        title="Logs"
-      >
-        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
-          </svg>
-        </div>
-        <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
-      </button>
-
-      <button
-        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-        onclick={() => onsettings?.()}
-        title="Settings"
-      >
-        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </div>
-        <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
-      </button>
-
-      <button
-        class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
-        class:text-brand-400={shortcutsActive}
-        class:text-gray-500={!shortcutsActive}
-        style="opacity: {isCollapsedRight && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-        onclick={() => toggleCaptureKeybindings()}
-        title={keyboardTooltip}
-      >
-        <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-        </div>
-        <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
-      </button>
-
-      {#if hasRealAuth && $isAuthenticated && $currentUser}
+      <!-- Footer — scrolls with app list, pushed to bottom via mt-auto -->
+      <div class="mt-auto pt-2 border-t" style="border-color: var(--border-subtle);">
         <button
-          class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
-          style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
-          tabindex={isCollapsedRight ? -1 : 0}
-          onclick={handleLogout}
-          title="Sign out"
+          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+          onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
+          title="Logs"
         >
           <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
             </svg>
           </div>
-          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
+          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
-      {/if}
+
+        <button
+          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+          onclick={() => onsettings?.()}
+          title="Settings"
+        >
+          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
+        </button>
+
+        <button
+          class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
+          class:text-brand-400={shortcutsActive}
+          class:text-gray-500={!shortcutsActive}
+          style="opacity: {isCollapsedRight && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
+          onclick={() => toggleCaptureKeybindings()}
+          title={keyboardTooltip}
+        >
+          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </div>
+          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
+        </button>
+
+        {#if hasRealAuth && $isAuthenticated && $currentUser}
+          <button
+            class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+            style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
+            tabindex={isCollapsedRight ? -1 : 0}
+            onclick={handleLogout}
+            title="Sign out"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
+          </button>
+        {/if}
+      </div>
     </div>
     </div> <!-- End content wrapper -->
 
@@ -923,6 +1073,7 @@
       class="bottom-nav-panel border-t"
       style="border-color: var(--border-subtle);"
       style:height="{isCollapsedBottom ? collapsedBarHeight : 56}px"
+      style:overflow={isCollapsedBottom ? 'hidden' : 'visible'}
       style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow ? '0 -4px 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide ? 'absolute' : null}
       style:bottom={config.navigation.auto_hide ? '0' : null}
@@ -931,61 +1082,157 @@
       style:z-index={config.navigation.auto_hide ? '30' : null}
     >
     <div
-      class="flex items-center justify-between px-4"
+      class="flex items-center gap-4 px-4"
       style="height: 56px;"
     >
-      <!-- Logo + app tabs -->
-      <div class="flex items-center space-x-4">
-        {#if config.navigation.show_logo}
-          <button
-            class="flex-shrink-0 hover:opacity-80"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-            onclick={() => onsplash?.()}
-            title={config.title}
-          >
-            <MuximuxLogo height="24" />
-          </button>
-        {:else}
-          <button
-            class="flex-shrink-0 p-1 rounded-md hover:bg-gray-700 transition-all"
-            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-            onclick={() => onsplash?.()}
-            title="Overview"
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-            </svg>
-          </button>
-        {/if}
+      <!-- Logo — fixed -->
+      {#if config.navigation.show_logo}
+        <button
+          class="flex-shrink-0 hover:opacity-80"
+          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+          onclick={() => onsplash?.()}
+          title={config.title}
+        >
+          <MuximuxLogo height="24" />
+        </button>
+      {:else}
+        <button
+          class="flex-shrink-0 p-1 rounded-md hover:bg-gray-700 transition-all"
+          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+          onclick={() => onsplash?.()}
+          title="Overview"
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+          </svg>
+        </button>
+      {/if}
 
-        <!-- App tabs -->
-        <div class="flex items-center space-x-1 overflow-x-auto scrollbar-hide max-w-[calc(100vw-300px)]">
-          {#each apps as app (app.name)}
-            <button
-              class="relative group px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
-                     {currentApp?.name === app.name
-                       ? 'bg-gray-900 text-white'
-                       : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
-                     {showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
-              style={config.navigation.show_app_colors && currentApp?.name === app.name ? `border-top: 2px solid ${app.color || '#22c55e'}` : ''}
-              onclick={() => onselect?.(app)}
+      <!-- App tabs — flex-1 so it fills between logo and actions -->
+      {#if useGroupDropdowns}
+        <!-- Grouped: dropdown buttons (upward), overflow visible for dropdowns -->
+        <div class="flex-1 min-w-0 flex items-center space-x-1" style="overflow: visible;">
+          {#each groupNames as groupName (groupName)}
+            {@const groupConfig = getGroupConfig(groupName)}
+            {@const groupApps = groupedApps[groupName] || []}
+            {@const hasActiveApp = groupApps.some(a => currentApp?.name === a.name)}
+            <!-- svelte-ignore a11y_no_static_element_interactions -->
+            <div class="relative"
+              onmouseenter={() => openDropdown(groupName)}
+              onmouseleave={scheduleDropdownClose}
             >
-              <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
-              {#if config.navigation.show_labels}
-                <span>{app.name}</span>
-              {:else}
-                <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+              <button
+                class="px-2.5 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5
+                       {hasActiveApp
+                         ? 'text-white'
+                         : openGroupDropdown === groupName ? 'bg-gray-700/50 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}"
+                style={hasActiveApp && config.navigation.show_app_colors ? `border-top: 2px solid ${currentApp?.color || 'var(--accent-primary)'}` : ''}
+                onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
+              >
+                {#if groupConfig?.icon?.name}
+                  <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale} showBackground={false} />
+                {/if}
+                <span>{groupName}</span>
+                <svg class="w-3 h-3 opacity-50 rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+
+              {#if openGroupDropdown === groupName}
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
+                <div
+                  class="absolute bottom-full left-0 mb-1 min-w-[200px] max-w-[280px] rounded-lg border shadow-xl overflow-hidden z-50"
+                  style="background: var(--bg-surface); border-color: var(--border-subtle);"
+                  onmouseenter={cancelDropdownClose}
+                  onmouseleave={scheduleDropdownClose}
+                >
+                  <div class="py-1 max-h-[60vh] overflow-y-auto scrollbar-styled">
+                    {#each groupApps as app (app.name)}
+                      <button
+                        class="group-dropdown-item w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors
+                               {currentApp?.name === app.name
+                                 ? 'text-white'
+                                 : 'text-gray-300 hover:text-white'}
+                               {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
+                        style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
+                        onclick={() => { onselect?.(app); openGroupDropdown = null; }}
+                      >
+                        {#if config.navigation.show_app_colors && currentApp?.name === app.name}
+                          <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                        {/if}
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                        <span class="truncate">{app.name}</span>
+                        {#if shouldShowHealth(app)}
+                          <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
+                        {/if}
+                        {#if app.open_mode !== 'iframe'}
+                          <span class="text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
+                        {/if}
+                      </button>
+                    {/each}
+                  </div>
+                </div>
               {/if}
-              {#if showHealth}
-                <HealthIndicator appName={app.name} size="sm" />
-              {/if}
-              {#if app.open_mode !== 'iframe'}
-                <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
-              {/if}
-            </button>
+            </div>
           {/each}
         </div>
-      </div>
+      {:else}
+        <!-- Flat: scrollable app list with group icon dividers -->
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
+        <div class="flat-bar-scroll flex-1 min-w-0 flex items-center" onwheel={handleBarWheel} onmouseleave={() => hoveredGroup = null}>
+          {#each groupNames as groupName, gi (groupName)}
+            {@const groupConfig = getGroupConfig(groupName)}
+            {#if hasRealGroups}
+              <!-- svelte-ignore a11y_no_static_element_interactions -->
+              <div
+                class="flat-group-divider flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
+                       {hoveredGroup === groupName ? 'bg-gray-700/60' : ''}"
+                style="{gi > 0 ? 'margin-left: 2px;' : ''}"
+                onmouseenter={() => hoveredGroup = groupName}
+                title={groupName}
+              >
+                {#if groupConfig?.icon?.name}
+                  <span style="opacity: {hoveredGroup === groupName ? '1' : '0.4'}; transition: opacity 0.15s ease;">
+                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || ''} size="sm" scale={iconScale * 0.85} showBackground={false} />
+                  </span>
+                {:else}
+                  <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
+                {/if}
+                <span
+                  class="overflow-hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider transition-all duration-200"
+                  style="max-width: {hoveredGroup === groupName ? '80px' : '0px'}; opacity: {hoveredGroup === groupName ? '0.7' : '0'}; margin-left: {hoveredGroup === groupName ? '4px' : '0px'}; color: var(--text-disabled);"
+                >{groupName}</span>
+              </div>
+            {/if}
+            {#each groupedApps[groupName] || [] as app (app.name)}
+              <button
+                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1
+                       {currentApp?.name === app.name
+                         ? 'bg-gray-900 text-white'
+                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                       {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
+                style="border-top: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
+                       {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
+                onclick={() => onselect?.(app)}
+                onmouseenter={() => hoveredGroup = null}
+              >
+                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                {#if config.navigation.show_labels}
+                  <span>{app.name}</span>
+                {:else}
+                  <span class="inline-block max-w-0 overflow-hidden opacity-0 group-hover:max-w-[120px] group-hover:opacity-100 transition-all duration-200 whitespace-nowrap">{app.name}</span>
+                {/if}
+                {#if shouldShowHealth(app)}
+                  <HealthIndicator appName={app.name} size="sm" />
+                {/if}
+                {#if app.open_mode !== 'iframe'}
+                  <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                {/if}
+              </button>
+            {/each}
+          {/each}
+        </div>
+      {/if}
 
       <!-- Right side actions -->
       <div class="flex items-center space-x-2">
@@ -1045,118 +1292,216 @@
     </div> <!-- End bottom-nav-panel -->
   </nav>
 
-<!-- FLOATING (Minimal) -->
 {:else if config.navigation.position === 'floating'}
-  {@const floatingPosition = 'bottom-6 right-6'}
   {@const isCollapsedFloat = isHidden && config.navigation.auto_hide}
+  {@const floatPos = config.navigation.floating_position || 'bottom-right'}
+  {@const isBottom = floatPos.startsWith('bottom')}
+  {@const isRight = floatPos.endsWith('right')}
+
+  <!-- Click-outside overlay to close panel -->
+  {#if panelOpen}
+    <button
+      class="fixed inset-0 z-30"
+      onclick={() => panelOpen = false}
+      aria-label="Close navigation"
+    ></button>
+  {/if}
+
   <div
-    class="fixed {floatingPosition} z-40"
-    style="pointer-events: {isCollapsedFloat ? 'none' : 'auto'};"
+    class="fixed z-40 flex gap-3"
+    class:bottom-6={isBottom}
+    class:top-6={!isBottom}
+    class:right-6={isRight}
+    class:left-6={!isRight}
+    class:flex-col={isBottom}
+    class:flex-col-reverse={!isBottom}
+    class:items-end={isRight}
+    class:items-start={!isRight}
+    style="pointer-events: none;"
     onmouseenter={handleNavEnter}
     onmouseleave={handleNavLeave}
-    role="presentation"
+    role="navigation"
   >
-    <!-- App list - fades completely when collapsed -->
-    <div
-      class="flex flex-col-reverse items-end gap-2 mb-2"
-      style="opacity: {isCollapsedFloat ? '0' : '1'}; transform: translateY({isCollapsedFloat ? '10px' : '0'}); pointer-events: {isCollapsedFloat ? 'none' : 'auto'}; transition: opacity 0.25s ease, transform 0.3s ease;"
-    >
-      {#each apps.slice(0, 6) as app (app.name)}
-        <button
-          class="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-full shadow-lg
-                 hover:bg-gray-700 transition-all hover:scale-105
-                 {currentApp?.name === app.name ? 'ring-2 ring-brand-500' : ''}
-                 {showHealth && isUnhealthy(app.name) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
-          onclick={() => onselect?.(app)}
-        >
-          <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" scale={iconScale} showBackground={config.navigation.show_icon_background} />
-          <span class="text-sm text-white pr-1">{app.name}</span>
-          {#if showHealth}
-            <HealthIndicator appName={app.name} size="sm" />
-          {/if}
-        </button>
-      {/each}
-
-      {#if apps.length > 6}
-        <button
-          class="flex items-center gap-2 px-3 py-2 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all"
-          onclick={() => onsplash?.()}
-        >
-          <span class="text-sm text-gray-400">+{apps.length - 6} more</span>
-        </button>
-      {/if}
-    </div>
-
-    <!-- Bottom row -->
-    <div class="flex items-center gap-2">
-      <!-- Secondary buttons - fade when collapsed -->
+    <!-- Popover panel -->
+    {#if panelOpen}
       <div
-        class="flex items-center gap-2"
-        style="opacity: {isCollapsedFloat ? '0' : '1'}; transform: scale({isCollapsedFloat ? '0.9' : '1'}); pointer-events: {isCollapsedFloat ? 'none' : 'auto'}; transition: opacity 0.2s ease, transform 0.3s ease;"
+        class="floating-panel flex flex-col border rounded-2xl shadow-2xl overflow-hidden"
+        style="
+          pointer-events: auto;
+          width: 300px;
+          max-height: 70vh;
+          background: var(--bg-surface);
+          border-color: var(--border-subtle);
+        "
       >
-        {#if hasRealAuth && $isAuthenticated && $currentUser}
+        <!-- Scrollable app list with groups -->
+        <div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col" style="padding: 0.5rem;">
+          {#each groupNames as groupName (groupName)}
+            {@const groupConfig = getGroupConfig(groupName)}
+            <div class="mb-1">
+              <!-- Group header -->
+              <button
+                class="w-full flex items-center py-1 px-1 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 rounded"
+                onclick={() => toggleGroup(groupName)}
+              >
+                <div class="flex-shrink-0 flex items-center justify-center w-6">
+                  {#if groupConfig?.icon?.name}
+                    <AppIcon icon={groupConfig.icon} name={groupName} color={groupConfig.color || '#374151'} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                  {:else if groupConfig?.color}
+                    <span class="w-2 h-2 rounded-full" style="background-color: {groupConfig.color}"></span>
+                  {:else}
+                    <svg
+                      class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''}"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  {/if}
+                </div>
+                <div class="flex items-center flex-1 min-w-0 ml-1">
+                  {#if groupConfig?.icon?.name || groupConfig?.color}
+                    <svg
+                      class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} mr-1 flex-shrink-0"
+                      fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    >
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                    </svg>
+                  {/if}
+                  <span class="truncate">{groupName}</span>
+                  <span class="ml-auto text-gray-500 flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+                </div>
+              </button>
+
+              <!-- Apps in group -->
+              <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
+                <div class="group-apps-inner mt-0.5 space-y-0.5">
+                  {#each groupedApps[groupName] || [] as app (app.name)}
+                    {@const shouldDim = isUnhealthy(app) && currentApp?.name !== app.name}
+                    <button
+                      class="w-full flex items-center py-1.5 px-1 rounded-md text-sm transition-colors relative
+                             {currentApp?.name === app.name
+                               ? 'bg-gray-700 text-white'
+                               : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
+                      tabindex={expandedGroups[groupName] ? 0 : -1}
+                      onclick={() => { onselect?.(app); panelOpen = false; }}
+                    >
+                      {#if config.navigation.show_app_colors && currentApp?.name === app.name}
+                        <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                      {/if}
+                      <div class="flex-shrink-0 flex items-center justify-center w-6 ml-1" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                      </div>
+                      <span class="truncate ml-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
+                      {#if shouldShowHealth(app)}
+                        <span class="ml-auto pr-1">
+                          <HealthIndicator appName={app.name} size="sm" />
+                        </span>
+                      {/if}
+                      {#if app.open_mode !== 'iframe'}
+                        <span class="text-xs opacity-60 pr-1">{getOpenModeIcon(app.open_mode)}</span>
+                      {/if}
+                    </button>
+                  {/each}
+                </div>
+              </div>
+            </div>
+          {/each}
+        </div>
+
+        <!-- Footer — all action buttons in one row -->
+        <div class="border-t px-2 py-2 flex items-center gap-1" style="border-color: var(--border-subtle);">
+          {#if config.navigation.show_logo}
+            <button
+              class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-gray-700"
+              style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+              onclick={() => { onsplash?.(); panelOpen = false; }}
+              title={config.title}
+            >
+              <MuximuxLogo height="18" />
+            </button>
+          {:else}
+            <button
+              class="p-1.5 rounded-md hover:bg-gray-700 transition-all"
+              style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+              onclick={() => { onsplash?.(); panelOpen = false; }}
+              title="Overview"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+              </svg>
+            </button>
+          {/if}
           <button
-            class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-            onclick={handleLogout}
-            title="Sign out"
+            class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            onclick={() => { onsearch?.(); panelOpen = false; }}
+            title="Search (Ctrl+K)"
           >
-            <svg class="w-5 h-5 text-gray-300 hover:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
           </button>
-        {/if}
-        <button
-          class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-          onclick={() => onsearch?.()}
-          title="Search"
-        >
-          <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
-        </button>
-        <button
-          class="p-3 border rounded-full shadow-lg transition-all
-                 {appDisablesShortcuts ? 'opacity-50' : 'hover:scale-110'}
-                 {shortcutsActive ? 'bg-brand-600/20 border-brand-500/50' : 'bg-gray-800 border-gray-700'}"
-          onclick={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
-          title={keyboardTooltip}
-        >
-          <svg class="w-5 h-5 {shortcutsActive ? 'text-brand-400' : 'text-gray-500'}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-        </button>
-        <button
-          class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-          onclick={() => onlogs?.()}
-          title="Logs"
-        >
-          <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
-          </svg>
-        </button>
-        <button
-          class="p-3 bg-gray-800 border border-gray-700 rounded-full shadow-lg hover:bg-gray-700 transition-all hover:scale-110"
-          onclick={() => onsettings?.()}
-          title="Settings"
-        >
-          <svg class="w-5 h-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
+          <div class="flex-1"></div>
+          <button
+            class="p-1.5 rounded-md hover:bg-gray-700 transition-colors"
+            class:text-brand-400={shortcutsActive}
+            class:text-gray-500={!shortcutsActive}
+            style="opacity: {appDisablesShortcuts ? '0.5' : '1'}; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
+            onclick={() => toggleCaptureKeybindings()}
+            title={keyboardTooltip}
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+            </svg>
+          </button>
+          <button
+            class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            onclick={() => { onlogs?.(); panelOpen = false; }}
+            title="Logs"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
+            </svg>
+          </button>
+          <button
+            class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            onclick={() => { onsettings?.(); panelOpen = false; }}
+            title="Settings"
+          >
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+          {#if hasRealAuth && $isAuthenticated && $currentUser}
+            <button
+              class="p-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
+              onclick={() => { handleLogout(); panelOpen = false; }}
+              title="Sign out"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+              </svg>
+            </button>
+          {/if}
+        </div>
       </div>
-      <!-- Main FAB - always visible and interactive -->
-      <button
-        class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all hover:scale-110"
-        style="pointer-events: auto;"
-        onclick={() => onsplash?.()}
-        title={config.title}
-      >
-        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    {/if}
+
+    <!-- FAB toggle button — always visible -->
+    <button
+      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all hover:scale-110"
+      style="pointer-events: auto; opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1}; transition: opacity 0.3s ease;"
+      onclick={() => { panelOpen = !panelOpen; if (panelOpen) isHidden = false; }}
+      title={panelOpen ? 'Close navigation' : config.title}
+    >
+      <svg class="w-6 h-6 transition-transform duration-200" style="transform: rotate({panelOpen ? '90deg' : '0deg'});" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {#if panelOpen}
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        {:else}
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-        </svg>
-      </button>
-    </div>
+        {/if}
+      </svg>
+    </button>
   </div>
 {/if}
 
@@ -1321,5 +1666,79 @@
   .group-apps-inner {
     overflow: hidden;
     min-height: 0;
+  }
+
+  /* Floating popover panel */
+  .floating-panel {
+    animation: floatingPanelIn 0.2s ease;
+  }
+
+  @keyframes floatingPanelIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px) scale(0.97);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+
+  /* Floating panel theme overrides */
+  .floating-panel :global(.text-white) {
+    color: var(--text-primary) !important;
+  }
+  .floating-panel :global(.text-gray-300) {
+    color: var(--text-secondary) !important;
+  }
+  .floating-panel :global(.text-gray-400) {
+    color: var(--text-muted) !important;
+  }
+  .floating-panel :global(.text-gray-500) {
+    color: var(--text-disabled) !important;
+  }
+  .floating-panel :global(.bg-gray-700) {
+    background: var(--bg-hover) !important;
+  }
+  .floating-panel :global(.hover\:bg-gray-700:hover) {
+    background: var(--bg-hover) !important;
+  }
+  .floating-panel :global(.hover\:bg-gray-700\/50:hover) {
+    background: var(--bg-hover) !important;
+  }
+  .floating-panel :global(.bg-gray-700\/50) {
+    background: var(--bg-hover) !important;
+  }
+  .floating-panel :global(.hover\:text-white:hover) {
+    color: var(--text-primary) !important;
+  }
+  .floating-panel :global(.border-gray-700) {
+    border-color: var(--border-subtle) !important;
+  }
+
+  /* Group dropdown item hover */
+  .group-dropdown-item:hover {
+    background: var(--bg-hover) !important;
+  }
+
+  /* Flat bar horizontal scroll */
+  .flat-bar-scroll {
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-active) transparent;
+  }
+  .flat-bar-scroll::-webkit-scrollbar {
+    height: 3px;
+  }
+  .flat-bar-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .flat-bar-scroll::-webkit-scrollbar-thumb {
+    background: var(--bg-active);
+    border-radius: 3px;
+  }
+  .flat-bar-scroll::-webkit-scrollbar-thumb:hover {
+    background: var(--text-disabled);
   }
 </style>

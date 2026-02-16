@@ -1,6 +1,11 @@
 import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry } from './types';
 
-const API_BASE = '/api';
+/** Returns the configured base path (e.g. "/muximux") or "" if none. */
+export function getBase(): string {
+  return (window as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
+}
+
+const API_BASE = getBase() + '/api';
 
 async function fetchJSON<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`);
@@ -163,7 +168,7 @@ export async function listDashboardIcons(query?: string): Promise<IconInfo[]> {
 }
 
 export function getDashboardIconUrl(name: string, variant: string = 'svg'): string {
-  return `/icons/dashboard/${name}.${variant}`;
+  return `${getBase()}/icons/dashboard/${name}.${variant}`;
 }
 
 // Lucide icons
@@ -178,7 +183,7 @@ export async function listLucideIcons(query?: string): Promise<LucideIconInfo[]>
 }
 
 export function getLucideIconUrl(name: string): string {
-  return `/icons/lucide/${name}.svg`;
+  return `${getBase()}/icons/lucide/${name}.svg`;
 }
 
 // Custom icons
@@ -193,7 +198,7 @@ export async function listCustomIcons(): Promise<CustomIconInfo[]> {
 }
 
 export function getCustomIconUrl(name: string): string {
-  return `/icons/custom/${name}`;
+  return `${getBase()}/icons/custom/${name}`;
 }
 
 export async function uploadCustomIcon(file: File, name?: string): Promise<{ name: string; status: string }> {

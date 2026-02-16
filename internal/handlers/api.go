@@ -126,6 +126,7 @@ type clientConfigResponse struct {
 	ProxyTimeout string                    `json:"proxy_timeout,omitempty"`
 	Navigation   config.NavigationConfig   `json:"navigation"`
 	Theme        config.ThemeConfig        `json:"theme"`
+	Health       *config.HealthConfig      `json:"health,omitempty"`
 	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Auth         *clientAuthConfig         `json:"auth,omitempty"`
 	Groups       []config.GroupConfig      `json:"groups"`
@@ -148,6 +149,7 @@ func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 		ProxyTimeout: cfg.Server.ProxyTimeout,
 		Navigation:   cfg.Navigation,
 		Theme:        cfg.Theme,
+		Health:       &cfg.Health,
 		Groups:       cfg.Groups,
 		Apps:         sanitizeApps(cfg.Apps),
 	}
@@ -174,6 +176,7 @@ type ClientConfigUpdate struct {
 	ProxyTimeout string                    `json:"proxy_timeout"`
 	Navigation   config.NavigationConfig   `json:"navigation"`
 	Theme        config.ThemeConfig        `json:"theme"`
+	Health       *config.HealthConfig      `json:"health,omitempty"`
 	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Groups       []config.GroupConfig      `json:"groups"`
 	Apps         []ClientAppConfig         `json:"apps"`
@@ -226,6 +229,9 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	}
 	cfg.Navigation = update.Navigation
 	cfg.Theme = update.Theme
+	if update.Health != nil {
+		cfg.Health = *update.Health
+	}
 	cfg.Groups = update.Groups
 	if update.Keybindings != nil {
 		cfg.Keybindings = *update.Keybindings
@@ -267,9 +273,11 @@ func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.Ap
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		HealthCheck:              clientApp.HealthCheck,
 		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
+		Shortcut:                 clientApp.Shortcut,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 	}
 
@@ -350,9 +358,11 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		HealthCheck:              clientApp.HealthCheck,
 		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
+		Shortcut:                 clientApp.Shortcut,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 	}
 
@@ -410,9 +420,11 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		HealthCheck:              clientApp.HealthCheck,
 		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
+		Shortcut:                 clientApp.Shortcut,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 		AuthBypass:               existing.AuthBypass,
 		Access:                   existing.Access,
@@ -610,9 +622,11 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 		Default:                  app.Default,
 		OpenMode:                 app.OpenMode,
 		Proxy:                    app.Proxy,
+		HealthCheck:              app.HealthCheck,
 		ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
 		ProxyHeaders:             app.ProxyHeaders,
 		Scale:                    app.Scale,
+		Shortcut:                 app.Shortcut,
 		DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 	}
 }
@@ -630,9 +644,11 @@ type ClientAppConfig struct {
 	Default                  bool                 `json:"default"`
 	OpenMode                 string               `json:"open_mode"`
 	Proxy                    bool                 `json:"proxy"`
+	HealthCheck              *bool                `json:"health_check,omitempty"`           // nil/true = enabled, false = disabled
 	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"`  // nil = true (default)
 	ProxyHeaders             map[string]string    `json:"proxy_headers,omitempty"`
 	Scale                    float64              `json:"scale"`
+	Shortcut                 *int                 `json:"shortcut,omitempty"`
 	DisableKeyboardShortcuts bool                 `json:"disable_keyboard_shortcuts"`
 }
 
@@ -663,9 +679,11 @@ func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
 			Default:                  app.Default,
 			OpenMode:                 app.OpenMode,
 			Proxy:                    app.Proxy,
+			HealthCheck:              app.HealthCheck,
 			ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
 			ProxyHeaders:             app.ProxyHeaders,
 			Scale:                    app.Scale,
+			Shortcut:                 app.Shortcut,
 			DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 		})
 	}

@@ -31,12 +31,21 @@
   let currentApp = $state<App | null>(null);
   let showSplash = $state(true);
   let showSettings = $state(false);
+  let settingsInitialTab = $state<string>('general');
   let settingsRef = $state<Settings | undefined>(undefined);
   let showShortcuts = $state(false);
   let showCommandPalette = $state(false);
   let showLogs = $state(false);
   let loading = $state(true);
   let error = $state<string | null>(null);
+
+  // Toast position adapts to navigation position to avoid overlay
+  let toastPosition = $derived.by(() => {
+    const pos = config?.navigation?.position;
+    if (pos === 'bottom') return 'top-right' as const;
+    if (pos === 'right') return 'bottom-left' as const;
+    return 'bottom-right' as const;
+  });
 
   // Auth state
   let authRequired = $state(false);
@@ -475,9 +484,17 @@
       case 'app7':
       case 'app8':
       case 'app9': {
-        const appIndex = parseInt(action.replace('app', '')) - 1;
-        if (apps[appIndex]) {
-          selectApp(apps[appIndex]);
+        const slot = parseInt(action.replace('app', ''));
+        // First try to find an app with this shortcut explicitly assigned
+        const shortcutApp = apps.find(a => a.shortcut === slot);
+        if (shortcutApp) {
+          selectApp(shortcutApp);
+        } else {
+          // Fall back to positional index for apps without explicit shortcuts
+          const appIndex = slot - 1;
+          if (apps[appIndex]) {
+            selectApp(apps[appIndex]);
+          }
         }
         break;
       }
@@ -552,14 +569,14 @@
       onpointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
     >
       {#if showSplash && !$isFullscreen}
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {:else if showLogs}
         <Logs onclose={() => { showLogs = false; showSplash = true; }} />
       {:else if currentApp}
         <AppFrame app={currentApp} />
       {:else if $isFullscreen}
         <!-- Show splash content in fullscreen if no app selected -->
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {/if}
     </main>
 
@@ -585,7 +602,8 @@
       bind:this={settingsRef}
       {config}
       {apps}
-      onclose={() => showSettings = false}
+      initialTab={settingsInitialTab}
+      onclose={() => { showSettings = false; settingsInitialTab = 'general'; }}
       onsave={(newConfig) => handleSaveConfig(newConfig)}
     />
   {/if}
@@ -606,8 +624,8 @@
   {/if}
 {/if}
 
-<!-- Toast notifications (always rendered) -->
-<Toaster position="bottom-right" theme="dark" richColors />
+<!-- Toast notifications (always rendered, position adapts to nav) -->
+<Toaster position={toastPosition} theme="dark" richColors />
 
 <style>
   .fullscreen-exit-btn {
