@@ -21,6 +21,7 @@ server:
   title: "Muximux"             # Page title shown in browser tab
   log_level: info              # Log verbosity: debug, info, warn, error
   proxy_timeout: 30s           # Global timeout for proxied requests
+  base_path: ""                # Subpath for reverse proxy (e.g. "/muximux")
 
   # Optional: TLS / HTTPS
   tls:
@@ -90,6 +91,7 @@ navigation:
   show_splash_on_startup: false
   show_shadow: true
   icon_scale: 1.0              # Icon zoom multiplier
+  bar_style: grouped           # grouped or flat (top/bottom bars only)
 
 # ─── Icons ──────────────────────────────────────
 icons:
@@ -143,6 +145,8 @@ apps:
     proxy_headers:               # Custom headers sent to the backend
       X-Custom-Header: value
     scale: 1.0
+    health_check: true           # Set false to disable health monitoring for this app
+    shortcut: null               # Assign a number key (1-9) for quick switching
     disable_keyboard_shortcuts: false
     auth_bypass: []
     access:
@@ -157,6 +161,7 @@ muximux [flags]
   --data PATH      Base data directory (default: data, env: MUXIMUX_DATA)
   --config PATH    Override config file path (default: <data>/config.yaml, env: MUXIMUX_CONFIG)
   --listen ADDR    Override listen address (env: MUXIMUX_LISTEN)
+  --base-path PATH Subpath for reverse proxy (e.g. /muximux, env: MUXIMUX_BASE_PATH)
   --version        Show version and exit
 ```
 
@@ -188,6 +193,7 @@ These override the corresponding config file values without needing `${VAR}` syn
 | `MUXIMUX_DATA` | Base data directory | `data` |
 | `MUXIMUX_CONFIG` | Override config file path | `<data>/config.yaml` |
 | `MUXIMUX_LISTEN` | Listen address (e.g., `:9090`) | From config file |
+| `MUXIMUX_BASE_PATH` | Subpath for reverse proxy (e.g., `/muximux`) | Empty (root) |
 
 ## Validation Rules
 
@@ -204,6 +210,7 @@ Most settings can be changed through the Settings panel while Muximux is running
 
 The following settings **require a restart** to take effect:
 - `server.listen` (listen address/port)
+- `server.base_path` (subpath prefix)
 - `server.tls.*` (all TLS settings)
 - `server.gateway` (Caddyfile path)
 - `auth.method` (authentication method)

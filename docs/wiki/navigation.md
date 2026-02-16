@@ -24,6 +24,26 @@ Horizontal bar across the bottom of the screen. Useful for tablet-like or dock-s
 
 A sidebar that overlays the content rather than pushing it aside. The sidebar appears on hover and disappears when you move away. This option maximizes the screen space available to your apps.
 
+## Bar Style (Top/Bottom Only)
+
+When using **top** or **bottom** navigation, you can choose between two bar styles:
+
+### Grouped (default)
+
+Apps are organized under collapsible group headers. Each group has its own section with the group name displayed above its apps. This is the standard layout and works well when you have many apps organized into distinct categories.
+
+### Flat
+
+A streamlined layout that displays all apps in a single continuous row. Groups are separated by small icon dividers (using the group's configured icon) rather than full headers. This creates a more compact, dock-like appearance and is useful when you want to maximize horizontal space or prefer a cleaner look.
+
+```yaml
+navigation:
+  position: top
+  bar_style: flat    # grouped (default) or flat
+```
+
+The flat style only applies to top and bottom bars. Left, right, and floating navigation always use the grouped layout with collapsible sections.
+
 ## Configuration
 
 All navigation settings are available in `config.yaml` under the `navigation` key:
@@ -41,6 +61,7 @@ navigation:
   show_icon_background: true  # Show circular background behind icons
   show_splash_on_startup: false # Show splash screen on initial load
   show_shadow: true           # Add drop shadow to navigation bar
+  bar_style: grouped          # grouped or flat (top/bottom only)
 ```
 
 ## Auto-Hide Behavior

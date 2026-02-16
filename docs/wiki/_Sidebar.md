@@ -19,6 +19,7 @@
 **Security**
 - [Authentication](authentication)
 - [TLS & HTTPS](tls-and-gateway)
+- [Gateway Examples](gateway-examples)
 
 **Operations**
 - [Deployment](deployment)

@@ -21,6 +21,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Built-in Reverse Proxy](reverse-proxy.md) -- Proxying app traffic through Muximux
 - [Authentication](authentication.md) -- Built-in auth, forward auth, and OIDC
 - [TLS & HTTPS](tls-and-gateway.md) -- Automatic certificates, custom certificates, and gateway mode
+- [Gateway Examples](gateway-examples.md) -- Recipes for proxying common homelab services
 - [Navigation & Layout](navigation.md) -- Sidebar positions, auto-hide, labels, and display options
 - [Themes](themes.md) -- Built-in themes, custom themes, and CSS custom properties
 - [Health Monitoring](health-monitoring.md) -- Automatic health checks and status indicators

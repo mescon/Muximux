@@ -30,6 +30,8 @@ apps:
     proxy_headers:                  # Custom headers sent to the backend
       X-Api-Key: "your-key"
     scale: 1.0                      # Zoom level for iframe (0.5 - 2.0)
+    health_check: true               # Set false to disable health monitoring
+    shortcut: 1                      # Assign keyboard shortcut 1-9
     disable_keyboard_shortcuts: false # Disable global shortcuts when this app is active
     access:                         # Restrict access to specific roles/users
       roles: []

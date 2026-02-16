@@ -22,7 +22,7 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 | `F` | Toggle Fullscreen (hide navigation) |
 | `Tab` | Next App |
 | `Shift+Tab` | Previous App |
-| `1` - `9` | Jump to App by Position |
+| `1` - `9` | Jump to App (by assignment or position) |
 
 **Note:** Keyboard shortcuts are only active when the Muximux UI itself is focused. When an iframe app has focus, keystrokes are sent to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
 
@@ -63,6 +63,27 @@ keybindings:
 ```
 
 Only customized bindings are stored in the configuration file. Any action that is not listed will continue to use its default shortcut.
+
+## Assigning Number Keys to Apps
+
+By default, keys `1` through `9` switch to apps by their position in the navigation (first app = `1`, second = `2`, etc.). You can override this by assigning a specific number to an app using the `shortcut` field:
+
+```yaml
+apps:
+  - name: Plex
+    url: http://plex:32400
+    shortcut: 1              # Always accessible via key "1"
+
+  - name: Sonarr
+    url: http://sonarr:8989
+    shortcut: 5              # Always accessible via key "5"
+```
+
+When a number key is explicitly assigned to an app, it always points to that app regardless of navigation order. Unassigned number keys continue to work positionally for the remaining apps.
+
+You can also assign shortcuts in **Settings > Keybindings** without editing the config file.
+
+---
 
 ## Disabling Shortcuts Per App
 

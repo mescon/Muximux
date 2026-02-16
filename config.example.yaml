@@ -12,6 +12,7 @@ server:
   title: "Muximux"
   log_level: info               # debug, info, warn, error (hot-reloadable)
   proxy_timeout: 30s            # Global timeout for proxied requests
+  # base_path: /muximux         # Subpath when behind a reverse proxy (e.g. /muximux)
 
   # Optional: enable HTTPS on this port
   # tls:
@@ -84,6 +85,7 @@ navigation:
   show_splash_on_startup: false
   show_shadow: true
   icon_scale: 1.0              # Icon zoom multiplier
+  bar_style: grouped           # grouped (default) or flat (top/bottom bars only)
 
 # Keyboard shortcuts (only overrides — defaults are managed client-side)
 # keybindings:
@@ -139,6 +141,8 @@ apps:
     open_mode: iframe
     proxy: false
     scale: 1
+    # health_check: false       # Disable health monitoring for this app
+    # shortcut: 1               # Assign keyboard shortcut (1-9)
 
   - name: Sonarr
     url: http://localhost:8989

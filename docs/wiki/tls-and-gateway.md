@@ -181,6 +181,8 @@ All HTTP requests (port 80) are automatically redirected to HTTPS (port 443).
 
 > **Tip:** Apps in the gateway Caddyfile are served directly by Caddy -- they do not go through Muximux's built-in reverse proxy. You can still add these apps to Muximux's dashboard using their `https://` URLs and `open_mode: new_tab` or `open_mode: iframe`.
 
+For more practical examples -- custom headers, Docker networking, security headers, and common homelab apps -- see [Gateway Examples](gateway-examples.md).
+
 ---
 
 ## Important Notes
