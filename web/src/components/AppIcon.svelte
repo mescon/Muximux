@@ -2,12 +2,13 @@
   import type { AppIcon as AppIconType } from '$lib/types';
   import { getBase } from '$lib/api';
 
-  let { icon, name, color = '#374151', size = 'md', showBackground = true, scale }: {
+  let { icon, name, color = '#374151', size = 'md', showBackground = true, forceBackground = false, scale }: {
     icon: AppIconType;
     name: string;
     color?: string;
     size?: 'sm' | 'md' | 'lg' | 'xl';
     showBackground?: boolean;
+    forceBackground?: boolean;
     scale?: number;
   } = $props();
 
@@ -52,7 +53,7 @@
   // When showBackground is enabled, use the icon's explicit background if set,
   // otherwise darken the app color to create contrast.
   let bgColor = $derived(
-    showBackground
+    (showBackground || forceBackground)
       ? (icon?.background && icon.background !== 'transparent'
           ? icon.background
           : `color-mix(in srgb, ${color} 50%, black)`)

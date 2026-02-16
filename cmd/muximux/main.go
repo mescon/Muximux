@@ -53,6 +53,13 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	// Run config migrations (e.g. role renames)
+	if cfg.Migrate() {
+		if err := cfg.Save(*configPath); err != nil {
+			log.Printf("Warning: failed to save migrated config: %v", err)
+		}
+	}
+
 	// Initialize structured logging — always write to stdout + data/muximux.log
 	logFile := filepath.Join(*dataDir, "muximux.log")
 	if err := logging.Init(logging.Config{

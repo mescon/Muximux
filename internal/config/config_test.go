@@ -474,6 +474,87 @@ server:
 	})
 }
 
+func TestMigrate(t *testing.T) {
+	t.Run("v1 to v2 renames roles", func(t *testing.T) {
+		cfg := &Config{
+			ConfigVersion: 0,
+			Auth: AuthConfig{
+				Users: []UserConfig{
+					{Username: "admin1", Role: "admin"},
+					{Username: "user1", Role: "user"},
+					{Username: "guest1", Role: "guest"},
+				},
+			},
+			Apps: []AppConfig{
+				{Name: "app1", MinRole: "user"},
+				{Name: "app2", MinRole: "guest"},
+				{Name: "app3", MinRole: "admin"},
+				{Name: "app4", MinRole: ""},
+			},
+		}
+
+		changed := cfg.Migrate()
+		if !changed {
+			t.Error("expected Migrate to return true")
+		}
+		if cfg.ConfigVersion != CurrentConfigVersion {
+			t.Errorf("expected config_version=%d, got %d", CurrentConfigVersion, cfg.ConfigVersion)
+		}
+
+		// Check user roles
+		roles := map[string]string{}
+		for _, u := range cfg.Auth.Users {
+			roles[u.Username] = u.Role
+		}
+		if roles["admin1"] != "admin" {
+			t.Errorf("expected admin1 role 'admin', got %q", roles["admin1"])
+		}
+		if roles["user1"] != "power-user" {
+			t.Errorf("expected user1 role 'power-user', got %q", roles["user1"])
+		}
+		if roles["guest1"] != "user" {
+			t.Errorf("expected guest1 role 'user', got %q", roles["guest1"])
+		}
+
+		// Check app min_role
+		appRoles := map[string]string{}
+		for _, a := range cfg.Apps {
+			appRoles[a.Name] = a.MinRole
+		}
+		if appRoles["app1"] != "power-user" {
+			t.Errorf("expected app1 min_role 'power-user', got %q", appRoles["app1"])
+		}
+		if appRoles["app2"] != "user" {
+			t.Errorf("expected app2 min_role 'user', got %q", appRoles["app2"])
+		}
+		if appRoles["app3"] != "admin" {
+			t.Errorf("expected app3 min_role 'admin', got %q", appRoles["app3"])
+		}
+		if appRoles["app4"] != "" {
+			t.Errorf("expected app4 min_role '', got %q", appRoles["app4"])
+		}
+	})
+
+	t.Run("already current version is no-op", func(t *testing.T) {
+		cfg := &Config{
+			ConfigVersion: CurrentConfigVersion,
+			Auth: AuthConfig{
+				Users: []UserConfig{
+					{Username: "u1", Role: "user"},
+				},
+			},
+		}
+
+		changed := cfg.Migrate()
+		if changed {
+			t.Error("expected Migrate to return false for current version")
+		}
+		if cfg.Auth.Users[0].Role != "user" {
+			t.Errorf("role should not change, got %q", cfg.Auth.Users[0].Role)
+		}
+	})
+}
+
 func TestNeedsSetup(t *testing.T) {
 	tests := []struct {
 		name string

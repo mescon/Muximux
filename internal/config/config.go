@@ -17,15 +17,16 @@ type ThemeConfig struct {
 
 // Config holds all application configuration
 type Config struct {
-	Server      ServerConfig      `yaml:"server"`
-	Auth        AuthConfig        `yaml:"auth"`
-	Navigation  NavigationConfig  `yaml:"navigation"`
-	Theme       ThemeConfig       `yaml:"theme" json:"theme"`
-	Icons       IconsConfig       `yaml:"icons"`
-	Health      HealthConfig      `yaml:"health"`
-	Keybindings KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
-	Groups      []GroupConfig     `yaml:"groups"`
-	Apps        []AppConfig       `yaml:"apps"`
+	ConfigVersion int               `yaml:"config_version"`
+	Server        ServerConfig      `yaml:"server"`
+	Auth          AuthConfig        `yaml:"auth"`
+	Navigation    NavigationConfig  `yaml:"navigation"`
+	Theme         ThemeConfig       `yaml:"theme" json:"theme"`
+	Icons         IconsConfig       `yaml:"icons"`
+	Health        HealthConfig      `yaml:"health"`
+	Keybindings   KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
+	Groups        []GroupConfig     `yaml:"groups"`
+	Apps          []AppConfig       `yaml:"apps"`
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -186,6 +187,8 @@ type AppConfig struct {
 	Scale                    float64           `yaml:"scale"`
 	Shortcut                 *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
 	DisableKeyboardShortcuts bool              `yaml:"disable_keyboard_shortcuts,omitempty"`
+	MinRole                  string            `yaml:"min_role,omitempty"`            // minimum role to see this app (default: "user")
+	ForceIconBackground      bool              `yaml:"force_icon_background,omitempty"` // show icon background even when global setting is off
 	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
 	Access                   AppAccessConfig   `yaml:"access"`
 }
@@ -267,6 +270,42 @@ func (c *Config) validate() error {
 	}
 
 	return nil
+}
+
+// CurrentConfigVersion is the latest config schema version.
+const CurrentConfigVersion = 2
+
+// Migrate upgrades the config to the latest version and returns true if changes were made.
+func (c *Config) Migrate() bool {
+	changed := false
+
+	if c.ConfigVersion < 2 {
+		// v1 → v2: Rename roles: "guest" → "user", "user" → "power-user"
+		for i := range c.Auth.Users {
+			switch c.Auth.Users[i].Role {
+			case "guest":
+				c.Auth.Users[i].Role = "user"
+				changed = true
+			case "user":
+				c.Auth.Users[i].Role = "power-user"
+				changed = true
+			}
+		}
+		for i := range c.Apps {
+			switch c.Apps[i].MinRole {
+			case "guest":
+				c.Apps[i].MinRole = "user"
+				changed = true
+			case "user":
+				c.Apps[i].MinRole = "power-user"
+				changed = true
+			}
+		}
+		c.ConfigVersion = 2
+		changed = true
+	}
+
+	return changed
 }
 
 // Save writes configuration to a YAML file

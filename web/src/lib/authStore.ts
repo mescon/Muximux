@@ -29,10 +29,23 @@ const initialState: AuthState = {
 // Create the store
 export const authState = writable<AuthState>(initialState);
 
+// Role hierarchy levels
+const roleLevels: Record<string, number> = {
+  'user': 1,
+  'power-user': 2,
+  'admin': 3,
+};
+
+// Check if a role meets or exceeds a minimum role
+export function hasMinRole(userRole: string, minRole: string): boolean {
+  return (roleLevels[userRole] ?? 0) >= (roleLevels[minRole] ?? 0);
+}
+
 // Derived stores
 export const isAuthenticated = derived(authState, ($state) => $state.authenticated);
 export const currentUser = derived(authState, ($state) => $state.user);
 export const isAdmin = derived(authState, ($state) => $state.user?.role === 'admin');
+export const isPowerUser = derived(authState, ($state) => $state.user?.role === 'power-user' || $state.user?.role === 'admin');
 export const isLoading = derived(authState, ($state) => $state.loading);
 export const setupRequired = derived(authState, ($state) => $state.setupRequired);
 

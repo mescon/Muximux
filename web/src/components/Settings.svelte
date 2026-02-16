@@ -244,7 +244,7 @@
     securityLoading = true;
     securityError = null;
     try {
-      securityUsers = await listUsers();
+      securityUsers = (await listUsers()) ?? [];
     } catch (e) {
       securityError = e instanceof Error ? e.message : 'Failed to load users';
     } finally {
@@ -316,6 +316,7 @@
   async function handleChangeAuthMethod() {
     methodLoading = true;
     methodError = null;
+    const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
     if (selectedAuthMethod === 'forward_auth') {
       req.trusted_proxies = methodTrustedProxies
@@ -332,6 +333,14 @@
     try {
       const result = await changeAuthMethod(req);
       if (result.success) {
+        // If switching FROM "none" to an auth method, the current session is now invalid
+        // (the virtual admin had no real session cookie). Force a page reload so the user
+        // can authenticate properly.
+        if (previousMethod === 'none' && selectedAuthMethod !== 'none') {
+          sessionStorage.setItem('muximux_return_to', 'security');
+          window.location.reload();
+          return;
+        }
         securitySuccess = `Authentication method changed to ${selectedAuthMethod}`;
         setTimeout(() => securitySuccess = null, 3000);
       } else {
@@ -1798,7 +1807,69 @@
                   <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-gray-700 pt-4">
                       {#if currentMethod === 'builtin'}
-                        <p class="text-sm text-gray-400">Password authentication is active. Manage users and change passwords below.</p>
+                        <p class="text-sm text-gray-400 mb-4">Password authentication is active.</p>
+
+                        <!-- Change Password (inline) -->
+                        <h4 class="text-sm font-semibold text-white mb-2">Change Password</h4>
+                        <div class="max-w-sm space-y-3">
+                          <div>
+                            <label for="cp-current" class="block text-xs text-gray-400 mb-1">Current password</label>
+                            <input
+                              id="cp-current"
+                              type="password"
+                              bind:value={cpCurrent}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              autocomplete="current-password"
+                            />
+                          </div>
+                          <div>
+                            <label for="cp-new" class="block text-xs text-gray-400 mb-1">New password</label>
+                            <input
+                              id="cp-new"
+                              type="password"
+                              bind:value={cpNew}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              placeholder="Minimum 8 characters"
+                              autocomplete="new-password"
+                            />
+                            {#if cpNew.length > 0 && cpNew.length < 8}
+                              <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
+                            {/if}
+                          </div>
+                          <div>
+                            <label for="cp-confirm" class="block text-xs text-gray-400 mb-1">Confirm new password</label>
+                            <input
+                              id="cp-confirm"
+                              type="password"
+                              bind:value={cpConfirm}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              autocomplete="new-password"
+                            />
+                            {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
+                              <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
+                            {/if}
+                          </div>
+
+                          {#if cpMessage}
+                            <div class="p-3 rounded-lg text-sm {cpMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}">
+                              {cpMessage.text}
+                            </div>
+                          {/if}
+
+                          <button
+                            class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                            disabled={cpLoading || cpNew.length < 8 || cpNew !== cpConfirm || !cpCurrent}
+                            onclick={handleChangePassword}
+                          >
+                            {#if cpLoading}
+                              <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            {/if}
+                            Change Password
+                          </button>
+                        </div>
                       {:else if securityUsers.length > 0}
                         <p class="text-sm text-gray-400">Switch to password authentication using existing users.</p>
                       {:else}
@@ -1829,13 +1900,39 @@
                           {#if addUserError}
                             <p class="text-red-400 text-xs">{addUserError}</p>
                           {/if}
+                          {#if !newUserName.trim() && newUserPassword.length > 0}
+                            <p class="text-amber-400 text-xs">Username is required</p>
+                          {:else if newUserName.trim() && newUserPassword.length > 0 && newUserPassword.length < 8}
+                            <p class="text-amber-400 text-xs">Password must be at least 8 characters ({newUserPassword.length}/8)</p>
+                          {/if}
                           <button
                             class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
                             disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
                             onclick={async () => {
+                              const savedUser = newUserName.trim();
+                              const savedPass = newUserPassword;
+                              // First user must be admin to manage auth settings
+                              newUserRole = 'admin';
                               await handleAddUser();
                               if (securityUsers.length > 0) {
-                                await handleChangeAuthMethod();
+                                // Call API directly (not handleChangeAuthMethod which reloads)
+                                methodLoading = true;
+                                try {
+                                  const result = await changeAuthMethod({ method: 'builtin' });
+                                  if (!result.success) {
+                                    methodError = result.message || 'Failed to enable auth';
+                                    return;
+                                  }
+                                } catch (e) {
+                                  methodError = e instanceof Error ? e.message : 'Failed to enable auth';
+                                  return;
+                                } finally {
+                                  methodLoading = false;
+                                }
+                                // Auth middleware is now "builtin" — store credentials for auto-login after reload
+                                sessionStorage.setItem('muximux_return_to', 'security');
+                                sessionStorage.setItem('muximux_auto_login', JSON.stringify({ u: savedUser, p: savedPass }));
+                                window.location.reload();
                               }
                             }}
                           >
@@ -2004,73 +2101,6 @@
             {/if}
           </div>
 
-          <!-- Change Password (visible when builtin) -->
-          {#if currentMethod === 'builtin'}
-            <div>
-              <h3 class="text-lg font-semibold text-white mb-1">Change Password</h3>
-              <p class="text-sm text-gray-400 mb-4">Update your account password</p>
-
-              <div class="max-w-md space-y-3">
-                <div>
-                  <label for="cp-current" class="block text-sm text-gray-400 mb-1">Current password</label>
-                  <input
-                    id="cp-current"
-                    type="password"
-                    bind:value={cpCurrent}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    autocomplete="current-password"
-                  />
-                </div>
-                <div>
-                  <label for="cp-new" class="block text-sm text-gray-400 mb-1">New password</label>
-                  <input
-                    id="cp-new"
-                    type="password"
-                    bind:value={cpNew}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    placeholder="Minimum 8 characters"
-                    autocomplete="new-password"
-                  />
-                  {#if cpNew.length > 0 && cpNew.length < 8}
-                    <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
-                  {/if}
-                </div>
-                <div>
-                  <label for="cp-confirm" class="block text-sm text-gray-400 mb-1">Confirm new password</label>
-                  <input
-                    id="cp-confirm"
-                    type="password"
-                    bind:value={cpConfirm}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    autocomplete="new-password"
-                  />
-                  {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
-                    <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
-                  {/if}
-                </div>
-
-                {#if cpMessage}
-                  <div class="p-3 rounded-lg text-sm {cpMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}">
-                    {cpMessage.text}
-                  </div>
-                {/if}
-
-                <button
-                  class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
-                  disabled={cpLoading || cpNew.length < 8 || cpNew !== cpConfirm || !cpCurrent}
-                  onclick={handleChangePassword}
-                >
-                  {#if cpLoading}
-                    <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  {/if}
-                  Change Password
-                </button>
-              </div>
-            </div>
-          {/if}
 
           <!-- User Management (visible when builtin + admin) -->
           {#if currentMethod === 'builtin' && $isAdmin}
@@ -2133,8 +2163,8 @@
                              focus:outline-none focus:ring-2 focus:ring-brand-500"
                     >
                       <option value="admin">Admin</option>
+                      <option value="power-user">Power User</option>
                       <option value="user">User</option>
-                      <option value="guest">Guest</option>
                     </select>
                   </div>
 
@@ -2186,8 +2216,8 @@
                                focus:outline-none focus:ring-1 focus:ring-brand-500"
                       >
                         <option value="admin">Admin</option>
+                        <option value="power-user">Power User</option>
                         <option value="user">User</option>
-                        <option value="guest">Guest</option>
                       </select>
                       {#if confirmDeleteUser === user.username}
                         <div class="flex items-center gap-1.5">
@@ -2815,6 +2845,30 @@ chmod +x muximux-darwin-arm64
                 <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
               </div>
             </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.force_icon_background}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Force icon background</span>
+                <p class="text-xs text-gray-400">Show background even when global icon backgrounds are off</p>
+              </div>
+            </label>
+          </div>
+          <div>
+            <label for="new-app-min-role" class="block text-sm font-medium text-gray-300 mb-1">Minimum Role</label>
+            <select
+              id="new-app-min-role"
+              bind:value={newApp.min_role}
+              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="">Everyone (default)</option>
+              <option value="power-user">Power User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">Users below this role won't see this app</p>
           </div>
         </div>
         <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
@@ -3238,6 +3292,30 @@ chmod +x muximux-darwin-arm64
               <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
             </div>
           </label>
+          <label class="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              bind:checked={editingApp.force_icon_background}
+              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+            />
+            <div>
+              <span class="text-sm text-white">Force icon background</span>
+              <p class="text-xs text-gray-400">Show background even when global icon backgrounds are off</p>
+            </div>
+          </label>
+          <div>
+            <label for="edit-app-min-role" class="block text-sm font-medium text-gray-300 mb-1">Minimum Role</label>
+            <select
+              id="edit-app-min-role"
+              bind:value={editingApp.min_role}
+              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="">Everyone (default)</option>
+              <option value="power-user">Power User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">Users below this role won't see this app</p>
+          </div>
         </div>
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">

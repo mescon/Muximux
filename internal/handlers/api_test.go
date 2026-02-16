@@ -928,7 +928,7 @@ func TestMergeClientApp(t *testing.T) {
 func TestBuildClientConfigResponse(t *testing.T) {
 	cfg := createTestConfig()
 
-	resp := buildClientConfigResponse(cfg)
+	resp := buildClientConfigResponse(cfg, "admin")
 
 	if resp.Title != "Test Dashboard" {
 		t.Errorf("expected title 'Test Dashboard', got %q", resp.Title)
@@ -954,7 +954,7 @@ func TestBuildClientConfigResponse(t *testing.T) {
 			"search": {{Key: "k", Ctrl: true}},
 		},
 	}
-	resp = buildClientConfigResponse(cfg)
+	resp = buildClientConfigResponse(cfg, "admin")
 	if resp.Keybindings == nil {
 		t.Error("expected keybindings to be set")
 	}
@@ -1306,7 +1306,7 @@ func TestSanitizeApps(t *testing.T) {
 		{Name: "Enabled2", URL: "http://c:8080", Enabled: true, Proxy: true},
 	}
 
-	result := sanitizeApps(apps)
+	result := sanitizeApps(apps, "admin")
 
 	if len(result) != 2 {
 		t.Errorf("expected 2 enabled apps, got %d", len(result))
@@ -1318,4 +1318,48 @@ func TestSanitizeApps(t *testing.T) {
 			t.Error("disabled app should not be in sanitized list")
 		}
 	}
+}
+
+func TestSanitizeAppsRoleFiltering(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Public", URL: "http://a:8080", Enabled: true, MinRole: ""},
+		{Name: "PowerOnly", URL: "http://b:8080", Enabled: true, MinRole: "power-user"},
+		{Name: "AdminOnly", URL: "http://c:8080", Enabled: true, MinRole: "admin"},
+	}
+
+	t.Run("admin sees all", func(t *testing.T) {
+		result := sanitizeApps(apps, "admin")
+		if len(result) != 3 {
+			t.Errorf("admin should see 3 apps, got %d", len(result))
+		}
+	})
+
+	t.Run("power-user sees public and power-user", func(t *testing.T) {
+		result := sanitizeApps(apps, "power-user")
+		if len(result) != 2 {
+			t.Errorf("power-user should see 2 apps, got %d", len(result))
+		}
+		for _, app := range result {
+			if app.Name == "AdminOnly" {
+				t.Error("power-user should not see admin-only app")
+			}
+		}
+	})
+
+	t.Run("user sees only public", func(t *testing.T) {
+		result := sanitizeApps(apps, "user")
+		if len(result) != 1 {
+			t.Errorf("user should see 1 app, got %d", len(result))
+		}
+		if result[0].Name != "Public" {
+			t.Errorf("expected 'Public', got %q", result[0].Name)
+		}
+	})
+
+	t.Run("empty role disables filtering", func(t *testing.T) {
+		result := sanitizeApps(apps, "")
+		if len(result) != 3 {
+			t.Errorf("empty role should see all 3 apps, got %d", len(result))
+		}
+	})
 }

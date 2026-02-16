@@ -18,9 +18,9 @@
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
-  import { checkAuthStatus, isAuthenticated, setupRequired } from './lib/authStore';
+  import { checkAuthStatus, isAuthenticated, isAdmin, login, setupRequired } from './lib/authStore';
   import { resetOnboarding } from './lib/onboardingStore';
-  import { initTheme, setTheme, syncFromConfig } from './lib/themeStore';
+  import { initTheme, setTheme, syncFromConfig, loadCustomThemesFromServer } from './lib/themeStore';
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
@@ -54,9 +54,8 @@
   // Onboarding state
   let showOnboarding = $state(false);
 
-  // Version info (fetched once for title variables)
+  // Version info (fetched after auth)
   let appVersion = $state('');
-  fetchSystemInfo().then(info => appVersion = info.version).catch(() => {});
 
   /**
    * Resolve template variables in the dashboard title.
@@ -168,8 +167,21 @@
       return;
     }
 
-    // If not authenticated but auth is required, the API call will fail
-    // Try to load config
+    // Auto-login after auth method transition (credentials stored by Settings)
+    const autoLogin = sessionStorage.getItem('muximux_auto_login');
+    if (autoLogin) {
+      sessionStorage.removeItem('muximux_auto_login');
+      try {
+        const { u, p } = JSON.parse(autoLogin);
+        if (u && p) {
+          await login(u, p, true);
+        }
+      } catch {
+        // Fall through — user will see the login form
+      }
+    }
+
+    // Try to load config (will 401 if auth required and not logged in)
     try {
       config = await fetchConfig();
       apps = config.apps;
@@ -180,6 +192,9 @@
         syncFromConfig(config.theme);
       }
 
+      // Load custom themes from server (non-blocking)
+      loadCustomThemesFromServer();
+
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
 
@@ -189,6 +204,17 @@
         showOnboarding = true;
         loading = false;
         return;
+      }
+
+      // Fetch version info (non-blocking)
+      fetchSystemInfo().then(info => appVersion = info.version).catch(() => {});
+
+      // Check if we should return to a specific section (e.g. after auth method change reload)
+      const returnTo = sessionStorage.getItem('muximux_return_to');
+      if (returnTo) {
+        sessionStorage.removeItem('muximux_return_to');
+        settingsInitialTab = returnTo as typeof settingsInitialTab;
+        showSettings = true;
       }
 
       showDefaultApp();
@@ -239,8 +265,22 @@
         syncFromConfig(config.theme);
       }
 
+      // Load custom themes from server
+      loadCustomThemesFromServer();
+
       // Initialize keybindings from config
       initKeybindings(config.keybindings);
+
+      // Refresh version info
+      fetchSystemInfo().then(info => appVersion = info.version).catch(() => {});
+
+      // Check if we should return to a specific section (e.g. after auth method change)
+      const returnTo = sessionStorage.getItem('muximux_return_to');
+      if (returnTo) {
+        sessionStorage.removeItem('muximux_return_to');
+        settingsInitialTab = returnTo as typeof settingsInitialTab;
+        showSettings = true;
+      }
 
       showDefaultApp();
       startServices();
@@ -254,10 +294,12 @@
     // so just clean up services and reset client state.
     stopHealthPolling();
     disconnectWs();
+    authRequired = true;
     config = null;
     apps = [];
     currentApp = null;
     showSplash = true;
+    showSettings = false;
   }
 
   async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: import('./lib/types').SetupRequest }) {
@@ -346,7 +388,7 @@
 
     switch (actionId) {
       case 'settings':
-        showSettings = true;
+        if (get(isAdmin)) showSettings = true;
         break;
       case 'shortcuts':
         showShortcuts = true;
@@ -439,7 +481,7 @@
         showCommandPalette = true;
         break;
       case 'settings':
-        showSettings = !showSettings;
+        if ($isAdmin) showSettings = !showSettings;
         break;
       case 'shortcuts':
         showShortcuts = !showShortcuts;
@@ -569,14 +611,14 @@
       onpointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
     >
       {#if showSplash && !$isFullscreen}
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {:else if showLogs}
         <Logs onclose={() => { showLogs = false; showSplash = true; }} />
       {:else if currentApp}
         <AppFrame app={currentApp} />
       {:else if $isFullscreen}
         <!-- Show splash content in fullscreen if no app selected -->
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={() => showSettings = true} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {/if}
     </main>
 

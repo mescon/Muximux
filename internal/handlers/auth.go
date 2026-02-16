@@ -351,7 +351,7 @@ func (h *AuthHandler) syncUsersToConfig() error {
 // ListUsers handles GET /api/auth/users
 func (h *AuthHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 	users := h.userStore.List()
-	var resp []UserResponse
+	resp := make([]UserResponse, 0, len(users))
 	for _, u := range users {
 		resp = append(resp, UserResponse{
 			Username:    u.Username,
@@ -391,7 +391,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	// Validate role
-	if req.Role != auth.RoleAdmin && req.Role != auth.RoleUser && req.Role != auth.RoleGuest {
+	if req.Role != auth.RoleAdmin && req.Role != auth.RolePowerUser && req.Role != auth.RoleUser {
 		req.Role = auth.RoleUser
 	}
 
@@ -459,7 +459,7 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if req.Role != "" {
-		if req.Role != auth.RoleAdmin && req.Role != auth.RoleUser && req.Role != auth.RoleGuest {
+		if req.Role != auth.RoleAdmin && req.Role != auth.RolePowerUser && req.Role != auth.RoleUser {
 			w.Header().Set(headerContentType, contentTypeJSON)
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Invalid role"})

@@ -4,7 +4,7 @@
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import { healthData } from '$lib/healthStore';
-  import { currentUser, isAuthenticated, logout } from '$lib/authStore';
+  import { currentUser, isAuthenticated, isAdmin, logout } from '$lib/authStore';
   import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
   import MuximuxLogo from './MuximuxLogo.svelte';
   import { captureKeybindings, toggleCaptureKeybindings } from '$lib/keybindingCaptureStore';
@@ -470,7 +470,7 @@
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if shouldShowHealth(app)}
                           <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
@@ -527,7 +527,7 @@
                 onclick={() => onselect?.(app)}
                 onmouseenter={() => hoveredGroup = null}
               >
-                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                 {#if config.navigation.show_labels}
                   <span>{app.name}</span>
                 {:else}
@@ -577,16 +577,18 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
           </svg>
         </button>
-        <button
-          class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          onclick={() => onsettings?.()}
-          title="Settings"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
+        {#if $isAdmin}
+          <button
+            class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            onclick={() => onsettings?.()}
+            title="Settings"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
             class="p-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
@@ -730,7 +732,7 @@
                     <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
@@ -765,19 +767,21 @@
           <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
 
-        <button
-          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-          onclick={() => onsettings?.()}
-          title="Settings"
-        >
-          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
-        </button>
+        {#if $isAdmin}
+          <button
+            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+            onclick={() => onsettings?.()}
+            title="Settings"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
+          </button>
+        {/if}
 
         <button
           class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
@@ -957,7 +961,7 @@
                     <div class="absolute right-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                   </div>
                   {#if config.navigation.show_labels}
                     <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
@@ -992,19 +996,21 @@
           <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
 
-        <button
-          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-          onclick={() => onsettings?.()}
-          title="Settings"
-        >
-          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </div>
-          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
-        </button>
+        {#if $isAdmin}
+          <button
+            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+            onclick={() => onsettings?.()}
+            title="Settings"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
+          </button>
+        {/if}
 
         <button
           class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
@@ -1161,7 +1167,7 @@
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
                           <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if shouldShowHealth(app)}
                           <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
@@ -1217,7 +1223,7 @@
                 onclick={() => onselect?.(app)}
                 onmouseenter={() => hoveredGroup = null}
               >
-                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                 {#if config.navigation.show_labels}
                   <span>{app.name}</span>
                 {:else}
@@ -1267,16 +1273,18 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
           </svg>
         </button>
-        <button
-          class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-          onclick={() => onsettings?.()}
-          title="Settings"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-        </button>
+        {#if $isAdmin}
+          <button
+            class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            onclick={() => onsettings?.()}
+            title="Settings"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </button>
+        {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
             class="p-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
@@ -1390,7 +1398,7 @@
                         <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                       {/if}
                       <div class="flex-shrink-0 flex items-center justify-center w-6 ml-1" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} />
+                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                       </div>
                       <span class="truncate ml-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
                       {#if shouldShowHealth(app)}
@@ -1463,16 +1471,18 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
             </svg>
           </button>
-          <button
-            class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
-            onclick={() => { onsettings?.(); panelOpen = false; }}
-            title="Settings"
-          >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
+          {#if $isAdmin}
+            <button
+              class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+              onclick={() => { onsettings?.(); panelOpen = false; }}
+              title="Settings"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          {/if}
           {#if hasRealAuth && $isAuthenticated && $currentUser}
             <button
               class="p-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"

@@ -418,8 +418,10 @@ export function initTheme() {
 
   // Subscribe to resolved theme changes and apply
   resolvedTheme.subscribe(applyTheme);
+}
 
-  // Detect and load custom themes, then fix up migration
+// Load custom themes from server (call after auth succeeds)
+export function loadCustomThemesFromServer(): void {
   detectCustomThemes().then(() => {
     postLoadMigration();
     // Re-apply after themes loaded to ensure correct CSS is active

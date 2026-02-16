@@ -6,6 +6,7 @@
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
   import { captureKeybindings } from '$lib/keybindingCaptureStore';
+  import { isAdmin } from '$lib/authStore';
 
   // Props with callbacks instead of dispatchers
   let {
@@ -64,7 +65,7 @@
 
   // All available actions (no "Open Search" — we're already in the palette)
   const actions = $derived([
-    { id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' },
+    ...($isAdmin ? [{ id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' }] : []),
     { id: 'shortcuts', type: 'action' as const, label: 'Show Keyboard Shortcuts', shortcut: getShortcut('shortcuts'), icon: 'help' },
     { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
     { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },

@@ -96,7 +96,7 @@
   let setupUsername = $state('admin');
   let setupPassword = $state('');
   let setupConfirmPassword = $state('');
-  let setupDone = $state(false);
+
 
   // Forward auth fields
   let faPreset = $state<'authelia' | 'authentik' | 'custom'>('authelia');
@@ -143,7 +143,6 @@
 
   function handleSecuritySubmit() {
     if (!authMethod || !securityStepValid) return;
-    setupDone = true;
     nextStep();
   }
 
@@ -803,7 +802,7 @@
     if (step === 'welcome') {
       nextStep();
     } else if (step === 'security') {
-      if (securityStepValid && !setupDone) handleSecuritySubmit();
+      if (securityStepValid) handleSecuritySubmit();
     } else if (step === 'apps') {
       if (selectedCount + $selectedApps.length > 0) nextStep();
     } else if (step === 'navigation' || step === 'theme') {
@@ -1202,18 +1201,7 @@
             <p class="text-gray-400">Choose how you want to protect access to Muximux</p>
           </div>
 
-          {#if setupDone}
-            <!-- Already completed -->
-            <div class="max-w-md mx-auto text-center">
-              <div class="w-16 h-16 mx-auto mb-4 rounded-full bg-green-500/20 flex items-center justify-center">
-                <svg class="w-8 h-8 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <p class="text-gray-300">Security has been configured.</p>
-            </div>
-          {:else}
-            <!-- Method selection cards (accordion — form expands inline) -->
+          <!-- Method selection cards (accordion — form expands inline) -->
             <div class="max-w-2xl mx-auto space-y-3">
               <!-- Builtin password -->
               <div
@@ -1411,7 +1399,6 @@
               </div>
             </div>
 
-          {/if}
         </div>
 
       <!-- Step 2: Add Apps (two-column layout with groups) -->
@@ -1818,7 +1805,7 @@
           {#if $currentStep === 'security'}
             <button
               class="px-6 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50"
-              disabled={!securityStepValid || setupDone}
+              disabled={!securityStepValid}
               onclick={handleSecuritySubmit}
             >
               Continue

@@ -10,6 +10,7 @@ import (
 
 	"gopkg.in/yaml.v3"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
@@ -49,8 +50,9 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
+	userRole := getUserRole(r)
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
+	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config, userRole))
 }
 
 // ExportConfig returns the full configuration as a downloadable YAML file,
@@ -117,7 +119,7 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 
 	// Return as the same sanitized JSON format the frontend expects
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(&cfg))
+	json.NewEncoder(w).Encode(buildClientConfigResponse(&cfg, ""))
 }
 
 // clientConfigResponse is the sanitized config structure sent to the frontend.
@@ -143,7 +145,8 @@ type clientAuthConfig struct {
 }
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
-func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
+// userRole filters apps by minimum role; empty string means no filtering (e.g. import preview).
+func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfigResponse {
 	resp := clientConfigResponse{
 		Title:        cfg.Server.Title,
 		LogLevel:     cfg.Server.LogLevel,
@@ -152,7 +155,7 @@ func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
 		Theme:        cfg.Theme,
 		Health:       &cfg.Health,
 		Groups:       cfg.Groups,
-		Apps:         sanitizeApps(cfg.Apps),
+		Apps:         sanitizeApps(cfg.Apps, userRole),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -217,7 +220,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
+	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config, auth.RoleAdmin))
 }
 
 // mergeConfigUpdate applies a client config update to the server config,
@@ -280,6 +283,8 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 		Scale:                    clientApp.Scale,
 		Shortcut:                 clientApp.Shortcut,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		MinRole:                  clientApp.MinRole,
+		ForceIconBackground:      clientApp.ForceIconBackground,
 	}
 
 	// Preserve auth bypass and access rules if app existed before
@@ -297,8 +302,9 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 
 // GetApps returns the list of apps
 func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
+	userRole := getUserRole(r)
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps))
+	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps, userRole))
 }
 
 // GetGroups returns the list of groups
@@ -365,6 +371,8 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		Scale:                    clientApp.Scale,
 		Shortcut:                 clientApp.Shortcut,
 		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		MinRole:                  clientApp.MinRole,
+		ForceIconBackground:      clientApp.ForceIconBackground,
 	}
 
 	h.config.Apps = append(h.config.Apps, newApp)
@@ -629,6 +637,8 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 		Scale:                    app.Scale,
 		Shortcut:                 app.Shortcut,
 		DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
+		MinRole:                  app.MinRole,
+		ForceIconBackground:      app.ForceIconBackground,
 	}
 }
 
@@ -651,14 +661,23 @@ type ClientAppConfig struct {
 	Scale                    float64              `json:"scale"`
 	Shortcut                 *int                 `json:"shortcut,omitempty"`
 	DisableKeyboardShortcuts bool                 `json:"disable_keyboard_shortcuts"`
+	MinRole                  string               `json:"min_role,omitempty"`
+	ForceIconBackground      bool                 `json:"force_icon_background,omitempty"`
 }
 
-// sanitizeApps removes sensitive fields from app configs
-func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
+// sanitizeApps removes sensitive fields and filters by role.
+// userRole is the requesting user's role; empty string disables filtering.
+func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
 		if !apps[i].Enabled {
 			continue
+		}
+		// Filter by minimum role if a user role is provided
+		if userRole != "" && apps[i].MinRole != "" {
+			if !auth.HasMinRole(userRole, apps[i].MinRole) {
+				continue
+			}
 		}
 		result = append(result, sanitizeApp(&apps[i]))
 	}
@@ -680,4 +699,14 @@ func slugify(name string) string {
 		}
 	}
 	return string(result)
+}
+
+// getUserRole extracts the user role from the request context.
+// Returns empty string if no user is present.
+func getUserRole(r *http.Request) string {
+	user := auth.GetUserFromContext(r.Context())
+	if user == nil {
+		return ""
+	}
+	return user.Role
 }
