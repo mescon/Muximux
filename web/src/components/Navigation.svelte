@@ -346,6 +346,7 @@
   <button
     class="fixed top-4 left-4 z-50 p-2 bg-gray-800 rounded-lg border border-gray-700 text-white lg:hidden"
     onclick={() => mobileMenuOpen = !mobileMenuOpen}
+    aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
   >
     <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
       {#if mobileMenuOpen}

@@ -37,9 +37,9 @@
   --glass-highlight: rgba(253, 246, 227, 0.8);
 
   /* Text hierarchy */
-  --text-primary: #586e75;
-  --text-secondary: #657b83;
-  --text-muted: #839496;
+  --text-primary: #556a71;
+  --text-secondary: #576a71;
+  --text-muted: #5b6a6c;
   --text-disabled: #93a1a1;
 
   /* Borders */

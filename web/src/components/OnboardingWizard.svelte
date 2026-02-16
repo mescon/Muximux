@@ -852,7 +852,7 @@
               {/if}
             </div>
             <span class="stepper-label transition-colors duration-300
-                         {i <= $stepProgress ? 'text-gray-200' : 'text-gray-500'}">{step}</span>
+                         {i <= $stepProgress ? 'text-gray-200' : 'text-gray-400'}">{step}</span>
           </div>
         {/each}
       </div>
@@ -1161,7 +1161,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
               </div>
-              <h3 class="font-semibold text-white mb-1">Embedded Apps</h3>
+              <h2 class="font-semibold text-white mb-1 text-base">Embedded Apps</h2>
               <p class="text-sm text-gray-400">View all your services in iframes without leaving the dashboard</p>
             </div>
 
@@ -1171,7 +1171,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 class="font-semibold text-white mb-1">Health Monitoring</h3>
+              <h2 class="font-semibold text-white mb-1 text-base">Health Monitoring</h2>
               <p class="text-sm text-gray-400">See at a glance which services are online and healthy</p>
             </div>
 
@@ -1181,7 +1181,7 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h3 class="font-semibold text-white mb-1">Quick Access</h3>
+              <h2 class="font-semibold text-white mb-1 text-base">Quick Access</h2>
               <p class="text-sm text-gray-400">Keyboard shortcuts and search for lightning-fast navigation</p>
             </div>
           </div>
