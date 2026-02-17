@@ -4,6 +4,7 @@ import tailwindcss from '@tailwindcss/vite';
 import path from 'node:path';
 
 export default defineConfig({
+  base: './',
   plugins: [tailwindcss(), svelte()],
   resolve: {
     alias: {
@@ -13,6 +14,7 @@ export default defineConfig({
   build: {
     outDir: '../internal/server/dist',
     emptyOutDir: true,
+    chunkSizeWarningLimit: 600,
   },
   server: {
     proxy: {

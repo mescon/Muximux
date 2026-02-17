@@ -26,14 +26,14 @@ type ReverseProxyHandler struct {
 }
 
 type proxyRoute struct {
-	name           string
-	slug           string
-	proxyPrefix    string
-	targetURL      *url.URL
-	targetPath     string
-	skipTLSVerify  bool
-	proxy          *httputil.ReverseProxy
-	rewriter       *contentRewriter
+	name          string
+	slug          string
+	proxyPrefix   string
+	targetURL     *url.URL
+	targetPath    string
+	skipTLSVerify bool
+	proxy         *httputil.ReverseProxy
+	rewriter      *contentRewriter
 }
 
 // contentRewriter handles URL rewriting in response content
@@ -387,11 +387,11 @@ func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string) *Rever
 // buildProxyRoutes iterates over app configs and creates proxy routes for
 // enabled apps with proxying turned on.
 func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig, timeout time.Duration) {
-	for _, app := range apps {
-		if !app.Proxy || !app.Enabled {
+	for i := range apps {
+		if !apps[i].Proxy || !apps[i].Enabled {
 			continue
 		}
-		route := buildSingleProxyRoute(app, timeout)
+		route := buildSingleProxyRoute(&apps[i], timeout)
 		if route != nil {
 			h.routes[route.slug] = route
 		}
@@ -400,7 +400,7 @@ func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig, timeout t
 
 // buildSingleProxyRoute creates a proxyRoute for a single app config.
 // Returns nil if the app URL is invalid or already uses a proxy path.
-func buildSingleProxyRoute(app config.AppConfig, timeout time.Duration) *proxyRoute {
+func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration) *proxyRoute {
 	targetURL, err := url.Parse(app.URL)
 	if err != nil {
 		return nil
@@ -432,7 +432,7 @@ func buildSingleProxyRoute(app config.AppConfig, timeout time.Duration) *proxyRo
 
 	proxy := &httputil.ReverseProxy{
 		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders),
-		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter),
+		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter), //nolint:bodyclose // response body managed by httputil.ReverseProxy
 		Transport:      transport,
 	}
 

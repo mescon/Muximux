@@ -736,7 +736,6 @@ export function templateToApp(template: PopularAppTemplate, url: string, order: 
     default: order === 0,  // First app is default
     open_mode: 'iframe',
     proxy: false,
-    scale: 1,
-    disable_keyboard_shortcuts: false
+    scale: 1
   };
 }

@@ -419,10 +419,10 @@ func TestSPAHandlerDev(t *testing.T) {
 	tmpDir := t.TempDir()
 	indexPath := tmpDir + "/index.html"
 	cssPath := tmpDir + "/style.css"
-	if err := os.WriteFile(indexPath, []byte("<html>SPA</html>"), 0644); err != nil {
+	if err := os.WriteFile(indexPath, []byte("<html>SPA</html>"), 0600); err != nil {
 		t.Fatal(err)
 	}
-	if err := os.WriteFile(cssPath, []byte("body{}"), 0644); err != nil {
+	if err := os.WriteFile(cssPath, []byte("body{}"), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -508,7 +508,7 @@ func TestSPAHandlerEmbed(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "index.html")
+	handler := spaHandlerEmbed(fileServer, testFS, "")
 
 	t.Run("root serves index.html", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -564,13 +564,46 @@ func TestSPAHandlerEmbed(t *testing.T) {
 	})
 }
 
+func TestSPAHandlerEmbed_BasePath(t *testing.T) {
+	testFS := fstest.MapFS{
+		"index.html": &fstest.MapFile{Data: []byte("<html><head></head><body>SPA</body></html>")},
+	}
+
+	fileServer := http.FileServer(http.FS(testFS))
+	handler := spaHandlerEmbed(fileServer, testFS, "/dash")
+
+	t.Run("injects base path script", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+		if rec.Code != http.StatusOK {
+			t.Errorf("expected 200, got %d", rec.Code)
+		}
+		body := rec.Body.String()
+		if !strings.Contains(body, `window.__MUXIMUX_BASE__="/dash"`) {
+			t.Errorf("expected base path injection in HTML, got: %s", body)
+		}
+	})
+
+	t.Run("no injection with empty base path", func(t *testing.T) {
+		handler2 := spaHandlerEmbed(fileServer, testFS, "")
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		handler2.ServeHTTP(rec, req)
+		body := rec.Body.String()
+		if strings.Contains(body, "__MUXIMUX_BASE__") {
+			t.Errorf("expected no base path injection, got: %s", body)
+		}
+	})
+}
+
 func TestSPAHandlerEmbed_MissingIndex(t *testing.T) {
 	testFS := fstest.MapFS{
 		"other.txt": &fstest.MapFile{Data: []byte("not index")},
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "index.html")
+	handler := spaHandlerEmbed(fileServer, testFS, "")
 
 	if handler == nil {
 		t.Fatal("expected non-nil handler even with missing index")
@@ -590,7 +623,7 @@ func TestWrapMiddleware(t *testing.T) {
 		cfg := &config.Config{Auth: config.AuthConfig{Method: "none"}}
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
-		am := auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
+		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
 		handler := wrapMiddleware(inner, cfg, am)
 
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
@@ -606,7 +639,7 @@ func TestWrapMiddleware(t *testing.T) {
 		cfg := &config.Config{Auth: config.AuthConfig{Method: ""}}
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
-		am := auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
+		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
 		handler := wrapMiddleware(inner, cfg, am)
 
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
@@ -622,7 +655,7 @@ func TestWrapMiddleware(t *testing.T) {
 		cfg := &config.Config{Auth: config.AuthConfig{Method: "none"}}
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
-		am := auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
+		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
 		handler := wrapMiddleware(inner, cfg, am)
 
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
@@ -641,7 +674,7 @@ func TestWrapMiddleware(t *testing.T) {
 		cfg := &config.Config{Auth: config.AuthConfig{Method: "none"}}
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
-		am := auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
+		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
 		handler := wrapMiddleware(inner, cfg, am)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/config", nil)
@@ -657,7 +690,7 @@ func TestWrapMiddleware(t *testing.T) {
 		cfg := &config.Config{Auth: config.AuthConfig{Method: "builtin"}}
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
-		am := auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodBuiltin}, ss, us)
+		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodBuiltin}, ss, us)
 		handler := wrapMiddleware(inner, cfg, am)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/test", nil)
@@ -1263,7 +1296,7 @@ func TestRegisterThemeRoutes(t *testing.T) {
 func TestRegisterThemeRoutes_ServeLocalTheme(t *testing.T) {
 	themesDir := t.TempDir()
 	testFile := filepath.Join(themesDir, "local-test-theme.css")
-	if err := os.WriteFile(testFile, []byte("/* test theme */\n:root { --bg: #000; }"), 0o644); err != nil {
+	if err := os.WriteFile(testFile, []byte("/* test theme */\n:root { --bg: #000; }"), 0o600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -1414,7 +1447,7 @@ func TestServer_GetHub(t *testing.T) {
 
 func TestServer_Stop_NilComponents(t *testing.T) {
 	s := &Server{
-		httpServer:    &http.Server{},
+		httpServer:    &http.Server{ReadHeaderTimeout: 5 * time.Second},
 		healthMonitor: nil,
 		proxyServer:   nil,
 	}
@@ -1426,7 +1459,7 @@ func TestServer_Stop_NilComponents(t *testing.T) {
 func TestServer_Stop_WithHealthMonitor(t *testing.T) {
 	mon := health.NewMonitor(1*time.Second, 1*time.Second)
 	s := &Server{
-		httpServer:    &http.Server{},
+		httpServer:    &http.Server{ReadHeaderTimeout: 5 * time.Second},
 		healthMonitor: mon,
 	}
 
@@ -1704,7 +1737,7 @@ func TestHandleSetup_Builtin_WeakPassword(t *testing.T) {
 	s.needsSetup.Store(true)
 	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
 	s.userStore = auth.NewUserStore()
-	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
 	body := `{"method":"builtin","username":"admin","password":"short"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
@@ -1725,7 +1758,7 @@ func TestHandleSetup_Builtin_EmptyUsername(t *testing.T) {
 	s.needsSetup.Store(true)
 	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
 	s.userStore = auth.NewUserStore()
-	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
 	body := `{"method":"builtin","username":"","password":"longenoughpassword"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
@@ -1746,7 +1779,7 @@ func TestHandleSetup_ForwardAuth_MissingProxy(t *testing.T) {
 	s.needsSetup.Store(true)
 	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
 	s.userStore = auth.NewUserStore()
-	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
 	body := `{"method":"forward_auth","trusted_proxies":[]}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
@@ -1770,7 +1803,7 @@ func TestHandleSetup_Builtin_Success(t *testing.T) {
 	s.needsSetup.Store(true)
 	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
 	s.userStore = auth.NewUserStore()
-	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
 	body := `{"method":"builtin","username":"admin","password":"securepass123"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
@@ -1844,7 +1877,7 @@ func TestHandleSetup_ForwardAuth_Success(t *testing.T) {
 	s.needsSetup.Store(true)
 	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
 	s.userStore = auth.NewUserStore()
-	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
 	body := `{"method":"forward_auth","trusted_proxies":["10.0.0.0/8"],"headers":{"user":"Remote-User","email":"Remote-Email"}}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
@@ -1875,7 +1908,7 @@ func TestHandleSetup_None_Success(t *testing.T) {
 	s.needsSetup.Store(true)
 	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
 	s.userStore = auth.NewUserStore()
-	s.authMiddleware = auth.NewMiddleware(auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
 	body := `{"method":"none"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))

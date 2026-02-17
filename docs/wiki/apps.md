@@ -17,8 +17,9 @@ apps:
       variant: light                 # light or dark (dashboard icons only)
       file: ""                      # Filename (for type: custom)
       url: ""                       # URL (for type: url)
-      color: "#ff9600"              # Optional icon tint color
-      background: "#ffffff"          # Optional icon background
+      color: "#ff9600"              # Optional icon tint color (Lucide only)
+      background: "#ffffff"          # Optional icon background override
+      invert: false                  # Invert icon colors (dark ↔ light)
     color: "#3498db"                # App accent color (used in nav)
     group: Downloads                # Group name (must match a defined group)
     order: 1                        # Sort order within group
@@ -30,7 +31,10 @@ apps:
     proxy_headers:                  # Custom headers sent to the backend
       X-Api-Key: "your-key"
     scale: 1.0                      # Zoom level for iframe (0.5 - 2.0)
-    disable_keyboard_shortcuts: false # Disable global shortcuts when this app is active
+    health_check: true               # Set false to disable health monitoring
+    shortcut: 1                      # Assign keyboard shortcut 1-9
+    min_role: ""                     # Minimum role to see this app (user, power-user, admin)
+    force_icon_background: false     # Show icon background even when global setting is off
     access:                         # Restrict access to specific roles/users
       roles: []
       users: []

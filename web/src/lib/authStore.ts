@@ -37,7 +37,8 @@ export const isLoading = derived(authState, ($state) => $state.loading);
 export const setupRequired = derived(authState, ($state) => $state.setupRequired);
 
 // API functions
-const API_BASE = '/api/auth';
+const base = ((window as unknown as Record<string, string>).__MUXIMUX_BASE__) || '';
+const API_BASE = base + '/api/auth';
 
 // Check auth status
 export async function checkAuthStatus(): Promise<void> {

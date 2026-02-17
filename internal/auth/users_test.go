@@ -255,6 +255,49 @@ func TestUserStoreListWithHashes(t *testing.T) {
 	}
 }
 
+func TestRoleLevel(t *testing.T) {
+	tests := []struct {
+		role  string
+		level int
+	}{
+		{RoleUser, 1},
+		{RolePowerUser, 2},
+		{RoleAdmin, 3},
+		{"unknown", 0},
+		{"", 0},
+	}
+	for _, tt := range tests {
+		if got := RoleLevel(tt.role); got != tt.level {
+			t.Errorf("RoleLevel(%q) = %d, want %d", tt.role, got, tt.level)
+		}
+	}
+}
+
+func TestHasMinRole(t *testing.T) {
+	tests := []struct {
+		userRole string
+		minRole  string
+		want     bool
+	}{
+		{RoleAdmin, RoleAdmin, true},
+		{RoleAdmin, RolePowerUser, true},
+		{RoleAdmin, RoleUser, true},
+		{RolePowerUser, RoleAdmin, false},
+		{RolePowerUser, RolePowerUser, true},
+		{RolePowerUser, RoleUser, true},
+		{RoleUser, RoleAdmin, false},
+		{RoleUser, RolePowerUser, false},
+		{RoleUser, RoleUser, true},
+		// Empty min_role (default) — user with any role meets it since RoleLevel("") = 0
+		{RoleUser, "", true},
+	}
+	for _, tt := range tests {
+		if got := HasMinRole(tt.userRole, tt.minRole); got != tt.want {
+			t.Errorf("HasMinRole(%q, %q) = %v, want %v", tt.userRole, tt.minRole, got, tt.want)
+		}
+	}
+}
+
 func mustHash(password string) string {
 	hash, err := HashPassword(password)
 	if err != nil {

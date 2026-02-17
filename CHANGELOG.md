@@ -2,6 +2,17 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Flat bar style** for top/bottom navigation — a streamlined layout that shows apps in a single row separated by group icon dividers, without group headers or collapsible sections.
+- **Per-app keyboard shortcut assignment** — assign number keys (1–9) to specific apps instead of relying on position-based ordering. Configured via `shortcut` field on each app or in Settings > Keybindings.
+- **Per-app health check toggle** — disable health monitoring for individual apps with `health_check: false`. Useful for apps that don't respond to HTTP checks or where you don't care about status. Includes bulk enable/disable in Settings.
+- **Base path support** — serve Muximux at a subpath behind a reverse proxy (e.g., `https://example.com/muximux/`). Configure with `server.base_path` in config, `--base-path` CLI flag, or `MUXIMUX_BASE_PATH` environment variable.
+
+---
+
 ## [3.0.0] - 2025-02-15
 
 ### Ground-Up Rewrite

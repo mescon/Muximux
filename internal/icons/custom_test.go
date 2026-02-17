@@ -186,7 +186,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 		mgr := NewCustomIconsManager(dir)
 
 		content := "<svg>found</svg>"
-		if err := os.WriteFile(filepath.Join(dir, "found.svg"), []byte(content), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "found.svg"), []byte(content), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -206,7 +206,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 		dir := t.TempDir()
 		mgr := NewCustomIconsManager(dir)
 
-		if err := os.WriteFile(filepath.Join(dir, "photo.png"), []byte("PNG"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "photo.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -227,7 +227,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 		mgr := NewCustomIconsManager(dir)
 
 		content := "<svg>ext</svg>"
-		if err := os.WriteFile(filepath.Join(dir, "withext.svg"), []byte(content), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "withext.svg"), []byte(content), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -272,10 +272,10 @@ func TestCustomIconsManager_ListIcons(t *testing.T) {
 		dir := t.TempDir()
 		mgr := NewCustomIconsManager(dir)
 
-		if err := os.WriteFile(filepath.Join(dir, "icon1.svg"), []byte("<svg/>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "icon1.svg"), []byte("<svg/>"), 0600); err != nil {
 			t.Fatal(err)
 		}
-		if err := os.WriteFile(filepath.Join(dir, "icon2.png"), []byte("PNG"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "icon2.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -304,7 +304,7 @@ func TestCustomIconsManager_ListIcons(t *testing.T) {
 		dir := t.TempDir()
 		mgr := NewCustomIconsManager(dir)
 
-		if err := os.WriteFile(filepath.Join(dir, "icon.svg"), []byte("<svg/>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "icon.svg"), []byte("<svg/>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 		if err := os.MkdirAll(filepath.Join(dir, "subdir"), 0755); err != nil {
@@ -338,7 +338,7 @@ func TestCustomIconsManager_DeleteIcon(t *testing.T) {
 		dir := t.TempDir()
 		mgr := NewCustomIconsManager(dir)
 
-		if err := os.WriteFile(filepath.Join(dir, "todelete.svg"), []byte("<svg/>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "todelete.svg"), []byte("<svg/>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -357,7 +357,7 @@ func TestCustomIconsManager_DeleteIcon(t *testing.T) {
 		dir := t.TempDir()
 		mgr := NewCustomIconsManager(dir)
 
-		if err := os.WriteFile(filepath.Join(dir, "topng.png"), []byte("PNG"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(dir, "topng.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
 		}
 

@@ -182,7 +182,6 @@ describe('onboardingStore', () => {
         open_mode: 'iframe',
         proxy: false,
         scale: 1,
-        disable_keyboard_shortcuts: false,
       }]);
       selectedNavigation.set('top');
       showLabels.set(false);

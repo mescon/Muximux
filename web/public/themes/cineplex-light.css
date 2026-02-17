@@ -1,15 +1,15 @@
 /**
- * Plex Light Theme for Muximux
+ * Cineplex Light Theme for Muximux
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * Light variant inspired by the Plex media server interface.
+ * Light variant of the cinema-inspired theme.
  * Clean, bright surfaces with warm amber accents.
  *
  * Theme metadata (used by the theme selector):
- * @theme-id: plex-light
- * @theme-name: Plex Light
- * @theme-family: plex
- * @theme-family-name: Plex
+ * @theme-id: cineplex-light
+ * @theme-name: Cineplex Light
+ * @theme-family: cineplex
+ * @theme-family-name: Cineplex
  * @theme-variant: light
  * @theme-description: Clean light theme with warm amber accents
  * @theme-is-dark: false
@@ -20,7 +20,7 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-[data-theme="plex-light"] {
+[data-theme="cineplex-light"] {
   color-scheme: light;
 
   /* Backgrounds */

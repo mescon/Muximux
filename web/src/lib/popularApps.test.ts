@@ -94,7 +94,6 @@ describe('popularApps', () => {
       expect(app.open_mode).toBe('iframe');
       expect(app.proxy).toBe(false);
       expect(app.scale).toBe(1);
-      expect(app.disable_keyboard_shortcuts).toBe(false);
     });
 
     it('uses defaultUrl when url is empty', () => {

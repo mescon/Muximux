@@ -85,11 +85,24 @@ icon:
   type: dashboard
   name: sonarr
   variant: light
-  color: "#ff9600"        # Tint the icon with this color
+  color: "#ff9600"        # Tint color (Lucide icons only)
   background: "#1a1a2e"   # Background color behind the icon
+  invert: true            # Invert icon colors (swap dark ↔ light)
 ```
 
-The `color` and `background` options work together with the navigation settings `show_app_colors` and `show_icon_background`. If those navigation settings are disabled, the color and background values are ignored.
+### Color
+
+The `color` field applies a color tint to Lucide icons. It has no effect on other icon types (dashboard, custom, or URL icons already have their own colors baked in).
+
+### Background
+
+The `background` field sets a custom background color behind the icon. By default, the app's accent `color` is used as the icon background. Setting `background` overrides that default for just the icon, without changing the app's accent color elsewhere (tab indicator, sidebar highlight).
+
+The background is only visible when `show_icon_background` is enabled in the navigation settings, unless the app has `force_icon_background: true` set.
+
+### Invert
+
+The `invert` field flips the icon's colors -- turning light icons dark and dark icons bright. This is useful when a dashboard icon only comes in a variant that clashes with your theme. For example, if an app only provides a white-on-transparent icon and you are using a light theme, setting `invert: true` makes it visible.
 
 ## Icon Browser
 

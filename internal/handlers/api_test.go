@@ -862,7 +862,7 @@ func TestMergeClientApp(t *testing.T) {
 			Color:   "#ff0000",
 		}
 
-		result := mergeClientApp(clientApp, existing)
+		result := mergeClientApp(&clientApp, existing)
 
 		if result.Name != "NewApp" {
 			t.Errorf("expected name 'NewApp', got %q", result.Name)
@@ -891,7 +891,7 @@ func TestMergeClientApp(t *testing.T) {
 			Enabled: true,
 		}
 
-		result := mergeClientApp(clientApp, existing)
+		result := mergeClientApp(&clientApp, existing)
 
 		if result.URL != "http://internal:8080" {
 			t.Errorf("expected preserved URL 'http://internal:8080', got %q", result.URL)
@@ -917,7 +917,7 @@ func TestMergeClientApp(t *testing.T) {
 			Enabled: true,
 		}
 
-		result := mergeClientApp(clientApp, existing)
+		result := mergeClientApp(&clientApp, existing)
 
 		if result.URL != "http://new:9090" {
 			t.Errorf("expected new URL 'http://new:9090', got %q", result.URL)
@@ -928,7 +928,7 @@ func TestMergeClientApp(t *testing.T) {
 func TestBuildClientConfigResponse(t *testing.T) {
 	cfg := createTestConfig()
 
-	resp := buildClientConfigResponse(cfg)
+	resp := buildClientConfigResponse(cfg, "admin")
 
 	if resp.Title != "Test Dashboard" {
 		t.Errorf("expected title 'Test Dashboard', got %q", resp.Title)
@@ -954,7 +954,7 @@ func TestBuildClientConfigResponse(t *testing.T) {
 			"search": {{Key: "k", Ctrl: true}},
 		},
 	}
-	resp = buildClientConfigResponse(cfg)
+	resp = buildClientConfigResponse(cfg, "admin")
 	if resp.Keybindings == nil {
 		t.Error("expected keybindings to be set")
 	}
@@ -1013,7 +1013,7 @@ func TestSanitizeApp(t *testing.T) {
 			Proxy:   false,
 		}
 
-		result := sanitizeApp(app)
+		result := sanitizeApp(&app)
 
 		if result.ProxyURL != "" {
 			t.Errorf("expected empty proxyUrl for non-proxied app, got %q", result.ProxyURL)
@@ -1031,7 +1031,7 @@ func TestSanitizeApp(t *testing.T) {
 			Proxy:   true,
 		}
 
-		result := sanitizeApp(app)
+		result := sanitizeApp(&app)
 
 		if result.ProxyURL != "/proxy/test-app/" {
 			t.Errorf("expected proxyUrl '/proxy/test-app/', got %q", result.ProxyURL)
@@ -1306,7 +1306,7 @@ func TestSanitizeApps(t *testing.T) {
 		{Name: "Enabled2", URL: "http://c:8080", Enabled: true, Proxy: true},
 	}
 
-	result := sanitizeApps(apps)
+	result := sanitizeApps(apps, "admin")
 
 	if len(result) != 2 {
 		t.Errorf("expected 2 enabled apps, got %d", len(result))
@@ -1318,4 +1318,48 @@ func TestSanitizeApps(t *testing.T) {
 			t.Error("disabled app should not be in sanitized list")
 		}
 	}
+}
+
+func TestSanitizeAppsRoleFiltering(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Public", URL: "http://a:8080", Enabled: true, MinRole: ""},
+		{Name: "PowerOnly", URL: "http://b:8080", Enabled: true, MinRole: "power-user"},
+		{Name: "AdminOnly", URL: "http://c:8080", Enabled: true, MinRole: "admin"},
+	}
+
+	t.Run("admin sees all", func(t *testing.T) {
+		result := sanitizeApps(apps, "admin")
+		if len(result) != 3 {
+			t.Errorf("admin should see 3 apps, got %d", len(result))
+		}
+	})
+
+	t.Run("power-user sees public and power-user", func(t *testing.T) {
+		result := sanitizeApps(apps, "power-user")
+		if len(result) != 2 {
+			t.Errorf("power-user should see 2 apps, got %d", len(result))
+		}
+		for _, app := range result {
+			if app.Name == "AdminOnly" {
+				t.Error("power-user should not see admin-only app")
+			}
+		}
+	})
+
+	t.Run("user sees only public", func(t *testing.T) {
+		result := sanitizeApps(apps, "user")
+		if len(result) != 1 {
+			t.Errorf("user should see 1 app, got %d", len(result))
+		}
+		if result[0].Name != "Public" {
+			t.Errorf("expected 'Public', got %q", result[0].Name)
+		}
+	})
+
+	t.Run("empty role disables filtering", func(t *testing.T) {
+		result := sanitizeApps(apps, "")
+		if len(result) != 3 {
+			t.Errorf("empty role should see all 3 apps, got %d", len(result))
+		}
+	})
 }

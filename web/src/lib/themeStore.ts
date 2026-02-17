@@ -9,6 +9,7 @@
  */
 
 import { writable, derived, get } from 'svelte/store';
+import { getBase } from './api';
 
 // Built-in themes
 export type BuiltinTheme = 'dark' | 'light';
@@ -298,7 +299,7 @@ export async function loadCustomThemeCSS(themeId: string): Promise<boolean> {
     const link = document.createElement('link');
     link.id = linkId;
     link.rel = 'stylesheet';
-    link.href = `/themes/${themeId}.css`;
+    link.href = `${getBase()}/themes/${themeId}.css`;
 
     return new Promise((resolve) => {
       link.onload = () => resolve(true);
@@ -334,7 +335,7 @@ export async function detectCustomThemes(): Promise<void> {
   if (globalThis.window === undefined) return;
 
   try {
-    const response = await fetch('/api/themes');
+    const response = await fetch(`${getBase()}/api/themes`);
     if (response.ok) {
       const themes: ThemeInfo[] = await response.json();
       customThemes.set(themes);
@@ -417,8 +418,10 @@ export function initTheme() {
 
   // Subscribe to resolved theme changes and apply
   resolvedTheme.subscribe(applyTheme);
+}
 
-  // Detect and load custom themes, then fix up migration
+// Load custom themes from server (call after auth succeeds)
+export function loadCustomThemesFromServer(): void {
   detectCustomThemes().then(() => {
     postLoadMigration();
     // Re-apply after themes loaded to ensure correct CSS is active
@@ -458,7 +461,7 @@ export async function saveCustomThemeToServer(
   author?: string
 ): Promise<boolean> {
   try {
-    const response = await fetch('/api/themes', {
+    const response = await fetch(`${getBase()}/api/themes`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, baseTheme, isDark, variables, description, author })
@@ -482,7 +485,7 @@ export async function saveCustomThemeToServer(
 // Delete a custom theme via API
 export async function deleteCustomThemeFromServer(themeId: string): Promise<boolean> {
   try {
-    const response = await fetch(`/api/themes/${themeId}`, {
+    const response = await fetch(`${getBase()}/api/themes/${themeId}`, {
       method: 'DELETE'
     });
 

@@ -180,6 +180,81 @@ services:
 
 ---
 
+## Subpath Deployment (Base Path)
+
+If your reverse proxy serves Muximux at a subpath (e.g., `https://example.com/muximux/` instead of a dedicated domain), configure the base path so Muximux generates correct URLs for assets, API calls, and WebSocket connections.
+
+### Configuration
+
+Set the base path using any of these methods (in order of precedence):
+
+```bash
+# CLI flag
+muximux --base-path /muximux
+
+# Environment variable
+MUXIMUX_BASE_PATH=/muximux muximux
+
+# Or in config.yaml
+server:
+  base_path: /muximux
+```
+
+The path must start with `/` and have no trailing slash. If not set, Muximux serves from the root.
+
+### Nginx (subpath)
+
+```nginx
+location /muximux/ {
+    proxy_pass http://127.0.0.1:8080;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+
+    # WebSocket support
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+```
+
+### Traefik (subpath with StripPrefix)
+
+```yaml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    environment:
+      - MUXIMUX_BASE_PATH=/muximux
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.muximux.rule=PathPrefix(`/muximux`)"
+      - "traefik.http.routers.muximux.tls.certresolver=letsencrypt"
+      - "traefik.http.services.muximux.loadbalancer.server.port=8080"
+    volumes:
+      - ./data:/app/data
+```
+
+> **Note:** Muximux handles its own path stripping internally. Do **not** use Traefik's `StripPrefix` middleware — Muximux expects the full path including the base prefix and strips it itself.
+
+### Docker Compose (subpath)
+
+```yaml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    environment:
+      - MUXIMUX_BASE_PATH=/muximux
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+```
+
+---
+
 ## Network Considerations
 
 - **Same network as apps**: Muximux needs to reach your apps (for health checks and the built-in reverse proxy). In Docker, use the same Docker network or host networking.

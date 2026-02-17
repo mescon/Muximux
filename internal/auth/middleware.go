@@ -38,6 +38,7 @@ type AuthConfig struct {
 	Headers        ForwardAuthHeaders
 	BypassRules    []BypassRule
 	APIKey         string
+	BasePath       string // e.g. "/muximux" — prepended to login redirect
 }
 
 // ForwardAuthHeaders defines the header names for forward auth
@@ -66,9 +67,9 @@ type Middleware struct {
 }
 
 // NewMiddleware creates a new auth middleware
-func NewMiddleware(config AuthConfig, sessionStore *SessionStore, userStore *UserStore) *Middleware {
+func NewMiddleware(config *AuthConfig, sessionStore *SessionStore, userStore *UserStore) *Middleware {
 	m := &Middleware{
-		config:       config,
+		config:       *config,
 		sessionStore: sessionStore,
 		userStore:    userStore,
 	}
@@ -96,7 +97,7 @@ func NewMiddleware(config AuthConfig, sessionStore *SessionStore, userStore *Use
 }
 
 // UpdateConfig replaces the auth configuration and re-parses trusted proxy networks.
-func (m *Middleware) UpdateConfig(config AuthConfig) {
+func (m *Middleware) UpdateConfig(config *AuthConfig) {
 	var trustedNets []*net.IPNet
 	for _, cidr := range config.TrustedProxies {
 		_, network, err := net.ParseCIDR(cidr)
@@ -116,7 +117,7 @@ func (m *Middleware) UpdateConfig(config AuthConfig) {
 	}
 
 	m.mu.Lock()
-	m.config = config
+	m.config = *config
 	m.trustedNets = trustedNets
 	m.mu.Unlock()
 }
@@ -137,10 +138,21 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 			return
 		}
 
-		// Check bypass rules
+		// Check bypass rules — still attempt best-effort auth so that
+		// bypassed endpoints (e.g. /api/auth/status) can see the user.
 		if m.shouldBypass(r) {
 			logging.Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
-			next.ServeHTTP(w, r)
+			user, session := m.authenticateRequest(r)
+			if user != nil {
+				ctx := context.WithValue(r.Context(), ContextKeyUser, user)
+				if session != nil {
+					ctx = context.WithValue(ctx, ContextKeySession, session)
+					m.sessionStore.Refresh(session.ID)
+				}
+				next.ServeHTTP(w, r.WithContext(ctx))
+			} else {
+				next.ServeHTTP(w, r)
+			}
 			return
 		}
 
@@ -410,7 +422,7 @@ func (m *Middleware) handleUnauthenticated(w http.ResponseWriter, r *http.Reques
 	}
 
 	// Redirect to login page for browser requests
-	http.Redirect(w, r, "/login", http.StatusFound)
+	http.Redirect(w, r, m.config.BasePath+"/login", http.StatusFound)
 }
 
 // GetUserFromContext extracts the user from request context

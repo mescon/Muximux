@@ -214,7 +214,7 @@ func (c *DashboardIconsClient) saveToCache(name, variant string, data []byte) er
 	}
 
 	cachePath := c.getCachePath(name, variant)
-	return os.WriteFile(cachePath, data, 0644)
+	return os.WriteFile(cachePath, data, 0600)
 }
 
 // fetchIconList fetches the list of available icons from GitHub using the Trees API

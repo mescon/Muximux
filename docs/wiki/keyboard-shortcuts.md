@@ -8,11 +8,11 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 
 | Shortcut | Action |
 |----------|--------|
-| `/` or `Ctrl+K` or `Ctrl+Shift+P` | Open Command Palette |
-| `Ctrl+,` | Open Settings |
+| `Ctrl+K` | Open Command Palette |
+| `S` | Open Settings |
 | `?` | Show Keyboard Shortcuts Help |
 | `L` | View Logs |
-| `Alt+H` | Go to Splash Screen |
+| `H` | Go to Splash Screen |
 
 ### Actions
 
@@ -20,15 +20,15 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 |----------|--------|
 | `R` | Refresh Current App |
 | `F` | Toggle Fullscreen (hide navigation) |
-| `Tab` | Next App |
-| `Shift+Tab` | Previous App |
-| `1` - `9` | Jump to App by Position |
+| `N` | Next App |
+| `P` | Previous App |
+| `1` - `9` | Jump to App (by assignment or position) |
 
 **Note:** Keyboard shortcuts are only active when the Muximux UI itself is focused. When an iframe app has focus, keystrokes are sent to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
 
 ## Command Palette
 
-The command palette (opened with `/` or `Ctrl+K`) provides quick access to apps and actions without navigating through menus.
+The command palette (opened with `Ctrl+K`) provides quick access to apps and actions without navigating through menus.
 
 The palette supports the following:
 
@@ -54,28 +54,35 @@ Custom keybindings are saved in `config.yaml` under `keybindings.bindings`:
 ```yaml
 keybindings:
   bindings:
-    search:
-      - key: "/"
-      - key: "k"
-        ctrl: true
     refresh:
       - key: "F5"
+    settings:
+      - key: ","
+        ctrl: true
 ```
 
 Only customized bindings are stored in the configuration file. Any action that is not listed will continue to use its default shortcut.
 
-## Disabling Shortcuts Per App
+## Assigning Number Keys to Apps
 
-Some apps have their own keyboard shortcuts that may conflict with Muximux's. You can prevent Muximux from capturing keystrokes when a specific app is active by setting `disable_keyboard_shortcuts: true` on that app:
+By default, keys `1` through `9` switch to apps by their position in the navigation (first app = `1`, second = `2`, etc.). You can override this by assigning a specific number to an app using the `shortcut` field:
 
 ```yaml
 apps:
-  - name: VS Code
-    url: http://localhost:8443
-    disable_keyboard_shortcuts: true
+  - name: Plex
+    url: http://plex:32400
+    shortcut: 1              # Always accessible via key "1"
+
+  - name: Sonarr
+    url: http://sonarr:8989
+    shortcut: 5              # Always accessible via key "5"
 ```
 
-When this option is enabled for an app, all Muximux keyboard shortcuts are suspended while that app's iframe is focused. Shortcuts resume when you switch to a different app or click outside the iframe.
+When a number key is explicitly assigned to an app, it always points to that app regardless of navigation order. Unassigned number keys continue to work positionally for the remaining apps.
+
+You can also assign shortcuts in **Settings > Keybindings** without editing the config file.
+
+---
 
 ## Import and Export Keybindings
 

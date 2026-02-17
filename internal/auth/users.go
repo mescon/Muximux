@@ -9,10 +9,27 @@ import (
 
 // Role constants
 const (
-	RoleAdmin = "admin"
-	RoleUser  = "user"
-	RoleGuest = "guest"
+	RoleAdmin     = "admin"
+	RolePowerUser = "power-user"
+	RoleUser      = "user"
 )
+
+// roleLevels maps each role to a numeric level for comparison.
+var roleLevels = map[string]int{
+	RoleUser:      1,
+	RolePowerUser: 2,
+	RoleAdmin:     3,
+}
+
+// RoleLevel returns the numeric level for a role (0 for unknown).
+func RoleLevel(role string) int {
+	return roleLevels[role]
+}
+
+// HasMinRole checks if userRole meets or exceeds minRole in the hierarchy.
+func HasMinRole(userRole, minRole string) bool {
+	return RoleLevel(userRole) >= RoleLevel(minRole)
+}
 
 // User represents an authenticated user
 type User struct {

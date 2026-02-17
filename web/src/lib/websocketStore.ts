@@ -42,7 +42,8 @@ export function connect(): void {
 
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
   const host = window.location.host;
-  const url = `${protocol}//${host}/ws`;
+  const basePath = (window as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
+  const url = `${protocol}//${host}${basePath}/ws`;
 
   connectionState.set('connecting');
   lastError.set(null);

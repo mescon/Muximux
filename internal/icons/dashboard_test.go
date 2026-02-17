@@ -1,6 +1,7 @@
 package icons
 
 import (
+	"bytes"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -34,7 +35,7 @@ func TestDashboardClient_GetIcon_FromCDN(t *testing.T) {
 		Transport: &testTransport{
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
-				w.Write([]byte(svgContent))
+				w.WriteString(svgContent)
 				return w.Result(), nil
 			},
 		},
@@ -65,7 +66,7 @@ func TestDashboardClient_GetIcon_DefaultVariant(t *testing.T) {
 	cacheDir := t.TempDir()
 
 	// Pre-populate cache
-	err := os.WriteFile(filepath.Join(cacheDir, "myapp.svg"), []byte("<svg>default</svg>"), 0644)
+	err := os.WriteFile(filepath.Join(cacheDir, "myapp.svg"), []byte("<svg>default</svg>"), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -106,7 +107,7 @@ func TestDashboardClient_GetIcon_PNGVariant(t *testing.T) {
 	if contentType != "image/png" {
 		t.Errorf("expected 'image/png', got %q", contentType)
 	}
-	if string(data) != string(pngContent) {
+	if !bytes.Equal(data, pngContent) {
 		t.Errorf("data mismatch")
 	}
 }
@@ -118,7 +119,7 @@ func TestDashboardClient_GetIcon_WebPVariant(t *testing.T) {
 		Transport: &testTransport{
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
-				w.Write([]byte("WEBP_DATA"))
+				w.WriteString("WEBP_DATA")
 				return w.Result(), nil
 			},
 		},
@@ -140,7 +141,7 @@ func TestDashboardClient_GetIcon_UnknownVariant(t *testing.T) {
 		Transport: &testTransport{
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
-				w.Write([]byte("<svg>unknown</svg>"))
+				w.WriteString("<svg>unknown</svg>")
 				return w.Result(), nil
 			},
 		},
@@ -160,7 +161,7 @@ func TestDashboardClient_GetIcon_FromCache(t *testing.T) {
 	cacheDir := t.TempDir()
 	content := `<svg>cached-dashboard</svg>`
 
-	err := os.WriteFile(filepath.Join(cacheDir, "cached.svg"), []byte(content), 0644)
+	err := os.WriteFile(filepath.Join(cacheDir, "cached.svg"), []byte(content), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -185,7 +186,7 @@ func TestDashboardClient_GetIcon_CacheExpired(t *testing.T) {
 
 	// Write old cache
 	cachePath := filepath.Join(cacheDir, "expiring.svg")
-	err := os.WriteFile(cachePath, []byte("<svg>old</svg>"), 0644)
+	err := os.WriteFile(cachePath, []byte("<svg>old</svg>"), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -199,7 +200,7 @@ func TestDashboardClient_GetIcon_CacheExpired(t *testing.T) {
 		Transport: &testTransport{
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
-				w.Write([]byte(freshContent))
+				w.WriteString(freshContent)
 				return w.Result(), nil
 			},
 		},
@@ -253,7 +254,7 @@ func TestDashboardClient_GetIcon_HTTPError(t *testing.T) {
 func TestDashboardClient_GetIconPath(t *testing.T) {
 	t.Run("cached", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		err := os.WriteFile(filepath.Join(cacheDir, "myicon.svg"), []byte("<svg/>"), 0644)
+		err := os.WriteFile(filepath.Join(cacheDir, "myicon.svg"), []byte("<svg/>"), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -272,7 +273,7 @@ func TestDashboardClient_GetIconPath(t *testing.T) {
 
 	t.Run("default variant", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		err := os.WriteFile(filepath.Join(cacheDir, "myicon.svg"), []byte("<svg/>"), 0644)
+		err := os.WriteFile(filepath.Join(cacheDir, "myicon.svg"), []byte("<svg/>"), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -296,7 +297,7 @@ func TestDashboardClient_GetIconPath(t *testing.T) {
 			Transport: &testTransport{
 				handler: func(req *http.Request) (*http.Response, error) {
 					w := httptest.NewRecorder()
-					w.Write([]byte("<svg>downloaded</svg>"))
+					w.WriteString("<svg>downloaded</svg>")
 					return w.Result(), nil
 				},
 			},
@@ -461,7 +462,7 @@ func TestDashboardClient_ListIcons_InvalidJSON(t *testing.T) {
 			handler: func(req *http.Request) (*http.Response, error) {
 				w := httptest.NewRecorder()
 				w.WriteHeader(http.StatusOK)
-				w.Write([]byte("not json"))
+				w.WriteString("not json")
 				return w.Result(), nil
 			},
 		},
@@ -547,11 +548,11 @@ func TestDashboardClient_ClearCache(t *testing.T) {
 	cacheDir := t.TempDir()
 
 	// Write some files
-	err := os.WriteFile(filepath.Join(cacheDir, "icon1.svg"), []byte("<svg/>"), 0644)
+	err := os.WriteFile(filepath.Join(cacheDir, "icon1.svg"), []byte("<svg/>"), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
-	err = os.WriteFile(filepath.Join(cacheDir, "icon2.png"), []byte("PNG"), 0644)
+	err = os.WriteFile(filepath.Join(cacheDir, "icon2.png"), []byte("PNG"), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -619,9 +620,9 @@ func TestDashboardClient_getCachePath(t *testing.T) {
 	tests := []struct {
 		name, variant, expected string
 	}{
-		{"icon", "svg", filepath.Join("/cache", "icon.svg")},
-		{"icon", "png", filepath.Join("/cache", "icon.png")},
-		{"icon", "webp", filepath.Join("/cache", "icon.webp")},
+		{"icon", "svg", "/cache/icon.svg"},
+		{"icon", "png", "/cache/icon.png"},
+		{"icon", "webp", "/cache/icon.webp"},
 	}
 
 	for _, tt := range tests {
@@ -637,7 +638,7 @@ func TestDashboardClient_getFromCache_ZeroTTL(t *testing.T) {
 	content := "<svg>no-expire</svg>"
 
 	cachePath := filepath.Join(cacheDir, "old.svg")
-	err := os.WriteFile(cachePath, []byte(content), 0644)
+	err := os.WriteFile(cachePath, []byte(content), 0600)
 	if err != nil {
 		t.Fatal(err)
 	}

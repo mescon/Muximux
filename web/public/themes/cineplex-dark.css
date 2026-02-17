@@ -1,17 +1,17 @@
 /**
- * Plex Dark Theme for Muximux
+ * Cineplex Dark Theme for Muximux
  * ═══════════════════════════════════════════════════════════════════════════
  *
- * Inspired by the Plex media server's sleek dark interface.
+ * A sleek dark cinema-inspired theme.
  * Charcoal backgrounds with warm amber/gold accents.
  *
  * Theme metadata (used by the theme selector):
- * @theme-id: plex-dark
- * @theme-name: Plex Dark
- * @theme-family: plex
- * @theme-family-name: Plex
+ * @theme-id: cineplex-dark
+ * @theme-name: Cineplex Dark
+ * @theme-family: cineplex
+ * @theme-family-name: Cineplex
  * @theme-variant: dark
- * @theme-description: Sleek media server theme with amber accents
+ * @theme-description: Sleek cinema theme with amber accents
  * @theme-is-dark: true
  * @theme-preview-bg: #1b1b1b
  * @theme-preview-surface: #282a2d
@@ -20,11 +20,11 @@
  * ═══════════════════════════════════════════════════════════════════════════
  */
 
-[data-theme="plex-dark"] {
+[data-theme="cineplex-dark"] {
   color-scheme: dark;
 
   /* ─────────────────────────────────────────────────────────────────────────
-     PLEX DARK PALETTE REFERENCE
+     CINEPLEX DARK PALETTE REFERENCE
      ─────────────────────────────────────────────────────────────────────────
      Backgrounds:
        #1b1b1b - Main background
@@ -33,7 +33,7 @@
        #1f2326 - Nav/sidebar dark
 
      Accent:
-       #e5a00d - Plex Gamboge (primary amber)
+       #e5a00d - Gamboge (primary amber)
        #cc7b19 - Accent hover (warm amber)
 
      Text:
@@ -58,7 +58,7 @@
   /* Text hierarchy */
   --text-primary: #eeeeee;
   --text-secondary: #b4b4b4;
-  --text-muted: #808080;
+  --text-muted: #929292;
   --text-disabled: #5a5a5a;
 
   /* Borders */
@@ -67,7 +67,7 @@
   --border-strong: rgba(238, 238, 238, 0.16);
   --border-focus: var(--accent-primary);
 
-  /* Accent colors - Plex Gamboge amber */
+  /* Accent colors - Gamboge amber */
   --accent-primary: #e5a00d;
   --accent-secondary: #cc7b19;
   --accent-muted: rgba(229, 160, 13, 0.25);

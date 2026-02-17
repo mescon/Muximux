@@ -23,11 +23,13 @@
   let {
     config,
     apps,
+    initialTab = 'general',
     onclose,
     onsave,
   }: {
     config: Config;
     apps: App[];
+    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about';
     onclose?: () => void;
     onsave?: (config: Config) => void;
   } = $props();
@@ -53,7 +55,7 @@
   });
 
   // Active tab
-  let activeTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
+  let activeTab = $state(untrack(() => initialTab ?? 'general'));
 
   // Local copy of config for editing
   let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
@@ -96,7 +98,6 @@
   // Auth method switching
   let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'none'>('none');
   let methodTrustedProxies = $state('');
-  let _methodHeaders = $state<Record<string, string>>({});
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
 
@@ -185,7 +186,6 @@
     open_mode: 'iframe',
     proxy: false,
     scale: 1,
-    disable_keyboard_shortcuts: false
   };
 
   const newGroupTemplate: Group = {
@@ -242,7 +242,7 @@
     securityLoading = true;
     securityError = null;
     try {
-      securityUsers = await listUsers();
+      securityUsers = (await listUsers()) ?? [];
     } catch (e) {
       securityError = e instanceof Error ? e.message : 'Failed to load users';
     } finally {
@@ -314,6 +314,7 @@
   async function handleChangeAuthMethod() {
     methodLoading = true;
     methodError = null;
+    const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
     if (selectedAuthMethod === 'forward_auth') {
       req.trusted_proxies = methodTrustedProxies
@@ -330,6 +331,14 @@
     try {
       const result = await changeAuthMethod(req);
       if (result.success) {
+        // If switching FROM "none" to an auth method, the current session is now invalid
+        // (the virtual admin had no real session cookie). Force a page reload so the user
+        // can authenticate properly.
+        if (previousMethod === 'none' && selectedAuthMethod !== 'none') {
+          sessionStorage.setItem('muximux_return_to', 'security');
+          window.location.reload();
+          return;
+        }
         securitySuccess = `Authentication method changed to ${selectedAuthMethod}`;
         setTimeout(() => securitySuccess = null, 3000);
       } else {
@@ -617,11 +626,11 @@
   }
 
   const navPositions = [
-    { value: 'top', label: 'Top', description: 'Horizontal bar at the top' },
+    { value: 'top', label: 'Top Bar', description: 'Horizontal bar at the top' },
     { value: 'left', label: 'Left Sidebar', description: 'Vertical sidebar on the left' },
     { value: 'right', label: 'Right Sidebar', description: 'Vertical sidebar on the right' },
-    { value: 'bottom', label: 'Bottom Dock', description: 'macOS-style dock at the bottom' },
-    { value: 'floating', label: 'Floating', description: 'Minimal floating buttons' }
+    { value: 'bottom', label: 'Bottom Bar', description: 'Horizontal bar at the bottom' },
+    { value: 'floating', label: 'Floating', description: 'Minimal floating button' }
   ] as const;
 
   const openModes = [
@@ -898,6 +907,59 @@
             </div>
           </div>
 
+          <!-- Bar Style (only shown when top or bottom is selected) -->
+          {#if localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
+            <div>
+              <span class="block text-sm font-medium text-gray-300 mb-2">
+                Bar Style
+              </span>
+              <div class="grid grid-cols-2 gap-3">
+                {#each [
+                  { value: 'grouped', label: 'Group Dropdowns', description: 'Apps organized in dropdown menus by group' },
+                  { value: 'flat', label: 'Flat List', description: 'All apps in a single scrollable row' }
+                ] as style (style.value)}
+                  <button
+                    class="p-3 rounded-lg border text-left transition-colors
+                           {(localConfig.navigation.bar_style || 'grouped') === style.value
+                             ? 'border-brand-500 bg-brand-500/10 text-white'
+                             : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
+                    onclick={() => localConfig.navigation.bar_style = style.value as 'grouped' | 'flat'}
+                  >
+                    <div class="font-medium text-sm">{style.label}</div>
+                    <div class="text-xs text-gray-400 mt-1">{style.description}</div>
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
+          <!-- Floating Position (only shown when floating is selected) -->
+          {#if localConfig.navigation.position === 'floating'}
+            <div>
+              <span class="block text-sm font-medium text-gray-300 mb-2">
+                Floating Button Position
+              </span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {#each [
+                  { value: 'bottom-right', label: 'Bottom Right' },
+                  { value: 'bottom-left', label: 'Bottom Left' },
+                  { value: 'top-right', label: 'Top Right' },
+                  { value: 'top-left', label: 'Top Left' }
+                ] as fp (fp.value)}
+                  <button
+                    class="p-2 rounded-lg border text-center text-sm transition-colors
+                           {(localConfig.navigation.floating_position || 'bottom-right') === fp.value
+                             ? 'border-brand-500 bg-brand-500/10 text-white'
+                             : 'border-gray-600 hover:border-gray-500 text-gray-300'}"
+                    onclick={() => localConfig.navigation.floating_position = fp.value as 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'}
+                  >
+                    {fp.label}
+                  </button>
+                {/each}
+              </div>
+            </div>
+          {/if}
+
           <!-- Navigation Options -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <label class="flex items-center gap-3 p-3 bg-gray-700/50 rounded-lg cursor-pointer">
@@ -1009,6 +1071,40 @@
                 </label>
               {/if}
             </div>
+
+            {#if localConfig.navigation.position === 'left' || localConfig.navigation.position === 'right'}
+              <div class="p-3 bg-gray-700/50 rounded-lg sm:col-span-2">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    bind:checked={localConfig.navigation.hide_sidebar_footer}
+                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+                  />
+                  <div class="flex-1">
+                    <div class="text-sm text-white">Collapsible Footer</div>
+                    <div class="text-xs text-gray-400">Hide utility buttons in a drawer that reveals on hover</div>
+                  </div>
+                </label>
+              </div>
+            {/if}
+          </div>
+
+          <!-- Health Monitoring bulk actions -->
+          <div class="pt-4 border-t border-gray-700">
+            <div class="flex items-center justify-between mb-1">
+              <h3 class="text-sm font-medium text-gray-300">Health Checks</h3>
+              <div class="flex gap-2">
+                <button
+                  class="text-xs px-2 py-1 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                  onclick={() => localApps.forEach(a => a.health_check = undefined)}
+                >Enable all</button>
+                <button
+                  class="text-xs px-2 py-1 rounded text-gray-400 hover:text-white hover:bg-gray-700 transition-colors"
+                  onclick={() => localApps.forEach(a => a.health_check = false)}
+                >Disable all</button>
+              </div>
+            </div>
+            <p class="text-xs text-gray-500">Toggle per app in the app editor</p>
           </div>
 
           <!-- Advanced -->
@@ -1156,14 +1252,14 @@
                               onclick={() => confirmDeleteGroup = null}>No</button>
                     </div>
                   {:else}
-                    <div class="flex items-center gap-1">
-                      <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                    <div class="flex items-center gap-1 app-actions">
+                      <button class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10"
                               onclick={() => editingGroup = group} title="Edit group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
-                      <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                      <button class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
                               onclick={() => deleteGroup(group)} title="Delete group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1222,9 +1318,6 @@
                               {Math.round(app.scale * 100)}%
                             </span>
                           {/if}
-                          {#if app.disable_keyboard_shortcuts}
-                            <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
-                          {/if}
                         </div>
                         <span class="text-xs text-gray-400 truncate block">{app.url}</span>
                       </div>
@@ -1238,15 +1331,15 @@
                                   onclick={() => confirmDeleteApp = null}>No</button>
                         </div>
                       {:else}
-                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity">
-                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
+                          <button class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10"
                                   tabindex="-1"
                                   onclick={() => editingApp = app} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
-                          <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                          <button class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
                                   tabindex="-1"
                                   onclick={() => deleteApp(app)} title="Delete">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1318,9 +1411,6 @@
                             {Math.round(app.scale * 100)}%
                           </span>
                         {/if}
-                        {#if app.disable_keyboard_shortcuts}
-                          <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
-                        {/if}
                       </div>
                       <span class="text-xs text-gray-400 truncate block">{app.url}</span>
                     </div>
@@ -1333,15 +1423,15 @@
                                 onclick={() => confirmDeleteApp = null}>No</button>
                       </div>
                     {:else}
-                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity">
-                        <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-gray-600"
+                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
+                        <button class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10"
                                 tabindex="-1"
                                 onclick={() => editingApp = app} title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
-                        <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-gray-600"
+                        <button class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
                                 tabindex="-1"
                                 onclick={() => deleteApp(app)} title="Delete">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1725,7 +1815,69 @@
                   <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-gray-700 pt-4">
                       {#if currentMethod === 'builtin'}
-                        <p class="text-sm text-gray-400">Password authentication is active. Manage users and change passwords below.</p>
+                        <p class="text-sm text-gray-400 mb-4">Password authentication is active.</p>
+
+                        <!-- Change Password (inline) -->
+                        <h4 class="text-sm font-semibold text-white mb-2">Change Password</h4>
+                        <div class="max-w-sm space-y-3">
+                          <div>
+                            <label for="cp-current" class="block text-xs text-gray-400 mb-1">Current password</label>
+                            <input
+                              id="cp-current"
+                              type="password"
+                              bind:value={cpCurrent}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              autocomplete="current-password"
+                            />
+                          </div>
+                          <div>
+                            <label for="cp-new" class="block text-xs text-gray-400 mb-1">New password</label>
+                            <input
+                              id="cp-new"
+                              type="password"
+                              bind:value={cpNew}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              placeholder="Minimum 8 characters"
+                              autocomplete="new-password"
+                            />
+                            {#if cpNew.length > 0 && cpNew.length < 8}
+                              <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
+                            {/if}
+                          </div>
+                          <div>
+                            <label for="cp-confirm" class="block text-xs text-gray-400 mb-1">Confirm new password</label>
+                            <input
+                              id="cp-confirm"
+                              type="password"
+                              bind:value={cpConfirm}
+                              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                                     focus:outline-none focus:ring-2 focus:ring-brand-500"
+                              autocomplete="new-password"
+                            />
+                            {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
+                              <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
+                            {/if}
+                          </div>
+
+                          {#if cpMessage}
+                            <div class="p-3 rounded-lg text-sm {cpMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}">
+                              {cpMessage.text}
+                            </div>
+                          {/if}
+
+                          <button
+                            class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                            disabled={cpLoading || cpNew.length < 8 || cpNew !== cpConfirm || !cpCurrent}
+                            onclick={handleChangePassword}
+                          >
+                            {#if cpLoading}
+                              <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+                            {/if}
+                            Change Password
+                          </button>
+                        </div>
                       {:else if securityUsers.length > 0}
                         <p class="text-sm text-gray-400">Switch to password authentication using existing users.</p>
                       {:else}
@@ -1756,13 +1908,39 @@
                           {#if addUserError}
                             <p class="text-red-400 text-xs">{addUserError}</p>
                           {/if}
+                          {#if !newUserName.trim() && newUserPassword.length > 0}
+                            <p class="text-amber-400 text-xs">Username is required</p>
+                          {:else if newUserName.trim() && newUserPassword.length > 0 && newUserPassword.length < 8}
+                            <p class="text-amber-400 text-xs">Password must be at least 8 characters ({newUserPassword.length}/8)</p>
+                          {/if}
                           <button
                             class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
                             disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
                             onclick={async () => {
+                              const savedUser = newUserName.trim();
+                              const savedPass = newUserPassword;
+                              // First user must be admin to manage auth settings
+                              newUserRole = 'admin';
                               await handleAddUser();
                               if (securityUsers.length > 0) {
-                                await handleChangeAuthMethod();
+                                // Call API directly (not handleChangeAuthMethod which reloads)
+                                methodLoading = true;
+                                try {
+                                  const result = await changeAuthMethod({ method: 'builtin' });
+                                  if (!result.success) {
+                                    methodError = result.message || 'Failed to enable auth';
+                                    return;
+                                  }
+                                } catch (e) {
+                                  methodError = e instanceof Error ? e.message : 'Failed to enable auth';
+                                  return;
+                                } finally {
+                                  methodLoading = false;
+                                }
+                                // Auth middleware is now "builtin" — store credentials for auto-login after reload
+                                sessionStorage.setItem('muximux_return_to', 'security');
+                                sessionStorage.setItem('muximux_auto_login', JSON.stringify({ u: savedUser, p: savedPass }));
+                                window.location.reload();
                               }
                             }}
                           >
@@ -1931,73 +2109,6 @@
             {/if}
           </div>
 
-          <!-- Change Password (visible when builtin) -->
-          {#if currentMethod === 'builtin'}
-            <div>
-              <h3 class="text-lg font-semibold text-white mb-1">Change Password</h3>
-              <p class="text-sm text-gray-400 mb-4">Update your account password</p>
-
-              <div class="max-w-md space-y-3">
-                <div>
-                  <label for="cp-current" class="block text-sm text-gray-400 mb-1">Current password</label>
-                  <input
-                    id="cp-current"
-                    type="password"
-                    bind:value={cpCurrent}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    autocomplete="current-password"
-                  />
-                </div>
-                <div>
-                  <label for="cp-new" class="block text-sm text-gray-400 mb-1">New password</label>
-                  <input
-                    id="cp-new"
-                    type="password"
-                    bind:value={cpNew}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    placeholder="Minimum 8 characters"
-                    autocomplete="new-password"
-                  />
-                  {#if cpNew.length > 0 && cpNew.length < 8}
-                    <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
-                  {/if}
-                </div>
-                <div>
-                  <label for="cp-confirm" class="block text-sm text-gray-400 mb-1">Confirm new password</label>
-                  <input
-                    id="cp-confirm"
-                    type="password"
-                    bind:value={cpConfirm}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
-                           focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    autocomplete="new-password"
-                  />
-                  {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
-                    <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
-                  {/if}
-                </div>
-
-                {#if cpMessage}
-                  <div class="p-3 rounded-lg text-sm {cpMessage.type === 'success' ? 'bg-green-500/10 border border-green-500/20 text-green-400' : 'bg-red-500/10 border border-red-500/20 text-red-400'}">
-                    {cpMessage.text}
-                  </div>
-                {/if}
-
-                <button
-                  class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
-                  disabled={cpLoading || cpNew.length < 8 || cpNew !== cpConfirm || !cpCurrent}
-                  onclick={handleChangePassword}
-                >
-                  {#if cpLoading}
-                    <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
-                  {/if}
-                  Change Password
-                </button>
-              </div>
-            </div>
-          {/if}
 
           <!-- User Management (visible when builtin + admin) -->
           {#if currentMethod === 'builtin' && $isAdmin}
@@ -2060,8 +2171,8 @@
                              focus:outline-none focus:ring-2 focus:ring-brand-500"
                     >
                       <option value="admin">Admin</option>
+                      <option value="power-user">Power User</option>
                       <option value="user">User</option>
-                      <option value="guest">Guest</option>
                     </select>
                   </div>
 
@@ -2113,8 +2224,8 @@
                                focus:outline-none focus:ring-1 focus:ring-brand-500"
                       >
                         <option value="admin">Admin</option>
+                        <option value="power-user">Power User</option>
                         <option value="user">User</option>
-                        <option value="guest">Guest</option>
                       </select>
                       {#if confirmDeleteUser === user.username}
                         <div class="flex items-center gap-1.5">
@@ -2630,7 +2741,7 @@ chmod +x muximux-darwin-arm64
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
+              <label for="app-color" class="block text-sm font-medium text-gray-300 mb-1">App color</label>
               <div class="flex items-center gap-2">
                 <input
                   id="app-color"
@@ -2690,8 +2801,8 @@ chmod +x muximux-darwin-arm64
             <input
               id="app-scale"
               type="range"
-              min="0.25"
-              max="5"
+              min="0.5"
+              max="2"
               step="0.05"
               bind:value={newApp.scale}
               class="w-full"
@@ -2734,14 +2845,38 @@ chmod +x muximux-darwin-arm64
             <label class="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={newApp.disable_keyboard_shortcuts}
+                bind:checked={newApp.force_icon_background}
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
               <div>
-                <span class="text-sm text-white">Let app use keyboard shortcuts</span>
-                <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
+                <span class="text-sm text-white">Force icon background</span>
+                <p class="text-xs text-gray-400">Show background even when global icon backgrounds are off</p>
               </div>
             </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.icon.invert}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Invert icon colors</span>
+                <p class="text-xs text-gray-400">Flip dark icons to light and vice versa</p>
+              </div>
+            </label>
+          </div>
+          <div>
+            <label for="new-app-min-role" class="block text-sm font-medium text-gray-300 mb-1">Minimum Role</label>
+            <select
+              id="new-app-min-role"
+              bind:value={newApp.min_role}
+              class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+            >
+              <option value="">Everyone (default)</option>
+              <option value="power-user">Power User</option>
+              <option value="admin">Admin</option>
+            </select>
+            <p class="text-xs text-gray-400 mt-1">Users below this role won't see this app</p>
           </div>
         </div>
         <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
@@ -2872,8 +3007,19 @@ chmod +x muximux-darwin-arm64
         </button>
       </div>
       <div class="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+        <!-- Identity -->
         <div>
-          <label for="edit-app-name" class="block text-sm font-medium text-gray-300 mb-1">Name</label>
+          <label for="edit-app-name" class="block text-sm font-medium text-gray-300 mb-1">
+            Name
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                Displayed in the navigation bar and page title. Also used as a unique identifier — renaming an app creates a new proxy route.
+              </span>
+            </span>
+          </label>
           <input
             id="edit-app-name"
             type="text"
@@ -2882,7 +3028,17 @@ chmod +x muximux-darwin-arm64
           />
         </div>
         <div>
-          <label for="edit-app-url" class="block text-sm font-medium text-gray-300 mb-1">URL</label>
+          <label for="edit-app-url" class="block text-sm font-medium text-gray-300 mb-1">
+            URL
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                The full address of the application. Used to load the app in an iframe, or as the link when opened in a new tab/window.
+              </span>
+            </span>
+          </label>
           <input
             id="edit-app-url"
             type="url"
@@ -2908,8 +3064,8 @@ chmod +x muximux-darwin-arm64
               </p>
             </div>
           </div>
-          {#if editingApp.icon?.type === 'lucide'}
-            <div class="flex items-center gap-4 mt-2">
+          <div class="flex items-center gap-4 mt-2">
+            {#if editingApp.icon?.type === 'lucide'}
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Icon color
                 <input type="color" value={editingApp!.icon.color || '#ffffff'} oninput={(e) => editingApp!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
@@ -2917,16 +3073,42 @@ chmod +x muximux-darwin-arm64
                   <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.color = ''} title="Reset to theme default">&times;</button>
                 {/if}
               </label>
-              <label class="flex items-center gap-2 text-xs text-gray-400">
-                Background
-                <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
-                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp!.icon.background = 'transparent'} title="Transparent">none</button>
-                {#if editingApp!.icon.background}
-                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.background = ''} title="Reset to app color">&times;</button>
-                {/if}
-              </label>
-            </div>
-          {/if}
+            {/if}
+            <label class="flex items-center gap-2 text-xs text-gray-400">
+              Icon background
+              <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
+              <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp!.icon.background = 'transparent'} title="Transparent">none</button>
+              {#if editingApp!.icon.background}
+                <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.background = ''} title="Reset to app color">&times;</button>
+              {/if}
+            </label>
+          </div>
+        </div>
+        <div>
+          <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">
+            App color
+            <span class="help-trigger relative ml-1 inline-block align-middle">
+              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+              </svg>
+              <span class="help-tooltip">
+                The app's accent color — used for the active tab indicator and sidebar highlight when "Show App Colors" is enabled. Also used as the default icon background unless overridden above.
+              </span>
+            </span>
+          </label>
+          <div class="flex items-center gap-2">
+            <input
+              id="edit-app-color"
+              type="color"
+              bind:value={editingApp.color}
+              class="w-10 h-10 rounded cursor-pointer"
+            />
+            <input
+              type="text"
+              bind:value={editingApp.color}
+              class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+            />
+          </div>
         </div>
         <div>
           <label for="edit-app-group" class="block text-sm font-medium text-gray-300 mb-1">
@@ -2951,191 +3133,337 @@ chmod +x muximux-darwin-arm64
             {/each}
           </select>
         </div>
-        <div>
-          <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">
-            Color
-            <span class="help-trigger relative ml-1 inline-block align-middle">
-              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span class="help-tooltip">
-                Used as the active tab indicator, icon background, and sidebar accent when "Show App Colors" is enabled.
-              </span>
-            </span>
-          </label>
-          <div class="flex items-center gap-2">
-            <input
-              id="edit-app-color"
-              type="color"
-              bind:value={editingApp.color}
-              class="w-10 h-10 rounded cursor-pointer"
-            />
-            <input
-              type="text"
-              bind:value={editingApp.color}
-              class="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
-            />
+
+        <!-- Display -->
+        <div class="border-t border-gray-700 pt-3">
+          <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Display</h4>
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={editingApp.enabled}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Enabled
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Disabled apps are hidden from non-admin users and excluded from the navigation entirely.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Show this app in the navigation</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={editingApp.default}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Default app
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Only one app can be the default. Setting this will clear the default flag on any other app.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Automatically load this app on startup instead of the overview</p>
+              </div>
+            </label>
+            <div>
+              <label for="edit-app-mode" class="block text-sm font-medium text-gray-300 mb-1">
+                Open Mode
+                <span class="help-trigger relative ml-1 inline-block align-middle">
+                  <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span class="help-tooltip">
+                    <b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/>
+                    <b>New Tab</b> — opens in a separate browser tab.<br/>
+                    <b>New Window</b> — opens in a popup window.
+                  </span>
+                </span>
+              </label>
+              <select
+                id="edit-app-mode"
+                bind:value={editingApp.open_mode}
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                {#each openModes as mode (mode.value)}
+                  <option value={mode.value}>{mode.label}</option>
+                {/each}
+              </select>
+            </div>
+            <div>
+              <label for="edit-app-scale" class="block text-sm font-medium text-gray-300 mb-1">
+                Scale: {Math.round(editingApp.scale * 100)}%
+                <span class="help-trigger relative ml-1 inline-block align-middle">
+                  <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span class="help-tooltip">
+                    Zoom level for the embedded iframe. Useful for apps with small or large UIs. Only applies to iframe open mode.
+                  </span>
+                </span>
+              </label>
+              <input
+                id="edit-app-scale"
+                type="range"
+                min="0.5"
+                max="2"
+                step="0.05"
+                bind:value={editingApp.scale}
+                class="w-full"
+              />
+            </div>
           </div>
         </div>
-        <div>
-          <label for="edit-app-mode" class="block text-sm font-medium text-gray-300 mb-1">
-            Open Mode
-            <span class="help-trigger relative ml-1 inline-block align-middle">
-              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span class="help-tooltip">
-                <b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/>
-                <b>New Tab</b> — opens in a separate browser tab.<br/>
-                <b>New Window</b> — opens in a popup window.
-              </span>
-            </span>
-          </label>
-          <select
-            id="edit-app-mode"
-            bind:value={editingApp.open_mode}
-            class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
-          >
-            {#each openModes as mode (mode.value)}
-              <option value={mode.value}>{mode.label}</option>
-            {/each}
-          </select>
-        </div>
-        <div>
-          <label for="edit-app-scale" class="block text-sm font-medium text-gray-300 mb-1">
-            Scale: {Math.round(editingApp.scale * 100)}%
-            <span class="help-trigger relative ml-1 inline-block align-middle">
-              <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-              </svg>
-              <span class="help-tooltip">
-                Zoom level for the embedded iframe. Useful for apps with small or large UIs. Only applies to iframe open mode.
-              </span>
-            </span>
-          </label>
-          <input
-            id="edit-app-scale"
-            type="range"
-            min="0.25"
-            max="5"
-            step="0.05"
-            bind:value={editingApp.scale}
-            class="w-full"
-          />
-        </div>
-        <div class="space-y-2">
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              bind:checked={editingApp.enabled}
-              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-            />
-            <div>
-              <span class="text-sm text-white">Enabled</span>
-              <p class="text-xs text-gray-400">Show this app in the navigation</p>
-            </div>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              bind:checked={editingApp.default}
-              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-            />
-            <div>
-              <span class="text-sm text-white">Default app</span>
-              <p class="text-xs text-gray-400">Automatically load this app on startup instead of the overview</p>
-            </div>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              bind:checked={editingApp.proxy}
-              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-            />
-            <div>
-              <span class="text-sm text-white">Use reverse proxy</span>
-              <p class="text-xs text-gray-400">Route traffic through the built-in proxy to avoid CORS and mixed-content issues</p>
-            </div>
-          </label>
-          {#if editingApp.proxy}
-            <div class="ml-7 space-y-3 border-l-2 border-gray-700 pl-4 min-w-0 overflow-hidden">
-              <label class="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={editingApp.proxy_skip_tls_verify !== false}
-                  onchange={(e) => { editingApp!.proxy_skip_tls_verify = (e.target as HTMLInputElement).checked ? undefined : false; }}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-                />
-                <div>
-                  <span class="text-sm text-white">Skip TLS verification</span>
-                  <p class="text-xs text-gray-400">Disable for backends with valid certificates</p>
-                </div>
-              </label>
+
+        <!-- Proxy -->
+        <div class="border-t border-gray-700 pt-3">
+          <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Proxy</h4>
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={editingApp.proxy}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
               <div>
-                <span class="block text-sm text-gray-400 mb-1">Custom headers</span>
-                <p class="text-xs text-gray-500 mb-2">Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key)</p>
-                {#each Object.entries(editingApp.proxy_headers ?? {}) as [key, value] (key)}
-                  <div class="flex gap-2 mb-2">
-                    <input type="text" value={key} placeholder="Header name"
-                      class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
-                      onchange={(e) => {
-                        const app = editingApp!;
-                        const headers = { ...(app.proxy_headers ?? {}) };
-                        const oldKey = key;
-                        const newKey = (e.target as HTMLInputElement).value.trim();
-                        if (newKey && newKey !== oldKey) {
-                          delete headers[oldKey];
-                          headers[newKey] = value;
-                          app.proxy_headers = headers;
-                        }
-                      }}
-                    />
-                    <input type="text" value={value} placeholder="Value"
-                      class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
-                      onchange={(e) => {
-                        const app = editingApp!;
-                        const headers = { ...(app.proxy_headers ?? {}) };
-                        headers[key] = (e.target as HTMLInputElement).value;
-                        app.proxy_headers = headers;
-                      }}
-                    />
-                    <button class="px-2 py-1 text-gray-400 hover:text-red-400" title="Remove header"
-                      onclick={() => {
-                        const app = editingApp!;
-                        const headers = { ...(app.proxy_headers ?? {}) };
-                        delete headers[key];
-                        app.proxy_headers = Object.keys(headers).length > 0 ? headers : undefined;
-                      }}
-                    >
-                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                  </div>
-                {/each}
-                <button class="text-xs text-brand-400 hover:text-brand-300"
-                  onclick={() => {
-                    const app = editingApp!;
-                    app.proxy_headers = { ...(app.proxy_headers ?? {}), '': '' };
-                  }}
-                >+ Add header</button>
+                <span class="text-sm text-white">Use reverse proxy
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Routes all traffic through the built-in Caddy reverse proxy. The app URL is rewritten to a local <code>/proxy/app-name/</code> path, avoiding CORS, mixed-content, and cookie-domain issues.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Route traffic through the built-in proxy to avoid CORS and mixed-content issues</p>
               </div>
+            </label>
+            {#if editingApp.proxy}
+              <div class="ml-7 space-y-3 border-l-2 border-gray-700 pl-4 min-w-0 overflow-hidden">
+                <label class="flex items-center gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={editingApp.proxy_skip_tls_verify !== false}
+                    onchange={(e) => { editingApp!.proxy_skip_tls_verify = (e.target as HTMLInputElement).checked ? undefined : false; }}
+                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+                  />
+                  <div>
+                    <span class="text-sm text-white">Skip TLS verification
+                      <span class="help-trigger relative ml-1 inline-block align-middle">
+                        <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                        </svg>
+                        <span class="help-tooltip">
+                          Enabled by default. Disable this only if the backend has a valid, trusted TLS certificate and you want strict verification.
+                        </span>
+                      </span>
+                    </span>
+                    <p class="text-xs text-gray-400">Disable for backends with valid certificates</p>
+                  </div>
+                </label>
+                <div>
+                  <span class="block text-sm text-gray-400 mb-1">Custom headers</span>
+                  <p class="text-xs text-gray-500 mb-2">Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key)</p>
+                  {#each Object.entries(editingApp.proxy_headers ?? {}) as [key, value] (key)}
+                    <div class="flex gap-2 mb-2">
+                      <input type="text" value={key} placeholder="Header name"
+                        class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+                        onchange={(e) => {
+                          const app = editingApp!;
+                          const headers = { ...(app.proxy_headers ?? {}) };
+                          const oldKey = key;
+                          const newKey = (e.target as HTMLInputElement).value.trim();
+                          if (newKey && newKey !== oldKey) {
+                            delete headers[oldKey];
+                            headers[newKey] = value;
+                            app.proxy_headers = headers;
+                          }
+                        }}
+                      />
+                      <input type="text" value={value} placeholder="Value"
+                        class="flex-1 min-w-0 px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white placeholder-gray-500"
+                        onchange={(e) => {
+                          const app = editingApp!;
+                          const headers = { ...(app.proxy_headers ?? {}) };
+                          headers[key] = (e.target as HTMLInputElement).value;
+                          app.proxy_headers = headers;
+                        }}
+                      />
+                      <button class="px-2 py-1 text-gray-400 hover:text-red-400" title="Remove header"
+                        onclick={() => {
+                          const app = editingApp!;
+                          const headers = { ...(app.proxy_headers ?? {}) };
+                          delete headers[key];
+                          app.proxy_headers = Object.keys(headers).length > 0 ? headers : undefined;
+                        }}
+                      >
+                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                      </button>
+                    </div>
+                  {/each}
+                  <button class="text-xs text-brand-400 hover:text-brand-300"
+                    onclick={() => {
+                      const app = editingApp!;
+                      app.proxy_headers = { ...(app.proxy_headers ?? {}), '': '' };
+                    }}
+                  >+ Add header</button>
+                </div>
+              </div>
+            {/if}
+          </div>
+        </div>
+
+        <!-- Advanced -->
+        <div class="border-t border-gray-700 pt-3">
+          <h4 class="text-xs font-medium text-gray-500 uppercase tracking-wide mb-3">Advanced</h4>
+          <div class="space-y-3">
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={editingApp.health_check !== false}
+                onchange={(e) => {
+                  editingApp!.health_check = (e.target as HTMLInputElement).checked ? undefined : false;
+                }}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Health check
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Periodically pings the app URL (or health URL if set) and shows a status indicator in the navigation. Enabled by default.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Monitor availability of this app</p>
+              </div>
+            </label>
+            {#if editingApp.health_check !== false}
+              <div class="ml-7 pl-4 border-l-2 border-gray-700">
+                <label for="edit-app-health-url" class="block text-sm text-gray-400 mb-1">Health check URL</label>
+                <input
+                  id="edit-app-health-url"
+                  type="url"
+                  bind:value={editingApp.health_url}
+                  placeholder={editingApp.url || 'Uses app URL if empty'}
+                  class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                />
+                <p class="text-xs text-gray-500 mt-1">Leave blank to use the app URL</p>
+              </div>
+            {/if}
+            <div class="flex items-center gap-3">
+              <div class="flex-1">
+                <span class="text-sm text-white">Keyboard Shortcut
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Assigns a number key (1–9) to quickly switch to this app. Each number can only be assigned to one app.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Press this number key to switch to this app</p>
+              </div>
+              <select
+                value={editingApp.shortcut ?? ''}
+                onchange={(e) => {
+                  const val = (e.target as HTMLSelectElement).value;
+                  editingApp!.shortcut = val ? parseInt(val) : undefined;
+                }}
+                class="px-2 py-1 text-sm bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-500 focus:border-brand-500"
+              >
+                <option value="">None</option>
+                {#each [1,2,3,4,5,6,7,8,9] as n (n)}
+                  {@const taken = localApps.find(a => a.shortcut === n && a.name !== editingApp?.name)}
+                  <option value={n} disabled={!!taken}>{n}{taken ? ` (${taken.name})` : ''}</option>
+                {/each}
+              </select>
             </div>
-          {/if}
-          <label class="flex items-center gap-3 cursor-pointer">
-            <input
-              type="checkbox"
-              bind:checked={editingApp.disable_keyboard_shortcuts}
-              class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-            />
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={editingApp.force_icon_background}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Force icon background
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Always show a colored background circle behind this app's icon, even when the global "Show Icon Backgrounds" setting is off.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Show background even when global icon backgrounds are off</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={editingApp.icon.invert}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Invert icon colors
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Inverts the icon's colors (black becomes white, white becomes black). Useful for dark icons that are hard to see on dark backgrounds.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Flip dark icons to light and vice versa</p>
+              </div>
+            </label>
             <div>
-              <span class="text-sm text-white">Let app use keyboard shortcuts</span>
-              <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
+              <label for="edit-app-min-role" class="block text-sm font-medium text-gray-300 mb-1">
+                Minimum Role
+                <span class="help-trigger relative ml-1 inline-block align-middle">
+                  <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                  </svg>
+                  <span class="help-tooltip">
+                    Restricts visibility based on user role. Users below the selected role won't see this app in the navigation or API responses.
+                  </span>
+                </span>
+              </label>
+              <select
+                id="edit-app-min-role"
+                bind:value={editingApp.min_role}
+                class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="">Everyone (default)</option>
+                <option value="power-user">Power User</option>
+                <option value="admin">Admin</option>
+              </select>
+              <p class="text-xs text-gray-400 mt-1">Users below this role won't see this app</p>
             </div>
-          </label>
+          </div>
         </div>
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
-          class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
           onclick={closeEditApp}
         >
           Done
@@ -3235,7 +3563,7 @@ chmod +x muximux-darwin-arm64
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-gray-700">
         <button
-          class="px-4 py-2 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
           onclick={closeEditGroup}
         >
           Done
@@ -3440,6 +3768,19 @@ chmod +x muximux-darwin-arm64
     box-shadow: 0 0 6px var(--accent-primary);
   }
 
+  /* Action button group pill background */
+  .app-actions {
+    background: var(--bg-overlay, rgba(0, 0, 0, 0.4));
+    border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+    border-radius: 6px;
+    padding: 2px;
+  }
+
+  .app-actions svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
   /* Help tooltips */
   .help-tooltip {
     display: none;
@@ -3449,9 +3790,9 @@ chmod +x muximux-darwin-arm64
     width: 240px;
     padding: 8px 10px;
     border-radius: 8px;
-    background: #1f2937;
-    border: 1px solid #374151;
-    color: #d1d5db;
+    background: var(--bg-overlay, #1f2937);
+    border: 1px solid var(--border-default, #374151);
+    color: var(--text-secondary, #d1d5db);
     font-size: 11px;
     line-height: 1.4;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);

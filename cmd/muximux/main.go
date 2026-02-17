@@ -33,6 +33,7 @@ func main() {
 	dataDir := flag.String("data", envOrDefault("MUXIMUX_DATA", "data"), "Data directory for config, themes, icons (env: MUXIMUX_DATA)")
 	configPath := flag.String("config", envOrDefault("MUXIMUX_CONFIG", ""), "Override config file path (env: MUXIMUX_CONFIG)")
 	listenAddr := flag.String("listen", "", "Override listen address, e.g. :9090 (env: MUXIMUX_LISTEN)")
+	basePath := flag.String("base-path", "", "Base URL path for reverse proxy subpath, e.g. /muximux (env: MUXIMUX_BASE_PATH)")
 	showVersion := flag.Bool("version", false, "Show version information")
 	flag.Parse()
 
@@ -52,6 +53,13 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	// Run config migrations (e.g. role renames)
+	if cfg.Migrate() {
+		if err := cfg.Save(*configPath); err != nil {
+			log.Printf("Warning: failed to save migrated config: %v", err)
+		}
+	}
+
 	// Initialize structured logging — always write to stdout + data/muximux.log
 	logFile := filepath.Join(*dataDir, "muximux.log")
 	if err := logging.Init(logging.Config{
@@ -68,6 +76,11 @@ func main() {
 		cfg.Server.Listen = *listenAddr
 	} else if v := os.Getenv("MUXIMUX_LISTEN"); v != "" {
 		cfg.Server.Listen = v
+	}
+	if *basePath != "" {
+		cfg.Server.BasePath = *basePath
+	} else if v := os.Getenv("MUXIMUX_BASE_PATH"); v != "" {
+		cfg.Server.BasePath = v
 	}
 
 	// Create and start server

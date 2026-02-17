@@ -34,7 +34,7 @@ func TestGetDashboardIcon(t *testing.T) {
 	t.Run("success from cache", func(t *testing.T) {
 		cacheDir := t.TempDir()
 		// Pre-populate cache
-		if err := os.WriteFile(filepath.Join(cacheDir, "plex.svg"), []byte("<svg>plex</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "plex.svg"), []byte("<svg>plex</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -62,7 +62,7 @@ func TestGetDashboardIcon(t *testing.T) {
 
 	t.Run("with variant query param", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "plex.png"), []byte("PNG_DATA"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "plex.png"), []byte("PNG_DATA"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -84,7 +84,7 @@ func TestGetDashboardIcon(t *testing.T) {
 
 	t.Run("default variant is svg", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "radarr.svg"), []byte("<svg>radarr</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "radarr.svg"), []byte("<svg>radarr</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -121,7 +121,7 @@ func TestGetLucideIcon(t *testing.T) {
 
 	t.Run("success from cache", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "home.svg"), []byte("<svg>lucide-home</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "home.svg"), []byte("<svg>lucide-home</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -149,7 +149,7 @@ func TestGetLucideIcon(t *testing.T) {
 
 	t.Run("with svg extension", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -193,11 +193,11 @@ func TestListCustomIcons(t *testing.T) {
 
 	t.Run("with icons", func(t *testing.T) {
 		dir := t.TempDir()
-		err := os.WriteFile(filepath.Join(dir, "myicon.svg"), []byte(`<svg>test</svg>`), 0644)
+		err := os.WriteFile(filepath.Join(dir, "myicon.svg"), []byte(`<svg>test</svg>`), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
-		err = os.WriteFile(filepath.Join(dir, "another.png"), []byte("PNG"), 0644)
+		err = os.WriteFile(filepath.Join(dir, "another.png"), []byte("PNG"), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -414,7 +414,7 @@ func TestUploadCustomIcon(t *testing.T) {
 func TestDeleteCustomIcon(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		dir := t.TempDir()
-		err := os.WriteFile(filepath.Join(dir, "myicon.svg"), []byte(`<svg>test</svg>`), 0644)
+		err := os.WriteFile(filepath.Join(dir, "myicon.svg"), []byte(`<svg>test</svg>`), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -503,7 +503,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("custom icon found", func(t *testing.T) {
 		dir := t.TempDir()
-		err := os.WriteFile(filepath.Join(dir, "myicon.svg"), []byte(`<svg>custom</svg>`), 0644)
+		err := os.WriteFile(filepath.Join(dir, "myicon.svg"), []byte(`<svg>custom</svg>`), 0600)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -535,7 +535,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("dashboard icon from cache", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.svg"), []byte("<svg>sonarr</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.svg"), []byte("<svg>sonarr</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -557,7 +557,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("dashboard icon with variant query", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.png"), []byte("PNG"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -579,7 +579,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("dashboard icon with extension in name", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.png"), []byte("PNG"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -602,7 +602,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("dashboard icon no extension defaults to svg", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.svg"), []byte("<svg>sonarr</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "sonarr.svg"), []byte("<svg>sonarr</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -622,7 +622,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("lucide icon from cache", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -644,7 +644,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("lucide icon with .svg extension", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "star.svg"), []byte("<svg>star</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 
@@ -663,7 +663,7 @@ func TestServeIcon(t *testing.T) {
 
 	t.Run("lucide icon cached without extension", func(t *testing.T) {
 		cacheDir := t.TempDir()
-		if err := os.WriteFile(filepath.Join(cacheDir, "home.svg"), []byte("<svg>home</svg>"), 0644); err != nil {
+		if err := os.WriteFile(filepath.Join(cacheDir, "home.svg"), []byte("<svg>home</svg>"), 0600); err != nil {
 			t.Fatal(err)
 		}
 

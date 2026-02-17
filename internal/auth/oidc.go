@@ -29,6 +29,7 @@ type OIDCConfig struct {
 	GroupsClaim      string   `yaml:"groups_claim"`
 	DisplayNameClaim string   `yaml:"display_name_claim"`
 	AdminGroups      []string `yaml:"admin_groups"`
+	BasePath         string   // e.g. "/muximux" — prepended to fallback redirect
 }
 
 // OIDCProvider handles OIDC authentication
@@ -57,9 +58,9 @@ type stateEntry struct {
 }
 
 // NewOIDCProvider creates a new OIDC provider
-func NewOIDCProvider(config OIDCConfig, sessionStore *SessionStore, userStore *UserStore) *OIDCProvider {
+func NewOIDCProvider(config *OIDCConfig, sessionStore *SessionStore, userStore *UserStore) *OIDCProvider {
 	p := &OIDCProvider{
-		config:       config,
+		config:       *config,
 		httpClient:   &http.Client{Timeout: 30 * time.Second},
 		sessionStore: sessionStore,
 		userStore:    userStore,
@@ -242,7 +243,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	p.sessionStore.SetCookie(w, session)
 
 	// Redirect to original destination or home
-	redirectURL := sanitizeRedirectURL(entry.redirectURL)
+	redirectURL := sanitizeRedirectURL(entry.redirectURL, p.config.BasePath)
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
@@ -396,16 +397,16 @@ func determineOIDCRole(groups []string, adminGroups []string) string {
 
 // sanitizeRedirectURL validates that the redirect URL is a safe relative path
 // to prevent open redirect vulnerabilities
-func sanitizeRedirectURL(redirectURL string) string {
+func sanitizeRedirectURL(redirectURL, basePath string) string {
 	if redirectURL == "" || !strings.HasPrefix(redirectURL, "/") || strings.HasPrefix(redirectURL, "//") {
-		return "/"
+		return basePath + "/"
 	}
 	return redirectURL
 }
 
 // HandleLogin redirects to the OIDC provider for authentication
 func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"))
+	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"), p.config.BasePath)
 
 	authURL, err := p.GetAuthorizationURL(redirectAfter)
 	if err != nil {

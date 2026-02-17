@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { login } from '$lib/authStore';
+  import { getBase } from '$lib/api';
 
   let { onsuccess }: { onsuccess?: () => void } = $props();
 
@@ -14,7 +15,7 @@
   onMount(async () => {
     // Check if OIDC is enabled
     try {
-      const res = await fetch('/api/auth/status');
+      const res = await fetch(`${getBase()}/api/auth/status`);
       if (res.ok) {
         const data = await res.json();
         oidcEnabled = data.oidc_enabled || false;
@@ -48,7 +49,7 @@
   function handleOIDCLogin() {
     // Get current URL as redirect target
     const redirect = encodeURIComponent(window.location.pathname);
-    window.location.href = `/api/auth/oidc/login?redirect=${redirect}`;
+    window.location.href = `${getBase()}/api/auth/oidc/login?redirect=${redirect}`;
   }
 
   function handleKeydown(event: KeyboardEvent) {

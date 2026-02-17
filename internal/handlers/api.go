@@ -8,9 +8,11 @@ import (
 	"sync"
 	"time"
 
+	"gopkg.in/yaml.v3"
+
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
-	"gopkg.in/yaml.v3"
 )
 
 // APIHandler handles API requests
@@ -48,8 +50,9 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
+	userRole := getUserRole(r)
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
+	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config, userRole))
 }
 
 // ExportConfig returns the full configuration as a downloadable YAML file,
@@ -103,20 +106,20 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	for _, app := range cfg.Apps {
-		if app.Name == "" {
+	for i := range cfg.Apps {
+		if cfg.Apps[i].Name == "" {
 			http.Error(w, "Each app must have a name", http.StatusBadRequest)
 			return
 		}
-		if app.URL == "" {
-			http.Error(w, fmt.Sprintf("App %q must have a URL", app.Name), http.StatusBadRequest)
+		if cfg.Apps[i].URL == "" {
+			http.Error(w, fmt.Sprintf("App %q must have a URL", cfg.Apps[i].Name), http.StatusBadRequest)
 			return
 		}
 	}
 
 	// Return as the same sanitized JSON format the frontend expects
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(&cfg))
+	json.NewEncoder(w).Encode(buildClientConfigResponse(&cfg, ""))
 }
 
 // clientConfigResponse is the sanitized config structure sent to the frontend.
@@ -126,6 +129,7 @@ type clientConfigResponse struct {
 	ProxyTimeout string                    `json:"proxy_timeout,omitempty"`
 	Navigation   config.NavigationConfig   `json:"navigation"`
 	Theme        config.ThemeConfig        `json:"theme"`
+	Health       *config.HealthConfig      `json:"health,omitempty"`
 	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Auth         *clientAuthConfig         `json:"auth,omitempty"`
 	Groups       []config.GroupConfig      `json:"groups"`
@@ -141,15 +145,17 @@ type clientAuthConfig struct {
 }
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
-func buildClientConfigResponse(cfg *config.Config) clientConfigResponse {
+// userRole filters apps by minimum role; empty string means no filtering (e.g. import preview).
+func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfigResponse {
 	resp := clientConfigResponse{
 		Title:        cfg.Server.Title,
 		LogLevel:     cfg.Server.LogLevel,
 		ProxyTimeout: cfg.Server.ProxyTimeout,
 		Navigation:   cfg.Navigation,
 		Theme:        cfg.Theme,
+		Health:       &cfg.Health,
 		Groups:       cfg.Groups,
-		Apps:         sanitizeApps(cfg.Apps),
+		Apps:         sanitizeApps(cfg.Apps, userRole),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -174,6 +180,7 @@ type ClientConfigUpdate struct {
 	ProxyTimeout string                    `json:"proxy_timeout"`
 	Navigation   config.NavigationConfig   `json:"navigation"`
 	Theme        config.ThemeConfig        `json:"theme"`
+	Health       *config.HealthConfig      `json:"health,omitempty"`
 	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
 	Groups       []config.GroupConfig      `json:"groups"`
 	Apps         []ClientAppConfig         `json:"apps"`
@@ -213,7 +220,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config))
+	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config, auth.RoleAdmin))
 }
 
 // mergeConfigUpdate applies a client config update to the server config,
@@ -226,6 +233,9 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	}
 	cfg.Navigation = update.Navigation
 	cfg.Theme = update.Theme
+	if update.Health != nil {
+		cfg.Health = *update.Health
+	}
 	cfg.Groups = update.Groups
 	if update.Keybindings != nil {
 		cfg.Keybindings = *update.Keybindings
@@ -233,13 +243,13 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 
 	// Build lookup of existing apps to preserve sensitive data
 	existingApps := make(map[string]config.AppConfig)
-	for _, app := range cfg.Apps {
-		existingApps[app.Name] = app
+	for i := range cfg.Apps {
+		existingApps[cfg.Apps[i].Name] = cfg.Apps[i]
 	}
 
 	newApps := make([]config.AppConfig, 0, len(update.Apps))
-	for _, clientApp := range update.Apps {
-		app := mergeClientApp(clientApp, existingApps)
+	for i := range update.Apps {
+		app := mergeClientApp(&update.Apps[i], existingApps)
 		newApps = append(newApps, app)
 	}
 	cfg.Apps = newApps
@@ -247,7 +257,7 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 
 // mergeClientApp converts a client app config back to a full app config,
 // preserving sensitive fields from the existing app if it was previously configured.
-func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
+func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
 	// Get original URL if this was a proxied app
 	appURL := clientApp.URL
 	if clientApp.Proxy {
@@ -259,6 +269,7 @@ func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.Ap
 	app := config.AppConfig{
 		Name:                     clientApp.Name,
 		URL:                      appURL,
+		HealthURL:                clientApp.HealthURL,
 		Icon:                     clientApp.Icon,
 		Color:                    clientApp.Color,
 		Group:                    clientApp.Group,
@@ -267,10 +278,13 @@ func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.Ap
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		HealthCheck:              clientApp.HealthCheck,
 		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
-		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		Shortcut:                 clientApp.Shortcut,
+		MinRole:                  clientApp.MinRole,
+		ForceIconBackground:      clientApp.ForceIconBackground,
 	}
 
 	// Preserve auth bypass and access rules if app existed before
@@ -288,8 +302,9 @@ func mergeClientApp(clientApp ClientAppConfig, existingApps map[string]config.Ap
 
 // GetApps returns the list of apps
 func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
+	userRole := getUserRole(r)
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps))
+	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps, userRole))
 }
 
 // GetGroups returns the list of groups
@@ -303,10 +318,10 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	for _, app := range h.config.Apps {
-		if app.Name == name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == name {
 			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(sanitizeApp(app))
+			json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[i]))
 			return
 		}
 	}
@@ -331,8 +346,8 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.Unlock()
 
 	// Check if app already exists
-	for _, app := range h.config.Apps {
-		if app.Name == clientApp.Name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == clientApp.Name {
 			http.Error(w, "App already exists", http.StatusConflict)
 			return
 		}
@@ -342,6 +357,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	newApp := config.AppConfig{
 		Name:                     clientApp.Name,
 		URL:                      clientApp.URL,
+		HealthURL:                clientApp.HealthURL,
 		Icon:                     clientApp.Icon,
 		Color:                    clientApp.Color,
 		Group:                    clientApp.Group,
@@ -350,10 +366,13 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		HealthCheck:              clientApp.HealthCheck,
 		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
-		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		Shortcut:                 clientApp.Shortcut,
+		MinRole:                  clientApp.MinRole,
+		ForceIconBackground:      clientApp.ForceIconBackground,
 	}
 
 	h.config.Apps = append(h.config.Apps, newApp)
@@ -367,7 +386,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	logging.Info("App created", "source", "config", "app", newApp.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(sanitizeApp(newApp))
+	json.NewEncoder(w).Encode(sanitizeApp(&newApp))
 }
 
 // UpdateApp updates an existing app
@@ -383,8 +402,8 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Find the app
 	idx := -1
-	for i, app := range h.config.Apps {
-		if app.Name == name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == name {
 			idx = i
 			break
 		}
@@ -402,6 +421,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	h.config.Apps[idx] = config.AppConfig{
 		Name:                     clientApp.Name,
 		URL:                      clientApp.URL,
+		HealthURL:                clientApp.HealthURL,
 		Icon:                     clientApp.Icon,
 		Color:                    clientApp.Color,
 		Group:                    clientApp.Group,
@@ -410,10 +430,13 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		Default:                  clientApp.Default,
 		OpenMode:                 clientApp.OpenMode,
 		Proxy:                    clientApp.Proxy,
+		HealthCheck:              clientApp.HealthCheck,
 		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
-		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
+		Shortcut:                 clientApp.Shortcut,
+		MinRole:                  clientApp.MinRole,
+		ForceIconBackground:      clientApp.ForceIconBackground,
 		AuthBypass:               existing.AuthBypass,
 		Access:                   existing.Access,
 	}
@@ -426,7 +449,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	logging.Info("App updated", "source", "config", "app", clientApp.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(sanitizeApp(h.config.Apps[idx]))
+	json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[idx]))
 }
 
 // DeleteApp removes an app
@@ -436,8 +459,8 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Find and remove the app
 	idx := -1
-	for i, app := range h.config.Apps {
-		if app.Name == name {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Name == name {
 			idx = i
 			break
 		}
@@ -465,10 +488,10 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	for _, group := range h.config.Groups {
-		if group.Name == name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == name {
 			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(group)
+			json.NewEncoder(w).Encode(h.config.Groups[i])
 			return
 		}
 	}
@@ -493,8 +516,8 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.Unlock()
 
 	// Check if group already exists
-	for _, g := range h.config.Groups {
-		if g.Name == group.Name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == group.Name {
 			http.Error(w, "Group already exists", http.StatusConflict)
 			return
 		}
@@ -528,8 +551,8 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Find the group
 	idx := -1
-	for i, g := range h.config.Groups {
-		if g.Name == name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == name {
 			idx = i
 			break
 		}
@@ -560,8 +583,8 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Find and remove the group
 	idx := -1
-	for i, g := range h.config.Groups {
-		if g.Name == name {
+	for i := range h.config.Groups {
+		if h.config.Groups[i].Name == name {
 			idx = i
 			break
 		}
@@ -576,8 +599,8 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Optionally: Move apps in this group to "ungrouped"
 	deletedName := name
-	for i, app := range h.config.Apps {
-		if app.Group == deletedName {
+	for i := range h.config.Apps {
+		if h.config.Apps[i].Group == deletedName {
 			h.config.Apps[i].Group = ""
 		}
 	}
@@ -593,7 +616,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 }
 
 // sanitizeApp converts a single app config to client format
-func sanitizeApp(app config.AppConfig) ClientAppConfig {
+func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 	var proxyURL string
 	if app.Proxy {
 		proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
@@ -601,6 +624,7 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 	return ClientAppConfig{
 		Name:                     app.Name,
 		URL:                      app.URL,
+		HealthURL:                app.HealthURL,
 		ProxyURL:                 proxyURL,
 		Icon:                     app.Icon,
 		Color:                    app.Color,
@@ -610,18 +634,22 @@ func sanitizeApp(app config.AppConfig) ClientAppConfig {
 		Default:                  app.Default,
 		OpenMode:                 app.OpenMode,
 		Proxy:                    app.Proxy,
+		HealthCheck:              app.HealthCheck,
 		ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
 		ProxyHeaders:             app.ProxyHeaders,
 		Scale:                    app.Scale,
-		DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
+		Shortcut:                 app.Shortcut,
+		MinRole:                  app.MinRole,
+		ForceIconBackground:      app.ForceIconBackground,
 	}
 }
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
 	Name                     string               `json:"name"`
-	URL                      string               `json:"url"`                              // Original target URL (for editing/config)
-	ProxyURL                 string               `json:"proxyUrl,omitempty"`               // Proxy path for iframe loading (when proxy enabled)
+	URL                      string               `json:"url"`                // Original target URL (for editing/config)
+	HealthURL                string               `json:"health_url,omitempty"`
+	ProxyURL                 string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
 	Icon                     config.AppIconConfig `json:"icon"`
 	Color                    string               `json:"color"`
 	Group                    string               `json:"group"`
@@ -630,44 +658,30 @@ type ClientAppConfig struct {
 	Default                  bool                 `json:"default"`
 	OpenMode                 string               `json:"open_mode"`
 	Proxy                    bool                 `json:"proxy"`
-	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"`  // nil = true (default)
+	HealthCheck              *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
+	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
 	ProxyHeaders             map[string]string    `json:"proxy_headers,omitempty"`
 	Scale                    float64              `json:"scale"`
-	DisableKeyboardShortcuts bool                 `json:"disable_keyboard_shortcuts"`
+	Shortcut                 *int                 `json:"shortcut,omitempty"`
+	MinRole                  string               `json:"min_role,omitempty"`
+	ForceIconBackground      bool                 `json:"force_icon_background,omitempty"`
 }
 
-// sanitizeApps removes sensitive fields from app configs
-func sanitizeApps(apps []config.AppConfig) []ClientAppConfig {
+// sanitizeApps removes sensitive fields and filters by role.
+// userRole is the requesting user's role; empty string disables filtering.
+func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
 	result := make([]ClientAppConfig, 0, len(apps))
-	for _, app := range apps {
-		if !app.Enabled {
+	for i := range apps {
+		if !apps[i].Enabled {
 			continue
 		}
-
-		// URL is always the original target URL
-		// ProxyURL is set when proxy is enabled (for iframe loading)
-		var proxyURL string
-		if app.Proxy {
-			proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
+		// Filter by minimum role if a user role is provided
+		if userRole != "" && apps[i].MinRole != "" {
+			if !auth.HasMinRole(userRole, apps[i].MinRole) {
+				continue
+			}
 		}
-
-		result = append(result, ClientAppConfig{
-			Name:                     app.Name,
-			URL:                      app.URL,
-			ProxyURL:                 proxyURL,
-			Icon:                     app.Icon,
-			Color:                    app.Color,
-			Group:                    app.Group,
-			Order:                    app.Order,
-			Enabled:                  app.Enabled,
-			Default:                  app.Default,
-			OpenMode:                 app.OpenMode,
-			Proxy:                    app.Proxy,
-			ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
-			ProxyHeaders:             app.ProxyHeaders,
-			Scale:                    app.Scale,
-			DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
-		})
+		result = append(result, sanitizeApp(&apps[i]))
 	}
 	return result
 }
@@ -677,13 +691,24 @@ func slugify(name string) string {
 	// Simple slugify - replace spaces with dashes, lowercase
 	result := make([]byte, 0, len(name))
 	for _, c := range name {
-		if c >= 'A' && c <= 'Z' {
+		switch {
+		case c >= 'A' && c <= 'Z':
 			result = append(result, byte(c+32)) // lowercase
-		} else if c >= 'a' && c <= 'z' || c >= '0' && c <= '9' {
+		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
 			result = append(result, byte(c))
-		} else if c == ' ' || c == '-' || c == '_' {
+		case c == ' ', c == '-', c == '_':
 			result = append(result, '-')
 		}
 	}
 	return string(result)
+}
+
+// getUserRole extracts the user role from the request context.
+// Returns empty string if no user is present.
+func getUserRole(r *http.Request) string {
+	user := auth.GetUserFromContext(r.Context())
+	if user == nil {
+		return ""
+	}
+	return user.Role
 }

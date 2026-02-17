@@ -82,10 +82,10 @@ describe('keybindingsStore', () => {
       expect(formatKeybinding(binding)).toBe('R');
     });
 
-    it('should format multiple combo binding', () => {
+    it('should format single combo search binding', () => {
       const binding = DEFAULT_KEYBINDINGS.find(b => b.action === 'search')!;
       const result = formatKeybinding(binding);
-      expect(result).toContain('or');
+      expect(result).toBe('Ctrl+K');
     });
   });
 
@@ -131,14 +131,14 @@ describe('keybindingsStore', () => {
   });
 
   describe('matchesKeybinding', () => {
-    it('should match any combo in binding', () => {
+    it('should match combo in binding', () => {
       const binding = DEFAULT_KEYBINDINGS.find(b => b.action === 'search')!;
-
-      const slashEvent = new KeyboardEvent('keydown', { key: '/' });
-      expect(matchesKeybinding(slashEvent, binding)).toBe(true);
 
       const ctrlKEvent = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true });
       expect(matchesKeybinding(ctrlKEvent, binding)).toBe(true);
+
+      const plainKEvent = new KeyboardEvent('keydown', { key: 'k' });
+      expect(matchesKeybinding(plainKEvent, binding)).toBe(false);
     });
   });
 
@@ -154,7 +154,7 @@ describe('keybindingsStore', () => {
     });
 
     it('should find action for key combo', () => {
-      const event = new KeyboardEvent('keydown', { key: 'p', ctrlKey: true, shiftKey: true });
+      const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true });
       expect(findAction(event)).toBe('search');
     });
   });

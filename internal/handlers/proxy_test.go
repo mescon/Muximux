@@ -78,7 +78,7 @@ func TestGetProxyStatus(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			handler := NewProxyHandler(nil, tt.serverConfig)
+			handler := NewProxyHandler(nil, &tt.serverConfig)
 
 			req := httptest.NewRequest(http.MethodGet, "/api/proxy/status", nil)
 			w := httptest.NewRecorder()
@@ -111,7 +111,7 @@ func TestGetProxyStatus(t *testing.T) {
 }
 
 func TestGetProxyStatusWrongMethod(t *testing.T) {
-	handler := NewProxyHandler(nil, config.ServerConfig{Listen: ":8080"})
+	handler := NewProxyHandler(nil, &config.ServerConfig{Listen: ":8080"})
 
 	req := httptest.NewRequest(http.MethodPost, "/api/proxy/status", nil)
 	w := httptest.NewRecorder()

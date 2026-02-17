@@ -17,7 +17,7 @@ func okHandler() http.HandlerFunc {
 }
 
 // newTestMiddleware creates a Middleware with the given config, using fresh stores.
-func newTestMiddleware(cfg AuthConfig) (*Middleware, *SessionStore, *UserStore) {
+func newTestMiddleware(cfg *AuthConfig) (*Middleware, *SessionStore, *UserStore) {
 	ss := NewSessionStore("test_session", time.Hour, false)
 	us := NewUserStore()
 	m := NewMiddleware(cfg, ss, us)
@@ -27,7 +27,7 @@ func newTestMiddleware(cfg AuthConfig) (*Middleware, *SessionStore, *UserStore) 
 // --- RequireAuth ---
 
 func TestRequireAuth_Disabled(t *testing.T) {
-	m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodNone})
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodNone})
 
 	var captured *User
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -56,7 +56,7 @@ func TestRequireAuth_Disabled(t *testing.T) {
 }
 
 func TestRequireAuth_Session(t *testing.T) {
-	cfg := AuthConfig{Method: AuthMethodBuiltin}
+	cfg := &AuthConfig{Method: AuthMethodBuiltin}
 	m, ss, us := newTestMiddleware(cfg)
 
 	// Create a user and session
@@ -142,7 +142,7 @@ func TestRequireAuth_Session(t *testing.T) {
 }
 
 func TestRequireAuth_Bypass(t *testing.T) {
-	cfg := AuthConfig{
+	cfg := &AuthConfig{
 		Method: AuthMethodBuiltin,
 		BypassRules: []BypassRule{
 			{Path: "/public"},
@@ -283,7 +283,7 @@ func TestShouldBypass(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			cfg := AuthConfig{
+			cfg := &AuthConfig{
 				Method:      AuthMethodBuiltin,
 				BypassRules: tt.rules,
 				APIKey:      "secret123",
@@ -384,7 +384,7 @@ func TestMatchAllowedIPs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin})
+			m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
 			rule := BypassRule{
 				Path:       "/test",
 				AllowedIPs: tt.allowedIPs,
@@ -403,7 +403,7 @@ func TestMatchAllowedIPs(t *testing.T) {
 
 func TestGetClientIP(t *testing.T) {
 	t.Run("no X-Forwarded-For from untrusted proxy", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{
+		m, _, _ := newTestMiddleware(&AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		})
@@ -420,7 +420,7 @@ func TestGetClientIP(t *testing.T) {
 	})
 
 	t.Run("X-Forwarded-For trusted proxy", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{
+		m, _, _ := newTestMiddleware(&AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		})
@@ -436,7 +436,7 @@ func TestGetClientIP(t *testing.T) {
 	})
 
 	t.Run("X-Real-IP trusted proxy", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{
+		m, _, _ := newTestMiddleware(&AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"10.0.0.1"},
 		})
@@ -452,7 +452,7 @@ func TestGetClientIP(t *testing.T) {
 	})
 
 	t.Run("no forwarded headers falls back to remote addr", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{
+		m, _, _ := newTestMiddleware(&AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		})
@@ -467,7 +467,7 @@ func TestGetClientIP(t *testing.T) {
 	})
 
 	t.Run("no trusted proxies configured", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
 
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.RemoteAddr = "5.5.5.5:80"
@@ -484,7 +484,7 @@ func TestGetClientIP(t *testing.T) {
 
 func TestAuthenticateRequest(t *testing.T) {
 	t.Run("builtin with valid session", func(t *testing.T) {
-		cfg := AuthConfig{Method: AuthMethodBuiltin}
+		cfg := &AuthConfig{Method: AuthMethodBuiltin}
 		m, ss, us := newTestMiddleware(cfg)
 
 		us.LoadFromConfig([]UserConfig{
@@ -508,7 +508,7 @@ func TestAuthenticateRequest(t *testing.T) {
 	})
 
 	t.Run("builtin with no session", func(t *testing.T) {
-		cfg := AuthConfig{Method: AuthMethodBuiltin}
+		cfg := &AuthConfig{Method: AuthMethodBuiltin}
 		m, _, _ := newTestMiddleware(cfg)
 
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -523,7 +523,7 @@ func TestAuthenticateRequest(t *testing.T) {
 	})
 
 	t.Run("forward_auth with trusted proxy", func(t *testing.T) {
-		cfg := AuthConfig{
+		cfg := &AuthConfig{
 			Method:         AuthMethodForwardAuth,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		}
@@ -544,7 +544,7 @@ func TestAuthenticateRequest(t *testing.T) {
 	})
 
 	t.Run("forward_auth from untrusted proxy", func(t *testing.T) {
-		cfg := AuthConfig{
+		cfg := &AuthConfig{
 			Method:         AuthMethodForwardAuth,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		}
@@ -561,7 +561,7 @@ func TestAuthenticateRequest(t *testing.T) {
 	})
 
 	t.Run("forward_auth admin groups", func(t *testing.T) {
-		cfg := AuthConfig{
+		cfg := &AuthConfig{
 			Method:         AuthMethodForwardAuth,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		}
@@ -582,7 +582,7 @@ func TestAuthenticateRequest(t *testing.T) {
 	})
 
 	t.Run("unknown auth method returns nil", func(t *testing.T) {
-		cfg := AuthConfig{Method: "something_unknown"}
+		cfg := &AuthConfig{Method: "something_unknown"}
 		m, _, _ := newTestMiddleware(cfg)
 
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -596,7 +596,7 @@ func TestAuthenticateRequest(t *testing.T) {
 // --- RequireRole ---
 
 func TestRequireRole(t *testing.T) {
-	m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodNone})
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodNone})
 
 	t.Run("admin role allowed", func(t *testing.T) {
 		inner := okHandler()
@@ -703,7 +703,7 @@ func TestContextHelpers(t *testing.T) {
 
 func TestNewMiddleware_TrustedProxyParsing(t *testing.T) {
 	t.Run("CIDR notation", func(t *testing.T) {
-		cfg := AuthConfig{
+		cfg := &AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"10.0.0.0/8"},
 		}
@@ -714,7 +714,7 @@ func TestNewMiddleware_TrustedProxyParsing(t *testing.T) {
 	})
 
 	t.Run("single IPv4", func(t *testing.T) {
-		cfg := AuthConfig{
+		cfg := &AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"127.0.0.1"},
 		}
@@ -725,7 +725,7 @@ func TestNewMiddleware_TrustedProxyParsing(t *testing.T) {
 	})
 
 	t.Run("invalid string is ignored", func(t *testing.T) {
-		cfg := AuthConfig{
+		cfg := &AuthConfig{
 			Method:         AuthMethodBuiltin,
 			TrustedProxies: []string{"not-an-ip"},
 		}
@@ -767,7 +767,7 @@ func TestMatchMethod(t *testing.T) {
 
 func TestMatchAPIKey(t *testing.T) {
 	t.Run("not required always passes", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin, APIKey: "secret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "secret"})
 		rule := BypassRule{RequireAPIKey: false}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		if !m.matchAPIKey(req, rule) {
@@ -776,7 +776,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("correct key", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "mysecret")
@@ -786,7 +786,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("wrong key", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "wrong")
@@ -796,7 +796,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("missing key header", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		if m.matchAPIKey(req, rule) {
@@ -805,7 +805,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("empty configured key", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin, APIKey: ""})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: ""})
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "anything")
@@ -818,7 +818,7 @@ func TestMatchAPIKey(t *testing.T) {
 // --- handleUnauthenticated ---
 
 func TestHandleUnauthenticated(t *testing.T) {
-	m, _, _ := newTestMiddleware(AuthConfig{Method: AuthMethodBuiltin})
+	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
 
 	t.Run("API path returns 401", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/something", nil)
@@ -840,7 +840,7 @@ func TestHandleUnauthenticated(t *testing.T) {
 }
 
 func TestUpdateConfig_SwitchMethod(t *testing.T) {
-	cfg := AuthConfig{Method: AuthMethodNone}
+	cfg := &AuthConfig{Method: AuthMethodNone}
 	m, ss, us := newTestMiddleware(cfg)
 
 	// Start with none — should get virtual admin
@@ -864,7 +864,7 @@ func TestUpdateConfig_SwitchMethod(t *testing.T) {
 	us.LoadFromConfig([]UserConfig{{Username: "alice", PasswordHash: hash, Role: RoleAdmin}})
 	session, _ := ss.Create("alice", "alice", RoleAdmin)
 
-	m.UpdateConfig(AuthConfig{Method: AuthMethodBuiltin})
+	m.UpdateConfig(&AuthConfig{Method: AuthMethodBuiltin})
 
 	// Now without a session, should get 401
 	captured = nil
@@ -889,7 +889,7 @@ func TestUpdateConfig_SwitchMethod(t *testing.T) {
 }
 
 func TestUpdateConfig_TrustedProxies(t *testing.T) {
-	cfg := AuthConfig{Method: AuthMethodForwardAuth}
+	cfg := &AuthConfig{Method: AuthMethodForwardAuth}
 	m, _, _ := newTestMiddleware(cfg)
 
 	// Before update — no trusted proxies, should reject
@@ -902,7 +902,7 @@ func TestUpdateConfig_TrustedProxies(t *testing.T) {
 	}
 
 	// Update with trusted proxies
-	m.UpdateConfig(AuthConfig{
+	m.UpdateConfig(&AuthConfig{
 		Method:         AuthMethodForwardAuth,
 		TrustedProxies: []string{"10.0.0.0/8"},
 	})

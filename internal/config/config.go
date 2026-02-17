@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"gopkg.in/yaml.v3"
 )
@@ -16,15 +17,16 @@ type ThemeConfig struct {
 
 // Config holds all application configuration
 type Config struct {
-	Server      ServerConfig      `yaml:"server"`
-	Auth        AuthConfig        `yaml:"auth"`
-	Navigation  NavigationConfig  `yaml:"navigation"`
-	Theme       ThemeConfig       `yaml:"theme" json:"theme"`
-	Icons       IconsConfig       `yaml:"icons"`
-	Health      HealthConfig      `yaml:"health"`
-	Keybindings KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
-	Groups      []GroupConfig     `yaml:"groups"`
-	Apps        []AppConfig       `yaml:"apps"`
+	ConfigVersion int               `yaml:"config_version"`
+	Server        ServerConfig      `yaml:"server"`
+	Auth          AuthConfig        `yaml:"auth"`
+	Navigation    NavigationConfig  `yaml:"navigation"`
+	Theme         ThemeConfig       `yaml:"theme" json:"theme"`
+	Icons         IconsConfig       `yaml:"icons"`
+	Health        HealthConfig      `yaml:"health"`
+	Keybindings   KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
+	Groups        []GroupConfig     `yaml:"groups"`
+	Apps          []AppConfig       `yaml:"apps"`
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -62,11 +64,25 @@ type TLSConfig struct {
 // ServerConfig holds HTTP server settings
 type ServerConfig struct {
 	Listen       string    `yaml:"listen" json:"listen"`
+	BasePath     string    `yaml:"base_path" json:"base_path"` // e.g. "/muximux" — for serving behind a reverse proxy subpath
 	Title        string    `yaml:"title" json:"title"`
 	LogLevel     string    `yaml:"log_level" json:"log_level"`
 	ProxyTimeout string    `yaml:"proxy_timeout" json:"proxy_timeout"` // e.g. "30s", "1m" — timeout for proxied requests
 	TLS          TLSConfig `yaml:"tls" json:"tls"`
 	Gateway      string    `yaml:"gateway" json:"gateway"`
+}
+
+// NormalizedBasePath returns the base path with a leading slash and no trailing slash.
+// Returns "" if no base path is configured.
+func (c *ServerConfig) NormalizedBasePath() string {
+	p := strings.TrimRight(c.BasePath, "/")
+	if p == "" {
+		return ""
+	}
+	if !strings.HasPrefix(p, "/") {
+		p = "/" + p
+	}
+	return p
 }
 
 // NeedsCaddy returns true if TLS or Gateway is configured, meaning Caddy
@@ -114,18 +130,21 @@ type OIDCConfig struct {
 
 // NavigationConfig holds navigation layout settings
 type NavigationConfig struct {
-	Position           string `yaml:"position" json:"position"` // top, left, right, bottom, floating
-	Width              string `yaml:"width" json:"width"`
-	AutoHide           bool   `yaml:"auto_hide" json:"auto_hide"`
-	AutoHideDelay      string `yaml:"auto_hide_delay" json:"auto_hide_delay"`
-	ShowOnHover        bool   `yaml:"show_on_hover" json:"show_on_hover"`
-	ShowLabels         bool   `yaml:"show_labels" json:"show_labels"`
-	ShowLogo           bool   `yaml:"show_logo" json:"show_logo"`
-	ShowAppColors      bool   `yaml:"show_app_colors" json:"show_app_colors"`
+	Position           string  `yaml:"position" json:"position"` // top, left, right, bottom, floating
+	Width              string  `yaml:"width" json:"width"`
+	AutoHide           bool    `yaml:"auto_hide" json:"auto_hide"`
+	AutoHideDelay      string  `yaml:"auto_hide_delay" json:"auto_hide_delay"`
+	ShowOnHover        bool    `yaml:"show_on_hover" json:"show_on_hover"`
+	ShowLabels         bool    `yaml:"show_labels" json:"show_labels"`
+	ShowLogo           bool    `yaml:"show_logo" json:"show_logo"`
+	ShowAppColors      bool    `yaml:"show_app_colors" json:"show_app_colors"`
 	ShowIconBackground bool    `yaml:"show_icon_background" json:"show_icon_background"`
 	IconScale          float64 `yaml:"icon_scale" json:"icon_scale"`
 	ShowSplashOnStart  bool    `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
 	ShowShadow         bool    `yaml:"show_shadow" json:"show_shadow"`
+	FloatingPosition   string  `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
+	BarStyle           string  `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
+	HideSidebarFooter  bool    `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
 }
 
 // IconsConfig holds icon settings
@@ -161,12 +180,15 @@ type AppConfig struct {
 	Order                    int               `yaml:"order"`
 	Enabled                  bool              `yaml:"enabled"`
 	Default                  bool              `yaml:"default"`
-	OpenMode                 string            `yaml:"open_mode"` // iframe, new_tab, new_window, redirect
+	OpenMode                 string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
+	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // nil/true = enabled, false = disabled
 	Proxy                    bool              `yaml:"proxy"`
 	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
 	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
 	Scale                    float64           `yaml:"scale"`
-	DisableKeyboardShortcuts bool              `yaml:"disable_keyboard_shortcuts,omitempty"`
+	Shortcut                 *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
+	MinRole                  string            `yaml:"min_role,omitempty"`              // minimum role to see this app (default: "user")
+	ForceIconBackground      bool              `yaml:"force_icon_background,omitempty"` // show icon background even when global setting is off
 	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
 	Access                   AppAccessConfig   `yaml:"access"`
 }
@@ -180,6 +202,7 @@ type AppIconConfig struct {
 	Variant    string `yaml:"variant" json:"variant"`
 	Color      string `yaml:"color,omitempty" json:"color"`
 	Background string `yaml:"background,omitempty" json:"background"`
+	Invert     bool   `yaml:"invert,omitempty" json:"invert,omitempty"`
 }
 
 // AuthBypassRule defines a path that bypasses auth
@@ -250,6 +273,38 @@ func (c *Config) validate() error {
 	return nil
 }
 
+// CurrentConfigVersion is the latest config schema version.
+const CurrentConfigVersion = 2
+
+// Migrate upgrades the config to the latest version and returns true if changes were made.
+func (c *Config) Migrate() bool {
+	changed := false
+
+	if c.ConfigVersion < 2 {
+		// v1 → v2: Rename roles: "guest" → "user", "user" → "power-user"
+		for i := range c.Auth.Users {
+			switch c.Auth.Users[i].Role {
+			case "guest":
+				c.Auth.Users[i].Role = "user"
+			case "user":
+				c.Auth.Users[i].Role = "power-user"
+			}
+		}
+		for i := range c.Apps {
+			switch c.Apps[i].MinRole {
+			case "guest":
+				c.Apps[i].MinRole = "user"
+			case "user":
+				c.Apps[i].MinRole = "power-user"
+			}
+		}
+		c.ConfigVersion = 2
+		changed = true
+	}
+
+	return changed
+}
+
 // Save writes configuration to a YAML file
 func (c *Config) Save(path string) error {
 	if dir := filepath.Dir(path); dir != "." {
@@ -306,10 +361,12 @@ func defaultConfig() *Config {
 			ShowLabels:         true,
 			ShowLogo:           true,
 			ShowAppColors:      true,
-			ShowIconBackground: true,
+			ShowIconBackground: false,
 			IconScale:          1.0,
 			ShowSplashOnStart:  false,
 			ShowShadow:         true,
+			FloatingPosition:   "bottom-right",
+			BarStyle:           "grouped",
 		},
 		Icons: IconsConfig{
 			DashboardIcons: DashboardIconsConfig{

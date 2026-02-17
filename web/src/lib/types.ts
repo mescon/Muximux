@@ -11,14 +11,21 @@ export interface App {
   default: boolean;
   open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
   proxy: boolean;
+  health_check?: boolean;  // undefined/true = enabled, false = disabled
   proxy_skip_tls_verify?: boolean;
   proxy_headers?: Record<string, string>;
   scale: number;
-  disable_keyboard_shortcuts: boolean;
+  shortcut?: number;  // 1-9 keyboard shortcut slot
+  min_role?: string;  // minimum role to see this app
+  force_icon_background?: boolean;  // show icon background even when global setting is off
 }
 
 export function getEffectiveUrl(app: App): string {
-  return app.proxyUrl || app.url;
+  if (app.proxyUrl) {
+    const base = (window as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
+    return base + app.proxyUrl;
+  }
+  return app.url;
 }
 
 export interface AppIcon {
@@ -29,6 +36,7 @@ export interface AppIcon {
   variant: string;
   color?: string;
   background?: string;
+  invert?: boolean;
 }
 
 export interface Group {
@@ -52,6 +60,9 @@ export interface NavigationConfig {
   icon_scale: number;
   show_splash_on_startup: boolean;
   show_shadow: boolean;
+  floating_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
+  bar_style: 'grouped' | 'flat';
+  hide_sidebar_footer: boolean;
 }
 
 export interface HealthConfig {

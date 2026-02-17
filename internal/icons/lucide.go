@@ -127,7 +127,7 @@ func (c *LucideClient) saveToCache(name string, data []byte) error {
 	if err := os.MkdirAll(c.cacheDir, 0755); err != nil {
 		return err
 	}
-	return os.WriteFile(c.getCachePath(name), data, 0644)
+	return os.WriteFile(c.getCachePath(name), data, 0600)
 }
 
 // downloadIcon downloads an icon from the Lucide CDN and caches it

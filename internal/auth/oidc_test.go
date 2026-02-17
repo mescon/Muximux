@@ -761,22 +761,25 @@ func TestSanitizeRedirectURL(t *testing.T) {
 	tests := []struct {
 		name     string
 		input    string
+		basePath string
 		expected string
 	}{
-		{"empty string", "", "/"},
-		{"valid relative path", "/dashboard", "/dashboard"},
-		{"absolute URL", "https://evil.com", "/"},
-		{"protocol-relative", "//evil.com", "/"},
-		{"valid deep path", "/settings/profile", "/settings/profile"},
-		{"root path", "/", "/"},
-		{"no leading slash", "dashboard", "/"},
+		{"empty string", "", "", "/"},
+		{"valid relative path", "/dashboard", "", "/dashboard"},
+		{"absolute URL", "https://evil.com", "", "/"},
+		{"protocol-relative", "//evil.com", "", "/"},
+		{"valid deep path", "/settings/profile", "", "/settings/profile"},
+		{"root path", "/", "", "/"},
+		{"no leading slash", "dashboard", "", "/"},
+		{"empty with base path", "", "/dash", "/dash/"},
+		{"invalid with base path", "https://evil.com", "/dash", "/dash/"},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got := sanitizeRedirectURL(tt.input)
+			got := sanitizeRedirectURL(tt.input, tt.basePath)
 			if got != tt.expected {
-				t.Errorf("sanitizeRedirectURL(%q) = %q, want %q", tt.input, got, tt.expected)
+				t.Errorf("sanitizeRedirectURL(%q, %q) = %q, want %q", tt.input, tt.basePath, got, tt.expected)
 			}
 		})
 	}
@@ -810,7 +813,7 @@ func TestNewOIDCProvider_Defaults(t *testing.T) {
 	ss := NewSessionStore("test", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := OIDCConfig{
+	cfg := &OIDCConfig{
 		Enabled:   true,
 		IssuerURL: "http://idp.example.com",
 		ClientID:  "client",
@@ -839,7 +842,7 @@ func TestNewOIDCProvider_CustomClaims(t *testing.T) {
 	ss := NewSessionStore("test", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := OIDCConfig{
+	cfg := &OIDCConfig{
 		Enabled:          true,
 		IssuerURL:        "http://idp.example.com",
 		ClientID:         "client",

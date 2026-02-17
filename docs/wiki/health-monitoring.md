@@ -38,6 +38,29 @@ If `health_url` is not set, the main `url` is used for health checks.
 
 **Tip:** Many self-hosted apps expose endpoints like `/api/health`, `/ping`, `/status`, or `/identity` that are fast and don't require login. Check your app's documentation for available endpoints.
 
+## Per-App Health Check Toggle
+
+You can disable health monitoring for individual apps by setting `health_check: false`:
+
+```yaml
+apps:
+  - name: External Service
+    url: https://external-service.example.com
+    health_check: false    # No health checks, no status indicator shown
+```
+
+When `health_check` is set to `false`:
+- No health check requests are sent for that app.
+- No health status indicator (dot) is shown in the navigation.
+- The app always appears at full opacity regardless of other apps' health status.
+
+This is useful for:
+- External services you don't control and don't want to ping.
+- Apps behind VPNs or firewalls that Muximux can't reach for health checks.
+- Reducing noise when you only care about the health of certain critical services.
+
+By default, all apps have health checks enabled (equivalent to `health_check: true`). You can bulk-enable or bulk-disable health checks for all apps in **Settings > Apps**.
+
 ## Health Status Indicators
 
 In the navigation, each app icon shows a small colored dot indicating its current health:

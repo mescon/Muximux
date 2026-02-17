@@ -68,3 +68,6 @@ go.work.sum
 # Development artifacts
 /dev/
 /.cache/
+
+# Plans (may contain local paths)
+docs/plans/

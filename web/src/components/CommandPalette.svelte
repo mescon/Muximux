@@ -5,7 +5,7 @@
   import AppIcon from './AppIcon.svelte';
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
-  import { captureKeybindings } from '$lib/keybindingCaptureStore';
+  import { isAdmin } from '$lib/authStore';
 
   // Props with callbacks instead of dispatchers
   let {
@@ -64,13 +64,12 @@
 
   // All available actions (no "Open Search" — we're already in the palette)
   const actions = $derived([
-    { id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' },
+    ...($isAdmin ? [{ id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' }] : []),
     { id: 'shortcuts', type: 'action' as const, label: 'Show Keyboard Shortcuts', shortcut: getShortcut('shortcuts'), icon: 'help' },
     { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
     { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
     { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
     { id: 'logs', type: 'action' as const, label: 'View Logs', shortcut: getShortcut('logs'), icon: 'logs' },
-    { id: 'toggle-keybindings', type: 'action' as const, label: $captureKeybindings ? 'Pause Keyboard Shortcuts' : 'Resume Keyboard Shortcuts', icon: 'keyboard' },
     { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
     { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
     { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },
@@ -316,8 +315,6 @@
         return 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6';
       case 'logs':
         return 'M4 6h16M4 10h16M4 14h16M4 18h12';
-      case 'keyboard':
-        return 'M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4';
       case 'moon':
         return 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z';
       case 'sun':

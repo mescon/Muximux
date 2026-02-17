@@ -12,6 +12,7 @@ server:
   title: "Muximux"
   log_level: info               # debug, info, warn, error (hot-reloadable)
   proxy_timeout: 30s            # Global timeout for proxied requests
+  # base_path: /muximux         # Subpath when behind a reverse proxy (e.g. /muximux)
 
   # Optional: enable HTTPS on this port
   # tls:
@@ -84,12 +85,12 @@ navigation:
   show_splash_on_startup: false
   show_shadow: true
   icon_scale: 1.0              # Icon zoom multiplier
+  bar_style: grouped           # grouped (default) or flat (top/bottom bars only)
 
 # Keyboard shortcuts (only overrides — defaults are managed client-side)
 # keybindings:
 #   bindings:
 #     search:
-#       - key: "/"
 #       - key: "k"
 #         ctrl: true
 
@@ -131,6 +132,8 @@ apps:
     icon:
       type: dashboard
       name: plex
+      # invert: true            # Flip icon colors (dark ↔ light)
+      # background: "#1a1a2e"   # Override icon background color
     color: "#e5a00d"
     group: Media
     order: 1
@@ -139,6 +142,9 @@ apps:
     open_mode: iframe
     proxy: false
     scale: 1
+    # health_check: false       # Disable health monitoring for this app
+    # shortcut: 1               # Assign keyboard shortcut (1-9)
+    # force_icon_background: true  # Show icon background even when global setting is off
 
   - name: Sonarr
     url: http://localhost:8989
@@ -187,7 +193,7 @@ apps:
     enabled: true
     open_mode: new_tab  # Opens in new browser tab
     proxy: false
-    # disable_keyboard_shortcuts: true  # Disable Muximux shortcuts when this app is focused
-    # access:                           # Restrict access to specific roles/users
+    # min_role: admin                   # Only visible to admin users
+    # access:                           # Or restrict to specific roles/users
     #   roles: [admin]
     #   users: []

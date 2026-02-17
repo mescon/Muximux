@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
-	"crypto/sha1"
+	"crypto/sha1" //nolint:gosec // SHA-1 required by RFC 6455 WebSocket handshake
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -798,7 +798,7 @@ func TestResolveBackendPath(t *testing.T) {
 
 // computeWebSocketAccept computes the Sec-WebSocket-Accept value per RFC 6455
 func computeWebSocketAccept(key string) string {
-	h := sha1.New()
+	h := sha1.New() //nolint:gosec // SHA-1 required by RFC 6455 WebSocket handshake
 	h.Write([]byte(key + "258EAFA5-E914-47DA-95CA-5AB5DC11D65A"))
 	return base64.StdEncoding.EncodeToString(h.Sum(nil))
 }
@@ -886,6 +886,7 @@ func TestWebSocketProxy(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to read upgrade response: %v", err)
 	}
+	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusSwitchingProtocols {
 		t.Fatalf("expected 101 Switching Protocols, got %d", resp.StatusCode)
@@ -913,7 +914,7 @@ func TestWebSocketProxy(t *testing.T) {
 		t.Fatalf("failed to read echo: %v", err)
 	}
 
-	if string(echoBuf[:n]) != string(testMsg) {
+	if !bytes.Equal(echoBuf[:n], testMsg) {
 		t.Errorf("echo = %q, want %q", string(echoBuf[:n]), string(testMsg))
 	}
 }
@@ -957,6 +958,7 @@ func TestWebSocketNon101Response(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to read response: %v", err)
 	}
+	defer resp.Body.Close()
 
 	// Should get the backend's 403, not a crash
 	if resp.StatusCode != http.StatusForbidden {
@@ -1357,7 +1359,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second)
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
@@ -1387,7 +1389,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second)
 
 		if route != nil {
 			t.Error("expected nil route for invalid URL")
@@ -1402,7 +1404,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second)
 
 		if route != nil {
 			t.Error("expected nil route for app with proxy path URL")
@@ -1417,7 +1419,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second)
 
 		if route == nil {
 			t.Fatal("expected non-nil route")

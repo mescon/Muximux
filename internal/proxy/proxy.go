@@ -10,7 +10,8 @@ import (
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig"
 	_ "github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile" // Register Caddyfile adapter
-	_ "github.com/caddyserver/caddy/v2/modules/standard"          // Import standard Caddy modules
+	_ "github.com/caddyserver/caddy/v2/modules/standard"
+
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
@@ -42,9 +43,9 @@ type Proxy struct {
 }
 
 // New creates a new proxy instance
-func New(cfg Config) *Proxy {
+func New(cfg *Config) *Proxy {
 	return &Proxy{
-		config: cfg,
+		config: *cfg,
 		routes: make(map[string]AppRoute),
 	}
 }
@@ -134,11 +135,12 @@ func (p *Proxy) buildCaddyfile() string {
 		header_up X-Real-IP {remote_host}
 	}`, p.config.InternalAddr)
 
-	if p.config.Domain != "" {
+	switch {
+	case p.config.Domain != "":
 		// Auto-HTTPS with domain: Caddy manages ports 80+443 automatically
 		fmt.Fprintf(&b, "{\n\temail %s\n\tadmin off\n}\n\n", p.config.Email)
 		fmt.Fprintf(&b, "%s {\n%s\n}\n", p.config.Domain, reverseProxyBlock)
-	} else if p.config.TLSCert != "" {
+	case p.config.TLSCert != "":
 		// Manual TLS: serve HTTPS on the listen port
 		// Keep auto_https enabled when gateway is set so domain-based gateway
 		// sites can still get automatic certificates and 80→443 redirects.
@@ -149,7 +151,7 @@ func (p *Proxy) buildCaddyfile() string {
 		}
 		fmt.Fprintf(&b, "%s {\n\ttls %s %s\n%s\n}\n",
 			p.config.ListenAddr, p.config.TLSCert, p.config.TLSKey, reverseProxyBlock)
-	} else {
+	default:
 		// HTTP only: disable auto_https unless gateway is set, since gateway
 		// sites with domains need Caddy to manage ports 80+443 for them.
 		if p.config.Gateway != "" {

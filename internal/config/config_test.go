@@ -43,7 +43,7 @@ apps:
 `
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
-	if err := os.WriteFile(configPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
 	}
 
@@ -101,7 +101,7 @@ server:
 `
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
-	if err := os.WriteFile(configPath, []byte(content), 0644); err != nil {
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
 		t.Fatalf("Failed to write test config: %v", err)
 	}
 
@@ -162,6 +162,32 @@ func TestSave(t *testing.T) {
 	}
 }
 
+func TestNormalizedBasePath(t *testing.T) {
+	tests := []struct {
+		name     string
+		basePath string
+		want     string
+	}{
+		{"empty", "", ""},
+		{"slash only", "/", ""},
+		{"simple path", "/muximux", "/muximux"},
+		{"trailing slash", "/muximux/", "/muximux"},
+		{"no leading slash", "muximux", "/muximux"},
+		{"nested path", "/apps/muximux", "/apps/muximux"},
+		{"nested trailing slash", "/apps/muximux/", "/apps/muximux"},
+		{"multiple trailing slashes", "/muximux///", "/muximux"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sc := &ServerConfig{BasePath: tt.basePath}
+			got := sc.NormalizedBasePath()
+			if got != tt.want {
+				t.Errorf("NormalizedBasePath(%q) = %q, want %q", tt.basePath, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestNeedsCaddy(t *testing.T) {
 	tests := []struct {
 		name   string
@@ -187,7 +213,7 @@ func TestValidation(t *testing.T) {
 
 	// Create a dummy gateway file for the valid-gateway test
 	gatewayPath := filepath.Join(tmpDir, "sites.Caddyfile")
-	if err := os.WriteFile(gatewayPath, []byte("# test"), 0644); err != nil {
+	if err := os.WriteFile(gatewayPath, []byte("# test"), 0600); err != nil {
 		t.Fatal(err)
 	}
 
@@ -284,7 +310,7 @@ server:
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			configPath := filepath.Join(tmpDir, tt.name+".yaml")
-			if err := os.WriteFile(configPath, []byte(tt.yaml), 0644); err != nil {
+			if err := os.WriteFile(configPath, []byte(tt.yaml), 0600); err != nil {
 				t.Fatal(err)
 			}
 			_, err := Load(configPath)
@@ -301,6 +327,232 @@ server:
 			}
 		})
 	}
+}
+
+func TestNewConfigFields(t *testing.T) {
+	t.Run("bar_style defaults to grouped", func(t *testing.T) {
+		cfg := defaultConfig()
+		if cfg.Navigation.BarStyle != "grouped" {
+			t.Errorf("expected default bar_style 'grouped', got %q", cfg.Navigation.BarStyle)
+		}
+	})
+
+	t.Run("bar_style parsed from YAML", func(t *testing.T) {
+		content := `
+navigation:
+  bar_style: flat
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.Navigation.BarStyle != "flat" {
+			t.Errorf("expected bar_style 'flat', got %q", cfg.Navigation.BarStyle)
+		}
+	})
+
+	t.Run("health_check nil by default", func(t *testing.T) {
+		content := `
+apps:
+  - name: TestApp
+    url: http://localhost:8080
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if len(cfg.Apps) != 1 {
+			t.Fatal("expected 1 app")
+		}
+		if cfg.Apps[0].HealthCheck != nil {
+			t.Error("expected nil health_check when not specified")
+		}
+	})
+
+	t.Run("health_check false parsed", func(t *testing.T) {
+		content := `
+apps:
+  - name: TestApp
+    url: http://localhost:8080
+    health_check: false
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.Apps[0].HealthCheck == nil {
+			t.Fatal("expected non-nil health_check")
+		}
+		if *cfg.Apps[0].HealthCheck != false {
+			t.Error("expected health_check=false")
+		}
+	})
+
+	t.Run("shortcut parsed from YAML", func(t *testing.T) {
+		content := `
+apps:
+  - name: TestApp
+    url: http://localhost:8080
+    shortcut: 3
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.Apps[0].Shortcut == nil {
+			t.Fatal("expected non-nil shortcut")
+		}
+		if *cfg.Apps[0].Shortcut != 3 {
+			t.Errorf("expected shortcut=3, got %d", *cfg.Apps[0].Shortcut)
+		}
+	})
+
+	t.Run("shortcut nil by default", func(t *testing.T) {
+		content := `
+apps:
+  - name: TestApp
+    url: http://localhost:8080
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.Apps[0].Shortcut != nil {
+			t.Error("expected nil shortcut when not specified")
+		}
+	})
+
+	t.Run("base_path parsed from YAML", func(t *testing.T) {
+		content := `
+server:
+  base_path: /dashboard
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.Server.BasePath != "/dashboard" {
+			t.Errorf("expected base_path '/dashboard', got %q", cfg.Server.BasePath)
+		}
+	})
+
+	t.Run("base_path empty by default", func(t *testing.T) {
+		cfg := defaultConfig()
+		if cfg.Server.BasePath != "" {
+			t.Errorf("expected empty default base_path, got %q", cfg.Server.BasePath)
+		}
+	})
+}
+
+func TestMigrate(t *testing.T) {
+	t.Run("v1 to v2 renames roles", func(t *testing.T) {
+		cfg := &Config{
+			ConfigVersion: 0,
+			Auth: AuthConfig{
+				Users: []UserConfig{
+					{Username: "admin1", Role: "admin"},
+					{Username: "user1", Role: "user"},
+					{Username: "guest1", Role: "guest"},
+				},
+			},
+			Apps: []AppConfig{
+				{Name: "app1", MinRole: "user"},
+				{Name: "app2", MinRole: "guest"},
+				{Name: "app3", MinRole: "admin"},
+				{Name: "app4", MinRole: ""},
+			},
+		}
+
+		changed := cfg.Migrate()
+		if !changed {
+			t.Error("expected Migrate to return true")
+		}
+		if cfg.ConfigVersion != CurrentConfigVersion {
+			t.Errorf("expected config_version=%d, got %d", CurrentConfigVersion, cfg.ConfigVersion)
+		}
+
+		// Check user roles
+		roles := map[string]string{}
+		for _, u := range cfg.Auth.Users {
+			roles[u.Username] = u.Role
+		}
+		if roles["admin1"] != "admin" {
+			t.Errorf("expected admin1 role 'admin', got %q", roles["admin1"])
+		}
+		if roles["user1"] != "power-user" {
+			t.Errorf("expected user1 role 'power-user', got %q", roles["user1"])
+		}
+		if roles["guest1"] != "user" {
+			t.Errorf("expected guest1 role 'user', got %q", roles["guest1"])
+		}
+
+		// Check app min_role
+		appRoles := map[string]string{}
+		for _, a := range cfg.Apps {
+			appRoles[a.Name] = a.MinRole
+		}
+		if appRoles["app1"] != "power-user" {
+			t.Errorf("expected app1 min_role 'power-user', got %q", appRoles["app1"])
+		}
+		if appRoles["app2"] != "user" {
+			t.Errorf("expected app2 min_role 'user', got %q", appRoles["app2"])
+		}
+		if appRoles["app3"] != "admin" {
+			t.Errorf("expected app3 min_role 'admin', got %q", appRoles["app3"])
+		}
+		if appRoles["app4"] != "" {
+			t.Errorf("expected app4 min_role '', got %q", appRoles["app4"])
+		}
+	})
+
+	t.Run("already current version is no-op", func(t *testing.T) {
+		cfg := &Config{
+			ConfigVersion: CurrentConfigVersion,
+			Auth: AuthConfig{
+				Users: []UserConfig{
+					{Username: "u1", Role: "user"},
+				},
+			},
+		}
+
+		changed := cfg.Migrate()
+		if changed {
+			t.Error("expected Migrate to return false for current version")
+		}
+		if cfg.Auth.Users[0].Role != "user" {
+			t.Errorf("role should not change, got %q", cfg.Auth.Users[0].Role)
+		}
+	})
 }
 
 func TestNeedsSetup(t *testing.T) {
