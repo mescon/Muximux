@@ -2741,7 +2741,7 @@ chmod +x muximux-darwin-arm64
           </div>
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label for="app-color" class="block text-sm font-medium text-gray-300 mb-1">Color</label>
+              <label for="app-color" class="block text-sm font-medium text-gray-300 mb-1">App color</label>
               <div class="flex items-center gap-2">
                 <input
                   id="app-color"
@@ -2851,6 +2851,17 @@ chmod +x muximux-darwin-arm64
               <div>
                 <span class="text-sm text-white">Force icon background</span>
                 <p class="text-xs text-gray-400">Show background even when global icon backgrounds are off</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={newApp.icon.invert}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Invert icon colors</span>
+                <p class="text-xs text-gray-400">Flip dark icons to light and vice versa</p>
               </div>
             </label>
           </div>
@@ -3053,8 +3064,8 @@ chmod +x muximux-darwin-arm64
               </p>
             </div>
           </div>
-          {#if editingApp.icon?.type === 'lucide'}
-            <div class="flex items-center gap-4 mt-2">
+          <div class="flex items-center gap-4 mt-2">
+            {#if editingApp.icon?.type === 'lucide'}
               <label class="flex items-center gap-2 text-xs text-gray-400">
                 Icon color
                 <input type="color" value={editingApp!.icon.color || '#ffffff'} oninput={(e) => editingApp!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
@@ -3062,26 +3073,26 @@ chmod +x muximux-darwin-arm64
                   <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.color = ''} title="Reset to theme default">&times;</button>
                 {/if}
               </label>
-              <label class="flex items-center gap-2 text-xs text-gray-400">
-                Background
-                <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
-                <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp!.icon.background = 'transparent'} title="Transparent">none</button>
-                {#if editingApp!.icon.background}
-                  <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.background = ''} title="Reset to app color">&times;</button>
-                {/if}
-              </label>
-            </div>
-          {/if}
+            {/if}
+            <label class="flex items-center gap-2 text-xs text-gray-400">
+              Icon background
+              <input type="color" value={editingApp!.icon.background || editingApp!.color || '#374151'} oninput={(e) => editingApp!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
+              <button class="text-gray-500 hover:text-gray-300 text-xs" onclick={() => editingApp!.icon.background = 'transparent'} title="Transparent">none</button>
+              {#if editingApp!.icon.background}
+                <button class="text-gray-500 hover:text-gray-300" onclick={() => editingApp!.icon.background = ''} title="Reset to app color">&times;</button>
+              {/if}
+            </label>
+          </div>
         </div>
         <div>
           <label for="edit-app-color" class="block text-sm font-medium text-gray-300 mb-1">
-            Color
+            App color
             <span class="help-trigger relative ml-1 inline-block align-middle">
               <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
               </svg>
               <span class="help-tooltip">
-                Used as the active tab indicator, icon background, and sidebar accent when "Show App Colors" is enabled.
+                The app's accent color — used for the active tab indicator and sidebar highlight when "Show App Colors" is enabled. Also used as the default icon background unless overridden above.
               </span>
             </span>
           </label>
@@ -3402,6 +3413,26 @@ chmod +x muximux-darwin-arm64
                   </span>
                 </span>
                 <p class="text-xs text-gray-400">Show background even when global icon backgrounds are off</p>
+              </div>
+            </label>
+            <label class="flex items-center gap-3 cursor-pointer">
+              <input
+                type="checkbox"
+                bind:checked={editingApp.icon.invert}
+                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
+              />
+              <div>
+                <span class="text-sm text-white">Invert icon colors
+                  <span class="help-trigger relative ml-1 inline-block align-middle">
+                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+                    </svg>
+                    <span class="help-tooltip">
+                      Inverts the icon's colors (black becomes white, white becomes black). Useful for dark icons that are hard to see on dark backgrounds.
+                    </span>
+                  </span>
+                </span>
+                <p class="text-xs text-gray-400">Flip dark icons to light and vice versa</p>
               </div>
             </label>
             <div>

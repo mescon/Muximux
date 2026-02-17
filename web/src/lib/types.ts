@@ -36,6 +36,7 @@ export interface AppIcon {
   variant: string;
   color?: string;
   background?: string;
+  invert?: boolean;
 }
 
 export interface Group {

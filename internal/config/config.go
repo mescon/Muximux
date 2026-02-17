@@ -187,7 +187,6 @@ type AppConfig struct {
 	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
 	Scale                    float64           `yaml:"scale"`
 	Shortcut                 *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
-	DisableKeyboardShortcuts bool              `yaml:"disable_keyboard_shortcuts,omitempty"`
 	MinRole                  string            `yaml:"min_role,omitempty"`              // minimum role to see this app (default: "user")
 	ForceIconBackground      bool              `yaml:"force_icon_background,omitempty"` // show icon background even when global setting is off
 	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
@@ -203,6 +202,7 @@ type AppIconConfig struct {
 	Variant    string `yaml:"variant" json:"variant"`
 	Color      string `yaml:"color,omitempty" json:"color"`
 	Background string `yaml:"background,omitempty" json:"background"`
+	Invert     bool   `yaml:"invert,omitempty" json:"invert,omitempty"`
 }
 
 // AuthBypassRule defines a path that bypasses auth

@@ -283,7 +283,6 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
 		Shortcut:                 clientApp.Shortcut,
-		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 		MinRole:                  clientApp.MinRole,
 		ForceIconBackground:      clientApp.ForceIconBackground,
 	}
@@ -372,7 +371,6 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
 		Shortcut:                 clientApp.Shortcut,
-		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 		MinRole:                  clientApp.MinRole,
 		ForceIconBackground:      clientApp.ForceIconBackground,
 	}
@@ -437,7 +435,6 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		ProxyHeaders:             clientApp.ProxyHeaders,
 		Scale:                    clientApp.Scale,
 		Shortcut:                 clientApp.Shortcut,
-		DisableKeyboardShortcuts: clientApp.DisableKeyboardShortcuts,
 		MinRole:                  clientApp.MinRole,
 		ForceIconBackground:      clientApp.ForceIconBackground,
 		AuthBypass:               existing.AuthBypass,
@@ -642,7 +639,6 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 		ProxyHeaders:             app.ProxyHeaders,
 		Scale:                    app.Scale,
 		Shortcut:                 app.Shortcut,
-		DisableKeyboardShortcuts: app.DisableKeyboardShortcuts,
 		MinRole:                  app.MinRole,
 		ForceIconBackground:      app.ForceIconBackground,
 	}
@@ -667,7 +663,6 @@ type ClientAppConfig struct {
 	ProxyHeaders             map[string]string    `json:"proxy_headers,omitempty"`
 	Scale                    float64              `json:"scale"`
 	Shortcut                 *int                 `json:"shortcut,omitempty"`
-	DisableKeyboardShortcuts bool                 `json:"disable_keyboard_shortcuts"`
 	MinRole                  string               `json:"min_role,omitempty"`
 	ForceIconBackground      bool                 `json:"force_icon_background,omitempty"`
 }
