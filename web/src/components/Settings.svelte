@@ -187,7 +187,6 @@
     open_mode: 'iframe',
     proxy: false,
     scale: 1,
-    disable_keyboard_shortcuts: false
   };
 
   const newGroupTemplate: Group = {
@@ -1254,14 +1253,14 @@
                               onclick={() => confirmDeleteGroup = null}>No</button>
                     </div>
                   {:else}
-                    <div class="flex items-center gap-0.5 app-actions">
-                      <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-white/10"
+                    <div class="flex items-center gap-1 app-actions">
+                      <button class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10"
                               onclick={() => editingGroup = group} title="Edit group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
-                      <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
+                      <button class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
                               onclick={() => deleteGroup(group)} title="Delete group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1320,9 +1319,6 @@
                               {Math.round(app.scale * 100)}%
                             </span>
                           {/if}
-                          {#if app.disable_keyboard_shortcuts}
-                            <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
-                          {/if}
                         </div>
                         <span class="text-xs text-gray-400 truncate block">{app.url}</span>
                       </div>
@@ -1336,15 +1332,15 @@
                                   onclick={() => confirmDeleteApp = null}>No</button>
                         </div>
                       {:else}
-                        <div class="flex items-center gap-0.5 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
-                          <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-white/10"
+                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
+                          <button class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10"
                                   tabindex="-1"
                                   onclick={() => editingApp = app} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
-                          <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
+                          <button class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
                                   tabindex="-1"
                                   onclick={() => deleteApp(app)} title="Delete">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1416,9 +1412,6 @@
                             {Math.round(app.scale * 100)}%
                           </span>
                         {/if}
-                        {#if app.disable_keyboard_shortcuts}
-                          <span class="app-indicator" title="App captures keyboard shortcuts">⌨</span>
-                        {/if}
                       </div>
                       <span class="text-xs text-gray-400 truncate block">{app.url}</span>
                     </div>
@@ -1431,15 +1424,15 @@
                                 onclick={() => confirmDeleteApp = null}>No</button>
                       </div>
                     {:else}
-                      <div class="flex items-center gap-0.5 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
-                        <button class="p-1 text-gray-400 hover:text-white rounded hover:bg-white/10"
+                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
+                        <button class="p-1.5 text-gray-400 hover:text-white rounded hover:bg-white/10"
                                 tabindex="-1"
                                 onclick={() => editingApp = app} title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
-                        <button class="p-1 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
+                        <button class="p-1.5 text-gray-400 hover:text-red-400 rounded hover:bg-white/10"
                                 tabindex="-1"
                                 onclick={() => deleteApp(app)} title="Delete">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2853,17 +2846,6 @@ chmod +x muximux-darwin-arm64
             <label class="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={newApp.disable_keyboard_shortcuts}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-              />
-              <div>
-                <span class="text-sm text-white">Let app use keyboard shortcuts</span>
-                <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
-              </div>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
                 bind:checked={newApp.force_icon_background}
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
@@ -3406,26 +3388,6 @@ chmod +x muximux-darwin-arm64
             <label class="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={editingApp.disable_keyboard_shortcuts}
-                class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
-              />
-              <div>
-                <span class="text-sm text-white">Let app use keyboard shortcuts
-                  <span class="help-trigger relative ml-1 inline-block align-middle">
-                    <svg class="w-3.5 h-3.5 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
-                    </svg>
-                    <span class="help-tooltip">
-                      When enabled, Muximux pauses its own keyboard shortcuts while this app's iframe is focused, letting the app handle keys like 1–9 and arrow keys.
-                    </span>
-                  </span>
-                </span>
-                <p class="text-xs text-gray-400">Pauses dashboard shortcuts while this app is active</p>
-              </div>
-            </label>
-            <label class="flex items-center gap-3 cursor-pointer">
-              <input
-                type="checkbox"
                 bind:checked={editingApp.force_icon_background}
                 class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500"
               />
@@ -3781,7 +3743,12 @@ chmod +x muximux-darwin-arm64
     background: var(--bg-overlay, rgba(0, 0, 0, 0.4));
     border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
     border-radius: 6px;
-    padding: 1px;
+    padding: 2px;
+  }
+
+  .app-actions svg {
+    width: 1rem;
+    height: 1rem;
   }
 
   /* Help tooltips */

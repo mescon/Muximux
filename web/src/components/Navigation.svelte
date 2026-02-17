@@ -7,7 +7,6 @@
   import { currentUser, isAuthenticated, isAdmin, logout } from '$lib/authStore';
   import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
   import MuximuxLogo from './MuximuxLogo.svelte';
-  import { captureKeybindings, toggleCaptureKeybindings } from '$lib/keybindingCaptureStore';
 
   let {
     apps,
@@ -330,6 +329,11 @@
     if (footerDrawerTimer) clearTimeout(footerDrawerTimer);
     footerDrawerTimer = setTimeout(() => { footerDrawerOpen = false; }, 300);
   }
+  // When the collapsed cogwheel is hovered, pre-open the drawer so it's
+  // visible as soon as the sidebar expands via the aside's handleNavEnter.
+  function handleCollapsedFooterEnter() {
+    footerDrawerOpen = true;
+  }
 
   function parseDelay(delay: string): number {
     const match = delay.match(/^([\d.]+)(ms|s)?$/);
@@ -352,14 +356,6 @@
   // Hide logout when auth is 'none' — the virtual admin user shouldn't appear to be "logged in"
   let hasRealAuth = $derived(config.auth?.method !== undefined && config.auth.method !== 'none');
 
-  // Whether shortcuts are currently active (considers both global toggle and per-app setting)
-  let appDisablesShortcuts = $derived(currentApp && !showSplash && currentApp.disable_keyboard_shortcuts);
-  let shortcutsActive = $derived($captureKeybindings && !appDisablesShortcuts);
-  let keyboardTooltip = $derived(appDisablesShortcuts
-    ? 'Keyboard shortcuts disabled for this app — keys are forwarded to the app'
-    : $captureKeybindings
-      ? 'Muximux is capturing keyboard shortcuts (e.g. number keys to switch apps) — click to forward all keys to the app instead'
-      : 'Keyboard shortcuts paused — all keys are forwarded to the app — click to let Muximux capture shortcuts again');
 
 </script>
 
@@ -579,18 +575,6 @@
           </svg>
         </button>
         <button
-          class="p-2 rounded-md hover:bg-gray-700 transition-colors"
-          class:text-brand-400={shortcutsActive}
-          class:text-gray-500={!shortcutsActive}
-          class:opacity-50={appDisablesShortcuts}
-          onclick={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
-          title={keyboardTooltip}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-        </button>
-        <button
           class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={() => onlogs?.()}
           title="Logs"
@@ -775,7 +759,7 @@
       {/each}
     </div>
 
-    <!-- Footer: drawer mode vs standard mode -->
+    <!-- Footer: drawer mode / collapsed cogwheel / standard -->
     {#if useFooterDrawer && !isCollapsed}
       <div class="sidebar-footer-drawer"
            style="padding: 0 0.5rem;"
@@ -805,37 +789,7 @@
               <span style="white-space: nowrap;">Logs</span>
             </button>
 
-            {#if $isAdmin}
-              <button
-                class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-                onclick={() => onsettings?.()}
-                title="Settings"
-              >
-                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <span style="white-space: nowrap;">Settings</span>
-              </button>
-            {/if}
 
-            <button
-              class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
-              class:text-brand-400={shortcutsActive}
-              class:text-gray-500={!shortcutsActive}
-              style="opacity: {appDisablesShortcuts ? '0.5' : '1'}; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-              onclick={() => toggleCaptureKeybindings()}
-              title={keyboardTooltip}
-            >
-              <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-              </div>
-              <span style="white-space: nowrap;">Shortcuts</span>
-            </button>
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
@@ -851,8 +805,35 @@
                 <span style="white-space: nowrap;">Sign out</span>
               </button>
             {/if}
+
+            {#if $isAdmin}
+              <button
+                class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+                onclick={() => onsettings?.()}
+                title="Settings"
+              >
+                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <span style="white-space: nowrap;">Settings</span>
+              </button>
+            {/if}
           </div>
         </div>
+      </div>
+    {:else if useFooterDrawer && isCollapsed}
+      <!-- Collapsed cogwheel — hover expands sidebar + opens drawer -->
+      <div class="flex-shrink-0 flex items-center justify-center border-t py-2"
+           style="border-color: var(--border-subtle);"
+           role="group"
+           onmouseenter={handleCollapsedFooterEnter}>
+        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
       </div>
     {:else}
       <!-- Standard footer -->
@@ -870,38 +851,6 @@
           <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
 
-        {#if $isAdmin}
-          <button
-            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-            onclick={() => onsettings?.()}
-            title="Settings"
-          >
-            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
-          </button>
-        {/if}
-
-        <button
-          class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
-          class:text-brand-400={shortcutsActive}
-          class:text-gray-500={!shortcutsActive}
-          style="opacity: {isCollapsed && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-          onclick={() => toggleCaptureKeybindings()}
-          title={keyboardTooltip}
-        >
-          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-          </div>
-          <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
-        </button>
-
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
             class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
@@ -916,6 +865,22 @@
               </svg>
             </div>
             <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
+          </button>
+        {/if}
+
+        {#if $isAdmin}
+          <button
+            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+            onclick={() => onsettings?.()}
+            title="Settings"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
           </button>
         {/if}
       </div>
@@ -1085,7 +1050,7 @@
       {/each}
     </div>
 
-    <!-- Footer: drawer mode vs standard mode -->
+    <!-- Footer: drawer mode / collapsed cogwheel / standard -->
     {#if useFooterDrawer && !isCollapsedRight}
       <div class="sidebar-footer-drawer"
            style="padding: 0 0.5rem;"
@@ -1115,37 +1080,7 @@
               <span style="white-space: nowrap;">Logs</span>
             </button>
 
-            {#if $isAdmin}
-              <button
-                class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-                onclick={() => onsettings?.()}
-                title="Settings"
-              >
-                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  </svg>
-                </div>
-                <span style="white-space: nowrap;">Settings</span>
-              </button>
-            {/if}
 
-            <button
-              class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
-              class:text-brand-400={shortcutsActive}
-              class:text-gray-500={!shortcutsActive}
-              style="opacity: {appDisablesShortcuts ? '0.5' : '1'}; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-              onclick={() => toggleCaptureKeybindings()}
-              title={keyboardTooltip}
-            >
-              <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-                </svg>
-              </div>
-              <span style="white-space: nowrap;">Shortcuts</span>
-            </button>
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
@@ -1161,8 +1096,35 @@
                 <span style="white-space: nowrap;">Sign out</span>
               </button>
             {/if}
+
+            {#if $isAdmin}
+              <button
+                class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+                onclick={() => onsettings?.()}
+                title="Settings"
+              >
+                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                </div>
+                <span style="white-space: nowrap;">Settings</span>
+              </button>
+            {/if}
           </div>
         </div>
+      </div>
+    {:else if useFooterDrawer && isCollapsedRight}
+      <!-- Collapsed cogwheel — hover expands sidebar + opens drawer -->
+      <div class="flex-shrink-0 flex items-center justify-center border-t py-2"
+           style="border-color: var(--border-subtle);"
+           role="group"
+           onmouseenter={handleCollapsedFooterEnter}>
+        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
       </div>
     {:else}
       <!-- Standard footer -->
@@ -1180,38 +1142,6 @@
           <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
 
-        {#if $isAdmin}
-          <button
-            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
-            onclick={() => onsettings?.()}
-            title="Settings"
-          >
-            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-            </div>
-            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
-          </button>
-        {/if}
-
-        <button
-          class="w-full flex items-center py-1.5 rounded-md hover:bg-gray-700 text-sm transition-colors"
-          class:text-brand-400={shortcutsActive}
-          class:text-gray-500={!shortcutsActive}
-          style="opacity: {isCollapsedRight && !shortcutsActive ? '0.3' : appDisablesShortcuts ? '0.5' : '1'}; transition: opacity 0.15s ease; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-          onclick={() => toggleCaptureKeybindings()}
-          title={keyboardTooltip}
-        >
-          <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-          </div>
-          <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Shortcuts</span>
-        </button>
-
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
             class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
@@ -1226,6 +1156,22 @@
               </svg>
             </div>
             <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Sign out</span>
+          </button>
+        {/if}
+
+        {#if $isAdmin}
+          <button
+            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+            onclick={() => onsettings?.()}
+            title="Settings"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Settings</span>
           </button>
         {/if}
       </div>
@@ -1437,18 +1383,6 @@
           </svg>
         </button>
         <button
-          class="p-2 rounded-md hover:bg-gray-700 transition-colors"
-          class:text-brand-400={shortcutsActive}
-          class:text-gray-500={!shortcutsActive}
-          class:opacity-50={appDisablesShortcuts}
-          onclick={() => !appDisablesShortcuts && toggleCaptureKeybindings()}
-          title={keyboardTooltip}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-          </svg>
-        </button>
-        <button
           class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
           onclick={() => onlogs?.()}
           title="Logs"
@@ -1634,18 +1568,6 @@
             </svg>
           </button>
           <div class="flex-1"></div>
-          <button
-            class="p-1.5 rounded-md hover:bg-gray-700 transition-colors"
-            class:text-brand-400={shortcutsActive}
-            class:text-gray-500={!shortcutsActive}
-            style="opacity: {appDisablesShortcuts ? '0.5' : '1'}; pointer-events: {appDisablesShortcuts ? 'none' : 'auto'};"
-            onclick={() => toggleCaptureKeybindings()}
-            title={keyboardTooltip}
-          >
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
-            </svg>
-          </button>
           <button
             class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
             onclick={() => { onlogs?.(); panelOpen = false; }}

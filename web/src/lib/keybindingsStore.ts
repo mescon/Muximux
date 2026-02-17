@@ -49,9 +49,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     label: 'Command Palette',
     description: 'Open the command palette',
     combos: [
-      { key: '/' },
-      { key: 'k', ctrl: true },
-      { key: 'p', ctrl: true, shift: true }
+      { key: 'k', ctrl: true }
     ],
     category: 'navigation',
     editable: true
@@ -61,7 +59,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     label: 'Open Settings',
     description: 'Open the settings panel',
     combos: [
-      { key: ',', ctrl: true }
+      { key: 's' }
     ],
     category: 'navigation',
     editable: true
@@ -81,7 +79,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     label: 'Go Home',
     description: 'Return to the splash screen',
     combos: [
-      { key: 'h', alt: true }
+      { key: 'h' }
     ],
     category: 'navigation',
     editable: true
@@ -123,7 +121,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     label: 'Next App',
     description: 'Switch to the next app in the list',
     combos: [
-      { key: 'Tab' }
+      { key: 'n' }
     ],
     category: 'actions',
     editable: true
@@ -133,7 +131,7 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
     label: 'Previous App',
     description: 'Switch to the previous app in the list',
     combos: [
-      { key: 'Tab', shift: true }
+      { key: 'p' }
     ],
     category: 'actions',
     editable: true

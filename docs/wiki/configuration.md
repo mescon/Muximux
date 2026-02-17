@@ -147,7 +147,6 @@ apps:
     scale: 1.0
     health_check: true           # Set false to disable health monitoring for this app
     shortcut: null               # Assign a number key (1-9) for quick switching
-    disable_keyboard_shortcuts: false
     auth_bypass: []
     access:
       roles: []

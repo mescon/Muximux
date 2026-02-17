@@ -24,7 +24,6 @@
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
-  import { captureKeybindings, isProtectedKey, toggleCaptureKeybindings } from './lib/keybindingCaptureStore';
 
   let config = $state<Config | null>(null);
   let apps = $state<App[]>([]);
@@ -410,10 +409,6 @@
         showSplash = false;
         currentApp = null;
         break;
-      case 'toggle-keybindings':
-        toggleCaptureKeybindings();
-        toasts.success($captureKeybindings ? 'Keyboard shortcuts enabled' : 'Keyboard shortcuts paused');
-        break;
       case 'theme-dark':
         setTheme('dark');
         toasts.success('Switched to dark theme');
@@ -445,11 +440,6 @@
       }
       return;
     }
-
-    // Gate shortcuts: check global capture toggle and per-app disable setting
-    const appDisablesShortcuts = currentApp && !showSplash && currentApp.disable_keyboard_shortcuts;
-    const shouldCapture = $captureKeybindings && !appDisablesShortcuts;
-    if (!shouldCapture && !isProtectedKey(event)) return;
 
     // Escape is always hardcoded for closing modals
     if (event.key === 'Escape') {

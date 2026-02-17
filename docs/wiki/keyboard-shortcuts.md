@@ -85,19 +85,6 @@ You can also assign shortcuts in **Settings > Keybindings** without editing the 
 
 ---
 
-## Disabling Shortcuts Per App
-
-Some apps have their own keyboard shortcuts that may conflict with Muximux's. You can prevent Muximux from capturing keystrokes when a specific app is active by setting `disable_keyboard_shortcuts: true` on that app:
-
-```yaml
-apps:
-  - name: VS Code
-    url: http://localhost:8443
-    disable_keyboard_shortcuts: true
-```
-
-When this option is enabled for an app, all Muximux keyboard shortcuts are suspended while that app's iframe is focused. Shortcuts resume when you switch to a different app or click outside the iframe.
-
 ## Import and Export Keybindings
 
 The Settings panel provides options to export your keybinding configuration as JSON and import it on another Muximux instance. This is useful for keeping a consistent shortcut layout across multiple installations.

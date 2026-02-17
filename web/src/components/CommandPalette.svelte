@@ -5,7 +5,6 @@
   import AppIcon from './AppIcon.svelte';
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
-  import { captureKeybindings } from '$lib/keybindingCaptureStore';
   import { isAdmin } from '$lib/authStore';
 
   // Props with callbacks instead of dispatchers
@@ -71,7 +70,6 @@
     { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
     { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
     { id: 'logs', type: 'action' as const, label: 'View Logs', shortcut: getShortcut('logs'), icon: 'logs' },
-    { id: 'toggle-keybindings', type: 'action' as const, label: $captureKeybindings ? 'Pause Keyboard Shortcuts' : 'Resume Keyboard Shortcuts', icon: 'keyboard' },
     { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
     { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
     { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },

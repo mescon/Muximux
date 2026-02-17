@@ -82,6 +82,7 @@
   let navAutoHideDelay = $state('0.5s');
   let navShowShadow = $state(true);
   let navShowOnHover = $state(true);
+  let navHideSidebarFooter = $state(false);
   let navFloatingPosition = $state<'bottom-right' | 'bottom-left' | 'top-right' | 'top-left'>('bottom-right');
   let navBarStyle = $state<'grouped' | 'flat'>('grouped');
 
@@ -216,8 +217,7 @@
       default: false,
       open_mode: 'iframe',
       proxy: false,
-      scale: 1,
-      disable_keyboard_shortcuts: false
+      scale: 1
     };
 
     selectedApps.update(apps => [...apps, newApp]);
@@ -355,10 +355,10 @@
     // Fallback when nothing is selected yet
     if (apps.length === 0) {
       return [
-        { name: 'Plex', color: '#E5A00D', icon: { type: 'dashboard' as const, name: 'plex', file: '', url: '', variant: 'svg' }, group: '', order: 0, url: '#', enabled: true, default: true, open_mode: 'iframe' as const, proxy: false, scale: 1, disable_keyboard_shortcuts: false },
-        { name: 'Sonarr', color: '#00CCFF', icon: { type: 'dashboard' as const, name: 'sonarr', file: '', url: '', variant: 'svg' }, group: '', order: 1, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1, disable_keyboard_shortcuts: false },
-        { name: 'Portainer', color: '#13BEF9', icon: { type: 'dashboard' as const, name: 'portainer', file: '', url: '', variant: 'svg' }, group: '', order: 2, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1, disable_keyboard_shortcuts: false },
-        { name: 'Grafana', color: '#F46800', icon: { type: 'dashboard' as const, name: 'grafana', file: '', url: '', variant: 'svg' }, group: '', order: 3, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1, disable_keyboard_shortcuts: false },
+        { name: 'Plex', color: '#E5A00D', icon: { type: 'dashboard' as const, name: 'plex', file: '', url: '', variant: 'svg' }, group: '', order: 0, url: '#', enabled: true, default: true, open_mode: 'iframe' as const, proxy: false, scale: 1 },
+        { name: 'Sonarr', color: '#00CCFF', icon: { type: 'dashboard' as const, name: 'sonarr', file: '', url: '', variant: 'svg' }, group: '', order: 1, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1 },
+        { name: 'Portainer', color: '#13BEF9', icon: { type: 'dashboard' as const, name: 'portainer', file: '', url: '', variant: 'svg' }, group: '', order: 2, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1 },
+        { name: 'Grafana', color: '#F46800', icon: { type: 'dashboard' as const, name: 'grafana', file: '', url: '', variant: 'svg' }, group: '', order: 3, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1 },
       ];
     }
 
@@ -382,7 +382,7 @@
       show_shadow: navShowShadow,
       floating_position: navFloatingPosition,
       bar_style: navBarStyle,
-      hide_sidebar_footer: false
+      hide_sidebar_footer: navHideSidebarFooter
     },
     groups: previewGroups, apps: previewApps
   });
@@ -416,8 +416,7 @@
       default: false,
       open_mode: 'iframe',
       proxy: false,
-      scale: 1,
-      disable_keyboard_shortcuts: false
+      scale: 1
     };
 
     selectedApps.update(apps => [...apps, newApp]);
@@ -558,7 +557,7 @@
       show_shadow: navShowShadow,
       floating_position: navFloatingPosition,
       bar_style: navBarStyle,
-      hide_sidebar_footer: false
+      hide_sidebar_footer: navHideSidebarFooter
     };
 
     // Capture current theme from stores
@@ -1049,6 +1048,19 @@
                   </label>
                 {/if}
               </div>
+
+              {#if $selectedNavigation === 'left' || $selectedNavigation === 'right'}
+                <div class="p-3 bg-gray-800/50 rounded-lg border border-gray-700 sm:col-span-2">
+                  <label class="flex items-center gap-3 cursor-pointer">
+                    <input type="checkbox" bind:checked={navHideSidebarFooter}
+                      class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                    <div class="flex-1">
+                      <div class="text-sm text-white">Collapsible Footer</div>
+                      <div class="text-xs text-gray-400">Hide utility buttons in a drawer that reveals on hover</div>
+                    </div>
+                  </label>
+                </div>
+              {/if}
 
             </div>
             {:else}
