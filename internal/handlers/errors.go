@@ -22,7 +22,6 @@ const (
 	ErrCodeConflict     = "CONFLICT"
 	ErrCodeInternal     = "INTERNAL_ERROR"
 	ErrCodeValidation   = "VALIDATION_ERROR"
-	ErrCodeRateLimit    = "RATE_LIMIT"
 )
 
 // WriteError writes a JSON error response

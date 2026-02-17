@@ -132,6 +132,8 @@ apps:
     icon:
       type: dashboard
       name: plex
+      # invert: true            # Flip icon colors (dark ↔ light)
+      # background: "#1a1a2e"   # Override icon background color
     color: "#e5a00d"
     group: Media
     order: 1
@@ -142,6 +144,7 @@ apps:
     scale: 1
     # health_check: false       # Disable health monitoring for this app
     # shortcut: 1               # Assign keyboard shortcut (1-9)
+    # force_icon_background: true  # Show icon background even when global setting is off
 
   - name: Sonarr
     url: http://localhost:8989
@@ -190,6 +193,7 @@ apps:
     enabled: true
     open_mode: new_tab  # Opens in new browser tab
     proxy: false
-    # access:                           # Restrict access to specific roles/users
+    # min_role: admin                   # Only visible to admin users
+    # access:                           # Or restrict to specific roles/users
     #   roles: [admin]
     #   users: []

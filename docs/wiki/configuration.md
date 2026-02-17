@@ -132,8 +132,9 @@ apps:
       variant: light
       file: ""                 # Filename for type: custom
       url: ""                  # URL for type: url
-      color: ""
-      background: ""
+      color: ""                # Tint color (Lucide only)
+      background: ""           # Icon background override
+      invert: false            # Invert icon colors (dark ↔ light)
     color: "#e5a00d"
     group: Media
     order: 1
@@ -147,6 +148,8 @@ apps:
     scale: 1.0
     health_check: true           # Set false to disable health monitoring for this app
     shortcut: null               # Assign a number key (1-9) for quick switching
+    min_role: ""                 # Minimum role to see this app (user, power-user, admin)
+    force_icon_background: false # Show icon background even when global setting is off
     auth_bypass: []
     access:
       roles: []
