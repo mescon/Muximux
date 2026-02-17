@@ -361,6 +361,7 @@
     } else {
       currentApp = app;
       showSplash = false;
+      showLogs = false;
     }
   }
 
@@ -567,7 +568,7 @@
 {:else if config}
   <!-- Main layout container - direction changes based on nav position -->
   <div
-    class="h-full"
+    class="h-full overflow-hidden"
     style="background: var(--bg-base);"
     class:flex={!isFloatingLayout && !$isFullscreen}
     class:flex-row={isHorizontalLayout && navPosition === 'left' && !$isFullscreen}

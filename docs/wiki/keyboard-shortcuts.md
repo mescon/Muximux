@@ -8,11 +8,11 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 
 | Shortcut | Action |
 |----------|--------|
-| `/` or `Ctrl+K` or `Ctrl+Shift+P` | Open Command Palette |
-| `Ctrl+,` | Open Settings |
+| `Ctrl+K` | Open Command Palette |
+| `S` | Open Settings |
 | `?` | Show Keyboard Shortcuts Help |
 | `L` | View Logs |
-| `Alt+H` | Go to Splash Screen |
+| `H` | Go to Splash Screen |
 
 ### Actions
 
@@ -20,15 +20,15 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 |----------|--------|
 | `R` | Refresh Current App |
 | `F` | Toggle Fullscreen (hide navigation) |
-| `Tab` | Next App |
-| `Shift+Tab` | Previous App |
+| `N` | Next App |
+| `P` | Previous App |
 | `1` - `9` | Jump to App (by assignment or position) |
 
 **Note:** Keyboard shortcuts are only active when the Muximux UI itself is focused. When an iframe app has focus, keystrokes are sent to that app instead. Click outside the iframe or press `Escape` to return focus to Muximux.
 
 ## Command Palette
 
-The command palette (opened with `/` or `Ctrl+K`) provides quick access to apps and actions without navigating through menus.
+The command palette (opened with `Ctrl+K`) provides quick access to apps and actions without navigating through menus.
 
 The palette supports the following:
 
@@ -54,12 +54,11 @@ Custom keybindings are saved in `config.yaml` under `keybindings.bindings`:
 ```yaml
 keybindings:
   bindings:
-    search:
-      - key: "/"
-      - key: "k"
-        ctrl: true
     refresh:
       - key: "F5"
+    settings:
+      - key: ","
+        ctrl: true
 ```
 
 Only customized bindings are stored in the configuration file. Any action that is not listed will continue to use its default shortcut.

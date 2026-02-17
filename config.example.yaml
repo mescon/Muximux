@@ -91,7 +91,6 @@ navigation:
 # keybindings:
 #   bindings:
 #     search:
-#       - key: "/"
 #       - key: "k"
 #         ctrl: true
 

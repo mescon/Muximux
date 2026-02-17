@@ -62,6 +62,9 @@
   // Auto-hide state
   let isHidden = $state(false);
   let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+  // Delay overflow:visible on top/bottom bars until height transition (300ms) completes
+  let barOverflowVisible = $state(false);
+  let barOverflowTimer: ReturnType<typeof setTimeout> | null = null;
   const collapsedStripWidth = 48; // Width of visible strip when sidebar collapsed (fits icon + border)
   const collapsedBarHeight = 6; // Height of visible strip when top/bottom bar collapsed (thin reveal strip)
 
@@ -307,11 +310,17 @@
     if (!config.navigation.auto_hide) return;
     isHidden = false;
     if (hideTimeout) clearTimeout(hideTimeout);
+    // Delay overflow:visible until height transition finishes (top/bottom bars)
+    if (barOverflowTimer) clearTimeout(barOverflowTimer);
+    barOverflowTimer = setTimeout(() => { barOverflowVisible = true; }, 300);
   }
 
   function handleNavLeave() {
     if (!config.navigation.auto_hide) return;
     if (hideTimeout) clearTimeout(hideTimeout);
+    // Immediately hide overflow when collapsing
+    barOverflowVisible = false;
+    if (barOverflowTimer) clearTimeout(barOverflowTimer);
     const delayMs = parseDelay(config.navigation.auto_hide_delay);
     hideTimeout = setTimeout(() => {
       isHidden = true;
@@ -401,7 +410,7 @@
       class="top-nav-panel border-b"
       style="background: var(--bg-surface); border-color: var(--border-subtle);"
       style:height="{isCollapsedTop ? collapsedBarHeight : 56}px"
-      style:overflow={isCollapsedTop ? 'hidden' : 'visible'}
+      style:overflow={!config.navigation.auto_hide || barOverflowVisible ? 'visible' : 'hidden'}
       style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow ? '0 4px 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide ? 'absolute' : null}
       style:top={config.navigation.auto_hide ? '0' : null}
@@ -454,7 +463,7 @@
                        {hasActiveApp
                          ? 'text-white'
                          : openGroupDropdown === groupName ? 'bg-gray-700/50 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}"
-                style={hasActiveApp && config.navigation.show_app_colors ? `border-bottom: 2px solid ${currentApp?.color || 'var(--accent-primary)'}` : ''}
+                style={hasActiveApp && config.navigation.show_app_colors ? `border-bottom: 2px solid ${groupConfig?.color || currentApp?.color || 'var(--accent-primary)'}` : ''}
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
                 {#if groupConfig?.icon?.name}
@@ -474,7 +483,7 @@
                   onmouseenter={cancelDropdownClose}
                   onmouseleave={scheduleDropdownClose}
                 >
-                  <div class="py-1 max-h-[60vh] overflow-y-auto scrollbar-styled">
+                  <div class="py-1 max-h-[60vh] overflow-y-auto overflow-x-hidden scrollbar-styled">
                     {#each groupApps as app (app.name)}
                       <button
                         class="group-dropdown-item w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors
@@ -762,7 +771,7 @@
     <!-- Footer: drawer mode / collapsed cogwheel / standard -->
     {#if useFooterDrawer && !isCollapsed}
       <div class="sidebar-footer-drawer"
-           style="padding: 0 0.5rem;"
+           style="padding: 0 0.5rem 0.25rem;"
            role="group"
            onmouseenter={handleFooterEnter}
            onmouseleave={handleFooterLeave}>
@@ -837,7 +846,7 @@
       </div>
     {:else}
       <!-- Standard footer -->
-      <div class="flex-shrink-0 pt-2 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsed ? '0' : '0.5rem'}; padding-right: {isCollapsed ? '0' : '0.5rem'};">
+      <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsed ? '0' : '0.5rem'}; padding-right: {isCollapsed ? '0' : '0.5rem'};">
         <button
           class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
           onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
@@ -1053,7 +1062,7 @@
     <!-- Footer: drawer mode / collapsed cogwheel / standard -->
     {#if useFooterDrawer && !isCollapsedRight}
       <div class="sidebar-footer-drawer"
-           style="padding: 0 0.5rem;"
+           style="padding: 0 0.5rem 0.25rem;"
            role="group"
            onmouseenter={handleFooterEnter}
            onmouseleave={handleFooterLeave}>
@@ -1128,7 +1137,7 @@
       </div>
     {:else}
       <!-- Standard footer -->
-      <div class="flex-shrink-0 pt-2 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsedRight ? '0' : '0.5rem'}; padding-right: {isCollapsedRight ? '0' : '0.5rem'};">
+      <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsedRight ? '0' : '0.5rem'}; padding-right: {isCollapsedRight ? '0' : '0.5rem'};">
         <button
           class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
           onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
@@ -1210,7 +1219,7 @@
       class="bottom-nav-panel border-t"
       style="border-color: var(--border-subtle);"
       style:height="{isCollapsedBottom ? collapsedBarHeight : 56}px"
-      style:overflow={isCollapsedBottom ? 'hidden' : 'visible'}
+      style:overflow={!config.navigation.auto_hide || barOverflowVisible ? 'visible' : 'hidden'}
       style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow ? '0 -4px 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide ? 'absolute' : null}
       style:bottom={config.navigation.auto_hide ? '0' : null}
@@ -1263,7 +1272,7 @@
                        {hasActiveApp
                          ? 'text-white'
                          : openGroupDropdown === groupName ? 'bg-gray-700/50 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}"
-                style={hasActiveApp && config.navigation.show_app_colors ? `border-top: 2px solid ${currentApp?.color || 'var(--accent-primary)'}` : ''}
+                style={hasActiveApp && config.navigation.show_app_colors ? `border-top: 2px solid ${groupConfig?.color || currentApp?.color || 'var(--accent-primary)'}` : ''}
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
                 {#if groupConfig?.icon?.name}
@@ -1283,7 +1292,7 @@
                   onmouseenter={cancelDropdownClose}
                   onmouseleave={scheduleDropdownClose}
                 >
-                  <div class="py-1 max-h-[60vh] overflow-y-auto scrollbar-styled">
+                  <div class="py-1 max-h-[60vh] overflow-y-auto overflow-x-hidden scrollbar-styled">
                     {#each groupApps as app (app.name)}
                       <button
                         class="group-dropdown-item w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors

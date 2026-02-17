@@ -40,7 +40,7 @@ Each theme supports three variant modes:
 
 ## Changing Themes
 
-1. Open **Settings** (click the gear icon or press `Ctrl+,`).
+1. Open **Settings** (click the gear icon or press `S`).
 2. Go to the **Appearance** tab.
 3. Select a theme family and a variant mode.
 
