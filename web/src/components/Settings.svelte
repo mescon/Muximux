@@ -98,7 +98,6 @@
   // Auth method switching
   let selectedAuthMethod = $state<'builtin' | 'forward_auth' | 'none'>('none');
   let methodTrustedProxies = $state('');
-  let _methodHeaders = $state<Record<string, string>>({});
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
 

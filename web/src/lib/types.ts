@@ -16,7 +16,6 @@ export interface App {
   proxy_headers?: Record<string, string>;
   scale: number;
   shortcut?: number;  // 1-9 keyboard shortcut slot
-  disable_keyboard_shortcuts?: boolean;
   min_role?: string;  // minimum role to see this app
   force_icon_background?: boolean;  // show icon background even when global setting is off
 }
