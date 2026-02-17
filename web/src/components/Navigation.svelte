@@ -732,7 +732,7 @@
 
           <!-- Apps in group -->
           <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
-            <div class="group-apps-inner mt-1 space-y-0.5">
+            <div class="group-apps-inner mt-1 space-y-0.5" style="padding-left: {isCollapsed ? '0' : '0.375rem'};">
               {#each groupedApps[groupName] || [] as app (app.name)}
                 {@const shouldDim = (isCollapsed && currentApp?.name !== app.name) || (isUnhealthy(app) && currentApp?.name !== app.name)}
                 <button
@@ -1023,7 +1023,7 @@
           </button>
 
           <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
-            <div class="group-apps-inner mt-1 space-y-0.5">
+            <div class="group-apps-inner mt-1 space-y-0.5" style="padding-left: {isCollapsedRight ? '0' : '0.375rem'};">
               {#each groupedApps[groupName] || [] as app (app.name)}
                 {@const shouldDim = (isCollapsedRight && currentApp?.name !== app.name) || (isUnhealthy(app) && currentApp?.name !== app.name)}
                 <button
