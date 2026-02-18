@@ -38,8 +38,8 @@
   // Exported: returns true if Escape was consumed by closing an inner sub-modal.
   export function handleEscape(): boolean {
     if (showIconBrowser) { showIconBrowser = false; iconBrowserTarget = null; return true; }
-    if (editingApp) { editingApp = null; return true; }
-    if (editingGroup) { editingGroup = null; return true; }
+    if (editingApp) { cancelEditApp(); return true; }
+    if (editingGroup) { cancelEditGroup(); return true; }
     if (showAddApp) { showAddApp = false; return true; }
     if (showAddGroup) { showAddGroup = false; return true; }
     if (pendingImport) { pendingImport = null; showImportConfirm = false; return true; }
@@ -163,6 +163,8 @@
   // Editing state
   let editingApp = $state<App | null>(null);
   let editingGroup = $state<Group | null>(null);
+  let editAppSnapshot = $state<string | null>(null);
+  let editGroupSnapshot = $state<string | null>(null);
   let showAddApp = $state(false);
   let addAppStep = $state<'choose' | 'configure'>('choose');
   let addAppSearch = $state('');
@@ -519,6 +521,16 @@
     }
   }
 
+  function startEditApp(app: App) {
+    editAppSnapshot = JSON.stringify(app);
+    editingApp = app;
+  }
+
+  function startEditGroup(group: Group) {
+    editGroupSnapshot = JSON.stringify(group);
+    editingGroup = group;
+  }
+
   function closeEditApp() {
     if (editingApp) {
       (editingApp as App & Record<string, unknown>).id = editingApp.name;
@@ -530,6 +542,20 @@
       localApps = allApps;
     }
     editingApp = null;
+    editAppSnapshot = null;
+    rebuildDndArrays();
+  }
+
+  function cancelEditApp() {
+    if (editingApp && editAppSnapshot) {
+      const original = JSON.parse(editAppSnapshot) as App;
+      for (const apps of Object.values(dndGroupedApps)) {
+        const idx = apps.findIndex(a => a === editingApp);
+        if (idx !== -1) { Object.assign(apps[idx], original); break; }
+      }
+    }
+    editingApp = null;
+    editAppSnapshot = null;
     rebuildDndArrays();
   }
 
@@ -540,6 +566,18 @@
       localConfig.groups = [...dndGroups];
     }
     editingGroup = null;
+    editGroupSnapshot = null;
+    rebuildDndArrays();
+  }
+
+  function cancelEditGroup() {
+    if (editingGroup && editGroupSnapshot) {
+      const original = JSON.parse(editGroupSnapshot) as Group;
+      const idx = dndGroups.findIndex(g => g === editingGroup);
+      if (idx !== -1) { Object.assign(dndGroups[idx], original); }
+    }
+    editingGroup = null;
+    editGroupSnapshot = null;
     rebuildDndArrays();
   }
 
@@ -1250,7 +1288,7 @@
                   {:else}
                     <div class="flex items-center gap-1 app-actions">
                       <button class="p-1.5 text-text-muted hover:text-text-primary rounded hover:bg-white/10"
-                              onclick={() => editingGroup = group} title="Edit group">
+                              onclick={() => startEditGroup(group)} title="Edit group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
@@ -1330,7 +1368,7 @@
                         <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
                           <button class="p-1.5 text-text-muted hover:text-text-primary rounded hover:bg-white/10"
                                   tabindex="-1"
-                                  onclick={() => editingApp = app} title="Edit">
+                                  onclick={() => startEditApp(app)} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
@@ -1422,7 +1460,7 @@
                       <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
                         <button class="p-1.5 text-text-muted hover:text-text-primary rounded hover:bg-white/10"
                                 tabindex="-1"
-                                onclick={() => editingApp = app} title="Edit">
+                                onclick={() => startEditApp(app)} title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
@@ -2994,7 +3032,7 @@ chmod +x muximux-darwin-arm64
         <h3 class="text-lg font-semibold text-text-primary">Edit {editingApp.name}</h3>
         <button
           class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-          onclick={closeEditApp}
+          onclick={cancelEditApp}
           aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3459,7 +3497,13 @@ chmod +x muximux-darwin-arm64
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-border">
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          class="btn btn-secondary btn-sm"
+          onclick={cancelEditApp}
+        >
+          Cancel
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
           onclick={closeEditApp}
         >
           Done
@@ -3484,7 +3528,7 @@ chmod +x muximux-darwin-arm64
         <h3 class="text-lg font-semibold text-text-primary">Edit {editingGroup.name}</h3>
         <button
           class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-          onclick={closeEditGroup}
+          onclick={cancelEditGroup}
           aria-label="Close"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -3559,7 +3603,13 @@ chmod +x muximux-darwin-arm64
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-border">
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          class="btn btn-secondary btn-sm"
+          onclick={cancelEditGroup}
+        >
+          Cancel
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
           onclick={closeEditGroup}
         >
           Done
