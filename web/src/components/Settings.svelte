@@ -90,6 +90,8 @@
   let newUserName = $state('');
   let newUserPassword = $state('');
   let newUserRole = $state('user');
+  let setupUsername = $state('');
+  let setupPassword = $state('');
   let addUserLoading = $state(false);
   let addUserError = $state<string | null>(null);
 
@@ -203,6 +205,14 @@
 
   let newApp = $state({ ...newAppTemplate });
   let newGroup = $state({ ...newGroupTemplate });
+
+  // Icon browser: derive the current target's icon for pre-populating the browser
+  let iconBrowserIcon = $derived(
+    iconBrowserTarget === 'editApp' ? editingApp?.icon :
+    iconBrowserTarget === 'editGroup' ? editingGroup?.icon :
+    iconBrowserTarget === 'newApp' ? newApp.icon :
+    iconBrowserTarget === 'newGroup' ? newGroup.icon : null
+  );
 
   // Validation error state
   let appErrors = $state<Record<string, string>>({});
@@ -1070,7 +1080,7 @@
               </div>
               <input type="range" min="0.5" max="2" step="0.25"
                 bind:value={localConfig.navigation.icon_scale}
-                class="w-full accent-brand-500" />
+                class="w-full" />
             </div>
 
             <label class="flex items-center gap-3 p-3 bg-bg-hover rounded-lg cursor-pointer">
@@ -1507,7 +1517,7 @@
       {:else if activeTab === 'theme'}
         <div class="space-y-6">
           <!-- Variant Mode Selector (Dark / System / Light) -->
-          <div class="p-4 rounded-lg" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+          <div class="p-4 rounded-lg bg-bg-elevated border border-border-subtle">
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-3">
                 <div class="w-10 h-10 rounded-lg flex items-center justify-center"
@@ -1547,13 +1557,14 @@
 
           <!-- Theme Family Grid -->
           <div>
-            <span class="block text-sm font-medium mb-3" style="color: var(--text-secondary);">
+            <span class="block text-sm font-medium mb-3 text-text-secondary">
               Choose Theme
             </span>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {#each $themeFamilies as family (family.id)}
                 {@const isSelected = $selectedFamily === family.id}
                 {@const isCustom = family.darkTheme ? !family.darkTheme.isBuiltin : family.lightTheme ? !family.lightTheme.isBuiltin : false}
+                <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
                   class="relative p-4 rounded-xl text-left transition-all group cursor-pointer"
                   style="
@@ -1621,9 +1632,8 @@
                           <div class="w-6 h-5.5 rounded" style="background: {theme.preview.accent};"></div>
                         </div>
                       {:else}
-                        <div class="w-12 h-12 rounded-lg flex items-center justify-center"
-                             style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
-                          <svg class="w-6 h-6" style="color: var(--text-muted);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div class="w-12 h-12 rounded-lg flex items-center justify-center bg-bg-elevated border border-border-subtle">
+                          <svg class="w-6 h-6 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
                           </svg>
                         </div>
@@ -1656,8 +1666,7 @@
                       <button class="px-3 py-1 rounded text-sm font-medium"
                               style="background: var(--status-error); color: white;"
                               onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteThemeAction(); }}>Yes</button>
-                      <button class="px-3 py-1 rounded text-sm font-medium"
-                              style="background: var(--bg-elevated); color: var(--text-primary);"
+                      <button class="btn btn-secondary btn-sm"
                               onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteTheme = null; }}>No</button>
                     </div>
                   {/if}
@@ -1667,7 +1676,7 @@
           </div>
 
           <!-- Current Theme Info -->
-          <div class="p-4 rounded-lg" style="background: var(--bg-elevated); border: 1px solid var(--border-subtle);">
+          <div class="p-4 rounded-lg bg-bg-elevated border border-border-subtle">
             <div class="flex items-center gap-2 text-sm">
               <span style="color: var(--text-muted);">Currently using:</span>
               <span class="font-medium capitalize" style="color: var(--text-primary);">
@@ -1701,8 +1710,8 @@
             {:else}
               <!-- Theme Editor Panel -->
               <div class="rounded-lg overflow-hidden" style="border: 1px solid var(--border-default);">
-                <div class="flex items-center justify-between p-3" style="background: var(--bg-elevated);">
-                  <span class="text-sm font-medium" style="color: var(--text-primary);">Theme Editor</span>
+                <div class="flex items-center justify-between p-3 bg-bg-elevated">
+                  <span class="text-sm font-medium text-text-primary">Theme Editor</span>
                   <div class="flex items-center gap-2">
                     <button
                       class="px-2 py-1 text-xs rounded transition-colors"
@@ -1938,7 +1947,7 @@
                             <input
                               id="setup-username"
                               type="text"
-                              bind:value={newUserName}
+                              bind:value={setupUsername}
                               class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                                      focus:outline-none focus:ring-2 focus:ring-brand-500"
                               placeholder="admin"
@@ -1949,7 +1958,7 @@
                             <input
                               id="setup-password"
                               type="password"
-                              bind:value={newUserPassword}
+                              bind:value={setupPassword}
                               class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                                      focus:outline-none focus:ring-2 focus:ring-brand-500"
                               placeholder="••••••••"
@@ -1958,18 +1967,20 @@
                           {#if addUserError}
                             <p class="text-red-400 text-xs">{addUserError}</p>
                           {/if}
-                          {#if !newUserName.trim() && newUserPassword.length > 0}
+                          {#if !setupUsername.trim() && setupPassword.length > 0}
                             <p class="text-amber-400 text-xs">Username is required</p>
-                          {:else if newUserName.trim() && newUserPassword.length > 0 && newUserPassword.length < 8}
-                            <p class="text-amber-400 text-xs">Password must be at least 8 characters ({newUserPassword.length}/8)</p>
+                          {:else if setupUsername.trim() && setupPassword.length > 0 && setupPassword.length < 8}
+                            <p class="text-amber-400 text-xs">Password must be at least 8 characters ({setupPassword.length}/8)</p>
                           {/if}
                           <button
                             class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
-                            disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
+                            disabled={addUserLoading || !setupUsername.trim() || setupPassword.length < 8}
                             onclick={async () => {
-                              const savedUser = newUserName.trim();
-                              const savedPass = newUserPassword;
-                              // First user must be admin to manage auth settings
+                              const savedUser = setupUsername.trim();
+                              const savedPass = setupPassword;
+                              // Bridge to handleAddUser via shared state
+                              newUserName = savedUser;
+                              newUserPassword = savedPass;
                               newUserRole = 'admin';
                               await handleAddUser();
                               if (securityUsers.length > 0) {
@@ -3665,11 +3676,9 @@ chmod +x muximux-darwin-arm64
         </button>
       </div>
       <IconBrowser
-        selectedIcon={
-          iconBrowserTarget === 'editApp' && editingApp?.icon?.type === 'dashboard' ? editingApp.icon.name :
-          iconBrowserTarget === 'editGroup' && editingGroup?.icon?.type === 'dashboard' ? editingGroup.icon.name :
-          ''
-        }
+        selectedIcon={iconBrowserIcon?.type === 'dashboard' || iconBrowserIcon?.type === 'lucide' ? iconBrowserIcon.name : ''}
+        selectedVariant={iconBrowserIcon?.variant || 'svg'}
+        selectedType={iconBrowserIcon?.type === 'dashboard' || iconBrowserIcon?.type === 'lucide' ? iconBrowserIcon.type : 'dashboard'}
         onselect={handleIconSelect}
         onclose={() => { showIconBrowser = false; iconBrowserTarget = null; }}
       />
@@ -3935,5 +3944,15 @@ chmod +x muximux-darwin-arm64
     padding-left: 1em;
     margin: 0.5em 0;
     color: var(--text-secondary, #9ca3af);
+  }
+
+  /* Range inputs: use theme accent color */
+  .settings :global(input[type="range"]) {
+    accent-color: var(--accent-primary);
+  }
+
+  /* Focus rings: use theme accent instead of hardcoded brand-500 */
+  .settings :global(*:focus) {
+    --tw-ring-color: var(--accent-primary) !important;
   }
 </style>
