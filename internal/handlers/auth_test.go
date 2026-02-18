@@ -8,6 +8,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"sync"
 	"testing"
 	"time"
 
@@ -39,7 +40,7 @@ func setupAuthTest(t *testing.T) (*AuthHandler, *auth.SessionStore) {
 		},
 	})
 
-	handler := NewAuthHandler(sessionStore, userStore, nil, "", nil)
+	handler := NewAuthHandler(sessionStore, userStore, nil, "", nil, &sync.RWMutex{})
 	return handler, sessionStore
 }
 
@@ -605,7 +606,7 @@ func TestAuthStatus_SetupRequired(t *testing.T) {
 func TestSetOIDCProvider(t *testing.T) {
 	ss := auth.NewSessionStore("test", time.Hour, false)
 	us := auth.NewUserStore()
-	handler := NewAuthHandler(ss, us, nil, "", nil)
+	handler := NewAuthHandler(ss, us, nil, "", nil, &sync.RWMutex{})
 
 	// Initially nil
 	if handler.oidcProvider != nil {
@@ -1133,7 +1134,7 @@ func setupAuthTestWithConfig(t *testing.T) (*AuthHandler, string) {
 		Method: auth.AuthMethodNone,
 	}, sessionStore, userStore)
 
-	handler := NewAuthHandler(sessionStore, userStore, cfg, configPath, middleware)
+	handler := NewAuthHandler(sessionStore, userStore, cfg, configPath, middleware, &sync.RWMutex{})
 	return handler, configPath
 }
 

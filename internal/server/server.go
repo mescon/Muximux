@@ -77,8 +77,11 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Set up routes
 	mux := http.NewServeMux()
 
+	// Shared mutex protects config reads/writes across all handlers
+	configMu := &sync.RWMutex{}
+
 	// Auth endpoints (always accessible)
-	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware)
+	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware, configMu)
 	authHandler.SetBypassRules(defaultBypassRules)
 	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
 
@@ -112,7 +115,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.HandleFunc("/api/auth/setup", setupLimiter.wrap(s.handleSetup))
 
 	// API routes
-	api := handlers.NewAPIHandler(cfg, configPath)
+	api := handlers.NewAPIHandler(cfg, configPath, configMu)
 	registerAPIRoutes(mux, api, requireAdmin)
 
 	// Health monitoring

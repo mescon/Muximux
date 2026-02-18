@@ -202,10 +202,10 @@ go run ./cmd/muximux
 cd web && npm run build && cd ..
 
 # Build binary (embeds frontend)
-go build -o muximux ./cmd/muximux
+go build -tags embed_web -o muximux ./cmd/muximux
 
 # With version info
-go build -ldflags "-X main.version=1.0.0" -o muximux ./cmd/muximux
+go build -tags embed_web -ldflags "-X main.version=3.0.0" -o muximux ./cmd/muximux
 ```
 
 ---

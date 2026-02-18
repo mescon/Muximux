@@ -20,19 +20,20 @@ type AuthHandler struct {
 	config         *config.Config
 	configPath     string
 	authMiddleware *auth.Middleware
-	configMu       sync.Mutex
+	configMu       *sync.RWMutex
 	bypassRules    []auth.BypassRule
 }
 
 // NewAuthHandler creates a new auth handler
 func NewAuthHandler(sessionStore *auth.SessionStore, userStore *auth.UserStore,
-	cfg *config.Config, configPath string, authMiddleware *auth.Middleware) *AuthHandler {
+	cfg *config.Config, configPath string, authMiddleware *auth.Middleware, configMu *sync.RWMutex) *AuthHandler {
 	return &AuthHandler{
 		sessionStore:   sessionStore,
 		userStore:      userStore,
 		config:         cfg,
 		configPath:     configPath,
 		authMiddleware: authMiddleware,
+		configMu:       configMu,
 	}
 }
 
@@ -447,9 +448,9 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Role        string `json:"role"`
-		Email       string `json:"email"`
-		DisplayName string `json:"display_name"`
+		Role        string  `json:"role"`
+		Email       *string `json:"email"`
+		DisplayName *string `json:"display_name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -471,11 +472,11 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		}
 		user.Role = req.Role
 	}
-	if req.Email != "" {
-		user.Email = req.Email
+	if req.Email != nil {
+		user.Email = *req.Email
 	}
-	if req.DisplayName != "" {
-		user.DisplayName = req.DisplayName
+	if req.DisplayName != nil {
+		user.DisplayName = *req.DisplayName
 	}
 
 	if err := h.userStore.Update(user); err != nil {

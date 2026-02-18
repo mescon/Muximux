@@ -15,10 +15,12 @@ All notable changes to Muximux are documented in this file.
 
 ### Added
 
+- **Debug logging** — Add `?debug=true` to the URL to enable browser console logging across all major subsystems (config, websocket, auth, theme, health, icons, keybindings). Persists via localStorage; disable with `?debug=false`.
 - **Cancel button on Edit modals** — Edit App and Edit Group modals now have a Cancel button that reverts changes. Previously only "Done" was available, which applied changes immediately.
 - **Validation on Edit modals** — Edit App and Edit Group modals now validate with Zod schemas before accepting, matching the Add flows.
 - **Redirect open mode in UI** — The `redirect` open mode is now available in the Settings dropdown (previously only configurable via YAML).
 - **`.btn-danger` design system class** — For destructive action buttons (delete confirmations).
+- **`--accent-on-primary` theme variable** — Dedicated text color for accent-colored buttons, ensuring readable contrast in both dark and light themes.
 - **Docstring coverage enforcement** — CI checks that 80%+ of exported Go identifiers have doc comments (`scripts/check-docstrings.sh`).
 - **CHANGELOG-based release notes** — Release workflow extracts notes from CHANGELOG.md instead of auto-generating from PR titles. Falls back to auto-generation if no entry found.
 - **CONTRIBUTING.md** — Developer guide covering prerequisites, dev mode, building, testing, and PR process.
@@ -28,6 +30,16 @@ All notable changes to Muximux are documented in this file.
 
 ### Fixed
 
+- **Config env var expansion corrupting bcrypt hashes** — Replaced `os.ExpandEnv` with braced-only `${VAR}` expansion so bare `$` signs in bcrypt hashes and other values are not treated as variable references.
+- **Unset `${VAR}` silently replaced with empty string** — `${VAR}` references to undefined environment variables are now preserved literally instead of being silently deleted.
+- **Config export zeroing live password hashes** — Exporting config (`GET /api/config/export`) no longer corrupts in-memory auth state. The shallow struct copy now deep-copies the users slice before stripping sensitive fields.
+- **Config save race between API and auth handlers** — Both handlers now share a single `sync.RWMutex` for all config reads and writes, preventing concurrent saves from silently overwriting each other.
+- **GetApps and GetGroups missing read lock** — These endpoints now acquire the config read lock, preventing data races with concurrent config writes.
+- **Single-app update overwriting proxied app URL** — `PUT /api/app/{name}` now preserves the original backend URL for proxied apps instead of saving the frontend proxy path.
+- **App rename via bulk save dropping auth rules** — Renaming an app in Settings no longer loses its AuthBypass and Access rules; a positional fallback matches renamed apps to their original config.
+- **Theme delete failing when `@theme-id` differs from filename** — Theme ID is now always derived from the filename, ignoring `@theme-id` metadata comments.
+- **Cannot clear user email or display name** — `PUT /api/auth/users/{name}` now accepts empty strings to clear these fields instead of silently ignoring them.
+- **Button text contrast on accent backgrounds** — Primary buttons use `--accent-on-primary` (white) instead of `--bg-base` which was near-black in dark themes.
 - **Theme family cards** — Now use semantic `<button>` elements instead of `<div role="button">` with manual keyboard handlers.
 - **Separated setup and add-user state** — The "Create first user" form in Security no longer shares state with the "Add User" modal.
 - **Icon browser pre-population** — Opening the icon browser for a new app/group now passes the current icon selection.

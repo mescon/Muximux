@@ -10,6 +10,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"testing"
 	"testing/fstest"
 	"time"
@@ -874,7 +875,7 @@ func TestRegisterAPIRoutes(t *testing.T) {
 			{Name: "Group1", Color: "#ff0000"},
 		},
 	}
-	api := handlers.NewAPIHandler(cfg, "")
+	api := handlers.NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc {
 		return next
@@ -1132,7 +1133,7 @@ func TestRegisterAPIRoutes(t *testing.T) {
 func TestRegisterAuthRoutes(t *testing.T) {
 	ss := auth.NewSessionStore("test", time.Hour, false)
 	us := auth.NewUserStore()
-	authHandler := handlers.NewAuthHandler(ss, us, nil, "", nil)
+	authHandler := handlers.NewAuthHandler(ss, us, nil, "", nil, &sync.RWMutex{})
 	wsHub := websocket.NewHub()
 	go wsHub.Run()
 

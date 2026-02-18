@@ -19,14 +19,15 @@ import (
 type APIHandler struct {
 	config     *config.Config
 	configPath string
-	mu         sync.RWMutex
+	mu         *sync.RWMutex
 }
 
 // NewAPIHandler creates a new API handler
-func NewAPIHandler(cfg *config.Config, configPath string) *APIHandler {
+func NewAPIHandler(cfg *config.Config, configPath string, mu *sync.RWMutex) *APIHandler {
 	return &APIHandler{
 		config:     cfg,
 		configPath: configPath,
+		mu:         mu,
 	}
 }
 
@@ -61,6 +62,12 @@ func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	cfg := *h.config
 	h.mu.RUnlock()
+
+	// Deep-copy slices that will be mutated to avoid writing through the
+	// shared backing array into the live config.
+	users := make([]config.UserConfig, len(cfg.Auth.Users))
+	copy(users, cfg.Auth.Users)
+	cfg.Auth.Users = users
 
 	// Strip sensitive auth data
 	for i := range cfg.Auth.Users {
@@ -311,6 +318,9 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 
 // GetApps returns the list of apps
 func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
 	userRole := getUserRole(r)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps, userRole))
@@ -318,6 +328,9 @@ func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
 
 // GetGroups returns the list of groups
 func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
+
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(h.config.Groups)
 }

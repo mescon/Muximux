@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"sync"
 	"testing"
 
 	"github.com/mescon/muximux/v3/internal/config"
@@ -54,7 +55,7 @@ func createTestConfig() *config.Config {
 
 func TestHealth(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/health", nil)
 	w := httptest.NewRecorder()
@@ -77,7 +78,7 @@ func TestHealth(t *testing.T) {
 
 func TestGetConfig(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
 	w := httptest.NewRecorder()
@@ -123,7 +124,7 @@ func TestGetConfig(t *testing.T) {
 
 func TestGetApps(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/apps", nil)
 	w := httptest.NewRecorder()
@@ -147,7 +148,7 @@ func TestGetApps(t *testing.T) {
 
 func TestGetGroups(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/groups", nil)
 	w := httptest.NewRecorder()
@@ -170,7 +171,7 @@ func TestGetGroups(t *testing.T) {
 
 func TestGetApp(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	t.Run("existing app", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/apps/App1", nil)
@@ -206,7 +207,7 @@ func TestGetApp(t *testing.T) {
 
 func TestGetGroup(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	t.Run("existing group", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/groups/Media", nil)
@@ -249,7 +250,7 @@ func TestCreateApp(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 		newApp := ClientAppConfig{
 			Name:    "NewApp",
@@ -276,7 +277,7 @@ func TestCreateApp(t *testing.T) {
 
 	t.Run("duplicate app", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		newApp := ClientAppConfig{
 			Name: "App1", // Already exists
@@ -296,7 +297,7 @@ func TestCreateApp(t *testing.T) {
 
 	t.Run("missing name", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		newApp := ClientAppConfig{
 			URL: "http://localhost:9000",
@@ -323,7 +324,7 @@ func TestDeleteApp(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 		initialCount := len(cfg.Apps)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/apps/App1", nil)
@@ -342,7 +343,7 @@ func TestDeleteApp(t *testing.T) {
 
 	t.Run("non-existing app", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/apps/NonExistent", nil)
 		w := httptest.NewRecorder()
@@ -357,7 +358,7 @@ func TestDeleteApp(t *testing.T) {
 
 func TestCreateAppInvalidJSON(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader([]byte("not json")))
 	w := httptest.NewRecorder()
@@ -378,7 +379,7 @@ func TestCreateGroup(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 		newGroup := config.GroupConfig{
 			Name:  "NewGroup",
@@ -402,7 +403,7 @@ func TestCreateGroup(t *testing.T) {
 
 	t.Run("duplicate group", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		newGroup := config.GroupConfig{
 			Name: "Media", // Already exists
@@ -422,7 +423,7 @@ func TestCreateGroup(t *testing.T) {
 
 func TestCreateGroupInvalidJSON(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader([]byte("not json")))
 	w := httptest.NewRecorder()
@@ -436,7 +437,7 @@ func TestCreateGroupInvalidJSON(t *testing.T) {
 
 func TestCreateGroupMissingName(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	group := config.GroupConfig{Color: "#ff0000"}
 	body, _ := json.Marshal(group)
@@ -460,7 +461,7 @@ func TestDeleteGroup(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/groups/Media", nil)
 		w := httptest.NewRecorder()
@@ -481,7 +482,7 @@ func TestDeleteGroup(t *testing.T) {
 
 	t.Run("non-existing group", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/groups/NonExistent", nil)
 		w := httptest.NewRecorder()
@@ -521,7 +522,7 @@ func TestSlugify(t *testing.T) {
 
 func TestSaveConfigMethodNotAllowed(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
 	w := httptest.NewRecorder()
@@ -535,7 +536,7 @@ func TestSaveConfigMethodNotAllowed(t *testing.T) {
 
 func TestSaveConfigInvalidJSON(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader([]byte("invalid json")))
 	w := httptest.NewRecorder()
@@ -549,7 +550,7 @@ func TestSaveConfigInvalidJSON(t *testing.T) {
 
 func TestGetConfigRef(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	ref := handler.GetConfigRef()
 
@@ -571,7 +572,7 @@ func TestUpdateApp(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 		updated := ClientAppConfig{
 			Name:    "App1",
@@ -606,7 +607,7 @@ func TestUpdateApp(t *testing.T) {
 
 	t.Run("non-existing app", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		updated := ClientAppConfig{
 			Name: "NonExistent",
@@ -626,7 +627,7 @@ func TestUpdateApp(t *testing.T) {
 
 	t.Run("invalid JSON", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader([]byte("not json")))
 		w := httptest.NewRecorder()
@@ -654,7 +655,7 @@ func TestUpdateApp(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 		updated := ClientAppConfig{
 			Name:    "App1",
@@ -691,7 +692,7 @@ func TestUpdateGroup(t *testing.T) {
 		}
 		defer os.Remove(tmpFile.Name())
 
-		handler := NewAPIHandler(cfg, tmpFile.Name())
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 		updated := config.GroupConfig{
 			Name:     "Media",
@@ -724,7 +725,7 @@ func TestUpdateGroup(t *testing.T) {
 
 	t.Run("non-existing group", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		updated := config.GroupConfig{Name: "NonExistent"}
 		body, _ := json.Marshal(updated)
@@ -741,7 +742,7 @@ func TestUpdateGroup(t *testing.T) {
 
 	t.Run("invalid JSON", func(t *testing.T) {
 		cfg := createTestConfig()
-		handler := NewAPIHandler(cfg, "")
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 		req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader([]byte("not json")))
 		w := httptest.NewRecorder()
@@ -968,7 +969,7 @@ func TestSaveConfigSuccess(t *testing.T) {
 	}
 	defer os.Remove(tmpFile.Name())
 
-	handler := NewAPIHandler(cfg, tmpFile.Name())
+	handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
 
 	update := ClientConfigUpdate{
 		Title: "Updated Title",
@@ -1043,7 +1044,7 @@ func TestSanitizeApp(t *testing.T) {
 // /dev/null/impossible is guaranteed to fail because /dev/null is a file, not a directory.
 func TestCreateAppSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	body, _ := json.Marshal(ClientAppConfig{
 		Name:    "NewApp",
@@ -1061,7 +1062,7 @@ func TestCreateAppSaveFails(t *testing.T) {
 
 func TestUpdateAppSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	body, _ := json.Marshal(ClientAppConfig{
 		Name:    "App1",
@@ -1079,7 +1080,7 @@ func TestUpdateAppSaveFails(t *testing.T) {
 
 func TestDeleteAppSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodDelete, "/api/apps/App1", nil)
 	w := httptest.NewRecorder()
@@ -1092,7 +1093,7 @@ func TestDeleteAppSaveFails(t *testing.T) {
 
 func TestCreateGroupSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	body, _ := json.Marshal(config.GroupConfig{Name: "NewGroup", Color: "#aabbcc"})
 	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader(body))
@@ -1106,7 +1107,7 @@ func TestCreateGroupSaveFails(t *testing.T) {
 
 func TestUpdateGroupSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	body, _ := json.Marshal(config.GroupConfig{Name: "Media", Color: "#112233"})
 	req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader(body))
@@ -1120,7 +1121,7 @@ func TestUpdateGroupSaveFails(t *testing.T) {
 
 func TestDeleteGroupSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodDelete, "/api/groups/Media", nil)
 	w := httptest.NewRecorder()
@@ -1133,7 +1134,7 @@ func TestDeleteGroupSaveFails(t *testing.T) {
 
 func TestSaveConfigSaveFails(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml")
+	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	update := ClientConfigUpdate{
 		Title:      "Updated",
@@ -1153,7 +1154,7 @@ func TestSaveConfigSaveFails(t *testing.T) {
 
 func TestCreateAppMissingName(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	body, _ := json.Marshal(ClientAppConfig{URL: "http://localhost:9999"})
 	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
@@ -1167,7 +1168,7 @@ func TestCreateAppMissingName(t *testing.T) {
 
 func TestCreateAppDuplicate(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	body, _ := json.Marshal(ClientAppConfig{Name: "App1", URL: "http://localhost:9999"})
 	req := httptest.NewRequest(http.MethodPost, "/api/apps", bytes.NewReader(body))
@@ -1181,7 +1182,7 @@ func TestCreateAppDuplicate(t *testing.T) {
 
 func TestUpdateAppNotFound(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	body, _ := json.Marshal(ClientAppConfig{Name: "Ghost", URL: "http://localhost:9999"})
 	req := httptest.NewRequest(http.MethodPut, "/api/apps/Ghost", bytes.NewReader(body))
@@ -1195,7 +1196,7 @@ func TestUpdateAppNotFound(t *testing.T) {
 
 func TestUpdateAppInvalidJSON(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodPut, "/api/apps/App1", bytes.NewReader([]byte("not json")))
 	w := httptest.NewRecorder()
@@ -1208,7 +1209,7 @@ func TestUpdateAppInvalidJSON(t *testing.T) {
 
 func TestDeleteAppNotFound(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodDelete, "/api/apps/Ghost", nil)
 	w := httptest.NewRecorder()
@@ -1221,7 +1222,7 @@ func TestDeleteAppNotFound(t *testing.T) {
 
 func TestGetAppNotFound(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/apps/Ghost", nil)
 	w := httptest.NewRecorder()
@@ -1234,7 +1235,7 @@ func TestGetAppNotFound(t *testing.T) {
 
 func TestGetGroupNotFound(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/groups/Ghost", nil)
 	w := httptest.NewRecorder()
@@ -1247,7 +1248,7 @@ func TestGetGroupNotFound(t *testing.T) {
 
 func TestDeleteGroupNotFound(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodDelete, "/api/groups/Ghost", nil)
 	w := httptest.NewRecorder()
@@ -1260,7 +1261,7 @@ func TestDeleteGroupNotFound(t *testing.T) {
 
 func TestUpdateGroupInvalidJSON(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	req := httptest.NewRequest(http.MethodPut, "/api/groups/Media", bytes.NewReader([]byte("not json")))
 	w := httptest.NewRecorder()
@@ -1273,7 +1274,7 @@ func TestUpdateGroupInvalidJSON(t *testing.T) {
 
 func TestUpdateGroupNotFound(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	body, _ := json.Marshal(config.GroupConfig{Name: "Ghost"})
 	req := httptest.NewRequest(http.MethodPut, "/api/groups/Ghost", bytes.NewReader(body))
@@ -1287,7 +1288,7 @@ func TestUpdateGroupNotFound(t *testing.T) {
 
 func TestCreateGroupDuplicate(t *testing.T) {
 	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "")
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
 
 	body, _ := json.Marshal(config.GroupConfig{Name: "Media", Color: "#ff0000"})
 	req := httptest.NewRequest(http.MethodPost, "/api/groups", bytes.NewReader(body))
