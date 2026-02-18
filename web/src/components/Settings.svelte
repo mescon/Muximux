@@ -842,6 +842,79 @@
 </script>
 
 <div class="settings">
+
+{#snippet appRowContent(app: App)}
+  <!-- Drag handle -->
+  <div class="flex-shrink-0 text-text-disabled hover:text-text-muted">
+    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+    </svg>
+  </div>
+  <div class="flex-shrink-0">
+    <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
+  </div>
+  <div class="flex-1 min-w-0">
+    <div class="flex items-center gap-2 flex-wrap">
+      <span class="font-medium text-text-primary text-sm truncate">{app.name}</span>
+      {#if app.default}
+        <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
+      {/if}
+      {#if !app.enabled}
+        <span class="text-xs bg-bg-overlay text-text-muted px-1.5 py-0.5 rounded">Disabled</span>
+      {/if}
+      {#if app.proxy}
+        <span class="app-indicator" title="Proxied through server">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+        </span>
+      {/if}
+      {#if app.open_mode && app.open_mode !== 'iframe'}
+        <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
+          {#if app.open_mode === 'new_tab'}
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+          {:else if app.open_mode === 'new_window'}
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+          {:else}
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
+          {/if}
+        </span>
+      {/if}
+      {#if app.scale && app.scale !== 1}
+        <span class="app-indicator" title="Scaled to {Math.round(app.scale * 100)}%">
+          {Math.round(app.scale * 100)}%
+        </span>
+      {/if}
+    </div>
+    <span class="text-xs text-text-muted truncate block">{app.url}</span>
+  </div>
+  <!-- App actions -->
+  {#if confirmDeleteApp?.name === app.name}
+    <div class="flex items-center gap-1">
+      <span class="text-xs text-red-400 mr-1">Delete?</span>
+      <button class="btn btn-danger btn-sm"
+              onclick={confirmDeleteAppAction}>Yes</button>
+      <button class="btn btn-secondary btn-sm"
+              onclick={() => confirmDeleteApp = null}>No</button>
+    </div>
+  {:else}
+    <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
+      <button class="btn btn-ghost btn-icon btn-sm"
+              tabindex="-1"
+              onclick={() => startEditApp(app)} title="Edit">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+        </svg>
+      </button>
+      <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
+              tabindex="-1"
+              onclick={() => deleteApp(app)} title="Delete">
+        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+      </button>
+    </div>
+  {/if}
+{/snippet}
+
 <div
   class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
   transition:fade={{ duration: 150 }}
@@ -1339,75 +1412,7 @@
                       class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
                       animate:flip={{duration: flipDurationMs}}
                     >
-                      <!-- Drag handle -->
-                      <div class="flex-shrink-0 text-text-disabled hover:text-text-muted">
-                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                        </svg>
-                      </div>
-                      <div class="flex-shrink-0">
-                        <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
-                      </div>
-                      <div class="flex-1 min-w-0">
-                        <div class="flex items-center gap-2 flex-wrap">
-                          <span class="font-medium text-text-primary text-sm truncate">{app.name}</span>
-                          {#if app.default}
-                            <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
-                          {/if}
-                          {#if !app.enabled}
-                            <span class="text-xs bg-bg-overlay text-text-muted px-1.5 py-0.5 rounded">Disabled</span>
-                          {/if}
-                          {#if app.proxy}
-                            <span class="app-indicator" title="Proxied through server">
-                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                            </span>
-                          {/if}
-                          {#if app.open_mode && app.open_mode !== 'iframe'}
-                            <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
-                              {#if app.open_mode === 'new_tab'}
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                              {:else if app.open_mode === 'new_window'}
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                              {:else}
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                              {/if}
-                            </span>
-                          {/if}
-                          {#if app.scale && app.scale !== 1}
-                            <span class="app-indicator" title="Scaled to {Math.round(app.scale * 100)}%">
-                              {Math.round(app.scale * 100)}%
-                            </span>
-                          {/if}
-                        </div>
-                        <span class="text-xs text-text-muted truncate block">{app.url}</span>
-                      </div>
-                      <!-- App actions -->
-                      {#if confirmDeleteApp?.name === app.name}
-                        <div class="flex items-center gap-1">
-                          <span class="text-xs text-red-400 mr-1">Delete?</span>
-                          <button class="btn btn-danger btn-sm"
-                                  onclick={confirmDeleteAppAction}>Yes</button>
-                          <button class="btn btn-secondary btn-sm"
-                                  onclick={() => confirmDeleteApp = null}>No</button>
-                        </div>
-                      {:else}
-                        <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
-                          <button class="btn btn-ghost btn-icon btn-sm"
-                                  tabindex="-1"
-                                  onclick={() => startEditApp(app)} title="Edit">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                            </svg>
-                          </button>
-                          <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
-                                  tabindex="-1"
-                                  onclick={() => deleteApp(app)} title="Delete">
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                            </svg>
-                          </button>
-                        </div>
-                      {/if}
+                      {@render appRowContent(app)}
                     </div>
                   {/each}
                 </div>
@@ -1433,73 +1438,7 @@
                     class="flex items-center gap-3 p-2 rounded-md group/app hover:bg-bg-hover/30 cursor-grab active:cursor-grabbing"
                     animate:flip={{duration: flipDurationMs}}
                   >
-                    <div class="flex-shrink-0 text-text-disabled hover:text-text-muted">
-                      <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
-                      </svg>
-                    </div>
-                    <div class="flex-shrink-0">
-                      <AppIcon icon={app.icon} name={app.name} color={app.color} size="md" />
-                    </div>
-                    <div class="flex-1 min-w-0">
-                      <div class="flex items-center gap-2 flex-wrap">
-                        <span class="font-medium text-text-primary text-sm truncate">{app.name}</span>
-                        {#if app.default}
-                          <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
-                        {/if}
-                        {#if !app.enabled}
-                          <span class="text-xs bg-bg-overlay text-text-muted px-1.5 py-0.5 rounded">Disabled</span>
-                        {/if}
-                        {#if app.proxy}
-                          <span class="app-indicator" title="Proxied through server">
-                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
-                          </span>
-                        {/if}
-                        {#if app.open_mode && app.open_mode !== 'iframe'}
-                          <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
-                            {#if app.open_mode === 'new_tab'}
-                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
-                            {:else if app.open_mode === 'new_window'}
-                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
-                            {:else}
-                              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3" /></svg>
-                            {/if}
-                          </span>
-                        {/if}
-                        {#if app.scale && app.scale !== 1}
-                          <span class="app-indicator" title="Scaled to {Math.round(app.scale * 100)}%">
-                            {Math.round(app.scale * 100)}%
-                          </span>
-                        {/if}
-                      </div>
-                      <span class="text-xs text-text-muted truncate block">{app.url}</span>
-                    </div>
-                    {#if confirmDeleteApp?.name === app.name}
-                      <div class="flex items-center gap-1">
-                        <span class="text-xs text-red-400 mr-1">Delete?</span>
-                        <button class="btn btn-danger btn-sm"
-                                onclick={confirmDeleteAppAction}>Yes</button>
-                        <button class="btn btn-secondary btn-sm"
-                                onclick={() => confirmDeleteApp = null}>No</button>
-                      </div>
-                    {:else}
-                      <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
-                        <button class="btn btn-ghost btn-icon btn-sm"
-                                tabindex="-1"
-                                onclick={() => startEditApp(app)} title="Edit">
-                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                          </svg>
-                        </button>
-                        <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
-                                tabindex="-1"
-                                onclick={() => deleteApp(app)} title="Delete">
-                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                          </svg>
-                        </button>
-                      </div>
-                    {/if}
+                    {@render appRowContent(app)}
                   </div>
                 {/each}
               </div>
