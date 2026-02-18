@@ -1,4 +1,5 @@
 import { writable, derived, get } from 'svelte/store';
+import { debug } from './debug';
 
 // User interface
 export interface User {
@@ -55,6 +56,7 @@ export async function checkAuthStatus(): Promise<void> {
       error: null,
       setupRequired: data.setup_required || false,
     });
+    debug('auth', 'status', { authenticated: data.authenticated, setup_required: data.setup_required });
   } catch (e) {
     authState.set({
       authenticated: false,
@@ -89,6 +91,7 @@ export async function login(username: string, password: string, rememberMe: bool
         error: null,
         setupRequired: false,
       });
+      debug('auth', 'login success', data.user?.username);
       return { success: true };
     } else {
       authState.update((state) => ({
@@ -96,6 +99,7 @@ export async function login(username: string, password: string, rememberMe: bool
         loading: false,
         error: data.message || 'Login failed',
       }));
+      debug('auth', 'login failed', data.message);
       return { success: false, message: data.message };
     }
   } catch (e) {

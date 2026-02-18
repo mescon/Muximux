@@ -1,6 +1,7 @@
 import { writable, derived } from 'svelte/store';
 import type { AppHealth, HealthStatus } from './api';
 import { fetchAllAppHealth } from './api';
+import { debug } from './debug';
 
 // Store for all app health data
 export const healthData = writable<Map<string, AppHealth>>(new Map());
@@ -26,6 +27,7 @@ export async function refreshHealth(): Promise<void> {
       healthMap.set(health.name, health);
     }
     healthData.set(healthMap);
+    debug('health', 'updated', { apps: healthMap.size });
   } catch (e) {
     healthError.set(e instanceof Error ? e.message : 'Failed to fetch health data');
   } finally {
@@ -37,6 +39,7 @@ export async function refreshHealth(): Promise<void> {
 export function startHealthPolling(intervalMs: number = 30000): void {
   // Clear existing interval if any
   stopHealthPolling();
+  debug('health', 'polling started', { interval: intervalMs });
 
   // Fetch immediately
   refreshHealth();

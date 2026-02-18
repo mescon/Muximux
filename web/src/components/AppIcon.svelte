@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { AppIcon as AppIconType } from '$lib/types';
   import { getBase } from '$lib/api';
+  import { debug } from '$lib/debug';
 
   let { icon, name, color = '#374151', size = 'md', showBackground = true, forceBackground = false, scale }: {
     icon: AppIconType;
@@ -65,6 +66,7 @@
   let imageError = $state(false);
 
   function handleImageError() {
+    debug('icon', 'load failed', name, iconUrl);
     imageError = true;
   }
 </script>

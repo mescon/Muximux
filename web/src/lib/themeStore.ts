@@ -10,6 +10,7 @@
 
 import { writable, derived, get } from 'svelte/store';
 import { getBase } from './api';
+import { debug } from './debug';
 
 // Built-in themes
 export type BuiltinTheme = 'dark' | 'light';
@@ -212,6 +213,7 @@ async function applyTheme(theme: string) {
 
   // Set data-theme attribute
   root.dataset.theme = theme;
+  debug('theme', 'applied', theme);
 
   // Maintain .dark class for Tailwind compatibility
   if (themeInfo?.isDark ?? theme === 'dark') {
@@ -304,6 +306,7 @@ export async function loadCustomThemeCSS(themeId: string): Promise<boolean> {
     return new Promise((resolve) => {
       link.onload = () => resolve(true);
       link.onerror = () => {
+        debug('theme', 'css load failed', link.href);
         link.remove();
         resolve(false);
       };

@@ -24,6 +24,7 @@
   import { isFullscreen, toggleFullscreen, exitFullscreen } from './lib/fullscreenStore';
   import { createSwipeHandlers, isMobileViewport, type SwipeResult } from './lib/useSwipe';
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
+  import { initDebug, debug } from './lib/debug';
 
   let config = $state<Config | null>(null);
   let apps = $state<App[]>([]);
@@ -189,6 +190,9 @@
   });
 
   onMount(async () => {
+    // Initialize debug logging (must come before other inits)
+    initDebug();
+
     // Initialize theme system
     initTheme();
 
@@ -232,6 +236,7 @@
     try {
       config = await fetchConfig();
       apps = config.apps;
+      debug('config', 'loaded', { apps: apps.length, auth: config.auth?.method, health: config.health?.interval });
       authRequired = config.auth?.method !== 'none' && config.auth?.method !== undefined;
 
       // Sync theme from server config (keeps localStorage in sync across browsers)
@@ -272,6 +277,7 @@
         const newConfig = payload as Config;
         config = newConfig;
         apps = newConfig.apps;
+        debug('config', 'updated via ws', { apps: newConfig.apps.length });
         // Sync theme if changed from another session
         if (newConfig.theme) {
           syncFromConfig(newConfig.theme);
@@ -515,6 +521,7 @@
   }
 
   function executeAction(action: KeyAction) {
+    debug('keys', 'action', action);
     switch (action) {
       case 'search':
         showCommandPalette = true;

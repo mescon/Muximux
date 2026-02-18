@@ -1,6 +1,7 @@
 import { writable, get } from 'svelte/store';
 import type { AppHealth } from './api';
 import { healthData } from './healthStore';
+import { debug } from './debug';
 
 // Event types from server
 export type EventType = 'config_updated' | 'health_changed' | 'app_health_changed' | 'log_entry';
@@ -44,6 +45,7 @@ export function connect(): void {
   const host = window.location.host;
   const basePath = (window as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
   const url = `${protocol}//${host}${basePath}/ws`;
+  debug('ws', 'connecting', url);
 
   connectionState.set('connecting');
   lastError.set(null);
@@ -53,6 +55,7 @@ export function connect(): void {
 
     ws.onopen = () => {
       connectionState.set('connected');
+      debug('ws', 'connected');
       reconnectAttempts = 0;
     };
 
@@ -63,11 +66,13 @@ export function connect(): void {
       // Attempt to reconnect
       if (reconnectAttempts < maxReconnectAttempts) {
         const delay = getReconnectDelay();
+        debug('ws', 'reconnecting', { attempt: reconnectAttempts + 1, delay: Math.round(delay) });
         reconnectTimeout = setTimeout(() => {
           reconnectAttempts++;
           connect();
         }, delay);
       } else {
+        debug('ws', 'gave up after', maxReconnectAttempts, 'attempts');
         lastError.set('Failed to connect after multiple attempts');
         connectionState.set('error');
       }
@@ -114,6 +119,7 @@ export function disconnect(): void {
 
 // Handle incoming events
 function handleEvent(event: WebSocketEvent): void {
+  debug('ws', 'event', event.type);
   // Built-in event handling
   switch (event.type) {
     case 'health_changed':
