@@ -2,7 +2,7 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.0.0-rc.3] - 2026-02-18
 
 ### Changed
 
@@ -27,6 +27,8 @@ All notable changes to Muximux are documented in this file.
 - **systemd service file** — `muximux.service` for bare-metal deployments with security hardening.
 - **CodeRabbit config** — `.coderabbit.yaml` with path-specific review instructions.
 - **Codecov config** — `codecov.yml` with backend/frontend flags, patch target 70%, and carryforward support.
+- **Dynamic themed favicons** — All favicons (browser tab, apple-touch-icon, Android manifest icon, theme-color meta) now update to match the current theme's accent color instead of using static green PNGs.
+- **Snyk Node scan** — CI security workflow now scans frontend npm dependencies in addition to Go and Docker.
 
 ### Fixed
 
@@ -43,6 +45,7 @@ All notable changes to Muximux are documented in this file.
 - **Theme family cards** — Now use semantic `<button>` elements instead of `<div role="button">` with manual keyboard handlers.
 - **Separated setup and add-user state** — The "Create first user" form in Security no longer shares state with the "Add User" modal.
 - **Icon browser pre-population** — Opening the icon browser for a new app/group now passes the current icon selection.
+- **Static assets blocked by auth middleware** — Root-level static files (manifest.json, favicon.ico, apple-touch-icon.png, etc.) were incorrectly blocked by authentication, causing browser errors. Auth bypass rules now use explicit paths instead of non-functional glob patterns.
 
 ---
 
@@ -153,7 +156,7 @@ Beta release with reverse proxy improvements, onboarding redesign, WebSocket pro
 
 Initial alpha release with core dashboard, authentication, health monitoring, icons, themes, keyboard shortcuts, and reverse proxy.
 
-[Unreleased]: https://github.com/mescon/Muximux/compare/v3.0.0-rc.2...HEAD
+[3.0.0-rc.3]: https://github.com/mescon/Muximux/compare/v3.0.0-rc.2...v3.0.0-rc.3
 [3.0.0-rc.2]: https://github.com/mescon/Muximux/compare/v3.0.0...v3.0.0-rc.2
 [3.0.0]: https://github.com/mescon/Muximux/compare/v3.0.0-beta.1...v3.0.0
 [3.0.0-beta.1]: https://github.com/mescon/Muximux/compare/v3.0.0-alpha.1...v3.0.0-beta.1
