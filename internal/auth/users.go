@@ -4,6 +4,7 @@ import (
 	"errors"
 	"sync"
 
+	"github.com/mescon/muximux/v3/internal/logging"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -83,6 +84,7 @@ func (s *UserStore) LoadFromConfig(configs []UserConfig) {
 			DisplayName:  cfg.DisplayName,
 		}
 	}
+	logging.Debug("User store loaded", "source", "auth", "count", len(configs))
 }
 
 // Get retrieves a user by username
@@ -104,10 +106,12 @@ func (s *UserStore) GetByID(id string) *User {
 func (s *UserStore) Authenticate(username, password string) (*User, error) {
 	user := s.Get(username)
 	if user == nil {
+		logging.Debug("Auth attempt for unknown user", "source", "auth", "username", username)
 		return nil, errors.New(errUserNotFound)
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
+		logging.Debug("Auth attempt: wrong password", "source", "auth", "username", username)
 		return nil, errors.New("invalid password")
 	}
 

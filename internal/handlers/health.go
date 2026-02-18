@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/mescon/muximux/v3/internal/health"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // HealthHandler handles health-related API requests
@@ -71,6 +72,7 @@ func (h *HealthHandler) CheckAppHealth(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Debug("Manual health check triggered", "source", "health", "app", appName)
 	appHealth := h.monitor.CheckNow(appName)
 	if appHealth == nil {
 		http.Error(w, errAppNotFound, http.StatusNotFound)

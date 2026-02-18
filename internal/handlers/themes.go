@@ -187,6 +187,7 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	// Write to file
 	filename := filepath.Join(h.themesDir, id+".css")
 	if err := os.WriteFile(filename, []byte(css), 0600); err != nil {
+		logging.Error("Failed to save theme file", "source", "themes", "theme", id, "error", err)
 		http.Error(w, "Failed to save theme", http.StatusInternalServerError)
 		return
 	}
@@ -231,6 +232,7 @@ func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 		if os.IsNotExist(err) {
 			http.Error(w, "Theme not found", http.StatusNotFound)
 		} else {
+			logging.Error("Failed to delete theme file", "source", "themes", "theme", name, "error", err)
 			http.Error(w, "Failed to delete theme", http.StatusInternalServerError)
 		}
 		return

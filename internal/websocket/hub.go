@@ -79,6 +79,7 @@ func (h *Hub) Run() {
 					delete(h.clients, client)
 					close(client.send)
 					h.mu.Unlock()
+					logging.Warn("WebSocket client dropped: send buffer full", "source", "websocket")
 					h.mu.RLock()
 				}
 			}

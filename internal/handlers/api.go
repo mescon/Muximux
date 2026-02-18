@@ -71,10 +71,12 @@ func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 
 	data, err := yaml.Marshal(&cfg)
 	if err != nil {
+		logging.Error("Failed to marshal config for export", "source", "config", "error", err)
 		http.Error(w, "Failed to marshal config", http.StatusInternalServerError)
 		return
 	}
 
+	logging.Info("Config exported", "source", "config")
 	filename := fmt.Sprintf("muximux-config-%s.yaml", time.Now().Format("2006-01-02"))
 	w.Header().Set("Content-Type", "application/x-yaml")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
@@ -97,6 +99,7 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 
 	var cfg config.Config
 	if err := yaml.Unmarshal(body, &cfg); err != nil {
+		logging.Warn("Config import failed: invalid YAML", "source", "config", "error", err)
 		http.Error(w, fmt.Sprintf("Invalid YAML: %s", err.Error()), http.StatusBadRequest)
 		return
 	}
@@ -379,6 +382,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
+		logging.Error("Failed to save config after app creation", "source", "config", "app", newApp.Name, "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
@@ -443,6 +447,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
+		logging.Error("Failed to save config after app update", "source", "config", "app", clientApp.Name, "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
@@ -475,6 +480,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
+		logging.Error("Failed to save config after app deletion", "source", "config", "app", name, "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
@@ -528,6 +534,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
+		logging.Error("Failed to save config after group creation", "source", "config", "group", group.Name, "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
@@ -567,6 +574,7 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
+		logging.Error("Failed to save config after group update", "source", "config", "group", group.Name, "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}
@@ -607,6 +615,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
+		logging.Error("Failed to save config after group deletion", "source", "config", "group", name, "error", err)
 		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
 		return
 	}

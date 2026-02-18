@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // SystemHandler serves system info and update check endpoints.
@@ -139,6 +141,7 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 
 	ghResp, err := client.Do(req)
 	if err != nil {
+		logging.Warn("Update check failed", "source", "system", "error", err)
 		w.Header().Set(headerContentType, contentTypeJSON)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to check for updates: " + err.Error()})
@@ -175,14 +178,21 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	latestVersion := strings.TrimPrefix(release.TagName, "v")
 	downloads := buildDownloadURLs(release.Assets)
 
+	updateAvailable := compareVersions(h.version, latestVersion) < 0
 	resp := UpdateCheckResponse{
 		CurrentVersion:  h.version,
 		LatestVersion:   latestVersion,
-		UpdateAvailable: compareVersions(h.version, latestVersion) < 0,
+		UpdateAvailable: updateAvailable,
 		ReleaseURL:      release.HTMLURL,
 		Changelog:       release.Body,
 		PublishedAt:     release.PublishedAt,
 		DownloadURLs:    downloads,
+	}
+
+	if updateAvailable {
+		logging.Info("Update available", "source", "system", "current", h.version, "latest", latestVersion)
+	} else {
+		logging.Debug("Update check: up to date", "source", "system", "version", h.version)
 	}
 
 	w.Header().Set(headerContentType, contentTypeJSON)

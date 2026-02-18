@@ -105,6 +105,7 @@ func (p *OIDCProvider) loadDiscovery() error {
 
 	resp, err := p.httpClient.Get(discoveryURL)
 	if err != nil {
+		logging.Error("OIDC discovery failed", "source", "auth", "url", discoveryURL, "error", err)
 		return fmt.Errorf("failed to fetch discovery document: %w", err)
 	}
 	defer resp.Body.Close()
@@ -129,6 +130,7 @@ func (p *OIDCProvider) loadDiscovery() error {
 	p.userinfoEndpoint = doc.UserinfoEndpoint
 	p.jwksURI = doc.JwksURI
 	p.discoveryLoaded = true
+	logging.Debug("OIDC discovery loaded", "source", "auth", "issuer", p.config.IssuerURL)
 
 	return nil
 }
@@ -184,6 +186,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	p.statesMu.Unlock()
 
 	if !ok {
+		logging.Warn("OIDC callback: invalid state parameter", "source", "auth")
 		http.Error(w, "Invalid state parameter", http.StatusBadRequest)
 		return
 	}
@@ -235,12 +238,14 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Create session
 	session, err := p.sessionStore.Create(user.ID, user.Username, user.Role)
 	if err != nil {
+		logging.Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
 		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
 	}
 
 	// Set session cookie
 	p.sessionStore.SetCookie(w, session)
+	logging.Info("OIDC user logged in", "source", "auth", "user", username, "role", role)
 
 	// Redirect to original destination or home
 	redirectURL := sanitizeRedirectURL(entry.redirectURL, p.config.BasePath)
@@ -410,6 +415,7 @@ func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
 
 	authURL, err := p.GetAuthorizationURL(redirectAfter)
 	if err != nil {
+		logging.Warn("OIDC: failed to generate authorization URL", "source", "auth", "error", err)
 		http.Error(w, "Failed to get authorization URL: "+err.Error(), http.StatusInternalServerError)
 		return
 	}

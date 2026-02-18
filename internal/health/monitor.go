@@ -113,12 +113,14 @@ func (m *Monitor) Start() {
 	ctx, cancel := context.WithCancel(context.Background())
 	m.cancel = cancel
 	go m.run(ctx)
+	logging.Info("Health monitor started", "source", "health", "interval", m.interval.String(), "timeout", m.timeout.String())
 }
 
 // Stop stops the health check loop
 func (m *Monitor) Stop() {
 	if m.cancel != nil {
 		m.cancel()
+		logging.Info("Health monitor stopped", "source", "health")
 	}
 }
 
@@ -233,6 +235,14 @@ func (m *Monitor) updateHealth(name string, status Status, responseTime time.Dur
 	}
 
 	m.mu.Unlock()
+
+	if previousStatus != StatusUnknown && previousStatus != status {
+		if status == StatusUnhealthy {
+			logging.Warn("App became unhealthy", "source", "health", "app", name, "error", errMsg)
+		} else if status == StatusHealthy {
+			logging.Info("App recovered", "source", "health", "app", name, "response_time_ms", responseTime.Milliseconds())
+		}
+	}
 
 	logging.Debug("Health check completed", "source", "health", "app", name, "status", string(status), "response_time_ms", responseTime.Milliseconds())
 

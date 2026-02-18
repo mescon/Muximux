@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"sync"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // Session represents a user session
@@ -163,12 +165,17 @@ func (s *SessionStore) cleanup() {
 
 	for range ticker.C {
 		s.mu.Lock()
+		count := 0
 		for id, session := range s.sessions {
 			if session.IsExpired() {
 				delete(s.sessions, id)
+				count++
 			}
 		}
 		s.mu.Unlock()
+		if count > 0 {
+			logging.Debug("Session cleanup", "source", "auth", "expired", count)
+		}
 	}
 }
 
