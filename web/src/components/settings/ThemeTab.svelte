@@ -197,7 +197,6 @@
       {#each $themeFamilies as family (family.id)}
         {@const isSelected = $selectedFamily === family.id}
         {@const isCustom = family.darkTheme ? !family.darkTheme.isBuiltin : family.lightTheme ? !family.lightTheme.isBuiltin : false}
-        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div
           class="relative p-4 rounded-xl text-left transition-all group cursor-pointer"
           style="
