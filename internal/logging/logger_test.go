@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -228,5 +229,111 @@ func TestInit_SetsDefault(t *testing.T) {
 	// After Init, slog.Default() should be the logger we created
 	if slog.Default() != defaultLogger {
 		t.Error("expected Init to set slog default logger")
+	}
+}
+
+// newTestHandler creates a BroadcastHandler backed by a LogBuffer for testing.
+func newTestHandler(buf *LogBuffer) *BroadcastHandler {
+	inner := slog.NewTextHandler(io.Discard, &slog.HandlerOptions{Level: slog.LevelDebug})
+	return NewBroadcastHandler(inner, buf)
+}
+
+func TestBroadcastHandler_CapturesAttrs(t *testing.T) {
+	buf := NewLogBuffer(100)
+	logger := slog.New(newTestHandler(buf))
+
+	logger.Info("App created", "app", "Plex", "source", "config")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	e := entries[0]
+	if e.Source != "config" {
+		t.Errorf("expected source 'config', got %q", e.Source)
+	}
+	if e.Attrs == nil {
+		t.Fatal("expected Attrs to be non-nil")
+	}
+	if e.Attrs["app"] != "Plex" {
+		t.Errorf("expected attrs[app]='Plex', got %q", e.Attrs["app"])
+	}
+}
+
+func TestBroadcastHandler_SourceNotInAttrs(t *testing.T) {
+	buf := NewLogBuffer(100)
+	logger := slog.New(newTestHandler(buf))
+
+	logger.Info("test", "source", "config", "app", "Sonarr")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	if _, ok := entries[0].Attrs["source"]; ok {
+		t.Error("source should not appear in Attrs map — it has its own field")
+	}
+}
+
+func TestBroadcastHandler_NoExtraAttrs(t *testing.T) {
+	buf := NewLogBuffer(100)
+	logger := slog.New(newTestHandler(buf))
+
+	logger.Info("Server started", "source", "server")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	if entries[0].Attrs != nil {
+		t.Errorf("expected nil Attrs when only source is present, got %v", entries[0].Attrs)
+	}
+}
+
+func TestBroadcastHandler_WithAttrsPreset(t *testing.T) {
+	buf := NewLogBuffer(100)
+	handler := newTestHandler(buf)
+	// Simulate slog.With("source", "config", "component", "apps")
+	child := handler.WithAttrs([]slog.Attr{
+		slog.String("source", "config"),
+		slog.String("component", "apps"),
+	})
+	logger := slog.New(child.(*BroadcastHandler))
+
+	logger.Info("App deleted", "app", "Radarr")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	e := entries[0]
+	if e.Source != "config" {
+		t.Errorf("expected source 'config', got %q", e.Source)
+	}
+	if e.Attrs["component"] != "apps" {
+		t.Errorf("expected attrs[component]='apps', got %q", e.Attrs["component"])
+	}
+	if e.Attrs["app"] != "Radarr" {
+		t.Errorf("expected attrs[app]='Radarr', got %q", e.Attrs["app"])
+	}
+}
+
+func TestBroadcastHandler_RecordOverridesPreset(t *testing.T) {
+	buf := NewLogBuffer(100)
+	handler := newTestHandler(buf)
+	child := handler.WithAttrs([]slog.Attr{
+		slog.String("env", "staging"),
+	})
+	logger := slog.New(child.(*BroadcastHandler))
+
+	// Record-level attr with same key should override preset
+	logger.Info("test", "env", "production")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	if entries[0].Attrs["env"] != "production" {
+		t.Errorf("expected record-level attr to override preset, got %q", entries[0].Attrs["env"])
 	}
 }

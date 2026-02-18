@@ -27,7 +27,7 @@
       case 'unhealthy':
         return 'bg-red-500';
       default:
-        return 'bg-gray-500';
+        return 'bg-bg-active';
     }
   }
 
@@ -90,24 +90,24 @@
   {#if showTooltip && health}
     <div
       class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2
-             bg-gray-900 border border-gray-700 rounded-lg shadow-lg
+             bg-bg-base border border-border rounded-lg shadow-lg
              opacity-0 invisible group-hover/health:opacity-100 group-hover/health:visible
              transition-all duration-200 z-50 min-w-[180px] text-xs"
     >
       <div class="flex items-center justify-between mb-1">
-        <span class="font-medium text-white">{getStatusLabel(health.status)}</span>
+        <span class="font-medium text-text-primary">{getStatusLabel(health.status)}</span>
         <span class="rounded-full px-1.5 py-0.5 text-[10px] {getStatusColor(health.status)} text-white">
           {health.uptime_percent.toFixed(1)}%
         </span>
       </div>
 
       {#if health.response_time_ms > 0}
-        <div class="text-gray-400">
+        <div class="text-text-muted">
           Response: {formatResponseTime(health.response_time_ms)}
         </div>
       {/if}
 
-      <div class="text-gray-400">
+      <div class="text-text-muted">
         Checked: {formatLastCheck(health.last_check)}
       </div>
 

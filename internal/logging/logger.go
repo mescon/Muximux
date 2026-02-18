@@ -32,10 +32,11 @@ type Config struct {
 
 // LogEntry represents a single log entry stored in the ring buffer
 type LogEntry struct {
-	Timestamp time.Time `json:"timestamp"`
-	Level     string    `json:"level"`
-	Message   string    `json:"message"`
-	Source    string    `json:"source"`
+	Timestamp time.Time         `json:"timestamp"`
+	Level     string            `json:"level"`
+	Message   string            `json:"message"`
+	Source    string            `json:"source"`
+	Attrs     map[string]string `json:"attrs,omitempty"`
 }
 
 // LogBuffer is a thread-safe ring buffer that stores log entries and supports
@@ -133,22 +134,24 @@ func (h *BroadcastHandler) Enabled(ctx context.Context, level slog.Level) bool {
 }
 
 func (h *BroadcastHandler) Handle(ctx context.Context, r slog.Record) error { //nolint:gocritic // slog.Handler interface requires value receiver
-	// Extract source attribute from record and pre-set attrs
 	source := ""
+	attrs := map[string]string{}
 
-	// Check pre-set attrs first (from WithAttrs)
+	// Pre-set attrs (from WithAttrs)
 	for _, a := range h.attrs {
 		if a.Key == "source" {
 			source = a.Value.String()
-			break
+		} else {
+			attrs[a.Key] = a.Value.String()
 		}
 	}
 
-	// Then check record-level attrs (override pre-set)
+	// Record-level attrs (override pre-set)
 	r.Attrs(func(a slog.Attr) bool {
 		if a.Key == "source" {
 			source = a.Value.String()
-			return false
+		} else {
+			attrs[a.Key] = a.Value.String()
 		}
 		return true
 	})
@@ -158,6 +161,9 @@ func (h *BroadcastHandler) Handle(ctx context.Context, r slog.Record) error { //
 		Level:     strings.ToLower(r.Level.String()),
 		Message:   r.Message,
 		Source:    source,
+	}
+	if len(attrs) > 0 {
+		entry.Attrs = attrs
 	}
 	h.buffer.Add(entry)
 

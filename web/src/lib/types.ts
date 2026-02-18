@@ -108,6 +108,7 @@ export interface LogEntry {
   level: 'debug' | 'info' | 'warn' | 'error';
   message: string;
   source: string;
+  attrs?: Record<string, string>;
 }
 
 export interface Config {

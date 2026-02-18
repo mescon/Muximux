@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	"github.com/mescon/muximux/v3/internal/icons"
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // IconHandler handles icon-related requests
@@ -248,10 +249,12 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 
 	// Save the icon
 	if err := h.customManager.SaveIcon(name, data, contentType); err != nil {
+		logging.Warn("Custom icon upload failed", "source", "icons", "name", name, "error", err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	logging.Info("Custom icon uploaded", "source", "icons", "name", name, "size", len(data))
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"name":   name,
@@ -278,6 +281,7 @@ func (h *IconHandler) DeleteCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	logging.Info("Custom icon deleted", "source", "icons", "name", path)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"status": "deleted",

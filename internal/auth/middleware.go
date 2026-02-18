@@ -120,6 +120,7 @@ func (m *Middleware) UpdateConfig(config *AuthConfig) {
 	m.config = *config
 	m.trustedNets = trustedNets
 	m.mu.Unlock()
+	logging.Info("Auth config updated", "source", "auth", "method", string(config.Method))
 }
 
 // RequireAuth returns middleware that requires authentication
@@ -214,6 +215,7 @@ func (m *Middleware) RequireRole(roles ...string) func(http.Handler) http.Handle
 				}
 			}
 
+			logging.Warn("Access denied: insufficient role", "source", "auth", "user", user.Username, "role", user.Role, "path", r.URL.Path)
 			http.Error(w, "Forbidden", http.StatusForbidden)
 		})
 	}

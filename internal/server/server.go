@@ -637,6 +637,7 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 		}
 
 		// Block all other API endpoints during setup
+		logging.Debug("API blocked: setup not complete", "source", "server", "path", path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(map[string]string{"error": "setup_required"})
@@ -695,6 +696,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	s.config.Auth.SetupComplete = true
+	logging.Info("Setup completed", "source", "config", "method", req.Method)
 	if err := s.config.Save(s.configPath); err != nil {
 		logging.Error("Failed to save config after setup", "source", "server", "error", err)
 		w.Header().Set("Content-Type", "application/json")
@@ -760,6 +762,8 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 		APIKey:      s.config.Auth.APIKey,
 	})
 
+	logging.Info("Admin user created", "source", "auth", "user", req.Username)
+
 	// Create session so user is immediately logged in
 	session, err := s.sessionStore.Create(req.Username, req.Username, "admin")
 	if err != nil {
@@ -801,11 +805,14 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 		APIKey:         s.config.Auth.APIKey,
 	})
 
+	logging.Info("Forward auth configured", "source", "auth", "proxies", strings.Join(req.TrustedProxies, ","))
+
 	return nil
 }
 
 func (s *Server) setupNone() {
 	s.config.Auth.Method = "none"
+	logging.Info("Auth disabled (method: none)", "source", "auth")
 	// Middleware stays as-is (virtual admin)
 }
 
@@ -849,6 +856,7 @@ func (s *Server) GetHub() *websocket.Hub {
 
 // Stop gracefully shuts down the server
 func (s *Server) Stop() error {
+	logging.Info("Server shutting down", "source", "server")
 	// Stop health monitoring
 	if s.healthMonitor != nil {
 		s.healthMonitor.Stop()
@@ -959,6 +967,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		if strings.HasPrefix(r.URL.Path, "/api/") && (r.Method == http.MethodPost || r.Method == http.MethodPut) {
 			ct := r.Header.Get("Content-Type")
 			if !strings.HasPrefix(ct, "application/json") && !strings.HasPrefix(ct, "multipart/form-data") {
+				logging.Warn("CSRF check failed: invalid content-type", "source", "server", "path", r.URL.Path, "method", r.Method, "content_type", ct)
 				http.Error(w, "Forbidden: JSON Content-Type required", http.StatusForbidden)
 				return
 			}

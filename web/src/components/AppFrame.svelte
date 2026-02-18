@@ -96,11 +96,11 @@
   <!-- Pull-to-refresh indicator -->
   {#if showPullIndicator && isMobile}
     <div
-      class="absolute top-0 left-0 right-0 flex justify-center items-center z-10 bg-gray-100 transition-all overflow-hidden"
+      class="absolute top-0 left-0 right-0 flex justify-center items-center z-10 bg-bg-elevated transition-all overflow-hidden"
       style="height: {pullDistance}px"
     >
       <div
-        class="flex items-center gap-2 text-gray-600"
+        class="flex items-center gap-2 text-text-disabled"
         style="opacity: {pullProgress}"
       >
         {#if isRefreshing}

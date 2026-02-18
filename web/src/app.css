@@ -465,6 +465,15 @@ html.theme-switching *::after {
     @apply p-2;
     aspect-ratio: 1;
   }
+
+  .btn-danger {
+    @apply bg-red-600 text-white;
+    border: none;
+  }
+
+  .btn-danger:hover {
+    @apply bg-red-500;
+  }
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

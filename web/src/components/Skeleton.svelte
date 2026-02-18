@@ -8,7 +8,7 @@
 </script>
 
 <div
-  class="animate-pulse bg-gray-700/50 {circle ? 'rounded-full' : 'rounded'} {className}"
+  class="animate-pulse bg-bg-hover {circle ? 'rounded-full' : 'rounded'} {className}"
   style="width: {circle ? height : width}; height: {height};"
   aria-hidden="true"
 ></div>

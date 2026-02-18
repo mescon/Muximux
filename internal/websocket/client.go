@@ -99,6 +99,7 @@ func (c *Client) WritePump() {
 
 			w, err := c.conn.NextWriter(websocket.TextMessage)
 			if err != nil {
+				logging.Debug("WebSocket write failed, closing connection", "source", "websocket", "error", err)
 				return
 			}
 			w.Write(message)

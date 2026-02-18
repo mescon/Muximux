@@ -118,6 +118,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Create session
 	session, err := h.sessionStore.Create(user.ID, user.Username, user.Role)
 	if err != nil {
+		logging.Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
 		w.Header().Set(headerContentType, contentTypeJSON)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(LoginResponse{
@@ -152,12 +153,15 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	// Get current session
 	session := h.sessionStore.GetFromRequest(r)
+	username := "unknown"
 	if session != nil {
+		username = session.Username
 		h.sessionStore.Delete(session.ID)
 	}
 
 	// Clear cookie
 	h.sessionStore.ClearCookie(w)
+	logging.Info("User logged out", "source", "auth", "user", username)
 
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
@@ -483,6 +487,7 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		logging.Error("Failed to persist user update", "source", "auth", "error", err)
 	}
 
+	logging.Info("User updated", "source", "auth", "user", username, "role", user.Role)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
@@ -579,6 +584,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		err := h.config.Save(h.configPath)
 		h.configMu.Unlock()
 		if err != nil {
+			logging.Error("Failed to save config after auth method change", "source", "auth", "method", "builtin", "error", err)
 			http.Error(w, "Failed to save config", http.StatusInternalServerError)
 			return
 		}
@@ -615,6 +621,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		err := h.config.Save(h.configPath)
 		h.configMu.Unlock()
 		if err != nil {
+			logging.Error("Failed to save config after auth method change", "source", "auth", "method", "forward_auth", "error", err)
 			http.Error(w, "Failed to save config", http.StatusInternalServerError)
 			return
 		}
@@ -630,6 +637,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		err := h.config.Save(h.configPath)
 		h.configMu.Unlock()
 		if err != nil {
+			logging.Error("Failed to save config after auth method change", "source", "auth", "method", "none", "error", err)
 			http.Error(w, "Failed to save config", http.StatusInternalServerError)
 			return
 		}

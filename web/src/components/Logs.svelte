@@ -37,7 +37,13 @@
     return currentEntries.filter(entry => {
       if (!enabledLevels[entry.level]) return false;
       if (!allSourcesEnabled && entry.source && !enabledSources[entry.source]) return false;
-      if (q && !entry.message.toLowerCase().includes(q) && !entry.source.toLowerCase().includes(q)) return false;
+      if (q) {
+        const msgMatch = entry.message.toLowerCase().includes(q) || entry.source.toLowerCase().includes(q);
+        const attrMatch = entry.attrs && Object.entries(entry.attrs).some(
+          ([k, v]) => k.toLowerCase().includes(q) || v.toLowerCase().includes(q)
+        );
+        if (!msgMatch && !attrMatch) return false;
+      }
       return true;
     });
   });
@@ -92,7 +98,12 @@
 
     const lines = entries.map(e => {
       const ts = e.timestamp.replace('T', ' ').replace(/\+.*$/, '');
-      return `${ts} ${e.level.toUpperCase().padEnd(5)} [${e.source}] ${e.message}`;
+      let line = `${ts} ${e.level.toUpperCase().padEnd(5)} [${e.source}] ${e.message}`;
+      if (e.attrs) {
+        const pairs = Object.entries(e.attrs).map(([k, v]) => `${k}=${v}`).join('  ');
+        line += `  ${pairs}`;
+      }
+      return line;
     });
     const blob = new Blob([lines.join('\n') + '\n'], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -290,6 +301,13 @@
           <span class="log-level-badge {levelClass(entry.level)}">{entry.level.toUpperCase().padEnd(5)}</span>
           <span class="log-source">{entry.source}</span>
           <span class="log-message">{entry.message}</span>
+          {#if entry.attrs}
+            <span class="log-attrs">
+              {#each Object.entries(entry.attrs) as [key, value]}
+                <span class="log-attr">{key}=<span class="log-attr-value">{value}</span></span>
+              {/each}
+            </span>
+          {/if}
         </div>
       {/each}
     {/if}
@@ -638,6 +656,22 @@
     color: var(--text-secondary);
     white-space: pre-wrap;
     word-break: break-all;
+  }
+
+  .log-attrs {
+    display: inline-flex;
+    gap: 0.5rem;
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+  }
+
+  .log-attr {
+    font-size: 0.6875rem;
+    color: var(--text-disabled);
+  }
+
+  .log-attr-value {
+    color: var(--text-muted);
   }
 
   /* Footer */
