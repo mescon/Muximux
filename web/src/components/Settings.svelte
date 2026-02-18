@@ -852,14 +852,14 @@
           <span class="text-xs text-yellow-400">Unsaved changes</span>
         {/if}
         <button
-          class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
+          class="btn btn-primary btn-sm disabled:opacity-50"
           disabled={!hasChanges}
           onclick={handleSave}
         >
           Save Changes
         </button>
         <button
-          class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon btn-sm"
           onclick={handleClose}
           aria-label="Close settings"
         >
@@ -876,11 +876,11 @@
         <span class="text-sm text-yellow-200">You have unsaved changes. Discard?</span>
         <div class="flex gap-2">
           <button
-            class="px-3 py-1 text-xs rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
+            class="btn btn-secondary btn-sm"
             onclick={() => confirmClose = false}
           >Keep Editing</button>
           <button
-            class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+            class="btn btn-danger btn-sm"
             onclick={confirmCloseDiscard}
           >Discard</button>
         </div>
@@ -1192,7 +1192,7 @@
 
             <div class="flex flex-wrap gap-3">
               <button
-                class="px-4 py-2 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-md flex items-center gap-2"
+                class="btn btn-secondary btn-sm flex items-center gap-2"
                 onclick={handleExport}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1201,7 +1201,7 @@
                 Export Config
               </button>
               <button
-                class="px-4 py-2 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-md flex items-center gap-2"
+                class="btn btn-secondary btn-sm flex items-center gap-2"
                 onclick={() => importFileInput?.click()}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1232,7 +1232,7 @@
             <h3 class="text-sm font-medium text-text-secondary">Apps & Groups</h3>
             <div class="flex gap-2">
               <button
-                class="px-3 py-1.5 text-sm bg-bg-overlay hover:bg-bg-active text-text-primary rounded-md flex items-center gap-1"
+                class="btn btn-secondary btn-sm flex items-center gap-1"
                 onclick={() => { groupErrors = {}; showAddGroup = true; }}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1241,7 +1241,7 @@
                 Add Group
               </button>
               <button
-                class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md flex items-center gap-1"
+                class="btn btn-primary btn-sm flex items-center gap-1"
                 onclick={() => { appErrors = {}; addAppStep = 'choose'; addAppSearch = ''; showAddApp = true; }}
               >
                 <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1296,20 +1296,20 @@
                   {#if confirmDeleteGroup?.name === group.name}
                     <div class="flex items-center gap-1">
                       <span class="text-xs text-red-400 mr-1">Delete?</span>
-                      <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                      <button class="btn btn-danger btn-sm"
                               onclick={confirmDeleteGroupAction}>Yes</button>
-                      <button class="px-2 py-1 text-xs rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
+                      <button class="btn btn-secondary btn-sm"
                               onclick={() => confirmDeleteGroup = null}>No</button>
                     </div>
                   {:else}
                     <div class="flex items-center gap-1 app-actions">
-                      <button class="p-1.5 text-text-muted hover:text-text-primary rounded hover:bg-white/10"
+                      <button class="btn btn-ghost btn-icon btn-sm"
                               onclick={() => startEditGroup(group)} title="Edit group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                       </button>
-                      <button class="p-1.5 text-text-muted hover:text-red-400 rounded hover:bg-white/10"
+                      <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
                               onclick={() => deleteGroup(group)} title="Delete group">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
@@ -1375,21 +1375,21 @@
                       {#if confirmDeleteApp?.name === app.name}
                         <div class="flex items-center gap-1">
                           <span class="text-xs text-red-400 mr-1">Delete?</span>
-                          <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                          <button class="btn btn-danger btn-sm"
                                   onclick={confirmDeleteAppAction}>Yes</button>
-                          <button class="px-2 py-1 text-xs rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
+                          <button class="btn btn-secondary btn-sm"
                                   onclick={() => confirmDeleteApp = null}>No</button>
                         </div>
                       {:else}
                         <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
-                          <button class="p-1.5 text-text-muted hover:text-text-primary rounded hover:bg-white/10"
+                          <button class="btn btn-ghost btn-icon btn-sm"
                                   tabindex="-1"
                                   onclick={() => startEditApp(app)} title="Edit">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
-                          <button class="p-1.5 text-text-muted hover:text-red-400 rounded hover:bg-white/10"
+                          <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
                                   tabindex="-1"
                                   onclick={() => deleteApp(app)} title="Delete">
                             <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1467,21 +1467,21 @@
                     {#if confirmDeleteApp?.name === app.name}
                       <div class="flex items-center gap-1">
                         <span class="text-xs text-red-400 mr-1">Delete?</span>
-                        <button class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
+                        <button class="btn btn-danger btn-sm"
                                 onclick={confirmDeleteAppAction}>Yes</button>
-                        <button class="px-2 py-1 text-xs rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
+                        <button class="btn btn-secondary btn-sm"
                                 onclick={() => confirmDeleteApp = null}>No</button>
                       </div>
                     {:else}
                       <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
-                        <button class="p-1.5 text-text-muted hover:text-text-primary rounded hover:bg-white/10"
+                        <button class="btn btn-ghost btn-icon btn-sm"
                                 tabindex="-1"
                                 onclick={() => startEditApp(app)} title="Edit">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </button>
-                        <button class="p-1.5 text-text-muted hover:text-red-400 rounded hover:bg-white/10"
+                        <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
                                 tabindex="-1"
                                 onclick={() => deleteApp(app)} title="Delete">
                           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1918,7 +1918,7 @@
                           {/if}
 
                           <button
-                            class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                            class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
                             disabled={cpLoading || cpNew.length < 8 || cpNew !== cpConfirm || !cpCurrent}
                             onclick={handleChangePassword}
                           >
@@ -1964,7 +1964,7 @@
                             <p class="text-amber-400 text-xs">Password must be at least 8 characters ({newUserPassword.length}/8)</p>
                           {/if}
                           <button
-                            class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                            class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
                             disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
                             onclick={async () => {
                               const savedUser = newUserName.trim();
@@ -2147,7 +2147,7 @@
 
             {#if showUpdateBtn}
               <button
-                class="mt-4 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm rounded-md transition-colors disabled:opacity-50 flex items-center gap-2"
+                class="btn btn-primary btn-sm mt-4 disabled:opacity-50 flex items-center gap-2"
                 disabled={methodLoading || (selectedAuthMethod === 'forward_auth' && !methodTrustedProxies.trim())}
                 onclick={handleChangeAuthMethod}
               >
@@ -2169,7 +2169,7 @@
                   <p class="text-sm text-text-muted">Manage dashboard users and roles</p>
                 </div>
                 <button
-                  class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors flex items-center gap-1.5"
+                  class="btn btn-primary btn-sm flex items-center gap-1.5"
                   onclick={() => showAddUser = !showAddUser}
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2232,7 +2232,7 @@
 
                   <div class="flex gap-2">
                     <button
-                      class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md transition-colors disabled:opacity-50 flex items-center gap-1.5"
+                      class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-1.5"
                       disabled={addUserLoading || !newUserName.trim() || newUserPassword.length < 8}
                       onclick={handleAddUser}
                     >
@@ -2280,11 +2280,11 @@
                       {#if confirmDeleteUser === user.username}
                         <div class="flex items-center gap-1.5">
                           <button
-                            class="px-2 py-1 text-xs bg-red-600 hover:bg-red-500 text-white rounded"
+                            class="btn btn-danger btn-sm"
                             onclick={() => handleDeleteUser(user.username)}
                           >Delete</button>
                           <button
-                            class="px-2 py-1 text-xs bg-bg-overlay hover:bg-bg-active text-text-primary rounded"
+                            class="btn btn-secondary btn-sm"
                             onclick={() => confirmDeleteUser = null}
                           >Cancel</button>
                         </div>
@@ -2373,7 +2373,7 @@
                     href={updateInfo.release_url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    class="px-3 py-1.5 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-lg flex items-center gap-1.5 transition-colors flex-shrink-0"
+                    class="btn btn-secondary btn-sm flex items-center gap-1.5 flex-shrink-0"
                   >
                     View on GitHub
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -2650,7 +2650,7 @@ chmod +x muximux-darwin-arm64
         <div class="flex items-center gap-2">
           {#if addAppStep === 'configure'}
             <button
-              class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+              class="btn btn-ghost btn-icon"
               onclick={() => { addAppStep = 'choose'; addAppSearch = ''; }}
               aria-label="Back"
             >
@@ -2662,7 +2662,7 @@ chmod +x muximux-darwin-arm64
           <h3 class="text-lg font-semibold text-text-primary">{addAppStep === 'choose' ? 'Add Application' : 'Configure ' + (newApp.name || 'App')}</h3>
         </div>
         <button
-          class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon"
           onclick={() => showAddApp = false}
           aria-label="Close"
         >
@@ -2740,7 +2740,7 @@ chmod +x muximux-darwin-arm64
             <div class="text-center py-6">
               <p class="text-text-muted text-sm mb-3">No matching apps found</p>
               <button
-                class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+                class="btn btn-primary btn-sm"
                 onclick={startCustomApp}
               >
                 Add as Custom App
@@ -2782,7 +2782,7 @@ chmod +x muximux-darwin-arm64
                 <AppIcon icon={newApp.icon} name={newApp.name || 'App'} color={newApp.color} size="lg" />
               </button>
               <button
-                class="px-3 py-2 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-md flex-1 text-left"
+                class="btn btn-secondary btn-sm flex-1 text-left"
                 onclick={() => openIconBrowser('newApp')}
               >
                 {newApp.icon?.name || 'Choose icon...'}
@@ -2937,7 +2937,7 @@ chmod +x muximux-darwin-arm64
             Cancel
           </button>
           <button
-            class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+            class="btn btn-primary btn-sm"
             onclick={addApp}
           >
             Add App
@@ -2962,7 +2962,7 @@ chmod +x muximux-darwin-arm64
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">Add Group</h3>
         <button
-          class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon"
           onclick={() => showAddGroup = false}
           aria-label="Close"
         >
@@ -2991,7 +2991,7 @@ chmod +x muximux-darwin-arm64
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             </button>
             <button
-              class="px-3 py-2 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-md flex-1 text-left"
+              class="btn btn-secondary btn-sm flex-1 text-left"
               onclick={() => openIconBrowser('newGroup')}
             >
               {newGroup.icon?.name || 'Choose icon...'}
@@ -3023,7 +3023,7 @@ chmod +x muximux-darwin-arm64
           Cancel
         </button>
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          class="btn btn-primary btn-sm"
           onclick={addGroup}
         >
           Add Group
@@ -3047,7 +3047,7 @@ chmod +x muximux-darwin-arm64
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">Edit {editingApp.name}</h3>
         <button
-          class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon"
           onclick={cancelEditApp}
           aria-label="Close"
         >
@@ -3108,7 +3108,7 @@ chmod +x muximux-darwin-arm64
             </button>
             <div class="flex-1">
               <button
-                class="px-3 py-2 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-md w-full text-left"
+                class="btn btn-secondary btn-sm w-full text-left"
                 onclick={() => openIconBrowser('editApp')}
               >
                 {editingApp.icon?.name || 'Choose icon...'}
@@ -3547,7 +3547,7 @@ chmod +x muximux-darwin-arm64
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">Edit {editingGroup.name}</h3>
         <button
-          class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon"
           onclick={cancelEditGroup}
           aria-label="Close"
         >
@@ -3576,7 +3576,7 @@ chmod +x muximux-darwin-arm64
             </button>
             <div class="flex-1">
               <button
-                class="px-3 py-2 text-sm bg-bg-elevated hover:bg-bg-active text-text-primary rounded-md w-full text-left"
+                class="btn btn-secondary btn-sm w-full text-left"
                 onclick={() => openIconBrowser('editGroup')}
               >
                 {editingGroup.icon?.name || 'Choose icon...'}
@@ -3655,7 +3655,7 @@ chmod +x muximux-darwin-arm64
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">Select Icon</h3>
         <button
-          class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon"
           onclick={() => { showIconBrowser = false; iconBrowserTarget = null; }}
           aria-label="Close"
         >
@@ -3691,7 +3691,7 @@ chmod +x muximux-darwin-arm64
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">Import Configuration</h3>
         <button
-          class="p-1 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-ghost btn-icon"
           onclick={cancelImport}
           aria-label="Close"
         >
@@ -3720,13 +3720,13 @@ chmod +x muximux-darwin-arm64
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-border">
         <button
-          class="px-4 py-2 text-sm text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          class="btn btn-secondary btn-sm"
           onclick={cancelImport}
         >
           Cancel
         </button>
         <button
-          class="px-4 py-2 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md"
+          class="btn btn-primary btn-sm"
           onclick={applyImport}
         >
           Import
