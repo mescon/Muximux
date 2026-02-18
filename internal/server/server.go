@@ -3,7 +3,6 @@ package server
 import (
 	"bytes"
 	"context"
-	"embed"
 	"encoding/json"
 	"fmt"
 	"io/fs"
@@ -26,9 +25,6 @@ import (
 	"github.com/mescon/muximux/v3/internal/proxy"
 	"github.com/mescon/muximux/v3/internal/websocket"
 )
-
-//go:embed all:dist
-var embeddedFiles embed.FS
 
 // validThemeName only allows safe CSS theme filenames (allowlist approach)
 var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
@@ -135,7 +131,13 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	var staticHandler http.Handler
 
 	// Extract embedded dist filesystem (used for bundled themes + static serving)
-	distFS, distErr := fs.Sub(embeddedFiles, "dist")
+	var distFS fs.FS
+	var distErr error
+	if hasEmbeddedAssets {
+		distFS, distErr = fs.Sub(embeddedFiles, "dist")
+	} else {
+		distErr = fmt.Errorf("no embedded assets (dev mode)")
+	}
 
 	themesDir := filepath.Join(dataDir, "themes")
 	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler, themesDir)

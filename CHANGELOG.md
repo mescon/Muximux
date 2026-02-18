@@ -4,6 +4,25 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Changed
+
+- **Build tag split** — Go builds no longer require a `dist/` placeholder directory. Dev builds compile without `embed_web` tag; production builds use `-tags embed_web` to embed frontend assets.
+- **Docker PUID/PGID support** — Container entrypoint now creates a runtime user matching `PUID`/`PGID` environment variables for bind-mount permission compatibility (linuxserver.io convention).
+- **Docker security hardening** — `docker-compose.yml` adds `init: true`, `no-new-privileges`, and `cap_drop: ALL`.
+
+### Added
+
+- **Docstring coverage enforcement** — CI checks that 80%+ of exported Go identifiers have doc comments (`scripts/check-docstrings.sh`).
+- **CHANGELOG-based release notes** — Release workflow extracts notes from CHANGELOG.md instead of auto-generating from PR titles. Falls back to auto-generation if no entry found.
+- **CONTRIBUTING.md** — Developer guide covering prerequisites, dev mode, building, testing, and PR process.
+- **systemd service file** — `muximux.service` for bare-metal deployments with security hardening.
+- **CodeRabbit config** — `.coderabbit.yaml` with path-specific review instructions.
+- **Codecov config** — `codecov.yml` with backend/frontend flags, patch target 70%, and carryforward support.
+
+---
+
+## [3.0.0-rc.2] - 2026-02-18
+
 ### Added
 
 - **Flat bar style** for top/bottom navigation — a streamlined layout that shows apps in a single row separated by group icon dividers, without group headers or collapsible sections.
@@ -108,3 +127,9 @@ Beta release with reverse proxy improvements, onboarding redesign, WebSocket pro
 ## [3.0.0-alpha.1] - 2024-11-15
 
 Initial alpha release with core dashboard, authentication, health monitoring, icons, themes, keyboard shortcuts, and reverse proxy.
+
+[Unreleased]: https://github.com/mescon/Muximux/compare/v3.0.0-rc.2...HEAD
+[3.0.0-rc.2]: https://github.com/mescon/Muximux/compare/v3.0.0...v3.0.0-rc.2
+[3.0.0]: https://github.com/mescon/Muximux/compare/v3.0.0-beta.1...v3.0.0
+[3.0.0-beta.1]: https://github.com/mescon/Muximux/compare/v3.0.0-alpha.1...v3.0.0-beta.1
+[3.0.0-alpha.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.0-alpha.1

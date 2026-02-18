@@ -11,7 +11,12 @@ services:
   muximux:
     image: ghcr.io/mescon/muximux:latest
     container_name: muximux
+    init: true
     restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     ports:
       - "8080:8080"
       # Uncomment if using tls.domain or gateway with domain-based sites:
@@ -22,6 +27,10 @@ services:
       # Uncomment to mount a custom gateway Caddyfile:
       # - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
     environment:
+      # ── User/Group ───────────────────────────────────────────────
+      - PUID=1000
+      - PGID=1000
+
       # ── Timezone ────────────────────────────────────────────────
       - TZ=UTC
 

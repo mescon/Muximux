@@ -65,6 +65,7 @@ jobs:
           fi
 
           go build \
+            -tags embed_web \
             -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${SHORT_COMMIT} -X main.buildDate=${BUILD_DATE}" \
             -o "muximux-${GOOS}-${GOARCH}${EXT}" \
             ./cmd/muximux
@@ -144,7 +145,35 @@ jobs:
           cd artifacts
           sha256sum muximux-* > checksums.txt
 
-      - name: Create Release
+      - name: Extract CHANGELOG notes
+        id: changelog
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          # Strip leading 'v' to match CHANGELOG headers like [3.0.0]
+          VERSION="${TAG#v}"
+          # Extract the section between this version's header and the next
+          NOTES=$(awk "/^## \\[${VERSION}\\]/{found=1; next} /^## \\[/{if(found) exit} found{print}" CHANGELOG.md)
+          if [ -n "$NOTES" ]; then
+            echo "$NOTES" > release-notes.md
+            echo "found=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "found=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Create Release (with CHANGELOG)
+        if: steps.changelog.outputs.found == 'true'
+        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b  # v2
+        with:
+          draft: false
+          prerelease: ${{ contains(github.ref, '-') }}
+          body_path: release-notes.md
+          files: |
+            artifacts/muximux-*
+            artifacts/checksums.txt
+
+      - name: Create Release (auto-generated notes)
+        if: steps.changelog.outputs.found != 'true'
         uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b  # v2
         with:
           draft: false

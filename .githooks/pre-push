@@ -33,10 +33,6 @@ errors=0
 # ─── Go tests with race detection + coverage ───────────────────────
 info "Running Go tests with coverage..."
 
-# Create embed placeholder if needed (same as CI)
-mkdir -p "$REPO_ROOT/internal/server/dist"
-touch "$REPO_ROOT/internal/server/dist/.gitkeep"
-
 # Exclude cmd/ packages — they're main() entry points with no tests, and
 # compiling them with -race can trigger toolchain version mismatch errors
 # when the system Go differs from go.mod's toolchain directive.

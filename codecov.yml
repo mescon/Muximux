@@ -1,0 +1,25 @@
+coverage:
+  status:
+    project:
+      default:
+        target: auto
+    patch:
+      default:
+        target: 70%
+
+flags:
+  backend:
+    paths:
+      - internal/
+      - cmd/
+    carryforward: true
+  frontend:
+    paths:
+      - web/src/
+    carryforward: true
+
+ignore:
+  - "**/*_test.go"
+  - "internal/server/dist/**"
+  - "web/dist/**"
+  - "web/node_modules/**"

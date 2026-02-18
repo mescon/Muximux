@@ -33,23 +33,26 @@ ARG VERSION=dev
 ARG COMMIT=none
 ARG BUILD_DATE=unknown
 RUN CGO_ENABLED=0 GOOS=linux go build \
+    -tags embed_web \
     -ldflags "-s -w -X main.version=${VERSION} -X main.commit=${COMMIT} -X main.buildDate=${BUILD_DATE}" \
     -o /muximux ./cmd/muximux
 
 # Final stage - minimal runtime
 FROM alpine:3.23
 
-# Install runtime dependencies, create non-root user and data directory
-RUN apk add --no-cache ca-certificates tzdata wget && \
-    addgroup -g 1000 muximux && \
-    adduser -D -u 1000 -G muximux muximux && \
-    mkdir -p /app/data && chown -R muximux:muximux /app
+# Install runtime dependencies and create data directory
+RUN apk add --no-cache ca-certificates tzdata wget su-exec shadow && \
+    mkdir -p /app/data
 
-USER muximux
 WORKDIR /app
 
-# Copy binary
+# Copy binary and entrypoint
 COPY --from=backend /muximux ./muximux
+COPY docker-entrypoint.sh /docker-entrypoint.sh
+RUN chmod +x /docker-entrypoint.sh
+
+# PUID/PGID for bind-mount permission matching (linuxserver.io convention)
+ENV PUID=1000 PGID=1000
 
 # Data directory for config, icons, etc.
 VOLUME /app/data
@@ -61,5 +64,5 @@ EXPOSE 8080
 HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
     CMD wget -qO- http://localhost:8080/api/health || exit 1
 
-ENTRYPOINT ["./muximux"]
-CMD ["--data", "/app/data"]
+ENTRYPOINT ["/docker-entrypoint.sh"]
+CMD ["./muximux", "--data", "/app/data"]
