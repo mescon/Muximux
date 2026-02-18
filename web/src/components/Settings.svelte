@@ -165,6 +165,8 @@
   let editingGroup = $state<Group | null>(null);
   let editAppSnapshot = $state<string | null>(null);
   let editGroupSnapshot = $state<string | null>(null);
+  let editAppErrors = $state<Record<string, string>>({});
+  let editGroupErrors = $state<Record<string, string>>({});
   let showAddApp = $state(false);
   let addAppStep = $state<'choose' | 'configure'>('choose');
   let addAppSearch = $state('');
@@ -533,6 +535,12 @@
 
   function closeEditApp() {
     if (editingApp) {
+      const result = appSchema.safeParse({ name: editingApp.name, url: editingApp.url });
+      if (!result.success) {
+        editAppErrors = extractErrors(result);
+        return;
+      }
+      editAppErrors = {};
       (editingApp as App & Record<string, unknown>).id = editingApp.name;
       // Sync DnD app changes back to localApps before rebuilding
       const allApps: App[] = [];
@@ -556,11 +564,18 @@
     }
     editingApp = null;
     editAppSnapshot = null;
+    editAppErrors = {};
     rebuildDndArrays();
   }
 
   function closeEditGroup() {
     if (editingGroup) {
+      const result = groupSchema.safeParse({ name: editingGroup.name });
+      if (!result.success) {
+        editGroupErrors = extractErrors(result);
+        return;
+      }
+      editGroupErrors = {};
       (editingGroup as Group & Record<string, unknown>).id = editingGroup.name;
       // Sync DnD group changes back to localConfig before rebuilding
       localConfig.groups = [...dndGroups];
@@ -578,6 +593,7 @@
     }
     editingGroup = null;
     editGroupSnapshot = null;
+    editGroupErrors = {};
     rebuildDndArrays();
   }
 
@@ -3058,8 +3074,10 @@ chmod +x muximux-darwin-arm64
             id="edit-app-name"
             type="text"
             bind:value={editingApp.name}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+            oninput={() => { delete editAppErrors.name; editAppErrors = editAppErrors; }}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editAppErrors.name ? 'border-red-500' : 'border-border-subtle'}"
           />
+          {#if editAppErrors.name}<p class="text-red-400 text-xs mt-1">{editAppErrors.name}</p>{/if}
         </div>
         <div>
           <label for="edit-app-url" class="block text-sm font-medium text-text-secondary mb-1">
@@ -3077,8 +3095,10 @@ chmod +x muximux-darwin-arm64
             id="edit-app-url"
             type="url"
             bind:value={editingApp.url}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+            oninput={() => { delete editAppErrors.url; editAppErrors = editAppErrors; }}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editAppErrors.url ? 'border-red-500' : 'border-border-subtle'}"
           />
+          {#if editAppErrors.url}<p class="text-red-400 text-xs mt-1">{editAppErrors.url}</p>{/if}
         </div>
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">Icon</span>
@@ -3543,8 +3563,10 @@ chmod +x muximux-darwin-arm64
             id="edit-group-name"
             type="text"
             bind:value={editingGroup.name}
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+            oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editGroupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
           />
+          {#if editGroupErrors.name}<p class="text-red-400 text-xs mt-1">{editGroupErrors.name}</p>{/if}
         </div>
         <div>
           <span class="block text-sm font-medium text-text-secondary mb-1">Icon</span>
