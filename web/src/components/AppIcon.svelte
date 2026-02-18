@@ -91,7 +91,7 @@
       />
     {/if}
   {:else}
-    <span class="text-white">{fallbackLetter}</span>
+    <span class="text-text-primary">{fallbackLetter}</span>
   {/if}
 </div>
 

@@ -814,7 +814,7 @@
   }
 </script>
 
-<div class="fixed inset-0 z-50 bg-gray-900 overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-label="Setup wizard" tabindex="0">
+<div class="fixed inset-0 z-50 bg-bg-base overflow-hidden flex flex-col" onkeydown={handleGlobalKeydown} role="dialog" aria-label="Setup wizard" tabindex="0">
   <!-- Top bar nav preview — rendered as wizard root flex child so it sits above the stepper -->
   {#if ($currentStep === 'navigation' || $currentStep === 'theme') && $selectedNavigation === 'top'}
     <div class="flex-shrink-0" style="z-index: 20;">
@@ -852,7 +852,7 @@
               {/if}
             </div>
             <span class="stepper-label transition-colors duration-300
-                         {i <= $stepProgress ? 'text-gray-200' : 'text-gray-400'}">{step}</span>
+                         {i <= $stepProgress ? 'text-text-primary' : 'text-text-muted'}">{step}</span>
           </div>
         {/each}
       </div>
@@ -899,8 +899,8 @@
           <div class="max-w-3xl mx-auto">
             {#if $currentStep === 'navigation'}
             <div class="text-center mb-6">
-              <h2 class="text-2xl font-bold text-white mb-2">Choose Your Navigation Style</h2>
-              <p class="text-gray-400">Select how you want to navigate between your apps</p>
+              <h2 class="text-2xl font-bold text-text-primary mb-2">Choose Your Navigation Style</h2>
+              <p class="text-text-muted">Select how you want to navigate between your apps</p>
             </div>
 
             <!-- Position selector buttons -->
@@ -909,8 +909,8 @@
                 <button
                   class="px-4 py-2 rounded-lg border text-sm font-medium transition-all
                          {$selectedNavigation === pos.value
-                           ? 'border-brand-500 bg-brand-500/15 text-white'
-                           : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
+                           ? 'border-brand-500 bg-brand-500/15 text-text-primary'
+                           : 'border-border hover:border-border-strong bg-bg-surface text-text-muted hover:text-text-primary'}"
                   onclick={() => selectedNavigation.set(pos.value)}
                 >
                   {pos.label}
@@ -928,8 +928,8 @@
                   <button
                     class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
                            {navBarStyle === style.value
-                             ? 'border-brand-500 bg-brand-500/15 text-white'
-                             : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
+                             ? 'border-brand-500 bg-brand-500/15 text-text-primary'
+                             : 'border-border hover:border-border-strong bg-bg-surface text-text-muted hover:text-text-primary'}"
                     onclick={() => navBarStyle = style.value as typeof navBarStyle}
                   >
                     {style.label}
@@ -950,8 +950,8 @@
                   <button
                     class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
                            {navFloatingPosition === fp.value
-                             ? 'border-brand-500 bg-brand-500/15 text-white'
-                             : 'border-gray-700 hover:border-gray-500 bg-gray-800/50 text-gray-400 hover:text-white'}"
+                             ? 'border-brand-500 bg-brand-500/15 text-text-primary'
+                             : 'border-border hover:border-border-strong bg-bg-surface text-text-muted hover:text-text-primary'}"
                     onclick={() => navFloatingPosition = fp.value as typeof navFloatingPosition}
                   >
                     {fp.label}
@@ -962,78 +962,78 @@
 
             <!-- Settings controls -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-lg mx-auto">
-              <label class="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700 cursor-pointer">
+              <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={$showLabels}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-white">Show Labels</div>
-                  <div class="text-xs text-gray-400">Display app names next to icons</div>
+                  <div class="text-sm text-text-primary">Show Labels</div>
+                  <div class="text-xs text-text-muted">Display app names next to icons</div>
                 </div>
               </label>
 
-              <label class="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700 cursor-pointer">
+              <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowLogo}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-white">Show Logo</div>
-                  <div class="text-xs text-gray-400">Display the Muximux logo in the menu</div>
+                  <div class="text-sm text-text-primary">Show Logo</div>
+                  <div class="text-xs text-text-muted">Display the Muximux logo in the menu</div>
                 </div>
               </label>
 
-              <label class="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700 cursor-pointer">
+              <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowAppColors}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-white">App Color Accents</div>
-                  <div class="text-xs text-gray-400">Highlight the active app with its color</div>
+                  <div class="text-sm text-text-primary">App Color Accents</div>
+                  <div class="text-xs text-text-muted">Highlight the active app with its color</div>
                 </div>
               </label>
 
-              <label class="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700 cursor-pointer">
+              <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer">
                 <input type="checkbox" bind:checked={navShowIconBg}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-white">Icon Background</div>
-                  <div class="text-xs text-gray-400">Show colored circle behind app icons</div>
+                  <div class="text-sm text-text-primary">Icon Background</div>
+                  <div class="text-xs text-text-muted">Show colored circle behind app icons</div>
                 </div>
               </label>
 
-              <div class="p-3 bg-gray-800/50 rounded-lg border border-gray-700 sm:col-span-2">
+              <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <div class="flex items-center justify-between mb-2">
                   <div>
-                    <div class="text-sm text-white">Icon Size</div>
-                    <div class="text-xs text-gray-400">Scale app icons in the navigation</div>
+                    <div class="text-sm text-text-primary">Icon Size</div>
+                    <div class="text-xs text-text-muted">Scale app icons in the navigation</div>
                   </div>
-                  <span class="text-sm text-gray-300 tabular-nums">{navIconScale}×</span>
+                  <span class="text-sm text-text-secondary tabular-nums">{navIconScale}×</span>
                 </div>
                 <input type="range" min="0.5" max="2" step="0.25"
                   bind:value={navIconScale}
                   class="w-full accent-brand-500" />
               </div>
 
-              <label class="flex items-center gap-3 p-3 bg-gray-800/50 rounded-lg border border-gray-700 cursor-pointer sm:col-span-2 sm:max-w-[calc(50%-0.375rem)]">
+              <label class="flex items-center gap-3 p-3 bg-bg-surface rounded-lg border border-border cursor-pointer sm:col-span-2 sm:max-w-[calc(50%-0.375rem)]">
                 <input type="checkbox" bind:checked={navShowSplash}
-                  class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                  class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-white">Start on Overview</div>
-                  <div class="text-xs text-gray-400">Show the dashboard overview when Muximux opens</div>
+                  <div class="text-sm text-text-primary">Start on Overview</div>
+                  <div class="text-xs text-text-muted">Show the dashboard overview when Muximux opens</div>
                 </div>
               </label>
 
-              <div class="p-3 bg-gray-800/50 rounded-lg border border-gray-700 sm:col-span-2">
+              <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <label class="flex items-center gap-3 cursor-pointer">
                   <input type="checkbox" bind:checked={navAutoHide}
-                    class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                    class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                   <div class="flex-1">
-                    <div class="text-sm text-white">Auto-hide Menu</div>
-                    <div class="text-xs text-gray-400">Automatically collapse the menu after inactivity</div>
+                    <div class="text-sm text-text-primary">Auto-hide Menu</div>
+                    <div class="text-xs text-text-muted">Automatically collapse the menu after inactivity</div>
                   </div>
                 </label>
                 {#if navAutoHide}
-                  <div class="flex items-center gap-3 mt-3 pt-3 border-t border-gray-700">
-                    <div class="flex-1 text-xs text-gray-400 pl-7">Hide after</div>
+                  <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
+                    <div class="flex-1 text-xs text-text-muted pl-7">Hide after</div>
                     <select bind:value={navAutoHideDelay}
-                      class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded text-white focus:ring-brand-500 focus:border-brand-500">
+                      class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500">
                       <option value="0.25s">0.25s</option>
                       <option value="0.5s">0.5s</option>
                       <option value="1s">1s</option>
@@ -1043,20 +1043,20 @@
                   </div>
                   <label class="flex items-center gap-3 mt-2 pl-7 cursor-pointer">
                     <input type="checkbox" bind:checked={navShowShadow}
-                      class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
-                    <div class="text-xs text-gray-400">Shadow — show a drop shadow on the expanded menu</div>
+                      class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                    <div class="text-xs text-text-muted">Shadow — show a drop shadow on the expanded menu</div>
                   </label>
                 {/if}
               </div>
 
               {#if $selectedNavigation === 'left' || $selectedNavigation === 'right'}
-                <div class="p-3 bg-gray-800/50 rounded-lg border border-gray-700 sm:col-span-2">
+                <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                   <label class="flex items-center gap-3 cursor-pointer">
                     <input type="checkbox" bind:checked={navHideSidebarFooter}
-                      class="w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
+                      class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                     <div class="flex-1">
-                      <div class="text-sm text-white">Collapsible Footer</div>
-                      <div class="text-xs text-gray-400">Hide utility buttons in a drawer that reveals on hover</div>
+                      <div class="text-sm text-text-primary">Collapsible Footer</div>
+                      <div class="text-xs text-text-muted">Hide utility buttons in a drawer that reveals on hover</div>
                     </div>
                   </label>
                 </div>
@@ -1066,19 +1066,19 @@
             {:else}
             <!-- Theme step content -->
             <div class="text-center mb-8">
-              <h2 class="text-2xl font-bold text-white mb-2">Choose Your Theme</h2>
-              <p class="text-gray-400">Pick a visual style for your dashboard</p>
+              <h2 class="text-2xl font-bold text-text-primary mb-2">Choose Your Theme</h2>
+              <p class="text-text-muted">Pick a visual style for your dashboard</p>
             </div>
 
             <!-- Variant mode selector (segmented control) -->
             <div class="flex justify-center mb-8">
-              <div class="inline-flex bg-gray-800 rounded-lg p-1 border border-gray-700">
+              <div class="inline-flex bg-bg-surface rounded-lg p-1 border border-border">
                 {#each variantOptions as opt (opt.value)}
                   <button
                     class="px-5 py-2 text-sm font-medium rounded-md transition-all
                            {$variantMode === opt.value
                              ? 'bg-brand-600 text-white shadow-sm'
-                             : 'text-gray-400 hover:text-white'}"
+                             : 'text-text-muted hover:text-text-primary'}"
                     onclick={() => setVariantMode(opt.value)}
                   >
                     {opt.label}
@@ -1098,27 +1098,27 @@
                   class="relative p-4 rounded-xl border text-left transition-all
                          {isSelected
                            ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/30'
-                           : 'border-gray-700 hover:border-gray-500 bg-gray-800/50'}"
+                           : 'border-border hover:border-border-strong bg-bg-surface'}"
                   onclick={() => setThemeFamily(family.id)}
                 >
                   <!-- Color swatches preview -->
                   {#if preview}
                     <div class="flex gap-1.5 mb-3">
-                      <div class="w-8 h-8 rounded-md border border-white/10" style="background-color: {preview.bg}"></div>
-                      <div class="w-8 h-8 rounded-md border border-white/10" style="background-color: {preview.surface}"></div>
-                      <div class="w-8 h-8 rounded-md border border-white/10" style="background-color: {preview.accent}"></div>
+                      <div class="w-8 h-8 rounded-md border border-border-subtle" style="background-color: {preview.bg}"></div>
+                      <div class="w-8 h-8 rounded-md border border-border-subtle" style="background-color: {preview.surface}"></div>
+                      <div class="w-8 h-8 rounded-md border border-border-subtle" style="background-color: {preview.accent}"></div>
                     </div>
                   {:else}
                     <div class="flex gap-1.5 mb-3">
-                      <div class="w-8 h-8 rounded-md bg-gray-700 border border-white/10"></div>
-                      <div class="w-8 h-8 rounded-md bg-gray-600 border border-white/10"></div>
-                      <div class="w-8 h-8 rounded-md bg-gray-500 border border-white/10"></div>
+                      <div class="w-8 h-8 rounded-md bg-bg-elevated border border-border-subtle"></div>
+                      <div class="w-8 h-8 rounded-md bg-bg-overlay border border-border-subtle"></div>
+                      <div class="w-8 h-8 rounded-md bg-bg-active border border-border-subtle"></div>
                     </div>
                   {/if}
 
-                  <div class="font-medium text-white text-sm">{family.name}</div>
+                  <div class="font-medium text-text-primary text-sm">{family.name}</div>
                   {#if family.description}
-                    <div class="text-xs text-gray-400 mt-0.5">{family.description}</div>
+                    <div class="text-xs text-text-muted mt-0.5">{family.description}</div>
                   {/if}
 
                   <!-- Selection checkmark -->
@@ -1133,7 +1133,7 @@
               {/each}
             </div>
 
-            <p class="text-center text-gray-500 text-sm mt-6 max-w-md mx-auto">
+            <p class="text-center text-text-disabled text-sm mt-6 max-w-md mx-auto">
               Changes apply live — you can create custom themes later in Settings
             </p>
             {/if}
@@ -1159,8 +1159,8 @@
             </svg>
           </div>
 
-          <h1 class="text-4xl font-bold text-white mb-4">Welcome to Muximux</h1>
-          <p class="text-xl text-gray-400 mb-8 max-w-3xl mx-auto">
+          <h1 class="text-4xl font-bold text-text-primary mb-4">Welcome to Muximux</h1>
+          <p class="text-xl text-text-muted mb-8 max-w-3xl mx-auto">
             {needsSetup
               ? "Your unified homelab dashboard. Let's secure and set up your applications."
               : "Your unified homelab dashboard. Let's set up your applications in a few quick steps."}
@@ -1168,34 +1168,34 @@
 
           <!-- Feature highlights -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-left">
-            <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <div class="p-4 bg-bg-surface rounded-lg border border-border">
               <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-white mb-1 text-base">Embedded Apps</h2>
-              <p class="text-sm text-gray-400">View all your services in iframes without leaving the dashboard</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">Embedded Apps</h2>
+              <p class="text-sm text-text-muted">View all your services in iframes without leaving the dashboard</p>
             </div>
 
-            <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <div class="p-4 bg-bg-surface rounded-lg border border-border">
               <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-white mb-1 text-base">Health Monitoring</h2>
-              <p class="text-sm text-gray-400">See at a glance which services are online and healthy</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">Health Monitoring</h2>
+              <p class="text-sm text-text-muted">See at a glance which services are online and healthy</p>
             </div>
 
-            <div class="p-4 bg-gray-800/50 rounded-lg border border-gray-700">
+            <div class="p-4 bg-bg-surface rounded-lg border border-border">
               <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-white mb-1 text-base">Quick Access</h2>
-              <p class="text-sm text-gray-400">Keyboard shortcuts and search for lightning-fast navigation</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">Quick Access</h2>
+              <p class="text-sm text-text-muted">Keyboard shortcuts and search for lightning-fast navigation</p>
             </div>
           </div>
 
@@ -1211,8 +1211,8 @@
       {:else if $currentStep === 'security'}
         <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-white mb-2">Secure Your Dashboard</h2>
-            <p class="text-gray-400">Choose how you want to protect access to Muximux</p>
+            <h2 class="text-2xl font-bold text-text-primary mb-2">Secure Your Dashboard</h2>
+            <p class="text-text-muted">Choose how you want to protect access to Muximux</p>
           </div>
 
           <!-- Method selection cards (accordion — form expands inline) -->
@@ -1220,7 +1220,7 @@
               <!-- Builtin password -->
               <div
                 class="rounded-xl border text-left transition-all overflow-hidden
-                       {authMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+                       {authMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1231,33 +1231,33 @@
                   </div>
                   <div class="flex-1 text-left">
                     <div class="flex items-center gap-2">
-                      <h3 class="font-semibold text-white">Create a password</h3>
+                      <h3 class="font-semibold text-text-primary">Create a password</h3>
                       <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">Recommended</span>
                     </div>
-                    <p class="text-sm text-gray-400 mt-1">Set up a username and password to protect your dashboard</p>
+                    <p class="text-sm text-text-muted mt-1">Set up a username and password to protect your dashboard</p>
                   </div>
                 </button>
                 {#if authMethod === 'builtin'}
                   <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
-                    <div class="border-t border-gray-700 pt-4">
-                      <label for="setup-username" class="block text-sm text-gray-400 mb-1">Username</label>
+                    <div class="border-t border-border pt-4">
+                      <label for="setup-username" class="block text-sm text-text-muted mb-1">Username</label>
                       <input
                         id="setup-username"
                         type="text"
                         bind:value={setupUsername}
-                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
                         placeholder="admin"
                         autocomplete="username"
                       />
                     </div>
                     <div>
-                      <label for="setup-password" class="block text-sm text-gray-400 mb-1">Password</label>
+                      <label for="setup-password" class="block text-sm text-text-muted mb-1">Password</label>
                       <input
                         id="setup-password"
                         type="password"
                         bind:value={setupPassword}
-                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
                         placeholder="Minimum 8 characters"
                         autocomplete="new-password"
@@ -1267,12 +1267,12 @@
                       {/if}
                     </div>
                     <div>
-                      <label for="setup-confirm" class="block text-sm text-gray-400 mb-1">Confirm password</label>
+                      <label for="setup-confirm" class="block text-sm text-text-muted mb-1">Confirm password</label>
                       <input
                         id="setup-confirm"
                         type="password"
                         bind:value={setupConfirmPassword}
-                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
                         placeholder="Re-enter password"
                         autocomplete="new-password"
@@ -1288,7 +1288,7 @@
               <!-- Forward auth -->
               <div
                 class="rounded-xl border text-left transition-all overflow-hidden
-                       {authMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+                       {authMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1297,19 +1297,19 @@
                     </svg>
                   </div>
                   <div class="text-left">
-                    <h3 class="font-semibold text-white">I use an auth proxy</h3>
-                    <p class="text-sm text-gray-400 mt-1">Authelia, Authentik, or another reverse proxy handles authentication</p>
+                    <h3 class="font-semibold text-text-primary">I use an auth proxy</h3>
+                    <p class="text-sm text-text-muted mt-1">Authelia, Authentik, or another reverse proxy handles authentication</p>
                   </div>
                 </button>
                 {#if authMethod === 'forward_auth'}
                   <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
-                    <div class="border-t border-gray-700 pt-4">
-                      <span class="block text-sm text-gray-400 mb-2">Proxy type</span>
+                    <div class="border-t border-border pt-4">
+                      <span class="block text-sm text-text-muted mb-2">Proxy type</span>
                       <div class="flex gap-2">
                         {#each ['authelia', 'authentik', 'custom'] as p (p)}
                           <button
                             class="flex-1 px-3 py-2 text-sm rounded-md border transition-all
-                                   {faPreset === p ? 'border-brand-500 bg-brand-500/15 text-white' : 'border-gray-600 bg-gray-700 text-gray-400 hover:text-white'}"
+                                   {faPreset === p ? 'border-brand-500 bg-brand-500/15 text-text-primary' : 'border-border-subtle bg-bg-elevated text-text-muted hover:text-text-primary'}"
                             onclick={() => selectFaPreset(p as 'authelia' | 'authentik' | 'custom')}
                           >
                             {p.charAt(0).toUpperCase() + p.slice(1)}
@@ -1319,20 +1319,20 @@
                     </div>
 
                     <div>
-                      <label for="setup-proxies" class="block text-sm text-gray-400 mb-1">Trusted proxy IPs</label>
+                      <label for="setup-proxies" class="block text-sm text-text-muted mb-1">Trusted proxy IPs</label>
                       <textarea
                         id="setup-proxies"
                         bind:value={faTrustedProxies}
-                        class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                                focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
                         placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                         rows="3"
                       ></textarea>
-                      <p class="text-xs text-gray-500 mt-1">IP addresses or CIDR ranges, one per line</p>
+                      <p class="text-xs text-text-disabled mt-1">IP addresses or CIDR ranges, one per line</p>
                     </div>
 
                     <button
-                      class="flex items-center gap-1.5 text-sm text-gray-400 hover:text-gray-300 transition-colors"
+                      class="flex items-center gap-1.5 text-sm text-text-muted hover:text-text-secondary transition-colors"
                       onclick={() => faShowAdvanced = !faShowAdvanced}
                     >
                       <svg class="w-4 h-4 transition-transform {faShowAdvanced ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1342,26 +1342,26 @@
                     </button>
 
                     {#if faShowAdvanced}
-                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-gray-800/50 border border-gray-700" in:fly={{ y: -10, duration: 150 }}>
+                      <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: 150 }}>
                         <div>
-                          <label for="fa-header-user" class="block text-xs text-gray-400 mb-1">User header</label>
+                          <label for="fa-header-user" class="block text-xs text-text-muted mb-1">User header</label>
                           <input id="fa-header-user" type="text" bind:value={faHeaderUser}
-                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                         <div>
-                          <label for="fa-header-email" class="block text-xs text-gray-400 mb-1">Email header</label>
+                          <label for="fa-header-email" class="block text-xs text-text-muted mb-1">Email header</label>
                           <input id="fa-header-email" type="text" bind:value={faHeaderEmail}
-                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                         <div>
-                          <label for="fa-header-groups" class="block text-xs text-gray-400 mb-1">Groups header</label>
+                          <label for="fa-header-groups" class="block text-xs text-text-muted mb-1">Groups header</label>
                           <input id="fa-header-groups" type="text" bind:value={faHeaderGroups}
-                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                         <div>
-                          <label for="fa-header-name" class="block text-xs text-gray-400 mb-1">Name header</label>
+                          <label for="fa-header-name" class="block text-xs text-text-muted mb-1">Name header</label>
                           <input id="fa-header-name" type="text" bind:value={faHeaderName}
-                            class="w-full px-2 py-1.5 bg-gray-700 border border-gray-600 rounded text-white text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
+                            class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                       </div>
                     {/if}
@@ -1372,7 +1372,7 @@
               <!-- None -->
               <div
                 class="rounded-xl border text-left transition-all overflow-hidden
-                       {authMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-gray-700 bg-gray-800/50 hover:border-gray-600'}"
+                       {authMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
                   <div class="w-10 h-10 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
@@ -1382,13 +1382,13 @@
                     </svg>
                   </div>
                   <div class="text-left">
-                    <h3 class="font-semibold text-white">No authentication</h3>
-                    <p class="text-sm text-gray-400 mt-1">Anyone with network access gets full control</p>
+                    <h3 class="font-semibold text-text-primary">No authentication</h3>
+                    <p class="text-sm text-text-muted mt-1">Anyone with network access gets full control</p>
                   </div>
                 </button>
                 {#if authMethod === 'none'}
                   <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
-                    <div class="border-t border-gray-700 pt-4">
+                    <div class="border-t border-border pt-4">
                       <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
                         <div class="flex gap-3">
                           <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -1398,14 +1398,14 @@
                           </svg>
                           <div>
                             <h4 class="font-semibold text-amber-400 text-sm mb-1">Security warning</h4>
-                            <p class="text-sm text-gray-400">Without authentication, anyone who can reach this port has full access to your dashboard and all configured services.</p>
+                            <p class="text-sm text-text-muted">Without authentication, anyone who can reach this port has full access to your dashboard and all configured services.</p>
                           </div>
                         </div>
                       </div>
                       <label class="flex items-start gap-3 cursor-pointer">
                         <input id="setup-none-ack" type="checkbox" bind:checked={acknowledgeRisk}
-                          class="mt-1 w-4 h-4 rounded border-gray-600 text-brand-500 focus:ring-brand-500" />
-                        <span class="text-sm text-gray-400">I understand the risks and want to proceed without authentication</span>
+                          class="mt-1 w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
+                        <span class="text-sm text-text-muted">I understand the risks and want to proceed without authentication</span>
                       </label>
                     </div>
                   </div>
@@ -1419,31 +1419,31 @@
       {:else if $currentStep === 'apps'}
         <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-white mb-2">What apps do you have?</h2>
-            <p class="text-gray-400">Select the services you're already running</p>
+            <h2 class="text-2xl font-bold text-text-primary mb-2">What apps do you have?</h2>
+            <p class="text-text-muted">Select the services you're already running</p>
           </div>
 
           <div class="apps-two-col gap-6">
             <!-- LEFT COLUMN: Custom app + template apps (scrollable) -->
             <div class="apps-left-col space-y-6">
-              <div class="flex items-center gap-2 pb-2 border-b border-gray-700/50">
-                <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div class="flex items-center gap-2 pb-2 border-b border-border">
+                <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <div>
-                  <h3 class="text-sm font-semibold text-gray-300">App Catalog</h3>
-                  <p class="text-xs text-gray-500">Click to add apps to your menu</p>
+                  <h3 class="text-sm font-semibold text-text-secondary">App Catalog</h3>
+                  <p class="text-xs text-text-disabled">Click to add apps to your menu</p>
                 </div>
               </div>
               <!-- Custom App Quick Add -->
               <div class="flex gap-2 items-end">
                 <div class="flex-1">
-                  <label for="custom-name" class="block text-xs text-gray-400 mb-1">Custom app</label>
+                  <label for="custom-name" class="block text-xs text-text-muted mb-1">Custom app</label>
                   <input
                     id="custom-name"
                     type="text"
                     bind:value={customApp.name}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                            focus:outline-none focus:ring-2 focus:ring-brand-500"
                     placeholder="App name"
                   />
@@ -1453,7 +1453,7 @@
                     id="custom-url"
                     type="url"
                     bind:value={customApp.url}
-                    class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white text-sm
+                    class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                            focus:outline-none focus:ring-2 focus:ring-brand-500"
                     placeholder="http://localhost:8080"
                   />
@@ -1470,7 +1470,7 @@
               <!-- App categories (template apps) -->
               {#each Object.entries(popularApps) as [category, apps] (category)}
                 <div>
-                  <h3 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3 flex items-center gap-2">
+                  <h3 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3 flex items-center gap-2">
                     <span class="w-2 h-2 rounded-full" style="background-color: {getGroupColor(category)}"></span>
                     {category}
                   </h3>
@@ -1482,7 +1482,7 @@
                         class="relative p-3 rounded-lg border transition-all cursor-pointer
                                {selection?.selected
                                  ? 'bg-brand-500/10 border-brand-500'
-                                 : 'bg-gray-800/50 border-gray-700 hover:border-gray-600'}"
+                                 : 'bg-bg-surface border-border hover:border-border'}"
                         onclick={() => toggleApp(app)}
                         onkeydown={(e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), toggleApp(app))}
                         role="checkbox"
@@ -1504,7 +1504,7 @@
                             </button>
                           {/if}
                           <div class="w-5 h-5 rounded border flex items-center justify-center
-                                      {selection?.selected ? 'bg-brand-500 border-brand-500' : 'border-gray-600'}">
+                                      {selection?.selected ? 'bg-brand-500 border-brand-500' : 'border-border-subtle'}">
                             {#if selection?.selected}
                               <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
@@ -1521,8 +1521,8 @@
                             size="lg"
                           />
                           <div class="flex-1 min-w-0 pr-6">
-                            <h4 class="font-medium text-white text-sm">{app.name}</h4>
-                            <p class="text-xs text-gray-500">{app.description}</p>
+                            <h4 class="font-medium text-text-primary text-sm">{app.name}</h4>
+                            <p class="text-xs text-text-disabled">{app.description}</p>
                           </div>
                         </div>
                       </div>
@@ -1535,21 +1535,21 @@
             <!-- RIGHT COLUMN: Groups (sticky on desktop) -->
             <div class="apps-right-col">
               <div class="apps-right-sticky space-y-6">
-                <div class="flex items-center gap-2 pb-2 border-b border-gray-700/50">
+                <div class="flex items-center gap-2 pb-2 border-b border-border">
                   <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                   <div>
-                    <h3 class="text-sm font-semibold text-gray-300">Your Menu</h3>
-                    <p class="text-xs text-gray-500">Drag apps between groups to organize</p>
+                    <h3 class="text-sm font-semibold text-text-secondary">Your Menu</h3>
+                    <p class="text-xs text-text-disabled">Drag apps between groups to organize</p>
                   </div>
                 </div>
 
                 {#if selectedCount + $selectedApps.length === 0}
-                  <p class="text-sm text-gray-500 italic">Select apps from the left to get started</p>
+                  <p class="text-sm text-text-disabled italic">Select apps from the left to get started</p>
                 {:else}
                 <div>
-                  <h3 class="text-sm font-semibold text-gray-300 mb-3">
+                  <h3 class="text-sm font-semibold text-text-secondary mb-3">
                     Groups ({wizardGroups.length})
                   </h3>
                   {#if wizardGroups.length > 0}
@@ -1559,10 +1559,10 @@
                          onfinalize={handleGroupDndFinalize}>
                       {#each wizardGroups as group, i (group.id)}
                         {@const groupApps = dndApps[group.name] || []}
-                        <div class="rounded-lg border border-gray-700 bg-gray-800/30 overflow-hidden cursor-grab"
+                        <div class="rounded-lg border border-border bg-bg-surface overflow-hidden cursor-grab"
                              animate:flip={{duration: flipDurationMs}}>
                           <div class="flex items-center gap-2 p-2.5 group/grpdrag">
-                            <svg class="w-4 h-4 text-gray-600 group-hover/grpdrag:text-gray-400 flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                            <svg class="w-4 h-4 text-text-disabled group-hover/grpdrag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                               <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                             </svg>
                             <input
@@ -1573,14 +1573,14 @@
                               style="background-color: {group.color}"
                             />
                             <button
-                              class="flex-shrink-0 w-7 h-7 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+                              class="flex-shrink-0 w-7 h-7 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                               onclick={() => iconBrowserContext = i}
                               title="Change icon"
                             >
                               {#if group.icon.name}
                                 <AppIcon icon={group.icon} name={group.name} color={group.color} size="sm" />
                               {:else}
-                                <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                                 </svg>
@@ -1591,13 +1591,13 @@
                                 type="text"
                                 value={group.name}
                                 oninput={(e) => updateGroupName(i, e.currentTarget.value)}
-                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-gray-600
-                                       focus:border-brand-500 text-sm text-white font-medium
+                                class="w-full px-1.5 py-0.5 bg-transparent border-b border-transparent hover:border-border
+                                       focus:border-brand-500 text-sm text-text-primary font-medium
                                        focus:outline-none transition-colors"
                               />
                             </div>
                             <button
-                              class="flex-shrink-0 p-1 text-gray-500 hover:text-red-400 rounded transition-colors"
+                              class="flex-shrink-0 p-1 text-text-disabled hover:text-red-400 rounded transition-colors"
                               onclick={() => deleteGroup(i)}
                               aria-label="Remove group"
                             >
@@ -1607,17 +1607,17 @@
                             </button>
                           </div>
                           <div class="px-2.5 pb-2.5">
-                            <div class="space-y-1 min-h-[36px] p-2 rounded-md border border-dashed border-gray-600 bg-gray-900/30"
+                            <div class="space-y-1 min-h-[36px] p-2 rounded-md border border-dashed border-border-subtle bg-bg-base"
                                  use:dndzone={{items: groupApps, flipDurationMs, type: 'wizard-apps', dropTargetStyle: {}}}
                                  onconsider={(e) => handleDndConsider(e, group.name)}
                                  onfinalize={(e) => handleDndFinalize(e, group.name)}>
                               {#each groupApps as item (item.id)}
                                 {@const appColor = getAppDisplayColor(item.name)}
                                 {@const appIcon = getAppDisplayIcon(item.name)}
-                                <div class="p-2 rounded bg-gray-800/70 cursor-grab group/drag text-sm text-white"
+                                <div class="p-2 rounded bg-bg-surface cursor-grab group/drag text-sm text-text-primary"
                                      animate:flip={{duration: flipDurationMs}}>
                                   <div class="flex items-center gap-1.5 min-w-0">
-                                    <svg class="w-3.5 h-3.5 text-gray-600 group-hover/drag:text-gray-400 flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
+                                    <svg class="w-3.5 h-3.5 text-text-disabled group-hover/drag:text-text-muted flex-shrink-0 transition-colors" viewBox="0 0 24 24" fill="currentColor">
                                       <circle cx="9" cy="5" r="1.5"/><circle cx="15" cy="5" r="1.5"/><circle cx="9" cy="12" r="1.5"/><circle cx="15" cy="12" r="1.5"/><circle cx="9" cy="19" r="1.5"/><circle cx="15" cy="19" r="1.5"/>
                                     </svg>
                                     <input
@@ -1628,14 +1628,14 @@
                                       class="w-5 h-5 rounded cursor-pointer border-0 p-0 flex-shrink-0"
                                     />
                                     <button
-                                      class="flex-shrink-0 w-5 h-5 rounded bg-gray-700 flex items-center justify-center hover:bg-gray-600 transition-colors"
+                                      class="flex-shrink-0 w-5 h-5 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                                       onclick={() => openAppIconBrowser(item.name)}
                                       title="Change icon"
                                     >
                                       {#if appIcon.name}
                                         <AppIcon icon={appIcon} name={item.name} color={appColor} size="sm" />
                                       {:else}
-                                        <div class="text-[9px] font-bold text-gray-400">
+                                        <div class="text-[9px] font-bold text-text-muted">
                                           {item.name.charAt(0).toUpperCase()}
                                         </div>
                                       {/if}
@@ -1645,10 +1645,10 @@
                                       value={item.name}
                                       onchange={(e) => renameApp(item.name, e.currentTarget.value)}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-sm text-white truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-gray-600 focus:border-brand-500 focus:outline-none px-0 py-0"
+                                      class="text-sm text-text-primary truncate flex-1 min-w-0 bg-transparent border-0 border-b border-transparent hover:border-border focus:border-brand-500 focus:outline-none px-0 py-0"
                                     />
                                     <button
-                                      class="p-1 text-gray-500 hover:text-red-400 transition-opacity flex-shrink-0"
+                                      class="p-1 text-text-disabled hover:text-red-400 transition-opacity flex-shrink-0"
                                       onclick={() => removeApp(item.name)}
                                       aria-label="Remove {item.name}"
                                     >
@@ -1662,8 +1662,8 @@
                                     value={getAppUrl(item.name)}
                                     oninput={(e) => updateAppUrl(item.name, e.currentTarget.value)}
                                     onclick={(e) => e.stopPropagation()}
-                                    class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-gray-700 border border-gray-600 rounded
-                                           text-gray-300 placeholder-gray-500 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                    class="mt-1 ml-[66px] px-1.5 py-0.5 text-[11px] bg-bg-elevated border border-border-subtle rounded
+                                           text-text-secondary placeholder-text-disabled focus:outline-none focus:ring-1 focus:ring-brand-500"
                                     placeholder="http://localhost:8080"
                                     style="width: calc(100% - 66px)"
                                   />
@@ -1672,14 +1672,14 @@
                                       value={getAppOpenMode(item.name)}
                                       onchange={(e) => updateAppSetting(item.name, 'open_mode', e.currentTarget.value as App['open_mode'])}
                                       onclick={(e) => e.stopPropagation()}
-                                      class="text-[11px] px-1.5 py-0.5 bg-gray-700 border border-gray-600 rounded text-gray-300 focus:outline-none focus:ring-1 focus:ring-brand-500"
+                                      class="text-[11px] px-1.5 py-0.5 bg-bg-elevated border border-border-subtle rounded text-text-secondary focus:outline-none focus:ring-1 focus:ring-brand-500"
                                     >
                                       {#each openModes as mode (mode.value)}
                                         <option value={mode.value}>{mode.label}</option>
                                       {/each}
                                     </select>
                                     <span class="help-trigger relative ml-0.5" use:positionTooltip>
-                                      <svg class="w-3 h-3 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                      <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                       </svg>
                                       <span class="help-tooltip">
@@ -1694,11 +1694,11 @@
                                         checked={getAppProxy(item.name)}
                                         onclick={(e) => e.stopPropagation()}
                                         onchange={(e) => updateAppSetting(item.name, 'proxy', e.currentTarget.checked)}
-                                        class="w-3 h-3 rounded border-gray-600 text-brand-500"
+                                        class="w-3 h-3 rounded border-border-subtle text-brand-500"
                                       />
-                                      <span class="text-[11px] text-gray-400">Proxy</span>
+                                      <span class="text-[11px] text-text-muted">Proxy</span>
                                       <span class="help-trigger relative ml-0.5" use:positionTooltip>
-                                        <svg class="w-3 h-3 text-gray-500 cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                           <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                         </svg>
                                         <span class="help-tooltip">
@@ -1711,19 +1711,19 @@
                               {/each}
                             </div>
                             {#if groupApps.length === 0}
-                              <p class="text-xs text-gray-600 text-center py-1 mt-1">Drop apps here</p>
+                              <p class="text-xs text-text-disabled text-center py-1 mt-1">Drop apps here</p>
                             {/if}
                           </div>
                         </div>
                       {/each}
                     </div>
                   {:else}
-                    <p class="text-sm text-gray-500 italic">Groups auto-appear when you select apps</p>
+                    <p class="text-sm text-text-disabled italic">Groups auto-appear when you select apps</p>
                   {/if}
 
                   <button
-                    class="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md
-                           hover:bg-gray-800 transition-colors"
+                    class="mt-2 flex items-center gap-1.5 px-3 py-1.5 text-sm text-text-muted hover:text-text-primary rounded-md
+                           hover:bg-bg-surface transition-colors"
                     onclick={addGroup}
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1747,34 +1747,34 @@
             </svg>
           </div>
 
-          <h2 class="text-3xl font-bold text-white mb-4">You're All Set!</h2>
-          <p class="text-xl text-gray-400 mb-8 max-w-lg mx-auto">
+          <h2 class="text-3xl font-bold text-text-primary mb-4">You're All Set!</h2>
+          <p class="text-xl text-text-muted mb-8 max-w-lg mx-auto">
             Your dashboard is ready with {selectedCount + $selectedApps.length} app{selectedCount + $selectedApps.length !== 1 ? 's' : ''}.
           </p>
 
           <!-- Summary -->
-          <div class="max-w-md mx-auto mb-8 p-4 bg-gray-800/50 rounded-lg border border-gray-700 text-left">
-            <h4 class="font-medium text-gray-300 mb-3">Setup Summary</h4>
+          <div class="max-w-md mx-auto mb-8 p-4 bg-bg-surface rounded-lg border border-border text-left">
+            <h4 class="font-medium text-text-secondary mb-3">Setup Summary</h4>
             <dl class="space-y-2 text-sm">
               <div class="flex justify-between">
-                <dt class="text-gray-400">Applications</dt>
-                <dd class="text-white">{selectedCount + $selectedApps.length}</dd>
+                <dt class="text-text-muted">Applications</dt>
+                <dd class="text-text-primary">{selectedCount + $selectedApps.length}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-gray-400">Navigation</dt>
-                <dd class="text-white capitalize">{$selectedNavigation}</dd>
+                <dt class="text-text-muted">Navigation</dt>
+                <dd class="text-text-primary capitalize">{$selectedNavigation}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-gray-400">Theme</dt>
-                <dd class="text-white capitalize">{$themeFamilies.find(f => f.id === $selectedFamily)?.name || $selectedFamily}</dd>
+                <dt class="text-text-muted">Theme</dt>
+                <dd class="text-text-primary capitalize">{$themeFamilies.find(f => f.id === $selectedFamily)?.name || $selectedFamily}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-gray-400">Groups</dt>
-                <dd class="text-white">{wizardGroups.length}</dd>
+                <dt class="text-text-muted">Groups</dt>
+                <dd class="text-text-primary">{wizardGroups.length}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-gray-400">Show Labels</dt>
-                <dd class="text-white">{$showLabels ? 'Yes' : 'No'}</dd>
+                <dt class="text-text-muted">Show Labels</dt>
+                <dd class="text-text-primary">{$showLabels ? 'Yes' : 'No'}</dd>
               </div>
             </dl>
           </div>
@@ -1793,12 +1793,12 @@
   </div>
 
   <!-- Navigation buttons -->
-  <div class="flex-shrink-0 px-8 py-4 border-t border-gray-800">
+  <div class="flex-shrink-0 px-8 py-4 border-t border-border">
     <div class="max-w-4xl mx-auto flex justify-between items-center">
       <div>
         {#if $currentStep !== 'welcome'}
           <button
-            class="px-4 py-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-800 transition-colors"
+            class="px-4 py-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-surface transition-colors"
             onclick={prevStep}
           >
             Back
@@ -1806,7 +1806,7 @@
         {/if}
       </div>
 
-      <div class="text-sm text-gray-500">
+      <div class="text-sm text-text-disabled">
         {#if $currentStep === 'apps'}
           {selectedCount + $selectedApps.length} app{selectedCount + $selectedApps.length !== 1 ? 's' : ''} selected
         {:else if $currentStep === 'security' && authMethod}
@@ -1858,7 +1858,7 @@
     ? appOverrides.get(iconBrowserAppName)?.icon || getAppDisplayIcon(iconBrowserAppName)
     : wizardGroups[iconBrowserContext as number]?.icon}
   <div class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 backdrop-blur-sm">
-    <div class="w-full max-w-4xl max-h-[80vh] bg-gray-900 rounded-xl border border-gray-700 shadow-2xl overflow-hidden">
+    <div class="w-full max-w-4xl max-h-[80vh] bg-bg-base rounded-xl border border-border shadow-2xl overflow-hidden">
       <IconBrowser
         selectedIcon={browserIcon?.name || ''}
         selectedVariant={browserIcon?.variant || 'svg'}
@@ -2000,9 +2000,9 @@
     width: 240px;
     padding: 8px 10px;
     border-radius: 8px;
-    background: #1f2937;
-    border: 1px solid #374151;
-    color: #d1d5db;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    color: var(--text-secondary);
     font-size: 11px;
     line-height: 1.4;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);

@@ -224,60 +224,60 @@
 
 <div class="flex flex-col h-full max-h-[60vh]">
   <!-- Tabs -->
-  <div class="flex border-b border-gray-700">
+  <div class="flex border-b border-border">
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'dashboard'
                ? 'text-brand-400 border-brand-400'
-               : 'text-gray-400 border-transparent hover:text-gray-300'}"
+               : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'dashboard'}
     >
       Dashboard Icons
-      <span class="text-xs text-gray-500 ml-1">({dashboardIcons.length})</span>
+      <span class="text-xs text-text-disabled ml-1">({dashboardIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'lucide'
                ? 'text-brand-400 border-brand-400'
-               : 'text-gray-400 border-transparent hover:text-gray-300'}"
+               : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'lucide'}
     >
       Lucide
-      <span class="text-xs text-gray-500 ml-1">({lucideIcons.length})</span>
+      <span class="text-xs text-text-disabled ml-1">({lucideIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
              {activeTab === 'custom'
                ? 'text-brand-400 border-brand-400'
-               : 'text-gray-400 border-transparent hover:text-gray-300'}"
+               : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'custom'}
     >
       Custom
-      <span class="text-xs text-gray-500 ml-1">({customIcons.length})</span>
+      <span class="text-xs text-text-disabled ml-1">({customIcons.length})</span>
     </button>
   </div>
 
   <!-- Search -->
-  <div class="p-3 border-b border-gray-700">
+  <div class="p-3 border-b border-border">
     <input
       type="text"
       bind:value={searchQuery}
       oninput={handleSearch}
       placeholder="Search icons..."
-      class="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
              focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
     />
   </div>
 
   <!-- Variant selector (only for dashboard icons) -->
   {#if activeTab === 'dashboard'}
-    <div class="px-3 py-2 border-b border-gray-700 flex gap-2">
+    <div class="px-3 py-2 border-b border-border flex gap-2">
       {#each ['svg', 'png', 'webp'] as variant (variant)}
         <button
           class="px-3 py-1 text-xs rounded-full transition-colors
                  {selectedVariant === variant
                    ? 'bg-brand-500 text-white'
-                   : 'bg-gray-700 text-gray-400 hover:text-white'}"
+                   : 'bg-bg-elevated text-text-muted hover:text-text-primary'}"
           onclick={() => selectedVariant = variant}
         >
           {variant.toUpperCase()}
@@ -288,7 +288,7 @@
 
   <!-- Custom icon upload (only for custom tab) -->
   {#if activeTab === 'custom'}
-    <div class="px-3 py-2 border-b border-gray-700">
+    <div class="px-3 py-2 border-b border-border">
       <input
         bind:this={fileInput}
         type="file"
@@ -297,8 +297,8 @@
         class="hidden"
       />
       <button
-        class="w-full px-3 py-2 border-2 border-dashed border-gray-600 rounded-lg
-               text-gray-400 hover:text-white hover:border-gray-500 transition-colors
+        class="w-full px-3 py-2 border-2 border-dashed border-border-subtle rounded-lg
+               text-text-muted hover:text-text-primary hover:border-border-strong transition-colors
                flex items-center justify-center gap-2"
         onclick={() => fileInput?.click()}
         disabled={uploading}
@@ -347,7 +347,7 @@
               class="aspect-square p-2 rounded-lg border transition-all w-full
                      {selectedIcon === icon.name && selectedType === activeTab
                        ? 'border-brand-500 bg-brand-500/10'
-                       : 'border-gray-700 hover:border-gray-600 hover:bg-gray-700/50'}"
+                       : 'border-border hover:border-border hover:bg-bg-hover'}"
               onclick={() => selectIcon(icon.name, activeTab)}
               title={icon.name}
             >
@@ -370,7 +370,7 @@
             {#if activeTab === 'custom'}
               {#if confirmDeleteIcon === icon.name}
                 <!-- Inline confirmation overlay -->
-                <div class="absolute inset-0 rounded-lg bg-gray-900/90 flex flex-col items-center justify-center gap-1 z-10">
+                <div class="absolute inset-0 rounded-lg bg-bg-base/90 flex flex-col items-center justify-center gap-1 z-10">
                   <span class="text-[10px] text-red-400">Delete?</span>
                   <div class="flex gap-1">
                     <button
@@ -378,7 +378,7 @@
                       onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIconAction(); }}
                     >Yes</button>
                     <button
-                      class="px-1.5 py-0.5 text-[10px] rounded bg-gray-600 hover:bg-gray-500 text-white"
+                      class="px-1.5 py-0.5 text-[10px] rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
                       onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIcon = null; }}
                     >No</button>
                   </div>
@@ -386,7 +386,7 @@
               {:else}
                 <button
                   class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
-                         text-white flex items-center justify-center opacity-0 group-hover:opacity-100
+                         text-text-primary flex items-center justify-center opacity-0 group-hover:opacity-100
                          transition-opacity text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}
                   title="Delete"
@@ -403,7 +403,7 @@
       <!-- Infinite scroll sentinel -->
       <div use:observeSentinel class="h-1"></div>
       {#if hasMore}
-        <div class="text-center py-3 text-xs text-gray-400">
+        <div class="text-center py-3 text-xs text-text-muted">
           Loading more... ({currentIcons.length} of {allCurrentIcons.length})
         </div>
       {/if}
@@ -411,13 +411,13 @@
   </div>
 
   <!-- Footer -->
-  <div class="p-3 border-t border-gray-700 flex justify-between items-center">
-    <span class="text-xs text-gray-400">
+  <div class="p-3 border-t border-border flex justify-between items-center">
+    <span class="text-xs text-text-muted">
       {allCurrentIcons.length}{allCurrentIcons.length !== totalCount ? ` of ${totalCount}` : ''} icons
     </span>
     <div class="flex gap-2">
       <button
-        class="px-3 py-1.5 text-sm text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+        class="px-3 py-1.5 text-sm text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
         onclick={() => onclose?.()}
       >
         Cancel

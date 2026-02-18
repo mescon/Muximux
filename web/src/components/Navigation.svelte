@@ -371,7 +371,7 @@
 <!-- Mobile hamburger menu -->
 {#if isMobile && config.navigation.position !== 'bottom'}
   <button
-    class="fixed top-4 left-4 z-50 p-2 bg-gray-800 rounded-lg border border-gray-700 text-white lg:hidden"
+    class="fixed top-4 left-4 z-50 p-2 bg-bg-surface rounded-lg border border-border text-text-primary lg:hidden"
     onclick={() => mobileMenuOpen = !mobileMenuOpen}
     aria-label={mobileMenuOpen ? 'Close navigation menu' : 'Open navigation menu'}
   >
@@ -434,7 +434,7 @@
         </button>
       {:else}
         <button
-          class="flex-shrink-0 p-1 rounded-md hover:bg-gray-700 transition-all"
+          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-all"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => onsplash?.()}
           title="Overview"
@@ -461,8 +461,8 @@
               <button
                 class="px-2.5 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5
                        {hasActiveApp
-                         ? 'text-white'
-                         : openGroupDropdown === groupName ? 'bg-gray-700/50 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}"
+                         ? 'text-text-primary'
+                         : openGroupDropdown === groupName ? 'bg-bg-hover text-text-primary' : 'text-text-muted hover:bg-bg-hover hover:text-text-primary'}"
                 style={hasActiveApp && config.navigation.show_app_colors ? `border-bottom: 2px solid ${groupConfig?.color || currentApp?.color || 'var(--accent-primary)'}` : ''}
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
@@ -488,8 +488,8 @@
                       <button
                         class="group-dropdown-item w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors
                                {currentApp?.name === app.name
-                                 ? 'text-white'
-                                 : 'text-gray-300 hover:text-white'}
+                                 ? 'text-text-primary'
+                                 : 'text-text-secondary hover:text-text-primary'}
                                {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                         style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
                         onclick={() => { onselect?.(app); openGroupDropdown = null; }}
@@ -524,7 +524,7 @@
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
                 class="flat-group-divider flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
-                       {hoveredGroup === groupName ? 'bg-gray-700/60' : ''}"
+                       {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
                 style="{gi > 0 ? 'margin-left: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
                 title={groupName}
@@ -546,8 +546,8 @@
               <button
                 class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1
                        {currentApp?.name === app.name
-                         ? 'bg-gray-900 text-white'
-                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                         ? 'bg-bg-base text-text-primary'
+                         : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
                        {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                 style="border-bottom: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
                        {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
@@ -575,7 +575,7 @@
       <!-- Right side actions -->
       <div class="flex items-center space-x-2">
         <button
-          class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => onsearch?.()}
           title="Search (Ctrl+K)"
         >
@@ -584,7 +584,7 @@
           </svg>
         </button>
         <button
-          class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => onlogs?.()}
           title="Logs"
         >
@@ -594,7 +594,7 @@
         </button>
         {#if $isAdmin}
           <button
-            class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
             onclick={() => onsettings?.()}
             title="Settings"
           >
@@ -606,7 +606,7 @@
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="p-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
+            class="p-2 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
             onclick={handleLogout}
             title="Sign out"
           >
@@ -645,7 +645,7 @@
     >
     <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
     {#if config.navigation.show_logo}
-      <div class="border-b border-gray-700 flex items-center justify-center overflow-hidden"
+      <div class="border-b border-border flex items-center justify-center overflow-hidden"
            style="height: 100px;">
         <button
           class="hover:opacity-80 flex items-center justify-center"
@@ -657,10 +657,10 @@
         </button>
       </div>
     {:else}
-      <div class="border-b border-gray-700 flex items-center justify-center overflow-hidden"
+      <div class="border-b border-border flex items-center justify-center overflow-hidden"
            style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
         <button
-          class="p-2 rounded-md hover:bg-gray-700 transition-all"
+          class="p-2 rounded-md hover:bg-bg-hover transition-all"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
           title="Overview"
@@ -676,7 +676,7 @@
     <div class="flex items-center"
          style="height: 52px; padding: 8px {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
-        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+        class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
         onclick={() => onsearch?.()}
         title="Search (Ctrl+K)"
       >
@@ -686,7 +686,7 @@
           </svg>
         </div>
         <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Search...</span>
-        <span class="ml-auto mr-2 text-xs bg-gray-700 px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
+        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
       </button>
     </div>
 
@@ -698,7 +698,7 @@
         <div class="mb-2">
           <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
-            class="w-full flex items-center py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
+            class="w-full flex items-center py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary"
             onclick={() => !isCollapsed && toggleGroup(groupName)}
             style="pointer-events: {isCollapsed ? 'none' : 'auto'};"
           >
@@ -726,7 +726,7 @@
                 </svg>
               {/if}
               <span class="truncate">{groupName}</span>
-              <span class="ml-auto text-gray-500 flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ml-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
@@ -738,8 +738,8 @@
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
-                           ? 'bg-gray-700 text-white'
-                           : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
+                           ? 'bg-bg-elevated text-text-primary'
+                           : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                   tabindex={expandedGroups[groupName] ? 0 : -1}
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
@@ -786,7 +786,7 @@
         <div class="footer-drawer-content" class:expanded={footerDrawerOpen}>
           <div class="footer-drawer-inner">
             <button
-              class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+              class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
               onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
               title="Logs"
             >
@@ -802,7 +802,7 @@
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
-                class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
                 onclick={handleLogout}
                 title="Sign out"
               >
@@ -817,7 +817,7 @@
 
             {#if $isAdmin}
               <button
-                class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
                 onclick={() => onsettings?.()}
                 title="Settings"
               >
@@ -839,7 +839,7 @@
            style="border-color: var(--border-subtle);"
            role="group"
            onmouseenter={handleCollapsedFooterEnter}>
-        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -848,7 +848,7 @@
       <!-- Standard footer -->
       <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsed ? '0' : '0.5rem'}; padding-right: {isCollapsed ? '0' : '0.5rem'};">
         <button
-          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+          class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
           onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
           title="Logs"
         >
@@ -862,7 +862,7 @@
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
             style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
             tabindex={isCollapsed ? -1 : 0}
             onclick={handleLogout}
@@ -879,7 +879,7 @@
 
         {#if $isAdmin}
           <button
-            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
             onclick={() => onsettings?.()}
             title="Settings"
           >
@@ -937,7 +937,7 @@
     >
     <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
     {#if config.navigation.show_logo}
-      <div class="border-b border-gray-700 flex items-center justify-center overflow-hidden"
+      <div class="border-b border-border flex items-center justify-center overflow-hidden"
            style="height: 100px;">
         <button
           class="hover:opacity-80 flex items-center justify-center"
@@ -949,10 +949,10 @@
         </button>
       </div>
     {:else}
-      <div class="border-b border-gray-700 flex items-center justify-center overflow-hidden"
+      <div class="border-b border-border flex items-center justify-center overflow-hidden"
            style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
         <button
-          class="p-2 rounded-md hover:bg-gray-700 transition-all"
+          class="p-2 rounded-md hover:bg-bg-hover transition-all"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
           title="Overview"
@@ -968,7 +968,7 @@
     <div class="flex items-center"
          style="height: 52px; padding: 8px {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       <button
-        class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+        class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
         onclick={() => onsearch?.()}
         title="Search (Ctrl+K)"
       >
@@ -978,7 +978,7 @@
           </svg>
         </div>
         <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Search...</span>
-        <span class="ml-auto mr-2 text-xs bg-gray-700 px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
+        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
       </button>
     </div>
 
@@ -990,7 +990,7 @@
         <div class="mb-2">
           <!-- Group header — icon stays visible when collapsed, text fades -->
           <button
-            class="w-full flex items-center py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300"
+            class="w-full flex items-center py-1.5 text-xs font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary"
             onclick={() => !isCollapsedRight && toggleGroup(groupName)}
             style="pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
           >
@@ -1018,7 +1018,7 @@
                 </svg>
               {/if}
               <span class="truncate">{groupName}</span>
-              <span class="ml-auto text-gray-500 flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ml-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
@@ -1029,8 +1029,8 @@
                 <button
                   class="w-full flex items-center py-1.5 rounded-md text-sm transition-colors relative
                          {currentApp?.name === app.name
-                           ? 'bg-gray-700 text-white'
-                           : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
+                           ? 'bg-bg-elevated text-text-primary'
+                           : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                   tabindex={expandedGroups[groupName] ? 0 : -1}
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
@@ -1077,7 +1077,7 @@
         <div class="footer-drawer-content" class:expanded={footerDrawerOpen}>
           <div class="footer-drawer-inner">
             <button
-              class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+              class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
               onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
               title="Logs"
             >
@@ -1093,7 +1093,7 @@
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
-                class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
                 onclick={handleLogout}
                 title="Sign out"
               >
@@ -1108,7 +1108,7 @@
 
             {#if $isAdmin}
               <button
-                class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
                 onclick={() => onsettings?.()}
                 title="Settings"
               >
@@ -1130,7 +1130,7 @@
            style="border-color: var(--border-subtle);"
            role="group"
            onmouseenter={handleCollapsedFooterEnter}>
-        <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <svg class="w-4 h-4 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>
@@ -1139,7 +1139,7 @@
       <!-- Standard footer -->
       <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsedRight ? '0' : '0.5rem'}; padding-right: {isCollapsedRight ? '0' : '0.5rem'};">
         <button
-          class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+          class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
           onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
           title="Logs"
         >
@@ -1153,7 +1153,7 @@
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="w-full flex items-center py-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 text-sm transition-colors"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
             style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
             tabindex={isCollapsedRight ? -1 : 0}
             onclick={handleLogout}
@@ -1170,7 +1170,7 @@
 
         {#if $isAdmin}
           <button
-            class="w-full flex items-center py-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700 text-sm"
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
             onclick={() => onsettings?.()}
             title="Settings"
           >
@@ -1243,7 +1243,7 @@
         </button>
       {:else}
         <button
-          class="flex-shrink-0 p-1 rounded-md hover:bg-gray-700 transition-all"
+          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-all"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => onsplash?.()}
           title="Overview"
@@ -1270,8 +1270,8 @@
               <button
                 class="px-2.5 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1.5
                        {hasActiveApp
-                         ? 'text-white'
-                         : openGroupDropdown === groupName ? 'bg-gray-700/50 text-white' : 'text-gray-400 hover:bg-gray-700/50 hover:text-white'}"
+                         ? 'text-text-primary'
+                         : openGroupDropdown === groupName ? 'bg-bg-hover text-text-primary' : 'text-text-muted hover:bg-bg-hover hover:text-text-primary'}"
                 style={hasActiveApp && config.navigation.show_app_colors ? `border-top: 2px solid ${groupConfig?.color || currentApp?.color || 'var(--accent-primary)'}` : ''}
                 onclick={() => openGroupDropdown = openGroupDropdown === groupName ? null : groupName}
               >
@@ -1297,8 +1297,8 @@
                       <button
                         class="group-dropdown-item w-full flex items-center gap-2 px-3 py-2 text-sm transition-colors
                                {currentApp?.name === app.name
-                                 ? 'text-white'
-                                 : 'text-gray-300 hover:text-white'}
+                                 ? 'text-text-primary'
+                                 : 'text-text-secondary hover:text-text-primary'}
                                {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                         style="background: {currentApp?.name === app.name ? 'var(--bg-hover)' : 'transparent'};"
                         onclick={() => { onselect?.(app); openGroupDropdown = null; }}
@@ -1332,7 +1332,7 @@
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
                 class="flat-group-divider flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
-                       {hoveredGroup === groupName ? 'bg-gray-700/60' : ''}"
+                       {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
                 style="{gi > 0 ? 'margin-left: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
                 title={groupName}
@@ -1354,8 +1354,8 @@
               <button
                 class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1
                        {currentApp?.name === app.name
-                         ? 'bg-gray-900 text-white'
-                         : 'text-gray-300 hover:bg-gray-700 hover:text-white'}
+                         ? 'bg-bg-base text-text-primary'
+                         : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
                        {isUnhealthy(app) && currentApp?.name !== app.name ? 'opacity-50' : ''}"
                 style="border-top: 2px solid {config.navigation.show_app_colors && currentApp?.name === app.name ? (app.color || '#22c55e') : 'transparent'};
                        {hoveredGroup && hoveredGroup !== app.group ? 'opacity: 0.3;' : ''}"
@@ -1383,7 +1383,7 @@
       <!-- Right side actions -->
       <div class="flex items-center space-x-2">
         <button
-          class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => onsearch?.()}
           title="Search (Ctrl+K)"
         >
@@ -1392,7 +1392,7 @@
           </svg>
         </button>
         <button
-          class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+          class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => onlogs?.()}
           title="Logs"
         >
@@ -1402,7 +1402,7 @@
         </button>
         {#if $isAdmin}
           <button
-            class="p-2 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
             onclick={() => onsettings?.()}
             title="Settings"
           >
@@ -1414,7 +1414,7 @@
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
-            class="p-2 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
+            class="p-2 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
             onclick={handleLogout}
             title="Sign out"
           >
@@ -1477,7 +1477,7 @@
             <div class="mb-1">
               <!-- Group header -->
               <button
-                class="w-full flex items-center py-1 px-1 text-xs font-semibold text-gray-400 uppercase tracking-wider hover:text-gray-300 rounded"
+                class="w-full flex items-center py-1 px-1 text-xs font-semibold text-text-muted uppercase tracking-wider hover:text-text-secondary rounded"
                 onclick={() => toggleGroup(groupName)}
               >
                 <div class="flex-shrink-0 flex items-center justify-center w-6">
@@ -1504,7 +1504,7 @@
                     </svg>
                   {/if}
                   <span class="truncate">{groupName}</span>
-                  <span class="ml-auto text-gray-500 flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+                  <span class="ml-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
                 </div>
               </button>
 
@@ -1516,8 +1516,8 @@
                     <button
                       class="w-full flex items-center py-1.5 px-1 rounded-md text-sm transition-colors relative
                              {currentApp?.name === app.name
-                               ? 'bg-gray-700 text-white'
-                               : 'text-gray-300 hover:bg-gray-700/50 hover:text-white'}"
+                               ? 'bg-bg-elevated text-text-primary'
+                               : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}"
                       tabindex={expandedGroups[groupName] ? 0 : -1}
                       onclick={() => { onselect?.(app); panelOpen = false; }}
                     >
@@ -1548,7 +1548,7 @@
         <div class="border-t px-2 py-2 flex items-center gap-1" style="border-color: var(--border-subtle);">
           {#if config.navigation.show_logo}
             <button
-              class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-gray-700"
+              class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-bg-hover"
               style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
               onclick={() => { onsplash?.(); panelOpen = false; }}
               title={config.title}
@@ -1557,7 +1557,7 @@
             </button>
           {:else}
             <button
-              class="p-1.5 rounded-md hover:bg-gray-700 transition-all"
+              class="p-1.5 rounded-md hover:bg-bg-hover transition-all"
               style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
               onclick={() => { onsplash?.(); panelOpen = false; }}
               title="Overview"
@@ -1568,7 +1568,7 @@
             </button>
           {/if}
           <button
-            class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
             onclick={() => { onsearch?.(); panelOpen = false; }}
             title="Search (Ctrl+K)"
           >
@@ -1578,7 +1578,7 @@
           </button>
           <div class="flex-1"></div>
           <button
-            class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+            class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
             onclick={() => { onlogs?.(); panelOpen = false; }}
             title="Logs"
           >
@@ -1588,7 +1588,7 @@
           </button>
           {#if $isAdmin}
             <button
-              class="p-1.5 text-gray-400 hover:text-white rounded-md hover:bg-gray-700"
+              class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
               onclick={() => { onsettings?.(); panelOpen = false; }}
               title="Settings"
             >
@@ -1600,7 +1600,7 @@
           {/if}
           {#if hasRealAuth && $isAuthenticated && $currentUser}
             <button
-              class="p-1.5 text-gray-400 hover:text-red-400 rounded-md hover:bg-gray-700 transition-colors"
+              class="p-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover transition-colors"
               onclick={() => { handleLogout(); panelOpen = false; }}
               title="Sign out"
             >
@@ -1673,79 +1673,79 @@
   }
 
   /* Text colors */
-  nav :global(.text-white),
-  aside :global(.text-white) {
+  nav :global(.text-text-primary),
+  aside :global(.text-text-primary) {
     color: var(--text-primary) !important;
   }
 
-  nav :global(.text-gray-300),
-  aside :global(.text-gray-300) {
+  nav :global(.text-text-secondary),
+  aside :global(.text-text-secondary) {
     color: var(--text-secondary) !important;
   }
 
-  nav :global(.text-gray-400),
-  aside :global(.text-gray-400) {
+  nav :global(.text-text-muted),
+  aside :global(.text-text-muted) {
     color: var(--text-muted) !important;
   }
 
-  nav :global(.text-gray-500),
-  aside :global(.text-gray-500) {
+  nav :global(.text-text-disabled),
+  aside :global(.text-text-disabled) {
     color: var(--text-disabled) !important;
   }
 
   /* Background colors */
-  nav :global(.bg-gray-700),
-  aside :global(.bg-gray-700) {
+  nav :global(.bg-bg-elevated),
+  aside :global(.bg-bg-elevated) {
     background: var(--bg-hover) !important;
   }
 
-  nav :global(.bg-gray-800),
-  aside :global(.bg-gray-800) {
+  nav :global(.bg-bg-surface),
+  aside :global(.bg-bg-surface) {
     background: var(--bg-surface) !important;
   }
 
-  nav :global(.bg-gray-900),
-  aside :global(.bg-gray-900) {
+  nav :global(.bg-bg-base),
+  aside :global(.bg-bg-base) {
     background: var(--bg-base) !important;
   }
 
   /* Hover states */
-  nav :global(.hover\:bg-gray-700:hover),
-  aside :global(.hover\:bg-gray-700:hover) {
+  nav :global(.hover\:bg-bg-elevated:hover),
+  aside :global(.hover\:bg-bg-elevated:hover) {
     background: var(--bg-hover) !important;
   }
 
-  nav :global(.hover\:bg-gray-600\/50:hover),
-  aside :global(.hover\:bg-gray-600\/50:hover) {
+  nav :global(.hover\:bg-bg-overlay\/50:hover),
+  aside :global(.hover\:bg-bg-overlay\/50:hover) {
     background: var(--bg-active) !important;
   }
 
-  nav :global(.hover\:text-white:hover),
-  aside :global(.hover\:text-white:hover) {
+  nav :global(.hover\:text-text-primary:hover),
+  aside :global(.hover\:text-text-primary:hover) {
     color: var(--text-primary) !important;
   }
 
   /* Border colors */
-  nav :global(.border-gray-700),
-  aside :global(.border-gray-700) {
+  nav :global(.border-border),
+  aside :global(.border-border) {
     border-color: var(--border-subtle) !important;
   }
 
   /* Active/selected states */
-  nav :global(.bg-gray-700\/50),
-  aside :global(.bg-gray-700\/50) {
+  nav :global(.bg-bg-elevated\/50),
+  aside :global(.bg-bg-elevated\/50) {
     background: var(--bg-hover) !important;
   }
 
   /* Floating buttons */
-  :global(.bg-gray-800.border.border-gray-700) {
+  :global(.bg-bg-surface.border.border-border) {
     background: var(--bg-surface) !important;
     border-color: var(--border-default) !important;
   }
 
   /* Keyboard shortcut badges */
-  nav :global(.bg-gray-700.px-1\.5),
-  aside :global(.bg-gray-700.px-1\.5) {
+  nav :global(.bg-bg-elevated.px-1\.5),
+  aside :global(.bg-bg-elevated.px-1\.5) {
     background: var(--bg-overlay) !important;
     color: var(--text-muted) !important;
   }
@@ -1843,34 +1843,34 @@
   }
 
   /* Floating panel theme overrides */
-  .floating-panel :global(.text-white) {
+  .floating-panel :global(.text-text-primary) {
     color: var(--text-primary) !important;
   }
-  .floating-panel :global(.text-gray-300) {
+  .floating-panel :global(.text-text-secondary) {
     color: var(--text-secondary) !important;
   }
-  .floating-panel :global(.text-gray-400) {
+  .floating-panel :global(.text-text-muted) {
     color: var(--text-muted) !important;
   }
-  .floating-panel :global(.text-gray-500) {
+  .floating-panel :global(.text-text-disabled) {
     color: var(--text-disabled) !important;
   }
-  .floating-panel :global(.bg-gray-700) {
+  .floating-panel :global(.bg-bg-elevated) {
     background: var(--bg-hover) !important;
   }
-  .floating-panel :global(.hover\:bg-gray-700:hover) {
+  .floating-panel :global(.hover\:bg-bg-elevated:hover) {
     background: var(--bg-hover) !important;
   }
-  .floating-panel :global(.hover\:bg-gray-700\/50:hover) {
+  .floating-panel :global(.hover\:bg-bg-elevated\/50:hover) {
     background: var(--bg-hover) !important;
   }
-  .floating-panel :global(.bg-gray-700\/50) {
+  .floating-panel :global(.bg-bg-elevated\/50) {
     background: var(--bg-hover) !important;
   }
-  .floating-panel :global(.hover\:text-white:hover) {
+  .floating-panel :global(.hover\:text-text-primary:hover) {
     color: var(--text-primary) !important;
   }
-  .floating-panel :global(.border-gray-700) {
+  .floating-panel :global(.border-border) {
     border-color: var(--border-subtle) !important;
   }
 

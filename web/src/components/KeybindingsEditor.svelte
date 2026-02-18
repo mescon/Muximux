@@ -139,7 +139,7 @@
 <div class="space-y-6">
   <!-- Header with reset button -->
   <div class="flex items-center justify-between">
-    <p class="text-sm text-gray-400">
+    <p class="text-sm text-text-muted">
       Click a keybinding to change it. Press Escape to cancel.
     </p>
     {#if confirmResetAll}
@@ -152,14 +152,14 @@
         >Yes, Reset</button>
         <button
           type="button"
-          class="px-2 py-1 text-xs rounded bg-gray-600 hover:bg-gray-500 text-white"
+          class="px-2 py-1 text-xs rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
           onclick={() => confirmResetAll = false}
         >Cancel</button>
       </div>
     {:else}
       <button
         type="button"
-        class="text-sm text-gray-400 hover:text-white transition-colors"
+        class="text-sm text-text-muted hover:text-text-primary transition-colors"
         onclick={handleResetAll}
       >
         Reset All to Defaults
@@ -170,24 +170,24 @@
   <!-- Keybindings by category -->
   {#each Object.entries(groupedBindings) as [category, bindings] (category)}
     <div>
-      <h4 class="text-sm font-semibold text-gray-400 uppercase tracking-wider mb-3">
+      <h4 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
         {categoryLabels[category] || category}
       </h4>
 
       <div class="space-y-2">
         {#each bindings as binding (binding.action)}
           <div
-            class="flex items-center justify-between p-3 bg-gray-700/50 rounded-lg
+            class="flex items-center justify-between p-3 bg-bg-hover rounded-lg
                    {isCustomized(binding.action) ? 'ring-1 ring-brand-500/30' : ''}"
           >
             <div class="flex-1 min-w-0">
               <div class="flex items-center gap-2">
-                <span class="text-gray-200">{binding.label}</span>
+                <span class="text-text-primary">{binding.label}</span>
                 {#if isCustomized(binding.action)}
                   <span class="text-xs text-brand-400">(customized)</span>
                 {/if}
               </div>
-              <p class="text-xs text-gray-500 mt-0.5">{binding.description}</p>
+              <p class="text-xs text-text-disabled mt-0.5">{binding.description}</p>
             </div>
 
             <div class="flex items-center gap-2 ml-4">
@@ -203,7 +203,7 @@
                             {formatKeyCombo(capturedCombo)}
                           </kbd>
                         {:else}
-                          <kbd class="px-2 py-1 text-xs bg-gray-600 border border-gray-500 rounded text-gray-300 font-mono animate-pulse">
+                          <kbd class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-secondary font-mono animate-pulse">
                             Press keys...
                           </kbd>
                         {/if}
@@ -216,8 +216,8 @@
                           disabled={!binding.editable}
                         >
                           <kbd
-                            class="px-2 py-1 text-xs bg-gray-700 border border-gray-600 rounded font-mono
-                                   {binding.editable ? 'text-gray-200 group-hover:bg-gray-600 group-hover:border-gray-500' : 'text-gray-500'}"
+                            class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded font-mono
+                                   {binding.editable ? 'text-text-primary group-hover:bg-bg-active group-hover:border-border-strong' : 'text-text-disabled'}"
                           >
                             {formatKeyCombo(combo)}
                           </kbd>
@@ -225,7 +225,7 @@
                         {#if binding.editable && binding.combos.length > 1}
                           <span
                             role="button"
-                            class="p-0.5 text-gray-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            class="p-0.5 text-text-disabled hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
                             onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
                             tabindex="0"
@@ -239,7 +239,7 @@
                       </div>
                     {/if}
                     {#if i < binding.combos.length - 1}
-                      <span class="text-gray-500 text-xs mx-1">or</span>
+                      <span class="text-text-disabled text-xs mx-1">or</span>
                     {/if}
                   </div>
                 {/each}
@@ -248,7 +248,7 @@
                 {#if binding.editable && capturingAction !== binding.action}
                   <button
                     type="button"
-                    class="p-1 text-gray-500 hover:text-gray-300 transition-colors"
+                    class="p-1 text-text-disabled hover:text-text-secondary transition-colors"
                     onclick={() => startCapture(binding.action, null)}
                     title="Add alternative shortcut"
                   >
@@ -261,13 +261,13 @@
                 <!-- Adding new combo -->
                 {#if capturingAction === binding.action && capturingIndex === null}
                   <div class="flex items-center gap-1">
-                    <span class="text-gray-500 text-xs mx-1">or</span>
+                    <span class="text-text-disabled text-xs mx-1">or</span>
                     {#if capturedCombo}
                       <kbd class="px-2 py-1 text-xs bg-brand-600 border border-brand-500 rounded text-white font-mono">
                         {formatKeyCombo(capturedCombo)}
                       </kbd>
                     {:else}
-                      <kbd class="px-2 py-1 text-xs bg-gray-600 border border-gray-500 rounded text-gray-300 font-mono animate-pulse">
+                      <kbd class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-secondary font-mono animate-pulse">
                         Press keys...
                       </kbd>
                     {/if}
@@ -279,7 +279,7 @@
               {#if isCustomized(binding.action)}
                 <button
                   type="button"
-                  class="p-1 text-gray-500 hover:text-yellow-400 transition-colors"
+                  class="p-1 text-text-disabled hover:text-yellow-400 transition-colors"
                   onclick={() => handleResetBinding(binding.action)}
                   title="Reset to default"
                 >
