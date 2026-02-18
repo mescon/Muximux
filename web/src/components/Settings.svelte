@@ -533,20 +533,17 @@
       <!-- Theme Settings -->
       {:else if activeTab === 'theme'}
         <ThemeTab />
-      {/if}
 
       <!-- Keybindings Settings -->
-      {#if activeTab === 'keybindings'}
+      {:else if activeTab === 'keybindings'}
         <KeybindingsEditor onchange={() => keybindingsChanged = true} />
-      {/if}
 
       <!-- Security Settings -->
-      {#if activeTab === 'security'}
+      {:else if activeTab === 'security'}
         <SecurityTab {localConfig} />
-      {/if}
 
       <!-- About -->
-      {#if activeTab === 'about'}
+      {:else if activeTab === 'about'}
         <AboutTab />
       {/if}
     </div>
