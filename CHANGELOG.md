@@ -9,15 +9,28 @@ All notable changes to Muximux are documented in this file.
 - **Build tag split** — Go builds no longer require a `dist/` placeholder directory. Dev builds compile without `embed_web` tag; production builds use `-tags embed_web` to embed frontend assets.
 - **Docker PUID/PGID support** — Container entrypoint now creates a runtime user matching `PUID`/`PGID` environment variables for bind-mount permission compatibility (linuxserver.io convention).
 - **Docker security hardening** — `docker-compose.yml` adds `init: true`, `no-new-privileges`, and `cap_drop: ALL`.
+- **Settings modal refactored** — Extracted each tab (General, Apps, Theme, Security, About) into its own component, reducing Settings.svelte from ~3800 lines to ~1800.
+- **Button styles standardized** — All buttons in Settings now use the design system classes (`.btn`, `.btn-primary`, `.btn-secondary`, `.btn-ghost`) instead of hand-rolled Tailwind.
+- **Open mode labels** — Consistent display between Add and Edit flows; both now use shared `openModes` constant.
 
 ### Added
 
+- **Cancel button on Edit modals** — Edit App and Edit Group modals now have a Cancel button that reverts changes. Previously only "Done" was available, which applied changes immediately.
+- **Validation on Edit modals** — Edit App and Edit Group modals now validate with Zod schemas before accepting, matching the Add flows.
+- **Redirect open mode in UI** — The `redirect` open mode is now available in the Settings dropdown (previously only configurable via YAML).
+- **`.btn-danger` design system class** — For destructive action buttons (delete confirmations).
 - **Docstring coverage enforcement** — CI checks that 80%+ of exported Go identifiers have doc comments (`scripts/check-docstrings.sh`).
 - **CHANGELOG-based release notes** — Release workflow extracts notes from CHANGELOG.md instead of auto-generating from PR titles. Falls back to auto-generation if no entry found.
 - **CONTRIBUTING.md** — Developer guide covering prerequisites, dev mode, building, testing, and PR process.
 - **systemd service file** — `muximux.service` for bare-metal deployments with security hardening.
 - **CodeRabbit config** — `.coderabbit.yaml` with path-specific review instructions.
 - **Codecov config** — `codecov.yml` with backend/frontend flags, patch target 70%, and carryforward support.
+
+### Fixed
+
+- **Theme family cards** — Now use semantic `<button>` elements instead of `<div role="button">` with manual keyboard handlers.
+- **Separated setup and add-user state** — The "Create first user" form in Security no longer shares state with the "Add User" modal.
+- **Icon browser pre-population** — Opening the icon browser for a new app/group now passes the current icon selection.
 
 ---
 
