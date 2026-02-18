@@ -6,6 +6,7 @@
   import { flip } from 'svelte/animate';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import type { App, AppIcon as AppIconConfig, Config, Group, NavigationConfig, ThemeConfig, SetupRequest } from '$lib/types';
+  import { openModes } from '$lib/constants';
   import {
     currentStep,
     selectedApps,
@@ -59,11 +60,6 @@
   }
   let appOverrides = new SvelteMap<string, AppOverride>();
 
-  const openModes: { value: App['open_mode']; label: string }[] = [
-    { value: 'iframe', label: 'Embedded' },
-    { value: 'new_tab', label: 'New Tab' },
-    { value: 'new_window', label: 'New Window' }
-  ];
 
   // Groups editing state — each group gets a stable id for keyed-each
   type WizardGroup = Group & { id: string };

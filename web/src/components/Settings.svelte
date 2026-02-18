@@ -3,6 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import type { App, Config, Group } from '$lib/types';
+  import { openModes } from '$lib/constants';
   import IconBrowser from './IconBrowser.svelte';
   import AppIcon from './AppIcon.svelte';
   import KeybindingsEditor from './KeybindingsEditor.svelte';
@@ -633,11 +634,6 @@
     { value: 'floating', label: 'Floating', description: 'Minimal floating button' }
   ] as const;
 
-  const openModes = [
-    { value: 'iframe', label: 'Embedded', description: 'Show inside Muximux' },
-    { value: 'new_tab', label: 'New Tab', description: 'Open in a new browser tab' },
-    { value: 'new_window', label: 'New Window', description: 'Open in a popup window' }
-  ];
 
   // Theme editor state
   let showThemeEditor = $state(false);
@@ -2790,7 +2786,7 @@ chmod +x muximux-darwin-arm64
               class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
               {#each openModes as mode (mode.value)}
-                <option value={mode.value}>{mode.label} - {mode.description}</option>
+                <option value={mode.value}>{mode.label}</option>
               {/each}
             </select>
           </div>
