@@ -431,8 +431,7 @@
               style="background: var(--bg-overlay); color: var(--text-primary); border: 1px solid var(--border-default);"
             />
             <button
-              class="w-full px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50"
-              style="background: var(--accent-primary); color: var(--bg-base);"
+              class="w-full px-4 py-2 text-sm rounded font-medium transition-colors disabled:opacity-50 bg-accent-primary text-accent-on-primary"
               disabled={!saveThemeName.trim() || isSavingTheme}
               onclick={handleSaveTheme}
             >

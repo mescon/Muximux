@@ -474,6 +474,103 @@ server:
 	})
 }
 
+func TestLoadPreservesBcryptHash(t *testing.T) {
+	hash := "$2a$10$/ijadDMQO1SvqjoQgLdKOO62yB9x3Voi2OZ5LSp3uVYeOGrqjmpq."
+	content := `
+auth:
+  method: builtin
+  users:
+    - username: admin
+      password_hash: ` + hash + `
+      role: admin
+`
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	if len(cfg.Auth.Users) != 1 {
+		t.Fatalf("Expected 1 user, got %d", len(cfg.Auth.Users))
+	}
+	if cfg.Auth.Users[0].PasswordHash != hash {
+		t.Errorf("Bcrypt hash corrupted:\n  want: %s\n  got:  %s", hash, cfg.Auth.Users[0].PasswordHash)
+	}
+}
+
+func TestLoadExpandsBracedEnvVars(t *testing.T) {
+	t.Setenv("MUXIMUX_TEST_TITLE", "FromEnv")
+	content := `
+server:
+  title: ${MUXIMUX_TEST_TITLE}
+`
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	if cfg.Server.Title != "FromEnv" {
+		t.Errorf("Expected title 'FromEnv', got %q", cfg.Server.Title)
+	}
+}
+
+func TestLoadIgnoresBareEnvVars(t *testing.T) {
+	content := `
+server:
+  title: $NONEXISTENT_VAR_test
+`
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	if cfg.Server.Title != "$NONEXISTENT_VAR_test" {
+		t.Errorf("Bare $VAR should not be expanded, got %q", cfg.Server.Title)
+	}
+}
+
+func TestLoadPreservesUnsetBracedEnvVars(t *testing.T) {
+	// ${UNSET_VAR} should be left as-is if the env var doesn't exist,
+	// protecting OIDC secrets, proxy headers, etc. from silent corruption.
+	content := `
+auth:
+  oidc:
+    client_secret: "abc${MUXIMUX_TEST_NONEXISTENT}xyz"
+`
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Failed to load config: %v", err)
+	}
+
+	want := "abc${MUXIMUX_TEST_NONEXISTENT}xyz"
+	if cfg.Auth.OIDC.ClientSecret != want {
+		t.Errorf("Unset ${VAR} should be preserved:\n  want: %s\n  got:  %s", want, cfg.Auth.OIDC.ClientSecret)
+	}
+}
+
 func TestMigrate(t *testing.T) {
 	t.Run("v1 to v2 renames roles", func(t *testing.T) {
 		cfg := &Config{

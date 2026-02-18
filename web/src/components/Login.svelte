@@ -209,7 +209,7 @@
   }
   .login-submit {
     background: var(--accent-primary);
-    color: var(--bg-base);
+    color: var(--accent-on-primary);
   }
   .login-submit:hover:not(:disabled) {
     filter: brightness(1.1);

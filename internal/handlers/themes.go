@@ -271,8 +271,6 @@ func parseThemeMetadata(content, filename string) *ThemeInfo {
 		key := match[1]
 		value := strings.TrimSpace(match[2])
 		switch key {
-		case "id":
-			theme.ID = value
 		case "name":
 			theme.Name = value
 		case "description":

@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -221,6 +222,7 @@ type AppAccessConfig struct {
 
 // Load reads configuration from a YAML file.
 // Environment variables referenced as ${VAR} in config values are expanded.
+// Bare $VAR references are NOT expanded to avoid corrupting bcrypt hashes.
 func Load(path string) (*Config, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -231,8 +233,9 @@ func Load(path string) (*Config, error) {
 		return nil, err
 	}
 
-	// Expand environment variables in config values
-	expanded := os.ExpandEnv(string(data))
+	// Expand only ${VAR} (braced) environment variables — bare $VAR is NOT
+	// expanded because bcrypt hashes like $2a$10$... would be corrupted.
+	expanded := expandBracedEnv(string(data))
 
 	cfg := defaultConfig()
 	if err := yaml.Unmarshal([]byte(expanded), cfg); err != nil {
@@ -249,6 +252,21 @@ func Load(path string) (*Config, error) {
 	}
 
 	return cfg, nil
+}
+
+// expandBracedEnv replaces ${VAR} references with environment variable values.
+// Unlike os.ExpandEnv, bare $VAR references are left untouched so that values
+// like bcrypt hashes ($2a$10$...) are not corrupted.
+var bracedEnvRe = regexp.MustCompile(`\$\{([^}]+)\}`)
+
+func expandBracedEnv(s string) string {
+	return bracedEnvRe.ReplaceAllStringFunc(s, func(match string) string {
+		key := match[2 : len(match)-1] // strip ${ and }
+		if val, ok := os.LookupEnv(key); ok {
+			return val
+		}
+		return match // leave ${VAR} literal if env var is not set
+	})
 }
 
 // validate checks the configuration for contradictory or incomplete settings.

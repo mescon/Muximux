@@ -71,6 +71,7 @@ input[type="color"]::-moz-color-swatch {
   --color-accent-secondary: var(--accent-secondary);
   --color-accent-muted: var(--accent-muted);
   --color-accent-subtle: var(--accent-subtle);
+  --color-accent-on-primary: var(--accent-on-primary);
 
   /* ── Colors: status ── */
   --color-status-success: var(--status-success);
@@ -191,6 +192,7 @@ input[type="color"]::-moz-color-swatch {
   --accent-secondary: #14b8a6;
   --accent-muted: rgba(45, 212, 191, 0.2);
   --accent-subtle: rgba(45, 212, 191, 0.1);
+  --accent-on-primary: #fff;
 
   /* Brand palette (for app-specific elements) */
   --color-brand-50: #f0fdfa;
@@ -255,6 +257,7 @@ input[type="color"]::-moz-color-swatch {
   --accent-secondary: #0f766e;
   --accent-muted: rgba(13, 148, 136, 0.15);
   --accent-subtle: rgba(13, 148, 136, 0.08);
+  --accent-on-primary: #fff;
 
   /* Brand palette - shifted darker for light backgrounds */
   --color-brand-50: #f0fdfa;
@@ -422,7 +425,7 @@ html.theme-switching *::after {
 
   .btn-primary {
     background: var(--accent-primary);
-    color: var(--bg-base);
+    color: var(--accent-on-primary);
     border: none;
   }
 

@@ -527,7 +527,7 @@ export const themeVariableNames = [
   '--glass-bg', '--glass-border', '--glass-highlight',
   '--text-primary', '--text-secondary', '--text-muted', '--text-disabled',
   '--border-subtle', '--border-default', '--border-strong',
-  '--accent-primary', '--accent-secondary', '--accent-muted', '--accent-subtle',
+  '--accent-primary', '--accent-secondary', '--accent-muted', '--accent-subtle', '--accent-on-primary',
   '--status-success', '--status-warning', '--status-error', '--status-info',
   '--shadow-sm', '--shadow-md', '--shadow-lg', '--shadow-glow',
 ] as const;
