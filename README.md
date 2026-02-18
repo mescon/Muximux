@@ -24,7 +24,7 @@ If you run services like Sonarr, Radarr, Plex, Grafana, or Home Assistant in you
 
 Apps load inside the dashboard as iframes, so switching between them is instant - no page reloads, no losing your place. For apps that refuse to be embedded (most set `X-Frame-Options: DENY`), Muximux includes a reverse proxy that transparently strips those headers and rewrites paths so they work.
 
-Everything is configured in one YAML file. There's no database, no external dependencies, and the entire application ships as a single binary with the frontend embedded.
+Everything is configured in one YAML file — no database, no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
 
 ---
 
@@ -159,6 +159,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
 | **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |
+| **Portable** | No database - one YAML config file stores everything. Every setting is editable in the GUI. Copy one file to back up or migrate |
 
 ---
 
