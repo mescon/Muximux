@@ -30,6 +30,7 @@ config.yaml
 
 # IDE and tools
 .claude/
+.worktrees/
 .idea/
 .vscode/
 *.swp
