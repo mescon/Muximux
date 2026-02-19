@@ -19,8 +19,8 @@ Set `enabled: false` to disable health monitoring entirely. When disabled, all a
 
 ## How It Works
 
-- Muximux sends an HTTP GET request to each enabled app's URL (or `health_url` if configured).
-- A response with HTTP status 2xx is considered **healthy**. Anything else -- including timeouts, connection errors, and non-2xx status codes -- is considered **unhealthy**.
+- Muximux sends an HTTP GET request to each app that has `health_check: true` (using `health_url` if configured, otherwise the main `url`).
+- A response with HTTP status 2xx is considered **healthy**. Redirects (3xx) are followed automatically (up to 3 hops). Timeouts, connection errors, and non-2xx final responses are considered **unhealthy**. TLS certificate errors are ignored, so self-signed certs work fine.
 - Results are broadcast to all connected browsers via WebSocket in real-time.
 
 ## Custom Health URLs
@@ -40,26 +40,27 @@ If `health_url` is not set, the main `url` is used for health checks.
 
 ## Per-App Health Check Toggle
 
-You can disable health monitoring for individual apps by setting `health_check: false`:
+Health checks are **opt-in** per app. Enable them by setting `health_check: true`:
 
 ```yaml
 apps:
+  - name: Sonarr
+    url: http://sonarr:8989
+    health_check: true     # Enable health checks for this app
+
   - name: External Service
     url: https://external-service.example.com
-    health_check: false    # No health checks, no status indicator shown
+    # health_check omitted → no health checks, no status indicator
 ```
 
-When `health_check` is set to `false`:
+When `health_check` is not set or is `false`:
 - No health check requests are sent for that app.
 - No health status indicator (dot) is shown in the navigation.
 - The app always appears at full opacity regardless of other apps' health status.
 
-This is useful for:
-- External services you don't control and don't want to ping.
-- Apps behind VPNs or firewalls that Muximux can't reach for health checks.
-- Reducing noise when you only care about the health of certain critical services.
+By default, **no apps have health checks enabled**. You enable them individually for the apps you care about, or use the bulk toggle in **Settings > General > Health Checks** to enable/disable all at once.
 
-By default, all apps have health checks enabled (equivalent to `health_check: true`). You can bulk-enable or bulk-disable health checks for all apps in **Settings > Apps**.
+This opt-in design keeps things quiet by default and lets you choose which apps to monitor -- useful when you have external services, VPN-only apps, or services behind firewalls that Muximux can't reach.
 
 ## Health Status Indicators
 
