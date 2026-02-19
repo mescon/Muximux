@@ -39,13 +39,11 @@
     onlogout?.();
   }
 
-  // Whether health indicators should be shown for a given app
-  // Global ON (default): show for all apps unless app.health_check === false
-  // Global OFF: show for no apps unless app.health_check === true
-  // Per-app health check: undefined/true = show, false = hide
+  // Whether health indicators should be shown for a given app.
+  // Health checks are opt-in: only shown when app.health_check === true.
   function shouldShowHealth(app: App): boolean {
     if (!showHealth) return false;
-    return app.health_check !== false;
+    return app.health_check === true;
   }
 
   function isUnhealthy(app: App): boolean {

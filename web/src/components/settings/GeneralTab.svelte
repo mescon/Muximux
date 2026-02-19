@@ -257,11 +257,11 @@
       <div class="flex gap-2">
         <button
           class="text-xs px-2 py-1 rounded text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
-          onclick={() => localApps.forEach(a => a.health_check = undefined)}
+          onclick={() => localApps.forEach(a => a.health_check = true)}
         >Enable all</button>
         <button
           class="text-xs px-2 py-1 rounded text-text-muted hover:text-text-primary hover:bg-bg-hover transition-colors"
-          onclick={() => localApps.forEach(a => a.health_check = false)}
+          onclick={() => localApps.forEach(a => a.health_check = undefined)}
         >Disable all</button>
       </div>
     </div>

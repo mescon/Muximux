@@ -11,7 +11,7 @@ export interface App {
   default: boolean;
   open_mode: 'iframe' | 'new_tab' | 'new_window' | 'redirect';
   proxy: boolean;
-  health_check?: boolean;  // undefined/true = enabled, false = disabled
+  health_check?: boolean;  // true = enabled, undefined/false = disabled (opt-in)
   proxy_skip_tls_verify?: boolean;
   proxy_headers?: Record<string, string>;
   scale: number;

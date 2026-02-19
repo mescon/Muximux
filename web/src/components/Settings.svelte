@@ -1302,9 +1302,9 @@
             <label class="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                checked={editingApp.health_check !== false}
+                checked={editingApp.health_check === true}
                 onchange={(e) => {
-                  editingApp!.health_check = (e.target as HTMLInputElement).checked ? undefined : false;
+                  editingApp!.health_check = (e.target as HTMLInputElement).checked ? true : undefined;
                 }}
                 class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
               />
@@ -1322,7 +1322,7 @@
                 <p class="text-xs text-text-muted">Monitor availability of this app</p>
               </div>
             </label>
-            {#if editingApp.health_check !== false}
+            {#if editingApp.health_check === true}
               <div class="ml-7 pl-4 border-l-2 border-border">
                 <label for="edit-app-health-url" class="block text-sm text-text-muted mb-1">Health check URL</label>
                 <input

@@ -450,14 +450,16 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 	healthTimeout := parseDuration(cfg.Health.Timeout, 5*time.Second)
 	s.healthMonitor = health.NewMonitor(healthInterval, healthTimeout)
 
-	// Configure apps for health monitoring
+	// Configure apps for health monitoring.
+	// Health checks are opt-in: only apps with health_check: true are monitored.
 	healthApps := make([]health.AppConfig, 0, len(cfg.Apps))
 	for i := range cfg.Apps {
+		hcEnabled := cfg.Apps[i].HealthCheck != nil && *cfg.Apps[i].HealthCheck
 		healthApps = append(healthApps, health.AppConfig{
 			Name:      cfg.Apps[i].Name,
 			URL:       cfg.Apps[i].URL,
 			HealthURL: cfg.Apps[i].HealthURL,
-			Enabled:   cfg.Apps[i].Enabled,
+			Enabled:   cfg.Apps[i].Enabled && hcEnabled,
 		})
 	}
 	s.healthMonitor.SetApps(healthApps)

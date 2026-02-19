@@ -2,6 +2,7 @@ package health
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"sync"
 	"time"
@@ -62,6 +63,11 @@ func NewMonitor(interval, timeout time.Duration) *Monitor {
 		timeout:  timeout,
 		httpClient: &http.Client{
 			Timeout: timeout,
+			Transport: &http.Transport{
+				TLSClientConfig: &tls.Config{
+					InsecureSkipVerify: true, //nolint:gosec // Homelab apps commonly use self-signed certs
+				},
+			},
 			CheckRedirect: func(req *http.Request, via []*http.Request) error {
 				// Follow redirects but limit to 3
 				if len(via) >= 3 {

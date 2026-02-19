@@ -133,7 +133,7 @@
               onclick={() => onselect?.(app)}
             >
               <!-- Health indicator — per-app control -->
-              {#if showHealth && app.health_check !== false}
+              {#if showHealth && app.health_check === true}
                 <div class="absolute top-2.5 right-2.5 z-10">
                   <HealthIndicator appName={app.name} size="sm" />
                 </div>
