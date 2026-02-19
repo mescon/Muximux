@@ -788,12 +788,19 @@
             <label class="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={newApp.default}
+                checked={newApp.default}
+                onchange={(e) => {
+                  newApp.default = (e.currentTarget as HTMLInputElement).checked;
+                  if (newApp.default) {
+                    localApps.forEach(a => a.default = false);
+                    localConfig.navigation.show_splash_on_startup = false;
+                  }
+                }}
                 class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
               />
               <div>
                 <span class="text-sm text-text-primary">Default app</span>
-                <p class="text-xs text-text-muted">Automatically load this app on startup instead of the overview</p>
+                <p class="text-xs text-text-muted">Load this app on startup (disables the overview screen)</p>
               </div>
             </label>
             <label class="flex items-center gap-3 cursor-pointer">
@@ -1130,7 +1137,18 @@
             <label class="flex items-center gap-3 cursor-pointer">
               <input
                 type="checkbox"
-                bind:checked={editingApp.default}
+                checked={editingApp.default}
+                onchange={(e) => {
+                  editingApp!.default = (e.currentTarget as HTMLInputElement).checked;
+                  if (editingApp!.default) {
+                    for (const apps of Object.values(dndGroupedApps)) {
+                      for (const a of apps) {
+                        if (a !== editingApp) a.default = false;
+                      }
+                    }
+                    localConfig.navigation.show_splash_on_startup = false;
+                  }
+                }}
                 class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
               />
               <div>
@@ -1144,7 +1162,7 @@
                     </span>
                   </span>
                 </span>
-                <p class="text-xs text-text-muted">Automatically load this app on startup instead of the overview</p>
+                <p class="text-xs text-text-muted">Load this app on startup (disables the overview screen)</p>
               </div>
             </label>
             <div>

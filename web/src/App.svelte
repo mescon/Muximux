@@ -40,6 +40,10 @@
   let loading = $state(true);
   let error = $state<string | null>(null);
 
+  // Iframe caching: track which apps the user has visited so their iframes stay alive
+  let visitedAppNames = $state(new Set<string>());
+  let visitedApps = $derived(apps.filter(a => visitedAppNames.has(a.name)));
+
   // Toast position adapts to navigation position to avoid overlay
   let toastPosition = $derived.by(() => {
     const pos = config?.navigation?.position;
@@ -264,6 +268,12 @@
           currentApp = null;
           showSplash = true;
         }
+        // Prune cached iframes for apps that no longer exist or are disabled
+        const validNames = new Set(apps.filter(a => a.enabled).map(a => a.name));
+        for (const name of visitedAppNames) {
+          if (!validNames.has(name)) visitedAppNames.delete(name);
+        }
+        visitedAppNames = new Set(visitedAppNames);
       });
 
       loading = false;
@@ -335,6 +345,7 @@
     config = null;
     apps = [];
     currentApp = null;
+    visitedAppNames = new Set();
     showSplash = true;
     showSettings = false;
   }
@@ -397,6 +408,8 @@
     } else if (app.open_mode === 'new_window') {
       window.open(url, app.name);
     } else {
+      visitedAppNames.add(app.name);
+      visitedAppNames = new Set(visitedAppNames);
       currentApp = app;
       showSplash = false;
       showLogs = false;
@@ -427,6 +440,12 @@
         currentApp = null;
         showSplash = true;
       }
+      // Prune cached iframes for apps that no longer exist or are disabled
+      const validNames = new Set(apps.filter(a => a.enabled).map(a => a.name));
+      for (const name of visitedAppNames) {
+        if (!validNames.has(name)) visitedAppNames.delete(name);
+      }
+      visitedAppNames = new Set(visitedAppNames);
       toasts.success('Settings saved successfully');
     } catch (e) {
       console.error('Failed to save config:', e);
@@ -658,12 +677,20 @@
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {:else if showLogs}
         <Logs onclose={() => { showLogs = false; showSplash = true; }} />
-      {:else if currentApp}
-        <AppFrame app={currentApp} />
-      {:else if $isFullscreen}
+      {:else if $isFullscreen && !currentApp}
         <!-- Show splash content in fullscreen if no app selected -->
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {/if}
+
+      <!-- Cached app frames — rendered once per visited app, visibility toggled -->
+      {#each visitedApps as app (app.name)}
+        <div
+          class="absolute inset-0"
+          style:visibility={!showSplash && !showLogs && currentApp?.name === app.name ? 'visible' : 'hidden'}
+        >
+          <AppFrame {app} />
+        </div>
+      {/each}
     </main>
 
     <!-- Fullscreen exit button -->

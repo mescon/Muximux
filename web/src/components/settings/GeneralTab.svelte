@@ -184,17 +184,30 @@
         class="w-full" />
     </div>
 
-    <label class="flex items-center gap-3 p-3 bg-bg-hover rounded-lg cursor-pointer">
-      <input
-        type="checkbox"
-        bind:checked={localConfig.navigation.show_splash_on_startup}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
-      />
-      <div>
-        <div class="text-sm text-text-primary">Start on Overview</div>
-        <div class="text-xs text-text-muted">Show the dashboard overview when Muximux opens</div>
-      </div>
-    </label>
+    <div class="p-3 bg-bg-hover rounded-lg">
+      <label class="flex items-center gap-3 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={localConfig.navigation.show_splash_on_startup}
+          onchange={(e) => {
+            localConfig.navigation.show_splash_on_startup = (e.currentTarget as HTMLInputElement).checked;
+            if (localConfig.navigation.show_splash_on_startup) {
+              localApps.forEach(a => a.default = false);
+            }
+          }}
+          class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+        />
+        <div>
+          <div class="text-sm text-text-primary">Start on Overview</div>
+          <div class="text-xs text-text-muted">Show the dashboard overview when Muximux opens</div>
+        </div>
+      </label>
+      {#if localApps.find(a => a.default) && !localConfig.navigation.show_splash_on_startup}
+        <p class="text-xs text-brand-400 mt-1 pl-7">
+          Disabled — {localApps.find(a => a.default)?.name} is set as the default startup app
+        </p>
+      {/if}
+    </div>
 
     <div class="p-3 bg-bg-hover rounded-lg sm:col-span-2">
       <label class="flex items-center gap-3 cursor-pointer">
