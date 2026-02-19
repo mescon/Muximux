@@ -22,7 +22,9 @@ import (
 
 // ReverseProxyHandler handles reverse proxy requests on the main server
 type ReverseProxyHandler struct {
-	routes map[string]*proxyRoute
+	mu      sync.RWMutex
+	routes  map[string]*proxyRoute
+	timeout time.Duration
 }
 
 type proxyRoute struct {
@@ -64,6 +66,20 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 	result = r.rewriteJSONArrayPaths(result)
 	result = r.rewriteCSSImports(result)
 	result = r.rewriteSVGHrefs(result)
+	return []byte(result)
+}
+
+// rewriteScript performs URL rewriting for JavaScript content.
+// It only applies safe rewrites (absolute URLs, target paths, SRI stripping,
+// and base path config values). Root-relative path rewriting is skipped because
+// the injected runtime interceptor handles those, and statically rewriting paths
+// in JS source corrupts URLs meant for third-party servers (e.g. plex.tv).
+func (r *contentRewriter) rewriteScript(content []byte) []byte {
+	result := string(content)
+	result = r.stripIntegrity(result)
+	result = r.rewriteAbsoluteURLs(result)
+	result = r.rewriteTargetPaths(result)
+	result = r.rewriteURLBase(result)
 	return []byte(result)
 }
 
@@ -378,10 +394,36 @@ func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string) *Rever
 	}
 
 	h := &ReverseProxyHandler{
-		routes: make(map[string]*proxyRoute),
+		routes:  make(map[string]*proxyRoute),
+		timeout: timeout,
 	}
 	buildProxyRoutes(h, apps, timeout)
 	return h
+}
+
+// RebuildRoutes rebuilds proxy routes from the current app config.
+// This is called after config changes to pick up new/changed/removed proxy apps.
+func (h *ReverseProxyHandler) RebuildRoutes(apps []config.AppConfig) {
+	newRoutes := make(map[string]*proxyRoute)
+	for i := range apps {
+		if !apps[i].Proxy || !apps[i].Enabled {
+			continue
+		}
+		route := buildSingleProxyRoute(&apps[i], h.timeout)
+		if route != nil {
+			newRoutes[route.slug] = route
+		}
+	}
+
+	h.mu.Lock()
+	h.routes = newRoutes
+	h.mu.Unlock()
+
+	slugs := make([]string, 0, len(newRoutes))
+	for slug := range newRoutes {
+		slugs = append(slugs, slug)
+	}
+	logging.Info("Proxy routes rebuilt", "source", "proxy", "routes", slugs)
 }
 
 // buildProxyRoutes iterates over app configs and creates proxy routes for
@@ -567,6 +609,104 @@ func rewriteLinkHeaders(resp *http.Response, proxyPrefix string) {
 	}
 }
 
+// interceptorScript returns a <script> tag that patches fetch, XMLHttpRequest,
+// WebSocket, EventSource, and DOM element property setters to rewrite root-relative
+// URLs through the proxy prefix. Property setters (img.src, etc.) provide synchronous
+// rewriting so the browser never sees the wrong URL, preserving normal event chains
+// and animations. A MutationObserver serves as fallback for innerHTML/parser cases.
+func (r *contentRewriter) interceptorScript() []byte {
+	// The proxy prefix is derived from slugified app names (alphanumeric + hyphens),
+	// so it's safe to embed directly in a JavaScript string literal.
+	return []byte(`<script data-muximux-proxy>(function(){` +
+		`var P="` + r.proxyPrefix + `";` +
+		// R(u) rewrites root-relative and same-origin absolute URLs to go through the proxy
+		`function R(u){` +
+		`if(typeof u!=="string")return u;` +
+		`if(u[0]==="/"&&!u.startsWith(P+"/")&&u!==P)return P+u;` +
+		`try{var p=new URL(u);if(p.host===location.host&&!p.pathname.startsWith(P+"/")&&p.pathname!==P){p.pathname=P+p.pathname;return p.href}}catch(e){}` +
+		`return u}` +
+		// Patch fetch()
+		`var _F=window.fetch;` +
+		`window.fetch=function(i,o){` +
+		`if(typeof i==="string")i=R(i);` +
+		`else if(i instanceof Request){var n=R(i.url);if(n!==i.url)i=new Request(n,i)}` +
+		`return _F.call(this,i,o)};` +
+		// Patch XMLHttpRequest.open()
+		`var _X=XMLHttpRequest.prototype.open;` +
+		`XMLHttpRequest.prototype.open=function(){var a=[].slice.call(arguments);a[1]=R(a[1]);return _X.apply(this,a)};` +
+		// Patch WebSocket constructor
+		`var _W=window.WebSocket;` +
+		`window.WebSocket=function(u,p){return p!==void 0?new _W(R(u),p):new _W(R(u))};` +
+		`window.WebSocket.prototype=_W.prototype;` +
+		`window.WebSocket.CONNECTING=_W.CONNECTING;window.WebSocket.OPEN=_W.OPEN;` +
+		`window.WebSocket.CLOSING=_W.CLOSING;window.WebSocket.CLOSED=_W.CLOSED;` +
+		// Patch EventSource constructor
+		`var _E=window.EventSource;` +
+		`if(_E){window.EventSource=function(u,c){return new _E(R(u),c)};` +
+		`window.EventSource.prototype=_E.prototype;` +
+		`window.EventSource.CONNECTING=_E.CONNECTING;window.EventSource.OPEN=_E.OPEN;window.EventSource.CLOSED=_E.CLOSED}` +
+		// Property setter overrides for synchronous URL rewriting on DOM elements.
+		// When an SPA sets img.src = "/photo/...", the setter intercepts it and
+		// rewrites the URL BEFORE the browser starts loading, preserving the normal
+		// load event chain and any animations (e.g. opacity fade-in).
+		`function W(C,a){` +
+		`var d=Object.getOwnPropertyDescriptor(C.prototype,a);` +
+		`if(!d||!d.set)return;` +
+		`Object.defineProperty(C.prototype,a,{get:d.get,set:function(v){d.set.call(this,R(v))},enumerable:d.enumerable,configurable:d.configurable})}` +
+		`W(HTMLImageElement,"src");W(HTMLScriptElement,"src");W(HTMLSourceElement,"src");W(HTMLMediaElement,"src");W(HTMLVideoElement,"poster");` +
+		// MutationObserver as fallback for elements created via innerHTML/parser
+		// where property setters don't fire. Only rewrites if URL isn't already prefixed.
+		`var urlAttrs={"src":1,"poster":1};` +
+		`function fixAttr(el,a){var v=el.getAttribute(a);if(v){var n=R(v);if(n!==v)el.setAttribute(a,n)}}` +
+		`function fixEl(el){` +
+		`if(el.nodeType!==1)return;` +
+		`for(var a in urlAttrs){if(el.hasAttribute&&el.hasAttribute(a))fixAttr(el,a)}` +
+		`var ch=el.querySelectorAll("[src],[poster]");` +
+		`for(var i=0;i<ch.length;i++){for(var a in urlAttrs){if(ch[i].hasAttribute(a))fixAttr(ch[i],a)}}}` +
+		`new MutationObserver(function(muts){` +
+		`for(var i=0;i<muts.length;i++){var m=muts[i];` +
+		`if(m.type==="childList"){for(var j=0;j<m.addedNodes.length;j++)fixEl(m.addedNodes[j])}` +
+		`else if(m.type==="attributes"&&urlAttrs[m.attributeName]){fixAttr(m.target,m.attributeName)}}` +
+		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster"]});` +
+		// Chrome may freeze document.timeline in iframes, leaving Web Animations
+		// (like Plex's opacity fade-in) stuck indefinitely. Periodic scan detects
+		// loaded images with opacity stuck at 0, cancels their frozen animations,
+		// and forces them visible. Self-disables after 30s to avoid unnecessary work.
+		`var fixT=0;` +
+		`var fixI=setInterval(function(){` +
+		`fixT+=200;` +
+		`var imgs=document.querySelectorAll("img");` +
+		`for(var i=0;i<imgs.length;i++){var t=imgs[i];` +
+		`if(t.complete&&t.naturalWidth>0&&t.style.opacity==="0"){` +
+		`if(t.getAnimations){var a=t.getAnimations();for(var j=0;j<a.length;j++)a[j].cancel()}` +
+		`t.style.opacity="1"}}` +
+		`if(fixT>=30000)clearInterval(fixI)` +
+		`},200);` +
+		`})()</script>`)
+}
+
+// injectInterceptor injects the runtime URL interceptor script into an HTML document,
+// right after the opening <head> tag so it runs before any other scripts.
+func (r *contentRewriter) injectInterceptor(content []byte) []byte {
+	lower := bytes.ToLower(content)
+	headIdx := bytes.Index(lower, []byte("<head"))
+	if headIdx == -1 {
+		return content
+	}
+	closeIdx := bytes.IndexByte(content[headIdx:], '>')
+	if closeIdx == -1 {
+		return content
+	}
+	insertPos := headIdx + closeIdx + 1
+
+	script := r.interceptorScript()
+	result := make([]byte, 0, len(content)+len(script))
+	result = append(result, content[:insertPos]...)
+	result = append(result, script...)
+	result = append(result, content[insertPos:]...)
+	return result
+}
+
 // rewriteResponseBody reads, decompresses (if gzipped), rewrites, and replaces the
 // response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
 func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
@@ -593,7 +733,25 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	}
 	resp.Body.Close()
 
-	rewritten := rewriter.rewrite(body)
+	lowerContentType := strings.ToLower(contentType)
+
+	// Only HTML and CSS need full static path rewriting — they're rendered directly
+	// by the browser. All other content types (JS, JSON, XML) are consumed
+	// programmatically by the SPA; rewriting paths in API data causes double-prefixing
+	// when the SPA embeds those paths in new URLs (e.g. Plex photo transcode).
+	// The runtime interceptor handles outgoing requests for those content types.
+	var rewritten []byte
+	if strings.Contains(lowerContentType, "text/html") || strings.Contains(lowerContentType, "text/css") {
+		rewritten = rewriter.rewrite(body)
+	} else {
+		rewritten = rewriter.rewriteScript(body)
+	}
+
+	// Inject runtime URL interceptor for HTML responses so SPAs that construct
+	// API URLs dynamically (fetch, XHR, WebSocket) route through the proxy.
+	if strings.Contains(lowerContentType, "text/html") {
+		rewritten = rewriter.injectInterceptor(rewritten)
+	}
 
 	resp.Body = io.NopCloser(bytes.NewReader(rewritten))
 	resp.ContentLength = int64(len(rewritten))
@@ -923,7 +1081,11 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	}
 
 	slug := parts[0]
+
+	h.mu.RLock()
 	route, exists := h.routes[slug]
+	h.mu.RUnlock()
+
 	if !exists {
 		http.Error(w, "App not found: "+slug, http.StatusNotFound)
 		return
@@ -943,11 +1105,15 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 // HasRoutes returns true if there are any proxy routes configured
 func (h *ReverseProxyHandler) HasRoutes() bool {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
 	return len(h.routes) > 0
 }
 
 // GetRoutes returns a list of configured proxy slugs
 func (h *ReverseProxyHandler) GetRoutes() []string {
+	h.mu.RLock()
+	defer h.mu.RUnlock()
 	routes := make([]string, 0, len(h.routes))
 	for slug := range h.routes {
 		routes = append(routes, slug)

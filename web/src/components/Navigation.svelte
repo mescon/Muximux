@@ -398,7 +398,7 @@
 {#if config.navigation.position === 'top'}
   {@const isCollapsedTop = isHidden && config.navigation.auto_hide}
   <nav
-    class="relative"
+    class="relative z-10"
     style="
       height: {config.navigation.auto_hide ? collapsedBarHeight + 'px' : '56px'};
     "
@@ -625,7 +625,7 @@
   {@const labelsCollapsed = !config.navigation.show_labels && !isMobile}
   {@const isCollapsed = labelsCollapsed || (isHidden && config.navigation.auto_hide && !isMobile)}
   <aside
-    class="flex-shrink-0 h-full relative
+    class="flex-shrink-0 h-full relative z-10
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : ''}"
     style="width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};"
     onmouseenter={handleNavEnter}
@@ -917,7 +917,7 @@
   {@const labelsCollapsedRight = !config.navigation.show_labels && !isMobile}
   {@const isCollapsedRight = labelsCollapsedRight || (isHidden && config.navigation.auto_hide && !isMobile)}
   <aside
-    class="flex-shrink-0 h-full relative
+    class="flex-shrink-0 h-full relative z-10
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : 'translate-x-full') : ''}"
     style="width: {isMobile ? '280px' : effectiveSidebarWidth + 'px'};"
     onmouseenter={handleNavEnter}
@@ -1207,7 +1207,7 @@
 {:else if config.navigation.position === 'bottom'}
   {@const isCollapsedBottom = isHidden && config.navigation.auto_hide}
   <nav
-    class="relative"
+    class="relative z-10"
     style="
       height: {config.navigation.auto_hide ? collapsedBarHeight + 'px' : '56px'};
     "

@@ -1,5 +1,9 @@
 # Troubleshooting
 
+> **Tip:** Enable [debug logging](debug-logging) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs, or set log level to `debug` in Settings for backend request-level detail.
+
+---
+
 ## App Won't Load in Iframe
 
 **Symptom:** Blank iframe, "refused to connect" error, or security error in browser console.
@@ -38,20 +42,18 @@ The built-in reverse proxy rewrites paths in HTML, CSS, JavaScript, JSON, and HT
 
 ### JavaScript That Builds URLs at Runtime
 
+> **Note:** As of 3.0.0-rc.3, Muximux includes a runtime URL interceptor that handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so that dynamically constructed URLs are rewritten before the browser sends them. This section describes the remaining edge cases.
+
 **Symptom:** The app loads but some features, API calls, or navigation links point to wrong paths. You see 404 errors in the Network tab for URLs that are missing the `/proxy/{slug}/` prefix.
 
-**What happens:** The proxy rewrites paths that appear as literal strings in the response body (e.g., `fetch("/api/data")`). However, when JavaScript constructs URLs at runtime by concatenating variables, using template literals, or calling `new URL()`, the final URL only exists in the browser's memory -- the proxy never sees it.
-
-**Patterns that cannot be rewritten:**
+**Patterns that may still cause issues:**
 
 | Pattern | Example | Why |
 |---------|---------|-----|
-| Template literals | `` `${base}/api/users` `` | The `base` variable is resolved by the browser |
-| String concatenation | `'/api' + '/users'` | Two separate strings joined at runtime |
-| `new URL()` | `new URL('/api', location.origin)` | URL constructed from parts at runtime |
 | `history.pushState` | `pushState({}, '', '/page')` | Client-side navigation bypasses the server |
 | `history.replaceState` | `replaceState({}, '', '/page')` | Same as above |
-| `location.pathname` | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
+| `location.pathname` checks | `if (location.pathname === '/login')` | Reads the current path which includes the proxy prefix |
+| Inline event handlers | `<div onclick="go('/page')">` | URL in HTML attribute, not intercepted by runtime patches |
 
 **Workaround:** If the app supports a "base URL", "URL base", or "path prefix" setting in its own configuration, set it to `/proxy/{slug}`. This tells the app to prepend the correct prefix when building URLs, solving the problem at the source. Many popular apps support this (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr, Overseerr, Tautulli, etc.).
 

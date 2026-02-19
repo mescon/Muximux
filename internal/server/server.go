@@ -147,11 +147,17 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	registerIconRoutes(mux, cfg, requireAdmin, dataDir)
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
+	// Always registered so routes added at runtime (via Settings) work without restart.
 	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps, cfg.Server.ProxyTimeout)
+	mux.Handle(proxyPathPrefix, reverseProxyHandler)
 	if reverseProxyHandler.HasRoutes() {
-		mux.Handle(proxyPathPrefix, reverseProxyHandler)
 		logging.Info("Integrated reverse proxy enabled", "source", "server", "routes", reverseProxyHandler.GetRoutes())
 	}
+
+	// Rebuild proxy routes whenever config is saved
+	api.SetOnConfigSave(func() {
+		reverseProxyHandler.RebuildRoutes(cfg.Apps)
+	})
 
 	// Caddy setup
 	goListenAddr := setupCaddy(s, cfg)

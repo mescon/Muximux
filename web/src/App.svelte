@@ -12,7 +12,7 @@
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
-  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo } from './lib/api';
+  import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, slugify } from './lib/api';
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
   import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
@@ -84,6 +84,13 @@
     return result.trim() || 'Muximux';
   }
 
+  // Keep URL hash in sync: clear it when returning to splash / no app
+  $effect(() => {
+    if (!currentApp && location.hash) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  });
+
   // Computed layout properties
   let navPosition = $derived(config?.navigation.position || 'top');
   let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
@@ -104,11 +111,12 @@
   }
 
   function showDefaultApp() {
+    // Hash deep-link takes priority (e.g. /#Plex)
+    if (selectAppFromHash()) return;
     if (!config || config.navigation.show_splash_on_startup) return;
     const defaultApp = apps.find(app => app.default);
     if (defaultApp) {
-      currentApp = defaultApp;
-      showSplash = false;
+      selectApp(defaultApp);
     }
   }
 
@@ -165,6 +173,16 @@
     isMobile = isMobileViewport();
     const handleResize = () => { isMobile = isMobileViewport(); };
     window.addEventListener('resize', handleResize);
+
+    // Handle browser back/forward with hash-based app routing
+    window.addEventListener('hashchange', () => {
+      if (location.hash) {
+        selectAppFromHash();
+      } else if (currentApp) {
+        currentApp = null;
+        showSplash = true;
+      }
+    });
 
     // First check auth status
     await checkAuthStatus();
@@ -267,6 +285,13 @@
   });
 
   async function handleLoginSuccess() {
+    // Fix URL — the backend redirects unauthenticated requests to /login,
+    // but the SPA handles auth client-side so we restore the root path.
+    if (location.pathname.endsWith('/login')) {
+      const base = location.pathname.replace(/\/login$/, '') || '/';
+      history.replaceState(null, '', base + location.hash);
+    }
+
     // Re-fetch config after login
     try {
       config = await fetchConfig();
@@ -375,7 +400,21 @@
       currentApp = app;
       showSplash = false;
       showLogs = false;
+      // Update URL hash for deep-linking / bookmarking (slugified for clean URLs)
+      history.replaceState(null, '', '#' + slugify(app.name));
     }
+  }
+
+  /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app). */
+  function selectAppFromHash(): boolean {
+    const hash = location.hash.slice(1);
+    if (!hash || !apps.length) return false;
+    const app = apps.find(a => slugify(a.name) === hash);
+    if (app) {
+      selectApp(app);
+      return true;
+    }
+    return false;
   }
 
   async function handleSaveConfig(newConfig: Config) {

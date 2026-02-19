@@ -46,10 +46,23 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 
 - Rewrites `url()` references to point to the proxy path
 
-### JavaScript Content
+### JavaScript and JSON/XML Content
 
-- Rewrites string literals containing the app's base path
+- Strips SRI integrity checks (which break when content is modified)
+- Rewrites absolute URLs pointing to the backend server
 - Rewrites base path configuration variables (e.g., `urlBase: ""` becomes `urlBase: "/proxy/sonarr"`)
+- Root-relative paths in JS/JSON/XML are **not** statically rewritten — the runtime interceptor (see below) handles these to avoid corrupting URLs meant for third-party servers
+
+### Runtime URL Interceptor
+
+For single-page applications (SPAs) that build URLs dynamically in JavaScript, static text rewriting is not enough. The proxy injects a small script into HTML responses that intercepts URL usage at runtime:
+
+- **`fetch()` and `XMLHttpRequest`** — API calls are rewritten before they leave the browser
+- **`WebSocket` and `EventSource`** — Real-time connections are routed through the proxy
+- **`img.src`, `script.src`, `video.poster`**, etc. — DOM property setters are overridden so the browser never requests the wrong URL
+- **`MutationObserver` fallback** — Catches elements created via `innerHTML` or HTML parsing where property setters don't fire
+
+This means apps like **Plex**, which construct all their image and API URLs in JavaScript at runtime, work through the proxy without needing any configuration in the app itself.
 
 ### SRI (Subresource Integrity)
 
@@ -108,13 +121,14 @@ Leave `proxy: false` (or omit it) when:
 
 ## Why Some Apps May Not Work
 
-Even with the proxy enabled, some applications will not work correctly in an iframe. The most common reasons are:
+Even with the proxy and runtime interceptor enabled, some applications may not work correctly in an iframe. The most common reasons are:
 
-- **Runtime-constructed URLs** -- If the app builds URLs in JavaScript by concatenating variables or using template literals, the proxy cannot intercept these because they are only resolved in the browser.
-- **SPA routing conflicts** -- Single-page applications may not recognize the `/proxy/{slug}/` prefix in their client-side router.
-- **Service workers** -- Can cache responses under wrong paths or intercept requests before they reach the proxy.
+- **Service workers** -- Can cache responses under wrong paths or intercept requests before they reach the proxy or the runtime interceptor.
 - **Strict origin validation** -- Apps that validate `Origin` or `Referer` headers may reject proxied requests.
 - **Binary protocols** -- gRPC, MessagePack, and other non-text formats cannot be rewritten.
+- **SPA routing conflicts** -- Some SPAs may not recognize the `/proxy/{slug}/` prefix in their client-side router if they hardcode routes rather than using a configurable base path.
+
+> **Note:** Runtime-constructed URLs (template literals, string concatenation, `fetch()`, `new URL()`, etc.) **are** handled by the runtime interceptor. If a previous version of this page said they weren't supported, that is no longer the case.
 
 For detailed explanations of each limitation, symptoms, and workarounds, see the [Troubleshooting](troubleshooting.md#reverse-proxy-limitations) page.
 
@@ -175,6 +189,73 @@ The built-in reverse proxy and the Caddy-based gateway are completely separate s
 | **Configured by** | `proxy: true` on individual apps | `server.gateway` Caddyfile in config |
 | **Runs inside** | The Go server process | Embedded Caddy instance |
 | **Works without TLS** | Yes | The gateway is only active when TLS/Caddy is enabled |
-| **Rewrites content** | Yes (headers, HTML, CSS, JS) | No (standard reverse proxy behavior) |
+| **Rewrites content** | Yes (headers, HTML, CSS, JS, runtime) | No (standard reverse proxy behavior) |
 
 The per-app `proxy: true` setting is for iframe embedding. The `server.gateway` Caddyfile is for serving additional sites alongside Muximux or handling TLS termination. They can be used independently or together.
+
+---
+
+## Dynamic Route Rebuilds
+
+Proxy routes are rebuilt automatically whenever you save configuration changes (add, edit, or delete an app). You do not need to restart Muximux for proxy changes to take effect. New apps with `proxy: true` become available immediately, and removed apps stop being proxied right away.
+
+---
+
+## How It Works (Advanced)
+
+This section describes the technical internals for users who want to understand why something works (or doesn't) and how to debug proxy issues.
+
+### Three Layers of URL Rewriting
+
+The proxy uses three complementary strategies to ensure URLs work correctly:
+
+**Layer 1: Static Rewriting (Server-Side)**
+
+When a response passes through the proxy, the Go server rewrites URLs in the response body based on content type:
+
+| Content Type | Rewriting Strategy |
+|---|---|
+| HTML | Full rewriting — attribute paths (`href`, `src`, etc.), base tags, SRI stripping, and interceptor script injection |
+| CSS | Full rewriting — `url()` references |
+| JS, JSON, XML | Safe-only — SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
+
+The distinction matters: API responses (JSON, XML) contain data that the SPA reads programmatically. If the proxy rewrites paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`), the SPA may embed those already-rewritten paths in new URLs, causing double-prefixing.
+
+**Layer 2: Runtime Interceptor (Client-Side, Synchronous)**
+
+A small `<script>` tag injected into every HTML response patches browser APIs before the app's own JavaScript runs:
+
+| What's Patched | How |
+|---|---|
+| `fetch()` | Wrapper rewrites the URL argument |
+| `XMLHttpRequest.open()` | Wrapper rewrites the URL argument |
+| `WebSocket` constructor | Wrapper rewrites the URL argument |
+| `EventSource` constructor | Wrapper rewrites the URL argument |
+| `HTMLImageElement.src` | Property setter override on the prototype |
+| `HTMLScriptElement.src` | Property setter override on the prototype |
+| `HTMLSourceElement.src` | Property setter override on the prototype |
+| `HTMLMediaElement.src` | Property setter override on the prototype |
+| `HTMLVideoElement.poster` | Property setter override on the prototype |
+
+Property setter overrides are **synchronous** — when the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. This preserves the app's normal event chain (load events, animations, etc.) because the image loads from the correct URL on the first try.
+
+**Layer 3: MutationObserver (Client-Side, Fallback)**
+
+A `MutationObserver` watches for new elements added to the DOM and attribute changes on `src`/`poster`. This catches elements created via `innerHTML`, HTML template parsing, or other paths that bypass JavaScript property setters. If a `src` attribute contains an un-prefixed URL, it's rewritten.
+
+### Chrome Iframe Timeline Workaround
+
+Chrome may freeze `document.timeline` inside iframes, causing CSS and Web Animations API animations to stall. Some apps (notably Plex) use `element.animate()` for image fade-in effects with `fill: "auto"`, which means the animation's end state is not persisted. When the timeline freezes, images remain stuck at opacity 0 despite being fully loaded.
+
+The interceptor includes a periodic scan (every 200ms for the first 30 seconds) that detects loaded images with `style.opacity === "0"`, cancels any frozen animations, and forces them visible. This self-disables after 30 seconds to avoid unnecessary work on long-lived pages.
+
+### Tested Apps
+
+The following apps have been tested with the built-in reverse proxy and runtime interceptor:
+
+| App | Status | Notes |
+|---|---|---|
+| Plex | Works | Full support including posters, PIN auth, WebSocket, media playback |
+| Sonarr/Radarr/Lidarr | Works | Set base URL to `/proxy/{slug}` for best results |
+| Overseerr | Works | |
+| Tautulli | Works | Set URL base in Tautulli settings |

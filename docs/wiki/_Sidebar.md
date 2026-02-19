@@ -24,4 +24,5 @@
 **Operations**
 - [Deployment](deployment)
 - [Troubleshooting](troubleshooting)
+- [Debug Logging](debug-logging)
 - [API Reference](api)

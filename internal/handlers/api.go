@@ -17,9 +17,10 @@ import (
 
 // APIHandler handles API requests
 type APIHandler struct {
-	config     *config.Config
-	configPath string
-	mu         *sync.RWMutex
+	config       *config.Config
+	configPath   string
+	mu           *sync.RWMutex
+	onConfigSave func() // called after config is saved to trigger route rebuilds etc.
 }
 
 // NewAPIHandler creates a new API handler
@@ -28,6 +29,17 @@ func NewAPIHandler(cfg *config.Config, configPath string, mu *sync.RWMutex) *API
 		config:     cfg,
 		configPath: configPath,
 		mu:         mu,
+	}
+}
+
+// SetOnConfigSave sets a callback invoked after every config save.
+func (h *APIHandler) SetOnConfigSave(fn func()) {
+	h.onConfigSave = fn
+}
+
+func (h *APIHandler) notifyConfigSaved() {
+	if h.onConfigSave != nil {
+		h.onConfigSave()
 	}
 }
 
@@ -222,6 +234,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logging.Info("Configuration saved successfully", "source", "config")
+	h.notifyConfigSaved()
 
 	// Apply log level change at runtime
 	if h.config.Server.LogLevel != "" {
@@ -407,6 +420,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logging.Info("App created", "source", "config", "app", newApp.Name)
+	h.notifyConfigSaved()
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(sanitizeApp(&newApp))
@@ -478,6 +492,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	logging.Info("App updated", "source", "config", "app", clientApp.Name)
+	h.notifyConfigSaved()
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[idx]))
 }
@@ -511,6 +526,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	logging.Info("App deleted", "source", "config", "app", name)
+	h.notifyConfigSaved()
 	w.WriteHeader(http.StatusNoContent)
 }
 

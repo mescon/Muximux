@@ -20,14 +20,14 @@ const (
 
 // AppHealth holds health information for an app
 type AppHealth struct {
-	Name         string        `json:"name"`
-	Status       Status        `json:"status"`
-	ResponseTime time.Duration `json:"response_time_ms"`
-	LastCheck    time.Time     `json:"last_check"`
-	LastError    string        `json:"last_error,omitempty"`
-	Uptime       float64       `json:"uptime_percent"`
-	CheckCount   int           `json:"check_count"`
-	SuccessCount int           `json:"success_count"`
+	Name           string    `json:"name"`
+	Status         Status    `json:"status"`
+	ResponseTimeMs int64     `json:"response_time_ms"`
+	LastCheck      time.Time `json:"last_check"`
+	LastError      string    `json:"last_error,omitempty"`
+	Uptime         float64   `json:"uptime_percent"`
+	CheckCount     int       `json:"check_count"`
+	SuccessCount   int       `json:"success_count"`
 }
 
 // HealthChangeCallback is called when an app's health status changes
@@ -212,7 +212,7 @@ func (m *Monitor) updateHealth(name string, status Status, responseTime time.Dur
 	previousStatus := h.Status
 
 	h.Status = status
-	h.ResponseTime = responseTime
+	h.ResponseTimeMs = responseTime.Milliseconds()
 	h.LastCheck = time.Now()
 	h.LastError = errMsg
 	h.CheckCount++

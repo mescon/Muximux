@@ -2,6 +2,24 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Added
+
+- **Runtime URL interceptor for reverse proxy** — Proxied SPAs (like Plex) that construct URLs dynamically in JavaScript now work correctly. The proxy injects a script that patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so all requests route through the proxy automatically.
+- **Content-type-aware rewriting** — HTML and CSS get full path rewriting; JS, JSON, and XML use safe-only rewriting (SRI stripping, absolute URLs) to avoid corrupting API data that apps read programmatically.
+- **Dynamic proxy route rebuilds** — Adding, editing, or removing a proxied app in Settings takes effect immediately without restarting Muximux.
+- **Hash-based app routing** — Clicking an app updates the URL hash (e.g., `#plex`), allowing direct links to specific apps and browser back/forward navigation between them.
+- **Debug logging wiki page** — New [Debug Logging](docs/wiki/debug-logging.md) documentation covering frontend (`?debug=true`) and backend (log level) diagnostics.
+
+### Fixed
+
+- **Health tooltip showing nanoseconds** — Health check response times in tooltips now correctly display milliseconds instead of raw nanosecond values.
+- **Proxy 404 on double-prefixed URLs** — XML/JSON API responses from proxied apps no longer have root-relative paths statically rewritten, preventing double-prefixing when the SPA embeds those paths in query parameters (e.g., Plex photo transcode URLs).
+- **Proxied app images invisible due to frozen iframe timeline** — Chrome may freeze `document.timeline` inside iframes, stalling CSS/Web Animations. The interceptor detects loaded images stuck at opacity 0 and forces them visible.
+
+---
+
 ## [3.0.0-rc.3] - 2026-02-18
 
 ### Changed

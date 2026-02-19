@@ -1225,7 +1225,7 @@ func TestRewriteResponseBody(t *testing.T) {
 		}
 	})
 
-	t.Run("rewrites JSON body", func(t *testing.T) {
+	t.Run("JSON body uses safe-only rewriting", func(t *testing.T) {
 		rewriter := newContentRewriter("/proxy/app", "", "")
 
 		body := `{"apiRoot": "/api/v3"}`
@@ -1242,8 +1242,13 @@ func TestRewriteResponseBody(t *testing.T) {
 		}
 
 		rewritten, _ := io.ReadAll(resp.Body)
-		if !strings.Contains(string(rewritten), "/proxy/app/api/v3") {
-			t.Errorf("expected rewritten JSON path, got: %s", string(rewritten))
+		// JSON uses safe-only rewriting (no root-relative path rewriting)
+		// Root-relative paths are handled by the runtime interceptor instead
+		if strings.Contains(string(rewritten), "/proxy/app/api/v3") {
+			t.Errorf("JSON should not statically rewrite root-relative paths, got: %s", string(rewritten))
+		}
+		if !strings.Contains(string(rewritten), "/api/v3") {
+			t.Errorf("JSON root-relative path should be preserved, got: %s", string(rewritten))
 		}
 	})
 }

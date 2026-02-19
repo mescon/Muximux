@@ -10,6 +10,10 @@
   } = $props();
 
   let checking = $state(false);
+  let tooltipVisible = $state(false);
+  let tooltipX = $state(0);
+  let tooltipY = $state(0);
+  let dotEl = $state<HTMLElement | undefined>(undefined);
 
   // Subscribe to health data
   let health = $derived($healthData.get(appName) || null);
@@ -20,14 +24,14 @@
     lg: 'w-4 h-4',
   };
 
-  function getStatusColor(status: HealthStatus): string {
+  function getStatusClass(status: HealthStatus): string {
     switch (status) {
       case 'healthy':
-        return 'bg-green-500';
+        return 'health-dot-healthy';
       case 'unhealthy':
-        return 'bg-red-500';
+        return 'health-dot-unhealthy';
       default:
-        return 'bg-bg-active';
+        return 'health-dot-unknown';
     }
   }
 
@@ -62,6 +66,18 @@
     return date.toLocaleString();
   }
 
+  function showTip() {
+    if (!showTooltip || !health || !dotEl) return;
+    const rect = dotEl.getBoundingClientRect();
+    tooltipX = rect.left + rect.width / 2;
+    tooltipY = rect.top;
+    tooltipVisible = true;
+  }
+
+  function hideTip() {
+    tooltipVisible = false;
+  }
+
   async function handleCheckNow(e: MouseEvent) {
     e.stopPropagation();
     if (checking) return;
@@ -80,55 +96,145 @@
   }
 </script>
 
-<div class="relative group/health inline-flex items-center">
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div
+  class="inline-flex items-center"
+  onmouseenter={showTip}
+  onmouseleave={hideTip}
+>
   <!-- Status dot -->
   <span
-    class="rounded-full {sizeClasses[size]} {getStatusColor(health?.status || 'unknown')}"
+    bind:this={dotEl}
+    class="rounded-full {sizeClasses[size]} {getStatusClass(health?.status || 'unknown')}"
   ></span>
-
-  <!-- Tooltip -->
-  {#if showTooltip && health}
-    <div
-      class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-3 py-2
-             bg-bg-base border border-border rounded-lg shadow-lg
-             opacity-0 invisible group-hover/health:opacity-100 group-hover/health:visible
-             transition-all duration-200 z-50 min-w-[180px] text-xs"
-    >
-      <div class="flex items-center justify-between mb-1">
-        <span class="font-medium text-text-primary">{getStatusLabel(health.status)}</span>
-        <span class="rounded-full px-1.5 py-0.5 text-[10px] {getStatusColor(health.status)} text-white">
-          {health.uptime_percent.toFixed(1)}%
-        </span>
-      </div>
-
-      {#if health.response_time_ms > 0}
-        <div class="text-text-muted">
-          Response: {formatResponseTime(health.response_time_ms)}
-        </div>
-      {/if}
-
-      <div class="text-text-muted">
-        Checked: {formatLastCheck(health.last_check)}
-      </div>
-
-      {#if health.last_error}
-        <div class="text-red-400 mt-1 text-[10px] truncate max-w-[200px]" title={health.last_error}>
-          {health.last_error}
-        </div>
-      {/if}
-
-      <button
-        class="mt-2 w-full text-center text-brand-400 hover:text-brand-300 text-[10px] disabled:opacity-50"
-        onclick={handleCheckNow}
-        disabled={checking}
-      >
-        {checking ? 'Checking...' : 'Check Now'}
-      </button>
-
-      <!-- Arrow -->
-      <div class="absolute top-full left-1/2 -translate-x-1/2 -mt-px">
-        <div class="border-4 border-transparent border-t-gray-700"></div>
-      </div>
-    </div>
-  {/if}
 </div>
+
+<!-- Fixed-position tooltip — rendered outside all overflow/stacking contexts -->
+{#if tooltipVisible && health}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <div
+    class="health-tooltip"
+    style="left: {tooltipX}px; top: {tooltipY}px;"
+    onmouseenter={showTip}
+    onmouseleave={hideTip}
+  >
+    <div class="flex items-center justify-between mb-1">
+      <span class="font-medium health-status-label {getStatusClass(health.status)}-text">
+        {getStatusLabel(health.status)}
+      </span>
+      {#if health.check_count > 0}
+        <span class="health-uptime-badge {getStatusClass(health.status)}">
+          {health.uptime_percent.toFixed(0)}%
+        </span>
+      {/if}
+    </div>
+
+    {#if health.response_time_ms > 0}
+      <div class="health-detail-row">
+        Response: {formatResponseTime(health.response_time_ms)}
+      </div>
+    {/if}
+
+    {#if health.check_count > 0}
+      <div class="health-detail-row">
+        Uptime: {health.success_count}/{health.check_count} checks
+      </div>
+    {/if}
+
+    <div class="health-detail-row">
+      Checked: {formatLastCheck(health.last_check)}
+    </div>
+
+    {#if health.last_error}
+      <div class="health-error" title={health.last_error}>
+        {health.last_error}
+      </div>
+    {/if}
+
+    <button
+      class="health-check-btn"
+      onclick={handleCheckNow}
+      disabled={checking}
+    >
+      {checking ? 'Checking...' : 'Check Now'}
+    </button>
+
+    <!-- Arrow -->
+    <div class="health-tooltip-arrow"></div>
+  </div>
+{/if}
+
+<style>
+  .health-dot-healthy {
+    background: var(--status-success);
+  }
+  .health-dot-unhealthy {
+    background: var(--status-error);
+  }
+  .health-dot-unknown {
+    background: var(--bg-active);
+  }
+  .health-dot-healthy-text {
+    color: var(--status-success);
+  }
+  .health-dot-unhealthy-text {
+    color: var(--status-error);
+  }
+  .health-dot-unknown-text {
+    color: var(--text-muted);
+  }
+  .health-tooltip {
+    position: fixed;
+    z-index: 99999;
+    transform: translate(-50%, -100%) translateY(-8px);
+    padding: 8px 12px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-default);
+    border-radius: 8px;
+    box-shadow: var(--shadow-lg);
+    min-width: 180px;
+    font-size: 12px;
+    pointer-events: auto;
+  }
+  .health-tooltip-arrow {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 5px solid transparent;
+    border-top-color: var(--border-default);
+  }
+  .health-detail-row {
+    color: var(--text-muted);
+  }
+  .health-uptime-badge {
+    border-radius: 9999px;
+    padding: 1px 6px;
+    font-size: 10px;
+    color: white;
+  }
+  .health-error {
+    margin-top: 4px;
+    font-size: 10px;
+    color: var(--status-error);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 200px;
+  }
+  .health-check-btn {
+    margin-top: 8px;
+    width: 100%;
+    text-align: center;
+    font-size: 10px;
+    color: var(--accent-primary);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .health-check-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+</style>

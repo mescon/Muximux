@@ -26,8 +26,8 @@ func TestMonitor_CheckApp_Healthy(t *testing.T) {
 	if result.Status != StatusHealthy {
 		t.Errorf("expected healthy, got %s", result.Status)
 	}
-	if result.ResponseTime <= 0 {
-		t.Error("expected positive response time")
+	if result.ResponseTimeMs < 0 {
+		t.Error("expected non-negative response time in ms")
 	}
 	if result.CheckCount != 1 {
 		t.Errorf("expected 1 check, got %d", result.CheckCount)
