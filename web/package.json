@@ -25,7 +25,7 @@
     "eslint-plugin-svelte": "^3.15.0",
     "globals": "^17.3.0",
     "jsdom": "^28.1.0",
-    "svelte": "^5.51.3",
+    "svelte": "^5.53.0",
     "svelte-check": "^4.4.0",
     "tailwindcss": "^4.1.18",
     "tslib": "^2.6.0",
