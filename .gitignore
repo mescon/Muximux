@@ -43,6 +43,7 @@ config.yaml
 Thumbs.db
 
 # Logs and diagnostics
+/logs/
 *.log
 *.pid
 *.pid.lock
