@@ -62,6 +62,12 @@ The `open_mode` field controls how an app is opened when you click it in the nav
 
 - **redirect** -- Navigates the current browser tab to the app URL. This leaves Muximux entirely. Use the browser's back button to return.
 
+> **Security warning:** Muximux authentication only protects the Muximux dashboard itself. When an app is embedded in an iframe **without** `proxy: true`, the browser loads it directly from the app's own URL -- Muximux is not in the request path and cannot enforce authentication on those requests. This means anyone who knows (or guesses) the app's URL can access it directly, bypassing Muximux entirely.
+>
+> If you need Muximux to control access to an app, enable the reverse proxy (`proxy: true`). This routes all requests through Muximux, where authentication is enforced. Without the proxy, you must rely on the app's own authentication or a separate reverse proxy/VPN to secure it.
+>
+> This applies to all open modes -- `new_tab`, `new_window`, and `redirect` all open the app's direct URL in the browser.
+
 ---
 
 ## Groups
@@ -107,6 +113,34 @@ apps:
 If no app has `default: true`, Muximux shows a splash screen on startup.
 
 Only one app should be marked as default. If multiple apps have `default: true`, the first one found will be used.
+
+---
+
+## Direct Links
+
+You can link directly to any app using a hash URL:
+
+```
+https://muximux.example.com/#plex
+https://muximux.example.com/#sonarr
+```
+
+The hash is the app name converted to a URL-friendly slug (lowercase, spaces replaced with hyphens, special characters removed). For example:
+
+| App Name | Direct Link |
+|---|---|
+| Plex | `/#plex` |
+| Home Assistant | `/#home-assistant` |
+| Pi-hole | `/#pi-hole` |
+
+This is useful for:
+- **Bookmarking** a specific app in your browser.
+- **Sharing** a link that opens Muximux with a particular app already loaded.
+- **Home screen shortcuts** on mobile devices.
+
+When Muximux loads with a hash in the URL, it skips the splash screen and opens the matching app directly. If no app matches the hash, the normal startup behavior applies (default app or splash screen).
+
+The URL hash updates automatically as you switch between apps, so you can copy the current URL at any time to get a direct link.
 
 ---
 

@@ -1170,18 +1170,18 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-text-primary mb-1 text-base">Embedded Apps</h2>
-              <p class="text-sm text-text-muted">View all your services in iframes without leaving the dashboard</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">One Dashboard</h2>
+              <p class="text-sm text-text-muted">All your homelab services in a single tab — no more juggling bookmarks</p>
             </div>
 
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
               <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-text-primary mb-1 text-base">Health Monitoring</h2>
-              <p class="text-sm text-text-muted">See at a glance which services are online and healthy</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">Built-in Proxy</h2>
+              <p class="text-sm text-text-muted">Apps that block iframes just work — headers are stripped automatically</p>
             </div>
 
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
@@ -1191,7 +1191,7 @@
                 </svg>
               </div>
               <h2 class="font-semibold text-text-primary mb-1 text-base">Quick Access</h2>
-              <p class="text-sm text-text-muted">Keyboard shortcuts and search for lightning-fast navigation</p>
+              <p class="text-sm text-text-muted">Ctrl+K to search, 1–9 shortcuts, instant switching between apps</p>
             </div>
           </div>
 

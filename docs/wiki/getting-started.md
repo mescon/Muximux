@@ -20,6 +20,8 @@ The wizard has five steps. You can move forward and backward between steps at an
 
 A brief introduction to Muximux and its core features: embedded app views via iframes, health monitoring, and keyboard-driven navigation. Click **Let's Get Started** to begin.
 
+![Onboarding — Welcome](../screenshots/01-welcome.png)
+
 ### Step 2: Apps & Groups
 
 This step uses a two-column layout (single column on mobile):
@@ -45,6 +47,8 @@ At the top of the left column is the **Add Custom App** card. Click it to expand
   - **Delete** -- Remove a group with the X button.
   - **Add Group** -- Click "+ Add Group" to create a new group from scratch.
 
+![Onboarding — Apps configured with URLs and groups](../screenshots/04-apps-selected.png)
+
 ### Step 3: Navigation Style
 
 Choose how the navigation bar appears in your dashboard:
@@ -59,6 +63,8 @@ Choose how the navigation bar appears in your dashboard:
 
 You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
 
+![Onboarding — Navigation style picker](../screenshots/05-style.png)
+
 ### Step 4: Theme
 
 Choose a visual theme for your dashboard:
@@ -69,9 +75,13 @@ Choose a visual theme for your dashboard:
 
 Custom themes can be created later in Settings. The selected theme is saved to `config.yaml` as part of the server-side configuration.
 
+![Onboarding — Theme picker (dark)](../screenshots/06-theme-dark.png)
+
 ### Step 5: Complete
 
 A summary of your choices is displayed: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
+
+![Onboarding — Complete](../screenshots/08-done.png)
 
 ---
 

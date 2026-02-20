@@ -68,6 +68,8 @@ When debug logging is disabled (the default), each `debug()` call is a single bo
 
 In Settings > General, change the **Log Level** to `debug`. This takes effect immediately without a restart.
 
+![Real-time log viewer](../screenshots/13-logs.png)
+
 Or set it in `config.yaml`:
 
 ```yaml
