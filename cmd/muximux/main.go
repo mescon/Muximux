@@ -101,8 +101,6 @@ func main() {
 		}
 	}()
 
-	logging.Info("Muximux started", "source", "server", "version", version, "listen", cfg.Server.Listen)
-
 	<-quit
 	logging.Info("Shutting down", "source", "server")
 

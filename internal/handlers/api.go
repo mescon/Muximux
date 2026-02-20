@@ -43,19 +43,13 @@ func (h *APIHandler) notifyConfigSaved() {
 	}
 }
 
-// GetConfigRef returns a reference to the current config (thread-safe)
-func (h *APIHandler) GetConfigRef() *config.Config {
-	h.mu.RLock()
-	defer h.mu.RUnlock()
-	return h.config
-}
+// Pre-marshaled response for the high-frequency health endpoint
+var healthOKResponse = []byte("{\"status\":\"ok\"}\n")
 
 // Health returns server health status
 func (h *APIHandler) Health(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]string{
-		"status": "ok",
-	})
+	w.Write(healthOKResponse)
 }
 
 // GetConfig returns the current configuration (sanitized)
@@ -646,10 +640,8 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	h.config.Groups = append(h.config.Groups[:idx], h.config.Groups[idx+1:]...)
 
-	// Optionally: Move apps in this group to "ungrouped"
-	deletedName := name
 	for i := range h.config.Apps {
-		if h.config.Apps[i].Group == deletedName {
+		if h.config.Apps[i].Group == name {
 			h.config.Apps[i].Group = ""
 		}
 	}
@@ -669,7 +661,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 	var proxyURL string
 	if app.Proxy {
-		proxyURL = proxyPathPrefix + slugify(app.Name) + "/"
+		proxyURL = proxyPathPrefix + Slugify(app.Name) + "/"
 	}
 	return ClientAppConfig{
 		Name:                     app.Name,
@@ -736,8 +728,8 @@ func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
 	return result
 }
 
-// slugify converts a name to a URL-safe slug
-func slugify(name string) string {
+// Slugify converts a name to a URL-safe slug
+func Slugify(name string) string {
 	// Simple slugify - replace spaces with dashes, lowercase
 	result := make([]byte, 0, len(name))
 	for _, c := range name {

@@ -296,7 +296,7 @@ func TestShouldBypass(t *testing.T) {
 				req.Header.Set(k, v)
 			}
 
-			got := m.shouldBypass(req)
+			got := shouldBypass(req, m.snapshot())
 			if got != tt.want {
 				t.Errorf("shouldBypass() = %v, want %v", got, tt.want)
 			}
@@ -391,7 +391,7 @@ func TestMatchAllowedIPs(t *testing.T) {
 			}
 			req := httptest.NewRequest(http.MethodGet, "/test", nil)
 			req.RemoteAddr = tt.remoteAddr
-			got := m.matchAllowedIPs(req, rule)
+			got := matchAllowedIPs(req, rule, m.snapshot())
 			if got != tt.want {
 				t.Errorf("matchAllowedIPs() = %v, want %v", got, tt.want)
 			}
@@ -412,7 +412,7 @@ func TestGetClientIP(t *testing.T) {
 		req.RemoteAddr = "192.168.1.1:12345"
 		req.Header.Set("X-Forwarded-For", "1.2.3.4")
 
-		got := m.getClientIP(req)
+		got := getClientIP(req, m.snapshot())
 		// Not from trusted proxy so XFF is ignored
 		if got != "192.168.1.1" {
 			t.Errorf("expected 192.168.1.1, got %s", got)
@@ -429,7 +429,7 @@ func TestGetClientIP(t *testing.T) {
 		req.RemoteAddr = "10.0.0.1:12345"
 		req.Header.Set("X-Forwarded-For", "203.0.113.50, 10.0.0.1")
 
-		got := m.getClientIP(req)
+		got := getClientIP(req, m.snapshot())
 		if got != "203.0.113.50" {
 			t.Errorf("expected 203.0.113.50, got %s", got)
 		}
@@ -445,7 +445,7 @@ func TestGetClientIP(t *testing.T) {
 		req.RemoteAddr = "10.0.0.1:12345"
 		req.Header.Set("X-Real-IP", "198.51.100.10")
 
-		got := m.getClientIP(req)
+		got := getClientIP(req, m.snapshot())
 		if got != "198.51.100.10" {
 			t.Errorf("expected 198.51.100.10, got %s", got)
 		}
@@ -460,7 +460,7 @@ func TestGetClientIP(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.RemoteAddr = "10.0.0.5:4444"
 
-		got := m.getClientIP(req)
+		got := getClientIP(req, m.snapshot())
 		if got != "10.0.0.5" {
 			t.Errorf("expected 10.0.0.5, got %s", got)
 		}
@@ -473,7 +473,7 @@ func TestGetClientIP(t *testing.T) {
 		req.RemoteAddr = "5.5.5.5:80"
 		req.Header.Set("X-Forwarded-For", "1.2.3.4")
 
-		got := m.getClientIP(req)
+		got := getClientIP(req, m.snapshot())
 		if got != "5.5.5.5" {
 			t.Errorf("expected 5.5.5.5, got %s", got)
 		}
@@ -495,7 +495,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.AddCookie(&http.Cookie{Name: "test_session", Value: session.ID})
 
-		user, sess := m.authenticateRequest(req)
+		user, sess := m.authenticateRequest(req, m.snapshot())
 		if user == nil {
 			t.Fatal("expected user from session")
 		}
@@ -513,7 +513,7 @@ func TestAuthenticateRequest(t *testing.T) {
 
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 
-		user, sess := m.authenticateRequest(req)
+		user, sess := m.authenticateRequest(req, m.snapshot())
 		if user != nil {
 			t.Error("expected nil user")
 		}
@@ -534,7 +534,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		req.Header.Set("Remote-User", "bob")
 		req.Header.Set("Remote-Email", "bob@example.com")
 
-		user, _ := m.authenticateRequest(req)
+		user, _ := m.authenticateRequest(req, m.snapshot())
 		if user == nil {
 			t.Fatal("expected user from forward auth")
 		}
@@ -554,7 +554,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		req.RemoteAddr = "192.168.1.1:80"
 		req.Header.Set("Remote-User", "eve")
 
-		user, _ := m.authenticateRequest(req)
+		user, _ := m.authenticateRequest(req, m.snapshot())
 		if user != nil {
 			t.Error("expected nil user from untrusted proxy")
 		}
@@ -572,7 +572,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		req.Header.Set("Remote-User", "charlie")
 		req.Header.Set("Remote-Groups", "users, admins")
 
-		user, _ := m.authenticateRequest(req)
+		user, _ := m.authenticateRequest(req, m.snapshot())
 		if user == nil {
 			t.Fatal("expected user")
 		}
@@ -586,7 +586,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		m, _, _ := newTestMiddleware(cfg)
 
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		user, sess := m.authenticateRequest(req)
+		user, sess := m.authenticateRequest(req, m.snapshot())
 		if user != nil || sess != nil {
 			t.Error("expected nil for unknown auth method")
 		}
@@ -708,8 +708,9 @@ func TestNewMiddleware_TrustedProxyParsing(t *testing.T) {
 			TrustedProxies: []string{"10.0.0.0/8"},
 		}
 		m := NewMiddleware(cfg, NewSessionStore("t", time.Hour, false), NewUserStore())
-		if len(m.trustedNets) != 1 {
-			t.Fatalf("expected 1 trusted network, got %d", len(m.trustedNets))
+		snap := m.snapshot()
+		if len(snap.trustedNets) != 1 {
+			t.Fatalf("expected 1 trusted network, got %d", len(snap.trustedNets))
 		}
 	})
 
@@ -719,8 +720,9 @@ func TestNewMiddleware_TrustedProxyParsing(t *testing.T) {
 			TrustedProxies: []string{"127.0.0.1"},
 		}
 		m := NewMiddleware(cfg, NewSessionStore("t", time.Hour, false), NewUserStore())
-		if len(m.trustedNets) != 1 {
-			t.Fatalf("expected 1 trusted network, got %d", len(m.trustedNets))
+		snap := m.snapshot()
+		if len(snap.trustedNets) != 1 {
+			t.Fatalf("expected 1 trusted network, got %d", len(snap.trustedNets))
 		}
 	})
 
@@ -730,8 +732,9 @@ func TestNewMiddleware_TrustedProxyParsing(t *testing.T) {
 			TrustedProxies: []string{"not-an-ip"},
 		}
 		m := NewMiddleware(cfg, NewSessionStore("t", time.Hour, false), NewUserStore())
-		if len(m.trustedNets) != 0 {
-			t.Fatalf("expected 0 trusted networks for invalid input, got %d", len(m.trustedNets))
+		snap := m.snapshot()
+		if len(snap.trustedNets) != 0 {
+			t.Fatalf("expected 0 trusted networks for invalid input, got %d", len(snap.trustedNets))
 		}
 	})
 }
@@ -768,48 +771,53 @@ func TestMatchMethod(t *testing.T) {
 func TestMatchAPIKey(t *testing.T) {
 	t.Run("not required always passes", func(t *testing.T) {
 		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "secret"})
+		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: false}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		if !m.matchAPIKey(req, rule) {
+		if !matchAPIKey(req, rule, snap) {
 			t.Error("expected true when not required")
 		}
 	})
 
 	t.Run("correct key", func(t *testing.T) {
 		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "mysecret")
-		if !m.matchAPIKey(req, rule) {
+		if !matchAPIKey(req, rule, snap) {
 			t.Error("expected true for correct API key")
 		}
 	})
 
 	t.Run("wrong key", func(t *testing.T) {
 		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "wrong")
-		if m.matchAPIKey(req, rule) {
+		if matchAPIKey(req, rule, snap) {
 			t.Error("expected false for wrong API key")
 		}
 	})
 
 	t.Run("missing key header", func(t *testing.T) {
 		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
-		if m.matchAPIKey(req, rule) {
+		if matchAPIKey(req, rule, snap) {
 			t.Error("expected false for missing API key")
 		}
 	})
 
 	t.Run("empty configured key", func(t *testing.T) {
 		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: ""})
+		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "anything")
-		if m.matchAPIKey(req, rule) {
+		if matchAPIKey(req, rule, snap) {
 			t.Error("expected false when no API key configured")
 		}
 	})
@@ -819,11 +827,12 @@ func TestMatchAPIKey(t *testing.T) {
 
 func TestHandleUnauthenticated(t *testing.T) {
 	m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
+	snap := m.snapshot()
 
 	t.Run("API path returns 401", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/api/something", nil)
 		rec := httptest.NewRecorder()
-		m.handleUnauthenticated(rec, req)
+		handleUnauthenticated(rec, req, snap)
 		if rec.Code != http.StatusUnauthorized {
 			t.Errorf("expected 401, got %d", rec.Code)
 		}
@@ -832,7 +841,7 @@ func TestHandleUnauthenticated(t *testing.T) {
 	t.Run("non-API path redirects", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/dashboard", nil)
 		rec := httptest.NewRecorder()
-		m.handleUnauthenticated(rec, req)
+		handleUnauthenticated(rec, req, snap)
 		if rec.Code != http.StatusFound {
 			t.Errorf("expected 302, got %d", rec.Code)
 		}
@@ -896,7 +905,7 @@ func TestUpdateConfig_TrustedProxies(t *testing.T) {
 	req := httptest.NewRequest(http.MethodGet, "/", nil)
 	req.RemoteAddr = "10.0.0.1:80"
 	req.Header.Set("Remote-User", "bob")
-	user, _ := m.authenticateRequest(req)
+	user, _ := m.authenticateRequest(req, m.snapshot())
 	if user != nil {
 		t.Error("expected nil user before updating trusted proxies")
 	}
@@ -907,7 +916,7 @@ func TestUpdateConfig_TrustedProxies(t *testing.T) {
 		TrustedProxies: []string{"10.0.0.0/8"},
 	})
 
-	user, _ = m.authenticateRequest(req)
+	user, _ = m.authenticateRequest(req, m.snapshot())
 	if user == nil {
 		t.Fatal("expected user after updating trusted proxies")
 	}

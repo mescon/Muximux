@@ -87,19 +87,27 @@ func (s *UserStore) LoadFromConfig(configs []UserConfig) {
 	logging.Debug("User store loaded", "source", "auth", "count", len(configs))
 }
 
-// Get retrieves a user by username
+// Get retrieves a copy of a user by username.
 func (s *UserStore) Get(username string) *User {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
-	return s.users[username]
+	return s.copyUser(s.users[username])
 }
 
-// GetByID retrieves a user by ID
+// GetByID retrieves a copy of a user by ID.
 func (s *UserStore) GetByID(id string) *User {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	// For now, ID == username
-	return s.users[id]
+	return s.copyUser(s.users[id])
+}
+
+func (s *UserStore) copyUser(u *User) *User {
+	if u == nil {
+		return nil
+	}
+	copy := *u
+	return &copy
 }
 
 // Authenticate verifies username and password
@@ -160,6 +168,34 @@ func (s *UserStore) Delete(username string) error {
 
 	if _, exists := s.users[username]; !exists {
 		return errors.New(errUserNotFound)
+	}
+
+	delete(s.users, username)
+	return nil
+}
+
+// DeleteIfNotLastAdmin atomically checks that deleting the user would not
+// remove the last admin, then deletes. Returns an error if the user is the
+// last admin or doesn't exist.
+func (s *UserStore) DeleteIfNotLastAdmin(username string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	target, exists := s.users[username]
+	if !exists {
+		return errors.New(errUserNotFound)
+	}
+
+	if target.Role == RoleAdmin {
+		adminCount := 0
+		for _, u := range s.users {
+			if u.Role == RoleAdmin {
+				adminCount++
+			}
+		}
+		if adminCount <= 1 {
+			return errors.New("Cannot delete the last admin user")
+		}
 	}
 
 	delete(s.users, username)

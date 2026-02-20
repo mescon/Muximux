@@ -512,9 +512,9 @@ func TestSlugify(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.input, func(t *testing.T) {
-			result := slugify(tt.input)
+			result := Slugify(tt.input)
 			if result != tt.expected {
-				t.Errorf("slugify(%q) = %q, expected %q", tt.input, result, tt.expected)
+				t.Errorf("Slugify(%q) = %q, expected %q", tt.input, result, tt.expected)
 			}
 		})
 	}
@@ -545,21 +545,6 @@ func TestSaveConfigInvalidJSON(t *testing.T) {
 
 	if w.Code != http.StatusBadRequest {
 		t.Errorf("expected status 400, got %d", w.Code)
-	}
-}
-
-func TestGetConfigRef(t *testing.T) {
-	cfg := createTestConfig()
-	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
-
-	ref := handler.GetConfigRef()
-
-	if ref != cfg {
-		t.Error("GetConfigRef should return the same config reference")
-	}
-
-	if ref.Server.Title != "Test Dashboard" {
-		t.Errorf("expected title 'Test Dashboard', got '%s'", ref.Server.Title)
 	}
 }
 

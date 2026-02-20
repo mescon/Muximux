@@ -113,6 +113,14 @@ func (b *LogBuffer) Subscribe() chan LogEntry {
 	return ch
 }
 
+// Unsubscribe removes a subscriber channel and closes it.
+func (b *LogBuffer) Unsubscribe(ch chan LogEntry) {
+	b.subMu.Lock()
+	delete(b.subscribers, ch)
+	b.subMu.Unlock()
+	close(ch)
+}
+
 // BroadcastHandler is an slog.Handler that captures log records into a LogBuffer
 // while forwarding them to an underlying handler.
 type BroadcastHandler struct {

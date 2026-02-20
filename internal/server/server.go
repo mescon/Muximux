@@ -3,6 +3,7 @@ package server
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
 	"io/fs"
@@ -11,6 +12,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"sync/atomic"
@@ -31,7 +33,8 @@ var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
 
 // Server holds the HTTP server and related components
 type Server struct {
-	config         *config.Config
+	config   *config.Config
+	configMu sync.RWMutex // protects config reads/writes
 	configPath     string
 	dataDir        string
 	httpServer     *http.Server
@@ -43,6 +46,10 @@ type Server struct {
 	proxyServer    *proxy.Proxy
 	oidcProvider   *auth.OIDCProvider
 	needsSetup     atomic.Bool
+	setupMu        sync.Mutex // serializes setup requests
+	loginLimiter   *rateLimiter
+	setupLimiter   *rateLimiter
+	logCh          chan logging.LogEntry
 	version        string
 	commit         string
 	buildDate      string
@@ -77,11 +84,8 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Set up routes
 	mux := http.NewServeMux()
 
-	// Shared mutex protects config reads/writes across all handlers
-	configMu := &sync.RWMutex{}
-
 	// Auth endpoints (always accessible)
-	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware, configMu)
+	authHandler := handlers.NewAuthHandler(sessionStore, userStore, cfg, configPath, authMiddleware, &s.configMu)
 	authHandler.SetBypassRules(defaultBypassRules)
 	authHandler.SetSetupChecker(func() bool { return s.needsSetup.Load() })
 
@@ -109,13 +113,13 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		}
 	})
 
-	registerAuthRoutes(mux, authHandler, wsHub)
+	s.loginLimiter = registerAuthRoutes(mux, authHandler, wsHub)
 
-	setupLimiter := newRateLimiter(5, 1*time.Minute)
-	mux.HandleFunc("/api/auth/setup", setupLimiter.wrap(s.handleSetup))
+	s.setupLimiter = newRateLimiter(5, 1*time.Minute)
+	mux.HandleFunc("/api/auth/setup", s.setupLimiter.wrap(s.handleSetup))
 
 	// API routes
-	api := handlers.NewAPIHandler(cfg, configPath, configMu)
+	api := handlers.NewAPIHandler(cfg, configPath, &s.configMu)
 	registerAPIRoutes(mux, api, requireAdmin)
 
 	// Health monitoring
@@ -304,13 +308,8 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 		TrustedProxies: cfg.Auth.TrustedProxies,
 		APIKey:         cfg.Auth.APIKey,
 		BasePath:       cfg.Server.NormalizedBasePath(),
-		Headers: auth.ForwardAuthHeaders{
-			User:   cfg.Auth.Headers["user"],
-			Email:  cfg.Auth.Headers["email"],
-			Groups: cfg.Auth.Headers["groups"],
-			Name:   cfg.Auth.Headers["name"],
-		},
-		BypassRules: defaultBypassRules,
+		Headers:        auth.ForwardAuthHeadersFromMap(cfg.Auth.Headers),
+		BypassRules:    defaultBypassRules,
 	}
 	authMiddleware := auth.NewMiddleware(&authConfig, sessionStore, userStore)
 
@@ -337,8 +336,8 @@ func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *a
 }
 
 // registerAuthRoutes registers authentication and WebSocket endpoints.
-func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, wsHub *websocket.Hub) {
-	loginLimiter := newRateLimiter(5, 1*time.Minute) // 5 attempts per IP per minute
+func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, wsHub *websocket.Hub) *rateLimiter {
+	loginLimiter := newRateLimiter(5, 1*time.Minute)
 	mux.HandleFunc("/api/auth/login", loginLimiter.wrap(authHandler.Login))
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
 	mux.HandleFunc("/api/auth/status", authHandler.AuthStatus)
@@ -349,6 +348,8 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(wsHub, w, r)
 	})
+
+	return loginLimiter
 }
 
 // registerAPIRoutes registers config, apps, and groups CRUD endpoints.
@@ -590,7 +591,7 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 		if cfg.Apps[i].Proxy && cfg.Apps[i].Enabled {
 			proxyRoutes = append(proxyRoutes, proxy.AppRoute{
 				Name:      cfg.Apps[i].Name,
-				Slug:      proxy.Slugify(cfg.Apps[i].Name),
+				Slug:      handlers.Slugify(cfg.Apps[i].Name),
 				TargetURL: cfg.Apps[i].URL,
 				Enabled:   true,
 			})
@@ -616,48 +617,41 @@ func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.M
 // setupGuardMiddleware blocks non-auth API endpoints while setup is pending.
 func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !s.needsSetup.Load() {
+		if !s.needsSetup.Load() || s.isSetupAllowed(r) {
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		path := r.URL.Path
-
-		// Allow auth endpoints
-		if strings.HasPrefix(path, "/api/auth/") {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// Allow health endpoint
-		if path == "/api/health" {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// Allow read-only endpoints needed for onboarding wizard and system info
-		if r.Method == http.MethodGet {
-			if path == "/api/themes" ||
-				strings.HasPrefix(path, "/api/icons/") ||
-				strings.HasPrefix(path, "/api/system/") ||
-				strings.HasPrefix(path, "/api/logs/") {
-				next.ServeHTTP(w, r)
-				return
-			}
-		}
-
-		// Allow non-API paths (static assets, SPA)
-		if !strings.HasPrefix(path, "/api/") {
-			next.ServeHTTP(w, r)
-			return
-		}
-
-		// Block all other API endpoints during setup
-		logging.Debug("API blocked: setup not complete", "source", "server", "path", path)
+		logging.Debug("API blocked: setup not complete", "source", "server", "path", r.URL.Path)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(map[string]string{"error": "setup_required"})
 	})
+}
+
+// isSetupAllowed returns true if the request should be allowed through during setup.
+func (s *Server) isSetupAllowed(r *http.Request) bool {
+	path := r.URL.Path
+
+	// Non-API paths (static assets, SPA) are always allowed
+	if !strings.HasPrefix(path, "/api/") {
+		return true
+	}
+
+	// Auth and health endpoints are always allowed
+	if strings.HasPrefix(path, "/api/auth/") || path == "/api/health" {
+		return true
+	}
+
+	// Read-only endpoints needed for the onboarding wizard
+	if r.Method == http.MethodGet {
+		return path == "/api/themes" ||
+			strings.HasPrefix(path, "/api/icons/") ||
+			strings.HasPrefix(path, "/api/system/") ||
+			strings.HasPrefix(path, "/api/logs/")
+	}
+
+	return false
 }
 
 // setupRequest is the JSON body for POST /api/auth/setup
@@ -674,6 +668,10 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		return
 	}
+
+	// Serialize setup requests to prevent TOCTOU races
+	s.setupMu.Lock()
+	defer s.setupMu.Unlock()
 
 	if !s.needsSetup.Load() {
 		w.Header().Set("Content-Type", "application/json")
@@ -711,9 +709,13 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	s.configMu.Lock()
 	s.config.Auth.SetupComplete = true
+	err := s.config.Save(s.configPath)
+	s.configMu.Unlock()
+
 	logging.Info("Setup completed", "source", "config", "method", req.Method)
-	if err := s.config.Save(s.configPath); err != nil {
+	if err != nil {
 		logging.Error("Failed to save config after setup", "source", "server", "error", err)
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
@@ -752,7 +754,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 		return err
 	}
 
-	// Update config
+	s.configMu.Lock()
 	s.config.Auth.Method = "builtin"
 	s.config.Auth.Users = []config.UserConfig{
 		{
@@ -761,6 +763,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 			Role:         "admin",
 		},
 	}
+	s.configMu.Unlock()
 
 	// Update live user store
 	s.userStore.LoadFromConfig([]auth.UserConfig{
@@ -797,28 +800,21 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 		return fmt.Errorf("at least one trusted proxy is required for forward_auth")
 	}
 
-	// Update config
+	s.configMu.Lock()
 	s.config.Auth.Method = "forward_auth"
 	s.config.Auth.TrustedProxies = req.TrustedProxies
 	if req.Headers != nil {
 		s.config.Auth.Headers = req.Headers
 	}
-
-	// Update auth middleware
-	headers := auth.ForwardAuthHeaders{}
-	if req.Headers != nil {
-		headers.User = req.Headers["user"]
-		headers.Email = req.Headers["email"]
-		headers.Groups = req.Headers["groups"]
-		headers.Name = req.Headers["name"]
-	}
+	apiKey := s.config.Auth.APIKey
+	s.configMu.Unlock()
 
 	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
 		Method:         auth.AuthMethodForwardAuth,
 		TrustedProxies: req.TrustedProxies,
-		Headers:        headers,
+		Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
 		BypassRules:    defaultBypassRules,
-		APIKey:         s.config.Auth.APIKey,
+		APIKey:         apiKey,
 	})
 
 	logging.Info("Forward auth configured", "source", "auth", "proxies", strings.Join(req.TrustedProxies, ","))
@@ -827,7 +823,9 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 }
 
 func (s *Server) setupNone() {
+	s.configMu.Lock()
 	s.config.Auth.Method = "none"
+	s.configMu.Unlock()
 	logging.Info("Auth disabled (method: none)", "source", "auth")
 	// Middleware stays as-is (virtual admin)
 }
@@ -839,9 +837,9 @@ func (s *Server) Start() error {
 
 	// Bridge log entries to WebSocket
 	if buf := logging.Buffer(); buf != nil {
-		logCh := buf.Subscribe()
+		s.logCh = buf.Subscribe()
 		go func() {
-			for entry := range logCh {
+			for entry := range s.logCh {
 				s.wsHub.BroadcastLogEntry(entry)
 			}
 		}()
@@ -857,9 +855,9 @@ func (s *Server) Start() error {
 		if err := s.proxyServer.Start(); err != nil {
 			return fmt.Errorf("failed to start caddy: %w", err)
 		}
-		logging.Info("Muximux started", "source", "server", "listen", s.config.Server.Listen, "internal_addr", s.proxyServer.GetInternalAddr(), "caddy", true)
+		logging.Info("Muximux started", "source", "server", "version", s.version, "listen", s.config.Server.Listen, "internal_addr", s.proxyServer.GetInternalAddr(), "caddy", true)
 	} else {
-		logging.Info("Muximux started", "source", "server", "listen", s.config.Server.Listen)
+		logging.Info("Muximux started", "source", "server", "version", s.version, "listen", s.config.Server.Listen)
 	}
 
 	return s.httpServer.ListenAndServe()
@@ -885,24 +883,46 @@ func (s *Server) Stop() error {
 		}
 	}
 
+	// Stop rate limiter cleanup goroutines
+	if s.loginLimiter != nil {
+		s.loginLimiter.stop()
+	}
+	if s.setupLimiter != nil {
+		s.setupLimiter.stop()
+	}
+
+	// Unsubscribe log channel to stop the bridge goroutine
+	if s.logCh != nil {
+		if buf := logging.Buffer(); buf != nil {
+			buf.Unsubscribe(s.logCh)
+		}
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	return s.httpServer.Shutdown(ctx)
 }
 
+// isSPARoute returns true if the path should be served by the SPA's index.html.
+// This covers root and paths without file extensions, excluding backend paths.
+func isSPARoute(path string) bool {
+	if path == "/" {
+		return true
+	}
+	return !strings.Contains(path, ".") &&
+		!strings.HasPrefix(path, "/api/") &&
+		!strings.HasPrefix(path, "/ws") &&
+		!strings.HasPrefix(path, proxyPathPrefix) &&
+		!strings.HasPrefix(path, "/icons/")
+}
+
 // spaHandlerDev wraps a file server for development (filesystem-based)
 func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
-
-		// For root or paths without extension (likely SPA routes), serve index.html directly
-		// We use http.ServeFile instead of FileServer to avoid redirect loops
-		// Exclude /api/, /ws, /proxy/, and /icons/ paths
-		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, proxyPathPrefix) && !strings.HasPrefix(path, "/icons/")) {
+		if isSPARoute(r.URL.Path) {
 			http.ServeFile(w, r, filepath.Join(distDir, indexPath))
 			return
 		}
-
 		fileServer.ServeHTTP(w, r)
 	})
 }
@@ -910,31 +930,34 @@ func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) ht
 // spaHandlerEmbed wraps a file server for embedded files.
 // basePath is injected into index.html as window.__MUXIMUX_BASE__ for frontend API calls.
 func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) http.Handler {
-	const indexPath = "index.html"
-	// Pre-read the index.html content for SPA routes
-	indexContent, err := fs.ReadFile(fsys, indexPath)
+	indexContent, err := fs.ReadFile(fsys, "index.html")
 	if err != nil {
-		// Fallback to letting fileServer handle it
 		return fileServer
 	}
 
-	// Inject base path into index.html if configured
 	if basePath != "" {
 		injection := []byte(fmt.Sprintf(`<script>window.__MUXIMUX_BASE__=%q;</script></head>`, basePath))
 		indexContent = bytes.Replace(indexContent, []byte("</head>"), injection, 1)
 	}
 
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		path := r.URL.Path
+	// Pre-compute headers at startup for zero-allocation index serving
+	indexLen := strconv.Itoa(len(indexContent))
+	indexETag := fmt.Sprintf(`"%x"`, sha256.Sum256(indexContent))
 
-		// For root or paths without extension (likely SPA routes), serve index.html directly
-		// Exclude /api/, /ws, /proxy/, and /icons/ paths
-		if path == "/" || (!strings.Contains(path, ".") && !strings.HasPrefix(path, "/api/") && !strings.HasPrefix(path, "/ws") && !strings.HasPrefix(path, proxyPathPrefix) && !strings.HasPrefix(path, "/icons/")) {
-			w.Header().Set("Content-Type", "text/html; charset=utf-8")
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if isSPARoute(r.URL.Path) {
+			h := w.Header()
+			h.Set("Content-Type", "text/html; charset=utf-8")
+			h.Set("Content-Length", indexLen)
+			h.Set("ETag", indexETag)
+			h.Set("Cache-Control", "no-cache")
+			if r.Header.Get("If-None-Match") == indexETag {
+				w.WriteHeader(http.StatusNotModified)
+				return
+			}
 			w.Write(indexContent)
 			return
 		}
-
 		fileServer.ServeHTTP(w, r)
 	})
 }
@@ -982,7 +1005,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") && (r.Method == http.MethodPost || r.Method == http.MethodPut) {
 			ct := r.Header.Get("Content-Type")
-			if !strings.HasPrefix(ct, "application/json") && !strings.HasPrefix(ct, "multipart/form-data") {
+			if !strings.HasPrefix(ct, "application/json") && !strings.HasPrefix(ct, "multipart/form-data") && !strings.HasPrefix(ct, "application/x-yaml") {
 				logging.Warn("CSRF check failed: invalid content-type", "source", "server", "path", r.URL.Path, "method", r.Method, "content_type", ct)
 				http.Error(w, "Forbidden: JSON Content-Type required", http.StatusForbidden)
 				return
@@ -1015,6 +1038,7 @@ type rateLimiter struct {
 	attempts map[string][]time.Time
 	max      int
 	window   time.Duration
+	done     chan struct{}
 }
 
 func newRateLimiter(max int, window time.Duration) *rateLimiter {
@@ -1022,15 +1046,28 @@ func newRateLimiter(max int, window time.Duration) *rateLimiter {
 		attempts: make(map[string][]time.Time),
 		max:      max,
 		window:   window,
+		done:     make(chan struct{}),
 	}
 	go rl.cleanup()
 	return rl
 }
 
+// stop signals the cleanup goroutine to exit.
+func (rl *rateLimiter) stop() {
+	close(rl.done)
+}
+
 // cleanup periodically removes stale rate-limit entries.
 func (rl *rateLimiter) cleanup() {
-	for range time.Tick(5 * time.Minute) {
-		rl.purgeStaleEntries()
+	ticker := time.NewTicker(5 * time.Minute)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ticker.C:
+			rl.purgeStaleEntries()
+		case <-rl.done:
+			return
+		}
 	}
 }
 

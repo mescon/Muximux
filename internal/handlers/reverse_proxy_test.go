@@ -451,7 +451,7 @@ func TestDirectorPathMapping(t *testing.T) {
 			handler := NewReverseProxyHandler(apps, "30s")
 
 			// Find the route
-			slug := slugify(tt.appName)
+			slug := Slugify(tt.appName)
 			route, exists := handler.routes[slug]
 			if !exists {
 				t.Fatalf("route for %q not found (slug: %q)", tt.appName, slug)
@@ -1653,7 +1653,7 @@ func TestRewriteCSSImports(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.rewriteCSSImports(tt.input)
+			result := string(rewriter.rewriteCSSImports([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteCSSImports() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1699,7 +1699,7 @@ func TestRewriteSVGHrefs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.rewriteSVGHrefs(tt.input)
+			result := string(rewriter.rewriteSVGHrefs([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteSVGHrefs() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1749,7 +1749,7 @@ func TestRewriteBaseHref(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rewriter := newContentRewriter(tt.prefix, tt.target, "")
-			result := rewriter.rewriteBaseHref(tt.input)
+			result := string(rewriter.rewriteBaseHref([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteBaseHref() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1785,7 +1785,7 @@ func TestRewriteRootPathURLFunc(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.rewriteRootPathURLFunc(tt.input)
+			result := string(rewriter.rewriteRootPathURLFunc([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteRootPathURLFunc() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1816,7 +1816,7 @@ func TestRewriteImageSet(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.rewriteImageSet(tt.input)
+			result := string(rewriter.rewriteImageSet([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteImageSet() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1847,7 +1847,7 @@ func TestRewriteJSONArrayPaths(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.rewriteJSONArrayPaths(tt.input)
+			result := string(rewriter.rewriteJSONArrayPaths([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteJSONArrayPaths() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1930,7 +1930,7 @@ func TestRewriteRootPathAttrs(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.rewriteRootPathAttrs(tt.input)
+			result := string(rewriter.rewriteRootPathAttrs([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("rewriteRootPathAttrs() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
@@ -1965,7 +1965,7 @@ func TestStripIntegrity(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := rewriter.stripIntegrity(tt.input)
+			result := string(rewriter.stripIntegrity([]byte(tt.input)))
 			if result != tt.expected {
 				t.Errorf("stripIntegrity() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
