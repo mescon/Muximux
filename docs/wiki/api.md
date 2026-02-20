@@ -106,7 +106,7 @@ POST /api/auth/users
 }
 ```
 
-Validation: username is required, password must be at least 8 characters. Valid roles: `admin`, `user`, `guest`. If the role is omitted or invalid, it defaults to `user`.
+Validation: username is required, password must be at least 8 characters. Valid roles: `admin`, `power-user`, `user`. If the role is omitted or invalid, it defaults to `user`.
 
 **Update user:**
 ```json

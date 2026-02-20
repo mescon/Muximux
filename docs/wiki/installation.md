@@ -114,13 +114,13 @@ npm run build
 cd ..
 
 # 2. Build the binary (the frontend is embedded at compile time)
-go build -o muximux ./cmd/muximux
+go build -tags embed_web -o muximux ./cmd/muximux
 
 # 3. Run (uses data/ directory by default)
 ./muximux
 ```
 
-The `npm run build` step compiles the Svelte frontend and outputs it to `internal/server/dist/`. The `go build` step then embeds those files into the Go binary. The result is a single, self-contained executable.
+The `npm run build` step compiles the Svelte frontend and outputs it to `internal/server/dist/`. The `go build -tags embed_web` step then embeds those files into the Go binary. The `-tags embed_web` flag is required -- without it, the binary will not include the web UI. The result is a single, self-contained executable.
 
 > **Note:** There is no Makefile. The two-step build (frontend, then backend) is all that is needed.
 

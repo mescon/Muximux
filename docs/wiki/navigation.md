@@ -53,12 +53,12 @@ navigation:
   position: top              # top, left, right, bottom, floating
   width: 220px               # Sidebar width (for left/right/floating)
   auto_hide: false            # Hide navigation after inactivity
-  auto_hide_delay: 3s         # Delay before hiding (when auto_hide is true)
+  auto_hide_delay: 0.5s       # Delay before hiding (when auto_hide is true)
   show_on_hover: true         # Show hidden nav on mouse hover
   show_labels: true           # Display app names under/beside icons
   show_logo: true             # Show Muximux logo in navigation
   show_app_colors: true       # Tint app icons with their configured color
-  show_icon_background: true  # Show circular background behind icons
+  show_icon_background: false # Show circular background behind icons
   show_splash_on_startup: false # Show splash screen on initial load
   show_shadow: true           # Add drop shadow to navigation bar
   bar_style: grouped          # grouped or flat (top/bottom only)

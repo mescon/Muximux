@@ -128,7 +128,7 @@ Even with the proxy and runtime interceptor enabled, some applications may not w
 - **Binary protocols** -- gRPC, MessagePack, and other non-text formats cannot be rewritten.
 - **SPA routing conflicts** -- Some SPAs may not recognize the `/proxy/{slug}/` prefix in their client-side router if they hardcode routes rather than using a configurable base path.
 
-> **Note:** Runtime-constructed URLs (template literals, string concatenation, `fetch()`, `new URL()`, etc.) **are** handled by the runtime interceptor. If a previous version of this page said they weren't supported, that is no longer the case.
+> **Note:** Runtime-constructed URLs (template literals, string concatenation, `fetch()`, `new URL()`, etc.) are handled by the runtime interceptor. This covers dynamic API calls, image loads, and WebSocket connections that apps create at runtime.
 
 For detailed explanations of each limitation, symptoms, and workarounds, see the [Troubleshooting](troubleshooting.md#reverse-proxy-limitations) page.
 

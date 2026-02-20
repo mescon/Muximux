@@ -224,8 +224,8 @@ Different settings have different reload behaviors:
 |-----------------|-------------------|
 | Navigation, themes, apps, groups, icons, keybindings | No -- changes via Settings panel are immediate |
 | Health monitoring settings | No -- applied immediately |
-| Server settings (listen, TLS, gateway) | Yes -- restart required |
-| Auth method changes | Yes -- restart required |
+| Server settings (listen, TLS, gateway, base_path) | Yes -- restart required |
+| Auth method (via Settings or API) | No -- applied immediately |
 
 If you edited `config.yaml` directly (not through the Settings panel), Muximux will pick up the changes on the next restart.
 

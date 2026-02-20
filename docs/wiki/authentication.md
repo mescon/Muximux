@@ -78,8 +78,8 @@ python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-secret-password', bcrypt.gen
 ### Roles
 
 - **`admin`** -- Full access. Can modify settings, manage apps, groups, themes, icons, and users.
+- **`power-user`** -- Extended dashboard access. Can view and interact with apps with elevated permissions but cannot manage users or change security settings.
 - **`user`** -- Dashboard access. Can view and interact with apps but cannot change configuration.
-- **`guest`** -- Limited access. Can view the dashboard only.
 
 ### Sessions
 

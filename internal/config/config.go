@@ -182,7 +182,7 @@ type AppConfig struct {
 	Enabled                  bool              `yaml:"enabled"`
 	Default                  bool              `yaml:"default"`
 	OpenMode                 string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
-	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // nil/true = enabled, false = disabled
+	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // opt-in: nil/false = disabled, true = enabled
 	Proxy                    bool              `yaml:"proxy"`
 	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
 	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
