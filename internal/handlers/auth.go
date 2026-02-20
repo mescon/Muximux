@@ -287,9 +287,17 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 	// Get current user if authenticated
 	user := auth.GetUserFromContext(r.Context())
 
+	var authMethod string
+	if h.config != nil {
+		h.configMu.RLock()
+		authMethod = h.config.Auth.Method
+		h.configMu.RUnlock()
+	}
+
 	response := map[string]interface{}{
 		"authenticated": user != nil,
 		"oidc_enabled":  h.oidcProvider != nil && h.oidcProvider.Enabled(),
+		"auth_method":   authMethod,
 	}
 
 	if user != nil {

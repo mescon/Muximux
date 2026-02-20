@@ -48,6 +48,26 @@ POST /api/auth/login
 }
 ```
 
+**Auth status response:**
+```json
+GET /api/auth/status
+
+{
+  "authenticated": true,
+  "auth_method": "builtin",
+  "oidc_enabled": false,
+  "setup_required": false,
+  "user": {
+    "username": "admin",
+    "role": "admin",
+    "email": "admin@example.com",
+    "display_name": "Admin User"
+  }
+}
+```
+
+The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated.
+
 **API key authentication:**
 
 Instead of a session cookie, you can authenticate with an API key by including the `X-Api-Key` header:

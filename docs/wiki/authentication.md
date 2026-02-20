@@ -116,6 +116,12 @@ Only the direct TCP connection IP (from `RemoteAddr`) is checked against trusted
 
 Users whose groups contain "admin", "admins", or "administrators" (exact match) are automatically assigned the admin role.
 
+### Direct Access Behavior
+
+When forward auth is enabled, Muximux will not show a login form. Instead, users who reach Muximux without being authenticated (e.g., by accessing the internal IP directly instead of through the reverse proxy) see an informational message explaining that authentication is handled by an external provider.
+
+This prevents confusion from showing a username/password form that cannot be used -- since forward auth delegates all authentication to the reverse proxy, there are no local credentials to enter.
+
 ### Typical Setup with Authelia
 
 Your reverse proxy (Nginx, Traefik, Caddy) authenticates users via Authelia, then forwards the request to Muximux with identity headers. Muximux reads these headers and creates a session.
@@ -186,11 +192,27 @@ The API key is checked using constant-time comparison to prevent timing attacks.
 
 ---
 
+## What Authentication Protects
+
+Muximux authentication controls access to the **Muximux dashboard and its API**. It does not automatically protect the apps you add to it.
+
+- **With `proxy: true`** -- Requests to the app go through Muximux's built-in reverse proxy, where authentication is enforced. Users must be logged into Muximux to reach the app. This is the secure option.
+
+- **Without `proxy: true`** -- The browser loads the app directly from its own URL (in an iframe, new tab, etc.). Muximux is not in the request path and has no ability to block or authenticate those requests. Anyone who knows the app's URL can access it directly.
+
+**Bottom line:** If you expose Muximux to the internet and want it to gate access to your apps, enable the reverse proxy for those apps. Otherwise, secure your apps with their own authentication, a separate reverse proxy, or a VPN.
+
+See [Apps & Groups > Open Modes](apps.md#open-modes) for more details.
+
+---
+
 ## First-Run Setup
 
 When Muximux starts with no configuration, the onboarding wizard includes a **Security** step that lets you configure authentication before anything else. You can choose between password authentication, forward auth, or no authentication. This ensures the dashboard is secured from the first launch.
 
 If authentication is already configured (or you're running behind an auth proxy), the security step is skipped and the wizard proceeds directly to app setup.
+
+![Onboarding security setup](../screenshots/02-security.png)
 
 ---
 

@@ -11,14 +11,15 @@
   let error = $state<string | null>(null);
   let loading = $state(false);
   let oidcEnabled = $state(false);
+  let authMethod = $state('');
 
   onMount(async () => {
-    // Check if OIDC is enabled
     try {
       const res = await fetch(`${getBase()}/api/auth/status`);
       if (res.ok) {
         const data = await res.json();
         oidcEnabled = data.oidc_enabled || false;
+        authMethod = data.auth_method || '';
       }
     } catch {
       // Ignore errors
@@ -76,31 +77,47 @@
 
     <!-- Login form -->
     <div class="login-card rounded-lg shadow-xl p-8">
-      {#if oidcEnabled}
-        <!-- OIDC Login Button -->
-        <button
-          type="button"
-          onclick={handleOIDCLogin}
-          class="login-oidc-btn w-full py-2.5 px-4 font-medium
-                 rounded-md transition-colors flex items-center justify-center gap-2
-                 mb-6"
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+      {#if authMethod === 'forward_auth'}
+        <!-- Forward auth: no local login possible -->
+        <div class="text-center">
+          <svg class="w-12 h-12 mx-auto mb-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
-          Sign in with SSO
-        </button>
-
-        <!-- Divider -->
-        <div class="relative mb-6">
-          <div class="absolute inset-0 flex items-center">
-            <div class="login-divider w-full border-t"></div>
-          </div>
-          <div class="relative flex justify-center text-sm">
-            <span class="login-divider-text px-2">or continue with username</span>
-          </div>
+          <h2 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">External Authentication</h2>
+          <p class="text-sm mb-4" style="color: var(--text-secondary);">
+            This instance is protected by an external authentication provider.
+            Access it through the URL configured in your reverse proxy to sign in.
+          </p>
+          <p class="text-xs" style="color: var(--text-muted);">
+            If you reached this page directly, your auth proxy may not be routing to this address.
+          </p>
         </div>
-      {/if}
+      {:else}
+        {#if oidcEnabled}
+          <!-- OIDC Login Button -->
+          <button
+            type="button"
+            onclick={handleOIDCLogin}
+            class="login-oidc-btn w-full py-2.5 px-4 font-medium
+                   rounded-md transition-colors flex items-center justify-center gap-2
+                   mb-6"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            Sign in with SSO
+          </button>
+
+          <!-- Divider -->
+          <div class="relative mb-6">
+            <div class="absolute inset-0 flex items-center">
+              <div class="login-divider w-full border-t"></div>
+            </div>
+            <div class="relative flex justify-center text-sm">
+              <span class="login-divider-text px-2">or continue with username</span>
+            </div>
+          </div>
+        {/if}
 
       <form onsubmit={handleSubmit}>
         {#if error}
@@ -175,6 +192,7 @@
           {/if}
         </button>
       </form>
+      {/if}
     </div>
   </div>
 </div>

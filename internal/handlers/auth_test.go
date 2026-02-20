@@ -463,6 +463,29 @@ func TestAuthStatus(t *testing.T) {
 		if resp["oidc_enabled"] != false {
 			t.Error("expected oidc_enabled=false")
 		}
+		// auth_method should be present (empty string when config is nil)
+		if _, ok := resp["auth_method"]; !ok {
+			t.Error("expected auth_method field in response")
+		}
+	})
+
+	t.Run("includes auth_method from config", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+		handler.config = &config.Config{}
+		handler.config.Auth.Method = "forward_auth"
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+
+		handler.AuthStatus(w, req)
+
+		var resp map[string]interface{}
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if resp["auth_method"] != "forward_auth" {
+			t.Errorf("expected auth_method='forward_auth', got %v", resp["auth_method"])
+		}
 	})
 
 	t.Run("authenticated", func(t *testing.T) {
