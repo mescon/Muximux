@@ -122,7 +122,7 @@ services:
 ./muximux
 ```
 
-By default, Muximux uses `data/` as its data directory (containing config, themes, icons). Override it with `--data` or the `MUXIMUX_DATA` environment variable.
+By default, Muximux uses `data/` beside the binary as its data directory (containing config, themes, icons). Override it with `--data` or the `MUXIMUX_DATA` environment variable.
 
 See [docker-compose.yml](docker-compose.yml) for a full example with environment variables, health checks, and optional TLS/gateway ports.
 
@@ -177,7 +177,7 @@ groups:
     color: "#27ae60"
 ```
 
-Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. The data directory (where config, themes, and icons live) defaults to `data/` and can be set via `--data` or `MUXIMUX_DATA`.
+Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. The data directory (where config, themes, and icons live) defaults to `data/` beside the binary and can be set via `--data` or `MUXIMUX_DATA`.
 
 For the full configuration reference, authentication options, TLS setup, and more, see the **[Wiki](docs/wiki/README.md)**.
 
@@ -217,7 +217,7 @@ git config core.hooksPath .githooks
 # Frontend dev server (hot reload)
 cd web && npm install && npm run dev &
 
-# Backend (uses data/ directory by default for config, themes, icons)
+# Backend (uses data/ beside the binary by default for config, themes, icons)
 go run ./cmd/muximux
 ```
 

@@ -36,6 +36,43 @@
     type VariantMode
   } from '$lib/themeStore';
   import { forwardAuthPresets, applyPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
+  import { API_BASE } from '$lib/api';
+
+  // Config restore state
+  let restoreFileInput = $state<HTMLInputElement | undefined>(undefined);
+  let restoreError = $state('');
+  let restoring = $state(false);
+
+  async function handleRestore(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    restoreError = '';
+    restoring = true;
+
+    try {
+      const content = await file.text();
+      const resp = await fetch(`${API_BASE}/config/restore`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/x-yaml' },
+        body: content,
+      });
+
+      if (!resp.ok) {
+        const data = await resp.json().catch(() => null);
+        throw new Error(data?.error || `Restore failed (${resp.status})`);
+      }
+
+      // Config restored — reload to exit onboarding
+      globalThis.location.reload();
+    } catch (err) {
+      restoreError = err instanceof Error ? err.message : 'Failed to restore config';
+      restoring = false;
+    }
+
+    input.value = '';
+  }
 
   // Props
   let {
@@ -1190,6 +1227,27 @@
           >
             Let's Get Started
           </button>
+
+          <div class="mt-6">
+            <p class="text-sm text-text-muted mb-2">Have an existing configuration?</p>
+            <button
+              class="text-sm text-brand-400 hover:text-brand-300 transition-colors"
+              onclick={() => restoreFileInput?.click()}
+              disabled={restoring}
+            >
+              {restoring ? 'Restoring...' : 'Restore from Backup'}
+            </button>
+            <input
+              bind:this={restoreFileInput}
+              type="file"
+              accept=".yaml,.yml"
+              class="hidden"
+              onchange={handleRestore}
+            />
+            {#if restoreError}
+              <p class="text-sm text-red-400 mt-2">{restoreError}</p>
+            {/if}
+          </div>
         </div>
 
       <!-- Security Step -->

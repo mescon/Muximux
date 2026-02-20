@@ -5,7 +5,7 @@ export function getBase(): string {
   return (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
 }
 
-const API_BASE = getBase() + '/api';
+export const API_BASE = getBase() + '/api';
 
 async function fetchJSON<T>(path: string): Promise<T> {
   const response = await fetch(`${API_BASE}${path}`);

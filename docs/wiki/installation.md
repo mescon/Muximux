@@ -83,13 +83,13 @@ Run it directly:
 ./muximux
 ```
 
-By default, Muximux uses `data/` as its base data directory, which contains `config.yaml`, themes, and icon caches. If the config file does not exist, Muximux starts with default settings and no apps configured.
+By default, Muximux uses `data/` beside the binary as its base data directory, which contains `config.yaml`, themes, and icon caches. If the config file does not exist, Muximux starts with default settings and no apps configured.
 
 ### Command-line flags
 
 | Flag | Default | Description |
 |------|---------|-------------|
-| `--data` | `data` | Base data directory for config, themes, and icons (env: `MUXIMUX_DATA`) |
+| `--data` | `data/` beside binary | Base data directory for config, themes, and icons (env: `MUXIMUX_DATA`) |
 | `--config` | *(derived from data dir)* | Override config file path (env: `MUXIMUX_CONFIG`). Defaults to `<data>/config.yaml`. |
 | `--listen` | from config | Override listen address (env: `MUXIMUX_LISTEN`) |
 | `--base-path` | *(empty)* | Base URL path for reverse proxy subpath, e.g. `/muximux` (env: `MUXIMUX_BASE_PATH`) |
@@ -129,7 +129,7 @@ The `npm run build` step compiles the Svelte frontend and outputs it to `interna
 
 ## Data Directory Structure
 
-Whether you use Docker or run the binary directly, Muximux stores all mutable data (config, themes, icon caches) in a single directory. In Docker, this is `/app/data` (mapped via volume). When running the binary, this defaults to `data/` relative to the working directory. You can change it with `--data` or the `MUXIMUX_DATA` environment variable.
+Whether you use Docker or run the binary directly, Muximux stores all mutable data (config, themes, icon caches) in a single directory. In Docker, this is `/app/data` (mapped via volume). When running the binary, this defaults to `data/` relative to the binary's location (not the working directory). You can change it with `--data` or the `MUXIMUX_DATA` environment variable.
 
 ```
 data/

@@ -95,6 +95,14 @@ A summary of your choices is displayed: number of apps, navigation position, the
 
 ---
 
+## Restore from Backup
+
+If you have an existing `config.yaml` backup (e.g. from a previous Muximux install or from the **Export Config** button in Settings), you can restore it directly from the welcome screen instead of going through the wizard.
+
+On the welcome page, click **Restore from Backup** below the "Let's Get Started" button, then select your `.yaml` file. Muximux will validate the config, save it, and reload — skipping the entire wizard.
+
+---
+
 ## After Onboarding
 
 Once the wizard completes:

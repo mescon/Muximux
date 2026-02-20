@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"io"
 	"io/fs"
 	"net"
 	"net/http"
@@ -17,6 +18,8 @@ import (
 	"sync"
 	"sync/atomic"
 	"time"
+
+	"gopkg.in/yaml.v3"
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
@@ -117,6 +120,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	s.setupLimiter = newRateLimiter(5, 1*time.Minute)
 	mux.HandleFunc("/api/auth/setup", s.setupLimiter.wrap(s.handleSetup))
+	mux.HandleFunc("/api/config/restore", s.setupLimiter.wrap(s.handleConfigRestore))
 
 	// API routes
 	api := handlers.NewAPIHandler(cfg, configPath, &s.configMu)
@@ -638,8 +642,8 @@ func (s *Server) isSetupAllowed(r *http.Request) bool {
 		return true
 	}
 
-	// Auth and health endpoints are always allowed
-	if strings.HasPrefix(path, "/api/auth/") || path == "/api/health" {
+	// Auth, health, and config restore endpoints are always allowed
+	if strings.HasPrefix(path, "/api/auth/") || path == "/api/health" || path == "/api/config/restore" {
 		return true
 	}
 
@@ -732,6 +736,64 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		"success": true,
 		"method":  req.Method,
 	})
+}
+
+// handleConfigRestore accepts a full YAML config file and saves it directly,
+// bypassing the normal setup wizard. Only allowed while setup is pending.
+func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		return
+	}
+
+	s.setupMu.Lock()
+	defer s.setupMu.Unlock()
+
+	if !s.needsSetup.Load() {
+		setJSONContentType(w)
+		w.WriteHeader(http.StatusConflict)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
+		return
+	}
+
+	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20)) // 1 MB limit
+	if err != nil {
+		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		return
+	}
+
+	var cfg config.Config
+	if err := yaml.Unmarshal(body, &cfg); err != nil {
+		setJSONContentType(w)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Invalid YAML: %s", err.Error())})
+		return
+	}
+
+	// Ensure the restored config is marked as setup complete
+	cfg.Auth.SetupComplete = true
+	if cfg.ConfigVersion == 0 {
+		cfg.ConfigVersion = config.CurrentConfigVersion
+	}
+
+	s.configMu.Lock()
+	*s.config = cfg
+	err = s.config.Save(s.configPath)
+	s.configMu.Unlock()
+
+	if err != nil {
+		logging.Error("Failed to save restored config", "source", "config", "error", err)
+		setJSONContentType(w)
+		w.WriteHeader(http.StatusInternalServerError)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
+		return
+	}
+
+	logging.Info("Config restored from backup", "source", "config", "apps", len(cfg.Apps), "groups", len(cfg.Groups))
+	s.needsSetup.Store(false)
+
+	setJSONContentType(w)
+	json.NewEncoder(w).Encode(map[string]string{"success": "true"})
 }
 
 func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {

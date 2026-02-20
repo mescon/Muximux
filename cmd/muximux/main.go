@@ -37,6 +37,16 @@ func main() {
 	showVersion := flag.Bool("version", false, "Show version information")
 	flag.Parse()
 
+	// Resolve relative data directory against the binary's location so that
+	// muximux always looks for "data/" beside the executable regardless of CWD.
+	if !filepath.IsAbs(*dataDir) {
+		if exe, err := os.Executable(); err == nil {
+			if resolved, err := filepath.EvalSymlinks(exe); err == nil {
+				*dataDir = filepath.Join(filepath.Dir(resolved), *dataDir)
+			}
+		}
+	}
+
 	// Derive config path from data dir if not explicitly set
 	if *configPath == "" {
 		*configPath = filepath.Join(*dataDir, "config.yaml")

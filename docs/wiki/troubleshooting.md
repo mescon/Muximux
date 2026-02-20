@@ -212,7 +212,7 @@ Binary content (images, videos, archives, file downloads) is **not** buffered â€
 
 The onboarding wizard appears automatically whenever no apps are configured (the `apps` list in config.yaml is empty or absent).
 
-If you deleted your `data/config.yaml` but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. Check the server logs to confirm config loading.
+If you deleted your `data/config.yaml` but the wizard still doesn't appear, verify that the server restarted and is serving the default (empty) config. The `data/` directory is resolved relative to the binary's location (not the working directory), so make sure you're looking at the correct path. Check the server logs to confirm config loading.
 
 ---
 

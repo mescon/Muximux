@@ -2,7 +2,7 @@
 
 ## Overview
 
-Muximux is configured via a single YAML file. By default, this is `data/config.yaml` (inside the data directory). The data directory defaults to `data/` and can be changed with `--data` or `MUXIMUX_DATA`. You can also override the config path directly:
+Muximux is configured via a single YAML file. By default, this is `data/config.yaml` (inside the data directory). The data directory defaults to `data/` relative to the binary's location and can be changed with `--data` or `MUXIMUX_DATA`. You can also override the config path directly:
 
 ```bash
 # Change the data directory (config will be at /opt/muximux/data/config.yaml)
@@ -163,7 +163,7 @@ apps:
 
 ```
 muximux [flags]
-  --data PATH      Base data directory (default: data, env: MUXIMUX_DATA)
+  --data PATH      Base data directory (default: data/ beside binary, env: MUXIMUX_DATA)
   --config PATH    Override config file path (default: <data>/config.yaml, env: MUXIMUX_CONFIG)
   --listen ADDR    Override listen address (env: MUXIMUX_LISTEN)
   --base-path PATH Subpath for reverse proxy (e.g. /muximux, env: MUXIMUX_BASE_PATH)
@@ -195,7 +195,7 @@ These override the corresponding config file values without needing `${VAR}` syn
 
 | Variable | Description | Default |
 |----------|-------------|---------|
-| `MUXIMUX_DATA` | Base data directory | `data` |
+| `MUXIMUX_DATA` | Base data directory | `data/` beside binary |
 | `MUXIMUX_CONFIG` | Override config file path | `<data>/config.yaml` |
 | `MUXIMUX_LISTEN` | Listen address (e.g., `:9090`) | From config file |
 | `MUXIMUX_BASE_PATH` | Subpath for reverse proxy (e.g., `/muximux`) | Empty (root) |

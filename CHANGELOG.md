@@ -4,6 +4,14 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+
+- **Config restore in onboarding wizard** — New "Restore from Backup" option on the welcome screen lets you import an existing `config.yaml` to skip the setup wizard entirely.
+
+### Fixed
+
+- **Data directory now resolves relative to the binary**, not the working directory. Previously, starting muximux from a different CWD (e.g. after `cd web && npm run build`) would cause config to be read/written at the wrong path.
+
 ---
 
 ## [3.0.0-rc.2] - 2026-02-20

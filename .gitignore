@@ -21,6 +21,7 @@ config.yaml
 
 # Data directory (runtime + test artifacts)
 /data/
+/web/data/
 /internal/server/data/
 
 # Environment files
