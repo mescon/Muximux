@@ -71,7 +71,7 @@ This means apps like **Plex**, which construct all their image and API URLs in J
 
 ### Gzip Handling
 
-Compressed responses are transparently decompressed before rewriting, then re-compressed before being sent to the browser. No configuration is needed.
+Compressed (gzipped) responses are transparently decompressed before rewriting. The rewritten response is sent uncompressed; if Muximux sits behind an external reverse proxy (nginx, Traefik, Caddy), that proxy can apply its own compression to the final response. No configuration is needed.
 
 ---
 
@@ -220,6 +220,8 @@ When a response passes through the proxy, the Go server rewrites URLs in the res
 | JS, JSON, XML | Safe-only — SRI stripping, absolute URL rewriting, base path config values. Root-relative paths are left untouched to avoid corrupting API data |
 
 The distinction matters: API responses (JSON, XML) contain data that the SPA reads programmatically. If the proxy rewrites paths inside API data (e.g., `"/library/metadata/123"` → `"/proxy/plex/library/metadata/123"`), the SPA may embed those already-rewritten paths in new URLs, causing double-prefixing.
+
+Only text content types are buffered for rewriting. Binary responses (images, videos, archives, file downloads) stream directly from the backend to the browser without being read into memory. Text responses larger than 50 MB are also streamed through without rewriting as a safety measure.
 
 **Layer 2: Runtime Interceptor (Client-Side, Synchronous)**
 
