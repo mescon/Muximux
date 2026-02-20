@@ -1,6 +1,6 @@
 # Troubleshooting
 
-> **Tip:** Enable [debug logging](debug-logging) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs, or set log level to `debug` in Settings for backend request-level detail.
+> **Tip:** Enable [debug logging](debug-logging.md) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs, or set log level to `debug` in Settings for backend request-level detail.
 
 ---
 
@@ -42,7 +42,7 @@ The built-in reverse proxy rewrites paths in HTML, CSS, JavaScript, JSON, and HT
 
 ### JavaScript That Builds URLs at Runtime
 
-> **Note:** As of 3.0.0-rc.3, Muximux includes a runtime URL interceptor that handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so that dynamically constructed URLs are rewritten before the browser sends them. This section describes the remaining edge cases.
+Muximux includes a runtime URL interceptor that handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so that dynamically constructed URLs are rewritten before the browser sends them. This section describes the remaining edge cases.
 
 **Symptom:** The app loads but some features, API calls, or navigation links point to wrong paths. You see 404 errors in the Network tab for URLs that are missing the `/proxy/{slug}/` prefix.
 
