@@ -1676,6 +1676,129 @@ func TestSetupGuardMiddleware(t *testing.T) {
 	})
 }
 
+func TestSetupGuardMiddleware_AllowsConfigRestore(t *testing.T) {
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	s := &Server{}
+	s.needsSetup.Store(true)
+	handler := s.setupGuardMiddleware(inner)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected 200 for /api/config/restore during setup, got %d", rec.Code)
+	}
+}
+
+func TestHandleConfigRestore_WrongMethod(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodGet, "/api/config/restore", nil)
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusMethodNotAllowed {
+		t.Errorf("expected 405, got %d", rec.Code)
+	}
+}
+
+func TestHandleConfigRestore_AlreadyComplete(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(false)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader("apps: []"))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusConflict {
+		t.Errorf("expected 409, got %d", rec.Code)
+	}
+}
+
+func TestHandleConfigRestore_InvalidYAML(t *testing.T) {
+	s := &Server{}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader(":::not yaml"))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusBadRequest {
+		t.Errorf("expected 400, got %d", rec.Code)
+	}
+}
+
+func TestHandleConfigRestore_Success(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	cfg := defaultTestConfig()
+	s := &Server{
+		config:     cfg,
+		configPath: configPath,
+	}
+	s.needsSetup.Store(true)
+
+	yamlContent := `server:
+  listen: ":8080"
+  title: "Restored"
+apps:
+  - name: TestApp
+    url: http://localhost:9999
+    enabled: true
+groups:
+  - name: TestGroup
+    color: "#ff0000"
+`
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader(yamlContent))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+
+	// Verify response
+	var resp map[string]string
+	if err := json.NewDecoder(rec.Body).Decode(&resp); err != nil {
+		t.Fatalf("failed to decode response: %v", err)
+	}
+	if resp["success"] != "true" {
+		t.Errorf("expected success=true, got %v", resp["success"])
+	}
+
+	// Verify setup is complete
+	if s.needsSetup.Load() {
+		t.Error("expected needsSetup=false after restore")
+	}
+
+	// Verify config was applied
+	if s.config.Auth.SetupComplete != true {
+		t.Error("expected SetupComplete=true")
+	}
+	if len(s.config.Apps) != 1 {
+		t.Errorf("expected 1 app, got %d", len(s.config.Apps))
+	}
+	if s.config.Apps[0].Name != "TestApp" {
+		t.Errorf("expected app name TestApp, got %s", s.config.Apps[0].Name)
+	}
+	if len(s.config.Groups) != 1 {
+		t.Errorf("expected 1 group, got %d", len(s.config.Groups))
+	}
+
+	// Verify config was saved to disk
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		t.Error("expected config file to be saved")
+	}
+}
+
 func TestHandleSetup_WrongMethod(t *testing.T) {
 	s := &Server{}
 	s.needsSetup.Store(true)

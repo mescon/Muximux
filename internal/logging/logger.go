@@ -62,7 +62,7 @@ func NewLogBuffer(size int) *LogBuffer {
 }
 
 // Add appends an entry to the ring buffer and notifies all subscribers.
-func (b *LogBuffer) Add(entry LogEntry) {
+func (b *LogBuffer) Add(entry LogEntry) { //nolint:gocritic // value receiver is intentional — stored in value slice
 	b.mu.Lock()
 	b.entries[b.head] = entry
 	b.head = (b.head + 1) % b.size

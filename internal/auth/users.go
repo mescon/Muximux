@@ -4,8 +4,9 @@ import (
 	"errors"
 	"sync"
 
-	"github.com/mescon/muximux/v3/internal/logging"
 	"golang.org/x/crypto/bcrypt"
+
+	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // Role constants

@@ -251,9 +251,10 @@ func (m *Monitor) updateHealth(name string, status Status, responseTime time.Dur
 	m.mu.Unlock()
 
 	if previousStatus != StatusUnknown && previousStatus != status {
-		if status == StatusUnhealthy {
+		switch status {
+		case StatusUnhealthy:
 			logging.Warn("App became unhealthy", "source", "health", "app", name, "error", errMsg)
-		} else if status == StatusHealthy {
+		case StatusHealthy:
 			logging.Info("App recovered", "source", "health", "app", name, "response_time_ms", responseTime.Milliseconds())
 		}
 	}
