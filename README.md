@@ -128,6 +128,23 @@ See [docker-compose.yml](docker-compose.yml) for a full example with environment
 
 ---
 
+## Documentation
+
+Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
+
+- [Installation](docs/wiki/installation.md) - Docker, binary, building from source
+- [Getting Started](docs/wiki/getting-started.md) - First launch and onboarding
+- [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
+- [Apps](docs/wiki/apps.md) - Adding and configuring applications
+- [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
+- [Authentication](docs/wiki/authentication.md) - Auth methods and setup
+- [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
+- [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
+- [Themes](docs/wiki/themes.md) - Customizing the look
+- [API Reference](docs/wiki/api.md) - REST API endpoints
+
+---
+
 ## Configuration at a Glance
 
 Everything lives in one YAML file. Here's the essentials:
@@ -185,23 +202,6 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **REST API** | Full CRUD for apps, groups, config, health, and auth |
 | **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |
 | **Portable** | No database - one YAML config file stores everything. Every setting is editable in the GUI. Copy one file to back up or migrate |
-
----
-
-## Documentation
-
-Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
-
-- [Installation](docs/wiki/installation.md) - Docker, binary, building from source
-- [Getting Started](docs/wiki/getting-started.md) - First launch and onboarding
-- [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
-- [Apps](docs/wiki/apps.md) - Adding and configuring applications
-- [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
-- [Authentication](docs/wiki/authentication.md) - Auth methods and setup
-- [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
-- [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
-- [Themes](docs/wiki/themes.md) - Customizing the look
-- [API Reference](docs/wiki/api.md) - REST API endpoints
 
 ---
 
