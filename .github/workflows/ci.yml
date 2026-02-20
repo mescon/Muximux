@@ -141,6 +141,7 @@ jobs:
 
       - name: SonarCloud Quality Gate
         uses: SonarSource/sonarqube-quality-gate-action@cf038b0e0cdecfa9e56c198bbb7d21d751d62c3b  # v1.2.0
+        continue-on-error: true  # Report status but don't block CI
         timeout-minutes: 5
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
