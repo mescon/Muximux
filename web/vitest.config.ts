@@ -5,6 +5,7 @@ import path from 'node:path';
 export default defineConfig({
   plugins: [svelte({ hot: !process.env.VITEST })],
   resolve: {
+    conditions: ['browser'],
     alias: {
       $lib: path.resolve('./src/lib'),
     },

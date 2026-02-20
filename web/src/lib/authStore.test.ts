@@ -84,6 +84,35 @@ describe('authStore', () => {
       expect(get(isLoading)).toBe(false);
     });
 
+    it('should store logoutUrl from response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            authenticated: true,
+            user: { username: 'testuser', role: 'user' },
+            logout_url: 'https://auth.example.com/logout',
+          }),
+      });
+
+      await checkAuthStatus();
+
+      expect(get(authState).logoutUrl).toBe('https://auth.example.com/logout');
+    });
+
+    it('should set logoutUrl to null when not in response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            authenticated: true,
+            user: { username: 'testuser', role: 'user' },
+          }),
+      });
+
+      await checkAuthStatus();
+
+      expect(get(authState).logoutUrl).toBeNull();
+    });
+
     it('should handle fetch errors', async () => {
       mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
@@ -207,6 +236,41 @@ describe('authStore', () => {
 
       expect(get(isAuthenticated)).toBe(false);
       expect(get(currentUser)).toBeNull();
+    });
+
+    it('should redirect to logoutUrl when set', async () => {
+      authState.set({
+        authenticated: true,
+        user: { username: 'testuser', role: 'user' },
+        loading: false,
+        error: null,
+        setupRequired: false,
+        logoutUrl: 'https://auth.example.com/logout',
+      });
+      mockFetch.mockResolvedValueOnce({});
+
+      // Mock window.location.href
+      const originalLocation = window.location;
+      // @ts-ignore
+      delete window.location;
+      window.location = { ...originalLocation, href: '' } as Location;
+
+      await logout();
+
+      expect(window.location.href).toBe('https://auth.example.com/logout');
+
+      // Restore
+      window.location = originalLocation;
+    });
+
+    it('should not redirect when logoutUrl is null', async () => {
+      mockFetch.mockResolvedValueOnce({});
+
+      const hrefBefore = window.location.href;
+
+      await logout();
+
+      expect(window.location.href).toBe(hrefBefore);
     });
   });
 

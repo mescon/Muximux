@@ -66,7 +66,7 @@ GET /api/auth/status
 }
 ```
 
-The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated.
+The `auth_method` field returns the active authentication method: `none`, `builtin`, `forward_auth`, or `oidc`. The `user` field is only present when the request is authenticated. When `auth_method` is `forward_auth` and a logout URL is configured, the response includes a `logout_url` field for client-side redirect on sign-out.
 
 **API key authentication:**
 
@@ -140,11 +140,12 @@ PUT /api/auth/method
     "email": "Remote-Email",
     "groups": "Remote-Groups",
     "name": "Remote-Name"
-  }
+  },
+  "logout_url": "https://auth.example.com/logout"
 }
 ```
 
-Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` requires at least one user to exist. Switching to `forward_auth` requires `trusted_proxies`. The change takes effect immediately without a restart.
+Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` requires at least one user to exist. Switching to `forward_auth` requires `trusted_proxies`. The optional `logout_url` configures where the browser redirects on sign-out to clear the auth provider's session. The change takes effect immediately without a restart.
 
 ---
 

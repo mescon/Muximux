@@ -4,6 +4,7 @@
   import type { Config, UserInfo, ChangeAuthMethodRequest } from '$lib/types';
   import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod } from '$lib/api';
   import { changePassword, isAdmin, currentUser } from '$lib/authStore';
+  import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
 
   let { localConfig }: { localConfig: Config } = $props();
 
@@ -40,7 +41,7 @@
   let methodError = $state<string | null>(null);
 
   // Forward auth preset & header fields
-  let faPreset = $state<'authelia' | 'authentik' | 'custom'>('authelia');
+  let faPreset = $state<PresetName>('authelia');
   let faShowAdvanced = $state(false);
   let faHeaderUser = $state('Remote-User');
   let faHeaderEmail = $state('Remote-Email');
@@ -48,21 +49,14 @@
   let faHeaderName = $state('Remote-Name');
   let faLogoutUrl = $state('');
 
-  const faPresets: Record<string, { user: string; email: string; groups: string; name: string; logoutUrl: string }> = {
-    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name', logoutUrl: 'https://auth.example.com/logout' },
-    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name', logoutUrl: 'https://auth.example.com/outpost.goauthentik.io/sign_out' },
-    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name', logoutUrl: '' },
-  };
-
-  function selectFaPreset(p: 'authelia' | 'authentik' | 'custom') {
+  function selectFaPreset(p: PresetName) {
     faPreset = p;
-    const headers = faPresets[p];
-    faHeaderUser = headers.user;
-    faHeaderEmail = headers.email;
-    faHeaderGroups = headers.groups;
-    faHeaderName = headers.name;
-    // Only set logout URL placeholder if the field is empty
-    if (!faLogoutUrl) faLogoutUrl = headers.logoutUrl;
+    const result = applyPreset(p, faLogoutUrl);
+    faHeaderUser = result.headers.user;
+    faHeaderEmail = result.headers.email;
+    faHeaderGroups = result.headers.groups;
+    faHeaderName = result.headers.name;
+    faLogoutUrl = result.logoutUrl;
   }
 
   // Security tab functions
@@ -145,17 +139,9 @@
     const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
     if (selectedAuthMethod === 'forward_auth') {
-      req.trusted_proxies = methodTrustedProxies
-        .split(/[,\n]/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-      req.headers = {
-        user: faHeaderUser,
-        email: faHeaderEmail,
-        groups: faHeaderGroups,
-        name: faHeaderName,
-      };
-      req.logout_url = faLogoutUrl;
+      Object.assign(req, buildForwardAuthRequest(
+        methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
+      ));
     }
     try {
       const result = await changeAuthMethod(req);
@@ -210,10 +196,7 @@
       faHeaderEmail = h.email || 'Remote-Email';
       faHeaderGroups = h.groups || 'Remote-Groups';
       faHeaderName = h.name || 'Remote-Name';
-      // Detect preset from header values
-      const matchesAuthelia = faHeaderUser === faPresets.authelia.user && faHeaderEmail === faPresets.authelia.email;
-      const matchesAuthentik = faHeaderUser === faPresets.authentik.user && faHeaderEmail === faPresets.authentik.email;
-      faPreset = matchesAuthentik ? 'authentik' : matchesAuthelia ? 'authelia' : 'custom';
+      faPreset = detectPreset(faHeaderUser, faHeaderEmail);
     }
   });
 </script>
@@ -459,7 +442,7 @@
                 bind:value={faLogoutUrl}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                        focus:outline-none focus:ring-2 focus:ring-brand-500"
-                placeholder={faPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
+                placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
               />
               <p class="text-xs text-text-disabled mt-1">Your auth provider's logout endpoint — clears the external session on sign-out</p>
             </div>
