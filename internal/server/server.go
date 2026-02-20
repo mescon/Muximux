@@ -33,8 +33,8 @@ var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
 
 // Server holds the HTTP server and related components
 type Server struct {
-	config   *config.Config
-	configMu sync.RWMutex // protects config reads/writes
+	config         *config.Config
+	configMu       sync.RWMutex // protects config reads/writes
 	configPath     string
 	dataDir        string
 	httpServer     *http.Server

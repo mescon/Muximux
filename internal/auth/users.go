@@ -194,7 +194,7 @@ func (s *UserStore) DeleteIfNotLastAdmin(username string) error {
 			}
 		}
 		if adminCount <= 1 {
-			return errors.New("Cannot delete the last admin user")
+			return errors.New("cannot delete the last admin user")
 		}
 	}
 

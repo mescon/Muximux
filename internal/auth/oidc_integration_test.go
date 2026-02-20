@@ -244,7 +244,7 @@ func TestOIDC_TokenExchangeParameters(t *testing.T) {
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		capturedContentType = r.Header.Get("Content-Type")
-		r.ParseForm()
+		_ = r.ParseForm()
 		capturedForm = r.PostForm
 		json.NewEncoder(w).Encode(TokenResponse{
 			AccessToken: "captured-token",
@@ -424,7 +424,7 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	})
 	mux.HandleFunc("/custom-token-path", func(w http.ResponseWriter, r *http.Request) {
 		tokenHit = true
-		r.ParseForm()
+		_ = r.ParseForm()
 		json.NewEncoder(w).Encode(TokenResponse{
 			AccessToken: "disc-token",
 			TokenType:   "Bearer",

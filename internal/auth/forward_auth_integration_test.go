@@ -268,10 +268,8 @@ func TestForwardAuth_TrustedProxyCIDR(t *testing.T) {
 				if capturedUser == nil {
 					t.Error("expected user in context")
 				}
-			} else {
-				if capturedUser != nil {
-					t.Error("expected no user from untrusted proxy")
-				}
+			} else if capturedUser != nil {
+				t.Error("expected no user from untrusted proxy")
 			}
 		})
 	}

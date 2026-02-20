@@ -203,7 +203,7 @@ func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 	}
 	// Drain body so the connection can be reused by the HTTP client pool
 	defer func() {
-		io.Copy(io.Discard, resp.Body)
+		_, _ = io.Copy(io.Discard, resp.Body)
 		resp.Body.Close()
 	}()
 

@@ -320,16 +320,17 @@ func (r *contentRewriter) rewriteBaseHref(result []byte) []byte {
 		href := match[quoteStart+1 : quoteEnd]
 
 		var newHref []byte
-		if len(r.targetPathB) > 0 && bytes.HasPrefix(href, r.targetPathB) {
+		switch {
+		case len(r.targetPathB) > 0 && bytes.HasPrefix(href, r.targetPathB):
 			remainder := bytes.TrimPrefix(href, r.targetPathB)
 			newHref = make([]byte, 0, len(r.proxyPrefixB)+len(remainder))
 			newHref = append(newHref, r.proxyPrefixB...)
 			newHref = append(newHref, remainder...)
-		} else if len(href) > 0 && href[0] == '/' && !bytes.HasPrefix(href, proxyPathPrefixB) {
+		case len(href) > 0 && href[0] == '/' && !bytes.HasPrefix(href, proxyPathPrefixB):
 			newHref = make([]byte, 0, len(r.proxyPrefixB)+len(href))
 			newHref = append(newHref, r.proxyPrefixB...)
 			newHref = append(newHref, href...)
-		} else {
+		default:
 			return match
 		}
 
