@@ -70,11 +70,6 @@
    */
   function resolveTitle(template: string, app: App | null): string {
     if (!template) return 'Muximux';
-    const hasVariables = template.includes('%');
-    if (!hasVariables) {
-      // Legacy behavior: prepend app name if no variables are used
-      return app ? `${app.name} — ${template}` : template;
-    }
 
     let result = template
       .replaceAll('%title%', app?.name || '')
@@ -83,15 +78,16 @@
       .replaceAll('%version%', appVersion);
 
     // Clean up dangling separators around empty values
-    // e.g. "Muximux -  - " → "Muximux"
+    // e.g. "%title% - Muximux" with no app → "Muximux" (not " - Muximux")
     result = result.replaceAll(/\s*[—–\-|:]\s*(?=[—–\-|:\s]*$)/g, '');
     result = result.replaceAll(/\s*[—–\-|:]\s*[—–\-|:]\s*/g, ' — ');
     return result.trim() || 'Muximux';
   }
 
-  // Keep URL hash in sync: clear it when returning to splash / no app
+  // Keep URL hash in sync: clear it when returning to splash / no app.
+  // Guard with `loading` so the hash isn't wiped before showDefaultApp() reads it.
   $effect(() => {
-    if (!currentApp && location.hash) {
+    if (!loading && !currentApp && location.hash) {
       history.replaceState(null, '', location.pathname + location.search);
     }
   });
