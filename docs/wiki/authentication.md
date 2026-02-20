@@ -255,7 +255,7 @@ When Muximux starts with no configuration, the onboarding wizard includes a **Se
 
 If authentication is already configured (or you're running behind an auth proxy), the security step is skipped and the wizard proceeds directly to app setup.
 
-![Onboarding security setup](../screenshots/02-security.png)
+![Onboarding security setup](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)
 
 ---
 

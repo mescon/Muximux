@@ -2,7 +2,7 @@
 
 Muximux is a modern, self-hosted web application portal for your homelab. It runs as a single binary, serves on a single port, and stores all configuration in one YAML file. Add your self-hosted applications, organize them into groups, and access them from a unified dashboard with health monitoring, keyboard shortcuts, and a built-in reverse proxy.
 
-![Muximux dashboard](../screenshots/09-dashboard-dark.png)
+![Muximux dashboard](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/09-dashboard-dark.png)
 
 ## How You Can Use Muximux
 
