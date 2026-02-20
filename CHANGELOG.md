@@ -6,6 +6,26 @@ All notable changes to Muximux are documented in this file.
 
 ---
 
+## [3.0.0-rc.2] - 2026-02-20
+
+### Changed
+
+- **Upgraded Caddy** to resolve govulncheck vulnerabilities (GO-2026-4458 ECDSA signature bypass, GO-2026-4394 PATH hijacking).
+- **Extracted forward auth presets** into shared utility (`forwardAuthPresets.ts`), removing duplicated preset logic from SecurityTab and OnboardingWizard.
+
+### Fixed
+
+- **CI lint failures** — resolved 7 golangci-lint issues (errcheck, gocritic, gofmt, staticcheck).
+- **TypeScript errors** in test files (`window.location` mock, `require()` replaced with async `import()`).
+- **Release workflow** — `latest` Docker tag now correctly applied to stable releases (was broken on tag pushes due to `is_default_branch` check).
+
+### Added
+
+- **Test coverage improvements** — new tests for authStore logout redirect, SecurityTab component, forward auth presets utility, and Go auth/server logout_url code paths (387 → 408 frontend tests).
+- **API documentation** — `logout_url` field now documented in auth status and auth method switch examples.
+
+---
+
 ## [3.0.0-rc.1] - 2026-02-20
 
 ### Changed
@@ -154,5 +174,6 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.0-rc.2]: https://github.com/mescon/Muximux/compare/v3.0.0-rc.1...v3.0.0-rc.2
 [3.0.0-rc.1]: https://github.com/mescon/Muximux/compare/v3.0.0...v3.0.0-rc.1
 [3.0.0]: https://github.com/mescon/Muximux/releases/tag/v3.0.0

@@ -41,7 +41,7 @@ RUN CGO_ENABLED=0 GOOS=linux go build \
 FROM alpine:3.23
 
 # Install runtime dependencies and create data directory
-RUN apk add --no-cache ca-certificates tzdata wget su-exec shadow && \
+RUN apk add --no-cache ca-certificates shadow su-exec tzdata wget && \
     mkdir -p /app/data
 
 WORKDIR /app

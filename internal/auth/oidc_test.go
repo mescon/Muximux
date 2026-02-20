@@ -175,11 +175,9 @@ func TestLoadDiscovery_ServerError(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	err := p.loadDiscovery()
-	if err == nil {
+	if err := p.loadDiscovery(); err == nil {
 		t.Error("expected error from server returning 500")
-	}
-	if !strings.Contains(err.Error(), "500") {
+	} else if !strings.Contains(err.Error(), "500") {
 		t.Errorf("expected error mentioning 500, got: %v", err)
 	}
 }
@@ -187,8 +185,7 @@ func TestLoadDiscovery_ServerError(t *testing.T) {
 func TestLoadDiscovery_Unreachable(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, "http://127.0.0.1:1") // port 1 should fail to connect
 
-	err := p.loadDiscovery()
-	if err == nil {
+	if err := p.loadDiscovery(); err == nil {
 		t.Error("expected error for unreachable server")
 	}
 }

@@ -211,7 +211,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	var update ClientConfigUpdate
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
-		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -362,7 +362,7 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	var clientApp ClientAppConfig
 	if err := json.NewDecoder(r.Body).Decode(&clientApp); err != nil {
-		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -424,7 +424,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name string) {
 	var clientApp ClientAppConfig
 	if err := json.NewDecoder(r.Body).Decode(&clientApp); err != nil {
-		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -544,7 +544,7 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	var group config.GroupConfig
 	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
-		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
 		return
 	}
 
@@ -584,7 +584,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name string) {
 	var group config.GroupConfig
 	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
-		http.Error(w, "Invalid JSON: "+err.Error(), http.StatusBadRequest)
+		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
 		return
 	}
 
