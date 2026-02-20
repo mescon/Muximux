@@ -707,11 +707,23 @@ func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 	return result
 }
 
+// maxRewriteSize is the maximum response body size (50 MB) that will be buffered
+// for URL rewriting. Text responses larger than this stream through unmodified to
+// avoid excessive memory use. In practice, HTML/CSS/JS are rarely this large.
+const maxRewriteSize = 50 * 1024 * 1024
+
 // rewriteResponseBody reads, decompresses (if gzipped), rewrites, and replaces the
 // response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
+// Binary content types and responses exceeding maxRewriteSize are streamed through
+// without buffering.
 func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	contentType := resp.Header.Get(headerContentType)
 	if !shouldRewriteContent(contentType) {
+		return nil
+	}
+
+	// Skip rewriting for responses that declare a size larger than the limit.
+	if resp.ContentLength > maxRewriteSize {
 		return nil
 	}
 
@@ -732,6 +744,16 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		return nil
 	}
 	resp.Body.Close()
+
+	// Safety net for chunked responses without Content-Length: if the body
+	// exceeds the rewrite limit, return it unmodified rather than rewriting.
+	if int64(len(body)) > maxRewriteSize {
+		resp.Body = io.NopCloser(bytes.NewReader(body))
+		resp.ContentLength = int64(len(body))
+		resp.Header.Set("Content-Length", fmt.Sprintf("%d", len(body)))
+		resp.Header.Del("Content-Encoding")
+		return nil
+	}
 
 	lowerContentType := strings.ToLower(contentType)
 

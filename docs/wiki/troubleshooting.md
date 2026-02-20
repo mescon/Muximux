@@ -83,13 +83,13 @@ The proxy mitigates this by rewriting base path configuration variables (e.g., `
 
 **Workaround:** No proxy-side fix is possible. Use `open_mode: new_tab` for apps that rely on binary protocols, or configure the app to use its non-binary API if one exists.
 
-### Large Responses and Memory
+### Large Text Responses and Memory
 
-**Symptom:** Muximux becomes slow or unresponsive when proxied apps serve very large responses (downloads, database exports, large media files).
+**Symptom:** Muximux uses more memory than expected when a proxied app serves very large text responses (e.g., a JSON API endpoint that returns hundreds of megabytes of data).
 
-**What happens:** The proxy buffers the entire response body in memory to perform rewriting. For very large responses (hundreds of megabytes or more), this can cause significant memory pressure on the server.
+**What happens:** The proxy buffers text-based responses (HTML, CSS, JavaScript, JSON, XML) in memory so it can rewrite URLs in the content. For unusually large text responses this can cause memory pressure.
 
-**Workaround:** Avoid proxying apps that serve large file downloads. Instead, access those apps directly via `open_mode: new_tab`, or use a custom `health_url` and access the download page directly. Binary content types like images, videos, and archives are not rewritten by the proxy, so they pass through with minimal overhead -- but the buffering still occurs.
+Binary content (images, videos, archives, file downloads) is **not** buffered — it streams directly from the backend to your browser without being read into memory. Only text content types are buffered for rewriting.
 
 ### Cookie Domain Attribute
 

@@ -1251,6 +1251,29 @@ func TestRewriteResponseBody(t *testing.T) {
 			t.Errorf("JSON root-relative path should be preserved, got: %s", string(rewritten))
 		}
 	})
+
+	t.Run("skips rewriting when Content-Length exceeds limit", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/app", "", "")
+
+		body := `<html><head><link href="/style.css"></head></html>`
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: maxRewriteSize + 1,
+		}
+		resp.Header.Set("Content-Type", "text/html")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		// Body should be untouched — the response was too large to rewrite
+		result, _ := io.ReadAll(resp.Body)
+		if string(result) != body {
+			t.Errorf("expected body to be unchanged for oversized response")
+		}
+	})
 }
 
 // TestResolveAbsoluteLocation tests absolute URL to path resolution.
