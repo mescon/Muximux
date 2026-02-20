@@ -492,7 +492,7 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 // that gets assigned later (forward declaration pattern).
 func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler, themesDir string) {
 	themeHandler := handlers.NewThemeHandler(themesDir, distFS)
-	mux.HandleFunc("/api/themes", func(w http.ResponseWriter, r *http.Request) {
+	mux.HandleFunc(apiThemesPath, func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
 			themeHandler.ListThemes(w, r)
@@ -623,7 +623,7 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 		}
 
 		logging.Debug("API blocked: setup not complete", "source", "server", "path", r.URL.Path)
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(map[string]string{"error": "setup_required"})
 	})
@@ -645,7 +645,7 @@ func (s *Server) isSetupAllowed(r *http.Request) bool {
 
 	// Read-only endpoints needed for the onboarding wizard
 	if r.Method == http.MethodGet {
-		return path == "/api/themes" ||
+		return path == apiThemesPath ||
 			strings.HasPrefix(path, "/api/icons/") ||
 			strings.HasPrefix(path, "/api/system/") ||
 			strings.HasPrefix(path, "/api/logs/")
@@ -675,7 +675,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	defer s.setupMu.Unlock()
 
 	if !s.needsSetup.Load() {
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
 		return
@@ -683,9 +683,9 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 
 	var req setupRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid request body"})
+		json.NewEncoder(w).Encode(map[string]string{"error": errInvalidBody})
 		return
 	}
 
@@ -696,7 +696,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		}
 	case "forward_auth":
 		if err := s.setupForwardAuth(&req); err != nil {
-			w.Header().Set("Content-Type", "application/json")
+			setJSONContentType(w)
 			w.WriteHeader(http.StatusBadRequest)
 			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
 			return
@@ -704,29 +704,30 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	case "none":
 		s.setupNone()
 	default:
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid method. Must be builtin, forward_auth, or none"})
 		return
 	}
 
-	s.configMu.Lock()
-	s.config.Auth.SetupComplete = true
-	err := s.config.Save(s.configPath)
-	s.configMu.Unlock()
-
-	logging.Info("Setup completed", "source", "config", "method", req.Method)
-	if err != nil {
+	if err := func() error {
+		s.configMu.Lock()
+		defer s.configMu.Unlock()
+		s.config.Auth.SetupComplete = true
+		return s.config.Save(s.configPath)
+	}(); err != nil {
 		logging.Error("Failed to save config after setup", "source", "server", "error", err)
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
 		return
 	}
 
+	logging.Info("Setup completed", "source", "config", "method", req.Method)
+
 	s.needsSetup.Store(false)
 
-	w.Header().Set("Content-Type", "application/json")
+	setJSONContentType(w)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
 		"method":  req.Method,
@@ -735,13 +736,13 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 
 func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 	if strings.TrimSpace(req.Username) == "" {
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Username is required"})
 		return fmt.Errorf("username required")
 	}
 	if len(req.Password) < 8 {
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Password must be at least 8 characters"})
 		return fmt.Errorf("password too short")
@@ -749,7 +750,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 
 	hash, err := auth.HashPassword(req.Password)
 	if err != nil {
-		w.Header().Set("Content-Type", "application/json")
+		setJSONContentType(w)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to hash password"})
 		return err
@@ -949,7 +950,7 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) http.
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isSPARoute(r.URL.Path) {
 			h := w.Header()
-			h.Set("Content-Type", "text/html; charset=utf-8")
+			h.Set(headerContentType, "text/html; charset=utf-8")
 			h.Set("Content-Length", indexLen)
 			h.Set("ETag", indexETag)
 			h.Set("Cache-Control", "no-cache")
@@ -1006,8 +1007,8 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if strings.HasPrefix(r.URL.Path, "/api/") && (r.Method == http.MethodPost || r.Method == http.MethodPut) {
-			ct := r.Header.Get("Content-Type")
-			if !strings.HasPrefix(ct, "application/json") && !strings.HasPrefix(ct, "multipart/form-data") && !strings.HasPrefix(ct, "application/x-yaml") {
+			ct := r.Header.Get(headerContentType)
+			if !strings.HasPrefix(ct, contentTypeJSON) && !strings.HasPrefix(ct, "multipart/form-data") && !strings.HasPrefix(ct, "application/x-yaml") {
 				logging.Warn("CSRF check failed: invalid content-type", "source", "server", "path", r.URL.Path, "method", r.Method, "content_type", ct)
 				http.Error(w, "Forbidden: JSON Content-Type required", http.StatusForbidden)
 				return
@@ -1023,7 +1024,7 @@ func bodySizeLimitMiddleware(next http.Handler) http.Handler {
 		if strings.HasPrefix(r.URL.Path, "/api/") && r.Body != nil {
 			// 1MB limit for config endpoints, 64KB for others
 			var maxBytes int64 = 64 * 1024
-			if r.URL.Path == "/api/config" || strings.HasPrefix(r.URL.Path, "/api/themes") {
+			if r.URL.Path == "/api/config" || strings.HasPrefix(r.URL.Path, apiThemesPath) {
 				maxBytes = 1 * 1024 * 1024
 			} else if strings.HasPrefix(r.URL.Path, "/api/icons/custom") {
 				maxBytes = 5 * 1024 * 1024 // 5MB for icon uploads

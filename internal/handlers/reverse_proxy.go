@@ -811,7 +811,7 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	}
 
 	var reader io.Reader = resp.Body
-	isGzipped := strings.Contains(resp.Header.Get("Content-Encoding"), "gzip")
+	isGzipped := strings.Contains(resp.Header.Get(headerContentEncoding), "gzip")
 
 	if isGzipped {
 		gzReader, err := gzip.NewReader(resp.Body)
@@ -834,7 +834,7 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 		resp.Body = io.NopCloser(bytes.NewReader(body))
 		resp.ContentLength = int64(len(body))
 		resp.Header.Set("Content-Length", strconv.Itoa(len(body)))
-		resp.Header.Del("Content-Encoding")
+		resp.Header.Del(headerContentEncoding)
 		return nil
 	}
 
@@ -862,7 +862,7 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	resp.Body = io.NopCloser(bytes.NewReader(rewritten))
 	resp.ContentLength = int64(len(rewritten))
 	resp.Header.Set("Content-Length", strconv.Itoa(len(rewritten)))
-	resp.Header.Del("Content-Encoding")
+	resp.Header.Del(headerContentEncoding)
 
 	return nil
 }

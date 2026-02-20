@@ -22,7 +22,7 @@ export interface App {
 
 export function getEffectiveUrl(app: App): string {
   if (app.proxyUrl) {
-    const base = (window as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
+    const base = (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
     return base + app.proxyUrl;
   }
   return app.url;
