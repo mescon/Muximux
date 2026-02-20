@@ -290,24 +290,24 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 	}
 
 	app := config.AppConfig{
-		Name:                     clientApp.Name,
-		URL:                      appURL,
-		HealthURL:                clientApp.HealthURL,
-		Icon:                     clientApp.Icon,
-		Color:                    clientApp.Color,
-		Group:                    clientApp.Group,
-		Order:                    clientApp.Order,
-		Enabled:                  clientApp.Enabled,
-		Default:                  clientApp.Default,
-		OpenMode:                 clientApp.OpenMode,
-		Proxy:                    clientApp.Proxy,
-		HealthCheck:              clientApp.HealthCheck,
-		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
-		ProxyHeaders:             clientApp.ProxyHeaders,
-		Scale:                    clientApp.Scale,
-		Shortcut:                 clientApp.Shortcut,
-		MinRole:                  clientApp.MinRole,
-		ForceIconBackground:      clientApp.ForceIconBackground,
+		Name:                clientApp.Name,
+		URL:                 appURL,
+		HealthURL:           clientApp.HealthURL,
+		Icon:                clientApp.Icon,
+		Color:               clientApp.Color,
+		Group:               clientApp.Group,
+		Order:               clientApp.Order,
+		Enabled:             clientApp.Enabled,
+		Default:             clientApp.Default,
+		OpenMode:            clientApp.OpenMode,
+		Proxy:               clientApp.Proxy,
+		HealthCheck:         clientApp.HealthCheck,
+		ProxySkipTLSVerify:  clientApp.ProxySkipTLSVerify,
+		ProxyHeaders:        clientApp.ProxyHeaders,
+		Scale:               clientApp.Scale,
+		Shortcut:            clientApp.Shortcut,
+		MinRole:             clientApp.MinRole,
+		ForceIconBackground: clientApp.ForceIconBackground,
 	}
 
 	// Preserve auth bypass and access rules if app existed before
@@ -384,24 +384,24 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 
 	// Create new app config
 	newApp := config.AppConfig{
-		Name:                     clientApp.Name,
-		URL:                      clientApp.URL,
-		HealthURL:                clientApp.HealthURL,
-		Icon:                     clientApp.Icon,
-		Color:                    clientApp.Color,
-		Group:                    clientApp.Group,
-		Order:                    len(h.config.Apps), // Add at end
-		Enabled:                  clientApp.Enabled,
-		Default:                  clientApp.Default,
-		OpenMode:                 clientApp.OpenMode,
-		Proxy:                    clientApp.Proxy,
-		HealthCheck:              clientApp.HealthCheck,
-		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
-		ProxyHeaders:             clientApp.ProxyHeaders,
-		Scale:                    clientApp.Scale,
-		Shortcut:                 clientApp.Shortcut,
-		MinRole:                  clientApp.MinRole,
-		ForceIconBackground:      clientApp.ForceIconBackground,
+		Name:                clientApp.Name,
+		URL:                 clientApp.URL,
+		HealthURL:           clientApp.HealthURL,
+		Icon:                clientApp.Icon,
+		Color:               clientApp.Color,
+		Group:               clientApp.Group,
+		Order:               len(h.config.Apps), // Add at end
+		Enabled:             clientApp.Enabled,
+		Default:             clientApp.Default,
+		OpenMode:            clientApp.OpenMode,
+		Proxy:               clientApp.Proxy,
+		HealthCheck:         clientApp.HealthCheck,
+		ProxySkipTLSVerify:  clientApp.ProxySkipTLSVerify,
+		ProxyHeaders:        clientApp.ProxyHeaders,
+		Scale:               clientApp.Scale,
+		Shortcut:            clientApp.Shortcut,
+		MinRole:             clientApp.MinRole,
+		ForceIconBackground: clientApp.ForceIconBackground,
 	}
 
 	h.config.Apps = append(h.config.Apps, newApp)
@@ -456,26 +456,26 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Update app config
 	h.config.Apps[idx] = config.AppConfig{
-		Name:                     clientApp.Name,
-		URL:                      appURL,
-		HealthURL:                clientApp.HealthURL,
-		Icon:                     clientApp.Icon,
-		Color:                    clientApp.Color,
-		Group:                    clientApp.Group,
-		Order:                    clientApp.Order,
-		Enabled:                  clientApp.Enabled,
-		Default:                  clientApp.Default,
-		OpenMode:                 clientApp.OpenMode,
-		Proxy:                    clientApp.Proxy,
-		HealthCheck:              clientApp.HealthCheck,
-		ProxySkipTLSVerify:       clientApp.ProxySkipTLSVerify,
-		ProxyHeaders:             clientApp.ProxyHeaders,
-		Scale:                    clientApp.Scale,
-		Shortcut:                 clientApp.Shortcut,
-		MinRole:                  clientApp.MinRole,
-		ForceIconBackground:      clientApp.ForceIconBackground,
-		AuthBypass:               existing.AuthBypass,
-		Access:                   existing.Access,
+		Name:                clientApp.Name,
+		URL:                 appURL,
+		HealthURL:           clientApp.HealthURL,
+		Icon:                clientApp.Icon,
+		Color:               clientApp.Color,
+		Group:               clientApp.Group,
+		Order:               clientApp.Order,
+		Enabled:             clientApp.Enabled,
+		Default:             clientApp.Default,
+		OpenMode:            clientApp.OpenMode,
+		Proxy:               clientApp.Proxy,
+		HealthCheck:         clientApp.HealthCheck,
+		ProxySkipTLSVerify:  clientApp.ProxySkipTLSVerify,
+		ProxyHeaders:        clientApp.ProxyHeaders,
+		Scale:               clientApp.Scale,
+		Shortcut:            clientApp.Shortcut,
+		MinRole:             clientApp.MinRole,
+		ForceIconBackground: clientApp.ForceIconBackground,
+		AuthBypass:          existing.AuthBypass,
+		Access:              existing.Access,
 	}
 
 	// Save config
@@ -664,49 +664,49 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 		proxyURL = proxyPathPrefix + Slugify(app.Name) + "/"
 	}
 	return ClientAppConfig{
-		Name:                     app.Name,
-		URL:                      app.URL,
-		HealthURL:                app.HealthURL,
-		ProxyURL:                 proxyURL,
-		Icon:                     app.Icon,
-		Color:                    app.Color,
-		Group:                    app.Group,
-		Order:                    app.Order,
-		Enabled:                  app.Enabled,
-		Default:                  app.Default,
-		OpenMode:                 app.OpenMode,
-		Proxy:                    app.Proxy,
-		HealthCheck:              app.HealthCheck,
-		ProxySkipTLSVerify:       app.ProxySkipTLSVerify,
-		ProxyHeaders:             app.ProxyHeaders,
-		Scale:                    app.Scale,
-		Shortcut:                 app.Shortcut,
-		MinRole:                  app.MinRole,
-		ForceIconBackground:      app.ForceIconBackground,
+		Name:                app.Name,
+		URL:                 app.URL,
+		HealthURL:           app.HealthURL,
+		ProxyURL:            proxyURL,
+		Icon:                app.Icon,
+		Color:               app.Color,
+		Group:               app.Group,
+		Order:               app.Order,
+		Enabled:             app.Enabled,
+		Default:             app.Default,
+		OpenMode:            app.OpenMode,
+		Proxy:               app.Proxy,
+		HealthCheck:         app.HealthCheck,
+		ProxySkipTLSVerify:  app.ProxySkipTLSVerify,
+		ProxyHeaders:        app.ProxyHeaders,
+		Scale:               app.Scale,
+		Shortcut:            app.Shortcut,
+		MinRole:             app.MinRole,
+		ForceIconBackground: app.ForceIconBackground,
 	}
 }
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
 type ClientAppConfig struct {
-	Name                     string               `json:"name"`
-	URL                      string               `json:"url"`                // Original target URL (for editing/config)
-	HealthURL                string               `json:"health_url,omitempty"`
-	ProxyURL                 string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
-	Icon                     config.AppIconConfig `json:"icon"`
-	Color                    string               `json:"color"`
-	Group                    string               `json:"group"`
-	Order                    int                  `json:"order"`
-	Enabled                  bool                 `json:"enabled"`
-	Default                  bool                 `json:"default"`
-	OpenMode                 string               `json:"open_mode"`
-	Proxy                    bool                 `json:"proxy"`
-	HealthCheck              *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
-	ProxySkipTLSVerify       *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
-	ProxyHeaders             map[string]string    `json:"proxy_headers,omitempty"`
-	Scale                    float64              `json:"scale"`
-	Shortcut                 *int                 `json:"shortcut,omitempty"`
-	MinRole                  string               `json:"min_role,omitempty"`
-	ForceIconBackground      bool                 `json:"force_icon_background,omitempty"`
+	Name                string               `json:"name"`
+	URL                 string               `json:"url"` // Original target URL (for editing/config)
+	HealthURL           string               `json:"health_url,omitempty"`
+	ProxyURL            string               `json:"proxyUrl,omitempty"` // Proxy path for iframe loading (when proxy enabled)
+	Icon                config.AppIconConfig `json:"icon"`
+	Color               string               `json:"color"`
+	Group               string               `json:"group"`
+	Order               int                  `json:"order"`
+	Enabled             bool                 `json:"enabled"`
+	Default             bool                 `json:"default"`
+	OpenMode            string               `json:"open_mode"`
+	Proxy               bool                 `json:"proxy"`
+	HealthCheck         *bool                `json:"health_check,omitempty"`          // nil/true = enabled, false = disabled
+	ProxySkipTLSVerify  *bool                `json:"proxy_skip_tls_verify,omitempty"` // nil = true (default)
+	ProxyHeaders        map[string]string    `json:"proxy_headers,omitempty"`
+	Scale               float64              `json:"scale"`
+	Shortcut            *int                 `json:"shortcut,omitempty"`
+	MinRole             string               `json:"min_role,omitempty"`
+	ForceIconBackground bool                 `json:"force_icon_background,omitempty"`
 }
 
 // sanitizeApps removes sensitive fields and filters by role.

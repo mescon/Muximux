@@ -173,26 +173,26 @@ type GroupConfig struct {
 
 // AppConfig holds individual app settings
 type AppConfig struct {
-	Name                     string            `yaml:"name"`
-	URL                      string            `yaml:"url"`
-	HealthURL                string            `yaml:"health_url,omitempty"` // Optional custom health check URL
-	Icon                     AppIconConfig     `yaml:"icon"`
-	Color                    string            `yaml:"color"`
-	Group                    string            `yaml:"group"`
-	Order                    int               `yaml:"order"`
-	Enabled                  bool              `yaml:"enabled"`
-	Default                  bool              `yaml:"default"`
-	OpenMode                 string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
-	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // opt-in: nil/false = disabled, true = enabled
-	Proxy                    bool              `yaml:"proxy"`
-	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
-	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
-	Scale                    float64           `yaml:"scale"`
-	Shortcut                 *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
-	MinRole                  string            `yaml:"min_role,omitempty"`              // minimum role to see this app (default: "user")
-	ForceIconBackground      bool              `yaml:"force_icon_background,omitempty"` // show icon background even when global setting is off
-	AuthBypass               []AuthBypassRule  `yaml:"auth_bypass"`
-	Access                   AppAccessConfig   `yaml:"access"`
+	Name                string            `yaml:"name"`
+	URL                 string            `yaml:"url"`
+	HealthURL           string            `yaml:"health_url,omitempty"` // Optional custom health check URL
+	Icon                AppIconConfig     `yaml:"icon"`
+	Color               string            `yaml:"color"`
+	Group               string            `yaml:"group"`
+	Order               int               `yaml:"order"`
+	Enabled             bool              `yaml:"enabled"`
+	Default             bool              `yaml:"default"`
+	OpenMode            string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
+	HealthCheck         *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // opt-in: nil/false = disabled, true = enabled
+	Proxy               bool              `yaml:"proxy"`
+	ProxySkipTLSVerify  *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
+	ProxyHeaders        map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend
+	Scale               float64           `yaml:"scale"`
+	Shortcut            *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
+	MinRole             string            `yaml:"min_role,omitempty"`                           // minimum role to see this app (default: "user")
+	ForceIconBackground bool              `yaml:"force_icon_background,omitempty"`              // show icon background even when global setting is off
+	AuthBypass          []AuthBypassRule  `yaml:"auth_bypass"`
+	Access              AppAccessConfig   `yaml:"access"`
 }
 
 // AppIconConfig holds app icon settings

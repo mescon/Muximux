@@ -170,7 +170,6 @@ func TestProxy_Stop_NotRunning(t *testing.T) {
 	}
 }
 
-
 func TestProxy_buildCaddyfile_HTTPOnly(t *testing.T) {
 	p := New(&Config{
 		ListenAddr:   ":8080",
