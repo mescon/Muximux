@@ -13,8 +13,8 @@ vi.mock('$lib/api', () => ({
 }));
 
 // Mock authStore
-vi.mock('$lib/authStore', () => {
-  const { writable, derived } = require('svelte/store');
+vi.mock('$lib/authStore', async () => {
+  const { writable } = await import('svelte/store');
   const isAdminStore = writable(true);
   const currentUserStore = writable({ username: 'admin', role: 'admin' });
   return {

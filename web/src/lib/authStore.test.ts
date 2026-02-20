@@ -249,18 +249,21 @@ describe('authStore', () => {
       });
       mockFetch.mockResolvedValueOnce({});
 
-      // Mock window.location.href
-      const originalLocation = window.location;
-      // @ts-ignore
-      delete window.location;
-      window.location = { ...originalLocation, href: '' } as Location;
+      // Mock window.location.href via defineProperty
+      const hrefSetter = vi.fn();
+      const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'location')!;
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, set href(v: string) { hrefSetter(v); } },
+        writable: true,
+        configurable: true,
+      });
 
       await logout();
 
-      expect(window.location.href).toBe('https://auth.example.com/logout');
+      expect(hrefSetter).toHaveBeenCalledWith('https://auth.example.com/logout');
 
       // Restore
-      window.location = originalLocation;
+      Object.defineProperty(window, 'location', originalDescriptor);
     });
 
     it('should not redirect when logoutUrl is null', async () => {
