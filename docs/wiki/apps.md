@@ -31,7 +31,7 @@ apps:
     proxy_headers:                  # Custom headers sent to the backend
       X-Api-Key: "your-key"
     scale: 1.0                      # Zoom level for iframe (0.5 - 2.0)
-    health_check: true               # Set false to disable health monitoring
+    health_check: true               # Enable health monitoring (opt-in, disabled by default)
     shortcut: 1                      # Assign keyboard shortcut 1-9
     min_role: ""                     # Minimum role to see this app (user, power-user, admin)
     force_icon_background: false     # Show icon background even when global setting is off

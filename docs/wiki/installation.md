@@ -92,6 +92,7 @@ By default, Muximux uses `data/` as its base data directory, which contains `con
 | `--data` | `data` | Base data directory for config, themes, and icons (env: `MUXIMUX_DATA`) |
 | `--config` | *(derived from data dir)* | Override config file path (env: `MUXIMUX_CONFIG`). Defaults to `<data>/config.yaml`. |
 | `--listen` | from config | Override listen address (env: `MUXIMUX_LISTEN`) |
+| `--base-path` | *(empty)* | Base URL path for reverse proxy subpath, e.g. `/muximux` (env: `MUXIMUX_BASE_PATH`) |
 | `--version` | | Print version information and exit |
 
 ---

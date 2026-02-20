@@ -62,6 +62,9 @@ navigation:
   show_splash_on_startup: false # Show splash screen on initial load
   show_shadow: true           # Add drop shadow to navigation bar
   bar_style: grouped          # grouped or flat (top/bottom only)
+  icon_scale: 1.0             # Scale factor for navigation icons (default: 1.0)
+  floating_position: bottom-right # Floating nav position (bottom-right, bottom-left, top-right, top-left)
+  hide_sidebar_footer: false  # Hide the footer section in left/right sidebars
 ```
 
 ## Auto-Hide Behavior

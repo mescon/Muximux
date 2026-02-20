@@ -46,7 +46,7 @@ auth:
   users:
     - username: ""
       password_hash: ""        # bcrypt hash (see Authentication page)
-      role: admin              # admin or user
+      role: admin              # admin, power-user, or user
       email: ""                # Optional
       display_name: ""         # Optional
 
