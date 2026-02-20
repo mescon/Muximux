@@ -12,12 +12,16 @@ All notable changes to Muximux are documented in this file.
 
 - **Upgraded Caddy** to resolve govulncheck vulnerabilities (GO-2026-4458 ECDSA signature bypass, GO-2026-4394 PATH hijacking).
 - **Extracted forward auth presets** into shared utility (`forwardAuthPresets.ts`), removing duplicated preset logic from SecurityTab and OnboardingWizard.
+- **Upgraded Svelte** from 5.51.3 to 5.53.0.
+- **Upgraded devalue** from 5.6.2 to 5.6.3.
+- **SonarCloud quality gate** is now non-blocking in CI (reports status without failing the pipeline).
 
 ### Fixed
 
 - **CI lint failures** — resolved 7 golangci-lint issues (errcheck, gocritic, gofmt, staticcheck).
 - **TypeScript errors** in test files (`window.location` mock, `require()` replaced with async `import()`).
 - **Release workflow** — `latest` Docker tag now correctly applied to stable releases (was broken on tag pushes due to `is_default_branch` check).
+- **42 SonarCloud code quality issues** — duplicate string constants extracted, unnecessary variables inlined, `window` → `globalThis` for SSR safety, shell `[` → `[[`, Dockerfile package sort, and redundant type alias removed.
 
 ### Added
 
