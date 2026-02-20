@@ -87,7 +87,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(LoginResponse{
 			Success: false,
-			Message: "Invalid request body",
+			Message: errInvalidBody,
 		})
 		return
 	}
@@ -215,7 +215,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		NewPassword     string `json:"new_password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, errInvalidBody, http.StatusBadRequest)
 		return
 	}
 
@@ -251,7 +251,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Update user
 	fullUser := h.userStore.Get(user.Username)
 	if fullUser == nil {
-		http.Error(w, "User not found", http.StatusInternalServerError)
+		http.Error(w, errUserNotFound, http.StatusInternalServerError)
 		return
 	}
 	fullUser.PasswordHash = hash
@@ -393,7 +393,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		DisplayName string `json:"display_name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, errInvalidBody, http.StatusBadRequest)
 		return
 	}
 
@@ -467,13 +467,13 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		DisplayName *string `json:"display_name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, errInvalidBody, http.StatusBadRequest)
 		return
 	}
 
 	user := h.userStore.Get(username)
 	if user == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
+		http.Error(w, errUserNotFound, http.StatusNotFound)
 		return
 	}
 
@@ -534,7 +534,7 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 
 	if err := h.userStore.DeleteIfNotLastAdmin(username); err != nil {
 		if err.Error() == "user not found" {
-			http.Error(w, "User not found", http.StatusNotFound)
+			http.Error(w, errUserNotFound, http.StatusNotFound)
 			return
 		}
 		w.Header().Set(headerContentType, contentTypeJSON)
@@ -561,7 +561,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		LogoutURL      string            `json:"logout_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		http.Error(w, errInvalidBody, http.StatusBadRequest)
 		return
 	}
 
@@ -604,20 +604,20 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	authCfg.BypassRules = h.bypassRules
 	authCfg.APIKey = h.config.Auth.APIKey
 
-	h.configMu.Lock()
-	h.config.Auth.Method = req.Method
-	if req.Method == "forward_auth" {
-		h.config.Auth.TrustedProxies = req.TrustedProxies
-		h.config.Auth.LogoutURL = req.LogoutURL
-		if req.Headers != nil {
-			h.config.Auth.Headers = req.Headers
+	if err := func() error {
+		h.configMu.Lock()
+		defer h.configMu.Unlock()
+		h.config.Auth.Method = req.Method
+		if req.Method == "forward_auth" {
+			h.config.Auth.TrustedProxies = req.TrustedProxies
+			h.config.Auth.LogoutURL = req.LogoutURL
+			if req.Headers != nil {
+				h.config.Auth.Headers = req.Headers
+			}
 		}
-	}
-	h.authMiddleware.UpdateConfig(&authCfg)
-	err := h.config.Save(h.configPath)
-	h.configMu.Unlock()
-
-	if err != nil {
+		h.authMiddleware.UpdateConfig(&authCfg)
+		return h.config.Save(h.configPath)
+	}(); err != nil {
 		logging.Error("Failed to save config after auth method change", "source", "auth", "method", req.Method, "error", err)
 		http.Error(w, "Failed to save config", http.StatusInternalServerError)
 		return

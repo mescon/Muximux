@@ -2,7 +2,7 @@ import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateU
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
-  return (window as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
+  return (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '';
 }
 
 const API_BASE = getBase() + '/api';
@@ -283,7 +283,7 @@ export function slugify(name: string): string {
  * Export config as a downloadable YAML file via the backend.
  */
 export function exportConfig(): void {
-  window.location.href = `${API_BASE}/config/export`;
+  globalThis.location.href = `${API_BASE}/config/export`;
 }
 
 /**

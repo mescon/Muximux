@@ -40,7 +40,7 @@ export const isLoading = derived(authState, ($state) => $state.loading);
 export const setupRequired = derived(authState, ($state) => $state.setupRequired);
 
 // API functions
-const base = ((window as unknown as Record<string, string>).__MUXIMUX_BASE__) || '';
+const base = ((globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__) || '';
 const API_BASE = base + '/api/auth';
 
 // Check auth status
@@ -143,7 +143,7 @@ export async function logout(): Promise<void> {
 
   // Redirect to external auth provider's logout page (e.g. Authelia, Authentik)
   if (logoutUrl) {
-    window.location.href = logoutUrl;
+    globalThis.location.href = logoutUrl;
   }
 }
 

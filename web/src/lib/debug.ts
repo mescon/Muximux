@@ -3,8 +3,8 @@ const STORAGE_KEY = 'muximux_debug';
 let enabled = typeof localStorage !== 'undefined' && localStorage.getItem(STORAGE_KEY) === '1';
 
 export function initDebug(): void {
-  if (typeof window === 'undefined') return;
-  const params = new URLSearchParams(window.location.search);
+  if (typeof globalThis.window === 'undefined') return;
+  const params = new URLSearchParams(globalThis.location.search);
   if (params.get('debug') === 'true') {
     localStorage.setItem(STORAGE_KEY, '1');
     enabled = true;

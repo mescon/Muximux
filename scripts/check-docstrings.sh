@@ -29,7 +29,7 @@ while IFS= read -r file; do
             total=$((total + 1))
 
             # Check if preceding line is a doc comment
-            if [ "$i" -gt 0 ]; then
+            if [[ "$i" -gt 0 ]]; then
                 prev="${lines[$((i - 1))]}"
                 if echo "$prev" | grep -qE '^//[[:space:]]'; then
                     documented=$((documented + 1))
@@ -41,7 +41,7 @@ while IFS= read -r file; do
         if echo "$line" | grep -qE '^func \([^)]+\) [A-Z]'; then
             total=$((total + 1))
 
-            if [ "$i" -gt 0 ]; then
+            if [[ "$i" -gt 0 ]]; then
                 prev="${lines[$((i - 1))]}"
                 if echo "$prev" | grep -qE '^//[[:space:]]'; then
                     documented=$((documented + 1))
@@ -51,7 +51,7 @@ while IFS= read -r file; do
     done
 done < <(find "$REPO_ROOT" -name '*.go' ! -name '*_test.go' -type f)
 
-if [ "$total" -eq 0 ]; then
+if [[ "$total" -eq 0 ]]; then
     echo "No exported identifiers found."
     exit 0
 fi
@@ -60,7 +60,7 @@ pct=$((documented * 100 / total))
 
 echo "Docstring coverage: ${documented}/${total} exported identifiers (${pct}%)"
 
-if [ "$pct" -lt "$THRESHOLD" ]; then
+if [[ "$pct" -lt "$THRESHOLD" ]]; then
     echo "FAIL: ${pct}% is below the ${THRESHOLD}% threshold"
 
     # Report undocumented identifiers
@@ -81,15 +81,15 @@ if [ "$pct" -lt "$THRESHOLD" ]; then
                 is_exported=true
             fi
 
-            if [ "$is_exported" = true ]; then
+            if [[ "$is_exported" = true ]]; then
                 has_doc=false
-                if [ "$i" -gt 0 ]; then
+                if [[ "$i" -gt 0 ]]; then
                     prev="${lines[$((i - 1))]}"
                     if echo "$prev" | grep -qE '^//[[:space:]]'; then
                         has_doc=true
                     fi
                 fi
-                if [ "$has_doc" = false ]; then
+                if [[ "$has_doc" = false ]]; then
                     # Extract identifier name
                     name=$(echo "$line" | sed -E 's/^(func |type |var |const )//; s/^(\([^)]+\) )//; s/[( {].*//; s/ .*//')
                     echo "  ${rel_path}:$((i + 1)): ${name}"

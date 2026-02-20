@@ -36,7 +36,7 @@ export default ts.config(
     rules: {
       // Svelte component exports and template-referenced variables appear unused to ESLint
       // because it can't see Svelte template usage. Downgrade to warn for .svelte files.
-      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: '^_|^\\$\\$' }],
+      '@typescript-eslint/no-unused-vars': ['warn', { argsIgnorePattern: '^_', varsIgnorePattern: String.raw`^_|^\$\$` }],
     },
   },
   {

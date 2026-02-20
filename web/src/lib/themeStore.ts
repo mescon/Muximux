@@ -15,9 +15,6 @@ import { debug } from './debug';
 // Built-in themes
 export type BuiltinTheme = 'dark' | 'light';
 
-// Theme mode: known values or custom family ID (kept for backward compat with App.svelte keybindings)
-export type ThemeMode = string;
-
 // Variant mode for the family system
 export type VariantMode = 'dark' | 'light' | 'system';
 
@@ -191,11 +188,11 @@ export const isDarkTheme = derived(
 export const themeMode = derived(
   [selectedFamily, variantMode],
   ([$selectedFamily, $variantMode]) => {
-    if ($selectedFamily === 'default' && $variantMode === 'system') return 'system' as ThemeMode;
-    if ($selectedFamily === 'default' && $variantMode === 'dark') return 'dark' as ThemeMode;
-    if ($selectedFamily === 'default' && $variantMode === 'light') return 'light' as ThemeMode;
+    if ($selectedFamily === 'default' && $variantMode === 'system') return 'system';
+    if ($selectedFamily === 'default' && $variantMode === 'dark') return 'dark';
+    if ($selectedFamily === 'default' && $variantMode === 'light') return 'light';
     // For custom families, return the resolved family id
-    return $selectedFamily as ThemeMode;
+    return $selectedFamily;
   }
 );
 
@@ -242,7 +239,7 @@ export function setVariantMode(mode: VariantMode) {
 }
 
 // Backward-compatible setTheme (used by App.svelte keybindings)
-export function setTheme(mode: ThemeMode) {
+export function setTheme(mode: string) {
   if (mode === 'system') {
     setThemeFamily('default');
     setVariantMode('system');

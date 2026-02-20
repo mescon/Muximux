@@ -220,7 +220,7 @@ export function createPullToRefreshHandlers(
  * Detects if the device supports touch.
  */
 export function isTouchDevice(): boolean {
-  return 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  return 'ontouchstart' in globalThis || navigator.maxTouchPoints > 0;
 }
 
 /**

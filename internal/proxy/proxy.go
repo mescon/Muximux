@@ -115,8 +115,7 @@ func (p *Proxy) Stop() error {
 		return nil
 	}
 
-	err := caddy.Stop()
-	if err != nil {
+	if err := caddy.Stop(); err != nil {
 		return fmt.Errorf("failed to stop proxy: %w", err)
 	}
 
