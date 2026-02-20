@@ -191,4 +191,3 @@ func (p *Proxy) IsRunning() bool {
 	defer p.mu.RUnlock()
 	return p.running
 }
-
