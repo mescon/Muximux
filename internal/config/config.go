@@ -98,6 +98,7 @@ type AuthConfig struct {
 	Users          []UserConfig      `yaml:"users"`
 	TrustedProxies []string          `yaml:"trusted_proxies"`
 	Headers        map[string]string `yaml:"headers"`
+	LogoutURL      string            `yaml:"logout_url"` // External auth provider logout URL (forward_auth)
 	OIDC           OIDCConfig        `yaml:"oidc"`
 	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
 	SecureCookies  bool              `yaml:"secure_cookies"`

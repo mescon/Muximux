@@ -661,6 +661,7 @@ type setupRequest struct {
 	Password       string            `json:"password"`
 	TrustedProxies []string          `json:"trusted_proxies"`
 	Headers        map[string]string `json:"headers"`
+	LogoutURL      string            `json:"logout_url"`
 }
 
 func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
@@ -803,6 +804,7 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 	s.configMu.Lock()
 	s.config.Auth.Method = "forward_auth"
 	s.config.Auth.TrustedProxies = req.TrustedProxies
+	s.config.Auth.LogoutURL = req.LogoutURL
 	if req.Headers != nil {
 		s.config.Auth.Headers = req.Headers
 	}

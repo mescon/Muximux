@@ -57,6 +57,7 @@ auth:
     email: Remote-Email
     groups: Remote-Groups
     name: Remote-Name          # Note: key is "name" not "display_name"
+  logout_url: ""               # Auth provider logout URL (e.g., https://auth.example.com/logout)
 
   # OIDC settings
   oidc:

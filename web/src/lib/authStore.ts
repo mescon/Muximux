@@ -16,6 +16,7 @@ export interface AuthState {
   loading: boolean;
   error: string | null;
   setupRequired: boolean;
+  logoutUrl: string | null;
 }
 
 // Initial state
@@ -25,6 +26,7 @@ const initialState: AuthState = {
   loading: true,
   error: null,
   setupRequired: false,
+  logoutUrl: null,
 };
 
 // Create the store
@@ -55,6 +57,7 @@ export async function checkAuthStatus(): Promise<void> {
       loading: false,
       error: null,
       setupRequired: data.setup_required || false,
+      logoutUrl: data.logout_url || null,
     });
     debug('auth', 'status', { authenticated: data.authenticated, setup_required: data.setup_required });
   } catch (e) {
@@ -64,6 +67,7 @@ export async function checkAuthStatus(): Promise<void> {
       loading: false,
       error: e instanceof Error ? e.message : 'Failed to check auth status',
       setupRequired: false,
+      logoutUrl: null,
     });
   }
 }
@@ -90,6 +94,7 @@ export async function login(username: string, password: string, rememberMe: bool
         loading: false,
         error: null,
         setupRequired: false,
+        logoutUrl: get(authState).logoutUrl,
       });
       debug('auth', 'login success', data.user?.username);
       return { success: true };
@@ -115,6 +120,9 @@ export async function login(username: string, password: string, rememberMe: bool
 
 // Logout
 export async function logout(): Promise<void> {
+  // Capture logout URL before clearing state
+  const logoutUrl = get(authState).logoutUrl;
+
   try {
     await fetch(`${API_BASE}/logout`, {
       method: 'POST',
@@ -130,7 +138,13 @@ export async function logout(): Promise<void> {
     loading: false,
     error: null,
     setupRequired: false,
+    logoutUrl: null,
   });
+
+  // Redirect to external auth provider's logout page (e.g. Authelia, Authentik)
+  if (logoutUrl) {
+    window.location.href = logoutUrl;
+  }
 }
 
 // Change password

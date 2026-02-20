@@ -28,6 +28,7 @@ describe('authStore', () => {
       loading: true,
       error: null,
       setupRequired: false,
+      logoutUrl: null,
     });
   });
 
@@ -175,6 +176,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
     });
 
@@ -274,6 +276,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       const user = getUser();
@@ -292,6 +295,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       const user = getUser();
@@ -308,6 +312,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(hasRole('admin')).toBe(true);
@@ -320,6 +325,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(hasRole('admin')).toBe(false);
@@ -332,6 +338,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(hasRole('admin')).toBe(false);
@@ -346,6 +353,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(get(isAdmin)).toBe(false);
@@ -356,6 +364,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(get(isAdmin)).toBe(true);

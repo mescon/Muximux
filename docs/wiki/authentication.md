@@ -106,11 +106,54 @@ auth:
     email: Remote-Email      # Header containing email (default: Remote-Email)
     groups: Remote-Groups    # Header containing groups (default: Remote-Groups)
     name: Remote-Name        # Header containing display name (default: Remote-Name)
+  logout_url: https://auth.example.com/logout  # Optional: redirect here on sign-out
 ```
 
 > **IMPORTANT:** `trusted_proxies` is required. Muximux will reject all forward auth requests if no trusted proxies are configured. This prevents users from spoofing auth headers by connecting directly.
 
 Only the direct TCP connection IP (from `RemoteAddr`) is checked against trusted proxies -- forwarded headers like `X-Forwarded-For` are **not** trusted for this check.
+
+### Logout URL
+
+When `logout_url` is set, clicking "Logout" in Muximux clears the local session **and** redirects the browser to the auth provider's logout endpoint. Without this, the user's external session remains valid and they are silently re-authenticated on the next page load.
+
+#### Provider-specific examples
+
+**Authelia:**
+
+```yaml
+logout_url: https://auth.example.com/logout
+```
+
+**Authentik:**
+
+```yaml
+# For proxy outpost (forward auth mode):
+logout_url: https://app.example.com/outpost.goauthentik.io/sign_out
+
+# For domain-level outpost:
+logout_url: https://auth.example.com/outpost.goauthentik.io/sign_out
+```
+
+**Caddy Security (caddy-security plugin):**
+
+```yaml
+logout_url: https://auth.example.com/logout
+```
+
+**Traefik Forward Auth (thomseddon/traefik-forward-auth):**
+
+```yaml
+logout_url: https://auth.example.com/_oauth/logout
+```
+
+**Organizr:**
+
+```yaml
+logout_url: https://organizr.example.com/api/v2/logout
+```
+
+If your provider is not listed, check its documentation for the logout or sign-out endpoint URL.
 
 ### Admin Detection
 

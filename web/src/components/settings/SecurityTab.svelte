@@ -46,11 +46,12 @@
   let faHeaderEmail = $state('Remote-Email');
   let faHeaderGroups = $state('Remote-Groups');
   let faHeaderName = $state('Remote-Name');
+  let faLogoutUrl = $state('');
 
-  const faPresets = {
-    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
-    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name' },
-    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
+  const faPresets: Record<string, { user: string; email: string; groups: string; name: string; logoutUrl: string }> = {
+    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name', logoutUrl: 'https://auth.example.com/logout' },
+    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name', logoutUrl: 'https://auth.example.com/outpost.goauthentik.io/sign_out' },
+    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name', logoutUrl: '' },
   };
 
   function selectFaPreset(p: 'authelia' | 'authentik' | 'custom') {
@@ -60,6 +61,8 @@
     faHeaderEmail = headers.email;
     faHeaderGroups = headers.groups;
     faHeaderName = headers.name;
+    // Only set logout URL placeholder if the field is empty
+    if (!faLogoutUrl) faLogoutUrl = headers.logoutUrl;
   }
 
   // Security tab functions
@@ -152,6 +155,7 @@
         groups: faHeaderGroups,
         name: faHeaderName,
       };
+      req.logout_url = faLogoutUrl;
     }
     try {
       const result = await changeAuthMethod(req);
@@ -184,7 +188,8 @@
     faHeaderUser !== (localConfig.auth?.headers?.user || 'Remote-User') ||
     faHeaderEmail !== (localConfig.auth?.headers?.email || 'Remote-Email') ||
     faHeaderGroups !== (localConfig.auth?.headers?.groups || 'Remote-Groups') ||
-    faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name')
+    faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name') ||
+    faLogoutUrl !== (localConfig.auth?.logout_url || '')
   ));
   let showUpdateBtn = $derived(methodChanged || faFieldsChanged);
 
@@ -198,6 +203,7 @@
     // Pre-fill forward auth fields from existing config
     const proxies = localConfig.auth?.trusted_proxies;
     methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
+    faLogoutUrl = localConfig.auth?.logout_url || '';
     const h = localConfig.auth?.headers;
     if (h) {
       faHeaderUser = h.user || 'Remote-User';
@@ -443,6 +449,19 @@
                 rows="3"
               ></textarea>
               <p class="text-xs text-text-disabled mt-1">IP addresses or CIDR ranges, one per line</p>
+            </div>
+
+            <div>
+              <label for="settings-logout-url" class="block text-sm text-text-muted mb-1">Logout URL</label>
+              <input
+                id="settings-logout-url"
+                type="url"
+                bind:value={faLogoutUrl}
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder={faPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
+              />
+              <p class="text-xs text-text-disabled mt-1">Your auth provider's logout endpoint — clears the external session on sign-out</p>
             </div>
 
             <button

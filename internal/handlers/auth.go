@@ -288,9 +288,11 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 	user := auth.GetUserFromContext(r.Context())
 
 	var authMethod string
+	var logoutURL string
 	if h.config != nil {
 		h.configMu.RLock()
 		authMethod = h.config.Auth.Method
+		logoutURL = h.config.Auth.LogoutURL
 		h.configMu.RUnlock()
 	}
 
@@ -298,6 +300,10 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		"authenticated": user != nil,
 		"oidc_enabled":  h.oidcProvider != nil && h.oidcProvider.Enabled(),
 		"auth_method":   authMethod,
+	}
+
+	if authMethod == "forward_auth" && logoutURL != "" {
+		response["logout_url"] = logoutURL
 	}
 
 	if user != nil {
@@ -552,6 +558,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		Method         string            `json:"method"`
 		TrustedProxies []string          `json:"trusted_proxies"`
 		Headers        map[string]string `json:"headers"`
+		LogoutURL      string            `json:"logout_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
@@ -601,6 +608,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	h.config.Auth.Method = req.Method
 	if req.Method == "forward_auth" {
 		h.config.Auth.TrustedProxies = req.TrustedProxies
+		h.config.Auth.LogoutURL = req.LogoutURL
 		if req.Headers != nil {
 			h.config.Auth.Headers = req.Headers
 		}
