@@ -58,7 +58,7 @@ Choose how the navigation bar appears in your dashboard:
 | **Top Bar** | Horizontal navigation across the top of the page |
 | **Left Sidebar** | Vertical sidebar on the left side |
 | **Right Sidebar** | Vertical sidebar on the right side |
-| **Bottom Dock** | macOS-style dock at the bottom of the page |
+| **Bottom Bar** | Horizontal navigation across the bottom of the page |
 | **Floating** | Minimal floating buttons |
 
 You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
@@ -91,7 +91,7 @@ Once the wizard completes:
 
 - Your configuration is saved to `data/config.yaml`.
 - The first app in your list is automatically set as the **default app**, which loads when you open the dashboard.
-- **Health monitoring** starts automatically, checking each app at the configured interval (default: every 30 seconds).
+- **Health monitoring** is available but off by default. Enable it per-app in Settings or in bulk via the Apps tab. When enabled, Muximux checks each app at the configured interval (default: every 30 seconds).
 - The onboarding wizard will appear automatically whenever no apps are configured. Once you add apps, it will not appear again unless all apps are removed.
 
 You can open **Settings** at any time from the navigation bar to modify apps, groups, navigation style, themes, and all other options.

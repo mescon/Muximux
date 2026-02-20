@@ -18,7 +18,7 @@ Vertical sidebar on the right side of the screen. A mirror of the left layout, u
 
 ### Bottom
 
-Horizontal bar across the bottom of the screen. Useful for tablet-like or dock-style layouts.
+Horizontal bar across the bottom of the screen. Same layout as the top bar, just anchored to the bottom edge.
 
 ### Floating
 

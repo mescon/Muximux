@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import Navigation from './components/Navigation.svelte';
   import AppFrame from './components/AppFrame.svelte';
   import Splash from './components/Splash.svelte';
@@ -41,7 +42,7 @@
   let error = $state<string | null>(null);
 
   // Iframe caching: track which apps the user has visited so their iframes stay alive
-  let visitedAppNames = $state(new Set<string>());
+  let visitedAppNames = new SvelteSet<string>();
   let visitedApps = $derived(apps.filter(a => visitedAppNames.has(a.name)));
 
   // Toast position adapts to navigation position to avoid overlay
@@ -273,7 +274,6 @@
         for (const name of visitedAppNames) {
           if (!validNames.has(name)) visitedAppNames.delete(name);
         }
-        visitedAppNames = new Set(visitedAppNames);
       });
 
       loading = false;
@@ -345,7 +345,7 @@
     config = null;
     apps = [];
     currentApp = null;
-    visitedAppNames = new Set();
+    visitedAppNames.clear();
     showSplash = true;
     showSettings = false;
   }
@@ -409,7 +409,6 @@
       window.open(url, app.name);
     } else {
       visitedAppNames.add(app.name);
-      visitedAppNames = new Set(visitedAppNames);
       currentApp = app;
       showSplash = false;
       showLogs = false;
@@ -445,7 +444,6 @@
       for (const name of visitedAppNames) {
         if (!validNames.has(name)) visitedAppNames.delete(name);
       }
-      visitedAppNames = new Set(visitedAppNames);
       toasts.success('Settings saved successfully');
     } catch (e) {
       console.error('Failed to save config:', e);
