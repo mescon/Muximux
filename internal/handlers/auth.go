@@ -288,9 +288,11 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 	user := auth.GetUserFromContext(r.Context())
 
 	var authMethod string
+	var logoutURL string
 	if h.config != nil {
 		h.configMu.RLock()
 		authMethod = h.config.Auth.Method
+		logoutURL = h.config.Auth.LogoutURL
 		h.configMu.RUnlock()
 	}
 
@@ -298,6 +300,10 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		"authenticated": user != nil,
 		"oidc_enabled":  h.oidcProvider != nil && h.oidcProvider.Enabled(),
 		"auth_method":   authMethod,
+	}
+
+	if authMethod == "forward_auth" && logoutURL != "" {
+		response["logout_url"] = logoutURL
 	}
 
 	if user != nil {
@@ -526,30 +532,14 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Check if this is the last admin
-	targetUser := h.userStore.Get(username)
-	if targetUser == nil {
-		http.Error(w, "User not found", http.StatusNotFound)
-		return
-	}
-	if targetUser.Role == auth.RoleAdmin {
-		// Count admins
-		adminCount := 0
-		for _, u := range h.userStore.List() {
-			if u.Role == auth.RoleAdmin {
-				adminCount++
-			}
-		}
-		if adminCount <= 1 {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Cannot delete the last admin user"})
+	if err := h.userStore.DeleteIfNotLastAdmin(username); err != nil {
+		if err.Error() == "user not found" {
+			http.Error(w, "User not found", http.StatusNotFound)
 			return
 		}
-	}
-
-	if err := h.userStore.Delete(username); err != nil {
-		http.Error(w, "Failed to delete user", http.StatusInternalServerError)
+		w.Header().Set(headerContentType, contentTypeJSON)
+		w.WriteHeader(http.StatusBadRequest)
+		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": err.Error()})
 		return
 	}
 
@@ -568,12 +558,15 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		Method         string            `json:"method"`
 		TrustedProxies []string          `json:"trusted_proxies"`
 		Headers        map[string]string `json:"headers"`
+		LogoutURL      string            `json:"logout_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		http.Error(w, "Invalid request body", http.StatusBadRequest)
 		return
 	}
 
+	// Validate and build auth config per method
+	var authCfg auth.AuthConfig
 	switch req.Method {
 	case "builtin":
 		if h.userStore.Count() == 0 {
@@ -582,21 +575,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "At least one user is required for builtin auth"})
 			return
 		}
-
-		h.configMu.Lock()
-		h.config.Auth.Method = "builtin"
-		h.authMiddleware.UpdateConfig(&auth.AuthConfig{
-			Method:      auth.AuthMethodBuiltin,
-			BypassRules: h.bypassRules,
-			APIKey:      h.config.Auth.APIKey,
-		})
-		err := h.config.Save(h.configPath)
-		h.configMu.Unlock()
-		if err != nil {
-			logging.Error("Failed to save config after auth method change", "source", "auth", "method", "builtin", "error", err)
-			http.Error(w, "Failed to save config", http.StatusInternalServerError)
-			return
-		}
+		authCfg = auth.AuthConfig{Method: auth.AuthMethodBuiltin}
 
 	case "forward_auth":
 		if len(req.TrustedProxies) == 0 {
@@ -605,56 +584,42 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Trusted proxies required for forward_auth"})
 			return
 		}
-
-		headers := auth.ForwardAuthHeaders{}
-		if req.Headers != nil {
-			headers.User = req.Headers["user"]
-			headers.Email = req.Headers["email"]
-			headers.Groups = req.Headers["groups"]
-			headers.Name = req.Headers["name"]
-		}
-
-		h.configMu.Lock()
-		h.config.Auth.Method = "forward_auth"
-		h.config.Auth.TrustedProxies = req.TrustedProxies
-		if req.Headers != nil {
-			h.config.Auth.Headers = req.Headers
-		}
-		h.authMiddleware.UpdateConfig(&auth.AuthConfig{
+		authCfg = auth.AuthConfig{
 			Method:         auth.AuthMethodForwardAuth,
 			TrustedProxies: req.TrustedProxies,
-			Headers:        headers,
-			BypassRules:    h.bypassRules,
-			APIKey:         h.config.Auth.APIKey,
-		})
-		err := h.config.Save(h.configPath)
-		h.configMu.Unlock()
-		if err != nil {
-			logging.Error("Failed to save config after auth method change", "source", "auth", "method", "forward_auth", "error", err)
-			http.Error(w, "Failed to save config", http.StatusInternalServerError)
-			return
+			Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
 		}
 
 	case "none":
-		h.configMu.Lock()
-		h.config.Auth.Method = "none"
-		h.authMiddleware.UpdateConfig(&auth.AuthConfig{
-			Method:      auth.AuthMethodNone,
-			BypassRules: h.bypassRules,
-			APIKey:      h.config.Auth.APIKey,
-		})
-		err := h.config.Save(h.configPath)
-		h.configMu.Unlock()
-		if err != nil {
-			logging.Error("Failed to save config after auth method change", "source", "auth", "method", "none", "error", err)
-			http.Error(w, "Failed to save config", http.StatusInternalServerError)
-			return
-		}
+		authCfg = auth.AuthConfig{Method: auth.AuthMethodNone}
 
 	default:
 		w.Header().Set(headerContentType, contentTypeJSON)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Invalid method"})
+		return
+	}
+
+	// Apply shared fields and persist
+	authCfg.BypassRules = h.bypassRules
+	authCfg.APIKey = h.config.Auth.APIKey
+
+	h.configMu.Lock()
+	h.config.Auth.Method = req.Method
+	if req.Method == "forward_auth" {
+		h.config.Auth.TrustedProxies = req.TrustedProxies
+		h.config.Auth.LogoutURL = req.LogoutURL
+		if req.Headers != nil {
+			h.config.Auth.Headers = req.Headers
+		}
+	}
+	h.authMiddleware.UpdateConfig(&authCfg)
+	err := h.config.Save(h.configPath)
+	h.configMu.Unlock()
+
+	if err != nil {
+		logging.Error("Failed to save config after auth method change", "source", "auth", "method", req.Method, "error", err)
+		http.Error(w, "Failed to save config", http.StatusInternalServerError)
 		return
 	}
 

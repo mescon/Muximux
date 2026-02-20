@@ -3,6 +3,7 @@ package health
 import (
 	"context"
 	"crypto/tls"
+	"io"
 	"net/http"
 	"sync"
 	"time"
@@ -117,15 +118,21 @@ func (m *Monitor) SetApps(apps []AppConfig) {
 // Start begins the health check loop
 func (m *Monitor) Start() {
 	ctx, cancel := context.WithCancel(context.Background())
+	m.mu.Lock()
 	m.cancel = cancel
+	m.mu.Unlock()
 	go m.run(ctx)
 	logging.Info("Health monitor started", "source", "health", "interval", m.interval.String(), "timeout", m.timeout.String())
 }
 
 // Stop stops the health check loop
 func (m *Monitor) Stop() {
-	if m.cancel != nil {
-		m.cancel()
+	m.mu.Lock()
+	cancel := m.cancel
+	m.cancel = nil
+	m.mu.Unlock()
+	if cancel != nil {
+		cancel()
 		logging.Info("Health monitor stopped", "source", "health")
 	}
 }
@@ -194,7 +201,11 @@ func (m *Monitor) checkApp(ctx context.Context, app AppConfig) {
 		m.updateHealth(app.Name, StatusUnhealthy, responseTime, err.Error())
 		return
 	}
-	defer resp.Body.Close()
+	// Drain body so the connection can be reused by the HTTP client pool
+	defer func() {
+		_, _ = io.Copy(io.Discard, resp.Body)
+		resp.Body.Close()
+	}()
 
 	// Consider 2xx and 3xx as healthy
 	if resp.StatusCode >= 200 && resp.StatusCode < 400 {
@@ -227,10 +238,7 @@ func (m *Monitor) updateHealth(name string, status Status, responseTime time.Dur
 		h.SuccessCount++
 	}
 
-	// Calculate uptime percentage
-	if h.CheckCount > 0 {
-		h.Uptime = float64(h.SuccessCount) / float64(h.CheckCount) * 100
-	}
+	h.Uptime = float64(h.SuccessCount) / float64(h.CheckCount) * 100
 
 	// Get callback and copy of health for notification
 	cb := m.onHealthChange
@@ -271,7 +279,7 @@ func (m *Monitor) GetHealth(name string) *AppHealth {
 	return nil
 }
 
-// GetAllHealth returns the health status of all apps
+// GetAllHealth returns the health status of all apps as a map
 func (m *Monitor) GetAllHealth() map[string]*AppHealth {
 	m.mu.RLock()
 	defer m.mu.RUnlock()
@@ -280,6 +288,20 @@ func (m *Monitor) GetAllHealth() map[string]*AppHealth {
 	for name, h := range m.health {
 		copy := *h
 		result[name] = &copy
+	}
+	return result
+}
+
+// GetAllHealthSlice returns the health status of all apps as a slice,
+// avoiding the intermediate map allocation when only a list is needed.
+func (m *Monitor) GetAllHealthSlice() []*AppHealth {
+	m.mu.RLock()
+	defer m.mu.RUnlock()
+
+	result := make([]*AppHealth, 0, len(m.health))
+	for _, h := range m.health {
+		copy := *h
+		result = append(result, &copy)
 	}
 	return result
 }

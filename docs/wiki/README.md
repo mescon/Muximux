@@ -26,7 +26,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Gateway Examples](gateway-examples.md) -- Recipes for proxying common homelab services
 - [Navigation & Layout](navigation.md) -- Sidebar positions, auto-hide, labels, and display options
 - [Themes](themes.md) -- Built-in themes, custom themes, and CSS custom properties
-- [Health Monitoring](health-monitoring.md) -- Automatic health checks and status indicators
+- [Health Monitoring](health-monitoring.md) -- Opt-in health checks and status indicators
 - [Keyboard Shortcuts](keyboard-shortcuts.md) -- Default shortcuts and custom keybindings
 - [Icons](icons.md) -- Dashboard Icons, Lucide icons, custom icons, and caching
 - [Deployment Guide](deployment.md) -- Production deployment, reverse proxies, and networking

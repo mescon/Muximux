@@ -12,12 +12,50 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"regexp"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
+)
+
+// Pre-compiled regex patterns for response content rewriting.
+// These are compiled once at package init, not per-request.
+var (
+	integrityPattern    = regexp.MustCompile(`\s*(integrity|crossorigin)\s*=\s*["'][^"']*["']`)
+	dynamicSriPattern   = regexp.MustCompile(`\w+\.integrity\s*=\s*\w+\.sriHashes\[[^\]]+\],?`)
+	sriHashesPattern    = regexp.MustCompile(`(\w+\.sriHashes)\s*=\s*\{[^}]+\}`)
+	srcsetPattern       = regexp.MustCompile(`(srcset\s*=\s*["'])([^"']+)(["'])`)
+	rootPathAttrPattern = regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
+	rootPathUrlPattern  = regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
+	baseHrefPattern     = regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
+	urlBaseEmptyPattern = regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
+	jsonPathPattern     = regexp.MustCompile(`("[\w]+"\s*:\s*")(/[^"/][^"]*)(")`)
+	imageSetPattern     = regexp.MustCompile(`(image-set\s*\()([^)]+)(\))`)
+	imageSetPathPattern = regexp.MustCompile(`(["'])/([a-zA-Z0-9_-][^"']*)(["'])`)
+	jsonArrayPathPat    = regexp.MustCompile(`(\[|,)\s*"(/[^"]+)"`)
+	cssImportPattern    = regexp.MustCompile(`(@import\s+["'])(/[^"']+)(["'])`)
+	cssImportUrlPattern = regexp.MustCompile(`(@import\s+url\s*\(\s*["']?)(/[^"')]+)(["']?\s*\))`)
+	svgHrefPattern      = regexp.MustCompile(`(<(?:use|image)[^>]*(?:href|xlink:href)\s*=\s*["'])(/[^"'#]+)(#[^"']*)?(['"])`)
+	linkPathPattern     = regexp.MustCompile(`<(/[^>]+)>`)
+
+	// Byte version of the proxy path prefix for zero-copy comparisons
+	proxyPathPrefixB = []byte(proxyPathPrefix)
+
+	// Content types that should be rewritten (static list)
+	rewriteTypes = []string{
+		"text/html",
+		"text/css",
+		"text/javascript",
+		"application/javascript",
+		"application/x-javascript",
+		"application/json",
+		"text/xml",
+		"application/xml",
+		"application/xhtml",
+	}
 )
 
 // ReverseProxyHandler handles reverse proxy requests on the main server
@@ -43,30 +81,78 @@ type contentRewriter struct {
 	proxyPrefix string
 	targetPath  string // e.g., "/admin" - gets stripped and replaced with proxyPrefix
 	targetHost  string
+
+	// Pre-allocated byte slices for zero-copy rewriting
+	proxyPrefixB []byte
+	targetPathB  []byte
+	targetHostB  []byte
+
+	// Pre-built replacement templates for non-callback regex operations
+	sriHashRepl []byte // "${1}={}"
+	urlBaseRepl []byte // ${1}${2}${3}: "proxyPrefix"
+	attrRepl    []byte // "${1}" + proxyPrefix + "${2}"
+	urlRepl     []byte // "${1}" + proxyPrefix + "${2}"
+	jsRepl      []byte // "${1}" + proxyPrefix + "${2}${3}"
+
+	// Pre-compiled patterns that depend on targetHost/targetPath
+	hostPattern *regexp.Regexp // nil when targetHost is empty
+	attrPattern *regexp.Regexp // nil when targetPath is empty
+	urlPattern  *regexp.Regexp // nil when targetPath is empty
+	jsPattern   *regexp.Regexp // nil when targetPath is empty
 }
 
 func newContentRewriter(proxyPrefix, targetPath, targetHost string) *contentRewriter {
-	return &contentRewriter{
-		proxyPrefix: proxyPrefix,
-		targetPath:  strings.TrimSuffix(targetPath, "/"),
-		targetHost:  targetHost,
+	rw := &contentRewriter{
+		proxyPrefix:  proxyPrefix,
+		targetPath:   strings.TrimSuffix(targetPath, "/"),
+		targetHost:   targetHost,
+		proxyPrefixB: []byte(proxyPrefix),
+		targetHostB:  []byte(targetHost),
+		sriHashRepl:  []byte("${1}={}"),
+		urlBaseRepl:  []byte(`${1}${2}${3}: "` + proxyPrefix + `"`),
 	}
+	rw.targetPathB = []byte(rw.targetPath)
+
+	// Pre-compile dynamic patterns at route creation, not per-request
+	if targetHost != "" {
+		rw.hostPattern = regexp.MustCompile(`https?://` + regexp.QuoteMeta(targetHost) + `(/[^"'\s>)]*)`)
+	}
+	tp := rw.targetPath
+	if tp != "" {
+		escaped := regexp.QuoteMeta(tp)
+		rw.attrPattern = regexp.MustCompile(`((?:href|src|action|poster|srcset|content|data-[a-zA-Z0-9-]+)\s*=\s*["'])` + escaped + `([/"']|[^"']*["'])`)
+		rw.urlPattern = regexp.MustCompile(`(url\s*\(\s*["']?)` + escaped + `([^"')]*["']?\s*\))`)
+		rw.jsPattern = regexp.MustCompile(`(["'])` + escaped + `(/[^"']*)(["'])`)
+		rw.attrRepl = []byte("${1}" + proxyPrefix + "${2}")
+		rw.urlRepl = []byte("${1}" + proxyPrefix + "${2}")
+		rw.jsRepl = []byte("${1}" + proxyPrefix + "${2}${3}")
+	}
+
+	return rw
+}
+
+// spliceAt creates a new []byte with insert spliced at position pos.
+func spliceAt(src []byte, pos int, insert []byte) []byte {
+	out := make([]byte, len(src)+len(insert))
+	copy(out, src[:pos])
+	copy(out[pos:], insert)
+	copy(out[pos+len(insert):], src[pos:])
+	return out
 }
 
 func (r *contentRewriter) rewrite(content []byte) []byte {
-	result := string(content)
-	result = r.stripIntegrity(result)
-	result = r.rewriteAbsoluteURLs(result)
-	result = r.rewriteTargetPaths(result)
-	result = r.rewriteSrcset(result)
-	result = r.rewriteRootPaths(result)
-	result = r.rewriteURLBase(result)
-	result = r.rewriteJSONPaths(result)
-	result = r.rewriteImageSet(result)
-	result = r.rewriteJSONArrayPaths(result)
-	result = r.rewriteCSSImports(result)
-	result = r.rewriteSVGHrefs(result)
-	return []byte(result)
+	content = r.stripIntegrity(content)
+	content = r.rewriteAbsoluteURLs(content)
+	content = r.rewriteTargetPaths(content)
+	content = r.rewriteSrcset(content)
+	content = r.rewriteRootPaths(content)
+	content = r.rewriteURLBase(content)
+	content = r.rewriteJSONPaths(content)
+	content = r.rewriteImageSet(content)
+	content = r.rewriteJSONArrayPaths(content)
+	content = r.rewriteCSSImports(content)
+	content = r.rewriteSVGHrefs(content)
+	return content
 }
 
 // rewriteScript performs URL rewriting for JavaScript content.
@@ -75,109 +161,102 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 // the injected runtime interceptor handles those, and statically rewriting paths
 // in JS source corrupts URLs meant for third-party servers (e.g. plex.tv).
 func (r *contentRewriter) rewriteScript(content []byte) []byte {
-	result := string(content)
-	result = r.stripIntegrity(result)
-	result = r.rewriteAbsoluteURLs(result)
-	result = r.rewriteTargetPaths(result)
-	result = r.rewriteURLBase(result)
-	return []byte(result)
+	content = r.stripIntegrity(content)
+	content = r.rewriteAbsoluteURLs(content)
+	content = r.rewriteTargetPaths(content)
+	content = r.rewriteURLBase(content)
+	return content
 }
 
 // stripIntegrity removes integrity and crossorigin attributes since we modify
 // content (breaks SRI hashes), and neutralises dynamic SRI in webpack loaders.
-func (r *contentRewriter) stripIntegrity(result string) string {
-	// Strip integrity/crossorigin HTML attributes
-	integrityPattern := regexp.MustCompile(`\s*(integrity|crossorigin)\s*=\s*["'][^"']*["']`)
-	result = integrityPattern.ReplaceAllString(result, "")
-
-	// Strip dynamic SRI assignment in webpack loaders (e.g., Plex)
-	dynamicSriPattern := regexp.MustCompile(`\w+\.integrity\s*=\s*\w+\.sriHashes\[[^\]]+\],?`)
-	result = dynamicSriPattern.ReplaceAllString(result, "")
-
-	// Neutralize the sriHashes object itself: b.sriHashes={...} -> b.sriHashes={}
-	sriHashesPattern := regexp.MustCompile(`(\w+\.sriHashes)\s*=\s*\{[^}]+\}`)
-	result = sriHashesPattern.ReplaceAllString(result, "${1}={}")
-
+func (r *contentRewriter) stripIntegrity(result []byte) []byte {
+	result = integrityPattern.ReplaceAll(result, nil)
+	result = dynamicSriPattern.ReplaceAll(result, nil)
+	result = sriHashesPattern.ReplaceAll(result, r.sriHashRepl)
 	return result
 }
 
 // rewriteAbsoluteURLs rewrites absolute URLs containing the target host.
 // e.g., http://192.0.2.100/admin/foo -> /proxy/slug/foo
-func (r *contentRewriter) rewriteAbsoluteURLs(result string) string {
-	if r.targetHost == "" {
+func (r *contentRewriter) rewriteAbsoluteURLs(result []byte) []byte {
+	if r.hostPattern == nil {
 		return result
 	}
-	hostPattern := regexp.MustCompile(`https?://` + regexp.QuoteMeta(r.targetHost) + `(/[^"'\s>)]*)`)
-	return hostPattern.ReplaceAllStringFunc(result, func(match string) string {
-		idx := strings.Index(match, r.targetHost)
-		path := match[idx+len(r.targetHost):]
-		if r.targetPath != "" && strings.HasPrefix(path, r.targetPath) {
-			path = strings.TrimPrefix(path, r.targetPath)
+	return r.hostPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		idx := bytes.Index(match, r.targetHostB)
+		path := match[idx+len(r.targetHostB):]
+		if len(r.targetPathB) > 0 && bytes.HasPrefix(path, r.targetPathB) {
+			path = bytes.TrimPrefix(path, r.targetPathB)
 		}
-		if path == "" {
-			path = "/"
+		if len(path) == 0 {
+			path = []byte("/")
 		}
-		return r.proxyPrefix + path
+		out := make([]byte, 0, len(r.proxyPrefixB)+len(path))
+		out = append(out, r.proxyPrefixB...)
+		out = append(out, path...)
+		return out
 	})
 }
 
 // rewriteTargetPaths rewrites paths that start with the target path.
 // e.g., /admin/foo -> /proxy/slug/foo
-func (r *contentRewriter) rewriteTargetPaths(result string) string {
-	if r.targetPath == "" {
+func (r *contentRewriter) rewriteTargetPaths(result []byte) []byte {
+	if r.attrPattern == nil {
 		return result
 	}
-	escapedPath := regexp.QuoteMeta(r.targetPath)
 
 	// HTML attributes: href, src, action, data-*, poster, srcset, content (for meta refresh)
-	attrPattern := regexp.MustCompile(`((?:href|src|action|poster|srcset|content|data-[a-zA-Z0-9-]+)\s*=\s*["'])` + escapedPath + `([/"']|[^"']*["'])`)
-	result = attrPattern.ReplaceAllString(result, "${1}"+r.proxyPrefix+"${2}")
-
+	result = r.attrPattern.ReplaceAll(result, r.attrRepl)
 	// CSS url()
-	urlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)` + escapedPath + `([^"')]*["']?\s*\))`)
-	result = urlPattern.ReplaceAllString(result, "${1}"+r.proxyPrefix+"${2}")
-
+	result = r.urlPattern.ReplaceAll(result, r.urlRepl)
 	// JavaScript string literals
-	jsPattern := regexp.MustCompile(`(["'])` + escapedPath + `(/[^"']*)(["'])`)
-	result = jsPattern.ReplaceAllString(result, "${1}"+r.proxyPrefix+"${2}${3}")
+	result = r.jsPattern.ReplaceAll(result, r.jsRepl)
 
 	return result
 }
 
 // rewriteSrcset handles srcset attributes which contain multiple comma-separated paths.
 // srcset="/sm.jpg 1x, /lg.jpg 2x" -> srcset="/proxy/app/sm.jpg 1x, /proxy/app/lg.jpg 2x"
-func (r *contentRewriter) rewriteSrcset(result string) string {
-	srcsetPattern := regexp.MustCompile(`(srcset\s*=\s*["'])([^"']+)(["'])`)
-	return srcsetPattern.ReplaceAllStringFunc(result, func(match string) string {
-		quoteStart := strings.IndexAny(match, `"'`)
+func (r *contentRewriter) rewriteSrcset(result []byte) []byte {
+	return srcsetPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		quoteStart := bytes.IndexAny(match, `"'`)
 		if quoteStart == -1 {
 			return match
 		}
 		quoteChar := match[quoteStart]
-		quoteEnd := strings.LastIndex(match, string(quoteChar))
+		quoteEnd := bytes.LastIndex(match, []byte{quoteChar})
 		if quoteEnd <= quoteStart {
 			return match
 		}
 
 		srcsetValue := match[quoteStart+1 : quoteEnd]
-		parts := strings.Split(srcsetValue, ",")
+		parts := bytes.Split(srcsetValue, []byte(","))
 		for i, part := range parts {
-			trimmed := strings.TrimSpace(part)
-			if strings.HasPrefix(trimmed, "/") && !strings.HasPrefix(trimmed, proxyPathPrefix) {
-				leadingSpace := ""
+			trimmed := bytes.TrimSpace(part)
+			if len(trimmed) > 0 && trimmed[0] == '/' && !bytes.HasPrefix(trimmed, proxyPathPrefixB) {
+				var leading []byte
 				if len(part) > 0 && part[0] == ' ' {
-					leadingSpace = " "
+					leading = []byte(" ")
 				}
-				parts[i] = leadingSpace + r.proxyPrefix + trimmed
+				out := make([]byte, 0, len(leading)+len(r.proxyPrefixB)+len(trimmed))
+				out = append(out, leading...)
+				out = append(out, r.proxyPrefixB...)
+				out = append(out, trimmed...)
+				parts[i] = out
 			}
 		}
-		return match[:quoteStart+1] + strings.Join(parts, ",") + match[quoteEnd:]
+		out := make([]byte, 0, len(match)+len(r.proxyPrefixB)*len(parts))
+		out = append(out, match[:quoteStart+1]...)
+		out = append(out, bytes.Join(parts, []byte(","))...)
+		out = append(out, match[quoteEnd:]...)
+		return out
 	})
 }
 
 // rewriteRootPaths rewrites root-relative paths (/) that don't start with /proxy/,
 // including attribute values, CSS url(), and <base href="..."> tags.
-func (r *contentRewriter) rewriteRootPaths(result string) string {
+func (r *contentRewriter) rewriteRootPaths(result []byte) []byte {
 	result = r.rewriteRootPathAttrs(result)
 	result = r.rewriteRootPathURLFunc(result)
 	result = r.rewriteBaseHref(result)
@@ -186,58 +265,53 @@ func (r *contentRewriter) rewriteRootPaths(result string) string {
 
 // rewriteRootPathAttrs rewrites attribute values starting with / but not /proxy/,
 // skipping srcset (handled separately).
-func (r *contentRewriter) rewriteRootPathAttrs(result string) string {
-	rootPathAttrPattern := regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
-	return rootPathAttrPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+func (r *contentRewriter) rewriteRootPathAttrs(result []byte) []byte {
+	return rootPathAttrPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		if strings.HasPrefix(strings.ToLower(match), "srcset") {
+		if bytes.HasPrefix(bytes.ToLower(match), []byte("srcset")) {
 			return match
 		}
-		quoteIdx := strings.LastIndex(match, `"`)
+		quoteIdx := bytes.LastIndex(match, []byte(`"`))
 		if quoteIdx == -1 {
-			quoteIdx = strings.LastIndex(match, `'`)
+			quoteIdx = bytes.LastIndex(match, []byte(`'`))
 		}
 		if quoteIdx == -1 {
 			return match
 		}
-		prefix := match[:quoteIdx+1]
-		path := match[quoteIdx+1:]
-		return prefix + r.proxyPrefix + path
+		return spliceAt(match, quoteIdx+1, r.proxyPrefixB)
 	})
 }
 
 // rewriteRootPathURLFunc rewrites CSS url() values with root-relative paths.
-func (r *contentRewriter) rewriteRootPathURLFunc(result string) string {
-	rootPathUrlPattern := regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
-	return rootPathUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+func (r *contentRewriter) rewriteRootPathURLFunc(result []byte) []byte {
+	return rootPathUrlPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		idx := strings.Index(match, "/")
+		idx := bytes.IndexByte(match, '/')
 		if idx == -1 {
 			return match
 		}
-		return match[:idx] + r.proxyPrefix + match[idx:]
+		return spliceAt(match, idx, r.proxyPrefixB)
 	})
 }
 
 // rewriteBaseHref rewrites <base href="..."> tags to use the proxy prefix.
-func (r *contentRewriter) rewriteBaseHref(result string) string {
-	basePattern := regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
-	return basePattern.ReplaceAllStringFunc(result, func(match string) string {
-		startQuote := strings.Index(match, `href`)
+func (r *contentRewriter) rewriteBaseHref(result []byte) []byte {
+	return baseHrefPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		startQuote := bytes.Index(match, []byte(`href`))
 		if startQuote == -1 {
 			return match
 		}
-		quoteStart := strings.IndexAny(match[startQuote:], `"'`)
+		quoteStart := bytes.IndexAny(match[startQuote:], `"'`)
 		if quoteStart == -1 {
 			return match
 		}
 		quoteStart += startQuote
 		quoteChar := match[quoteStart]
-		quoteEnd := strings.Index(match[quoteStart+1:], string(quoteChar))
+		quoteEnd := bytes.IndexByte(match[quoteStart+1:], quoteChar)
 		if quoteEnd == -1 {
 			return match
 		}
@@ -245,119 +319,139 @@ func (r *contentRewriter) rewriteBaseHref(result string) string {
 
 		href := match[quoteStart+1 : quoteEnd]
 
-		if r.targetPath != "" && strings.HasPrefix(href, r.targetPath) {
-			href = r.proxyPrefix + strings.TrimPrefix(href, r.targetPath)
-		} else if strings.HasPrefix(href, "/") && !strings.HasPrefix(href, proxyPathPrefix) {
-			href = r.proxyPrefix + href
+		var newHref []byte
+		switch {
+		case len(r.targetPathB) > 0 && bytes.HasPrefix(href, r.targetPathB):
+			remainder := bytes.TrimPrefix(href, r.targetPathB)
+			newHref = make([]byte, 0, len(r.proxyPrefixB)+len(remainder))
+			newHref = append(newHref, r.proxyPrefixB...)
+			newHref = append(newHref, remainder...)
+		case len(href) > 0 && href[0] == '/' && !bytes.HasPrefix(href, proxyPathPrefixB):
+			newHref = make([]byte, 0, len(r.proxyPrefixB)+len(href))
+			newHref = append(newHref, r.proxyPrefixB...)
+			newHref = append(newHref, href...)
+		default:
+			return match
 		}
 
-		return match[:quoteStart+1] + href + match[quoteEnd:]
+		out := make([]byte, 0, quoteStart+1+len(newHref)+len(match)-quoteEnd)
+		out = append(out, match[:quoteStart+1]...)
+		out = append(out, newHref...)
+		out = append(out, match[quoteEnd:]...)
+		return out
 	})
 }
 
 // rewriteURLBase rewrites JavaScript/JSON base path patterns for SPAs (e.g., Sonarr/Radarr).
 // Handles empty base path strings like urlBase or basePath set to blank values.
-func (r *contentRewriter) rewriteURLBase(result string) string {
-	urlBaseEmptyPattern := regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
-	return urlBaseEmptyPattern.ReplaceAllString(result, `${1}${2}${3}: "`+r.proxyPrefix+`"`)
+func (r *contentRewriter) rewriteURLBase(result []byte) []byte {
+	return urlBaseEmptyPattern.ReplaceAll(result, r.urlBaseRepl)
 }
 
 // rewriteJSONPaths rewrites generic JSON paths: any "key": "/path" where path
 // doesn't start with /proxy/. Handles apiRoot, basePath, redirectUrl, etc.
-func (r *contentRewriter) rewriteJSONPaths(result string) string {
-	jsonPathPattern := regexp.MustCompile(`("[\w]+"\s*:\s*")(/[^"/][^"]*)(")`)
-	return jsonPathPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+func (r *contentRewriter) rewriteJSONPaths(result []byte) []byte {
+	marker := []byte(`"/`)
+	return jsonPathPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		firstQuote := strings.Index(match, `"/`)
-		if firstQuote == -1 {
+		idx := bytes.Index(match, marker)
+		if idx == -1 {
 			return match
 		}
-		return match[:firstQuote+1] + r.proxyPrefix + match[firstQuote+1:]
+		return spliceAt(match, idx+1, r.proxyPrefixB)
 	})
 }
 
 // rewriteImageSet rewrites CSS image-set() functions. Must run before JSON array
 // handler because `, "/2x.png"` inside image-set() would otherwise match.
-func (r *contentRewriter) rewriteImageSet(result string) string {
-	imageSetPattern := regexp.MustCompile(`(image-set\s*\()([^)]+)(\))`)
-	return imageSetPattern.ReplaceAllStringFunc(result, func(match string) string {
-		pathInSet := regexp.MustCompile(`(["'])/([a-zA-Z0-9_-][^"']*)(["'])`)
-		return pathInSet.ReplaceAllStringFunc(match, func(inner string) string {
-			if strings.Contains(inner, proxyPathPrefix) {
+func (r *contentRewriter) rewriteImageSet(result []byte) []byte {
+	return imageSetPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		return imageSetPathPattern.ReplaceAllFunc(match, func(inner []byte) []byte {
+			if bytes.Contains(inner, proxyPathPrefixB) {
 				return inner
 			}
-			q := string(inner[0])
-			return q + r.proxyPrefix + "/" + inner[2:len(inner)-1] + q
+			q := inner[0]
+			// q + proxyPrefix + "/" + inner[2:len-1] + q
+			out := make([]byte, 0, 2+len(r.proxyPrefixB)+1+len(inner)-3)
+			out = append(out, q)
+			out = append(out, r.proxyPrefixB...)
+			out = append(out, '/')
+			out = append(out, inner[2:len(inner)-1]...)
+			out = append(out, q)
+			return out
 		})
 	})
 }
 
 // rewriteJSONArrayPaths rewrites JSON arrays of paths: ["/path1", "/path2"]
-func (r *contentRewriter) rewriteJSONArrayPaths(result string) string {
-	jsonArrayPathPattern := regexp.MustCompile(`(\[|,)\s*"(/[^"]+)"`)
-	return jsonArrayPathPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+func (r *contentRewriter) rewriteJSONArrayPaths(result []byte) []byte {
+	marker := []byte(`"/`)
+	return jsonArrayPathPat.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		idx := strings.Index(match, `"/`)
+		idx := bytes.Index(match, marker)
 		if idx == -1 {
 			return match
 		}
-		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+		return spliceAt(match, idx+1, r.proxyPrefixB)
 	})
 }
 
 // rewriteCSSImports rewrites CSS @import statements, both direct and url() forms.
-func (r *contentRewriter) rewriteCSSImports(result string) string {
+func (r *contentRewriter) rewriteCSSImports(result []byte) []byte {
+	dqSlash := []byte(`"/`)
+	sqSlash := []byte(`'/`)
+	parenSlash := []byte(`(/`)
+
 	// @import "/styles.css" or @import '/styles.css'
-	cssImportPattern := regexp.MustCompile(`(@import\s+["'])(/[^"']+)(["'])`)
-	result = cssImportPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+	result = cssImportPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		idx := strings.Index(match, `"/`)
+		idx := bytes.Index(match, dqSlash)
 		if idx == -1 {
-			idx = strings.Index(match, `'/`)
+			idx = bytes.Index(match, sqSlash)
 		}
 		if idx == -1 {
 			return match
 		}
-		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+		return spliceAt(match, idx+1, r.proxyPrefixB)
 	})
 
 	// @import url("/styles.css") or @import url('/styles.css')
-	cssImportUrlPattern := regexp.MustCompile(`(@import\s+url\s*\(\s*["']?)(/[^"')]+)(["']?\s*\))`)
-	result = cssImportUrlPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+	result = cssImportUrlPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		idx := strings.Index(match, `(/`)
+		idx := bytes.Index(match, parenSlash)
 		if idx == -1 {
 			return match
 		}
-		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+		return spliceAt(match, idx+1, r.proxyPrefixB)
 	})
 
 	return result
 }
 
 // rewriteSVGHrefs rewrites SVG use/image href and xlink:href attributes.
-func (r *contentRewriter) rewriteSVGHrefs(result string) string {
-	svgHrefPattern := regexp.MustCompile(`(<(?:use|image)[^>]*(?:href|xlink:href)\s*=\s*["'])(/[^"'#]+)(#[^"']*)?(['"])`)
-	return svgHrefPattern.ReplaceAllStringFunc(result, func(match string) string {
-		if strings.Contains(match, proxyPathPrefix) {
+func (r *contentRewriter) rewriteSVGHrefs(result []byte) []byte {
+	dqSlash := []byte(`"/`)
+	sqSlash := []byte(`'/`)
+	return svgHrefPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		idx := strings.Index(match, `"/`)
+		idx := bytes.Index(match, dqSlash)
 		if idx == -1 {
-			idx = strings.Index(match, `'/`)
+			idx = bytes.Index(match, sqSlash)
 		}
 		if idx == -1 {
 			return match
 		}
-		return match[:idx+1] + r.proxyPrefix + match[idx+1:]
+		return spliceAt(match, idx+1, r.proxyPrefixB)
 	})
 }
 
@@ -397,7 +491,7 @@ func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string) *Rever
 		routes:  make(map[string]*proxyRoute),
 		timeout: timeout,
 	}
-	buildProxyRoutes(h, apps, timeout)
+	h.RebuildRoutes(apps)
 	return h
 }
 
@@ -426,20 +520,6 @@ func (h *ReverseProxyHandler) RebuildRoutes(apps []config.AppConfig) {
 	logging.Info("Proxy routes rebuilt", "source", "proxy", "routes", slugs)
 }
 
-// buildProxyRoutes iterates over app configs and creates proxy routes for
-// enabled apps with proxying turned on.
-func buildProxyRoutes(h *ReverseProxyHandler, apps []config.AppConfig, timeout time.Duration) {
-	for i := range apps {
-		if !apps[i].Proxy || !apps[i].Enabled {
-			continue
-		}
-		route := buildSingleProxyRoute(&apps[i], timeout)
-		if route != nil {
-			h.routes[route.slug] = route
-		}
-	}
-}
-
 // buildSingleProxyRoute creates a proxyRoute for a single app config.
 // Returns nil if the app URL is invalid or already uses a proxy path.
 func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration) *proxyRoute {
@@ -453,7 +533,7 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration) *proxyR
 		return nil
 	}
 
-	slug := slugify(app.Name)
+	slug := Slugify(app.Name)
 	proxyPrefix := proxyPathPrefix + slug
 	targetPath := targetURL.Path
 	if targetPath == "" {
@@ -468,6 +548,10 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration) *proxyR
 			InsecureSkipVerify: skipTLS, //nolint:gosec // configurable per-app
 		},
 		ResponseHeaderTimeout: timeout,
+		MaxIdleConns:          100,
+		MaxIdleConnsPerHost:   20,
+		IdleConnTimeout:       90 * time.Second,
+		DisableCompression:    true, // we handle content encoding in rewriteResponseBody
 	}
 
 	rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
@@ -526,7 +610,7 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 // bypassing the target path prefix for /api paths.
 func resolveBackendRequestPath(reqPath, targetPath string) string {
 	trimmedTargetPath := strings.TrimSuffix(targetPath, "/")
-	if trimmedTargetPath == "" || trimmedTargetPath == "/" {
+	if trimmedTargetPath == "" {
 		return reqPath
 	}
 
@@ -596,7 +680,6 @@ func rewriteLinkHeaders(resp *http.Response, proxyPrefix string) {
 		return
 	}
 	resp.Header.Del("Link")
-	linkPathPattern := regexp.MustCompile(`<(/[^>]+)>`)
 	for _, link := range linkHeaders {
 		rewritten := linkPathPattern.ReplaceAllStringFunc(link, func(match string) string {
 			if strings.Contains(match, proxyPathPrefix) {
@@ -707,11 +790,23 @@ func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 	return result
 }
 
+// maxRewriteSize is the maximum response body size (50 MB) that will be buffered
+// for URL rewriting. Text responses larger than this stream through unmodified to
+// avoid excessive memory use. In practice, HTML/CSS/JS are rarely this large.
+const maxRewriteSize = 50 * 1024 * 1024
+
 // rewriteResponseBody reads, decompresses (if gzipped), rewrites, and replaces the
 // response body for content types that need URL rewriting (HTML, CSS, JS, JSON, XML).
+// Binary content types and responses exceeding maxRewriteSize are streamed through
+// without buffering.
 func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	contentType := resp.Header.Get(headerContentType)
 	if !shouldRewriteContent(contentType) {
+		return nil
+	}
+
+	// Skip rewriting for responses that declare a size larger than the limit.
+	if resp.ContentLength > maxRewriteSize {
 		return nil
 	}
 
@@ -733,7 +828,18 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	}
 	resp.Body.Close()
 
+	// Safety net for chunked responses without Content-Length: if the body
+	// exceeds the rewrite limit, return it unmodified rather than rewriting.
+	if int64(len(body)) > maxRewriteSize {
+		resp.Body = io.NopCloser(bytes.NewReader(body))
+		resp.ContentLength = int64(len(body))
+		resp.Header.Set("Content-Length", strconv.Itoa(len(body)))
+		resp.Header.Del("Content-Encoding")
+		return nil
+	}
+
 	lowerContentType := strings.ToLower(contentType)
+	isHTML := strings.Contains(lowerContentType, "text/html")
 
 	// Only HTML and CSS need full static path rewriting — they're rendered directly
 	// by the browser. All other content types (JS, JSON, XML) are consumed
@@ -741,7 +847,7 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	// when the SPA embeds those paths in new URLs (e.g. Plex photo transcode).
 	// The runtime interceptor handles outgoing requests for those content types.
 	var rewritten []byte
-	if strings.Contains(lowerContentType, "text/html") || strings.Contains(lowerContentType, "text/css") {
+	if isHTML || strings.Contains(lowerContentType, "text/css") {
 		rewritten = rewriter.rewrite(body)
 	} else {
 		rewritten = rewriter.rewriteScript(body)
@@ -749,13 +855,13 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 
 	// Inject runtime URL interceptor for HTML responses so SPAs that construct
 	// API URLs dynamically (fetch, XHR, WebSocket) route through the proxy.
-	if strings.Contains(lowerContentType, "text/html") {
+	if isHTML {
 		rewritten = rewriter.injectInterceptor(rewritten)
 	}
 
 	resp.Body = io.NopCloser(bytes.NewReader(rewritten))
 	resp.ContentLength = int64(len(rewritten))
-	resp.Header.Set("Content-Length", fmt.Sprintf("%d", len(rewritten)))
+	resp.Header.Set("Content-Length", strconv.Itoa(len(rewritten)))
 	resp.Header.Del("Content-Encoding")
 
 	return nil
@@ -809,18 +915,6 @@ func rewritePathWithTarget(location, proxyPrefix, targetPath string) string {
 }
 
 func shouldRewriteContent(contentType string) bool {
-	rewriteTypes := []string{
-		"text/html",
-		"text/css",
-		"text/javascript",
-		"application/javascript",
-		"application/x-javascript",
-		"application/json",
-		"text/xml",
-		"application/xml",
-		"application/xhtml",
-	}
-
 	contentType = strings.ToLower(contentType)
 	for _, t := range rewriteTypes {
 		if strings.Contains(contentType, t) {
@@ -846,22 +940,11 @@ func (route *proxyRoute) resolveBackendPath(reqPath string) string {
 		path = "/"
 	}
 
-	// Double-prefix stripping
 	if strings.Contains(path, route.proxyPrefix) {
 		path = strings.ReplaceAll(path, route.proxyPrefix, "")
 	}
 
-	trimmed := strings.TrimSuffix(route.targetPath, "/")
-	if trimmed != "" && trimmed != "/" {
-		if strings.HasPrefix(path, "/api/") || path == "/api" {
-			return path
-		}
-		if strings.HasPrefix(path, "/") {
-			return trimmed + path
-		}
-		return trimmed + "/" + path
-	}
-	return path
+	return resolveBackendRequestPath(path, route.targetPath)
 }
 
 // setProxyHeaders adds standard proxy forwarding headers (X-Forwarded-For,
@@ -1121,4 +1204,4 @@ func (h *ReverseProxyHandler) GetRoutes() []string {
 	return routes
 }
 
-// slugify is defined in api.go
+// Slugify is defined in api.go

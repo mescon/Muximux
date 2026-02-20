@@ -92,17 +92,20 @@ func NewOIDCProvider(config *OIDCConfig, sessionStore *SessionStore, userStore *
 	return p
 }
 
-// loadDiscovery fetches OIDC discovery document
+// loadDiscovery fetches the OIDC discovery document using double-check locking
+// so the write lock is not held during the (potentially slow) HTTP call.
 func (p *OIDCProvider) loadDiscovery() error {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-
-	if p.discoveryLoaded {
+	// Fast path: already loaded
+	p.mu.RLock()
+	loaded := p.discoveryLoaded
+	p.mu.RUnlock()
+	if loaded {
 		return nil
 	}
 
 	discoveryURL := strings.TrimSuffix(p.config.IssuerURL, "/") + "/.well-known/openid-configuration"
 
+	// Fetch outside lock — network I/O can take seconds
 	resp, err := p.httpClient.Get(discoveryURL)
 	if err != nil {
 		logging.Error("OIDC discovery failed", "source", "auth", "url", discoveryURL, "error", err)
@@ -123,6 +126,13 @@ func (p *OIDCProvider) loadDiscovery() error {
 
 	if err := json.NewDecoder(resp.Body).Decode(&doc); err != nil {
 		return fmt.Errorf("failed to parse discovery document: %w", err)
+	}
+
+	// Re-check under write lock before assigning
+	p.mu.Lock()
+	defer p.mu.Unlock()
+	if p.discoveryLoaded {
+		return nil // another goroutine beat us
 	}
 
 	p.authorizationEndpoint = doc.AuthorizationEndpoint

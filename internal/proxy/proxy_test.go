@@ -170,34 +170,6 @@ func TestProxy_Stop_NotRunning(t *testing.T) {
 	}
 }
 
-func TestSlugify(t *testing.T) {
-	tests := []struct {
-		input    string
-		expected string
-	}{
-		{"Simple", "simple"},
-		{"Two Words", "two-words"},
-		{"CamelCase", "camelcase"},
-		{"Already-slug", "already-slug"},
-		{"Special!@#Chars", "specialchars"},
-		{"123Numbers", "123numbers"},
-		{"Multiple   Spaces", "multiple---spaces"},
-		{"UPPERCASE", "uppercase"},
-		{"with_underscore", "withunderscore"}, // underscore is removed by Slugify
-		{"", ""},
-		{"a", "a"},
-		{"---", "---"},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.input, func(t *testing.T) {
-			result := Slugify(tt.input)
-			if result != tt.expected {
-				t.Errorf("Slugify(%q) = %q, expected %q", tt.input, result, tt.expected)
-			}
-		})
-	}
-}
 
 func TestProxy_buildCaddyfile_HTTPOnly(t *testing.T) {
 	p := New(&Config{

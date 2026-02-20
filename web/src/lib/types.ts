@@ -75,6 +75,7 @@ export interface AuthConfig {
   method: 'none' | 'builtin' | 'forward_auth' | 'oidc';
   trusted_proxies?: string[];
   headers?: Record<string, string>;
+  logout_url?: string;
   session_max_age?: string;
   secure_cookies?: boolean;
 }
@@ -132,6 +133,7 @@ export interface SetupRequest {
   password?: string;
   trusted_proxies?: string[];
   headers?: Record<string, string>;
+  logout_url?: string;
 }
 
 export interface SetupResponse {
@@ -165,6 +167,7 @@ export interface ChangeAuthMethodRequest {
   method: 'builtin' | 'forward_auth' | 'none';
   trusted_proxies?: string[];
   headers?: Record<string, string>;
+  logout_url?: string;
 }
 
 export interface SystemInfo {

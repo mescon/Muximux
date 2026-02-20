@@ -98,6 +98,7 @@ type AuthConfig struct {
 	Users          []UserConfig      `yaml:"users"`
 	TrustedProxies []string          `yaml:"trusted_proxies"`
 	Headers        map[string]string `yaml:"headers"`
+	LogoutURL      string            `yaml:"logout_url"` // External auth provider logout URL (forward_auth)
 	OIDC           OIDCConfig        `yaml:"oidc"`
 	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
 	SecureCookies  bool              `yaml:"secure_cookies"`
@@ -182,7 +183,7 @@ type AppConfig struct {
 	Enabled                  bool              `yaml:"enabled"`
 	Default                  bool              `yaml:"default"`
 	OpenMode                 string            `yaml:"open_mode"`                                            // iframe, new_tab, new_window, redirect
-	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // nil/true = enabled, false = disabled
+	HealthCheck              *bool             `yaml:"health_check,omitempty" json:"health_check,omitempty"` // opt-in: nil/false = disabled, true = enabled
 	Proxy                    bool              `yaml:"proxy"`
 	ProxySkipTLSVerify       *bool             `yaml:"proxy_skip_tls_verify,omitempty"` // nil = true (default: skip)
 	ProxyHeaders             map[string]string `yaml:"proxy_headers,omitempty"`         // custom headers sent to backend

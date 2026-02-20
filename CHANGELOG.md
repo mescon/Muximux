@@ -4,26 +4,13 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
-### Added
-
-- **Runtime URL interceptor for reverse proxy** — Proxied SPAs (like Plex) that construct URLs dynamically in JavaScript now work correctly. The proxy injects a script that patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so all requests route through the proxy automatically.
-- **Content-type-aware rewriting** — HTML and CSS get full path rewriting; JS, JSON, and XML use safe-only rewriting (SRI stripping, absolute URLs) to avoid corrupting API data that apps read programmatically.
-- **Dynamic proxy route rebuilds** — Adding, editing, or removing a proxied app in Settings takes effect immediately without restarting Muximux.
-- **Hash-based app routing** — Clicking an app updates the URL hash (e.g., `#plex`), allowing direct links to specific apps and browser back/forward navigation between them.
-- **Debug logging wiki page** — New [Debug Logging](docs/wiki/debug-logging.md) documentation covering frontend (`?debug=true`) and backend (log level) diagnostics.
-
-### Fixed
-
-- **Health tooltip showing nanoseconds** — Health check response times in tooltips now correctly display milliseconds instead of raw nanosecond values.
-- **Proxy 404 on double-prefixed URLs** — XML/JSON API responses from proxied apps no longer have root-relative paths statically rewritten, preventing double-prefixing when the SPA embeds those paths in query parameters (e.g., Plex photo transcode URLs).
-- **Proxied app images invisible due to frozen iframe timeline** — Chrome may freeze `document.timeline` inside iframes, stalling CSS/Web Animations. The interceptor detects loaded images stuck at opacity 0 and forces them visible.
-
 ---
 
-## [3.0.0-rc.3] - 2026-02-18
+## [3.0.0-rc.1] - 2026-02-20
 
 ### Changed
 
+- **Health checks are now opt-in** — Apps no longer have health checks enabled by default. Enable per-app with `health_check: true` or in bulk from Settings. TLS certificate verification is skipped for health checks to support self-signed certs common in homelabs.
 - **Build tag split** — Go builds no longer require a `dist/` placeholder directory. Dev builds compile without `embed_web` tag; production builds use `-tags embed_web` to embed frontend assets.
 - **Docker PUID/PGID support** — Container entrypoint now creates a runtime user matching `PUID`/`PGID` environment variables for bind-mount permission compatibility (linuxserver.io convention).
 - **Docker security hardening** — `docker-compose.yml` adds `init: true`, `no-new-privileges`, and `cap_drop: ALL`.
@@ -33,23 +20,35 @@ All notable changes to Muximux are documented in this file.
 
 ### Added
 
+- **Iframe caching** — Visited app iframes are kept alive in the DOM when switching between apps. Returning to a previously opened app is instant — no reload, no lost scroll position, no re-authentication. Frames are pruned when apps are deleted or disabled.
+- **Forward auth login page** — When auth method is `forward_auth`, the login page shows an "External Authentication" message instead of a username/password form that can't be used. The `/api/auth/status` endpoint now includes `auth_method` in its response.
+- **Runtime URL interceptor for reverse proxy** — Proxied SPAs (like Plex) that construct URLs dynamically in JavaScript now work correctly. The proxy injects a script that patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so all requests route through the proxy automatically.
+- **Content-type-aware rewriting** — HTML and CSS get full path rewriting; JS, JSON, and XML use safe-only rewriting (SRI stripping, absolute URLs) to avoid corrupting API data that apps read programmatically.
+- **Dynamic proxy route rebuilds** — Adding, editing, or removing a proxied app in Settings takes effect immediately without restarting Muximux.
+- **Hash-based app routing** — Clicking an app updates the URL hash (e.g., `#plex`), allowing direct links to specific apps and browser back/forward navigation between them.
 - **Debug logging** — Add `?debug=true` to the URL to enable browser console logging across all major subsystems (config, websocket, auth, theme, health, icons, keybindings). Persists via localStorage; disable with `?debug=false`.
+- **Flat bar style** for top/bottom navigation — a streamlined layout that shows apps in a single row separated by group icon dividers, without group headers or collapsible sections.
+- **Per-app keyboard shortcut assignment** — assign number keys (1–9) to specific apps instead of relying on position-based ordering. Configured via `shortcut` field on each app or in Settings > Keybindings.
+- **Per-app health check toggle** — disable health monitoring for individual apps with `health_check: false`. Useful for apps that don't respond to HTTP checks or where you don't care about status. Includes bulk enable/disable in Settings.
+- **Base path support** — serve Muximux at a subpath behind a reverse proxy (e.g., `https://example.com/muximux/`). Configure with `server.base_path` in config, `--base-path` CLI flag, or `MUXIMUX_BASE_PATH` environment variable.
 - **Cancel button on Edit modals** — Edit App and Edit Group modals now have a Cancel button that reverts changes. Previously only "Done" was available, which applied changes immediately.
 - **Validation on Edit modals** — Edit App and Edit Group modals now validate with Zod schemas before accepting, matching the Add flows.
 - **Redirect open mode in UI** — The `redirect` open mode is now available in the Settings dropdown (previously only configurable via YAML).
+- **Dynamic themed favicons** — All favicons (browser tab, apple-touch-icon, Android manifest icon, theme-color meta) now update to match the current theme's accent color instead of using static green PNGs.
+- **Screenshot gallery** — README now includes a collapsible gallery with numbered screenshots covering onboarding, themes, dashboard, and log viewer. Wiki pages reference screenshots inline.
 - **`.btn-danger` design system class** — For destructive action buttons (delete confirmations).
 - **`--accent-on-primary` theme variable** — Dedicated text color for accent-colored buttons, ensuring readable contrast in both dark and light themes.
 - **Docstring coverage enforcement** — CI checks that 80%+ of exported Go identifiers have doc comments (`scripts/check-docstrings.sh`).
 - **CHANGELOG-based release notes** — Release workflow extracts notes from CHANGELOG.md instead of auto-generating from PR titles. Falls back to auto-generation if no entry found.
 - **CONTRIBUTING.md** — Developer guide covering prerequisites, dev mode, building, testing, and PR process.
 - **systemd service file** — `muximux.service` for bare-metal deployments with security hardening.
-- **CodeRabbit config** — `.coderabbit.yaml` with path-specific review instructions.
-- **Codecov config** — `codecov.yml` with backend/frontend flags, patch target 70%, and carryforward support.
-- **Dynamic themed favicons** — All favicons (browser tab, apple-touch-icon, Android manifest icon, theme-color meta) now update to match the current theme's accent color instead of using static green PNGs.
 - **Snyk Node scan** — CI security workflow now scans frontend npm dependencies in addition to Go and Docker.
 
 ### Fixed
 
+- **Health tooltip showing nanoseconds** — Health check response times in tooltips now correctly display milliseconds instead of raw nanosecond values.
+- **Proxy 404 on double-prefixed URLs** — XML/JSON API responses from proxied apps no longer have root-relative paths statically rewritten, preventing double-prefixing when the SPA embeds those paths in query parameters (e.g., Plex photo transcode URLs).
+- **Proxied app images invisible due to frozen iframe timeline** — Chrome may freeze `document.timeline` inside iframes, stalling CSS/Web Animations. The interceptor detects loaded images stuck at opacity 0 and forces them visible.
 - **Config env var expansion corrupting bcrypt hashes** — Replaced `os.ExpandEnv` with braced-only `${VAR}` expansion so bare `$` signs in bcrypt hashes and other values are not treated as variable references.
 - **Unset `${VAR}` silently replaced with empty string** — `${VAR}` references to undefined environment variables are now preserved literally instead of being silently deleted.
 - **Config export zeroing live password hashes** — Exporting config (`GET /api/config/export`) no longer corrupts in-memory auth state. The shallow struct copy now deep-copies the users slice before stripping sensitive fields.
@@ -64,17 +63,6 @@ All notable changes to Muximux are documented in this file.
 - **Separated setup and add-user state** — The "Create first user" form in Security no longer shares state with the "Add User" modal.
 - **Icon browser pre-population** — Opening the icon browser for a new app/group now passes the current icon selection.
 - **Static assets blocked by auth middleware** — Root-level static files (manifest.json, favicon.ico, apple-touch-icon.png, etc.) were incorrectly blocked by authentication, causing browser errors. Auth bypass rules now use explicit paths instead of non-functional glob patterns.
-
----
-
-## [3.0.0-rc.2] - 2026-02-18
-
-### Added
-
-- **Flat bar style** for top/bottom navigation — a streamlined layout that shows apps in a single row separated by group icon dividers, without group headers or collapsible sections.
-- **Per-app keyboard shortcut assignment** — assign number keys (1–9) to specific apps instead of relying on position-based ordering. Configured via `shortcut` field on each app or in Settings > Keybindings.
-- **Per-app health check toggle** — disable health monitoring for individual apps with `health_check: false`. Useful for apps that don't respond to HTTP checks or where you don't care about status. Includes bulk enable/disable in Settings.
-- **Base path support** — serve Muximux at a subpath behind a reverse proxy (e.g., `https://example.com/muximux/`). Configure with `server.base_path` in config, `--base-path` CLI flag, or `MUXIMUX_BASE_PATH` environment variable.
 
 ---
 
@@ -166,16 +154,5 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
-## [3.0.0-beta.1] - 2024-12-01
-
-Beta release with reverse proxy improvements, onboarding redesign, WebSocket proxy support, and CI/CD hardening.
-
-## [3.0.0-alpha.1] - 2024-11-15
-
-Initial alpha release with core dashboard, authentication, health monitoring, icons, themes, keyboard shortcuts, and reverse proxy.
-
-[3.0.0-rc.3]: https://github.com/mescon/Muximux/compare/v3.0.0-rc.2...v3.0.0-rc.3
-[3.0.0-rc.2]: https://github.com/mescon/Muximux/compare/v3.0.0...v3.0.0-rc.2
-[3.0.0]: https://github.com/mescon/Muximux/compare/v3.0.0-beta.1...v3.0.0
-[3.0.0-beta.1]: https://github.com/mescon/Muximux/compare/v3.0.0-alpha.1...v3.0.0-beta.1
-[3.0.0-alpha.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.0-alpha.1
+[3.0.0-rc.1]: https://github.com/mescon/Muximux/compare/v3.0.0...v3.0.0-rc.1
+[3.0.0]: https://github.com/mescon/Muximux/releases/tag/v3.0.0

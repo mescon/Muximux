@@ -488,6 +488,66 @@ func TestAuthStatus(t *testing.T) {
 		}
 	})
 
+	t.Run("includes logout_url for forward_auth", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+		handler.config = &config.Config{}
+		handler.config.Auth.Method = "forward_auth"
+		handler.config.Auth.LogoutURL = "https://auth.example.com/logout"
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+
+		handler.AuthStatus(w, req)
+
+		var resp map[string]interface{}
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if resp["logout_url"] != "https://auth.example.com/logout" {
+			t.Errorf("expected logout_url, got %v", resp["logout_url"])
+		}
+	})
+
+	t.Run("omits logout_url for non-forward_auth", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+		handler.config = &config.Config{}
+		handler.config.Auth.Method = "builtin"
+		handler.config.Auth.LogoutURL = "https://auth.example.com/logout"
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+
+		handler.AuthStatus(w, req)
+
+		var resp map[string]interface{}
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if _, exists := resp["logout_url"]; exists {
+			t.Error("expected no logout_url for builtin auth")
+		}
+	})
+
+	t.Run("omits logout_url when empty", func(t *testing.T) {
+		handler, _ := setupAuthTest(t)
+		handler.config = &config.Config{}
+		handler.config.Auth.Method = "forward_auth"
+		handler.config.Auth.LogoutURL = ""
+
+		req := httptest.NewRequest(http.MethodGet, "/api/auth/status", nil)
+		w := httptest.NewRecorder()
+
+		handler.AuthStatus(w, req)
+
+		var resp map[string]interface{}
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if _, exists := resp["logout_url"]; exists {
+			t.Error("expected no logout_url when empty")
+		}
+	})
+
 	t.Run("authenticated", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)
 
@@ -1087,7 +1147,7 @@ func TestDeleteUser(t *testing.T) {
 		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
 			t.Fatalf("failed to decode response: %v", err)
 		}
-		if resp["message"] != "Cannot delete the last admin user" {
+		if resp["message"] != "cannot delete the last admin user" {
 			t.Errorf("expected last admin message, got %v", resp["message"])
 		}
 	})
@@ -1284,6 +1344,28 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 		if len(handler.config.Auth.TrustedProxies) != 1 || handler.config.Auth.TrustedProxies[0] != "10.0.0.0/8" {
 			t.Errorf("expected trusted proxies to be set, got %v", handler.config.Auth.TrustedProxies)
+		}
+	})
+
+	t.Run("forward_auth with logout_url", func(t *testing.T) {
+		handler, _ := setupAuthTestWithConfig(t)
+
+		body, _ := json.Marshal(map[string]interface{}{
+			"method":          "forward_auth",
+			"trusted_proxies": []string{"10.0.0.0/8"},
+			"logout_url":      "https://auth.example.com/logout",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateAuthMethod(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		if handler.config.Auth.LogoutURL != "https://auth.example.com/logout" {
+			t.Errorf("expected logout_url to be saved, got %q", handler.config.Auth.LogoutURL)
 		}
 	})
 

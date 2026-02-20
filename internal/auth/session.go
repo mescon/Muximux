@@ -83,17 +83,19 @@ func (s *SessionStore) Create(userID, username, role string) (*Session, error) {
 	return session, nil
 }
 
-// Get retrieves a session by ID
+// Get retrieves a session by ID, returning a copy.
 func (s *SessionStore) Get(id string) *Session {
 	s.mu.RLock()
-	session, exists := s.sessions[id]
-	s.mu.RUnlock()
+	defer s.mu.RUnlock()
 
+	session, exists := s.sessions[id]
 	if !exists || session.IsExpired() {
 		return nil
 	}
 
-	return session
+	// Return a copy so callers don't race with Refresh() on the live session.
+	copy := *session
+	return &copy
 }
 
 // Delete removes a session

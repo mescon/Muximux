@@ -50,7 +50,7 @@ func (h *Hub) Run() {
 			h.mu.Lock()
 			h.clients[client] = true
 			h.mu.Unlock()
-			logging.Info("WebSocket client connected", "source", "websocket", "total_clients", len(h.clients))
+			logging.Debug("WebSocket client connected", "source", "websocket", "total_clients", len(h.clients))
 
 		case client := <-h.unregister:
 			h.mu.Lock()
@@ -59,7 +59,7 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 			h.mu.Unlock()
-			logging.Info("WebSocket client disconnected", "source", "websocket", "total_clients", len(h.clients))
+			logging.Debug("WebSocket client disconnected", "source", "websocket", "total_clients", len(h.clients))
 
 		case event := <-h.broadcast:
 			data, err := json.Marshal(event)
@@ -68,22 +68,28 @@ func (h *Hub) Run() {
 				continue
 			}
 
+			var toDrop []*Client
 			h.mu.RLock()
 			for client := range h.clients {
 				select {
 				case client.send <- data:
 				default:
-					// Client's send buffer is full, remove it
-					h.mu.RUnlock()
-					h.mu.Lock()
-					delete(h.clients, client)
-					close(client.send)
-					h.mu.Unlock()
-					logging.Warn("WebSocket client dropped: send buffer full", "source", "websocket")
-					h.mu.RLock()
+					toDrop = append(toDrop, client)
 				}
 			}
 			h.mu.RUnlock()
+
+			if len(toDrop) > 0 {
+				h.mu.Lock()
+				for _, client := range toDrop {
+					if _, ok := h.clients[client]; ok {
+						delete(h.clients, client)
+						close(client.send)
+						logging.Warn("WebSocket client dropped: send buffer full", "source", "websocket")
+					}
+				}
+				h.mu.Unlock()
+			}
 		}
 	}
 }

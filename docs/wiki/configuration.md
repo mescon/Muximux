@@ -46,7 +46,7 @@ auth:
   users:
     - username: ""
       password_hash: ""        # bcrypt hash (see Authentication page)
-      role: admin              # admin or user
+      role: admin              # admin, power-user, or user
       email: ""                # Optional
       display_name: ""         # Optional
 
@@ -57,6 +57,7 @@ auth:
     email: Remote-Email
     groups: Remote-Groups
     name: Remote-Name          # Note: key is "name" not "display_name"
+  logout_url: ""               # Auth provider logout URL (e.g., https://auth.example.com/logout)
 
   # OIDC settings
   oidc:
@@ -87,11 +88,13 @@ navigation:
   show_labels: true
   show_logo: true
   show_app_colors: true
-  show_icon_background: true
+  show_icon_background: false
   show_splash_on_startup: false
   show_shadow: true
   icon_scale: 1.0              # Icon zoom multiplier
   bar_style: grouped           # grouped or flat (top/bottom bars only)
+  floating_position: bottom-right  # bottom-right, bottom-left, top-right, top-left
+  hide_sidebar_footer: false   # Hide the footer section in sidebars
 
 # ─── Icons ──────────────────────────────────────
 icons:
@@ -146,7 +149,7 @@ apps:
     proxy_headers:               # Custom headers sent to the backend
       X-Custom-Header: value
     scale: 1.0
-    health_check: true           # Set false to disable health monitoring for this app
+    health_check: true           # Opt-in: set true to enable health monitoring for this app
     shortcut: null               # Assign a number key (1-9) for quick switching
     min_role: ""                 # Minimum role to see this app (user, power-user, admin)
     force_icon_background: false # Show icon background even when global setting is off
@@ -184,7 +187,7 @@ apps:
     url: ${PLEX_URL}
 ```
 
-If the referenced environment variable is not set, the value will be an empty string.
+If the referenced environment variable is not set, the `${VAR}` reference is left as-is (the literal string is preserved). This avoids silently deleting values when an env var is missing.
 
 ### Direct Override Environment Variables
 
@@ -215,7 +218,6 @@ The following settings **require a restart** to take effect:
 - `server.base_path` (subpath prefix)
 - `server.tls.*` (all TLS settings)
 - `server.gateway` (Caddyfile path)
-- `auth.method` (authentication method)
 
 Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level -- is applied immediately.
 

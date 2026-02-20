@@ -49,6 +49,18 @@ class ResizeObserverMock {
 }
 globalThis.ResizeObserver = ResizeObserverMock;
 
+// Mock Web Animations API (used by Svelte transitions, not available in jsdom)
+if (typeof Element !== 'undefined' && !Element.prototype.animate) {
+  Element.prototype.animate = vi.fn().mockReturnValue({
+    finished: Promise.resolve(),
+    cancel: vi.fn(),
+    onfinish: null,
+    reverse: vi.fn(),
+    pause: vi.fn(),
+    play: vi.fn(),
+  });
+}
+
 // Reset mocks between tests
 beforeEach(() => {
   localStorageMock.clear();

@@ -14,7 +14,7 @@ Open your browser and navigate to Muximux (by default, `http://your-server:8080`
 
 ## Onboarding Wizard
 
-The wizard has five steps. You can move forward and backward between steps at any time.
+The wizard has six steps on a first launch, including a **Security** step where you choose your authentication method. If authentication has already been configured (e.g., you deleted all apps but kept your auth settings), the Security step is skipped, making it five steps. You can move forward and backward between steps at any time.
 
 ### Step 1: Welcome
 
@@ -22,7 +22,17 @@ A brief introduction to Muximux and its core features: embedded app views via if
 
 ![Onboarding — Welcome](../screenshots/01-welcome.png)
 
-### Step 2: Apps & Groups
+### Step 2: Security (fresh install only)
+
+On a fresh install where no authentication has been configured, the wizard includes a Security step. Here you choose how users authenticate:
+
+- **Password** -- Create an admin account with a username and password. This uses Muximux's built-in authentication.
+- **Forward Auth** -- Use an external authentication proxy (Authelia, Authentik, etc.). You'll need to provide at least one trusted proxy CIDR range.
+- **None** -- Disable authentication entirely. Anyone who can reach Muximux has full access.
+
+This step only appears during initial setup. After setup is complete, authentication settings can be changed in Settings.
+
+### Step 3: Apps & Groups
 
 This step uses a two-column layout (single column on mobile):
 
@@ -49,7 +59,7 @@ At the top of the left column is the **Add Custom App** card. Click it to expand
 
 ![Onboarding — Apps configured with URLs and groups](../screenshots/04-apps-selected.png)
 
-### Step 3: Navigation Style
+### Step 4: Navigation Style
 
 Choose how the navigation bar appears in your dashboard:
 
@@ -58,14 +68,14 @@ Choose how the navigation bar appears in your dashboard:
 | **Top Bar** | Horizontal navigation across the top of the page |
 | **Left Sidebar** | Vertical sidebar on the left side |
 | **Right Sidebar** | Vertical sidebar on the right side |
-| **Bottom Dock** | macOS-style dock at the bottom of the page |
+| **Bottom Bar** | Horizontal navigation across the bottom of the page |
 | **Floating** | Minimal floating buttons |
 
 You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
 
 ![Onboarding — Navigation style picker](../screenshots/05-style.png)
 
-### Step 4: Theme
+### Step 5: Theme
 
 Choose a visual theme for your dashboard:
 
@@ -77,7 +87,7 @@ Custom themes can be created later in Settings. The selected theme is saved to `
 
 ![Onboarding — Theme picker (dark)](../screenshots/06-theme-dark.png)
 
-### Step 5: Complete
+### Step 6: Complete
 
 A summary of your choices is displayed: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
 
@@ -91,7 +101,7 @@ Once the wizard completes:
 
 - Your configuration is saved to `data/config.yaml`.
 - The first app in your list is automatically set as the **default app**, which loads when you open the dashboard.
-- **Health monitoring** starts automatically, checking each app at the configured interval (default: every 30 seconds).
+- **Health monitoring** is available but off by default. Enable it per-app in Settings or in bulk via the Apps tab. When enabled, Muximux checks each app at the configured interval (default: every 30 seconds).
 - The onboarding wizard will appear automatically whenever no apps are configured. Once you add apps, it will not appear again unless all apps are removed.
 
 You can open **Settings** at any time from the navigation bar to modify apps, groups, navigation style, themes, and all other options.

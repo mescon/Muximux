@@ -92,6 +92,7 @@ By default, Muximux uses `data/` as its base data directory, which contains `con
 | `--data` | `data` | Base data directory for config, themes, and icons (env: `MUXIMUX_DATA`) |
 | `--config` | *(derived from data dir)* | Override config file path (env: `MUXIMUX_CONFIG`). Defaults to `<data>/config.yaml`. |
 | `--listen` | from config | Override listen address (env: `MUXIMUX_LISTEN`) |
+| `--base-path` | *(empty)* | Base URL path for reverse proxy subpath, e.g. `/muximux` (env: `MUXIMUX_BASE_PATH`) |
 | `--version` | | Print version information and exit |
 
 ---
@@ -114,13 +115,13 @@ npm run build
 cd ..
 
 # 2. Build the binary (the frontend is embedded at compile time)
-go build -o muximux ./cmd/muximux
+go build -tags embed_web -o muximux ./cmd/muximux
 
 # 3. Run (uses data/ directory by default)
 ./muximux
 ```
 
-The `npm run build` step compiles the Svelte frontend and outputs it to `internal/server/dist/`. The `go build` step then embeds those files into the Go binary. The result is a single, self-contained executable.
+The `npm run build` step compiles the Svelte frontend and outputs it to `internal/server/dist/`. The `go build -tags embed_web` step then embeds those files into the Go binary. The `-tags embed_web` flag is required -- without it, the binary will not include the web UI. The result is a single, self-contained executable.
 
 > **Note:** There is no Makefile. The two-step build (frontend, then backend) is all that is needed.
 

@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
+  import { SvelteSet } from 'svelte/reactivity';
   import Navigation from './components/Navigation.svelte';
   import AppFrame from './components/AppFrame.svelte';
   import Splash from './components/Splash.svelte';
@@ -41,7 +42,7 @@
   let error = $state<string | null>(null);
 
   // Iframe caching: track which apps the user has visited so their iframes stay alive
-  let visitedAppNames = $state(new Set<string>());
+  let visitedAppNames = new SvelteSet<string>();
   let visitedApps = $derived(apps.filter(a => visitedAppNames.has(a.name)));
 
   // Toast position adapts to navigation position to avoid overlay
@@ -69,11 +70,6 @@
    */
   function resolveTitle(template: string, app: App | null): string {
     if (!template) return 'Muximux';
-    const hasVariables = template.includes('%');
-    if (!hasVariables) {
-      // Legacy behavior: prepend app name if no variables are used
-      return app ? `${app.name} — ${template}` : template;
-    }
 
     let result = template
       .replaceAll('%title%', app?.name || '')
@@ -82,15 +78,16 @@
       .replaceAll('%version%', appVersion);
 
     // Clean up dangling separators around empty values
-    // e.g. "Muximux -  - " → "Muximux"
+    // e.g. "%title% - Muximux" with no app → "Muximux" (not " - Muximux")
     result = result.replaceAll(/\s*[—–\-|:]\s*(?=[—–\-|:\s]*$)/g, '');
     result = result.replaceAll(/\s*[—–\-|:]\s*[—–\-|:]\s*/g, ' — ');
     return result.trim() || 'Muximux';
   }
 
-  // Keep URL hash in sync: clear it when returning to splash / no app
+  // Keep URL hash in sync: clear it when returning to splash / no app.
+  // Guard with `loading` so the hash isn't wiped before showDefaultApp() reads it.
   $effect(() => {
-    if (!currentApp && location.hash) {
+    if (!loading && !currentApp && location.hash) {
       history.replaceState(null, '', location.pathname + location.search);
     }
   });
@@ -273,7 +270,6 @@
         for (const name of visitedAppNames) {
           if (!validNames.has(name)) visitedAppNames.delete(name);
         }
-        visitedAppNames = new Set(visitedAppNames);
       });
 
       loading = false;
@@ -345,7 +341,7 @@
     config = null;
     apps = [];
     currentApp = null;
-    visitedAppNames = new Set();
+    visitedAppNames.clear();
     showSplash = true;
     showSettings = false;
   }
@@ -409,7 +405,6 @@
       window.open(url, app.name);
     } else {
       visitedAppNames.add(app.name);
-      visitedAppNames = new Set(visitedAppNames);
       currentApp = app;
       showSplash = false;
       showLogs = false;
@@ -445,7 +440,6 @@
       for (const name of visitedAppNames) {
         if (!validNames.has(name)) visitedAppNames.delete(name);
       }
-      visitedAppNames = new Set(visitedAppNames);
       toasts.success('Settings saved successfully');
     } catch (e) {
       console.error('Failed to save config:', e);

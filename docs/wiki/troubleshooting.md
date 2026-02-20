@@ -1,6 +1,6 @@
 # Troubleshooting
 
-> **Tip:** Enable [debug logging](debug-logging) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs, or set log level to `debug` in Settings for backend request-level detail.
+> **Tip:** Enable [debug logging](debug-logging.md) to get detailed diagnostic information. Add `?debug=true` to your URL for frontend console logs, or set log level to `debug` in Settings for backend request-level detail.
 
 ---
 
@@ -42,7 +42,7 @@ The built-in reverse proxy rewrites paths in HTML, CSS, JavaScript, JSON, and HT
 
 ### JavaScript That Builds URLs at Runtime
 
-> **Note:** As of 3.0.0-rc.3, Muximux includes a runtime URL interceptor that handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so that dynamically constructed URLs are rewritten before the browser sends them. This section describes the remaining edge cases.
+Muximux includes a runtime URL interceptor that handles most of these cases automatically. The interceptor patches `fetch()`, `XMLHttpRequest`, `WebSocket`, `EventSource`, and DOM property setters (`img.src`, etc.) so that dynamically constructed URLs are rewritten before the browser sends them. This section describes the remaining edge cases.
 
 **Symptom:** The app loads but some features, API calls, or navigation links point to wrong paths. You see 404 errors in the Network tab for URLs that are missing the `/proxy/{slug}/` prefix.
 
@@ -83,13 +83,13 @@ The proxy mitigates this by rewriting base path configuration variables (e.g., `
 
 **Workaround:** No proxy-side fix is possible. Use `open_mode: new_tab` for apps that rely on binary protocols, or configure the app to use its non-binary API if one exists.
 
-### Large Responses and Memory
+### Large Text Responses and Memory
 
-**Symptom:** Muximux becomes slow or unresponsive when proxied apps serve very large responses (downloads, database exports, large media files).
+**Symptom:** Muximux uses more memory than expected when a proxied app serves very large text responses (e.g., a JSON API endpoint that returns hundreds of megabytes of data).
 
-**What happens:** The proxy buffers the entire response body in memory to perform rewriting. For very large responses (hundreds of megabytes or more), this can cause significant memory pressure on the server.
+**What happens:** The proxy buffers text-based responses (HTML, CSS, JavaScript, JSON, XML) in memory so it can rewrite URLs in the content. For unusually large text responses this can cause memory pressure.
 
-**Workaround:** Avoid proxying apps that serve large file downloads. Instead, access those apps directly via `open_mode: new_tab`, or use a custom `health_url` and access the download page directly. Binary content types like images, videos, and archives are not rewritten by the proxy, so they pass through with minimal overhead -- but the buffering still occurs.
+Binary content (images, videos, archives, file downloads) is **not** buffered — it streams directly from the backend to your browser without being read into memory. Only text content types are buffered for rewriting.
 
 ### Cookie Domain Attribute
 
@@ -224,8 +224,8 @@ Different settings have different reload behaviors:
 |-----------------|-------------------|
 | Navigation, themes, apps, groups, icons, keybindings | No -- changes via Settings panel are immediate |
 | Health monitoring settings | No -- applied immediately |
-| Server settings (listen, TLS, gateway) | Yes -- restart required |
-| Auth method changes | Yes -- restart required |
+| Server settings (listen, TLS, gateway, base_path) | Yes -- restart required |
+| Auth method (via Settings or API) | No -- applied immediately |
 
 If you edited `config.yaml` directly (not through the Settings panel), Muximux will pick up the changes on the next restart.
 

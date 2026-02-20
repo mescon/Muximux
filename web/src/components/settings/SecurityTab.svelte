@@ -4,6 +4,7 @@
   import type { Config, UserInfo, ChangeAuthMethodRequest } from '$lib/types';
   import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod } from '$lib/api';
   import { changePassword, isAdmin, currentUser } from '$lib/authStore';
+  import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
 
   let { localConfig }: { localConfig: Config } = $props();
 
@@ -40,26 +41,22 @@
   let methodError = $state<string | null>(null);
 
   // Forward auth preset & header fields
-  let faPreset = $state<'authelia' | 'authentik' | 'custom'>('authelia');
+  let faPreset = $state<PresetName>('authelia');
   let faShowAdvanced = $state(false);
   let faHeaderUser = $state('Remote-User');
   let faHeaderEmail = $state('Remote-Email');
   let faHeaderGroups = $state('Remote-Groups');
   let faHeaderName = $state('Remote-Name');
+  let faLogoutUrl = $state('');
 
-  const faPresets = {
-    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
-    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name' },
-    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
-  };
-
-  function selectFaPreset(p: 'authelia' | 'authentik' | 'custom') {
+  function selectFaPreset(p: PresetName) {
     faPreset = p;
-    const headers = faPresets[p];
-    faHeaderUser = headers.user;
-    faHeaderEmail = headers.email;
-    faHeaderGroups = headers.groups;
-    faHeaderName = headers.name;
+    const result = applyPreset(p, faLogoutUrl);
+    faHeaderUser = result.headers.user;
+    faHeaderEmail = result.headers.email;
+    faHeaderGroups = result.headers.groups;
+    faHeaderName = result.headers.name;
+    faLogoutUrl = result.logoutUrl;
   }
 
   // Security tab functions
@@ -142,16 +139,9 @@
     const previousMethod = localConfig.auth?.method || 'none';
     const req: ChangeAuthMethodRequest = { method: selectedAuthMethod };
     if (selectedAuthMethod === 'forward_auth') {
-      req.trusted_proxies = methodTrustedProxies
-        .split(/[,\n]/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-      req.headers = {
-        user: faHeaderUser,
-        email: faHeaderEmail,
-        groups: faHeaderGroups,
-        name: faHeaderName,
-      };
+      Object.assign(req, buildForwardAuthRequest(
+        methodTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
+      ));
     }
     try {
       const result = await changeAuthMethod(req);
@@ -184,7 +174,8 @@
     faHeaderUser !== (localConfig.auth?.headers?.user || 'Remote-User') ||
     faHeaderEmail !== (localConfig.auth?.headers?.email || 'Remote-Email') ||
     faHeaderGroups !== (localConfig.auth?.headers?.groups || 'Remote-Groups') ||
-    faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name')
+    faHeaderName !== (localConfig.auth?.headers?.name || 'Remote-Name') ||
+    faLogoutUrl !== (localConfig.auth?.logout_url || '')
   ));
   let showUpdateBtn = $derived(methodChanged || faFieldsChanged);
 
@@ -198,16 +189,14 @@
     // Pre-fill forward auth fields from existing config
     const proxies = localConfig.auth?.trusted_proxies;
     methodTrustedProxies = proxies?.length ? proxies.join('\n') : '';
+    faLogoutUrl = localConfig.auth?.logout_url || '';
     const h = localConfig.auth?.headers;
     if (h) {
       faHeaderUser = h.user || 'Remote-User';
       faHeaderEmail = h.email || 'Remote-Email';
       faHeaderGroups = h.groups || 'Remote-Groups';
       faHeaderName = h.name || 'Remote-Name';
-      // Detect preset from header values
-      const matchesAuthelia = faHeaderUser === faPresets.authelia.user && faHeaderEmail === faPresets.authelia.email;
-      const matchesAuthentik = faHeaderUser === faPresets.authentik.user && faHeaderEmail === faPresets.authentik.email;
-      faPreset = matchesAuthentik ? 'authentik' : matchesAuthelia ? 'authelia' : 'custom';
+      faPreset = detectPreset(faHeaderUser, faHeaderEmail);
     }
   });
 </script>
@@ -443,6 +432,19 @@
                 rows="3"
               ></textarea>
               <p class="text-xs text-text-disabled mt-1">IP addresses or CIDR ranges, one per line</p>
+            </div>
+
+            <div>
+              <label for="settings-logout-url" class="block text-sm text-text-muted mb-1">Logout URL</label>
+              <input
+                id="settings-logout-url"
+                type="url"
+                bind:value={faLogoutUrl}
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                       focus:outline-none focus:ring-2 focus:ring-brand-500"
+                placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
+              />
+              <p class="text-xs text-text-disabled mt-1">Your auth provider's logout endpoint — clears the external session on sign-out</p>
             </div>
 
             <button

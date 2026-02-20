@@ -18,7 +18,7 @@ Vertical sidebar on the right side of the screen. A mirror of the left layout, u
 
 ### Bottom
 
-Horizontal bar across the bottom of the screen. Useful for tablet-like or dock-style layouts.
+Horizontal bar across the bottom of the screen. Same layout as the top bar, just anchored to the bottom edge.
 
 ### Floating
 
@@ -53,15 +53,18 @@ navigation:
   position: top              # top, left, right, bottom, floating
   width: 220px               # Sidebar width (for left/right/floating)
   auto_hide: false            # Hide navigation after inactivity
-  auto_hide_delay: 3s         # Delay before hiding (when auto_hide is true)
+  auto_hide_delay: 0.5s       # Delay before hiding (when auto_hide is true)
   show_on_hover: true         # Show hidden nav on mouse hover
   show_labels: true           # Display app names under/beside icons
   show_logo: true             # Show Muximux logo in navigation
   show_app_colors: true       # Tint app icons with their configured color
-  show_icon_background: true  # Show circular background behind icons
+  show_icon_background: false # Show circular background behind icons
   show_splash_on_startup: false # Show splash screen on initial load
   show_shadow: true           # Add drop shadow to navigation bar
   bar_style: grouped          # grouped or flat (top/bottom only)
+  icon_scale: 1.0             # Scale factor for navigation icons (default: 1.0)
+  floating_position: bottom-right # Floating nav position (bottom-right, bottom-left, top-right, top-left)
+  hide_sidebar_footer: false  # Hide the footer section in left/right sidebars
 ```
 
 ## Auto-Hide Behavior

@@ -200,6 +200,20 @@
     return config.groups.find(g => g.name === name);
   }
 
+  // Position a tooltip with `position: fixed` so it escapes overflow-hidden scroll containers.
+  // `above` = true renders above the anchor (bottom bar), false renders below (top bar).
+  function fixedTooltip(node: HTMLElement, above: boolean) {
+    const anchor = node.parentElement;
+    if (!anchor) return;
+    const rect = anchor.getBoundingClientRect();
+    node.style.left = `${rect.left + rect.width / 2}px`;
+    if (above) {
+      node.style.bottom = `${window.innerHeight - rect.top + 4}px`;
+    } else {
+      node.style.top = `${rect.bottom + 4}px`;
+    }
+  }
+
   function getOpenModeIcon(mode: string): string {
     switch (mode) {
       case 'new_tab': return '↗';
@@ -521,7 +535,7 @@
               <!-- Group icon divider -->
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
-                class="flat-group-divider flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
+                class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
                        {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
                 style="{gi > 0 ? 'margin-left: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
@@ -534,10 +548,12 @@
                 {:else}
                   <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
                 {/if}
-                <span
-                  class="overflow-hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider transition-all duration-200"
-                  style="max-width: {hoveredGroup === groupName ? '80px' : '0px'}; opacity: {hoveredGroup === groupName ? '0.7' : '0'}; margin-left: {hoveredGroup === groupName ? '4px' : '0px'}; color: var(--text-disabled);"
-                >{groupName}</span>
+                {#if hoveredGroup === groupName}
+                  <span
+                    use:fixedTooltip={false}
+                    class="fixed -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider pointer-events-none z-[100] px-1.5 py-0.5 rounded bg-bg-elevated/90 text-text-muted shadow-sm"
+                  >{groupName}</span>
+                {/if}
               </div>
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
@@ -1329,7 +1345,7 @@
             {#if hasRealGroups}
               <!-- svelte-ignore a11y_no_static_element_interactions -->
               <div
-                class="flat-group-divider flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
+                class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
                        {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
                 style="{gi > 0 ? 'margin-left: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
@@ -1342,10 +1358,12 @@
                 {:else}
                   <div class="w-px h-5" style="background: var(--border-subtle); opacity: {hoveredGroup === groupName ? '1' : '0.5'};"></div>
                 {/if}
-                <span
-                  class="overflow-hidden whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider transition-all duration-200"
-                  style="max-width: {hoveredGroup === groupName ? '80px' : '0px'}; opacity: {hoveredGroup === groupName ? '0.7' : '0'}; margin-left: {hoveredGroup === groupName ? '4px' : '0px'}; color: var(--text-disabled);"
-                >{groupName}</span>
+                {#if hoveredGroup === groupName}
+                  <span
+                    use:fixedTooltip={true}
+                    class="fixed -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold uppercase tracking-wider pointer-events-none z-[100] px-1.5 py-0.5 rounded bg-bg-elevated/90 text-text-muted shadow-sm"
+                  >{groupName}</span>
+                {/if}
               </div>
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}

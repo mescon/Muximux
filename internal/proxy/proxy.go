@@ -193,19 +193,3 @@ func (p *Proxy) IsRunning() bool {
 	return p.running
 }
 
-// Slugify converts an app name to a URL-safe slug
-func Slugify(name string) string {
-	// Convert to lowercase and replace spaces with hyphens
-	slug := strings.ToLower(name)
-	slug = strings.ReplaceAll(slug, " ", "-")
-
-	// Remove any characters that aren't alphanumeric or hyphens
-	var result strings.Builder
-	for _, r := range slug {
-		if (r >= 'a' && r <= 'z') || (r >= '0' && r <= '9') || r == '-' {
-			result.WriteRune(r)
-		}
-	}
-
-	return result.String()
-}

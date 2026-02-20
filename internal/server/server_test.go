@@ -288,6 +288,7 @@ func TestCSRFMiddleware(t *testing.T) {
 		{"GET API passes through", "GET", "/api/config", "", http.StatusOK},
 		{"POST API with JSON passes", "POST", "/api/config", "application/json", http.StatusOK},
 		{"POST API with multipart passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", http.StatusOK},
+		{"POST API with x-yaml passes", "POST", "/api/config/import", "application/x-yaml", http.StatusOK},
 		{"POST API without content-type blocked", "POST", "/api/config", "", http.StatusForbidden},
 		{"POST API with text/plain blocked", "POST", "/api/config", "text/plain", http.StatusForbidden},
 		{"PUT API with JSON passes", "PUT", "/api/config", "application/json", http.StatusOK},
@@ -1880,7 +1881,7 @@ func TestHandleSetup_ForwardAuth_Success(t *testing.T) {
 	s.userStore = auth.NewUserStore()
 	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
 
-	body := `{"method":"forward_auth","trusted_proxies":["10.0.0.0/8"],"headers":{"user":"Remote-User","email":"Remote-Email"}}`
+	body := `{"method":"forward_auth","trusted_proxies":["10.0.0.0/8"],"headers":{"user":"Remote-User","email":"Remote-Email"},"logout_url":"https://auth.example.com/logout"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
 	rec := httptest.NewRecorder()
@@ -1895,6 +1896,9 @@ func TestHandleSetup_ForwardAuth_Success(t *testing.T) {
 	}
 	if len(s.config.Auth.TrustedProxies) != 1 {
 		t.Errorf("expected 1 trusted proxy, got %d", len(s.config.Auth.TrustedProxies))
+	}
+	if s.config.Auth.LogoutURL != "https://auth.example.com/logout" {
+		t.Errorf("expected logout_url, got %q", s.config.Auth.LogoutURL)
 	}
 }
 

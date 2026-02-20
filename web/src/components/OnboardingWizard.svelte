@@ -35,6 +35,7 @@
     systemTheme,
     type VariantMode
   } from '$lib/themeStore';
+  import { forwardAuthPresets, applyPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
 
   // Props
   let {
@@ -96,31 +97,26 @@
 
 
   // Forward auth fields
-  let faPreset = $state<'authelia' | 'authentik' | 'custom'>('authelia');
+  let faPreset = $state<PresetName>('authelia');
   let faTrustedProxies = $state('');
   let faShowAdvanced = $state(false);
   let faHeaderUser = $state('Remote-User');
   let faHeaderEmail = $state('Remote-Email');
   let faHeaderGroups = $state('Remote-Groups');
   let faHeaderName = $state('Remote-Name');
+  let faLogoutUrl = $state('');
 
   // None
   let acknowledgeRisk = $state(false);
 
-  // Preset configs
-  const faPresets = {
-    authelia: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
-    authentik: { user: 'X-authentik-username', email: 'X-authentik-email', groups: 'X-authentik-groups', name: 'X-authentik-name' },
-    custom: { user: 'Remote-User', email: 'Remote-Email', groups: 'Remote-Groups', name: 'Remote-Name' },
-  };
-
-  function selectFaPreset(p: 'authelia' | 'authentik' | 'custom') {
+  function selectFaPreset(p: PresetName) {
     faPreset = p;
-    const headers = faPresets[p];
-    faHeaderUser = headers.user;
-    faHeaderEmail = headers.email;
-    faHeaderGroups = headers.groups;
-    faHeaderName = headers.name;
+    const result = applyPreset(p, faLogoutUrl);
+    faHeaderUser = result.headers.user;
+    faHeaderEmail = result.headers.email;
+    faHeaderGroups = result.headers.groups;
+    faHeaderName = result.headers.name;
+    faLogoutUrl = result.logoutUrl;
   }
 
   // Validation
@@ -151,16 +147,9 @@
       req.username = setupUsername.trim();
       req.password = setupPassword;
     } else if (authMethod === 'forward_auth') {
-      req.trusted_proxies = faTrustedProxies
-        .split(/[,\n]/)
-        .map(s => s.trim())
-        .filter(s => s.length > 0);
-      req.headers = {
-        user: faHeaderUser,
-        email: faHeaderEmail,
-        groups: faHeaderGroups,
-        name: faHeaderName,
-      };
+      Object.assign(req, buildForwardAuthRequest(
+        faTrustedProxies, faHeaderUser, faHeaderEmail, faHeaderGroups, faHeaderName, faLogoutUrl,
+      ));
     }
 
     return req;
@@ -1325,6 +1314,19 @@
                         rows="3"
                       ></textarea>
                       <p class="text-xs text-text-disabled mt-1">IP addresses or CIDR ranges, one per line</p>
+                    </div>
+
+                    <div>
+                      <label for="setup-logout-url" class="block text-sm text-text-muted mb-1">Logout URL</label>
+                      <input
+                        id="setup-logout-url"
+                        type="url"
+                        bind:value={faLogoutUrl}
+                        class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
+                               focus:outline-none focus:ring-2 focus:ring-brand-500"
+                        placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
+                      />
+                      <p class="text-xs text-text-disabled mt-1">Your auth provider's logout endpoint — clears the external session on sign-out</p>
                     </div>
 
                     <button

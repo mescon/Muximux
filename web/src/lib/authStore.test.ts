@@ -28,6 +28,7 @@ describe('authStore', () => {
       loading: true,
       error: null,
       setupRequired: false,
+      logoutUrl: null,
     });
   });
 
@@ -81,6 +82,35 @@ describe('authStore', () => {
       expect(get(isAuthenticated)).toBe(false);
       expect(get(currentUser)).toBeNull();
       expect(get(isLoading)).toBe(false);
+    });
+
+    it('should store logoutUrl from response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            authenticated: true,
+            user: { username: 'testuser', role: 'user' },
+            logout_url: 'https://auth.example.com/logout',
+          }),
+      });
+
+      await checkAuthStatus();
+
+      expect(get(authState).logoutUrl).toBe('https://auth.example.com/logout');
+    });
+
+    it('should set logoutUrl to null when not in response', async () => {
+      mockFetch.mockResolvedValueOnce({
+        json: () =>
+          Promise.resolve({
+            authenticated: true,
+            user: { username: 'testuser', role: 'user' },
+          }),
+      });
+
+      await checkAuthStatus();
+
+      expect(get(authState).logoutUrl).toBeNull();
     });
 
     it('should handle fetch errors', async () => {
@@ -175,6 +205,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
     });
 
@@ -205,6 +236,44 @@ describe('authStore', () => {
 
       expect(get(isAuthenticated)).toBe(false);
       expect(get(currentUser)).toBeNull();
+    });
+
+    it('should redirect to logoutUrl when set', async () => {
+      authState.set({
+        authenticated: true,
+        user: { username: 'testuser', role: 'user' },
+        loading: false,
+        error: null,
+        setupRequired: false,
+        logoutUrl: 'https://auth.example.com/logout',
+      });
+      mockFetch.mockResolvedValueOnce({});
+
+      // Mock window.location.href via defineProperty
+      const hrefSetter = vi.fn();
+      const originalDescriptor = Object.getOwnPropertyDescriptor(window, 'location')!;
+      Object.defineProperty(window, 'location', {
+        value: { ...window.location, set href(v: string) { hrefSetter(v); } },
+        writable: true,
+        configurable: true,
+      });
+
+      await logout();
+
+      expect(hrefSetter).toHaveBeenCalledWith('https://auth.example.com/logout');
+
+      // Restore
+      Object.defineProperty(window, 'location', originalDescriptor);
+    });
+
+    it('should not redirect when logoutUrl is null', async () => {
+      mockFetch.mockResolvedValueOnce({});
+
+      const hrefBefore = window.location.href;
+
+      await logout();
+
+      expect(window.location.href).toBe(hrefBefore);
     });
   });
 
@@ -274,6 +343,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       const user = getUser();
@@ -292,6 +362,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       const user = getUser();
@@ -308,6 +379,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(hasRole('admin')).toBe(true);
@@ -320,6 +392,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(hasRole('admin')).toBe(false);
@@ -332,6 +405,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(hasRole('admin')).toBe(false);
@@ -346,6 +420,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(get(isAdmin)).toBe(false);
@@ -356,6 +431,7 @@ describe('authStore', () => {
         loading: false,
         error: null,
         setupRequired: false,
+      logoutUrl: null,
       });
 
       expect(get(isAdmin)).toBe(true);
