@@ -146,16 +146,22 @@
     try {
       const result = await changeAuthMethod(req);
       if (result.success) {
-        // If switching FROM "none" to an auth method, the current session is now invalid
-        // (the virtual admin had no real session cookie). Force a page reload so the user
-        // can authenticate properly.
+        // Switching FROM "none" to an auth method — the virtual admin session is now invalid.
         if (previousMethod === 'none' && selectedAuthMethod !== 'none') {
-          sessionStorage.setItem('muximux_return_to', 'security');
-          window.location.reload();
-          return;
+          if (selectedAuthMethod === 'forward_auth') {
+            // Don't reload — the user is accessing directly (not through their proxy),
+            // so a reload would lock them out. Show a persistent message instead.
+            securitySuccess = 'Forward auth enabled. Please access this app through your reverse proxy URL to continue.';
+          } else {
+            // For builtin auth, reload so the user can log in with credentials.
+            sessionStorage.setItem('muximux_return_to', 'security');
+            window.location.reload();
+            return;
+          }
+        } else {
+          securitySuccess = `Authentication method changed to ${selectedAuthMethod}`;
+          setTimeout(() => securitySuccess = null, 3000);
         }
-        securitySuccess = `Authentication method changed to ${selectedAuthMethod}`;
-        setTimeout(() => securitySuccess = null, 3000);
       } else {
         methodError = result.message || 'Failed to change method';
       }

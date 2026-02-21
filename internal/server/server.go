@@ -285,6 +285,7 @@ var defaultBypassRules = []auth.BypassRule{
 	{Path: "/browserconfig.xml"},
 	{Path: "/mstile-150x150.png"},
 	{Path: "/login"},
+	{Path: "/api/health"},
 }
 
 // setupAuth creates the session store, user store, and auth middleware from config.
@@ -843,6 +844,7 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 		Method:      auth.AuthMethodBuiltin,
 		BypassRules: defaultBypassRules,
 		APIKey:      s.config.Auth.APIKey,
+		BasePath:    s.config.Server.NormalizedBasePath(),
 	})
 
 	logging.Info("Admin user created", "source", "auth", "user", req.Username)
@@ -880,6 +882,7 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 		Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
 		BypassRules:    defaultBypassRules,
 		APIKey:         apiKey,
+		BasePath:       s.config.Server.NormalizedBasePath(),
 	})
 
 	logging.Info("Forward auth configured", "source", "auth", "proxies", strings.Join(req.TrustedProxies, ","))

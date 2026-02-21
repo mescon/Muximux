@@ -603,6 +603,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	// Apply shared fields and persist
 	authCfg.BypassRules = h.bypassRules
 	authCfg.APIKey = h.config.Auth.APIKey
+	authCfg.BasePath = h.config.Server.NormalizedBasePath()
 
 	if err := func() error {
 		h.configMu.Lock()
