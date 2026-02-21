@@ -67,8 +67,8 @@ Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mes
 - **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC
 - **Optional TLS and gateway** - an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
 - **Guided onboarding** - a setup wizard walks you through security setup and adding your first apps
+- **Split view** - display two apps side by side or stacked with a draggable divider
 - **1,600+ icons** from Lucide plus thousands of service-specific icons from [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)
-- **Keyboard shortcuts** for power users - switch apps, toggle navigation, search, all from the keyboard
 - **Themes** - built-in light and dark modes, plus custom themes via CSS
 
 ---
@@ -197,9 +197,10 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Reverse proxy other sites and services on your network -- things that don't need to be in the Muximux menu -- via a standard Caddyfile |
+| **Split View** | Display two apps side by side or stacked with a draggable divider - toggle on and off with a single click |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
-| **Keyboard Shortcuts** | Configurable keybindings for switching apps, toggling navigation, search |
+| **Keyboard Shortcuts** | Keybindings for switching apps, toggling navigation, and search |
 | **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine) with dark/light variants, plus custom themes via CSS |
 | **Config Export/Import** | Export config as YAML, import to preview and apply - sensitive data stripped on export |
 | **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
