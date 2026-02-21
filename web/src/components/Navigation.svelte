@@ -88,8 +88,58 @@
   let fabDragPointerId = -1;
   let fabDragDidMove = false;
 
-  let fabIsBottom = $derived(fabY > (typeof window !== 'undefined' ? window.innerHeight / 2 : 400));
-  let fabIsRight = $derived(fabX > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400));
+  const PANEL_GAP = 12;
+  const PANEL_MARGIN = 12;
+
+  // Compute panel position so it never overflows the viewport.
+  // Panel appears on the side of the FAB with the most horizontal space.
+  // Vertical anchor: top-aligned when FAB is in the top third, bottom-aligned
+  // in the bottom third, centered in the middle third.
+  let panelPos = $derived.by(() => {
+    if (typeof window === 'undefined') return { left: 0, top: 0, bottom: 'auto' as string | number, maxHeight: 400, width: 300, slideX: '-10px', useBottom: false };
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const half = FAB_SIZE / 2;
+    const pw = isMobile ? Math.min(vw - 48, 360) : 300;
+
+    // Horizontal: pick side with more space
+    const spaceRight = vw - fabX - half - PANEL_GAP;
+    const spaceLeft = fabX - half - PANEL_GAP;
+    let left: number;
+    let slideX: string;
+    if (spaceRight >= spaceLeft) {
+      left = fabX + half + PANEL_GAP;
+      slideX = '-10px';
+    } else {
+      left = fabX - half - PANEL_GAP - pw;
+      slideX = '10px';
+    }
+    left = Math.max(PANEL_MARGIN, Math.min(vw - pw - PANEL_MARGIN, left));
+
+    // Vertical anchor based on FAB position in viewport thirds
+    const topThird = vh / 3;
+    const bottomThird = vh * 2 / 3;
+
+    if (fabY <= topThird) {
+      // Top zone: panel top aligns with FAB top, grows downward
+      const top = Math.max(PANEL_MARGIN, fabY - half);
+      const maxHeight = Math.min(vh * 0.7, vh - top - PANEL_MARGIN);
+      return { left, top, bottom: 'auto' as string | number, maxHeight, width: pw, slideX, useBottom: false };
+    } else if (fabY >= bottomThird) {
+      // Bottom zone: panel bottom aligns with FAB bottom, grows upward
+      const bottom = Math.max(PANEL_MARGIN, vh - fabY - half);
+      const maxHeight = Math.min(vh * 0.7, vh - bottom - PANEL_MARGIN);
+      return { left, top: 0, bottom, maxHeight, width: pw, slideX, useBottom: true };
+    } else {
+      // Middle zone: panel vertically centered on FAB
+      const maxHeight = Math.min(vh * 0.7, vh - PANEL_MARGIN * 2);
+      let top = fabY - maxHeight / 2;
+      if (top < PANEL_MARGIN) top = PANEL_MARGIN;
+      if (top + maxHeight > vh - PANEL_MARGIN) top = vh - PANEL_MARGIN - maxHeight;
+      return { left, top, bottom: 'auto' as string | number, maxHeight, width: pw, slideX, useBottom: false };
+    }
+  });
 
   function floatingPositionToCoords(pos: string): { x: number; y: number } {
     const vw = window.innerWidth, vh = window.innerHeight;
@@ -1760,38 +1810,23 @@
     ></button>
   {/if}
 
-  <div
-    class="z-40 flex gap-3"
-    class:flex-col={fabIsBottom}
-    class:flex-col-reverse={!fabIsBottom}
-    class:items-end={fabIsRight}
-    class:items-start={!fabIsRight}
-    style="
-      position: fixed;
-      left: {fabX}px;
-      top: {fabY}px;
-      transform: translate(-50%, -50%);
-      pointer-events: none;
-      {fabInitialized ? '' : 'visibility: hidden;'}
-    "
-    onmouseenter={handleNavEnter}
-    onmouseleave={handleNavLeave}
-    role="navigation"
-  >
-    <!-- Popover panel -->
-    {#if panelOpen}
-      <div
-        class="floating-panel flex flex-col border rounded-2xl shadow-2xl overflow-hidden"
-        style="
-          pointer-events: auto;
-          width: {isMobile ? 'calc(100vw - 3rem)' : '300px'};
-          max-width: 360px;
-          max-height: 70vh;
-          background: var(--bg-surface);
-          border-color: var(--border-subtle);
-          --float-slide-y: {fabIsBottom ? '10px' : '-10px'};
-        "
-      >
+  <!-- Popover panel — positioned independently from FAB -->
+  {#if panelOpen}
+    <div
+      class="floating-panel fixed z-40 flex flex-col border rounded-2xl shadow-2xl overflow-hidden"
+      style="
+        left: {panelPos.left}px;
+        {panelPos.useBottom ? `bottom: ${panelPos.bottom}px;` : `top: ${panelPos.top}px;`}
+        width: {panelPos.width}px;
+        max-height: {panelPos.maxHeight}px;
+        background: var(--bg-surface);
+        border-color: var(--border-subtle);
+        --float-slide-x: {panelPos.slideX};
+      "
+      onmouseenter={handleNavEnter}
+      onmouseleave={handleNavLeave}
+      role="navigation"
+    >
         <!-- Scrollable app list with groups -->
         <div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col" style="padding: 0.5rem;">
           {#each groupNames as groupName (groupName)}
@@ -1956,14 +1991,25 @@
           {/if}
         </div>
       </div>
-    {/if}
+  {/if}
 
-    <!-- FAB toggle button — always visible, draggable -->
+  <!-- FAB toggle button — fixed at (fabX, fabY), draggable -->
+  <div
+    class="fixed z-40"
+    style="
+      left: {fabX}px;
+      top: {fabY}px;
+      transform: translate(-50%, -50%);
+      {fabInitialized ? '' : 'visibility: hidden;'}
+    "
+    onmouseenter={handleNavEnter}
+    onmouseleave={handleNavLeave}
+    role="navigation"
+  >
     <button
       class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all"
       class:hover:scale-110={!isDraggingFab}
       style="
-        pointer-events: auto;
         opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};
         transition: opacity 0.3s ease;
         cursor: {isDraggingFab ? 'grabbing' : 'grab'};
@@ -2187,11 +2233,11 @@
   @keyframes floatingPanelIn {
     from {
       opacity: 0;
-      transform: translateY(var(--float-slide-y, 10px)) scale(0.97);
+      transform: translateX(var(--float-slide-x, 0)) scale(0.97);
     }
     to {
       opacity: 1;
-      transform: translateY(0) scale(1);
+      transform: translateX(0) scale(1);
     }
   }
 
