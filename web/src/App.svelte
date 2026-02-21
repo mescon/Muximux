@@ -47,6 +47,7 @@
 
   // Toast position adapts to navigation position to avoid overlay
   let toastPosition = $derived.by(() => {
+    if (isMobile) return 'top-right' as const;  // avoid FAB overlap
     const pos = config?.navigation?.position;
     if (pos === 'bottom') return 'top-right' as const;
     if (pos === 'right') return 'bottom-left' as const;
@@ -92,14 +93,14 @@
     }
   });
 
-  // Computed layout properties
-  let navPosition = $derived(config?.navigation.position || 'top');
-  let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
-  let isFloatingLayout = $derived(navPosition === 'floating');
-
   // Mobile swipe state
   let isMobile = $state(false);
   let mainContentElement = $state<HTMLElement | undefined>(undefined);
+
+  // Computed layout properties — force floating nav on mobile
+  let navPosition = $derived(isMobile ? 'floating' : (config?.navigation.position || 'top'));
+  let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
+  let isFloatingLayout = $derived(navPosition === 'floating');
 
   function parseIntervalMs(intervalStr: string, fallback = 30000): number {
     const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);

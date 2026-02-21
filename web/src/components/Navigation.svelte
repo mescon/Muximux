@@ -76,6 +76,12 @@
   // Responsive state
   let isMobile = $state(false);
 
+  // On mobile, force floating nav regardless of config
+  let effectivePosition = $derived(isMobile ? 'floating' : config.navigation.position);
+  let effectiveFloatingPosition = $derived(
+    isMobile ? 'bottom-right' : (config.navigation.floating_position || 'bottom-right')
+  );
+
   // Calculate actual width for sidebars (for layout reflow)
   // When auto_hide is on, always reserve only the collapsed strip in the layout.
   // The expanded sidebar overlays the content instead of pushing it.
@@ -236,9 +242,9 @@
   function handleResizeMove(e: PointerEvent) {
     if (!isResizing) return;
 
-    if (config.navigation.position === 'left') {
+    if (effectivePosition === 'left') {
       sidebarWidth = Math.min(maxWidth, Math.max(minWidth, e.clientX));
-    } else if (config.navigation.position === 'right') {
+    } else if (effectivePosition === 'right') {
       sidebarWidth = Math.min(maxWidth, Math.max(minWidth, window.innerWidth - e.clientX));
     }
   }
@@ -285,8 +291,10 @@
 
   function setupEdgeSwipe() {
     if (!isMobile || !hasTouchSupport) return;
+    // Don't setup sidebar edge swipe when floating is forced on mobile
+    if (effectivePosition === 'floating') return;
 
-    const edge = config.navigation.position === 'right' ? 'right' : 'left';
+    const edge = effectivePosition === 'right' ? 'right' : 'left';
     edgeSwipeHandlers = createEdgeSwipeHandlers(
       edge,
       () => { mobileMenuOpen = true; },
@@ -337,7 +345,7 @@
     hideTimeout = setTimeout(() => {
       isHidden = true;
       footerDrawerOpen = false;
-      if (config.navigation.position === 'floating') panelOpen = false;
+      if (effectivePosition === 'floating') panelOpen = false;
     }, delayMs);
   }
 
@@ -370,7 +378,7 @@
   // Should the footer drawer be active? Only for expanded left/right sidebars on desktop.
   let useFooterDrawer = $derived(
     config.navigation.hide_sidebar_footer &&
-    (config.navigation.position === 'left' || config.navigation.position === 'right') &&
+    (effectivePosition === 'left' || effectivePosition === 'right') &&
     !isMobile
   );
 
@@ -381,7 +389,7 @@
 </script>
 
 <!-- Mobile hamburger menu -->
-{#if isMobile && config.navigation.position !== 'bottom'}
+{#if isMobile && effectivePosition !== 'bottom' && effectivePosition !== 'floating'}
   <button
     class="fixed top-4 left-4 z-50 p-2 bg-bg-surface rounded-lg border border-border text-text-primary lg:hidden"
     onclick={() => mobileMenuOpen = !mobileMenuOpen}
@@ -407,7 +415,7 @@
 {/if}
 
 <!-- TOP NAVIGATION -->
-{#if config.navigation.position === 'top'}
+{#if effectivePosition === 'top'}
   {@const isCollapsedTop = isHidden && config.navigation.auto_hide}
   <nav
     class="relative z-10"
@@ -635,7 +643,7 @@
   </nav>
 
 <!-- LEFT SIDEBAR -->
-{:else if config.navigation.position === 'left'}
+{:else if effectivePosition === 'left'}
   {@const labelsCollapsed = !config.navigation.show_labels && !isMobile}
   {@const isCollapsed = labelsCollapsed || (isHidden && config.navigation.auto_hide && !isMobile)}
   <aside
@@ -927,7 +935,7 @@
   </aside>
 
 <!-- RIGHT SIDEBAR -->
-{:else if config.navigation.position === 'right'}
+{:else if effectivePosition === 'right'}
   {@const labelsCollapsedRight = !config.navigation.show_labels && !isMobile}
   {@const isCollapsedRight = labelsCollapsedRight || (isHidden && config.navigation.auto_hide && !isMobile)}
   <aside
@@ -1218,7 +1226,7 @@
   </aside>
 
 <!-- BOTTOM BAR -->
-{:else if config.navigation.position === 'bottom'}
+{:else if effectivePosition === 'bottom'}
   {@const isCollapsedBottom = isHidden && config.navigation.auto_hide}
   <nav
     class="relative z-10"
@@ -1444,9 +1452,9 @@
     </div> <!-- End bottom-nav-panel -->
   </nav>
 
-{:else if config.navigation.position === 'floating'}
+{:else if effectivePosition === 'floating'}
   {@const isCollapsedFloat = isHidden && config.navigation.auto_hide}
-  {@const floatPos = config.navigation.floating_position || 'bottom-right'}
+  {@const floatPos = effectiveFloatingPosition}
   {@const isBottom = floatPos.startsWith('bottom')}
   {@const isRight = floatPos.endsWith('right')}
 
@@ -1480,7 +1488,8 @@
         class="floating-panel flex flex-col border rounded-2xl shadow-2xl overflow-hidden"
         style="
           pointer-events: auto;
-          width: 300px;
+          width: {isMobile ? 'calc(100vw - 3rem)' : '300px'};
+          max-width: 360px;
           max-height: 70vh;
           background: var(--bg-surface);
           border-color: var(--border-subtle);

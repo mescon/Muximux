@@ -1577,11 +1577,12 @@
 <!-- Icon Browser Modal -->
 {#if showIconBrowser}
   <div
-    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
     transition:fade={{ duration: 100 }}
   >
     <div
-      class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-3xl border border-border"
+      class="bg-bg-surface shadow-2xl w-full border border-border
+             {isMobile ? 'h-full max-h-full rounded-none' : 'rounded-xl max-w-3xl'}"
       in:fly={{ y: 10, duration: 150 }}
       out:fade={{ duration: 75 }}
     >

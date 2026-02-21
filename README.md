@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="web/public/android-chrome-256x256.png" width="128" alt="Muximux">
+</p>
+
 # Muximux
 
 A self-hosted homelab dashboard with an optional built-in reverse proxy that makes stubborn apps work in iframes.
