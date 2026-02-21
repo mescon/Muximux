@@ -703,10 +703,13 @@
         {showSplash}
         onselect={(app) => selectApp(app)}
         onsearch={() => showCommandPalette = true}
-        onsplash={() => showSplash = true}
+        onsplash={() => { resetSplit(); showSplash = true; }}
         onsettings={() => showSettings = !showSettings}
         onlogs={() => { showLogs = true; showSplash = false; resetSplit(); }}
         onlogout={handleLogout}
+        splitEnabled={splitState.enabled}
+        splitOrientation={splitState.orientation}
+        onsplit={() => { toggleSplit(); updateHash(); }}
       />
     {/if}
 

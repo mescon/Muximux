@@ -20,6 +20,9 @@
     onsettings,
     onlogs,
     onlogout,
+    splitEnabled = false,
+    splitOrientation = 'horizontal' as 'horizontal' | 'vertical',
+    onsplit,
   }: {
     apps: App[];
     showHealth?: boolean;
@@ -32,12 +35,21 @@
     onsettings?: () => void;
     onlogs?: () => void;
     onlogout?: () => void;
+    splitEnabled?: boolean;
+    splitOrientation?: 'horizontal' | 'vertical';
+    onsplit?: () => void;
   } = $props();
 
   async function handleLogout() {
     await logout();
     onlogout?.();
   }
+
+  const splitIconPath = $derived(
+    splitOrientation === 'vertical' && splitEnabled
+      ? 'M3 3h18v18H3zM3 12h18'   // Rows2 icon
+      : 'M3 3h18v18H3zM12 3v18'   // Columns2 icon
+  );
 
   // Whether health indicators should be shown for a given app.
   // Health checks are opt-in: only shown when app.health_check === true.
@@ -614,6 +626,17 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
           </svg>
         </button>
+        {#if !isMobile}
+          <button
+            class="p-2 rounded-lg transition-colors {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+            onclick={() => onsplit?.()}
+            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+            </svg>
+          </button>
+        {/if}
         {#if $isAdmin}
           <button
             class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
@@ -820,7 +843,20 @@
               <span style="white-space: nowrap;">Logs</span>
             </button>
 
-
+            {#if !isMobile}
+              <button
+                class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+                onclick={() => onsplit?.()}
+                title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+              >
+                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+                  </svg>
+                </div>
+                <span style="white-space: nowrap;">Split view</span>
+              </button>
+            {/if}
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
@@ -881,6 +917,23 @@
           </div>
           <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
+
+        {#if !isMobile}
+          <button
+            class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+            style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
+            tabindex={isCollapsed ? -1 : 0}
+            onclick={() => onsplit?.()}
+            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Split view</span>
+          </button>
+        {/if}
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
@@ -1111,7 +1164,20 @@
               <span style="white-space: nowrap;">Logs</span>
             </button>
 
-
+            {#if !isMobile}
+              <button
+                class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+                onclick={() => onsplit?.()}
+                title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+              >
+                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+                  </svg>
+                </div>
+                <span style="white-space: nowrap;">Split view</span>
+              </button>
+            {/if}
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
               <button
@@ -1172,6 +1238,23 @@
           </div>
           <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
+
+        {#if !isMobile}
+          <button
+            class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+            style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
+            tabindex={isCollapsedRight ? -1 : 0}
+            onclick={() => onsplit?.()}
+            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Split view</span>
+          </button>
+        {/if}
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
@@ -1424,6 +1507,17 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
           </svg>
         </button>
+        {#if !isMobile}
+          <button
+            class="p-2 rounded-lg transition-colors {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+            onclick={() => onsplit?.()}
+            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+            </svg>
+          </button>
+        {/if}
         {#if $isAdmin}
           <button
             class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
@@ -1611,6 +1705,17 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
             </svg>
           </button>
+          {#if !isMobile}
+            <button
+              class="p-1.5 rounded-lg transition-colors {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
+              onclick={() => onsplit?.()}
+              title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
+              </svg>
+            </button>
+          {/if}
           {#if $isAdmin}
             <button
               class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
@@ -1618,7 +1723,7 @@
               title="Settings"
             >
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
             </button>
