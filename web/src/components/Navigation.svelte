@@ -73,6 +73,106 @@
     return $healthData.get(app.name)?.status === 'unhealthy';
   }
 
+  // Draggable floating FAB state
+  const FAB_MARGIN = 24;
+  const FAB_SIZE = 56;
+  const DRAG_THRESHOLD = 5;
+  const FAB_LS_KEY = 'muximux_fab_position';
+
+  let fabX = $state(0);
+  let fabY = $state(0);
+  let fabInitialized = $state(false);
+  let isDraggingFab = $state(false);
+  let fabDragStartX = 0;
+  let fabDragStartY = 0;
+  let fabDragPointerId = -1;
+  let fabDragDidMove = false;
+
+  let fabIsBottom = $derived(fabY > (typeof window !== 'undefined' ? window.innerHeight / 2 : 400));
+  let fabIsRight = $derived(fabX > (typeof window !== 'undefined' ? window.innerWidth / 2 : 400));
+
+  function floatingPositionToCoords(pos: string): { x: number; y: number } {
+    const vw = window.innerWidth, vh = window.innerHeight;
+    const half = FAB_SIZE / 2;
+    return {
+      x: pos.endsWith('right') ? vw - FAB_MARGIN - half : FAB_MARGIN + half,
+      y: pos.startsWith('bottom') ? vh - FAB_MARGIN - half : FAB_MARGIN + half,
+    };
+  }
+
+  function clampFabPosition(x: number, y: number) {
+    const half = FAB_SIZE / 2;
+    return {
+      x: Math.min(window.innerWidth - FAB_MARGIN - half, Math.max(FAB_MARGIN + half, x)),
+      y: Math.min(window.innerHeight - FAB_MARGIN - half, Math.max(FAB_MARGIN + half, y)),
+    };
+  }
+
+  function persistFabPosition() {
+    localStorage.setItem(FAB_LS_KEY, JSON.stringify({ x: fabX, y: fabY }));
+  }
+
+  function handleFabResize() {
+    if (!fabInitialized) return;
+    const c = clampFabPosition(fabX, fabY);
+    fabX = c.x; fabY = c.y;
+    persistFabPosition();
+  }
+
+  function handleFabPointerDown(e: PointerEvent) {
+    if (e.button !== 0) return;
+    fabDragStartX = e.clientX;
+    fabDragStartY = e.clientY;
+    fabDragPointerId = e.pointerId;
+    fabDragDidMove = false;
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+    document.addEventListener('pointermove', handleFabPointerMove);
+    document.addEventListener('pointerup', handleFabPointerUp);
+    document.addEventListener('pointercancel', handleFabPointerUp);
+  }
+
+  function handleFabPointerMove(e: PointerEvent) {
+    if (e.pointerId !== fabDragPointerId) return;
+    const dx = e.clientX - fabDragStartX;
+    const dy = e.clientY - fabDragStartY;
+
+    if (!fabDragDidMove) {
+      if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+      fabDragDidMove = true;
+      isDraggingFab = true;
+      if (panelOpen) panelOpen = false;
+      handleNavEnter();
+      document.body.style.cursor = 'grabbing';
+      document.querySelectorAll('iframe').forEach(f => {
+        (f as HTMLElement).style.pointerEvents = 'none';
+      });
+    }
+
+    const c = clampFabPosition(e.clientX, e.clientY);
+    fabX = c.x;
+    fabY = c.y;
+  }
+
+  function handleFabPointerUp(e: PointerEvent) {
+    if (e.pointerId !== fabDragPointerId) return;
+    document.removeEventListener('pointermove', handleFabPointerMove);
+    document.removeEventListener('pointerup', handleFabPointerUp);
+    document.removeEventListener('pointercancel', handleFabPointerUp);
+    fabDragPointerId = -1;
+
+    if (fabDragDidMove) {
+      isDraggingFab = false;
+      persistFabPosition();
+      document.body.style.cursor = '';
+      document.querySelectorAll('iframe').forEach(f => {
+        (f as HTMLElement).style.pointerEvents = '';
+      });
+    } else {
+      panelOpen = !panelOpen;
+      if (panelOpen) isHidden = false;
+    }
+  }
+
   // Sidebar width state (for left/right layouts)
   let sidebarWidth = $state(220);
   let isResizing = $state(false);
@@ -202,11 +302,31 @@
 
     window.addEventListener('keydown', handlePanelKeydown);
 
+    // Restore FAB position from localStorage or fall back to config corner
+    const storedFab = localStorage.getItem(FAB_LS_KEY);
+    if (storedFab) {
+      try {
+        const p = JSON.parse(storedFab);
+        const c = clampFabPosition(p.x, p.y);
+        fabX = c.x; fabY = c.y;
+      } catch { /* fall through to default */ }
+    }
+    if (!fabX && !fabY) {
+      const coords = floatingPositionToCoords(effectiveFloatingPosition);
+      fabX = coords.x; fabY = coords.y;
+    }
+    fabInitialized = true;
+    window.addEventListener('resize', handleFabResize);
+
     return () => {
       window.removeEventListener('resize', checkResponsive);
+      window.removeEventListener('resize', handleFabResize);
       document.removeEventListener('pointermove', handleResizeMove);
       document.removeEventListener('pointerup', handleResizeEnd);
       document.removeEventListener('pointercancel', handleResizeEnd);
+      document.removeEventListener('pointermove', handleFabPointerMove);
+      document.removeEventListener('pointerup', handleFabPointerUp);
+      document.removeEventListener('pointercancel', handleFabPointerUp);
       cleanupEdgeSwipe();
       window.removeEventListener('keydown', handlePanelKeydown);
     };
@@ -1630,9 +1750,6 @@
 
 {:else if effectivePosition === 'floating'}
   {@const isCollapsedFloat = isHidden && config.navigation.auto_hide}
-  {@const floatPos = effectiveFloatingPosition}
-  {@const isBottom = floatPos.startsWith('bottom')}
-  {@const isRight = floatPos.endsWith('right')}
 
   <!-- Click-outside overlay to close panel -->
   {#if panelOpen}
@@ -1644,16 +1761,19 @@
   {/if}
 
   <div
-    class="fixed z-40 flex gap-3"
-    class:bottom-6={isBottom}
-    class:top-6={!isBottom}
-    class:right-6={isRight}
-    class:left-6={!isRight}
-    class:flex-col={isBottom}
-    class:flex-col-reverse={!isBottom}
-    class:items-end={isRight}
-    class:items-start={!isRight}
-    style="pointer-events: none;"
+    class="z-40 flex gap-3"
+    class:flex-col={fabIsBottom}
+    class:flex-col-reverse={!fabIsBottom}
+    class:items-end={fabIsRight}
+    class:items-start={!fabIsRight}
+    style="
+      position: fixed;
+      left: {fabX}px;
+      top: {fabY}px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      {fabInitialized ? '' : 'visibility: hidden;'}
+    "
     onmouseenter={handleNavEnter}
     onmouseleave={handleNavLeave}
     role="navigation"
@@ -1669,6 +1789,7 @@
           max-height: 70vh;
           background: var(--bg-surface);
           border-color: var(--border-subtle);
+          --float-slide-y: {fabIsBottom ? '10px' : '-10px'};
         "
       >
         <!-- Scrollable app list with groups -->
@@ -1837,11 +1958,19 @@
       </div>
     {/if}
 
-    <!-- FAB toggle button — always visible -->
+    <!-- FAB toggle button — always visible, draggable -->
     <button
-      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all hover:scale-110"
-      style="pointer-events: auto; opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1}; transition: opacity 0.3s ease;"
-      onclick={() => { panelOpen = !panelOpen; if (panelOpen) isHidden = false; }}
+      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all"
+      class:hover:scale-110={!isDraggingFab}
+      style="
+        pointer-events: auto;
+        opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};
+        transition: opacity 0.3s ease;
+        cursor: {isDraggingFab ? 'grabbing' : 'grab'};
+        touch-action: none;
+      "
+      onpointerdown={handleFabPointerDown}
+      ondblclick={(e) => { e.preventDefault(); const c = floatingPositionToCoords(effectiveFloatingPosition); fabX = c.x; fabY = c.y; persistFabPosition(); }}
       title={panelOpen ? 'Close navigation' : config.title}
     >
       <svg class="w-6 h-6 transition-transform duration-200" style="transform: rotate({panelOpen ? '90deg' : '0deg'});" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -2058,7 +2187,7 @@
   @keyframes floatingPanelIn {
     from {
       opacity: 0;
-      transform: translateY(10px) scale(0.97);
+      transform: translateY(var(--float-slide-y, 10px)) scale(0.97);
     }
     to {
       opacity: 1;
