@@ -2,16 +2,6 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [3.0.1] - 2026-02-21
-
-### Bug Fixes
-
-- Fix base path not propagated when switching auth methods, causing login redirects to fail in base-path deployments
-- Add `/api/health` to auth bypass rules so Docker HEALTHCHECK works with forward auth enabled
-- Don't reload page when switching from no-auth to forward auth, which would lock users out of the UI
-
-[3.0.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.1
-
 ## [3.0.0] - 2026-02-21
 
 ### Ground-Up Rewrite
@@ -46,14 +36,13 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 - Forward auth support (Authelia, Authentik) with dedicated external authentication login page
 - OIDC provider integration
 - User management with roles (admin, power-user, user)
-- Live auth method switching without restart
 - API key authentication for programmatic access
 - Rate-limited login and setup endpoints
 
 **TLS & Gateway**
 - Automatic HTTPS via Let's Encrypt (embedded Caddy)
 - Manual certificate support
-- Gateway mode to serve additional sites alongside Muximux via Caddyfile
+- Gateway mode -- reverse proxy other sites and services on your network that don't need to be in the Muximux menu, via Caddyfile
 
 **Real-Time Log Viewer**
 - In-app log viewer with level and source filtering
@@ -77,12 +66,12 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 - Auto-hide with configurable delay
 - Collapsible groups with drag-and-drop reordering
 - Command palette with fuzzy search (`/` or `Ctrl+K`)
-- Iframe caching -- visited app iframes stay in the DOM for instant switching without reload, lost scroll position, or re-authentication
+- Iframe caching -- visited app iframes stay in the DOM for instant switching without reload
 - Hash-based app routing -- URL hash links to specific apps (e.g. `#plex`) with browser back/forward navigation
 - Dynamic themed favicons matching the current theme's accent color
 
 **Themes**
-- 9 built-in theme families with dark/light variants: Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Plex, Rose Pine
+- 9 built-in theme families with dark/light variants: Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine
 - System variant follows OS dark/light preference
 - Custom theme editor with CSS custom properties
 - Theme import/export
@@ -97,7 +86,6 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 **Keyboard Shortcuts**
 - Configurable keybindings for all actions
 - Per-app shortcut assignment with number keys (1-9)
-- Per-app shortcut disabling for apps with their own shortcuts
 
 **Config Export/Import**
 - Export configuration as YAML with sensitive data stripped

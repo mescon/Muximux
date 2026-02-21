@@ -25,7 +25,7 @@ Muximux ships with multiple built-in theme families, each with dark and light va
 - **Solarized** -- Ethan Schoonover's precision-crafted color scheme.
 - **Tokyo Night** -- Inspired by Tokyo city lights at night.
 - **Gruvbox** -- Retro groove with warm, earthy colors.
-- **Plex** -- Inspired by the Plex media player interface.
+- **Cineplex** -- Warm amber and gold tones inspired by media player interfaces.
 - **Rose Pine** -- Soft, muted tones with a natural feel.
 
 Built-in themes cannot be deleted.
