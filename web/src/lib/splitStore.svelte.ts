@@ -16,23 +16,26 @@ export const splitState: SplitState = $state({
   dividerPosition: 0.5,
 });
 
-export function toggleSplit(): void {
-  if (!splitState.enabled) {
-    splitState.enabled = true;
-    splitState.orientation = 'horizontal';
-    splitState.activePanel = 1;
-    // panels[0] keeps current app, panels[1] starts empty
-  } else if (splitState.orientation === 'horizontal') {
-    splitState.orientation = 'vertical';
-  } else {
-    // Disable: keep the active panel's app
-    const keepApp = splitState.panels[splitState.activePanel];
-    splitState.enabled = false;
-    splitState.panels[0] = keepApp;
-    splitState.panels[1] = null;
-    splitState.activePanel = 0;
-    splitState.dividerPosition = 0.5;
+export function enableSplit(orientation: 'horizontal' | 'vertical'): void {
+  if (splitState.enabled) {
+    // Already split — just switch orientation
+    splitState.orientation = orientation;
+    return;
   }
+  splitState.enabled = true;
+  splitState.orientation = orientation;
+  splitState.activePanel = 1;
+  // panels[0] keeps current app, panels[1] starts empty
+}
+
+export function disableSplit(): void {
+  if (!splitState.enabled) return;
+  const keepApp = splitState.panels[splitState.activePanel];
+  splitState.enabled = false;
+  splitState.panels[0] = keepApp;
+  splitState.panels[1] = null;
+  splitState.activePanel = 0;
+  splitState.dividerPosition = 0.5;
 }
 
 export function setActivePanel(index: 0 | 1): void {
@@ -52,16 +55,6 @@ export function setPanelApp(app: App): void {
   }
 
   splitState.panels[splitState.activePanel] = app;
-}
-
-export function closeSplitPanel(index: 0 | 1): void {
-  const keepIndex = index === 0 ? 1 : 0;
-  const keepApp = splitState.panels[keepIndex];
-  splitState.enabled = false;
-  splitState.panels[0] = keepApp;
-  splitState.panels[1] = null;
-  splitState.activePanel = 0;
-  splitState.dividerPosition = 0.5;
 }
 
 export function updateDividerPosition(position: number): void {

@@ -1,10 +1,12 @@
 <script lang="ts">
   let {
     orientation,
+    activePanel,
     onresize,
     ondblclick,
   }: {
     orientation: 'horizontal' | 'vertical';
+    activePanel: 0 | 1;
     onresize: (position: number) => void;
     ondblclick: () => void;
   } = $props();
@@ -56,8 +58,12 @@
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div
   bind:this={dividerRef}
-  class="split-divider {orientation === 'horizontal' ? 'split-divider-h' : 'split-divider-v'}"
+  class="split-divider"
+  class:split-divider-h={orientation === 'horizontal'}
+  class:split-divider-v={orientation === 'vertical'}
   class:dragging={isDragging}
+  class:active-0={activePanel === 0}
+  class:active-1={activePanel === 1}
   onpointerdown={handlePointerDown}
   onpointermove={handlePointerMove}
   onpointerup={handlePointerUp}
@@ -71,6 +77,7 @@
     flex-shrink: 0;
     z-index: 10;
     transition: background 0.15s;
+    position: relative;
   }
 
   .split-divider:hover,
@@ -78,6 +85,7 @@
     background: var(--accent);
   }
 
+  /* Horizontal divider */
   .split-divider-h {
     width: 4px;
     cursor: col-resize;
@@ -90,6 +98,7 @@
     margin-right: -1px;
   }
 
+  /* Vertical divider */
   .split-divider-v {
     height: 4px;
     cursor: row-resize;
@@ -100,5 +109,22 @@
     height: 6px;
     margin-top: -1px;
     margin-bottom: -1px;
+  }
+
+  /* Active panel accent line — 2px accent on the active side */
+  .split-divider-h.active-0 {
+    border-left: 2px solid var(--accent-primary);
+  }
+
+  .split-divider-h.active-1 {
+    border-right: 2px solid var(--accent-primary);
+  }
+
+  .split-divider-v.active-0 {
+    border-top: 2px solid var(--accent-primary);
+  }
+
+  .split-divider-v.active-1 {
+    border-bottom: 2px solid var(--accent-primary);
   }
 </style>

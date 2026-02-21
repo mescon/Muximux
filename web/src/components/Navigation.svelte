@@ -22,7 +22,11 @@
     onlogout,
     splitEnabled = false,
     splitOrientation = 'horizontal' as 'horizontal' | 'vertical',
-    onsplit,
+    splitActivePanel = 0 as 0 | 1,
+    onsplithorizontal,
+    onsplitvertical,
+    onsplitclose,
+    onsplitpanel,
   }: {
     apps: App[];
     showHealth?: boolean;
@@ -37,7 +41,11 @@
     onlogout?: () => void;
     splitEnabled?: boolean;
     splitOrientation?: 'horizontal' | 'vertical';
-    onsplit?: () => void;
+    splitActivePanel?: 0 | 1;
+    onsplithorizontal?: () => void;
+    onsplitvertical?: () => void;
+    onsplitclose?: () => void;
+    onsplitpanel?: (panel: 0 | 1) => void;
   } = $props();
 
   async function handleLogout() {
@@ -45,11 +53,13 @@
     onlogout?.();
   }
 
-  const splitIconPath = $derived(
-    splitOrientation === 'vertical' && splitEnabled
-      ? 'M3 3h18v18H3zM3 12h18'   // Rows2 icon
-      : 'M3 3h18v18H3zM12 3v18'   // Columns2 icon
-  );
+  // Split icon SVG paths (Lucide Columns2 and Rows2 rects)
+  const splitHPath = 'M3 3h7v18H3zM14 3h7v18h-7z';
+  const splitVPath = 'M3 3h18v7H3zM3 14h18v7H3z';
+
+  // Panel selector arrow paths based on orientation
+  const panelArrow0 = $derived(splitOrientation === 'vertical' ? 'M18 15l-6-6-6 6' : 'M15 18l-6-6 6-6');
+  const panelArrow1 = $derived(splitOrientation === 'vertical' ? 'M6 9l6 6 6-6' : 'M9 18l6-6-6-6');
 
   // Whether health indicators should be shown for a given app.
   // Health checks are opt-in: only shown when app.health_check === true.
@@ -627,15 +637,27 @@
           </svg>
         </button>
         {#if !isMobile}
-          <button
-            class="p-2 rounded-lg transition-colors {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-            onclick={() => onsplit?.()}
-            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-            </svg>
-          </button>
+          {#if splitEnabled}
+            <div class="flex items-center gap-0.5">
+              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </button>
+              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+              </button>
+              <div class="flex items-center">
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+              </div>
+              <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+          {:else}
+            <button class="p-2 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title="Split view">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+            </button>
+          {/if}
         {/if}
         {#if $isAdmin}
           <button
@@ -844,18 +866,31 @@
             </button>
 
             {#if !isMobile}
-              <button
-                class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-                onclick={() => onsplit?.()}
-                title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-              >
-                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-                  </svg>
+              {#if splitEnabled}
+                <div class="w-full flex items-center py-1.5 gap-1">
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+                  </button>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+                  </button>
+                  <div class="flex items-center">
+                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                  </div>
+                  <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+                  </button>
                 </div>
-                <span style="white-space: nowrap;">Split view</span>
-              </button>
+              {:else}
+                <button class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title="Split view">
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+                  </div>
+                  <span style="white-space: nowrap;">Split view</span>
+                </button>
+              {/if}
             {/if}
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
@@ -919,20 +954,31 @@
         </button>
 
         {#if !isMobile}
-          <button
-            class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-            style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
-            tabindex={isCollapsed ? -1 : 0}
-            onclick={() => onsplit?.()}
-            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-          >
-            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-              </svg>
+          {#if splitEnabled}
+            <div class="w-full flex items-center py-1.5 gap-1" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};">
+              <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </button>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+              </button>
+              <div class="flex items-center">
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+              </div>
+              <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
             </div>
-            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Split view</span>
-          </button>
+          {:else}
+            <button class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};" tabindex={isCollapsed ? -1 : 0} onclick={() => onsplithorizontal?.()} title="Split view">
+              <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </div>
+              <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Split view</span>
+            </button>
+          {/if}
         {/if}
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
@@ -1165,18 +1211,31 @@
             </button>
 
             {#if !isMobile}
-              <button
-                class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-                onclick={() => onsplit?.()}
-                title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-              >
-                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-                  </svg>
+              {#if splitEnabled}
+                <div class="w-full flex items-center py-1.5 gap-1">
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+                  </button>
+                  <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+                  </button>
+                  <div class="flex items-center">
+                    <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                  </div>
+                  <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+                  </button>
                 </div>
-                <span style="white-space: nowrap;">Split view</span>
-              </button>
+              {:else}
+                <button class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title="Split view">
+                  <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+                  </div>
+                  <span style="white-space: nowrap;">Split view</span>
+                </button>
+              {/if}
             {/if}
 
             {#if hasRealAuth && $isAuthenticated && $currentUser}
@@ -1240,20 +1299,31 @@
         </button>
 
         {#if !isMobile}
-          <button
-            class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-            style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
-            tabindex={isCollapsedRight ? -1 : 0}
-            onclick={() => onsplit?.()}
-            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-          >
-            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-              </svg>
+          {#if splitEnabled}
+            <div class="w-full flex items-center py-1.5 gap-1" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};">
+              <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;"></div>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </button>
+              <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+              </button>
+              <div class="flex items-center">
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+              </div>
+              <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
             </div>
-            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Split view</span>
-          </button>
+          {:else}
+            <button class="w-full flex items-center py-1.5 rounded-lg transition-colors text-sm text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};" tabindex={isCollapsedRight ? -1 : 0} onclick={() => onsplithorizontal?.()} title="Split view">
+              <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </div>
+              <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Split view</span>
+            </button>
+          {/if}
         {/if}
 
         {#if hasRealAuth && $isAuthenticated && $currentUser}
@@ -1508,15 +1578,27 @@
           </svg>
         </button>
         {#if !isMobile}
-          <button
-            class="p-2 rounded-lg transition-colors {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-            onclick={() => onsplit?.()}
-            title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-            </svg>
-          </button>
+          {#if splitEnabled}
+            <div class="flex items-center gap-0.5">
+              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </button>
+              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+              </button>
+              <div class="flex items-center">
+                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+              </div>
+              <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+              </button>
+            </div>
+          {:else}
+            <button class="p-2 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title="Split view">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+            </button>
+          {/if}
         {/if}
         {#if $isAdmin}
           <button
@@ -1706,15 +1788,27 @@
             </svg>
           </button>
           {#if !isMobile}
-            <button
-              class="p-1.5 rounded-lg transition-colors {splitEnabled ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}"
-              onclick={() => onsplit?.()}
-              title={splitEnabled ? (splitOrientation === 'horizontal' ? 'Switch to vertical split' : 'Exit split view') : 'Split view'}
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d={splitIconPath} />
-              </svg>
-            </button>
+            {#if splitEnabled}
+              <div class="flex items-center gap-0.5">
+                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+                </button>
+                <button class="p-1 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+                </button>
+                <div class="flex items-center">
+                  <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+                                    <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+                </div>
+                <button class="p-1 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title="Close split">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+                </button>
+              </div>
+            {:else}
+              <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title="Split view">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+              </button>
+            {/if}
           {/if}
           {#if $isAdmin}
             <button

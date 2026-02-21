@@ -27,7 +27,7 @@
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { initDebug, debug } from './lib/debug';
   import { syncFaviconsWithTheme } from './lib/favicon';
-  import { splitState, toggleSplit, setActivePanel, setPanelApp, closeSplitPanel, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
+  import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
 
   let config = $state<Config | null>(null);
@@ -102,7 +102,7 @@
   // Computed layout properties — force floating nav on mobile
   let navPosition = $derived(isMobile ? 'floating' : (config?.navigation.position || 'top'));
   let isHorizontalLayout = $derived(navPosition === 'left' || navPosition === 'right');
-  let isFloatingLayout = $derived(navPosition === 'floating');
+
 
   function parseIntervalMs(intervalStr: string, fallback = 30000): number {
     const match = intervalStr.match(/^(\d+)(ms|s|m)?$/);
@@ -444,7 +444,7 @@
       if (app1 && app2 && !isMobile) {
         visitedAppNames.add(app1.name);
         visitedAppNames.add(app2.name);
-        if (!splitState.enabled) toggleSplit();
+        if (!splitState.enabled) enableSplit('horizontal');
         splitState.activePanel = 0;
         setPanelApp(app1);
         splitState.activePanel = 1;
@@ -688,7 +688,7 @@
   <div
     class="h-full overflow-hidden"
     style="background: var(--bg-base);"
-    class:flex={!isFloatingLayout && !$isFullscreen}
+    class:flex={!$isFullscreen}
     class:flex-row={isHorizontalLayout && navPosition === 'left' && !$isFullscreen}
     class:flex-row-reverse={isHorizontalLayout && navPosition === 'right' && !$isFullscreen}
     class:flex-col={!isHorizontalLayout && navPosition === 'top' && !$isFullscreen}
@@ -703,13 +703,17 @@
         {showSplash}
         onselect={(app) => selectApp(app)}
         onsearch={() => showCommandPalette = true}
-        onsplash={() => { resetSplit(); showSplash = true; }}
+        onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { showSplash = true; showLogs = false; } }}
         onsettings={() => showSettings = !showSettings}
-        onlogs={() => { showLogs = true; showSplash = false; resetSplit(); }}
+        onlogs={() => { if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; } else { showLogs = true; showSplash = false; } }}
         onlogout={handleLogout}
         splitEnabled={splitState.enabled}
         splitOrientation={splitState.orientation}
-        onsplit={() => { toggleSplit(); updateHash(); }}
+        splitActivePanel={splitState.activePanel}
+        onsplithorizontal={() => { showSplash = false; showLogs = false; enableSplit('horizontal'); updateHash(); }}
+        onsplitvertical={() => { showSplash = false; showLogs = false; enableSplit('vertical'); updateHash(); }}
+        onsplitclose={() => { disableSplit(); updateHash(); showSplash = !splitState.panels[0]; }}
+        onsplitpanel={(panel) => setActivePanel(panel)}
       />
     {/if}
 
@@ -725,7 +729,7 @@
       {#if showSplash && !$isFullscreen}
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {:else if showLogs}
-        <Logs onclose={() => { showLogs = false; showSplash = true; }} />
+        <Logs onclose={() => { showLogs = false; showSplash = !splitState.panels[0]; }} />
       {:else if $isFullscreen && !currentApp}
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {/if}
@@ -747,21 +751,6 @@
             role="region"
             aria-label="Split panel 1"
           >
-            {#if splitState.activePanel === 0}
-              <div class="absolute inset-0 pointer-events-none ring-2 ring-inset z-[5]" style="--tw-ring-color: var(--accent-primary);"></div>
-            {/if}
-            {#if splitState.panels[0]}
-              <button
-                class="absolute top-2 right-2 z-10 p-1 rounded bg-black/40 hover:bg-black/60 text-white/70 hover:text-white transition-opacity opacity-0 hover:opacity-100"
-                style="pointer-events: auto;"
-                onclick={(e) => { e.stopPropagation(); closeSplitPanel(0); updateHash(); }}
-                title="Close panel"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            {/if}
             {#each visitedApps as app (app.name)}
               <div
                 class="absolute inset-0"
@@ -771,14 +760,18 @@
               </div>
             {/each}
             {#if !splitState.panels[0]}
-              <div class="absolute inset-0 flex items-center justify-center" style="color: var(--text-muted);">
-                <p>Select an app</p>
+              <div class="absolute inset-0 flex flex-col items-center justify-center gap-3" style="background: var(--bg-primary);">
+                <svg class="w-10 h-10" style="color: var(--text-muted); opacity: 0.4;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-4.5-4.5L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                <p class="text-sm" style="color: var(--text-muted);">Select an app from the navigation</p>
               </div>
             {/if}
           </div>
 
           <SplitDivider
             orientation={splitState.orientation}
+            activePanel={splitState.activePanel}
             onresize={(pos) => updateDividerPosition(pos)}
             ondblclick={() => updateDividerPosition(0.5)}
           />
@@ -792,21 +785,6 @@
             role="region"
             aria-label="Split panel 2"
           >
-            {#if splitState.activePanel === 1}
-              <div class="absolute inset-0 pointer-events-none ring-2 ring-inset z-[5]" style="--tw-ring-color: var(--accent-primary);"></div>
-            {/if}
-            {#if splitState.panels[1]}
-              <button
-                class="absolute top-2 right-2 z-10 p-1 rounded bg-black/40 hover:bg-black/60 text-white/70 hover:text-white transition-opacity opacity-0 hover:opacity-100"
-                style="pointer-events: auto;"
-                onclick={(e) => { e.stopPropagation(); closeSplitPanel(1); updateHash(); }}
-                title="Close panel"
-              >
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            {/if}
             {#each visitedApps as app (app.name)}
               <div
                 class="absolute inset-0"
@@ -816,8 +794,11 @@
               </div>
             {/each}
             {#if !splitState.panels[1]}
-              <div class="absolute inset-0 flex items-center justify-center" style="color: var(--text-muted);">
-                <p>Select an app</p>
+              <div class="absolute inset-0 flex flex-col items-center justify-center gap-3" style="background: var(--bg-primary);">
+                <svg class="w-10 h-10" style="color: var(--text-muted); opacity: 0.4;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-4.5-4.5L21 3m0 0h-5.25M21 3v5.25" />
+                </svg>
+                <p class="text-sm" style="color: var(--text-muted);">Select an app from the navigation</p>
               </div>
             {/if}
           </div>

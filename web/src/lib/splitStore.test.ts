@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import {
   splitState,
-  toggleSplit,
+  enableSplit,
+  disableSplit,
   setActivePanel,
   setPanelApp,
-  closeSplitPanel,
   updateDividerPosition,
   resetSplit
 } from './splitStore.svelte';
@@ -27,35 +27,44 @@ describe('splitStore', () => {
     });
   });
 
-  describe('toggleSplit', () => {
-    it('cycles off -> horizontal -> vertical -> off', () => {
-      toggleSplit();
+  describe('enableSplit', () => {
+    it('enables horizontal split', () => {
+      enableSplit('horizontal');
       expect(splitState.enabled).toBe(true);
       expect(splitState.orientation).toBe('horizontal');
-
-      toggleSplit();
-      expect(splitState.enabled).toBe(true);
-      expect(splitState.orientation).toBe('vertical');
-
-      toggleSplit();
-      expect(splitState.enabled).toBe(false);
-    });
-
-    it('preserves panels[0] when enabling and sets activePanel to 1', () => {
-      splitState.panels[0] = sonarr;
-      toggleSplit();
-      expect(splitState.panels[0]).toEqual(sonarr);
-      expect(splitState.panels[1]).toBeNull();
       expect(splitState.activePanel).toBe(1);
     });
 
+    it('enables vertical split', () => {
+      enableSplit('vertical');
+      expect(splitState.enabled).toBe(true);
+      expect(splitState.orientation).toBe('vertical');
+      expect(splitState.activePanel).toBe(1);
+    });
+
+    it('preserves panels[0] when enabling', () => {
+      splitState.panels[0] = sonarr;
+      enableSplit('horizontal');
+      expect(splitState.panels[0]).toEqual(sonarr);
+      expect(splitState.panels[1]).toBeNull();
+    });
+
+    it('switches orientation when already enabled', () => {
+      enableSplit('horizontal');
+      expect(splitState.orientation).toBe('horizontal');
+      enableSplit('vertical');
+      expect(splitState.orientation).toBe('vertical');
+      expect(splitState.enabled).toBe(true);
+    });
+  });
+
+  describe('disableSplit', () => {
     it('keeps activePanel app when disabling', () => {
       splitState.enabled = true;
       splitState.panels[0] = sonarr;
       splitState.panels[1] = radarr;
       splitState.activePanel = 1;
-      toggleSplit(); // -> vertical
-      toggleSplit(); // -> off
+      disableSplit();
       expect(splitState.enabled).toBe(false);
       expect(splitState.panels[0]).toEqual(radarr);
       expect(splitState.panels[1]).toBeNull();
@@ -64,9 +73,13 @@ describe('splitStore', () => {
     it('resets divider position when disabling', () => {
       splitState.enabled = true;
       splitState.dividerPosition = 0.3;
-      toggleSplit(); // -> vertical
-      toggleSplit(); // -> off
+      disableSplit();
       expect(splitState.dividerPosition).toBe(0.5);
+    });
+
+    it('does nothing when already disabled', () => {
+      disableSplit();
+      expect(splitState.enabled).toBe(false);
     });
   });
 
@@ -101,28 +114,6 @@ describe('splitStore', () => {
     it('works in single mode by setting panels[0]', () => {
       setPanelApp(sonarr);
       expect(splitState.panels[0]).toEqual(sonarr);
-    });
-  });
-
-  describe('closeSplitPanel', () => {
-    it('exits split keeping the other panel app', () => {
-      splitState.enabled = true;
-      splitState.panels[0] = sonarr;
-      splitState.panels[1] = radarr;
-      closeSplitPanel(0);
-      expect(splitState.enabled).toBe(false);
-      expect(splitState.panels[0]).toEqual(radarr);
-      expect(splitState.panels[1]).toBeNull();
-    });
-
-    it('exits split keeping panel 0 when closing panel 1', () => {
-      splitState.enabled = true;
-      splitState.panels[0] = sonarr;
-      splitState.panels[1] = radarr;
-      closeSplitPanel(1);
-      expect(splitState.enabled).toBe(false);
-      expect(splitState.panels[0]).toEqual(sonarr);
-      expect(splitState.panels[1]).toBeNull();
     });
   });
 
