@@ -27,10 +27,12 @@
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { initDebug, debug } from './lib/debug';
   import { syncFaviconsWithTheme } from './lib/favicon';
+  import { splitState, toggleSplit, setActivePanel, setPanelApp, closeSplitPanel, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
+  import SplitDivider from './components/SplitDivider.svelte';
 
   let config = $state<Config | null>(null);
   let apps = $state<App[]>([]);
-  let currentApp = $state<App | null>(null);
+  let currentApp = $derived(splitState.panels[splitState.activePanel]);
   let showSplash = $state(true);
   let showSettings = $state(false);
   let settingsInitialTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
@@ -88,7 +90,7 @@
   // Keep URL hash in sync: clear it when returning to splash / no app.
   // Guard with `loading` so the hash isn't wiped before showDefaultApp() reads it.
   $effect(() => {
-    if (!loading && !currentApp && location.hash) {
+    if (!loading && !splitState.panels[0] && !splitState.panels[1] && location.hash) {
       history.replaceState(null, '', location.pathname + location.search);
     }
   });
@@ -180,8 +182,8 @@
     window.addEventListener('hashchange', () => {
       if (location.hash) {
         selectAppFromHash();
-      } else if (currentApp) {
-        currentApp = null;
+      } else if (splitState.panels[0] || splitState.panels[1]) {
+        resetSplit();
         showSplash = true;
       }
     });
@@ -261,9 +263,15 @@
         if (newConfig.theme) {
           syncFromConfig(newConfig.theme);
         }
-        // Reset current app if it no longer exists
-        if (currentApp && !apps.find(a => a.name === currentApp?.name)) {
-          currentApp = null;
+        // Reset panels if their apps no longer exist
+        if (splitState.panels[0] && !apps.find(a => a.name === splitState.panels[0]?.name)) {
+          splitState.panels[0] = null;
+        }
+        if (splitState.panels[1] && !apps.find(a => a.name === splitState.panels[1]?.name)) {
+          splitState.panels[1] = null;
+        }
+        if (!splitState.panels[0] && !splitState.panels[1]) {
+          resetSplit();
           showSplash = true;
         }
         // Prune cached iframes for apps that no longer exist or are disabled
@@ -341,7 +349,7 @@
     authRequired = true;
     config = null;
     apps = [];
-    currentApp = null;
+    resetSplit();
     visitedAppNames.clear();
     showSplash = true;
     showSettings = false;
@@ -385,7 +393,7 @@
 
       // After onboarding, always show the overview (splash) page
       showSplash = true;
-      currentApp = null;
+      resetSplit();
 
       startServices();
 
@@ -406,18 +414,55 @@
       window.open(url, app.name);
     } else {
       visitedAppNames.add(app.name);
-      currentApp = app;
+      setPanelApp(app);
       showSplash = false;
       showLogs = false;
-      // Update URL hash for deep-linking / bookmarking (slugified for clean URLs)
-      history.replaceState(null, '', '#' + slugify(app.name));
+      updateHash();
     }
   }
 
-  /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app). */
+  function updateHash() {
+    if (splitState.enabled && splitState.panels[0] && splitState.panels[1]) {
+      history.replaceState(null, '', '#' + slugify(splitState.panels[0].name) + '+' + slugify(splitState.panels[1].name));
+    } else {
+      const app = splitState.panels[0] || splitState.panels[1];
+      if (app) {
+        history.replaceState(null, '', '#' + slugify(app.name));
+      }
+    }
+  }
+
+  /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app, /#plex+sonarr). */
   function selectAppFromHash(): boolean {
     const hash = location.hash.slice(1);
     if (!hash || !apps.length) return false;
+
+    if (hash.includes('+')) {
+      const [slug1, slug2] = hash.split('+', 2);
+      const app1 = apps.find(a => slugify(a.name) === slug1);
+      const app2 = apps.find(a => slugify(a.name) === slug2);
+      if (app1 && app2 && !isMobile) {
+        visitedAppNames.add(app1.name);
+        visitedAppNames.add(app2.name);
+        if (!splitState.enabled) toggleSplit();
+        splitState.activePanel = 0;
+        setPanelApp(app1);
+        splitState.activePanel = 1;
+        setPanelApp(app2);
+        showSplash = false;
+        showLogs = false;
+        return true;
+      }
+      if (app1) {
+        visitedAppNames.add(app1.name);
+        setPanelApp(app1);
+        showSplash = false;
+        showLogs = false;
+        updateHash();
+        return true;
+      }
+    }
+
     const app = apps.find(a => slugify(a.name) === hash);
     if (app) {
       selectApp(app);
@@ -431,9 +476,15 @@
       const saved = await saveConfig(newConfig);
       config = saved;
       apps = saved.apps;
-      // Reset current app if it no longer exists
-      if (currentApp && !apps.find(a => a.name === currentApp?.name)) {
-        currentApp = null;
+      // Reset panels if their apps no longer exist
+      if (splitState.panels[0] && !apps.find(a => a.name === splitState.panels[0]?.name)) {
+        splitState.panels[0] = null;
+      }
+      if (splitState.panels[1] && !apps.find(a => a.name === splitState.panels[1]?.name)) {
+        splitState.panels[1] = null;
+      }
+      if (!splitState.panels[0] && !splitState.panels[1]) {
+        resetSplit();
         showSplash = true;
       }
       // Prune cached iframes for apps that no longer exist or are disabled
@@ -474,7 +525,7 @@
       case 'logs':
         showLogs = true;
         showSplash = false;
-        currentApp = null;
+        resetSplit();
         break;
       case 'theme-dark':
         setTheme('dark');
@@ -550,7 +601,7 @@
       case 'logs':
         showLogs = true;
         showSplash = false;
-        currentApp = null;
+        resetSplit();
         break;
       case 'refresh':
         if (currentApp && !showSplash) {
@@ -654,7 +705,7 @@
         onsearch={() => showCommandPalette = true}
         onsplash={() => showSplash = true}
         onsettings={() => showSettings = !showSettings}
-        onlogs={() => { showLogs = true; showSplash = false; currentApp = null; }}
+        onlogs={() => { showLogs = true; showSplash = false; resetSplit(); }}
         onlogout={handleLogout}
       />
     {/if}
@@ -673,19 +724,112 @@
       {:else if showLogs}
         <Logs onclose={() => { showLogs = false; showSplash = true; }} />
       {:else if $isFullscreen && !currentApp}
-        <!-- Show splash content in fullscreen if no app selected -->
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
       {/if}
 
-      <!-- Cached app frames — rendered once per visited app, visibility toggled -->
-      {#each visitedApps as app (app.name)}
+      {#if splitState.enabled}
+        <!-- Split view: two panel slots with divider -->
         <div
-          class="absolute inset-0"
-          style:visibility={!showSplash && !showLogs && currentApp?.name === app.name ? 'visible' : 'hidden'}
+          class="absolute inset-0 flex"
+          class:flex-row={splitState.orientation === 'horizontal'}
+          class:flex-col={splitState.orientation === 'vertical'}
+          style:visibility={showSplash || showLogs ? 'hidden' : 'visible'}
         >
-          <AppFrame {app} />
+          <!-- Panel 0 -->
+          <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+          <div
+            class="relative overflow-hidden"
+            style:flex="{splitState.dividerPosition} 1 0%"
+            onclick={() => setActivePanel(0)}
+            role="region"
+            aria-label="Split panel 1"
+          >
+            {#if splitState.activePanel === 0}
+              <div class="absolute inset-0 pointer-events-none ring-2 ring-inset z-[5]" style="--tw-ring-color: var(--accent-primary);"></div>
+            {/if}
+            {#if splitState.panels[0]}
+              <button
+                class="absolute top-2 right-2 z-10 p-1 rounded bg-black/40 hover:bg-black/60 text-white/70 hover:text-white transition-opacity opacity-0 hover:opacity-100"
+                style="pointer-events: auto;"
+                onclick={(e) => { e.stopPropagation(); closeSplitPanel(0); updateHash(); }}
+                title="Close panel"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            {/if}
+            {#each visitedApps as app (app.name)}
+              <div
+                class="absolute inset-0"
+                style:visibility={splitState.panels[0]?.name === app.name ? 'visible' : 'hidden'}
+              >
+                <AppFrame {app} />
+              </div>
+            {/each}
+            {#if !splitState.panels[0]}
+              <div class="absolute inset-0 flex items-center justify-center" style="color: var(--text-muted);">
+                <p>Select an app</p>
+              </div>
+            {/if}
+          </div>
+
+          <SplitDivider
+            orientation={splitState.orientation}
+            onresize={(pos) => updateDividerPosition(pos)}
+            ondblclick={() => updateDividerPosition(0.5)}
+          />
+
+          <!-- Panel 1 -->
+          <!-- svelte-ignore a11y_click_events_have_key_events, a11y_no_noninteractive_element_interactions -->
+          <div
+            class="relative overflow-hidden"
+            style:flex="{1 - splitState.dividerPosition} 1 0%"
+            onclick={() => setActivePanel(1)}
+            role="region"
+            aria-label="Split panel 2"
+          >
+            {#if splitState.activePanel === 1}
+              <div class="absolute inset-0 pointer-events-none ring-2 ring-inset z-[5]" style="--tw-ring-color: var(--accent-primary);"></div>
+            {/if}
+            {#if splitState.panels[1]}
+              <button
+                class="absolute top-2 right-2 z-10 p-1 rounded bg-black/40 hover:bg-black/60 text-white/70 hover:text-white transition-opacity opacity-0 hover:opacity-100"
+                style="pointer-events: auto;"
+                onclick={(e) => { e.stopPropagation(); closeSplitPanel(1); updateHash(); }}
+                title="Close panel"
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            {/if}
+            {#each visitedApps as app (app.name)}
+              <div
+                class="absolute inset-0"
+                style:visibility={splitState.panels[1]?.name === app.name ? 'visible' : 'hidden'}
+              >
+                <AppFrame {app} />
+              </div>
+            {/each}
+            {#if !splitState.panels[1]}
+              <div class="absolute inset-0 flex items-center justify-center" style="color: var(--text-muted);">
+                <p>Select an app</p>
+              </div>
+            {/if}
+          </div>
         </div>
-      {/each}
+      {:else}
+        <!-- Single view (original behavior) -->
+        {#each visitedApps as app (app.name)}
+          <div
+            class="absolute inset-0"
+            style:visibility={!showSplash && !showLogs && splitState.panels[0]?.name === app.name ? 'visible' : 'hidden'}
+          >
+            <AppFrame {app} />
+          </div>
+        {/each}
+      {/if}
     </main>
 
     <!-- Fullscreen exit button -->
