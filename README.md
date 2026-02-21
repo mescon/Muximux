@@ -144,6 +144,7 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 - [Authentication](docs/wiki/authentication.md) - Auth methods and setup
 - [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
 - [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
+- [Split View](docs/wiki/split-view.md) - Side-by-side or stacked app panels
 - [Themes](docs/wiki/themes.md) - Customizing the look
 - [API Reference](docs/wiki/api.md) - REST API endpoints
 
@@ -197,8 +198,8 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Reverse proxy other sites and services on your network -- things that don't need to be in the Muximux menu -- via a standard Caddyfile |
-| **Split View** | Display two apps side by side or stacked with a draggable divider - toggle on and off with a single click |
-| **Navigation** | 5 positions (top, left, right, bottom, floating), auto-hide, customizable width |
+| **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
+| **Navigation** | 5 positions (top, left, right, bottom, floating), draggable FAB, auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
 | **Keyboard Shortcuts** | Keybindings for switching apps, toggling navigation, and search |
 | **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine) with dark/light variants, plus custom themes via CSS |

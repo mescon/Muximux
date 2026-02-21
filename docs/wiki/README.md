@@ -25,6 +25,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [TLS & HTTPS](tls-and-gateway.md) -- Automatic certificates, custom certificates, and gateway mode
 - [Gateway Examples](gateway-examples.md) -- Recipes for proxying common homelab services
 - [Navigation & Layout](navigation.md) -- Sidebar positions, auto-hide, labels, and display options
+- [Split View](split-view.md) -- Side-by-side or stacked app panels with draggable divider
 - [Themes](themes.md) -- Built-in themes, custom themes, and CSS custom properties
 - [Health Monitoring](health-monitoring.md) -- Opt-in health checks and status indicators
 - [Keyboard Shortcuts](keyboard-shortcuts.md) -- Default shortcuts and custom keybindings

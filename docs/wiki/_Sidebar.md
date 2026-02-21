@@ -11,6 +11,7 @@
 - [Apps](apps)
 - [Reverse Proxy](reverse-proxy)
 - [Navigation](navigation)
+- [Split View](split-view)
 - [Themes](themes)
 - [Keyboard Shortcuts](keyboard-shortcuts)
 - [Health Monitoring](health-monitoring)

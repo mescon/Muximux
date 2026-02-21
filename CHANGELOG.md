@@ -61,13 +61,15 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 **Navigation & Layout**
 - 5 navigation positions: top, left, right, bottom, floating
+- Draggable floating FAB -- drag the button to any screen position; location persists per browser, double-click to reset to the configured corner
 - Mobile-responsive: automatically switches to floating navigation on small screens (< 640px)
 - Flat bar style for top/bottom navigation -- apps in a single row with group icon dividers
 - Auto-hide with configurable delay
 - Collapsible groups with drag-and-drop reordering
 - Command palette with fuzzy search (`/` or `Ctrl+K`)
 - Iframe caching -- visited app iframes stay in the DOM for instant switching without reload
-- Split view -- display two apps side by side (horizontal) or stacked (vertical) with a draggable divider, toggle on/off with a single click, URL hash routing with `#app1+app2` format
+- Split view -- display two apps side by side (horizontal) or stacked (vertical) with a draggable divider, inline panel selector to target each side, and URL hash routing with `#app1+app2` format
+- Toggle buttons -- Logs and Overview buttons return to the previous app on a second press
 - Hash-based app routing -- URL hash links to specific apps (e.g. `#plex`) with browser back/forward navigation
 - Dynamic themed favicons matching the current theme's accent color
 

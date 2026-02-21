@@ -11,8 +11,8 @@ Muximux includes a set of keyboard shortcuts for fast navigation and control. Al
 | `Ctrl+K` | Open Command Palette |
 | `S` | Open Settings |
 | `?` | Show Keyboard Shortcuts Help |
-| `L` | View Logs |
-| `H` | Go to Splash Screen |
+| `L` | Toggle Logs (press again to return to your app) |
+| `H` | Toggle Overview (press again to return to your app) |
 
 ### Actions
 

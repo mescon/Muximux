@@ -132,15 +132,18 @@ The hash is the app name converted to a URL-friendly slug (lowercase, spaces rep
 | Plex | `/#plex` |
 | Home Assistant | `/#home-assistant` |
 | Pi-hole | `/#pi-hole` |
+| Sonarr + Radarr (split view) | `/#sonarr+radarr` |
+
+Use a `+` between two app slugs to open them in split view. The first app loads in panel 1 (left/top) and the second in panel 2 (right/bottom).
 
 This is useful for:
-- **Bookmarking** a specific app in your browser.
-- **Sharing** a link that opens Muximux with a particular app already loaded.
+- **Bookmarking** a specific app or split view layout in your browser.
+- **Sharing** a link that opens Muximux with a particular app (or pair) already loaded.
 - **Home screen shortcuts** on mobile devices.
 
 When Muximux loads with a hash in the URL, it skips the splash screen and opens the matching app directly. If no app matches the hash, the normal startup behavior applies (default app or splash screen).
 
-The URL hash updates automatically as you switch between apps, so you can copy the current URL at any time to get a direct link.
+The URL hash updates automatically as you switch between apps or toggle split view, so you can copy the current URL at any time to get a direct link.
 
 ---
 
