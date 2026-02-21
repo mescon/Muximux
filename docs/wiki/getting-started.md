@@ -69,7 +69,7 @@ Choose how the navigation bar appears in your dashboard:
 | **Left Sidebar** | Vertical sidebar on the left side |
 | **Right Sidebar** | Vertical sidebar on the right side |
 | **Bottom Bar** | Horizontal navigation across the bottom of the page |
-| **Floating** | Minimal floating buttons |
+| **Floating** | Floating action button with popover panel |
 
 You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
 

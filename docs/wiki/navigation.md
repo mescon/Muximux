@@ -22,7 +22,7 @@ Horizontal bar across the bottom of the screen. Same layout as the top bar, just
 
 ### Floating
 
-A sidebar that overlays the content rather than pushing it aside. The sidebar appears on hover and disappears when you move away. This option maximizes the screen space available to your apps.
+A floating action button (FAB) that sits in a corner of the screen. Clicking it opens a popover panel with your apps organized by group. This option maximizes the screen space available to your apps since nothing is visible until you tap the button. The FAB position is configurable via `floating_position` (bottom-right, bottom-left, top-right, top-left).
 
 ## Bar Style (Top/Bottom Only)
 
@@ -77,7 +77,9 @@ When `auto_hide` is set to `true`:
 
 ## Mobile
 
-On small screens, the navigation automatically collapses into a hamburger menu in the top corner. On touch devices, you can also swipe from the left edge of the screen to open the navigation panel.
+On small screens (below 640px), Muximux automatically switches to the **floating** navigation regardless of your configured position. This provides a clean mobile experience with a FAB button in the bottom-right corner that opens the full app list as a popover panel. Your configured position is preserved in settings and takes effect again on wider viewports.
+
+Swipe left or right on the main content area to switch between apps.
 
 ## All Settings Are Live
 

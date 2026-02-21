@@ -2,10 +2,6 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
-
----
-
 ## [3.0.0] - 2026-02-21
 
 ### Ground-Up Rewrite
@@ -66,6 +62,7 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 **Navigation & Layout**
 - 5 navigation positions: top, left, right, bottom, floating
+- Mobile-responsive: automatically switches to floating navigation on small screens (< 640px)
 - Flat bar style for top/bottom navigation -- apps in a single row with group icon dividers
 - Auto-hide with configurable delay
 - Collapsible groups with drag-and-drop reordering
