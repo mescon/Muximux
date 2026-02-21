@@ -2,6 +2,16 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.1] - 2026-02-21
+
+### Bug Fixes
+
+- Fix base path not propagated when switching auth methods, causing login redirects to fail in base-path deployments
+- Add `/api/health` to auth bypass rules so Docker HEALTHCHECK works with forward auth enabled
+- Don't reload page when switching from no-auth to forward auth, which would lock users out of the UI
+
+[3.0.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.1
+
 ## [3.0.0] - 2026-02-21
 
 ### Ground-Up Rewrite
