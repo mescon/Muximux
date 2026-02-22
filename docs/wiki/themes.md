@@ -48,6 +48,12 @@ Changes apply instantly and are saved to `config.yaml` when you click Save. No r
 
 ![Theme selector with 9 theme families](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)
 
+Here are a few examples of the available themes applied to the onboarding wizard:
+
+| Muximux (Default) | Catppuccin | Dracula |
+|:---:|:---:|:---:|
+| ![Default dark](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png) | ![Catppuccin](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png) | ![Dracula](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png) |
+
 You can also select a theme during the onboarding wizard when setting up Muximux for the first time.
 
 ## Custom Themes

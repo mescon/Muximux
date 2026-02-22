@@ -73,7 +73,13 @@ Choose how the navigation bar appears in your dashboard:
 
 You can also toggle **Show App Labels** to control whether app names are displayed alongside their icons in the navigation.
 
-![Onboarding — Navigation style picker](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05-style.png)
+| Left Sidebar | Top Bar | Bottom Bar |
+|:---:|:---:|:---:|
+| ![Left Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05-style.png) | ![Top Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05a-style-top.png) | ![Bottom Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05b-style-bottom.png) |
+
+| Floating | Right Sidebar |
+|:---:|:---:|
+| ![Floating](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05c-style-floating.png) | ![Right Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05d-style-right.png) |
 
 ### Step 5: Theme
 
@@ -85,7 +91,9 @@ Choose a visual theme for your dashboard:
 
 Custom themes can be created later in Settings. The selected theme is saved to `config.yaml` as part of the server-side configuration.
 
-![Onboarding — Theme picker (dark)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png)
+| Muximux (Default) | Catppuccin | Dracula |
+|:---:|:---:|:---:|
+| ![Default dark](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png) | ![Catppuccin](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png) | ![Dracula](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png) |
 
 ### Step 6: Complete
 

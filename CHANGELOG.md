@@ -2,7 +2,7 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [3.0.0] - 2026-02-21
+## [3.0.0] - 2026-02-23
 
 ### Ground-Up Rewrite
 

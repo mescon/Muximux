@@ -857,7 +857,7 @@
         <!-- Background rail -->
         <div class="stepper-rail"></div>
         <!-- Filled portion of the rail -->
-        <div class="stepper-rail-fill" style="width: {$stepProgress / (steps.length - 1) * 100}%"></div>
+        <div class="stepper-rail-fill" style="transform: scaleX({$stepProgress / (steps.length - 1)}); transform-origin: left;"></div>
 
         {#each steps as step, i (i)}
           <div class="stepper-node">
@@ -1951,7 +1951,7 @@
 
   .stepper-rail-fill {
     background: var(--accent-primary, #6366f1);
-    transition: width 0.4s ease;
+    transition: transform 0.4s ease;
   }
 
   .stepper-node {

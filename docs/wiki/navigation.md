@@ -4,6 +4,14 @@ Muximux supports five navigation layouts. You can switch between them at any tim
 
 ## Navigation Positions
 
+| Left Sidebar | Top Bar | Bottom Bar |
+|:---:|:---:|:---:|
+| ![Left Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05-style.png) | ![Top Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05a-style-top.png) | ![Bottom Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05b-style-bottom.png) |
+
+| Floating | Right Sidebar |
+|:---:|:---:|
+| ![Floating](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05c-style-floating.png) | ![Right Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05d-style-right.png) |
+
 ### Top
 
 Horizontal bar across the top of the screen. Apps are shown as icons with optional labels below. This layout works well on wide screens with many apps, as the full width is available for app icons.

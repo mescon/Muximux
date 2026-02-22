@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="web/public/android-chrome-256x256.png" width="128" alt="Muximux">
+  <img src="web/public/muximux-logo.svg" width="200" alt="Muximux">
 </p>
 
 # Muximux
@@ -11,15 +11,15 @@ One binary. One port. One YAML config file.
 [![CI](https://github.com/mescon/Muximux/actions/workflows/ci.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mescon/muximux/v3)](https://goreportcard.com/report/github.com/mescon/muximux/v3)
-[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=mescon_Muximux)
-[![Codecov](https://codecov.io/gh/mescon/Muximux/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=coverage)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
 [![Docker](https://img.shields.io/badge/ghcr.io-mescon%2Fmuximux-blue?logo=docker)](https://ghcr.io/mescon/muximux)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
 
 ![Muximux Dashboard](docs/screenshots/09-dashboard-dark.png)
 
 <details>
-<summary><strong>More screenshots</strong> — onboarding wizard, light mode, themes</summary>
+<summary><strong>More screenshots</strong> — onboarding wizard, light mode, themes, split view, command palette</summary>
 <br>
 <table>
 <tr>
@@ -41,6 +41,11 @@ One binary. One port. One YAML config file.
 <td align="center"><a href="docs/screenshots/13-logs.png"><img src="docs/screenshots/13-logs.png" width="280" alt="Real-Time Log Viewer"></a><br><sub>Real-Time Log Viewer</sub></td>
 <td align="center"><a href="docs/screenshots/11-themes.png"><img src="docs/screenshots/11-themes.png" width="280" alt="Theme Selector"></a><br><sub>Theme Selector</sub></td>
 <td align="center"><a href="docs/screenshots/12-theme-customizer.png"><img src="docs/screenshots/12-theme-customizer.png" width="280" alt="Theme Customizer"></a><br><sub>Theme Customizer</sub></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/screenshots/14-split-horizontal.png"><img src="docs/screenshots/14-split-horizontal.png" width="280" alt="Split View — Horizontal"></a><br><sub>Split View — Horizontal</sub></td>
+<td align="center"><a href="docs/screenshots/15-split-vertical.png"><img src="docs/screenshots/15-split-vertical.png" width="280" alt="Split View — Vertical"></a><br><sub>Split View — Vertical</sub></td>
+<td align="center"><a href="docs/screenshots/16-command-palette.png"><img src="docs/screenshots/16-command-palette.png" width="280" alt="Command Palette"></a><br><sub>Command Palette</sub></td>
 </tr>
 </table>
 </details>

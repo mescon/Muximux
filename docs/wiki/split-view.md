@@ -2,6 +2,10 @@
 
 Split view displays two apps side by side (horizontal) or stacked (vertical) in a single browser tab. Each panel is an independent iframe that stays loaded when you switch focus, so you can monitor two services at once without losing state.
 
+| Horizontal Split | Vertical Split |
+|:---:|:---:|
+| ![Horizontal](../screenshots/14-split-horizontal.png) | ![Vertical](../screenshots/15-split-vertical.png) |
+
 ## Enabling Split View
 
 Click the split view icon in the navigation bar. This activates horizontal split by default and opens a second panel. The navigation controls expand to show orientation and panel selection options.
