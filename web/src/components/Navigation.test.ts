@@ -2978,4 +2978,218 @@ describe('Navigation', () => {
       expect(nav).toBeTruthy();
     });
   });
+
+  describe('Scroll fade indicators', () => {
+    it('renders scroll fade overlays in left sidebar', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const fadeTop = container.querySelector('.scroll-fade-top');
+      const fadeBottom = container.querySelector('.scroll-fade-bottom');
+      expect(fadeTop).toBeTruthy();
+      expect(fadeBottom).toBeTruthy();
+    });
+
+    it('renders scroll fade overlays in right sidebar', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'right' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const fadeTop = container.querySelector('.scroll-fade-top');
+      const fadeBottom = container.querySelector('.scroll-fade-bottom');
+      expect(fadeTop).toBeTruthy();
+      expect(fadeBottom).toBeTruthy();
+    });
+
+    it('renders scroll fade overlays in floating panel when open', async () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'floating' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      // Open floating panel via pointerdown/pointerup (FAB uses pointer events, not click)
+      const navEl = container.querySelector('[role="navigation"]');
+      const btn = navEl!.querySelector('button')!;
+      await fireEvent.pointerDown(btn, { button: 0, pointerId: 1, clientX: 100, clientY: 100 });
+      document.dispatchEvent(new PointerEvent('pointerup', { pointerId: 1, bubbles: true }));
+      await waitFor(() => {
+        const panel = container.querySelector('.floating-panel');
+        expect(panel).toBeTruthy();
+      });
+      const fadeTop = container.querySelector('.floating-panel .scroll-fade-top');
+      const fadeBottom = container.querySelector('.floating-panel .scroll-fade-bottom');
+      expect(fadeTop).toBeTruthy();
+      expect(fadeBottom).toBeTruthy();
+    });
+
+    it('uses scrollbar-styled instead of scrollbar-hide on left sidebar', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const scrollContainer = container.querySelector('.scrollbar-styled');
+      expect(scrollContainer).toBeTruthy();
+      expect(container.querySelector('.scrollbar-hide')).toBeFalsy();
+    });
+
+    it('uses scrollbar-styled instead of scrollbar-hide on right sidebar', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'right' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const scrollContainer = container.querySelector('.scrollbar-styled');
+      expect(scrollContainer).toBeTruthy();
+      expect(container.querySelector('.scrollbar-hide')).toBeFalsy();
+    });
+
+    it('fade overlays start without visible class when content does not overflow', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const fadeTop = container.querySelector('.scroll-fade-top');
+      const fadeBottom = container.querySelector('.scroll-fade-bottom');
+      // In jsdom, scrollHeight === clientHeight === 0, so no overflow
+      expect(fadeTop?.classList.contains('visible')).toBe(false);
+      expect(fadeBottom?.classList.contains('visible')).toBe(false);
+    });
+
+    it('bottom fade becomes visible when content overflows', async () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const scrollEl = container.querySelector('.scrollbar-styled');
+      expect(scrollEl).toBeTruthy();
+
+      // Simulate overflow: scrollHeight > clientHeight
+      Object.defineProperty(scrollEl!, 'scrollHeight', { value: 500, configurable: true });
+      Object.defineProperty(scrollEl!, 'clientHeight', { value: 200, configurable: true });
+      Object.defineProperty(scrollEl!, 'scrollTop', { value: 0, writable: true, configurable: true });
+
+      await fireEvent.scroll(scrollEl!);
+
+      await waitFor(() => {
+        const fadeBottom = container.querySelector('.scroll-fade-bottom');
+        expect(fadeBottom?.classList.contains('visible')).toBe(true);
+      });
+    });
+
+    it('top fade becomes visible after scrolling down', async () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const scrollEl = container.querySelector('.scrollbar-styled');
+      expect(scrollEl).toBeTruthy();
+
+      // Simulate scrolled to middle
+      Object.defineProperty(scrollEl!, 'scrollHeight', { value: 500, configurable: true });
+      Object.defineProperty(scrollEl!, 'clientHeight', { value: 200, configurable: true });
+      Object.defineProperty(scrollEl!, 'scrollTop', { value: 100, writable: true, configurable: true });
+
+      await fireEvent.scroll(scrollEl!);
+
+      await waitFor(() => {
+        const fadeTop = container.querySelector('.scroll-fade-top');
+        const fadeBottom = container.querySelector('.scroll-fade-bottom');
+        expect(fadeTop?.classList.contains('visible')).toBe(true);
+        expect(fadeBottom?.classList.contains('visible')).toBe(true);
+      });
+    });
+
+    it('both fades hidden when scrolled to bottom (no more content below)', async () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const scrollEl = container.querySelector('.scrollbar-styled');
+      expect(scrollEl).toBeTruthy();
+
+      // Simulate scrolled to very bottom
+      Object.defineProperty(scrollEl!, 'scrollHeight', { value: 500, configurable: true });
+      Object.defineProperty(scrollEl!, 'clientHeight', { value: 200, configurable: true });
+      Object.defineProperty(scrollEl!, 'scrollTop', { value: 300, writable: true, configurable: true });
+
+      await fireEvent.scroll(scrollEl!);
+
+      await waitFor(() => {
+        const fadeTop = container.querySelector('.scroll-fade-top');
+        const fadeBottom = container.querySelector('.scroll-fade-bottom');
+        expect(fadeTop?.classList.contains('visible')).toBe(true);
+        expect(fadeBottom?.classList.contains('visible')).toBe(false);
+      });
+    });
+
+    it('scroll container is wrapped in relative min-h-0 container', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: sampleApps,
+          currentApp: null,
+          config: makeConfig({
+            navigation: { position: 'left' },
+            groups: [mediaGroup, toolsGroup],
+          }),
+        },
+      });
+      const scrollEl = container.querySelector('.scrollbar-styled');
+      const wrapper = scrollEl?.parentElement;
+      expect(wrapper?.classList.contains('relative')).toBe(true);
+      expect(wrapper?.classList.contains('min-h-0')).toBe(true);
+    });
+  });
 });
