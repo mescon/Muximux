@@ -11,9 +11,12 @@ One binary. One port. One YAML config file.
 [![CI](https://github.com/mescon/Muximux/actions/workflows/ci.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/ci.yml)
 [![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/mescon/muximux/v3)](https://goreportcard.com/report/github.com/mescon/muximux/v3)
-[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=coverage)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Security](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=security_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
 [![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
 [![Docker](https://img.shields.io/badge/ghcr.io-mescon%2Fmuximux-blue?logo=docker)](https://ghcr.io/mescon/muximux)
+[![Release](https://img.shields.io/github/v/release/mescon/Muximux)](https://github.com/mescon/Muximux/releases/latest)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
 
 ![Muximux Dashboard](docs/screenshots/09-dashboard-dark.png)
