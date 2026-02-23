@@ -188,8 +188,8 @@ func TestSessionCleanup(t *testing.T) {
 func TestSessionCleanup_NoExpired(t *testing.T) {
 	store := NewSessionStore("test_session", time.Hour, false)
 
-	store.Create("user1", "alice", RoleUser)
-	store.Create("user2", "bob", RoleUser)
+	_, _ = store.Create("user1", "alice", RoleUser)
+	_, _ = store.Create("user2", "bob", RoleUser)
 
 	// Simulate cleanup -- nothing should be removed
 	store.mu.Lock()

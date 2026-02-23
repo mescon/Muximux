@@ -463,10 +463,10 @@ func TestSubscribe_ConcurrentAddAndSubscribe(t *testing.T) {
 	// Add entries concurrently
 	for i := 0; i < 10; i++ {
 		wg.Add(1)
-		go func(n int) {
+		go func() {
 			defer wg.Done()
 			buf.Add(LogEntry{Message: "concurrent"})
-		}(i)
+		}()
 	}
 	wg.Wait()
 

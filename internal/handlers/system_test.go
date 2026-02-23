@@ -359,7 +359,7 @@ func TestCheckUpdate(t *testing.T) {
 				},
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(release)
+			_ = json.NewEncoder(w).Encode(release)
 		}))
 		defer ghServer.Close()
 
@@ -408,7 +408,7 @@ func TestCheckUpdate(t *testing.T) {
 				Assets:      []gitHubAsset{},
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(release)
+			_ = json.NewEncoder(w).Encode(release)
 		}))
 		defer ghServer.Close()
 
@@ -434,7 +434,7 @@ func TestCheckUpdate(t *testing.T) {
 				HTMLURL: "https://github.com/mescon/Muximux/releases/tag/v0.0.1",
 			}
 			w.Header().Set("Content-Type", "application/json")
-			json.NewEncoder(w).Encode(release)
+			_ = json.NewEncoder(w).Encode(release)
 		}))
 		defer ghServer.Close()
 
@@ -529,18 +529,18 @@ func checkUpdateWithMockGitHub(t *testing.T, h *SystemHandler, mockURL string) (
 		ghReq.Header.Set("User-Agent", "Muximux/"+h.version)
 		ghReq.Header.Set("Accept", "application/vnd.github.v3+json")
 
-		ghResp, err := client.Do(ghReq)
+		ghResp, err := client.Do(ghReq) //nolint:gosec // test-only: URL comes from httptest mock server
 		if err != nil {
 			w.Header().Set(headerContentType, contentTypeJSON)
 			w.WriteHeader(http.StatusServiceUnavailable)
-			json.NewEncoder(w).Encode(map[string]string{"error": "Failed to check for updates: " + err.Error()})
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Failed to check for updates: " + err.Error()})
 			return
 		}
 		defer ghResp.Body.Close()
 
 		if ghResp.StatusCode == http.StatusNotFound {
 			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(UpdateCheckResponse{
+			_ = json.NewEncoder(w).Encode(UpdateCheckResponse{
 				CurrentVersion:  h.version,
 				LatestVersion:   h.version,
 				UpdateAvailable: false,
@@ -554,7 +554,7 @@ func checkUpdateWithMockGitHub(t *testing.T, h *SystemHandler, mockURL string) (
 			n, _ := ghResp.Body.Read(body)
 			w.Header().Set(headerContentType, contentTypeJSON)
 			w.WriteHeader(http.StatusServiceUnavailable)
-			json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("GitHub API error %d: %s", ghResp.StatusCode, string(body[:n]))})
+			_ = json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("GitHub API error %d: %s", ghResp.StatusCode, string(body[:n]))})
 			return
 		}
 
@@ -584,7 +584,7 @@ func checkUpdateWithMockGitHub(t *testing.T, h *SystemHandler, mockURL string) (
 		}
 
 		w.Header().Set(headerContentType, contentTypeJSON)
-		json.NewEncoder(w).Encode(resp)
+		_ = json.NewEncoder(w).Encode(resp)
 	})
 
 	req := httptest.NewRequest(http.MethodGet, "/api/system/updates", nil)
@@ -592,6 +592,6 @@ func checkUpdateWithMockGitHub(t *testing.T, h *SystemHandler, mockURL string) (
 	handler.ServeHTTP(w, req)
 
 	var resp UpdateCheckResponse
-	json.NewDecoder(w.Body).Decode(&resp)
+	_ = json.NewDecoder(w.Body).Decode(&resp)
 	return w, resp
 }
