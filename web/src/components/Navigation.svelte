@@ -404,10 +404,14 @@
 
   // Update scroll fades when groups expand/collapse (content height changes)
   $effect(() => {
-    // Reading all values triggers re-run when any group toggles
     void JSON.stringify(expandedGroups);
-    // Allow DOM to update before recalculating
     requestAnimationFrame(updateAllScrollFades);
+  });
+
+  // Constrain floating panel scroll height when panel opens or FAB moves
+  $effect(() => {
+    void panelOpen; void fabX; void fabY;
+    requestAnimationFrame(constrainFloatScroll);
   });
 
   // Edge reveal is handled by the nav element's own mouseenter/mouseleave events.
@@ -434,7 +438,26 @@
   function updateAllScrollFades() {
     updateScrollFade(leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown);
     updateScrollFade(rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown);
+    constrainFloatScroll();
     updateScrollFade(floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown);
+  }
+
+  // CSS percentage heights can't resolve against flex-computed parent heights,
+  // so we calculate the floating panel scroll area's max-height from the panel's
+  // max-height CSS property minus footer and borders. This is content-independent,
+  // so it stays correct during group expand/collapse animations.
+  function constrainFloatScroll() {
+    if (!floatScrollEl) return;
+    const panel = floatScrollEl.closest('.floating-panel') as HTMLElement | null;
+    if (!panel) return;
+    const panelMaxH = parseFloat(panel.style.maxHeight);
+    if (!panelMaxH || panelMaxH <= 0) { floatScrollEl.style.maxHeight = ''; return; }
+    const style = getComputedStyle(panel);
+    const borders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0);
+    const footer = panel.lastElementChild as HTMLElement | null;
+    const footerH = footer?.offsetHeight || 0;
+    const available = panelMaxH - borders - footerH;
+    floatScrollEl.style.maxHeight = available > 0 ? Math.floor(available) + 'px' : '';
   }
 
   function getGroupConfig(name: string): Group | undefined {
@@ -1883,10 +1906,10 @@
       role="navigation"
     >
         <!-- Scrollable app list with groups -->
-        <div class="relative flex-1 min-h-0">
+        <div class="relative flex-auto min-h-0">
           <div class="scroll-fade-top" class:visible={floatCanScrollUp}></div>
           <div bind:this={floatScrollEl}
-               class="h-full overflow-y-auto scrollbar-styled flex flex-col"
+               class="overflow-y-auto scrollbar-styled flex flex-col"
                onscroll={() => updateScrollFade(floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown)}
                style="padding: 0.5rem;">
           {#each groupNames as groupName (groupName)}
@@ -1964,7 +1987,7 @@
         </div>
 
         <!-- Footer — all action buttons in one row -->
-        <div class="border-t px-2 py-2 flex items-center gap-1" style="border-color: var(--border-subtle);">
+        <div class="border-t px-2 py-2 flex items-center gap-1 shrink-0" style="border-color: var(--border-subtle);">
           {#if config.navigation.show_logo}
             <button
               class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-bg-hover"
@@ -2275,16 +2298,13 @@
 
   /* Smooth expand/collapse for group app lists */
   .group-apps-wrapper {
-    display: grid;
-    grid-template-rows: 0fr;
-    transition: grid-template-rows 0.25s ease;
+    interpolate-size: allow-keywords;
+    overflow: hidden;
+    height: 0;
+    transition: height 0.25s ease;
   }
   .group-apps-wrapper.expanded {
-    grid-template-rows: 1fr;
-  }
-  .group-apps-inner {
-    overflow: hidden;
-    min-height: 0;
+    height: auto;
   }
 
   /* Floating popover panel */

@@ -71,19 +71,39 @@
    * Supported: %title%, %url%, %group%, %version%
    * When a variable resolves to empty, surrounding separators are cleaned up.
    */
-  function resolveTitle(template: string, app: App | null): string {
+  function resolveTitle(template: string): string {
     if (!template) return 'Muximux';
 
+    let appTitle: string;
+    if (splitState.enabled) {
+      const left = splitState.panels[0]?.name || 'Select';
+      const right = splitState.panels[1]?.name || 'Select';
+      appTitle = `${left} :: ${right}`;
+    } else if (currentApp) {
+      appTitle = currentApp.name;
+    } else {
+      appTitle = showSplash ? 'Overview' : '';
+    }
+
+    // Replace other variables first (may be empty), then clean up separators
+    // before inserting %title% (which may contain :: in split mode).
     let result = template
-      .replaceAll('%title%', app?.name || (showSplash ? 'Overview' : ''))
-      .replaceAll('%url%', app?.url || '')
-      .replaceAll('%group%', app?.group || '')
+      .replaceAll('%url%', currentApp?.url || '')
+      .replaceAll('%group%', currentApp?.group || '')
       .replaceAll('%version%', appVersion);
 
-    // Clean up dangling separators around empty values
-    // e.g. "%title% - Muximux" with no app → "Muximux" (not " - Muximux")
+    // Clean up dangling separators around empty non-title values
     result = result.replaceAll(/\s*[—–\-|:]\s*(?=[—–\-|:\s]*$)/g, '');
     result = result.replaceAll(/\s*[—–\-|:]\s*[—–\-|:]\s*/g, ' — ');
+
+    // Insert title last so :: in split titles isn't mangled by cleanup
+    if (appTitle) {
+      result = result.replaceAll('%title%', appTitle);
+    } else {
+      result = result.replaceAll('%title%', '');
+      result = result.replaceAll(/^\s*[—–\-|:]\s*/g, '');
+      result = result.replaceAll(/\s*[—–\-|:]\s*$/g, '');
+    }
     return result.trim() || 'Muximux';
   }
 
@@ -655,7 +675,7 @@
 
 <!-- Dynamic page title -->
 <svelte:head>
-  <title>{resolveTitle(config?.title || 'Muximux', currentApp)}</title>
+  <title>{resolveTitle(config?.title || 'Muximux')}</title>
 </svelte:head>
 
 <svelte:window onkeydown={handleKeydown} />
