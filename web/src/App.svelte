@@ -75,7 +75,7 @@
     if (!template) return 'Muximux';
 
     let result = template
-      .replaceAll('%title%', app?.name || '')
+      .replaceAll('%title%', app?.name || (showSplash ? 'Overview' : ''))
       .replaceAll('%url%', app?.url || '')
       .replaceAll('%group%', app?.group || '')
       .replaceAll('%version%', appVersion);
