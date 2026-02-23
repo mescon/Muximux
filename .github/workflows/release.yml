@@ -145,14 +145,22 @@ jobs:
           cd artifacts
           sha256sum muximux-* > checksums.txt
 
-      - name: Extract CHANGELOG notes
+      - name: Extract release notes
         id: changelog
         env:
           TAG: ${{ github.ref_name }}
         run: |
-          # Strip leading 'v' to match CHANGELOG headers like [3.0.0]
           VERSION="${TAG#v}"
-          # Extract the section between this version's header and the next
+          MAJOR="${VERSION%%.*}"
+          # Prefer a handwritten release notes draft if one exists
+          for DRAFT in "dev/release-notes-v${VERSION}.md" "dev/v${MAJOR}-release-notes-draft.md"; do
+            if [ -f "$DRAFT" ]; then
+              cp "$DRAFT" release-notes.md
+              echo "found=true" >> "$GITHUB_OUTPUT"
+              exit 0
+            fi
+          done
+          # Fall back to extracting from CHANGELOG
           NOTES=$(awk "/^## \\[${VERSION}\\]/{found=1; next} /^## \\[/{if(found) exit} found{print}" CHANGELOG.md)
           if [ -n "$NOTES" ]; then
             echo "$NOTES" > release-notes.md
