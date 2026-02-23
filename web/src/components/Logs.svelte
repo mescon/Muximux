@@ -303,7 +303,7 @@
           <span class="log-message">{entry.message}</span>
           {#if entry.attrs}
             <span class="log-attrs">
-              {#each Object.entries(entry.attrs) as [key, value]}
+              {#each Object.entries(entry.attrs) as [key, value] (key)}
                 <span class="log-attr">{key}=<span class="log-attr-value">{value}</span></span>
               {/each}
             </span>

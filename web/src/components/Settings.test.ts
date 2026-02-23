@@ -57,7 +57,7 @@ const {
     mockGroupSchemaSafeParse: vi.fn(() => ({ success: true })),
     mockExtractErrors: vi.fn(() => ({})),
     mockIsMobileViewport,
-    mockTemplateToApp: vi.fn((template: any, url: string, order: number) => ({
+    mockTemplateToApp: vi.fn((template: Record<string, string>, url: string, order: number) => ({
       name: template.name,
       url: url || template.defaultUrl,
       icon: { type: 'dashboard', name: template.icon || 'test', file: '', url: '', variant: 'svg' },
@@ -161,17 +161,18 @@ vi.mock('$lib/authStore', () => ({
 //   $$anchor = a comment node (DOM marker)
 //   $$props  = the component props object directly
 
-function resolveArgs(args: any[]): { target: Node | null; props: any } {
+function resolveArgs(args: unknown[]): { target: Node | null; props: Record<string, unknown> } {
   if (args[0] instanceof Node) {
-    return { target: args[0].parentNode || args[0], props: args[1] || {} };
+    return { target: args[0].parentNode || args[0], props: (args[1] as Record<string, unknown>) || {} };
   }
-  if (args[0]?.target) {
-    return { target: args[0].target, props: args[0].props || {} };
+  const first = args[0] as Record<string, unknown> | null;
+  if (first?.target) {
+    return { target: first.target as Node, props: (first.props as Record<string, unknown>) || {} };
   }
   return { target: null, props: {} };
 }
 
-function makeMockAppsTab(...args: any[]) {
+function makeMockAppsTab(...args: unknown[]) {
   const { target, props } = resolveArgs(args);
   if (!target) return { $destroy() {} };
   const div = document.createElement('div');
@@ -218,7 +219,7 @@ function makeMockAppsTab(...args: any[]) {
 }
 vi.mock('./settings/AppsTab.svelte', () => ({ default: makeMockAppsTab }));
 
-function makeMockGeneralTab(...args: any[]) {
+function makeMockGeneralTab(...args: unknown[]) {
   const { target, props } = resolveArgs(args);
   if (!target) return { $destroy() {} };
   const div = document.createElement('div');
@@ -249,7 +250,7 @@ function makeMockGeneralTab(...args: any[]) {
 }
 vi.mock('./settings/GeneralTab.svelte', () => ({ default: makeMockGeneralTab }));
 
-function makeMockKeybindingsEditor(...args: any[]) {
+function makeMockKeybindingsEditor(...args: unknown[]) {
   const { target, props } = resolveArgs(args);
   if (!target) return { $destroy() {} };
   const div = document.createElement('div');
@@ -271,7 +272,7 @@ function noopComponent() {
   return { $destroy: vi.fn() };
 }
 
-function makeMockIconBrowser(...args: any[]) {
+function makeMockIconBrowser(...args: unknown[]) {
   const { target, props } = resolveArgs(args);
   if (!target) return { $destroy() {} };
   const div = document.createElement('div');

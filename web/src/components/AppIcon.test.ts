@@ -358,7 +358,7 @@ describe('AppIcon', () => {
     it('falls back to letter for unknown icon type', () => {
       render(AppIcon, {
         props: {
-          icon: makeIcon({ type: 'unknown' as any }),
+          icon: makeIcon({ type: 'unknown' as unknown as AppIconType['type'] }),
           name: 'FallbackApp',
         },
       });

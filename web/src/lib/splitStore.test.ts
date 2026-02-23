@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import type { App } from './types';
 import {
   splitState,
   enableSplit,
@@ -9,8 +10,8 @@ import {
   resetSplit
 } from './splitStore.svelte';
 
-const sonarr = { name: 'Sonarr' } as any;
-const radarr = { name: 'Radarr' } as any;
+const sonarr = { name: 'Sonarr' } as unknown as App;
+const radarr = { name: 'Radarr' } as unknown as App;
 
 describe('splitStore', () => {
   beforeEach(() => {

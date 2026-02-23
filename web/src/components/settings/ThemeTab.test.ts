@@ -205,7 +205,7 @@ describe('ThemeTab', () => {
 
     it('shows Custom badge for custom themes', () => {
       // Override themeFamilies to include a custom theme
-      (themeFamilies as any).set([
+      (themeFamilies as unknown as { set: (v: unknown) => void }).set([
         ...mockStores.themeFamilies,
         {
           id: 'my-custom',
@@ -222,7 +222,7 @@ describe('ThemeTab', () => {
     });
 
     it('shows delete button on hover for custom themes', () => {
-      (themeFamilies as any).set([
+      (themeFamilies as unknown as { set: (v: unknown) => void }).set([
         {
           id: 'my-custom',
           name: 'My Custom',
@@ -492,7 +492,7 @@ describe('ThemeTab', () => {
 
   describe('theme deletion', () => {
     beforeEach(() => {
-      (themeFamilies as any).set([
+      (themeFamilies as unknown as { set: (v: unknown) => void }).set([
         {
           id: 'my-custom',
           name: 'My Custom',
