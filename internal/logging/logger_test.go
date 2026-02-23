@@ -1,11 +1,15 @@
 package logging
 
 import (
+	"context"
 	"io"
 	"log/slog"
 	"os"
 	"path/filepath"
+	"strings"
+	"sync"
 	"testing"
+	"time"
 )
 
 func TestInit_DefaultStdout(t *testing.T) {
@@ -335,5 +339,596 @@ func TestBroadcastHandler_RecordOverridesPreset(t *testing.T) {
 	}
 	if entries[0].Attrs["env"] != "production" {
 		t.Errorf("expected record-level attr to override preset, got %q", entries[0].Attrs["env"])
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Subscribe / Unsubscribe tests
+// ---------------------------------------------------------------------------
+
+func TestSubscribe_ReceivesNewEntries(t *testing.T) {
+	buf := NewLogBuffer(100)
+	ch := buf.Subscribe()
+	defer buf.Unsubscribe(ch)
+
+	entry := LogEntry{
+		Timestamp: time.Now(),
+		Level:     "info",
+		Message:   "hello subscriber",
+		Source:    "test",
+	}
+	buf.Add(entry)
+
+	select {
+	case got := <-ch:
+		if got.Message != "hello subscriber" {
+			t.Errorf("expected message 'hello subscriber', got %q", got.Message)
+		}
+		if got.Source != "test" {
+			t.Errorf("expected source 'test', got %q", got.Source)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timed out waiting for entry on subscriber channel")
+	}
+}
+
+func TestSubscribe_MultipleSubscribers(t *testing.T) {
+	buf := NewLogBuffer(100)
+	ch1 := buf.Subscribe()
+	ch2 := buf.Subscribe()
+	ch3 := buf.Subscribe()
+	defer buf.Unsubscribe(ch1)
+	defer buf.Unsubscribe(ch2)
+	defer buf.Unsubscribe(ch3)
+
+	entry := LogEntry{
+		Timestamp: time.Now(),
+		Level:     "warn",
+		Message:   "broadcast to all",
+	}
+	buf.Add(entry)
+
+	for i, ch := range []chan LogEntry{ch1, ch2, ch3} {
+		select {
+		case got := <-ch:
+			if got.Message != "broadcast to all" {
+				t.Errorf("subscriber %d: expected 'broadcast to all', got %q", i, got.Message)
+			}
+		case <-time.After(time.Second):
+			t.Fatalf("subscriber %d: timed out waiting for entry", i)
+		}
+	}
+}
+
+func TestSubscribe_DoesNotReceiveOldEntries(t *testing.T) {
+	buf := NewLogBuffer(100)
+
+	// Add entry before subscribing
+	buf.Add(LogEntry{Message: "old entry"})
+
+	ch := buf.Subscribe()
+	defer buf.Unsubscribe(ch)
+
+	// The old entry should not appear on the channel
+	select {
+	case got := <-ch:
+		t.Errorf("did not expect to receive old entry, got %q", got.Message)
+	case <-time.After(50 * time.Millisecond):
+		// Expected: no entry received
+	}
+}
+
+func TestSubscribe_DropsWhenFull(t *testing.T) {
+	buf := NewLogBuffer(100)
+	ch := buf.Subscribe() // buffered channel with capacity 64
+	defer buf.Unsubscribe(ch)
+
+	// Fill the channel beyond capacity (64) to verify non-blocking behavior
+	for i := 0; i < 100; i++ {
+		buf.Add(LogEntry{Message: "flood"})
+	}
+
+	// Should not block or panic. We got 64 entries in the channel; 36 were dropped.
+	received := 0
+	for {
+		select {
+		case <-ch:
+			received++
+		default:
+			goto done
+		}
+	}
+done:
+	if received != 64 {
+		t.Errorf("expected 64 buffered entries (channel capacity), got %d", received)
+	}
+}
+
+func TestSubscribe_ConcurrentAddAndSubscribe(t *testing.T) {
+	buf := NewLogBuffer(1000)
+
+	var wg sync.WaitGroup
+
+	// Spawn subscribers concurrently
+	channels := make([]chan LogEntry, 5)
+	for i := range channels {
+		wg.Add(1)
+		go func(idx int) {
+			defer wg.Done()
+			channels[idx] = buf.Subscribe()
+		}(i)
+	}
+	wg.Wait()
+
+	// Add entries concurrently
+	for i := 0; i < 10; i++ {
+		wg.Add(1)
+		go func(n int) {
+			defer wg.Done()
+			buf.Add(LogEntry{Message: "concurrent"})
+		}(i)
+	}
+	wg.Wait()
+
+	// Clean up
+	for _, ch := range channels {
+		buf.Unsubscribe(ch)
+	}
+}
+
+func TestUnsubscribe_ClosesChannel(t *testing.T) {
+	buf := NewLogBuffer(100)
+	ch := buf.Subscribe()
+
+	buf.Unsubscribe(ch)
+
+	// Reading from a closed channel should return zero value + ok=false
+	_, ok := <-ch
+	if ok {
+		t.Error("expected channel to be closed after Unsubscribe")
+	}
+}
+
+func TestUnsubscribe_StopsReceiving(t *testing.T) {
+	buf := NewLogBuffer(100)
+	ch := buf.Subscribe()
+	buf.Unsubscribe(ch)
+
+	// Add an entry after unsubscribe; it should not be sent to the closed channel.
+	// This must not panic.
+	buf.Add(LogEntry{Message: "after unsubscribe"})
+
+	// Drain the channel; should only get zero values from the closed channel
+	drained := 0
+	for range ch {
+		drained++
+	}
+	if drained != 0 {
+		t.Errorf("expected 0 entries after unsubscribe, drained %d", drained)
+	}
+}
+
+func TestUnsubscribe_OnlyAffectsTarget(t *testing.T) {
+	buf := NewLogBuffer(100)
+	ch1 := buf.Subscribe()
+	ch2 := buf.Subscribe()
+
+	// Unsubscribe only ch1
+	buf.Unsubscribe(ch1)
+
+	entry := LogEntry{Message: "still listening"}
+	buf.Add(entry)
+
+	// ch2 should still receive entries
+	select {
+	case got := <-ch2:
+		if got.Message != "still listening" {
+			t.Errorf("expected 'still listening', got %q", got.Message)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("ch2 timed out, should still receive after ch1 unsubscribed")
+	}
+
+	buf.Unsubscribe(ch2)
+}
+
+func TestUnsubscribe_MultipleSubscribers_AllRemoved(t *testing.T) {
+	buf := NewLogBuffer(100)
+
+	channels := make([]chan LogEntry, 5)
+	for i := range channels {
+		channels[i] = buf.Subscribe()
+	}
+
+	for _, ch := range channels {
+		buf.Unsubscribe(ch)
+	}
+
+	// After removing all subscribers, Add should not panic
+	buf.Add(LogEntry{Message: "no subscribers"})
+
+	// Verify all channels are closed
+	for i, ch := range channels {
+		_, ok := <-ch
+		if ok {
+			t.Errorf("channel %d should be closed", i)
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// WithGroup tests
+// ---------------------------------------------------------------------------
+
+func TestBroadcastHandler_WithGroup_ReturnsNewHandler(t *testing.T) {
+	buf := NewLogBuffer(100)
+	handler := newTestHandler(buf)
+
+	grouped := handler.WithGroup("mygroup")
+	if grouped == nil {
+		t.Fatal("expected non-nil handler from WithGroup")
+	}
+
+	bh, ok := grouped.(*BroadcastHandler)
+	if !ok {
+		t.Fatalf("expected *BroadcastHandler, got %T", grouped)
+	}
+
+	// The grouped handler should share the same buffer
+	if bh.buffer != buf {
+		t.Error("expected grouped handler to share the same buffer")
+	}
+}
+
+func TestBroadcastHandler_WithGroup_SharesBuffer(t *testing.T) {
+	buf := NewLogBuffer(100)
+	handler := newTestHandler(buf)
+
+	grouped := handler.WithGroup("group1")
+	logger := slog.New(grouped.(*BroadcastHandler))
+
+	logger.Info("grouped message", "key", "val")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry in shared buffer, got %d", len(entries))
+	}
+	if entries[0].Message != "grouped message" {
+		t.Errorf("expected 'grouped message', got %q", entries[0].Message)
+	}
+}
+
+func TestBroadcastHandler_WithGroup_PreservesAttrs(t *testing.T) {
+	buf := NewLogBuffer(100)
+	handler := newTestHandler(buf)
+
+	// Set attrs first, then group
+	withAttrs := handler.WithAttrs([]slog.Attr{
+		slog.String("source", "proxy"),
+		slog.String("component", "router"),
+	})
+	grouped := withAttrs.(*BroadcastHandler).WithGroup("request")
+
+	bh := grouped.(*BroadcastHandler)
+	if len(bh.attrs) != 2 {
+		t.Errorf("expected 2 preserved attrs, got %d", len(bh.attrs))
+	}
+
+	logger := slog.New(bh)
+	logger.Info("request handled", "status", "200")
+
+	entries := buf.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	if entries[0].Source != "proxy" {
+		t.Errorf("expected source 'proxy', got %q", entries[0].Source)
+	}
+	if entries[0].Attrs["component"] != "router" {
+		t.Errorf("expected component 'router', got %q", entries[0].Attrs["component"])
+	}
+}
+
+func TestBroadcastHandler_WithGroup_InnerHandlerGrouped(t *testing.T) {
+	buf := NewLogBuffer(100)
+
+	// Use a real text handler writing to a buffer so we can verify grouping
+	var logOutput strings.Builder
+	inner := slog.NewTextHandler(&logOutput, &slog.HandlerOptions{Level: slog.LevelDebug})
+	handler := NewBroadcastHandler(inner, buf)
+
+	grouped := handler.WithGroup("request")
+	logger := slog.New(grouped.(*BroadcastHandler))
+
+	logger.Info("handled", "method", "GET")
+
+	output := logOutput.String()
+	// The inner text handler should prefix attrs with the group name
+	if !strings.Contains(output, "request.method=GET") {
+		t.Errorf("expected grouped attr 'request.method=GET' in output, got: %s", output)
+	}
+}
+
+func TestBroadcastHandler_WithGroup_Enabled(t *testing.T) {
+	buf := NewLogBuffer(100)
+	handler := newTestHandler(buf)
+
+	grouped := handler.WithGroup("test")
+	bh := grouped.(*BroadcastHandler)
+
+	// The Enabled method should delegate to the inner handler
+	if !bh.Enabled(context.Background(), slog.LevelInfo) {
+		t.Error("expected Info level to be enabled")
+	}
+	if !bh.Enabled(context.Background(), slog.LevelDebug) {
+		t.Error("expected Debug level to be enabled (inner handler is LevelDebug)")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Buffer tests
+// ---------------------------------------------------------------------------
+
+func TestBuffer_NilBeforeInit(t *testing.T) {
+	// Reset global state
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	got := Buffer()
+	if got != nil {
+		t.Error("expected Buffer() to return nil before Init")
+	}
+}
+
+func TestBuffer_NonNilAfterInit(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	if err := Init(Config{Level: LevelInfo, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	got := Buffer()
+	if got == nil {
+		t.Fatal("expected Buffer() to return non-nil after Init")
+	}
+
+	// Verify the buffer is functional
+	got.Add(LogEntry{Message: "buffer test"})
+	entries := got.Recent(1)
+	if len(entries) != 1 {
+		t.Fatalf("expected 1 entry, got %d", len(entries))
+	}
+	if entries[0].Message != "buffer test" {
+		t.Errorf("expected 'buffer test', got %q", entries[0].Message)
+	}
+}
+
+func TestBuffer_ReturnsGlobalBuffer(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	if err := Init(Config{Level: LevelInfo, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	b1 := Buffer()
+	b2 := Buffer()
+	if b1 != b2 {
+		t.Error("expected Buffer() to return the same instance on consecutive calls")
+	}
+}
+
+func TestBuffer_ReceivesLoggedEntries(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Log through the global convenience function
+	Info("integration test message", "source", "test")
+
+	buf := Buffer()
+	entries := buf.Recent(10)
+	found := false
+	for _, e := range entries {
+		if e.Message == "integration test message" {
+			found = true
+			if e.Source != "test" {
+				t.Errorf("expected source 'test', got %q", e.Source)
+			}
+			break
+		}
+	}
+	if !found {
+		t.Error("expected to find 'integration test message' in buffer")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// SetLevel tests
+// ---------------------------------------------------------------------------
+
+func TestSetLevel_ChangesLevel(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	// Init with Info level
+	if err := Init(Config{Level: LevelInfo, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	// Verify info is current level
+	if levelVar.Level() != slog.LevelInfo {
+		t.Fatalf("expected initial level Info, got %v", levelVar.Level())
+	}
+
+	// Change to Debug
+	SetLevel(LevelDebug)
+	if levelVar.Level() != slog.LevelDebug {
+		t.Errorf("expected level Debug after SetLevel, got %v", levelVar.Level())
+	}
+
+	// Change to Error
+	SetLevel(LevelError)
+	if levelVar.Level() != slog.LevelError {
+		t.Errorf("expected level Error after SetLevel, got %v", levelVar.Level())
+	}
+
+	// Change to Warn
+	SetLevel(LevelWarn)
+	if levelVar.Level() != slog.LevelWarn {
+		t.Errorf("expected level Warn after SetLevel, got %v", levelVar.Level())
+	}
+}
+
+func TestSetLevel_AllLevels(t *testing.T) {
+	tests := []struct {
+		level    Level
+		expected slog.Level
+	}{
+		{LevelDebug, slog.LevelDebug},
+		{LevelInfo, slog.LevelInfo},
+		{LevelWarn, slog.LevelWarn},
+		{LevelError, slog.LevelError},
+	}
+
+	for _, tt := range tests {
+		t.Run(string(tt.level), func(t *testing.T) {
+			SetLevel(tt.level)
+			if levelVar.Level() != tt.expected {
+				t.Errorf("SetLevel(%q): levelVar = %v, want %v", tt.level, levelVar.Level(), tt.expected)
+			}
+		})
+	}
+}
+
+func TestSetLevel_UnknownDefaultsToInfo(t *testing.T) {
+	SetLevel("nonexistent")
+	if levelVar.Level() != slog.LevelInfo {
+		t.Errorf("expected unknown level to default to Info, got %v", levelVar.Level())
+	}
+}
+
+func TestSetLevel_AffectsLogging(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	if err := Init(Config{Level: LevelError, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	buf := Buffer()
+
+	// At Error level, Info messages should be filtered
+	Info("should not appear")
+	entries := buf.Recent(10)
+	for _, e := range entries {
+		if e.Message == "should not appear" {
+			t.Error("Info message should be filtered at Error level")
+		}
+	}
+
+	// Change to Debug level; now Info messages should appear
+	SetLevel(LevelDebug)
+	Info("should appear now")
+
+	entries = buf.Recent(10)
+	found := false
+	for _, e := range entries {
+		if e.Message == "should appear now" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Info message should appear after SetLevel(Debug)")
+	}
+}
+
+func TestSetLevel_DebugMessagesFiltered(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+	}()
+
+	buffer = nil
+	defaultLogger = nil
+
+	if err := Init(Config{Level: LevelInfo, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	buf := Buffer()
+
+	// Debug should be filtered at Info level
+	Debug("debug filtered")
+	entries := buf.Recent(10)
+	for _, e := range entries {
+		if e.Message == "debug filtered" {
+			t.Error("Debug message should be filtered at Info level")
+		}
+	}
+
+	// After lowering to Debug, debug messages should appear
+	SetLevel(LevelDebug)
+	Debug("debug visible")
+
+	entries = buf.Recent(10)
+	found := false
+	for _, e := range entries {
+		if e.Message == "debug visible" {
+			found = true
+			break
+		}
+	}
+	if !found {
+		t.Error("Debug message should appear after SetLevel(Debug)")
 	}
 }

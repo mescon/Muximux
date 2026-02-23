@@ -298,6 +298,110 @@ func TestHasMinRole(t *testing.T) {
 	}
 }
 
+func TestDeleteIfNotLastAdmin(t *testing.T) {
+	t.Run("delete nonexistent user", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin1", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+		})
+		err := store.DeleteIfNotLastAdmin("nobody")
+		if err == nil {
+			t.Error("expected error for nonexistent user")
+		}
+		if err.Error() != errUserNotFound {
+			t.Errorf("expected %q error, got %q", errUserNotFound, err.Error())
+		}
+	})
+
+	t.Run("delete non-admin user", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin1", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+			{Username: "user1", PasswordHash: mustHash("pass"), Role: RoleUser},
+		})
+		err := store.DeleteIfNotLastAdmin("user1")
+		if err != nil {
+			t.Fatalf("unexpected error deleting non-admin: %v", err)
+		}
+		if store.Get("user1") != nil {
+			t.Error("expected user1 to be deleted")
+		}
+		if store.Count() != 1 {
+			t.Errorf("expected 1 user remaining, got %d", store.Count())
+		}
+	})
+
+	t.Run("delete admin when multiple admins exist", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin1", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+			{Username: "admin2", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+			{Username: "user1", PasswordHash: mustHash("pass"), Role: RoleUser},
+		})
+		err := store.DeleteIfNotLastAdmin("admin1")
+		if err != nil {
+			t.Fatalf("unexpected error deleting admin with other admins: %v", err)
+		}
+		if store.Get("admin1") != nil {
+			t.Error("expected admin1 to be deleted")
+		}
+		if store.Count() != 2 {
+			t.Errorf("expected 2 users remaining, got %d", store.Count())
+		}
+	})
+
+	t.Run("block deleting last admin", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin1", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+			{Username: "user1", PasswordHash: mustHash("pass"), Role: RoleUser},
+		})
+		err := store.DeleteIfNotLastAdmin("admin1")
+		if err == nil {
+			t.Fatal("expected error when deleting last admin")
+		}
+		if err.Error() != "cannot delete the last admin user" {
+			t.Errorf("expected 'cannot delete the last admin user', got %q", err.Error())
+		}
+		// admin should still exist
+		if store.Get("admin1") == nil {
+			t.Error("expected admin1 to still exist")
+		}
+		if store.Count() != 2 {
+			t.Errorf("expected 2 users remaining, got %d", store.Count())
+		}
+	})
+
+	t.Run("block deleting sole admin even if only user", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin1", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+		})
+		err := store.DeleteIfNotLastAdmin("admin1")
+		if err == nil {
+			t.Fatal("expected error when deleting the only admin")
+		}
+		if store.Count() != 1 {
+			t.Errorf("expected 1 user remaining, got %d", store.Count())
+		}
+	})
+
+	t.Run("delete power-user freely", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin1", PasswordHash: mustHash("pass"), Role: RoleAdmin},
+			{Username: "pu1", PasswordHash: mustHash("pass"), Role: RolePowerUser},
+		})
+		err := store.DeleteIfNotLastAdmin("pu1")
+		if err != nil {
+			t.Fatalf("unexpected error deleting power-user: %v", err)
+		}
+		if store.Get("pu1") != nil {
+			t.Error("expected pu1 to be deleted")
+		}
+	})
+}
+
 func mustHash(password string) string {
 	hash, err := HashPassword(password)
 	if err != nil {

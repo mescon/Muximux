@@ -9,6 +9,8 @@ import (
 	"sync"
 	"testing"
 
+	"gopkg.in/yaml.v3"
+
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
@@ -1346,6 +1348,344 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 		result := sanitizeApps(apps, "")
 		if len(result) != 3 {
 			t.Errorf("empty role should see all 3 apps, got %d", len(result))
+		}
+	})
+}
+
+func TestSetOnConfigSave(t *testing.T) {
+	cfg := createTestConfig()
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+	if handler.onConfigSave != nil {
+		t.Fatal("expected onConfigSave to be nil initially")
+	}
+
+	called := false
+	handler.SetOnConfigSave(func() { called = true })
+
+	if handler.onConfigSave == nil {
+		t.Fatal("expected onConfigSave to be set after SetOnConfigSave")
+	}
+
+	handler.onConfigSave()
+	if !called {
+		t.Error("expected callback to be invoked")
+	}
+}
+
+func TestNotifyConfigSaved(t *testing.T) {
+	t.Run("with callback", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		called := false
+		handler.SetOnConfigSave(func() { called = true })
+		handler.notifyConfigSaved()
+
+		if !called {
+			t.Error("expected notifyConfigSaved to invoke callback")
+		}
+	})
+
+	t.Run("without callback", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		// Should not panic when no callback is set
+		handler.notifyConfigSaved()
+	})
+}
+
+func TestExportConfig(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Auth.Method = "builtin"
+	cfg.Auth.APIKey = "secret-api-key"
+	cfg.Auth.OIDC.ClientSecret = "secret-oidc"
+	cfg.Auth.Users = []config.UserConfig{
+		{Username: "admin", PasswordHash: "$2a$10$hashvalue", Role: "admin"},
+	}
+
+	handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+	req := httptest.NewRequest(http.MethodGet, "/api/config/export", nil)
+	w := httptest.NewRecorder()
+
+	handler.ExportConfig(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+	}
+
+	// Check Content-Type and Content-Disposition headers
+	ct := w.Header().Get("Content-Type")
+	if ct != "application/x-yaml" {
+		t.Errorf("expected Content-Type 'application/x-yaml', got %q", ct)
+	}
+	cd := w.Header().Get("Content-Disposition")
+	if cd == "" {
+		t.Error("expected Content-Disposition header to be set")
+	}
+	if !bytes.Contains([]byte(cd), []byte("muximux-config-")) {
+		t.Errorf("expected Content-Disposition to contain 'muximux-config-', got %q", cd)
+	}
+
+	// Parse the exported YAML
+	body := w.Body.Bytes()
+	var exported config.Config
+	if err := yaml.Unmarshal(body, &exported); err != nil {
+		t.Fatalf("exported YAML is invalid: %v", err)
+	}
+
+	// Verify sensitive fields are stripped
+	if exported.Auth.APIKey != "" {
+		t.Errorf("expected APIKey to be stripped, got %q", exported.Auth.APIKey)
+	}
+	if exported.Auth.OIDC.ClientSecret != "" {
+		t.Errorf("expected OIDC ClientSecret to be stripped, got %q", exported.Auth.OIDC.ClientSecret)
+	}
+	for _, u := range exported.Auth.Users {
+		if u.PasswordHash != "" {
+			t.Errorf("expected PasswordHash to be stripped for user %q, got %q", u.Username, u.PasswordHash)
+		}
+	}
+
+	// Verify non-sensitive fields are preserved
+	if exported.Auth.Method != "builtin" {
+		t.Errorf("expected auth method 'builtin', got %q", exported.Auth.Method)
+	}
+	if len(exported.Auth.Users) != 1 {
+		t.Errorf("expected 1 user, got %d", len(exported.Auth.Users))
+	}
+	if exported.Auth.Users[0].Username != "admin" {
+		t.Errorf("expected username 'admin', got %q", exported.Auth.Users[0].Username)
+	}
+
+	// Verify that the original config is NOT mutated
+	if cfg.Auth.APIKey != "secret-api-key" {
+		t.Error("ExportConfig mutated the original config's APIKey")
+	}
+	if cfg.Auth.OIDC.ClientSecret != "secret-oidc" {
+		t.Error("ExportConfig mutated the original config's OIDC ClientSecret")
+	}
+	if cfg.Auth.Users[0].PasswordHash != "$2a$10$hashvalue" {
+		t.Error("ExportConfig mutated the original config's PasswordHash")
+	}
+}
+
+func TestParseImportedConfig(t *testing.T) {
+	t.Run("valid config", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		yamlBody := []byte(`
+apps:
+  - name: Sonarr
+    url: http://localhost:8989
+    enabled: true
+  - name: Radarr
+    url: http://localhost:7878
+    enabled: true
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		var resp clientConfigResponse
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+
+		if len(resp.Apps) != 2 {
+			t.Errorf("expected 2 apps in response, got %d", len(resp.Apps))
+		}
+	})
+
+	t.Run("wrong method", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		req := httptest.NewRequest(http.MethodGet, "/api/config/import", nil)
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Errorf("expected status 405, got %d", w.Code)
+		}
+	})
+
+	t.Run("invalid YAML", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader([]byte("not: [valid: yaml")))
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("no apps", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		yamlBody := []byte(`
+server:
+  title: "Empty"
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+		if !bytes.Contains(w.Body.Bytes(), []byte("at least one app")) {
+			t.Errorf("expected error about apps, got %q", w.Body.String())
+		}
+	})
+
+	t.Run("app missing name", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		yamlBody := []byte(`
+apps:
+  - url: http://localhost:8989
+    enabled: true
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+		if !bytes.Contains(w.Body.Bytes(), []byte("must have a name")) {
+			t.Errorf("expected error about name, got %q", w.Body.String())
+		}
+	})
+
+	t.Run("app missing URL", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		yamlBody := []byte(`
+apps:
+  - name: Sonarr
+    enabled: true
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+		if !bytes.Contains(w.Body.Bytes(), []byte("must have a URL")) {
+			t.Errorf("expected error about URL, got %q", w.Body.String())
+		}
+	})
+}
+
+func TestBuildClientConfigResponseWithAuth(t *testing.T) {
+	t.Run("with auth method only", func(t *testing.T) {
+		cfg := createTestConfig()
+		cfg.Auth.Method = "builtin"
+
+		resp := buildClientConfigResponse(cfg, "admin")
+
+		if resp.Auth == nil {
+			t.Fatal("expected auth to be set")
+		}
+		if resp.Auth.Method != "builtin" {
+			t.Errorf("expected auth method 'builtin', got %q", resp.Auth.Method)
+		}
+		if resp.Auth.TrustedProxies != nil {
+			t.Error("expected TrustedProxies to be nil when empty")
+		}
+		if resp.Auth.Headers != nil {
+			t.Error("expected Headers to be nil when empty")
+		}
+	})
+
+	t.Run("with trusted proxies and headers", func(t *testing.T) {
+		cfg := createTestConfig()
+		cfg.Auth.Method = "forward_auth"
+		cfg.Auth.TrustedProxies = []string{"10.0.0.0/8"}
+		cfg.Auth.Headers = map[string]string{"X-User": "username"}
+
+		resp := buildClientConfigResponse(cfg, "admin")
+
+		if resp.Auth == nil {
+			t.Fatal("expected auth to be set")
+		}
+		if len(resp.Auth.TrustedProxies) != 1 {
+			t.Errorf("expected 1 trusted proxy, got %d", len(resp.Auth.TrustedProxies))
+		}
+		if resp.Auth.TrustedProxies[0] != "10.0.0.0/8" {
+			t.Errorf("expected trusted proxy '10.0.0.0/8', got %q", resp.Auth.TrustedProxies[0])
+		}
+		if len(resp.Auth.Headers) != 1 {
+			t.Errorf("expected 1 header, got %d", len(resp.Auth.Headers))
+		}
+	})
+
+	t.Run("no auth method", func(t *testing.T) {
+		cfg := createTestConfig()
+		cfg.Auth.Method = ""
+
+		resp := buildClientConfigResponse(cfg, "admin")
+
+		if resp.Auth != nil {
+			t.Error("expected auth to be nil when method is empty")
+		}
+	})
+
+	t.Run("health config included", func(t *testing.T) {
+		cfg := createTestConfig()
+		cfg.Health = config.HealthConfig{Enabled: true, Interval: "30s", Timeout: "5s"}
+
+		resp := buildClientConfigResponse(cfg, "admin")
+
+		if resp.Health == nil {
+			t.Fatal("expected health config to be included")
+		}
+		if !resp.Health.Enabled {
+			t.Error("expected health.enabled to be true")
+		}
+	})
+
+	t.Run("proxy timeout preserved", func(t *testing.T) {
+		cfg := createTestConfig()
+		cfg.Server.ProxyTimeout = "60s"
+
+		resp := buildClientConfigResponse(cfg, "admin")
+
+		if resp.ProxyTimeout != "60s" {
+			t.Errorf("expected proxy_timeout '60s', got %q", resp.ProxyTimeout)
+		}
+	})
+
+	t.Run("log level preserved", func(t *testing.T) {
+		cfg := createTestConfig()
+		cfg.Server.LogLevel = "debug"
+
+		resp := buildClientConfigResponse(cfg, "admin")
+
+		if resp.LogLevel != "debug" {
+			t.Errorf("expected log_level 'debug', got %q", resp.LogLevel)
 		}
 	})
 }

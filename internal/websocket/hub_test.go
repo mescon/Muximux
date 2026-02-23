@@ -225,6 +225,90 @@ func TestHub_BroadcastAppHealthUpdate(t *testing.T) {
 	hub.Unregister(client)
 }
 
+func TestHub_BroadcastLogEntry(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+
+	client := &Client{hub: hub, send: make(chan []byte, 256)}
+	hub.Register(client)
+	time.Sleep(50 * time.Millisecond)
+
+	logPayload := map[string]string{
+		"level":   "info",
+		"message": "something happened",
+		"source":  "test",
+	}
+	hub.BroadcastLogEntry(logPayload)
+	time.Sleep(50 * time.Millisecond)
+
+	select {
+	case msg := <-client.send:
+		var event Event
+		if err := json.Unmarshal(msg, &event); err != nil {
+			t.Fatalf("failed to unmarshal: %v", err)
+		}
+		if event.Type != EventLogEntry {
+			t.Errorf("expected type %s, got %s", EventLogEntry, event.Type)
+		}
+		payload, ok := event.Payload.(map[string]interface{})
+		if !ok {
+			t.Fatalf("expected map payload, got %T", event.Payload)
+		}
+		if payload["level"] != "info" {
+			t.Errorf("expected level 'info', got %v", payload["level"])
+		}
+		if payload["message"] != "something happened" {
+			t.Errorf("expected message 'something happened', got %v", payload["message"])
+		}
+	default:
+		t.Error("client did not receive log entry broadcast")
+	}
+
+	hub.Unregister(client)
+}
+
+func TestHub_BroadcastLogEntry_MultipleClients(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+
+	client1 := &Client{hub: hub, send: make(chan []byte, 256)}
+	client2 := &Client{hub: hub, send: make(chan []byte, 256)}
+	hub.Register(client1)
+	hub.Register(client2)
+	time.Sleep(50 * time.Millisecond)
+
+	hub.BroadcastLogEntry("simple string log entry")
+	time.Sleep(50 * time.Millisecond)
+
+	for i, client := range []*Client{client1, client2} {
+		select {
+		case msg := <-client.send:
+			var event Event
+			if err := json.Unmarshal(msg, &event); err != nil {
+				t.Fatalf("client %d: failed to unmarshal: %v", i, err)
+			}
+			if event.Type != EventLogEntry {
+				t.Errorf("client %d: expected type %s, got %s", i, EventLogEntry, event.Type)
+			}
+		default:
+			t.Errorf("client %d did not receive log entry broadcast", i)
+		}
+	}
+
+	hub.Unregister(client1)
+	hub.Unregister(client2)
+}
+
+func TestHub_BroadcastLogEntry_NoClients(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+
+	// Should not panic or block when no clients are connected
+	hub.BroadcastLogEntry(map[string]string{"level": "error", "message": "test"})
+	time.Sleep(50 * time.Millisecond)
+	// If we get here without hanging, the test passes
+}
+
 func TestHub_MultipleRegistrations(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()

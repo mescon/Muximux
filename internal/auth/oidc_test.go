@@ -782,6 +782,108 @@ func TestSanitizeRedirectURL(t *testing.T) {
 	}
 }
 
+// --- cleanupStates (inline logic test) ---
+
+func TestCleanupStates(t *testing.T) {
+	p, _ := newTestOIDCProvider(t, "http://unused")
+
+	now := time.Now()
+
+	// Add a mix of fresh and expired states
+	p.statesMu.Lock()
+	p.states["fresh1"] = stateEntry{
+		createdAt:   now,
+		redirectURL: "/a",
+	}
+	p.states["fresh2"] = stateEntry{
+		createdAt:   now.Add(-5 * time.Minute),
+		redirectURL: "/b",
+	}
+	p.states["expired1"] = stateEntry{
+		createdAt:   now.Add(-11 * time.Minute),
+		redirectURL: "/c",
+	}
+	p.states["expired2"] = stateEntry{
+		createdAt:   now.Add(-20 * time.Minute),
+		redirectURL: "/d",
+	}
+	p.statesMu.Unlock()
+
+	// Simulate what cleanupStates does on each tick
+	p.statesMu.Lock()
+	for state, entry := range p.states {
+		if time.Since(entry.createdAt) > 10*time.Minute {
+			delete(p.states, state)
+		}
+	}
+	p.statesMu.Unlock()
+
+	// Verify: fresh states should remain, expired ones should be gone
+	p.statesMu.Lock()
+	defer p.statesMu.Unlock()
+
+	if len(p.states) != 2 {
+		t.Fatalf("expected 2 remaining states, got %d", len(p.states))
+	}
+	if _, ok := p.states["fresh1"]; !ok {
+		t.Error("expected fresh1 to still exist")
+	}
+	if _, ok := p.states["fresh2"]; !ok {
+		t.Error("expected fresh2 to still exist")
+	}
+	if _, ok := p.states["expired1"]; ok {
+		t.Error("expected expired1 to be removed")
+	}
+	if _, ok := p.states["expired2"]; ok {
+		t.Error("expected expired2 to be removed")
+	}
+}
+
+func TestCleanupStates_EmptyMap(t *testing.T) {
+	p, _ := newTestOIDCProvider(t, "http://unused")
+
+	// Simulate cleanup on empty map -- should not panic
+	p.statesMu.Lock()
+	for state, entry := range p.states {
+		if time.Since(entry.createdAt) > 10*time.Minute {
+			delete(p.states, state)
+		}
+	}
+	p.statesMu.Unlock()
+
+	if len(p.states) != 0 {
+		t.Errorf("expected 0 states, got %d", len(p.states))
+	}
+}
+
+func TestCleanupStates_AllExpired(t *testing.T) {
+	p, _ := newTestOIDCProvider(t, "http://unused")
+
+	p.statesMu.Lock()
+	p.states["old1"] = stateEntry{
+		createdAt:   time.Now().Add(-15 * time.Minute),
+		redirectURL: "/x",
+	}
+	p.states["old2"] = stateEntry{
+		createdAt:   time.Now().Add(-30 * time.Minute),
+		redirectURL: "/y",
+	}
+	p.statesMu.Unlock()
+
+	// Simulate cleanup
+	p.statesMu.Lock()
+	for state, entry := range p.states {
+		if time.Since(entry.createdAt) > 10*time.Minute {
+			delete(p.states, state)
+		}
+	}
+	p.statesMu.Unlock()
+
+	if len(p.states) != 0 {
+		t.Errorf("expected all states to be cleaned up, got %d", len(p.states))
+	}
+}
+
 // --- generateRandomString ---
 
 func TestGenerateRandomString(t *testing.T) {

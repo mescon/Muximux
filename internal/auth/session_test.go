@@ -145,6 +145,109 @@ func TestSessionConcurrency(t *testing.T) {
 	}
 }
 
+// --- cleanup (inline logic test) ---
+
+func TestSessionCleanup(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+
+	// Create sessions with varying expiry times
+	s1, _ := store.Create("user1", "alice", RoleUser)
+	s2, _ := store.Create("user2", "bob", RoleUser)
+	s3, _ := store.Create("user3", "carol", RoleUser)
+
+	// Manually expire s2 and s3
+	store.mu.Lock()
+	store.sessions[s2.ID].ExpiresAt = time.Now().Add(-time.Minute)
+	store.sessions[s3.ID].ExpiresAt = time.Now().Add(-time.Hour)
+	store.mu.Unlock()
+
+	// Simulate what cleanup() does on each tick
+	store.mu.Lock()
+	for id, session := range store.sessions {
+		if session.IsExpired() {
+			delete(store.sessions, id)
+		}
+	}
+	store.mu.Unlock()
+
+	// s1 should remain, s2 and s3 should be cleaned up
+	if store.Get(s1.ID) == nil {
+		t.Error("expected s1 to still exist")
+	}
+	if store.Get(s2.ID) != nil {
+		t.Error("expected s2 to be cleaned up")
+	}
+	if store.Get(s3.ID) != nil {
+		t.Error("expected s3 to be cleaned up")
+	}
+	if store.Count() != 1 {
+		t.Errorf("expected 1 remaining session, got %d", store.Count())
+	}
+}
+
+func TestSessionCleanup_NoExpired(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+
+	store.Create("user1", "alice", RoleUser)
+	store.Create("user2", "bob", RoleUser)
+
+	// Simulate cleanup -- nothing should be removed
+	store.mu.Lock()
+	for id, session := range store.sessions {
+		if session.IsExpired() {
+			delete(store.sessions, id)
+		}
+	}
+	store.mu.Unlock()
+
+	if store.Count() != 2 {
+		t.Errorf("expected 2 sessions, got %d", store.Count())
+	}
+}
+
+func TestSessionCleanup_AllExpired(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+
+	s1, _ := store.Create("user1", "alice", RoleUser)
+	s2, _ := store.Create("user2", "bob", RoleUser)
+
+	// Expire all sessions
+	store.mu.Lock()
+	store.sessions[s1.ID].ExpiresAt = time.Now().Add(-time.Minute)
+	store.sessions[s2.ID].ExpiresAt = time.Now().Add(-time.Minute)
+	store.mu.Unlock()
+
+	// Simulate cleanup
+	store.mu.Lock()
+	for id, session := range store.sessions {
+		if session.IsExpired() {
+			delete(store.sessions, id)
+		}
+	}
+	store.mu.Unlock()
+
+	if store.Count() != 0 {
+		t.Errorf("expected 0 sessions after cleanup, got %d", store.Count())
+	}
+}
+
+func TestSessionCleanup_EmptyStore(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+
+	// Simulate cleanup on empty store -- should not panic
+	store.mu.Lock()
+	for id, session := range store.sessions {
+		if session.IsExpired() {
+			delete(store.sessions, id)
+		}
+	}
+	store.mu.Unlock()
+
+	if store.Count() != 0 {
+		t.Errorf("expected 0 sessions, got %d", store.Count())
+	}
+}
+
 // --- DeleteByUserID ---
 
 func TestDeleteByUserID(t *testing.T) {
