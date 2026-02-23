@@ -245,6 +245,18 @@
   // Group expansion state (persisted to localStorage)
   let expandedGroups: Record<string, boolean> = $state({});
 
+  // Scroll fade state for sidebar and floating panel
+  let leftScrollEl: HTMLDivElement | null = $state(null);
+  let rightScrollEl: HTMLDivElement | null = $state(null);
+  let floatScrollEl: HTMLDivElement | null = $state(null);
+
+  let leftCanScrollUp = $state(false);
+  let leftCanScrollDown = $state(false);
+  let rightCanScrollUp = $state(false);
+  let rightCanScrollDown = $state(false);
+  let floatCanScrollUp = $state(false);
+  let floatCanScrollDown = $state(false);
+
   // Responsive state
   let isMobile = $state(false);
 
@@ -368,6 +380,13 @@
     fabInitialized = true;
     window.addEventListener('resize', handleFabResize);
 
+    // Set up scroll fade ResizeObserver
+    updateAllScrollFades();
+    const scrollObserver = new ResizeObserver(updateAllScrollFades);
+    if (leftScrollEl) scrollObserver.observe(leftScrollEl);
+    if (rightScrollEl) scrollObserver.observe(rightScrollEl);
+    if (floatScrollEl) scrollObserver.observe(floatScrollEl);
+
     return () => {
       window.removeEventListener('resize', checkResponsive);
       window.removeEventListener('resize', handleFabResize);
@@ -379,7 +398,16 @@
       document.removeEventListener('pointercancel', handleFabPointerUp);
       cleanupEdgeSwipe();
       window.removeEventListener('keydown', handlePanelKeydown);
+      scrollObserver.disconnect();
     };
+  });
+
+  // Update scroll fades when groups expand/collapse (content height changes)
+  $effect(() => {
+    // Reading all values triggers re-run when any group toggles
+    void JSON.stringify(expandedGroups);
+    // Allow DOM to update before recalculating
+    requestAnimationFrame(updateAllScrollFades);
   });
 
   // Edge reveal is handled by the nav element's own mouseenter/mouseleave events.
@@ -392,6 +420,21 @@
   function toggleGroup(name: string) {
     expandedGroups[name] = !expandedGroups[name];
     localStorage.setItem('muximux_expanded_groups', JSON.stringify(expandedGroups));
+  }
+
+  function updateScrollFade(el: HTMLElement | null, setUp: (v: boolean) => void, setDown: (v: boolean) => void, getUp: () => boolean, getDown: () => boolean) {
+    if (!el) { if (getUp()) setUp(false); if (getDown()) setDown(false); return; }
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const up = scrollTop > 2;
+    const down = scrollTop + clientHeight < scrollHeight - 2;
+    if (up !== getUp()) setUp(up);
+    if (down !== getDown()) setDown(down);
+  }
+
+  function updateAllScrollFades() {
+    updateScrollFade(leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown);
+    updateScrollFade(rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown);
+    updateScrollFade(floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown);
   }
 
   function getGroupConfig(name: string): Group | undefined {
@@ -928,8 +971,12 @@
     </div>
 
     <!-- App list (scrollable) -->
-    <div class="flex-1 overflow-y-auto scrollbar-hide"
-         style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
+    <div class="relative flex-1 min-h-0">
+      <div class="scroll-fade-top" class:visible={leftCanScrollUp}></div>
+      <div bind:this={leftScrollEl}
+           class="h-full overflow-y-auto scrollbar-styled"
+           onscroll={() => updateScrollFade(leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown)}
+           style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
@@ -1003,6 +1050,8 @@
           </div>
         </div>
       {/each}
+      </div>
+      <div class="scroll-fade-bottom" class:visible={leftCanScrollDown}></div>
     </div>
 
     <!-- Footer: drawer mode / collapsed cogwheel / standard -->
@@ -1274,8 +1323,12 @@
     </div>
 
     <!-- App list (scrollable) -->
-    <div class="flex-1 overflow-y-auto scrollbar-hide"
-         style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
+    <div class="relative flex-1 min-h-0">
+      <div class="scroll-fade-top" class:visible={rightCanScrollUp}></div>
+      <div bind:this={rightScrollEl}
+           class="h-full overflow-y-auto scrollbar-styled"
+           onscroll={() => updateScrollFade(rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown)}
+           style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
         <div class="mb-2">
@@ -1348,6 +1401,8 @@
           </div>
         </div>
       {/each}
+      </div>
+      <div class="scroll-fade-bottom" class:visible={rightCanScrollDown}></div>
     </div>
 
     <!-- Footer: drawer mode / collapsed cogwheel / standard -->
@@ -1828,7 +1883,12 @@
       role="navigation"
     >
         <!-- Scrollable app list with groups -->
-        <div class="flex-1 overflow-y-auto scrollbar-hide flex flex-col" style="padding: 0.5rem;">
+        <div class="relative flex-1 min-h-0">
+          <div class="scroll-fade-top" class:visible={floatCanScrollUp}></div>
+          <div bind:this={floatScrollEl}
+               class="h-full overflow-y-auto scrollbar-styled flex flex-col"
+               onscroll={() => updateScrollFade(floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown)}
+               style="padding: 0.5rem;">
           {#each groupNames as groupName (groupName)}
             {@const groupConfig = getGroupConfig(groupName)}
             <div class="mb-1">
@@ -1899,6 +1959,8 @@
               </div>
             </div>
           {/each}
+          </div>
+          <div class="scroll-fade-bottom" class:visible={floatCanScrollDown}></div>
         </div>
 
         <!-- Footer — all action buttons in one row -->

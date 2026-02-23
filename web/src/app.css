@@ -633,6 +633,35 @@ html.theme-switching *::after {
   background: var(--text-muted);
 }
 
+/* Scroll-edge fade gradients — visual hint that content overflows */
+.scroll-fade-top,
+.scroll-fade-bottom {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 24px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  will-change: opacity;
+}
+
+.scroll-fade-top {
+  top: 0;
+  background: linear-gradient(to bottom, var(--bg-surface), transparent);
+}
+
+.scroll-fade-bottom {
+  bottom: 0;
+  background: linear-gradient(to top, var(--bg-surface), transparent);
+}
+
+.scroll-fade-top.visible,
+.scroll-fade-bottom.visible {
+  opacity: 1;
+}
+
 /* ─────────────────────────────────────────────────────────────────────────────
    IFRAME CONTAINER
    ───────────────────────────────────────────────────────────────────────────── */
