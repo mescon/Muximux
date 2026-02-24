@@ -14,12 +14,12 @@ apps:
     icon:
       type: dashboard               # dashboard, lucide, custom, or url
       name: sonarr                   # Icon name from chosen source
-      variant: light                 # light or dark (dashboard icons only)
-      file: ""                      # Filename (for type: custom)
-      url: ""                       # URL (for type: url)
-      color: "#ff9600"              # Optional icon tint color (Lucide only)
-      background: "#ffffff"          # Optional icon background override
-      invert: false                  # Invert icon colors (dark ↔ light)
+      # variant: light              # light or dark (dashboard icons only)
+      # file: healarr               # Filename in data/icons/ (type: custom only)
+      # url: https://example.com/icon.png  # Remote image URL (type: url only)
+      # color: "#ff9600"            # Icon tint color (Lucide only)
+      # background: "#ffffff"       # Icon background override
+      # invert: false               # Invert icon colors (dark ↔ light)
     color: "#3498db"                # App accent color (used in nav)
     group: Downloads                # Group name (must match a defined group)
     order: 1                        # Sort order within group

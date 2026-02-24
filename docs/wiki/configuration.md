@@ -128,16 +128,16 @@ groups:
 apps:
   - name: Plex
     url: http://plex:32400
-    health_url: ""             # Optional custom health endpoint
+    # health_url: http://plex:32400/web  # Optional custom health endpoint
     icon:
       type: dashboard
       name: plex
-      variant: light
-      file: ""                 # Filename for type: custom
-      url: ""                  # URL for type: url
-      color: ""                # Tint color (Lucide only)
-      background: ""           # Icon background override
-      invert: false            # Invert icon colors (dark ↔ light)
+      # variant: light         # Icon variant (dashboard icons only)
+      # file: healarr          # Filename in data/icons/ (type: custom only)
+      # url: https://example.com/icon.png  # Remote image URL (type: url only)
+      # color: "#ff0000"       # Tint color (Lucide only)
+      # background: "#1a1a2e"  # Icon background override
+      # invert: false          # Invert icon colors (dark ↔ light)
     color: "#e5a00d"
     group: Media
     order: 1
