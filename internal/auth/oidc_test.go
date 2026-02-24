@@ -55,7 +55,6 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 			AccessToken: "test-access-token",
 			TokenType:   "Bearer",
 			ExpiresIn:   3600,
-			IDToken:     "test-id-token",
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)

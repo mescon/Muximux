@@ -77,7 +77,7 @@ GET /api/apps
 X-Api-Key: your-api-key-here
 ```
 
-The API key is configured in `auth.api_key` in your config file.
+The API key is configured as a bcrypt hash in `auth.api_key_hash` in your config file. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for setup instructions.
 
 ### User Management
 

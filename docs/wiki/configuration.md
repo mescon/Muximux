@@ -40,7 +40,7 @@ auth:
 
   session_max_age: 24h         # Session duration (default: 24h)
   secure_cookies: false        # Require HTTPS for session cookies
-  api_key: ""                  # Optional API key for X-Api-Key auth
+  api_key_hash: ""             # Optional bcrypt hash of API key for X-Api-Key auth
 
   # Builtin auth users
   users:
@@ -180,7 +180,7 @@ Use `${VARIABLE_NAME}` in any string value to reference environment variables. T
 auth:
   oidc:
     client_secret: ${OIDC_CLIENT_SECRET}
-  api_key: ${MUXIMUX_API_KEY}
+  api_key_hash: ${MUXIMUX_API_KEY_HASH}
 
 apps:
   - name: Plex
@@ -225,7 +225,7 @@ Everything else -- navigation, themes, apps, groups, icons, keybindings, health 
 
 You can export your configuration as a downloadable YAML file and import it on another instance:
 
-- **Export** strips sensitive data (password hashes, OIDC secrets, API keys) before download.
+- **Export** strips sensitive data (password hashes, OIDC secrets, API key hashes) before download.
 - **Import** parses the uploaded YAML, validates it, and shows a preview so you can review before applying.
 
 This is available in the Settings panel under the General tab, or via the API (see [API Reference](api.md)).

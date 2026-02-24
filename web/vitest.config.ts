@@ -21,6 +21,12 @@ export default defineConfig({
       reporter: ['text', 'json', 'html', 'lcov'],
       include: ['src/lib/**/*.ts', 'src/components/**/*.svelte'],
       exclude: ['src/test/**', '**/*.d.ts'],
+      thresholds: {
+        statements: 85,
+        branches: 70,
+        functions: 80,
+        lines: 85,
+      },
     },
     // Properly handle Svelte component tests
     alias: {

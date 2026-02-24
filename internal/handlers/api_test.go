@@ -1399,7 +1399,7 @@ func TestNotifyConfigSaved(t *testing.T) {
 func TestExportConfig(t *testing.T) {
 	cfg := createTestConfig()
 	cfg.Auth.Method = "builtin"
-	cfg.Auth.APIKey = "secret-api-key"
+	cfg.Auth.APIKeyHash = "$2a$10$somehashedvalue"
 	cfg.Auth.OIDC.ClientSecret = "secret-oidc"
 	cfg.Auth.Users = []config.UserConfig{
 		{Username: "admin", PasswordHash: "$2a$10$hashvalue", Role: "admin"},
@@ -1437,8 +1437,8 @@ func TestExportConfig(t *testing.T) {
 	}
 
 	// Verify sensitive fields are stripped
-	if exported.Auth.APIKey != "" {
-		t.Errorf("expected APIKey to be stripped, got %q", exported.Auth.APIKey)
+	if exported.Auth.APIKeyHash != "" {
+		t.Errorf("expected APIKeyHash to be stripped, got %q", exported.Auth.APIKeyHash)
 	}
 	if exported.Auth.OIDC.ClientSecret != "" {
 		t.Errorf("expected OIDC ClientSecret to be stripped, got %q", exported.Auth.OIDC.ClientSecret)
@@ -1461,8 +1461,8 @@ func TestExportConfig(t *testing.T) {
 	}
 
 	// Verify that the original config is NOT mutated
-	if cfg.Auth.APIKey != "secret-api-key" {
-		t.Error("ExportConfig mutated the original config's APIKey")
+	if cfg.Auth.APIKeyHash != "$2a$10$somehashedvalue" {
+		t.Error("ExportConfig mutated the original config's APIKeyHash")
 	}
 	if cfg.Auth.OIDC.ClientSecret != "secret-oidc" {
 		t.Error("ExportConfig mutated the original config's OIDC ClientSecret")

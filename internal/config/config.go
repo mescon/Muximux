@@ -102,7 +102,7 @@ type AuthConfig struct {
 	OIDC           OIDCConfig        `yaml:"oidc"`
 	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
 	SecureCookies  bool              `yaml:"secure_cookies"`
-	APIKey         string            `yaml:"api_key"`
+	APIKeyHash     string            `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
 	SetupComplete  bool              `yaml:"setup_complete"`
 }
 
@@ -260,6 +260,11 @@ func Load(path string) (*Config, error) {
 // like bcrypt hashes ($2a$10$...) are not corrupted.
 var bracedEnvRe = regexp.MustCompile(`\$\{([^}]+)\}`)
 
+// IsBracedEnvRef reports whether s looks like a ${VAR} environment variable reference.
+func IsBracedEnvRef(s string) bool {
+	return bracedEnvRe.MatchString(s)
+}
+
 func expandBracedEnv(s string) string {
 	return bracedEnvRe.ReplaceAllStringFunc(s, func(match string) string {
 		key := match[2 : len(match)-1] // strip ${ and }
@@ -292,37 +297,8 @@ func (c *Config) validate() error {
 	return nil
 }
 
-// CurrentConfigVersion is the latest config schema version.
-const CurrentConfigVersion = 2
-
-// Migrate upgrades the config to the latest version and returns true if changes were made.
-func (c *Config) Migrate() bool {
-	changed := false
-
-	if c.ConfigVersion < 2 {
-		// v1 → v2: Rename roles: "guest" → "user", "user" → "power-user"
-		for i := range c.Auth.Users {
-			switch c.Auth.Users[i].Role {
-			case "guest":
-				c.Auth.Users[i].Role = "user"
-			case "user":
-				c.Auth.Users[i].Role = "power-user"
-			}
-		}
-		for i := range c.Apps {
-			switch c.Apps[i].MinRole {
-			case "guest":
-				c.Apps[i].MinRole = "user"
-			case "user":
-				c.Apps[i].MinRole = "power-user"
-			}
-		}
-		c.ConfigVersion = 2
-		changed = true
-	}
-
-	return changed
-}
+// CurrentConfigVersion is the config schema version.
+const CurrentConfigVersion = 1
 
 // Save writes configuration to a YAML file
 func (c *Config) Save(path string) error {

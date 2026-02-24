@@ -106,7 +106,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Authenticate
 	user, err := h.userStore.Authenticate(req.Username, req.Password)
 	if err != nil {
-		logging.Warn("Login failed", "source", "auth", "user", req.Username)
+		logging.Audit("Login failed", "user", req.Username)
 		w.Header().Set(headerContentType, contentTypeJSON)
 		w.WriteHeader(http.StatusUnauthorized)
 		json.NewEncoder(w).Encode(LoginResponse{
@@ -131,7 +131,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Set session cookie
 	h.sessionStore.SetCookie(w, session)
-	logging.Info("User logged in", "source", "auth", "user", user.Username)
+	logging.Audit("User logged in", "user", user.Username)
 
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(LoginResponse{
@@ -162,7 +162,7 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	// Clear cookie
 	h.sessionStore.ClearCookie(w)
-	logging.Info("User logged out", "source", "auth", "user", username)
+	logging.Audit("User logged out", "user", username)
 
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
@@ -272,7 +272,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	h.sessionStore.DeleteByUserID(user.ID, exceptID)
 
-	logging.Info("Password changed", "source", "auth", "user", user.Username)
+	logging.Audit("Password changed", "user", user.Username)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -440,7 +440,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		logging.Error("Failed to persist user creation", "source", "auth", "error", err)
 	}
 
-	logging.Info("User created", "source", "auth", "user", user.Username, "role", user.Role)
+	logging.Audit("User created", "user", user.Username, "role", user.Role)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
@@ -502,7 +502,7 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		logging.Error("Failed to persist user update", "source", "auth", "error", err)
 	}
 
-	logging.Info("User updated", "source", "auth", "user", username, "role", user.Role)
+	logging.Audit("User updated", "user", username, "role", user.Role)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,
@@ -547,7 +547,7 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		logging.Error("Failed to persist user deletion", "source", "auth", "error", err)
 	}
 
-	logging.Info("User deleted", "source", "auth", "user", username)
+	logging.Audit("User deleted", "user", username)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
 }
@@ -602,7 +602,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 
 	// Apply shared fields and persist
 	authCfg.BypassRules = h.bypassRules
-	authCfg.APIKey = h.config.Auth.APIKey
+	authCfg.APIKeyHash = h.config.Auth.APIKeyHash
 	authCfg.BasePath = h.config.Server.NormalizedBasePath()
 
 	if err := func() error {
@@ -624,7 +624,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.Info("Auth method changed", "source", "auth", "method", req.Method)
+	logging.Audit("Auth method changed", "method", req.Method)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]interface{}{
 		"success": true,

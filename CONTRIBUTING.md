@@ -71,16 +71,33 @@ go build -tags embed_web -o muximux ./cmd/muximux
 
 ## Testing
 
+### Coverage Target
+
+Both backend (Go) and frontend (Svelte/TypeScript) maintain **85% statement/line coverage**. This is enforced by:
+
+- **Pre-push hook** -- blocks pushes below threshold
+- **Codecov** -- gates PRs at 85% on new code
+- **Vitest** -- fails `npm run test:coverage` if coverage drops below threshold
+
+Tests themselves are excluded from coverage metrics.
+
 ### Backend
 
 ```bash
 go test -race ./...
+
+# With coverage report
+go test -race -coverprofile=coverage.txt ./internal/...
+go tool cover -func=coverage.txt | tail -1
 ```
 
 ### Frontend
 
 ```bash
 cd web && npm run test
+
+# With coverage report
+cd web && npx vitest run --coverage
 ```
 
 ### Full pre-push check (mirrors CI)

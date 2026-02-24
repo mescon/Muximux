@@ -1,5 +1,10 @@
 # Muximux Wiki
 
+[![OWASP ASVS](https://img.shields.io/badge/OWASP_ASVS-Level_2-005571?logo=owasp)](security.md)
+[![Security](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=security_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+
 Muximux is a modern, self-hosted web application portal for your homelab. It runs as a single binary, serves on a single port, and stores all configuration in one YAML file. Add your self-hosted applications, organize them into groups, and access them from a unified dashboard with health monitoring, keyboard shortcuts, and a built-in reverse proxy.
 
 ![Muximux dashboard](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/09-dashboard-dark.png)
@@ -21,6 +26,7 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Configuration Reference](configuration.md) -- Full config.yaml format and all available options
 - [Apps](apps.md) -- Adding, configuring, and managing applications
 - [Built-in Reverse Proxy](reverse-proxy.md) -- Proxying app traffic through Muximux
+- [Security Overview](security.md) -- Security measures, OWASP ASVS compliance, and hardening details
 - [Authentication](authentication.md) -- Built-in auth, forward auth, and OIDC
 - [TLS & HTTPS](tls-and-gateway.md) -- Automatic certificates, custom certificates, and gateway mode
 - [Gateway Examples](gateway-examples.md) -- Recipes for proxying common homelab services

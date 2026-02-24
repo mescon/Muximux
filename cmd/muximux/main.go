@@ -75,12 +75,6 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
-	if cfg.Migrate() {
-		if err := cfg.Save(*configPath); err != nil {
-			log.Printf("Warning: failed to save migrated config: %v", err)
-		}
-	}
-
 	logFile := filepath.Join(*dataDir, "muximux.log")
 	if err := logging.Init(logging.Config{
 		Level:   logging.Level(cfg.Server.LogLevel),
@@ -92,6 +86,11 @@ func main() {
 	}
 
 	applyOverrides(cfg, *listenAddr, *basePath)
+
+	// Warn if OIDC client_secret is stored as plaintext in config
+	if cfg.Auth.OIDC.Enabled && cfg.Auth.OIDC.ClientSecret != "" && !config.IsBracedEnvRef(cfg.Auth.OIDC.ClientSecret) {
+		logging.Warn("OIDC client_secret is stored in plaintext config — consider using ${ENV_VAR} syntax", "source", "config")
+	}
 
 	// Create and start server
 	srv, err := server.New(cfg, *configPath, *dataDir, version, commit, buildDate)

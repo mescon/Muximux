@@ -35,7 +35,7 @@ auth:
   method: builtin
   session_max_age: 24h        # How long sessions last (default: 24h)
   secure_cookies: true         # Set true if serving over HTTPS
-  api_key: "your-secret-key"   # Optional: for API access without login
+  api_key_hash: "$2a$10$..."    # Optional: bcrypt hash of API key (see below)
   users:
     - username: admin
       password_hash: "$2a$10$..."  # bcrypt hash
@@ -225,13 +225,44 @@ client_secret: ${OIDC_CLIENT_SECRET}
 
 ## API Key Authentication
 
-When `api_key` is set in the auth config, you can authenticate API requests using the `X-Api-Key` header instead of a session cookie. This is useful for integrations, scripts, and automated tools.
+When `api_key_hash` is set in the auth config, you can authenticate API requests using the `X-Api-Key` header instead of a session cookie. This is useful for integrations, scripts, and automated tools.
 
 ```bash
 curl -H "X-Api-Key: your-secret-key" https://muximux.example.com/api/apps
 ```
 
-The API key is checked using constant-time comparison to prevent timing attacks.
+### How It Works
+
+The API key is stored as a **bcrypt hash** in `config.yaml` -- not as plaintext. When a request arrives with `X-Api-Key`, Muximux verifies it against the stored hash using `bcrypt.CompareHashAndPassword`. This means:
+
+- The original API key cannot be recovered from the config file
+- If `config.yaml` is compromised, the attacker cannot extract the key
+- Verification is constant-time, preventing timing attacks
+
+### Generating an API Key Hash
+
+Use the same tools as for password hashes:
+
+```bash
+# Using the hashpw utility
+./hashpw 'my-api-key'
+
+# Using htpasswd
+htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
+
+# Using Python
+python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-api-key', bcrypt.gensalt()).decode())"
+```
+
+Then add the hash to your config:
+
+```yaml
+auth:
+  method: builtin
+  api_key_hash: "$2a$10$..."
+```
+
+You can also set the API key through the **Settings > Security** panel in the Muximux UI. The UI hashes the key automatically before storing it.
 
 ---
 

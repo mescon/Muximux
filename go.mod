@@ -8,6 +8,7 @@ require github.com/gorilla/websocket v1.5.3
 
 require (
 	github.com/caddyserver/caddy/v2 v2.11.0-beta.2.0.20260219192006-db256b53e517
+	github.com/coreos/go-oidc/v3 v3.17.0
 	golang.org/x/crypto v0.48.0
 	golang.org/x/term v0.40.0
 )
@@ -39,7 +40,6 @@ require (
 	github.com/cespare/xxhash/v2 v2.3.0 // indirect
 	github.com/chzyer/readline v1.5.1 // indirect
 	github.com/cloudflare/circl v1.6.3 // indirect
-	github.com/coreos/go-oidc/v3 v3.17.0 // indirect
 	github.com/cpuguy83/go-md2man/v2 v2.0.7 // indirect
 	github.com/dgraph-io/badger v1.6.2 // indirect
 	github.com/dgraph-io/badger/v2 v2.2007.4 // indirect

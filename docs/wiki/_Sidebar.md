@@ -18,6 +18,7 @@
 - [Icons](icons)
 
 **Security**
+- [Security Overview](security)
 - [Authentication](authentication)
 - [TLS & HTTPS](tls-and-gateway)
 - [Gateway Examples](gateway-examples)

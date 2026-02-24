@@ -15,6 +15,7 @@ One binary. One port. One YAML config file.
 [![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
 [![Security](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=security_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
 [![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
+[![OWASP ASVS](https://img.shields.io/badge/OWASP_ASVS-Level_2-005571?logo=owasp)](docs/wiki/security.md)
 [![Docker](https://img.shields.io/badge/ghcr.io-mescon%2Fmuximux-blue?logo=docker)](https://ghcr.io/mescon/muximux)
 [![Release](https://img.shields.io/github/v/release/mescon/Muximux)](https://github.com/mescon/Muximux/releases/latest)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
@@ -149,6 +150,7 @@ Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
 - [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
 - [Apps](docs/wiki/apps.md) - Adding and configuring applications
 - [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
+- [Security](docs/wiki/security.md) - Security measures and OWASP ASVS compliance
 - [Authentication](docs/wiki/authentication.md) - Auth methods and setup
 - [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
 - [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples

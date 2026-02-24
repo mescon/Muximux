@@ -79,7 +79,7 @@ func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 	for i := range cfg.Auth.Users {
 		cfg.Auth.Users[i].PasswordHash = ""
 	}
-	cfg.Auth.APIKey = ""
+	cfg.Auth.APIKeyHash = ""
 	cfg.Auth.OIDC.ClientSecret = ""
 
 	data, err := yaml.Marshal(&cfg)
@@ -89,7 +89,7 @@ func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.Info("Config exported", "source", "config")
+	logging.Audit("Config exported")
 	filename := fmt.Sprintf("muximux-config-%s.yaml", time.Now().Format("2006-01-02"))
 	w.Header().Set("Content-Type", "application/x-yaml")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
@@ -227,7 +227,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.Info("Configuration saved successfully", "source", "config")
+	logging.Audit("Configuration saved")
 	h.notifyConfigSaved()
 
 	// Apply log level change at runtime
@@ -413,7 +413,7 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.Info("App created", "source", "config", "app", newApp.Name)
+	logging.Audit("App created", "app", newApp.Name)
 	h.notifyConfigSaved()
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
@@ -485,7 +485,7 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
-	logging.Info("App updated", "source", "config", "app", clientApp.Name)
+	logging.Audit("App updated", "app", clientApp.Name)
 	h.notifyConfigSaved()
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[idx]))
@@ -519,7 +519,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
-	logging.Info("App deleted", "source", "config", "app", name)
+	logging.Audit("App deleted", "app", name)
 	h.notifyConfigSaved()
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -574,7 +574,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	logging.Info("Group created", "source", "config", "group", group.Name)
+	logging.Audit("Group created", "group", group.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(group)
@@ -614,7 +614,7 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
-	logging.Info("Group updated", "source", "config", "group", group.Name)
+	logging.Audit("Group updated", "group", group.Name)
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(group)
 }
@@ -653,7 +653,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
-	logging.Info("Group deleted", "source", "config", "group", name)
+	logging.Audit("Group deleted", "group", name)
 	w.WriteHeader(http.StatusNoContent)
 }
 

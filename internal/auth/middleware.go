@@ -2,11 +2,12 @@ package auth
 
 import (
 	"context"
-	"crypto/subtle"
 	"net"
 	"net/http"
 	"strings"
 	"sync/atomic"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/mescon/muximux/v3/internal/logging"
 )
@@ -37,7 +38,7 @@ type AuthConfig struct {
 	TrustedProxies []string
 	Headers        ForwardAuthHeaders
 	BypassRules    []BypassRule
-	APIKey         string
+	APIKeyHash     string // bcrypt hash of API key
 	BasePath       string // e.g. "/muximux" — prepended to login redirect
 }
 
@@ -258,10 +259,14 @@ func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 		return true
 	}
 	provided := r.Header.Get("X-Api-Key")
-	if provided == "" || snap.config.APIKey == "" {
+	if provided == "" || snap.config.APIKeyHash == "" {
 		return false
 	}
-	return subtle.ConstantTimeCompare([]byte(provided), []byte(snap.config.APIKey)) == 1
+	if bcrypt.CompareHashAndPassword([]byte(snap.config.APIKeyHash), []byte(provided)) != nil {
+		logging.Audit("API key authentication failed", "path", r.URL.Path)
+		return false
+	}
+	return true
 }
 
 func matchAllowedIPs(r *http.Request, rule BypassRule, snap *authSnapshot) bool {

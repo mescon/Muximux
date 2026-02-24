@@ -6,6 +6,8 @@ import (
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 )
 
 // okHandler is a simple handler that writes 200 OK.
@@ -14,6 +16,16 @@ func okHandler() http.HandlerFunc {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte("OK"))
 	}
+}
+
+// testHashAPIKey generates a bcrypt hash for use in tests.
+func testHashAPIKey(t *testing.T, key string) string {
+	t.Helper()
+	hash, err := bcrypt.GenerateFromPassword([]byte(key), bcrypt.MinCost)
+	if err != nil {
+		t.Fatalf("failed to hash API key: %v", err)
+	}
+	return string(hash)
 }
 
 // newTestMiddleware creates a Middleware with the given config, using fresh stores.
@@ -286,7 +298,7 @@ func TestShouldBypass(t *testing.T) {
 			cfg := &AuthConfig{
 				Method:      AuthMethodBuiltin,
 				BypassRules: tt.rules,
-				APIKey:      "secret123",
+				APIKeyHash:  testHashAPIKey(t, "secret123"),
 			}
 			m, _, _ := newTestMiddleware(cfg)
 
@@ -770,7 +782,7 @@ func TestMatchMethod(t *testing.T) {
 
 func TestMatchAPIKey(t *testing.T) {
 	t.Run("not required always passes", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "secret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: testHashAPIKey(t, "secret")})
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: false}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -780,7 +792,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("correct key", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: testHashAPIKey(t, "mysecret")})
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -791,7 +803,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("wrong key", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: testHashAPIKey(t, "mysecret")})
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -802,7 +814,7 @@ func TestMatchAPIKey(t *testing.T) {
 	})
 
 	t.Run("missing key header", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: "mysecret"})
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: testHashAPIKey(t, "mysecret")})
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -811,14 +823,14 @@ func TestMatchAPIKey(t *testing.T) {
 		}
 	})
 
-	t.Run("empty configured key", func(t *testing.T) {
-		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKey: ""})
+	t.Run("empty configured hash", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin, APIKeyHash: ""})
 		snap := m.snapshot()
 		rule := BypassRule{RequireAPIKey: true}
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		req.Header.Set("X-Api-Key", "anything")
 		if matchAPIKey(req, rule, snap) {
-			t.Error("expected false when no API key configured")
+			t.Error("expected false when no API key hash configured")
 		}
 	})
 }

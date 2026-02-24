@@ -303,6 +303,12 @@ func Error(msg string, args ...any) {
 	Logger().Error(msg, args...)
 }
 
+// Audit logs a security-relevant event at info level with source=audit.
+// Use for authentication events, user management, config changes, and access control.
+func Audit(msg string, args ...any) {
+	Logger().Info(msg, append([]any{"source", "audit"}, args...)...)
+}
+
 // With returns a logger with additional attributes
 func With(args ...any) *slog.Logger {
 	return Logger().With(args...)

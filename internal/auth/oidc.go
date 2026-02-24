@@ -13,6 +13,7 @@ import (
 	"sync"
 	"time"
 
+	gooidc "github.com/coreos/go-oidc/v3/oidc"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
@@ -55,6 +56,7 @@ type OIDCProvider struct {
 type stateEntry struct {
 	createdAt   time.Time
 	redirectURL string
+	nonce       string
 }
 
 // NewOIDCProvider creates a new OIDC provider
@@ -157,11 +159,18 @@ func (p *OIDCProvider) GetAuthorizationURL(redirectAfterLogin string) (string, e
 		return "", fmt.Errorf("failed to generate state: %w", err)
 	}
 
+	// Generate nonce for ID token replay protection
+	nonce, err := generateRandomString(32)
+	if err != nil {
+		return "", fmt.Errorf("failed to generate nonce: %w", err)
+	}
+
 	// Store state
 	p.statesMu.Lock()
 	p.states[state] = stateEntry{
 		createdAt:   time.Now(),
 		redirectURL: redirectAfterLogin,
+		nonce:       nonce,
 	}
 	p.statesMu.Unlock()
 
@@ -172,6 +181,7 @@ func (p *OIDCProvider) GetAuthorizationURL(redirectAfterLogin string) (string, e
 	params.Set("redirect_uri", p.config.RedirectURL)
 	params.Set("scope", strings.Join(p.config.Scopes, " "))
 	params.Set("state", state)
+	params.Set("nonce", nonce)
 
 	return p.authorizationEndpoint + "?" + params.Encode(), nil
 }
@@ -216,6 +226,29 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate ID token if present (signature, issuer, audience, expiry, nonce)
+	if tokens.IDToken != "" {
+		ctx := context.Background()
+		provider, err := gooidc.NewProvider(ctx, p.config.IssuerURL)
+		if err != nil {
+			logging.Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
+			http.Error(w, errAuthFailed, http.StatusInternalServerError)
+			return
+		}
+		verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
+		idToken, err := verifier.Verify(ctx, tokens.IDToken)
+		if err != nil {
+			logging.Audit("OIDC: ID token verification failed", "error", err.Error())
+			http.Error(w, errAuthFailed, http.StatusUnauthorized)
+			return
+		}
+		if idToken.Nonce != entry.nonce {
+			logging.Audit("OIDC: nonce mismatch")
+			http.Error(w, errAuthFailed, http.StatusUnauthorized)
+			return
+		}
+	}
+
 	// Get user info
 	userInfo, err := p.getUserInfo(tokens.AccessToken)
 	if err != nil {
@@ -255,7 +288,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 
 	// Set session cookie
 	p.sessionStore.SetCookie(w, session)
-	logging.Info("OIDC user logged in", "source", "auth", "user", username, "role", role)
+	logging.Audit("OIDC user logged in", "user", username, "role", role)
 
 	// Redirect to original destination or home
 	redirectURL := sanitizeRedirectURL(entry.redirectURL, p.config.BasePath)

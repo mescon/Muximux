@@ -311,7 +311,7 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 	authConfig := auth.AuthConfig{
 		Method:         auth.AuthMethod(cfg.Auth.Method),
 		TrustedProxies: cfg.Auth.TrustedProxies,
-		APIKey:         cfg.Auth.APIKey,
+		APIKeyHash:     cfg.Auth.APIKeyHash,
 		BasePath:       cfg.Server.NormalizedBasePath(),
 		Headers:        auth.ForwardAuthHeadersFromMap(cfg.Auth.Headers),
 		BypassRules:    defaultBypassRules,
@@ -843,11 +843,11 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
 		Method:      auth.AuthMethodBuiltin,
 		BypassRules: defaultBypassRules,
-		APIKey:      s.config.Auth.APIKey,
+		APIKeyHash:  s.config.Auth.APIKeyHash,
 		BasePath:    s.config.Server.NormalizedBasePath(),
 	})
 
-	logging.Info("Admin user created", "source", "auth", "user", req.Username)
+	logging.Audit("Admin user created", "user", req.Username)
 
 	// Create session so user is immediately logged in
 	session, err := s.sessionStore.Create(req.Username, req.Username, "admin")
@@ -873,7 +873,7 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 	if req.Headers != nil {
 		s.config.Auth.Headers = req.Headers
 	}
-	apiKey := s.config.Auth.APIKey
+	apiKeyHash := s.config.Auth.APIKeyHash
 	s.configMu.Unlock()
 
 	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
@@ -881,7 +881,7 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 		TrustedProxies: req.TrustedProxies,
 		Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
 		BypassRules:    defaultBypassRules,
-		APIKey:         apiKey,
+		APIKeyHash:     apiKeyHash,
 		BasePath:       s.config.Server.NormalizedBasePath(),
 	})
 
@@ -1061,6 +1061,17 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		w.Header().Set("Content-Security-Policy", strings.Join([]string{
+			"default-src 'self'",
+			"script-src 'self'",
+			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+			"font-src 'self' https://fonts.gstatic.com",
+			"img-src 'self' data: blob: https:",
+			"connect-src 'self' ws: wss:",
+			"frame-src *",
+			"object-src 'none'",
+			"base-uri 'self'",
+		}, "; "))
 		next.ServeHTTP(w, r)
 	})
 }
