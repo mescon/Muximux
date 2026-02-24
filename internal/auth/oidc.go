@@ -14,6 +14,7 @@ import (
 	"time"
 
 	gooidc "github.com/coreos/go-oidc/v3/oidc"
+
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
