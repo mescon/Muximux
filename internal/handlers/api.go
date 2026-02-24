@@ -158,6 +158,7 @@ type clientAuthConfig struct {
 	Method         string            `json:"method"`
 	TrustedProxies []string          `json:"trusted_proxies,omitempty"`
 	Headers        map[string]string `json:"headers,omitempty"`
+	LogoutURL      string            `json:"logout_url,omitempty"`
 }
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
@@ -184,6 +185,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfig
 		if len(cfg.Auth.Headers) > 0 {
 			authCfg.Headers = cfg.Auth.Headers
 		}
+		authCfg.LogoutURL = cfg.Auth.LogoutURL
 		resp.Auth = authCfg
 	}
 	return resp

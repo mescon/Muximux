@@ -146,6 +146,15 @@
     try {
       const result = await changeAuthMethod(req);
       if (result.success) {
+        // Sync localConfig so derived dirty-checks reset
+        if (!localConfig.auth) localConfig.auth = { method: selectedAuthMethod };
+        localConfig.auth.method = selectedAuthMethod;
+        if (selectedAuthMethod === 'forward_auth') {
+          localConfig.auth.trusted_proxies = req.trusted_proxies;
+          localConfig.auth.headers = req.headers;
+          localConfig.auth.logout_url = req.logout_url;
+        }
+
         // Switching FROM "none" to an auth method — the virtual admin session is now invalid.
         if (previousMethod === 'none' && selectedAuthMethod !== 'none') {
           if (selectedAuthMethod === 'forward_auth') {
