@@ -257,7 +257,8 @@ The `/api/health` endpoint always returns 200 OK when the server is running. It 
 | `/api/icons/lucide` | GET | Any | List Lucide icons |
 | `/api/icons/lucide/{name}` | GET | Any | Get Lucide icon SVG |
 | `/api/icons/custom` | GET | Any | List custom icons |
-| `/api/icons/custom` | POST | Admin | Upload custom icon (multipart, 5MB limit) |
+| `/api/icons/custom` | POST | Admin | Upload custom icon (multipart, 2MB limit) |
+| `/api/icons/custom/fetch` | POST | Admin | Download icon from URL and save locally |
 | `/api/icons/custom/{name}` | DELETE | Admin | Delete custom icon |
 
 **Upload custom icon:**
@@ -271,7 +272,23 @@ Content-Type: multipart/form-data
 file: (binary data)
 ```
 
-Accepted formats: PNG, SVG, JPG, WebP. Maximum file size: 5MB.
+Accepted formats: PNG, SVG, JPG, WebP, GIF. Maximum file size: 2MB.
+
+**Fetch icon from URL:**
+
+Download an image from a remote URL and save it as a custom icon:
+
+```
+POST /api/icons/custom/fetch
+Content-Type: application/json
+
+{
+  "url": "https://example.com/icon.png",
+  "name": "my-icon"              // optional, derived from URL if omitted
+}
+```
+
+The server downloads the image, validates the content type and size (2MB limit), and stores it locally. Returns `{"name": "my-icon", "status": "uploaded"}` on success.
 
 ---
 

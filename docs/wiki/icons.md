@@ -54,17 +54,18 @@ icon:
   file: my-custom-icon.png    # Filename in data/icons/custom/
 ```
 
-**Upload limits:** 5MB per icon. Admin role required.
+**Upload limits:** 2MB per icon. Admin role required.
 
 Custom icons are stored in the `data/icons/custom/` directory and served at `/icons/custom/{filename}`.
 
-You can upload custom icons in two ways:
-1. Through the Settings panel icon browser (click "Upload" in the Custom tab)
-2. Via the API: `POST /api/icons/custom` with a multipart form upload
+You can add custom icons in three ways:
+1. **File upload** -- Through the Settings panel icon browser (click "Upload" in the Custom tab)
+2. **Fetch from URL** -- Paste an image URL in the Custom tab and click "Fetch". The server downloads the image, validates it, and saves it locally as a custom icon. This is the recommended way to use icons from external sources, since the image is stored locally and won't break if the remote server goes down.
+3. **API** -- `POST /api/icons/custom` (multipart upload) or `POST /api/icons/custom/fetch` (download from URL)
 
 ## URL Icons
 
-Reference any external image URL as an icon.
+Reference any external image URL as an icon. This is a power-user option for manual `config.yaml` editing.
 
 ```yaml
 icon:
@@ -75,6 +76,8 @@ icon:
 Useful for apps that provide their own favicon or icon URL.
 
 **Note:** The URL must be accessible from the user's browser, not from the Muximux server. The browser loads URL icons directly, so the image host must be reachable from wherever your users are browsing.
+
+> **Prefer fetching over hotlinking.** URL icons break if the remote server goes down or the image moves. The icon browser's **Fetch from URL** feature (in the Custom tab) downloads the image and stores it locally, avoiding this problem. Use `type: url` only when you need a live reference to an image that changes externally.
 
 ## Icon Appearance Options
 
@@ -113,5 +116,6 @@ The Settings panel includes an icon browser that lets you search and preview ico
 - Preview icons before selecting them
 - See available variants for dashboard icons (light, dark, default)
 - Upload new custom icons directly from the browser
+- Fetch icons from a URL (downloaded and stored locally)
 
 To open the icon browser, edit any app or group in Settings and click the icon field.

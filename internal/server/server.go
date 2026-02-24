@@ -566,6 +566,13 @@ func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adm
 			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
 		}
 	})
+	mux.HandleFunc("/api/icons/custom/fetch", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			return
+		}
+		requireAdmin(iconHandler.FetchCustomIcon)(w, r)
+	})
 	mux.HandleFunc("/api/icons/custom/", requireAdmin(iconHandler.DeleteCustomIcon))
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
 }

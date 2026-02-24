@@ -411,6 +411,244 @@ func TestUploadCustomIcon(t *testing.T) {
 	})
 }
 
+func TestFetchCustomIcon(t *testing.T) {
+	t.Run("happy path PNG", func(t *testing.T) {
+		// Start a mock server serving a PNG
+		pngData := append([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, make([]byte, 100)...)
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png")
+			w.Write(pngData)
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		var resp map[string]string
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
+		if resp["status"] != "uploaded" {
+			t.Errorf("expected status 'uploaded', got %q", resp["status"])
+		}
+		if resp["name"] == "" {
+			t.Error("expected non-empty name in response")
+		}
+
+		// Verify icon was saved on disk
+		files, _ := os.ReadDir(dir)
+		if len(files) != 1 {
+			t.Errorf("expected 1 file in custom dir, got %d", len(files))
+		}
+	})
+
+	t.Run("with custom name", func(t *testing.T) {
+		svgData := []byte(`<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`)
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/svg+xml")
+			w.Write(svgData)
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.svg", "name": "my-custom-name"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		var resp map[string]string
+		json.NewDecoder(w.Body).Decode(&resp)
+		if resp["name"] != "my-custom-name" {
+			t.Errorf("expected name 'my-custom-name', got %q", resp["name"])
+		}
+	})
+
+	t.Run("missing URL", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("invalid URL scheme", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": "ftp://evil.com/icon.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("non-image content type", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "text/html")
+			w.Write([]byte("<html>not an icon</html>"))
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/page.html"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("file too large", func(t *testing.T) {
+		// Serve a file larger than MaxIconSize
+		bigData := make([]byte, icons.MaxIconSize+1)
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png")
+			w.Write(bigData)
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/big.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("server returns 404", func(t *testing.T) {
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			http.NotFound(w, r)
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/missing.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadGateway {
+			t.Errorf("expected status 502, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("invalid JSON body", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader([]byte("not json")))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400, got %d", w.Code)
+		}
+	})
+
+	t.Run("content type with parameters", func(t *testing.T) {
+		pngData := append([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, make([]byte, 50)...)
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/png; charset=utf-8")
+			w.Write(pngData)
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("name derived from URL path", func(t *testing.T) {
+		svgData := []byte(`<svg xmlns="http://www.w3.org/2000/svg"></svg>`)
+		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			w.Header().Set("Content-Type", "image/svg+xml")
+			w.Write(svgData)
+		}))
+		defer ts.Close()
+
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/images/my-app-icon.svg"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		var resp map[string]string
+		json.NewDecoder(w.Body).Decode(&resp)
+		if resp["name"] != "my-app-icon" {
+			t.Errorf("expected name 'my-app-icon', got %q", resp["name"])
+		}
+	})
+}
+
 func TestDeleteCustomIcon(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		dir := t.TempDir()

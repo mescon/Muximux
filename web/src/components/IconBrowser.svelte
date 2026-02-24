@@ -8,6 +8,7 @@
     listCustomIcons,
     getCustomIconUrl,
     uploadCustomIcon,
+    fetchCustomIconFromUrl,
     deleteCustomIcon,
     type IconInfo,
     type LucideIconInfo,
@@ -52,6 +53,9 @@
   let error = $state<string | null>(null);
   let uploading = $state(false);
   let uploadError = $state<string | null>(null);
+  let fetchUrl = $state('');
+  let fetching = $state(false);
+  let fetchError = $state<string | null>(null);
 
   // Debounce search
   let searchTimeout: ReturnType<typeof setTimeout>;
@@ -173,6 +177,24 @@
       uploadError = e instanceof Error ? e.message : 'Upload failed';
     } finally {
       uploading = false;
+    }
+  }
+
+  async function handleFetchUrl() {
+    const url = fetchUrl.trim();
+    if (!url) return;
+
+    fetching = true;
+    fetchError = null;
+
+    try {
+      await fetchCustomIconFromUrl(url);
+      await loadCustomIcons();
+      fetchUrl = '';
+    } catch (e) {
+      fetchError = e instanceof Error ? e.message : 'Fetch failed';
+    } finally {
+      fetching = false;
     }
   }
 
@@ -315,6 +337,33 @@
       </button>
       {#if uploadError}
         <p class="text-xs text-red-400 mt-1">{uploadError}</p>
+      {/if}
+      <div class="flex gap-2 mt-2">
+        <input
+          type="text"
+          bind:value={fetchUrl}
+          placeholder="https://example.com/icon.png"
+          class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
+                 focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+          onkeydown={(e: KeyboardEvent) => { if (e.key === 'Enter') handleFetchUrl(); }}
+          disabled={fetching}
+        />
+        <button
+          class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-md text-sm
+                 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 whitespace-nowrap"
+          onclick={handleFetchUrl}
+          disabled={fetching || !fetchUrl.trim()}
+        >
+          {#if fetching}
+            <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+            Fetching...
+          {:else}
+            Fetch
+          {/if}
+        </button>
+      </div>
+      {#if fetchError}
+        <p class="text-xs text-red-400 mt-1">{fetchError}</p>
       {/if}
     </div>
   {/if}

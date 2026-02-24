@@ -14,12 +14,13 @@ class IntersectionObserverMock {
 globalThis.IntersectionObserver = IntersectionObserverMock as unknown as typeof IntersectionObserver;
 
 // Hoist mock data for API
-const { mockListDashboardIcons, mockListLucideIcons, mockListCustomIcons, mockUploadCustomIcon, mockDeleteCustomIcon } = vi.hoisted(() => {
+const { mockListDashboardIcons, mockListLucideIcons, mockListCustomIcons, mockUploadCustomIcon, mockFetchCustomIconFromUrl, mockDeleteCustomIcon } = vi.hoisted(() => {
   return {
     mockListDashboardIcons: vi.fn(),
     mockListLucideIcons: vi.fn(),
     mockListCustomIcons: vi.fn(),
     mockUploadCustomIcon: vi.fn(),
+    mockFetchCustomIconFromUrl: vi.fn(),
     mockDeleteCustomIcon: vi.fn(),
   };
 });
@@ -33,6 +34,7 @@ vi.mock('$lib/api', () => ({
   listCustomIcons: mockListCustomIcons,
   getCustomIconUrl: vi.fn((name: string) => `/icons/custom/${name}`),
   uploadCustomIcon: mockUploadCustomIcon,
+  fetchCustomIconFromUrl: mockFetchCustomIconFromUrl,
   deleteCustomIcon: mockDeleteCustomIcon,
   getBase: vi.fn(() => ''),
 }));
@@ -79,6 +81,7 @@ describe('IconBrowser', () => {
     mockListLucideIcons.mockResolvedValue(sampleLucideIcons);
     mockListCustomIcons.mockResolvedValue(sampleCustomIcons);
     mockUploadCustomIcon.mockResolvedValue({ name: 'uploaded.png', status: 'ok' });
+    mockFetchCustomIconFromUrl.mockResolvedValue({ name: 'fetched-icon', status: 'uploaded' });
     mockDeleteCustomIcon.mockResolvedValue(undefined);
   });
 
@@ -874,6 +877,95 @@ describe('IconBrowser', () => {
       await fireEvent.click(screen.getByText('Upload Custom Icon'));
 
       expect(clickSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('custom icon URL fetch', () => {
+    it('shows URL input and Fetch button on custom tab', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('https://example.com/icon.png')).toBeInTheDocument();
+        expect(screen.getByText('Fetch')).toBeInTheDocument();
+      });
+    });
+
+    it('does not show URL input on dashboard tab', async () => {
+      render(IconBrowser);
+      await waitFor(() => {
+        expect(screen.queryByPlaceholderText('https://example.com/icon.png')).not.toBeInTheDocument();
+      });
+    });
+
+    it('Fetch button is disabled when URL input is empty', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        const fetchBtn = screen.getByText('Fetch') as HTMLButtonElement;
+        expect(fetchBtn.disabled).toBe(true);
+      });
+    });
+
+    it('fetches icon from URL when Fetch button is clicked', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('https://example.com/icon.png')).toBeInTheDocument();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://example.com/icon.png') as HTMLInputElement;
+      await fireEvent.input(urlInput, { target: { value: 'https://example.com/my-icon.png' } });
+      await fireEvent.click(screen.getByText('Fetch'));
+
+      await waitFor(() => {
+        expect(mockFetchCustomIconFromUrl).toHaveBeenCalledWith('https://example.com/my-icon.png');
+        // After fetch, custom icons should be reloaded
+        expect(mockListCustomIcons).toHaveBeenCalledTimes(2);
+      });
+    });
+
+    it('clears URL input on successful fetch', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('https://example.com/icon.png')).toBeInTheDocument();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://example.com/icon.png') as HTMLInputElement;
+      await fireEvent.input(urlInput, { target: { value: 'https://example.com/icon.png' } });
+      await fireEvent.click(screen.getByText('Fetch'));
+
+      await waitFor(() => {
+        expect(urlInput.value).toBe('');
+      });
+    });
+
+    it('shows error message when fetch fails', async () => {
+      mockFetchCustomIconFromUrl.mockRejectedValue(new Error('API error: 400 Unsupported file type'));
+
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('https://example.com/icon.png')).toBeInTheDocument();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://example.com/icon.png') as HTMLInputElement;
+      await fireEvent.input(urlInput, { target: { value: 'https://example.com/bad.html' } });
+      await fireEvent.click(screen.getByText('Fetch'));
+
+      await waitFor(() => {
+        expect(screen.getByText('API error: 400 Unsupported file type')).toBeInTheDocument();
+      });
+    });
+
+    it('fetches icon when Enter is pressed in URL input', async () => {
+      render(IconBrowser, { props: { selectedType: 'custom' } });
+      await waitFor(() => {
+        expect(screen.getByPlaceholderText('https://example.com/icon.png')).toBeInTheDocument();
+      });
+
+      const urlInput = screen.getByPlaceholderText('https://example.com/icon.png') as HTMLInputElement;
+      await fireEvent.input(urlInput, { target: { value: 'https://example.com/icon.svg' } });
+      await fireEvent.keyDown(urlInput, { key: 'Enter' });
+
+      await waitFor(() => {
+        expect(mockFetchCustomIconFromUrl).toHaveBeenCalledWith('https://example.com/icon.svg');
+      });
     });
   });
 

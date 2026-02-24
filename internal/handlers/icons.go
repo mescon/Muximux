@@ -4,8 +4,10 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"net/url"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/icons"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -255,6 +257,99 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 	}
 
 	logging.Info("Custom icon uploaded", "source", "icons", "name", name, "size", len(data))
+	w.Header().Set(headerContentType, contentTypeJSON)
+	json.NewEncoder(w).Encode(map[string]string{
+		"name":   name,
+		"status": "uploaded",
+	})
+}
+
+// fetchIconRequest is the JSON body for POST /api/icons/custom/fetch
+type fetchIconRequest struct {
+	URL  string `json:"url"`
+	Name string `json:"name"`
+}
+
+// FetchCustomIcon downloads an icon from a URL and saves it as a custom icon
+func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
+	var req fetchIconRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, errInvalidBody, http.StatusBadRequest)
+		return
+	}
+
+	if req.URL == "" {
+		http.Error(w, "URL is required", http.StatusBadRequest)
+		return
+	}
+
+	// Parse and validate URL scheme
+	parsed, err := url.Parse(req.URL)
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") {
+		http.Error(w, "Invalid URL: must be http or https", http.StatusBadRequest)
+		return
+	}
+
+	// Download with timeout and size limit
+	client := &http.Client{Timeout: 10 * time.Second}
+	resp, err := client.Get(req.URL)
+	if err != nil {
+		logging.Warn("Custom icon fetch failed", "source", "icons", "url", req.URL, "error", err)
+		http.Error(w, "Failed to download icon", http.StatusBadGateway)
+		return
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		http.Error(w, "Remote server returned "+resp.Status, http.StatusBadGateway)
+		return
+	}
+
+	// Read with size limit
+	data, err := io.ReadAll(io.LimitReader(resp.Body, icons.MaxIconSize+1))
+	if err != nil {
+		http.Error(w, "Failed to read response", http.StatusBadGateway)
+		return
+	}
+	if len(data) > icons.MaxIconSize {
+		http.Error(w, "File too large: max size is 2MB", http.StatusBadRequest)
+		return
+	}
+
+	// Detect content type from response header, falling back to content sniffing
+	contentType := resp.Header.Get(headerContentType)
+	if contentType == "" || contentType == "application/octet-stream" {
+		contentType = http.DetectContentType(data)
+	}
+	// Strip parameters (e.g. "image/png; charset=utf-8" -> "image/png")
+	if idx := strings.Index(contentType, ";"); idx != -1 {
+		contentType = strings.TrimSpace(contentType[:idx])
+	}
+
+	// Validate MIME type
+	if _, ok := icons.AllowedMimeTypes[contentType]; !ok {
+		http.Error(w, "Unsupported file type: "+contentType, http.StatusBadRequest)
+		return
+	}
+
+	// Derive name from URL filename if not provided
+	name := req.Name
+	if name == "" {
+		name = filepath.Base(parsed.Path)
+		name = strings.TrimSuffix(name, filepath.Ext(name))
+		if name == "" || name == "." {
+			name = "fetched-icon"
+		}
+	}
+
+	// Save the icon (reuses same validation as file upload)
+	if err := h.customManager.SaveIcon(name, data, contentType); err != nil {
+		logging.Warn("Custom icon fetch save failed", "source", "icons", "name", name, "error", err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	logging.Info("Custom icon fetched from URL", "source", "icons", "name", name, "url", req.URL, "size", len(data))
 	w.Header().Set(headerContentType, contentTypeJSON)
 	json.NewEncoder(w).Encode(map[string]string{
 		"name":   name,

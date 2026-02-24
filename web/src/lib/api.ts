@@ -221,6 +221,10 @@ export async function uploadCustomIcon(file: File, name?: string): Promise<{ nam
   return response.json();
 }
 
+export async function fetchCustomIconFromUrl(url: string, name?: string): Promise<{ name: string; status: string }> {
+  return postJSON<{ url: string; name?: string }, { name: string; status: string }>('/icons/custom/fetch', { url, name });
+}
+
 export async function deleteCustomIcon(name: string): Promise<void> {
   const response = await fetch(`${API_BASE}/icons/custom/${encodeURIComponent(name)}`, {
     method: 'DELETE',
