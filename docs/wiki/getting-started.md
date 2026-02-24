@@ -20,7 +20,7 @@ The wizard has six steps on a first launch, including a **Security** step where 
 
 A brief introduction to Muximux and its core features: embedded app views via iframes, health monitoring, and keyboard-driven navigation. Click **Let's Get Started** to begin.
 
-![Onboarding — Welcome](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)
+[![Onboarding — Welcome](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/01-welcome.png)
 
 ### Step 2: Security (fresh install only)
 
@@ -57,7 +57,7 @@ At the top of the left column is the **Add Custom App** card. Click it to expand
   - **Delete** -- Remove a group with the X button.
   - **Add Group** -- Click "+ Add Group" to create a new group from scratch.
 
-![Onboarding — Apps configured with URLs and groups](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)
+[![Onboarding — Apps configured with URLs and groups](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/04-apps-selected.png)
 
 ### Step 4: Navigation Style
 
@@ -75,11 +75,11 @@ You can also toggle **Show App Labels** to control whether app names are display
 
 | Left Sidebar | Top Bar | Bottom Bar |
 |:---:|:---:|:---:|
-| ![Left Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05-style.png) | ![Top Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05a-style-top.png) | ![Bottom Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05b-style-bottom.png) |
+| [![Left Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05-style.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05-style.png) | [![Top Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05a-style-top.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05a-style-top.png) | [![Bottom Bar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05b-style-bottom.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05b-style-bottom.png) |
 
 | Floating | Right Sidebar |
 |:---:|:---:|
-| ![Floating](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05c-style-floating.png) | ![Right Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05d-style-right.png) |
+| [![Floating](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05c-style-floating.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05c-style-floating.png) | [![Right Sidebar](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05d-style-right.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/05d-style-right.png) |
 
 ### Step 5: Theme
 
@@ -93,13 +93,13 @@ Custom themes can be created later in Settings. The selected theme is saved to `
 
 | Muximux (Default) | Catppuccin | Dracula |
 |:---:|:---:|:---:|
-| ![Default dark](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png) | ![Catppuccin](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png) | ![Dracula](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png) |
+| [![Default dark](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png) | [![Catppuccin](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png) | [![Dracula](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png) |
 
 ### Step 6: Complete
 
 A summary of your choices is displayed: number of apps, navigation position, theme family, number of groups, and label visibility. Click **Launch Dashboard** to apply the configuration and open your new dashboard.
 
-![Onboarding — Complete](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)
+[![Onboarding — Complete](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/08-done.png)
 
 ---
 

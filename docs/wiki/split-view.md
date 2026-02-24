@@ -4,7 +4,7 @@ Split view displays two apps side by side (horizontal) or stacked (vertical) in 
 
 | Horizontal Split | Vertical Split |
 |:---:|:---:|
-| ![Horizontal](../screenshots/14-split-horizontal.png) | ![Vertical](../screenshots/15-split-vertical.png) |
+| [![Horizontal](../screenshots/14-split-horizontal.png)](../screenshots/14-split-horizontal.png) | [![Vertical](../screenshots/15-split-vertical.png)](../screenshots/15-split-vertical.png) |
 
 ## Enabling Split View
 

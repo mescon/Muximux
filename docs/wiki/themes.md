@@ -46,13 +46,13 @@ Each theme supports three variant modes:
 
 Changes apply instantly and are saved to `config.yaml` when you click Save. No restart is needed.
 
-![Theme selector with 9 theme families](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)
+[![Theme selector with 9 theme families](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/11-themes.png)
 
 Here are a few examples of the available themes applied to the onboarding wizard:
 
 | Muximux (Default) | Catppuccin | Dracula |
 |:---:|:---:|:---:|
-| ![Default dark](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png) | ![Catppuccin](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png) | ![Dracula](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png) |
+| [![Default dark](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06-theme-dark.png) | [![Catppuccin](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06b-theme-catppuccin.png) | [![Dracula](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/06c-theme-dracula.png) |
 
 You can also select a theme during the onboarding wizard when setting up Muximux for the first time.
 
@@ -65,7 +65,7 @@ You can create fully custom themes through the Settings panel:
 3. Use the theme editor to customize colors, backgrounds, borders, and other visual properties.
 4. Save the theme.
 
-![Theme editor with color pickers](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)
+[![Theme editor with color pickers](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/12-theme-customizer.png)
 
 Custom themes are stored as CSS files in the `data/themes/` directory. When you create a theme, Muximux generates a CSS file that overrides the default CSS custom properties (variables) with your chosen values.
 
