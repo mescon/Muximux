@@ -155,9 +155,9 @@ apps:
       type: dashboard          # Icon types: dashboard, lucide, custom, url
       name: plex               # Dashboard Icons slug or Lucide icon name
       # variant: light         # Icon variant (e.g. light, dark — Dashboard Icons only)
-      # file: ""               # Filename in data/icons/ (type: custom only)
-      # url: ""                # Remote image URL (type: url only)
-      # color: ""              # Tint color (Lucide icons only)
+      # file: healarr          # Filename in data/icons/ (type: custom only)
+      # url: https://example.com/icon.png  # Remote image URL (type: url only)
+      # color: "#ff0000"       # Tint color (Lucide icons only)
       # background: "#1a1a2e"  # Override icon background color
       # invert: false          # Flip icon colors (dark ↔ light)
     color: "#e5a00d"           # App accent color

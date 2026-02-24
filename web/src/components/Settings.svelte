@@ -397,7 +397,15 @@
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
     const { name, variant, type } = detail;
-    const iconData = { type: type as 'dashboard' | 'lucide' | 'custom', name, variant, file: '', url: '', color: '', background: '' };
+    const iconData = {
+      type: type as 'dashboard' | 'lucide' | 'custom' | 'url',
+      name: type === 'custom' ? '' : name,
+      variant,
+      file: type === 'custom' ? name : '',
+      url: '',
+      color: '',
+      background: '',
+    };
 
     if (iconBrowserTarget === 'newApp') {
       newApp = { ...newApp, icon: iconData };

@@ -496,7 +496,12 @@
   }
 
   function handleIconSelect(detail: { name: string; variant: string; type: string }) {
-    const newIcon: AppIconConfig = { type: detail.type as AppIconConfig['type'], name: detail.name, file: '', url: '', variant: detail.variant };
+    const newIcon: AppIconConfig = {
+      type: detail.type as AppIconConfig['type'],
+      name: detail.type === 'custom' ? '' : detail.name,
+      file: detail.type === 'custom' ? detail.name : '',
+      variant: detail.variant,
+    };
     if (iconBrowserContext === 'app-override') {
       const existing = appOverrides.get(iconBrowserAppName);
       appOverrides.set(iconBrowserAppName, {

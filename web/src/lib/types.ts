@@ -30,10 +30,10 @@ export function getEffectiveUrl(app: App): string {
 
 export interface AppIcon {
   type: 'dashboard' | 'lucide' | 'custom' | 'url';
-  name: string;
-  file: string;
-  url: string;
-  variant: string;
+  name?: string;
+  file?: string;
+  url?: string;
+  variant?: string;
   color?: string;
   background?: string;
   invert?: boolean;
