@@ -1,13 +1,18 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/signal"
 	"path/filepath"
+	"strings"
 	"syscall"
+
+	"golang.org/x/crypto/bcrypt"
+	"golang.org/x/term"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
@@ -51,7 +56,56 @@ func applyOverrides(cfg *config.Config, listenAddr, basePath string) {
 	}
 }
 
+// runHash generates a bcrypt hash from a password/key provided as an argument or via stdin.
+func runHash() {
+	var password string
+
+	if len(os.Args) > 2 {
+		password = os.Args[2]
+	} else {
+		fmt.Print("Enter value to hash: ")
+		fd := int(os.Stdin.Fd())
+		if term.IsTerminal(fd) {
+			bytePassword, err := term.ReadPassword(fd)
+			fmt.Println()
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
+				os.Exit(1)
+			}
+			password = string(bytePassword)
+		} else {
+			reader := bufio.NewReader(os.Stdin)
+			var err error
+			password, err = reader.ReadString('\n')
+			if err != nil {
+				fmt.Fprintf(os.Stderr, "Error reading input: %v\n", err)
+				os.Exit(1)
+			}
+			password = strings.TrimSpace(password)
+		}
+	}
+
+	if password == "" {
+		fmt.Fprintln(os.Stderr, "Value cannot be empty")
+		os.Exit(1)
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Error generating hash: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Println(string(hash))
+}
+
 func main() {
+	// Handle subcommands before flag parsing
+	if len(os.Args) > 1 && os.Args[1] == "hash" {
+		runHash()
+		return
+	}
+
 	dataDir := flag.String("data", envOrDefault("MUXIMUX_DATA", "data"), "Data directory for config, themes, icons (env: MUXIMUX_DATA)")
 	configPath := flag.String("config", envOrDefault("MUXIMUX_CONFIG", ""), "Override config file path (env: MUXIMUX_CONFIG)")
 	listenAddr := flag.String("listen", "", "Override listen address, e.g. :9090 (env: MUXIMUX_LISTEN)")

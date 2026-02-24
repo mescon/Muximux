@@ -49,23 +49,21 @@ auth:
 
 ### Generating Password Hashes
 
-The `hashpw` utility is a separate binary built from `cmd/hashpw/`:
+Use the built-in `hash` subcommand:
 
 ```bash
-# Build and run
-go build -o hashpw ./cmd/hashpw
-./hashpw
+muximux hash
 ```
 
-This prompts for a password and outputs a bcrypt hash to paste into `config.yaml`.
+This prompts for a password (input is hidden) and outputs a bcrypt hash to paste into `config.yaml`.
 
-You can also pass the password as an argument (useful for scripting):
+You can also pass the value as an argument (useful for scripting):
 
 ```bash
-./hashpw 'my-secret-password'
+muximux hash 'my-secret-password'
 ```
 
-**Docker users:** The hashpw utility is not included in the Docker image. Generate hashes on your host machine, or use any bcrypt tool:
+Alternatively, use any bcrypt tool:
 
 ```bash
 # Using htpasswd (from apache2-utils)
@@ -244,14 +242,11 @@ The API key is stored as a **bcrypt hash** in `config.yaml` -- not as plaintext.
 Use the same tools as for password hashes:
 
 ```bash
-# Using the hashpw utility
-./hashpw 'my-api-key'
+# Using the built-in hash subcommand
+muximux hash 'my-api-key'
 
 # Using htpasswd
 htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
-
-# Using Python
-python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-api-key', bcrypt.gensalt()).decode())"
 ```
 
 Then add the hash to your config:

@@ -38,14 +38,13 @@ auth:
   # session_max_age: 24h       # How long sessions last (default: 24h)
   # secure_cookies: false      # Set true when serving over HTTPS
   # api_key_hash: "$2a$10$..."  # Optional: bcrypt hash of API key for X-Api-Key header auth
-  #   Generate with:  ./hashpw 'my-api-key'
+  #   Generate with:  muximux hash 'my-api-key'
   #   Or:  htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
-  #   Or:  python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-api-key', bcrypt.gensalt()).decode())"
 
   # ── Builtin auth ──
   # users:
   #   - username: admin
-  #     password_hash: "$2a$10$..."  # bcrypt hash (generate with: ./hashpw)
+  #     password_hash: "$2a$10$..."  # bcrypt hash (generate with: muximux hash)
   #     role: admin                  # admin, power-user, or user
   #     email: "admin@example.com"   # Optional
   #     display_name: "Admin User"   # Optional
