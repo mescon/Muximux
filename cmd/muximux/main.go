@@ -64,7 +64,7 @@ func runHash() {
 		password = os.Args[2]
 	} else {
 		fmt.Print("Enter value to hash: ")
-		fd := int(os.Stdin.Fd())
+		fd := int(os.Stdin.Fd()) //nolint:gosec // Fd() returns 0 for stdin; overflow is not possible
 		if term.IsTerminal(fd) {
 			bytePassword, err := term.ReadPassword(fd)
 			fmt.Println()
