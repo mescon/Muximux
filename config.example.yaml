@@ -37,7 +37,10 @@ auth:
   method: none                 # none, builtin, forward_auth, oidc
   # session_max_age: 24h       # How long sessions last (default: 24h)
   # secure_cookies: false      # Set true when serving over HTTPS
-  # api_key: ${MUXIMUX_API_KEY}  # Optional: enables X-Api-Key header auth for API and bypass rules
+  # api_key_hash: "$2a$10$..."  # Optional: bcrypt hash of API key for X-Api-Key header auth
+  #   Generate with:  ./hashpw 'my-api-key'
+  #   Or:  htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
+  #   Or:  python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-api-key', bcrypt.gensalt()).decode())"
 
   # ── Builtin auth ──
   # users:
