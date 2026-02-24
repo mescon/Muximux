@@ -155,13 +155,13 @@ func (p *OIDCProvider) GetAuthorizationURL(redirectAfterLogin string) (string, e
 	}
 
 	// Generate state parameter for CSRF protection
-	state, err := generateRandomString(32)
+	state, err := generateRandomString()
 	if err != nil {
 		return "", fmt.Errorf("failed to generate state: %w", err)
 	}
 
 	// Generate nonce for ID token replay protection
-	nonce, err := generateRandomString(32)
+	nonce, err := generateRandomString()
 	if err != nil {
 		return "", fmt.Errorf("failed to generate nonce: %w", err)
 	}
@@ -390,13 +390,13 @@ func (p *OIDCProvider) cleanupStates() {
 	}
 }
 
-// generateRandomString generates a cryptographically secure random string
-func generateRandomString(n int) (string, error) {
-	b := make([]byte, n)
+// generateRandomString generates a cryptographically secure random string of length 32.
+func generateRandomString() (string, error) {
+	b := make([]byte, 32)
 	if _, err := rand.Read(b); err != nil {
 		return "", err
 	}
-	return base64.URLEncoding.EncodeToString(b)[:n], nil
+	return base64.URLEncoding.EncodeToString(b)[:32], nil
 }
 
 // getStringClaim extracts a string claim from user info

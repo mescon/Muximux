@@ -197,7 +197,7 @@ type AppConfig struct {
 
 // AppIconConfig holds app icon settings
 type AppIconConfig struct {
-	Type       string `yaml:"type" json:"type"`                       // dashboard, lucide, custom, url
+	Type       string `yaml:"type" json:"type"` // dashboard, lucide, custom, url
 	Name       string `yaml:"name,omitempty" json:"name,omitempty"`
 	File       string `yaml:"file,omitempty" json:"file,omitempty"`
 	URL        string `yaml:"url,omitempty" json:"url,omitempty"`

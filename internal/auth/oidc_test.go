@@ -886,7 +886,7 @@ func TestCleanupStates_AllExpired(t *testing.T) {
 // --- generateRandomString ---
 
 func TestGenerateRandomString(t *testing.T) {
-	s1, err := generateRandomString(32)
+	s1, err := generateRandomString()
 	if err != nil {
 		t.Fatalf("generateRandomString failed: %v", err)
 	}
@@ -894,7 +894,7 @@ func TestGenerateRandomString(t *testing.T) {
 		t.Errorf("expected length 32, got %d", len(s1))
 	}
 
-	s2, err := generateRandomString(32)
+	s2, err := generateRandomString()
 	if err != nil {
 		t.Fatalf("generateRandomString failed: %v", err)
 	}
