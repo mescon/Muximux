@@ -316,7 +316,13 @@ export function matchesCombo(event: KeyboardEvent, combo: KeyCombo): boolean {
   if (eventKey !== comboKey) return false;
   if (!!combo.ctrl !== event.ctrlKey) return false;
   if (!!combo.alt !== event.altKey) return false;
-  if (!!combo.shift !== event.shiftKey) return false;
+  // Allow Shift when the key itself is a shifted character (e.g. "?" requires
+  // Shift on most keyboards). If the combo doesn't explicitly require Shift
+  // but the key matched, Shift was just needed to produce the character.
+  if (!!combo.shift !== event.shiftKey) {
+    const isShiftedChar = combo.key.length === 1 && /[^a-zA-Z0-9]/.test(combo.key);
+    if (combo.shift || !isShiftedChar) return false;
+  }
   if (!!combo.meta !== event.metaKey) return false;
 
   return true;

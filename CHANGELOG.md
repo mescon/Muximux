@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Fixed
+- Keyboard shortcut `?` (Show Shortcuts) now works on keyboards where `?` requires Shift
+
 ## [3.0.1] - 2026-02-25
 
 ### Added

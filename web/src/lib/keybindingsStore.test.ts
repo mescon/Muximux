@@ -128,6 +128,26 @@ describe('keybindingsStore', () => {
       const event = new KeyboardEvent('keydown', { key: 'k', ctrlKey: true, shiftKey: true });
       expect(matchesCombo(event, { key: 'k', ctrl: true })).toBe(false);
     });
+
+    it('should match shifted characters like ? even without explicit shift', () => {
+      // On most keyboards, ? requires Shift+/ — browser reports key='?' with shiftKey=true
+      const event = new KeyboardEvent('keydown', { key: '?', shiftKey: true });
+      expect(matchesCombo(event, { key: '?' })).toBe(true);
+    });
+
+    it('should match other shifted symbols without explicit shift', () => {
+      const bang = new KeyboardEvent('keydown', { key: '!', shiftKey: true });
+      expect(matchesCombo(bang, { key: '!' })).toBe(true);
+
+      const at = new KeyboardEvent('keydown', { key: '@', shiftKey: true });
+      expect(matchesCombo(at, { key: '@' })).toBe(true);
+    });
+
+    it('should still require shift when combo explicitly sets shift for letters', () => {
+      // Shift+R combo should not match plain r
+      const event = new KeyboardEvent('keydown', { key: 'r' });
+      expect(matchesCombo(event, { key: 'r', shift: true })).toBe(false);
+    });
   });
 
   describe('matchesKeybinding', () => {
