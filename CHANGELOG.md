@@ -7,6 +7,15 @@ All notable changes to Muximux are documented in this file.
 ### Added
 - Fetch icons from URL in the Custom tab -- paste an image URL and the server downloads, validates, and stores it locally as a custom icon, avoiding hotlinking issues
 - `POST /api/icons/custom/fetch` API endpoint for downloading remote icons server-side
+- Refresh button in the navigation bar (all 5 layout positions) -- visible when an app is active
+- Auto-switch active split panel when clicking inside an iframe, so refresh and other actions target the correct panel
+
+### Fixed
+- Refresh action (command palette / `R` key) now targets the correct iframe in split view instead of always refreshing the first panel
+- Logout URL not persisting in the settings security tab
+- Forward-auth fields (`trusted_proxies`, `headers`, `logout_url`) now cleared from config when switching to a different auth method
+- App rename/reorder no longer risks inheriting auth bypass rules from the wrong app due to positional matching
+- CSP `manifest-src` directive added to allow dynamically generated blob manifests
 
 ## [3.0.0] - 2026-02-23
 
