@@ -7,6 +7,9 @@ All notable changes to Muximux are documented in this file.
 ### Added
 - Logout action in the command palette -- visible when authenticated
 
+### Changed
+- Add App modal now exposes all settings (health check, proxy options, keyboard shortcut, min role, etc.) — no longer requires a second trip to Edit
+
 ### Fixed
 - Keyboard shortcut `?` (Show Shortcuts) now works on keyboards where `?` requires Shift
 - URL hash not cleared when navigating home via command palette or keyboard shortcut

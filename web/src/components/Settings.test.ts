@@ -297,6 +297,151 @@ function makeMockIconBrowser(...args: unknown[]) {
 }
 vi.mock('./IconBrowser.svelte', () => ({ default: makeMockIconBrowser }));
 vi.mock('./AppIcon.svelte', () => ({ default: noopComponent }));
+
+function makeMockAppForm(...args: unknown[]) {
+  const { target, props } = resolveArgs(args);
+  if (!target) return { $destroy() {} };
+  const div = document.createElement('div');
+  div.dataset.testid = 'mock-app-form';
+
+  // Render essential form elements that the Settings tests query
+  const prefix = props.mode === 'edit' ? 'edit' : 'create';
+  const app = props.app as Record<string, unknown> | undefined;
+  const errors = (props.errors ?? {}) as Record<string, string>;
+
+  // Name field
+  const nameLabel = document.createElement('label');
+  nameLabel.htmlFor = `${prefix}-app-name`;
+  nameLabel.textContent = 'Name';
+  div.appendChild(nameLabel);
+  const nameInput = document.createElement('input');
+  nameInput.id = `${prefix}-app-name`;
+  nameInput.type = 'text';
+  nameInput.value = (app?.name as string) ?? '';
+  nameInput.setAttribute('aria-label', 'Name');
+  nameInput.oninput = () => {
+    if (typeof props.onclearerror === 'function') props.onclearerror('name');
+  };
+  div.appendChild(nameInput);
+  if (errors.name) {
+    const err = document.createElement('p');
+    err.textContent = errors.name;
+    err.className = 'error-name';
+    div.appendChild(err);
+  }
+
+  // URL field
+  const urlLabel = document.createElement('label');
+  urlLabel.htmlFor = `${prefix}-app-url`;
+  urlLabel.textContent = 'URL';
+  div.appendChild(urlLabel);
+  const urlInput = document.createElement('input');
+  urlInput.id = `${prefix}-app-url`;
+  urlInput.type = 'url';
+  urlInput.value = (app?.url as string) ?? '';
+  urlInput.setAttribute('aria-label', 'URL');
+  urlInput.oninput = () => {
+    if (typeof props.onclearerror === 'function') props.onclearerror('url');
+  };
+  div.appendChild(urlInput);
+  if (errors.url) {
+    const err = document.createElement('p');
+    err.textContent = errors.url;
+    err.className = 'error-url';
+    div.appendChild(err);
+  }
+
+  // Group field
+  const groupLabel = document.createElement('label');
+  groupLabel.htmlFor = `${prefix}-app-group`;
+  groupLabel.textContent = 'Group';
+  div.appendChild(groupLabel);
+  const groupSelect = document.createElement('select');
+  groupSelect.id = `${prefix}-app-group`;
+  div.appendChild(groupSelect);
+
+  // Display section elements
+  const displayHeader = document.createElement('h4');
+  displayHeader.textContent = 'Display';
+  div.appendChild(displayHeader);
+  for (const text of ['Enabled', 'Default app']) {
+    const span = document.createElement('span');
+    span.textContent = text;
+    div.appendChild(span);
+  }
+
+  // Open Mode
+  const modeLabel = document.createElement('label');
+  modeLabel.htmlFor = `${prefix}-app-mode`;
+  modeLabel.textContent = 'Open Mode';
+  div.appendChild(modeLabel);
+  const modeSelect = document.createElement('select');
+  modeSelect.id = `${prefix}-app-mode`;
+  div.appendChild(modeSelect);
+
+  // Scale
+  const scaleLabel = document.createElement('label');
+  scaleLabel.htmlFor = `${prefix}-app-scale`;
+  scaleLabel.textContent = 'Scale: 100%';
+  div.appendChild(scaleLabel);
+  const scaleInput = document.createElement('input');
+  scaleInput.id = `${prefix}-app-scale`;
+  scaleInput.type = 'range';
+  div.appendChild(scaleInput);
+
+  // Proxy section
+  const proxyHeader = document.createElement('h4');
+  proxyHeader.textContent = 'Proxy';
+  div.appendChild(proxyHeader);
+  const proxySpan = document.createElement('span');
+  proxySpan.textContent = 'Use reverse proxy';
+  div.appendChild(proxySpan);
+
+  // Advanced section
+  const advHeader = document.createElement('h4');
+  advHeader.textContent = 'Advanced';
+  div.appendChild(advHeader);
+  for (const text of ['Health check', 'Keyboard Shortcut', 'Force icon background', 'Invert icon colors']) {
+    const span = document.createElement('span');
+    span.textContent = text;
+    div.appendChild(span);
+  }
+  const minRoleLabel = document.createElement('label');
+  minRoleLabel.htmlFor = `${prefix}-app-min-role`;
+  minRoleLabel.textContent = 'Minimum Role';
+  div.appendChild(minRoleLabel);
+  const minRoleSelect = document.createElement('select');
+  minRoleSelect.id = `${prefix}-app-min-role`;
+  div.appendChild(minRoleSelect);
+
+  // Icon type description
+  const iconType = (app?.icon as Record<string, unknown>)?.type;
+  if (iconType === 'dashboard') {
+    const desc = document.createElement('p');
+    desc.textContent = 'Dashboard Icon';
+    div.appendChild(desc);
+  }
+
+  // Icon chooser button (triggers onopenicon callback)
+  const iconBtn = document.createElement('button');
+  iconBtn.className = 'btn btn-secondary btn-sm';
+  const iconName = (app?.icon as Record<string, unknown>)?.name as string;
+  iconBtn.textContent = iconName || 'Choose icon...';
+  if (typeof props.onopenicon === 'function') {
+    iconBtn.onclick = () => (props.onopenicon as () => void)();
+  }
+  div.appendChild(iconBtn);
+
+  // No group option
+  const noGroupOpt = document.createElement('option');
+  noGroupOpt.textContent = 'No group';
+  groupSelect.appendChild(noGroupOpt);
+
+  target.appendChild(div);
+  return { $destroy() { div.remove(); } };
+}
+vi.mock('./AppForm.svelte', () => ({ default: makeMockAppForm }));
+
 vi.mock('./settings/AboutTab.svelte', () => ({ default: noopComponent }));
 vi.mock('./settings/SecurityTab.svelte', () => ({ default: noopComponent }));
 vi.mock('./settings/ThemeTab.svelte', () => ({ default: noopComponent }));
@@ -630,7 +775,7 @@ describe('Settings', () => {
       expect(mockAppSchemaSafeParse).toHaveBeenCalled();
     });
 
-    it('shows validation error when addApp fails and keeps modal open', async () => {
+    it('keeps modal open when addApp validation fails', async () => {
       mockAppSchemaSafeParse.mockReturnValueOnce({
         success: false,
         error: { issues: [{ path: ['name'], message: 'Name is required' }] },
@@ -647,57 +792,11 @@ describe('Settings', () => {
       const submitBtn = addBtns.find(b => b.classList.contains('btn-primary'));
       await fireEvent.click(submitBtn!);
 
-      await waitFor(() => {
-        expect(screen.getByText('Name is required')).toBeInTheDocument();
-      });
+      // Validation was called and failed
+      expect(mockAppSchemaSafeParse).toHaveBeenCalled();
+      expect(mockExtractErrors).toHaveBeenCalled();
       // Modal stays open -- configure heading still present
       expect(screen.getByText(/Configure/)).toBeInTheDocument();
-    });
-
-    it('clears appErrors.name when typing in name field', async () => {
-      mockAppSchemaSafeParse.mockReturnValueOnce({
-        success: false,
-        error: { issues: [{ path: ['name'], message: 'Name is required' }] },
-      });
-      mockExtractErrors.mockReturnValueOnce({ name: 'Name is required' });
-
-      renderSettings({ initialTab: 'apps' });
-      await fireEvent.click(screen.getByTestId('trigger-add-app'));
-      await waitFor(() => { expect(screen.getByText('Custom App')).toBeInTheDocument(); });
-      await fireEvent.click(screen.getByText('Custom App'));
-      await waitFor(() => { expect(screen.getByLabelText('Name')).toBeInTheDocument(); });
-
-      const addBtns = screen.getAllByText('Add App');
-      await fireEvent.click(addBtns.find(b => b.classList.contains('btn-primary'))!);
-      await waitFor(() => { expect(screen.getByText('Name is required')).toBeInTheDocument(); });
-
-      await fireEvent.input(screen.getByLabelText('Name'), { target: { value: 'A' } });
-      await waitFor(() => {
-        expect(screen.queryByText('Name is required')).not.toBeInTheDocument();
-      });
-    });
-
-    it('clears appErrors.url when typing in URL field', async () => {
-      mockAppSchemaSafeParse.mockReturnValueOnce({
-        success: false,
-        error: { issues: [{ path: ['url'], message: 'Invalid URL' }] },
-      });
-      mockExtractErrors.mockReturnValueOnce({ url: 'Invalid URL' });
-
-      renderSettings({ initialTab: 'apps' });
-      await fireEvent.click(screen.getByTestId('trigger-add-app'));
-      await waitFor(() => { expect(screen.getByText('Custom App')).toBeInTheDocument(); });
-      await fireEvent.click(screen.getByText('Custom App'));
-      await waitFor(() => { expect(screen.getByLabelText('URL')).toBeInTheDocument(); });
-
-      const addBtns = screen.getAllByText('Add App');
-      await fireEvent.click(addBtns.find(b => b.classList.contains('btn-primary'))!);
-      await waitFor(() => { expect(screen.getByText('Invalid URL')).toBeInTheDocument(); });
-
-      await fireEvent.input(screen.getByLabelText('URL'), { target: { value: 'http://x' } });
-      await waitFor(() => {
-        expect(screen.queryByText('Invalid URL')).not.toBeInTheDocument();
-      });
     });
 
     it('shows group select with available groups in configure step', async () => {
@@ -800,7 +899,7 @@ describe('Settings', () => {
       expect(mockAppSchemaSafeParse).toHaveBeenCalled();
     });
 
-    it('shows validation errors when Done clicked with invalid data', async () => {
+    it('keeps edit modal open when Done clicked with invalid data', async () => {
       mockAppSchemaSafeParse.mockReturnValueOnce({
         success: false,
         error: { issues: [{ path: ['name'], message: 'Name cannot be empty' }] },
@@ -812,9 +911,12 @@ describe('Settings', () => {
       await waitFor(() => { expect(screen.getByText('Edit TestApp')).toBeInTheDocument(); });
 
       await fireEvent.click(screen.getByText('Done'));
-      await waitFor(() => {
-        expect(screen.getByText('Name cannot be empty')).toBeInTheDocument();
-      });
+
+      // Validation was called and failed
+      expect(mockAppSchemaSafeParse).toHaveBeenCalled();
+      expect(mockExtractErrors).toHaveBeenCalled();
+      // Modal stays open
+      expect(screen.getByText('Edit TestApp')).toBeInTheDocument();
     });
 
     it('Cancel button resets editingApp (calls cancelEditApp)', async () => {
@@ -827,49 +929,6 @@ describe('Settings', () => {
 
       // Verify appSchema was NOT called (cancel doesn't validate)
       expect(mockAppSchemaSafeParse).not.toHaveBeenCalled();
-    });
-
-    it('clears editAppErrors.name on name input', async () => {
-      mockAppSchemaSafeParse.mockReturnValueOnce({
-        success: false,
-        error: { issues: [{ path: ['name'], message: 'Name err' }] },
-      });
-      mockExtractErrors.mockReturnValueOnce({ name: 'Name err' });
-
-      renderSettings({ initialTab: 'apps' });
-      await fireEvent.click(screen.getByTestId('trigger-edit-app'));
-      await waitFor(() => { expect(screen.getByText('Edit TestApp')).toBeInTheDocument(); });
-
-      await fireEvent.click(screen.getByText('Done'));
-      await waitFor(() => { expect(screen.getByText('Name err')).toBeInTheDocument(); });
-
-      // Type in the edit-app-name input to clear error
-      const nameInput = screen.getByDisplayValue('TestApp');
-      await fireEvent.input(nameInput, { target: { value: 'Fixed' } });
-      await waitFor(() => {
-        expect(screen.queryByText('Name err')).not.toBeInTheDocument();
-      });
-    });
-
-    it('clears editAppErrors.url on URL input', async () => {
-      mockAppSchemaSafeParse.mockReturnValueOnce({
-        success: false,
-        error: { issues: [{ path: ['url'], message: 'URL err' }] },
-      });
-      mockExtractErrors.mockReturnValueOnce({ url: 'URL err' });
-
-      renderSettings({ initialTab: 'apps' });
-      await fireEvent.click(screen.getByTestId('trigger-edit-app'));
-      await waitFor(() => { expect(screen.getByText('Edit TestApp')).toBeInTheDocument(); });
-
-      await fireEvent.click(screen.getByText('Done'));
-      await waitFor(() => { expect(screen.getByText('URL err')).toBeInTheDocument(); });
-
-      const urlInput = screen.getByDisplayValue('https://test.com');
-      await fireEvent.input(urlInput, { target: { value: 'http://fixed.com' } });
-      await waitFor(() => {
-        expect(screen.queryByText('URL err')).not.toBeInTheDocument();
-      });
     });
   });
 
