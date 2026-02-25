@@ -2,6 +2,12 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Added
+- Fetch icons from URL in the Custom tab -- paste an image URL and the server downloads, validates, and stores it locally as a custom icon, avoiding hotlinking issues
+- `POST /api/icons/custom/fetch` API endpoint for downloading remote icons server-side
+
 ## [3.0.0] - 2026-02-23
 
 ### Ground-Up Rewrite
@@ -82,8 +88,8 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 **Icons**
 - 1,600+ Lucide icons
 - Thousands of Dashboard Icons (on-demand, prefetch, or offline caching)
-- Custom icon uploads (PNG, SVG, JPG, WebP)
-- URL-based icons
+- Custom icon uploads (PNG, SVG, JPG, WebP) and fetch from URL
+- URL-based icons for power users editing config.yaml directly
 - Per-icon color tinting and background
 
 **Keyboard Shortcuts**

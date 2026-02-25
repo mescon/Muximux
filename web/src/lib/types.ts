@@ -76,8 +76,6 @@ export interface AuthConfig {
   trusted_proxies?: string[];
   headers?: Record<string, string>;
   logout_url?: string;
-  session_max_age?: string;
-  secure_cookies?: boolean;
 }
 
 export interface TLSConfig {
