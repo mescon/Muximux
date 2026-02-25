@@ -541,6 +541,29 @@
     if (frame) frame.src = frame.src;
   }
 
+  // Returns apps in the same visual order as Splash tiles (grouped, then sorted
+  // by group order and app order within each group). This ensures the 1-9 number
+  // key positional fallback matches the numbers shown on splash tiles.
+  function getVisuallyOrderedApps(): App[] {
+    const grouped: Record<string, App[]> = {};
+    for (const app of apps) {
+      const group = app.group || 'Ungrouped';
+      if (!grouped[group]) grouped[group] = [];
+      grouped[group].push(app);
+    }
+    for (const arr of Object.values(grouped)) {
+      arr.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    }
+    const sortedGroups = Object.keys(grouped).sort((a, b) => {
+      if (a === 'Ungrouped') return 1;
+      if (b === 'Ungrouped') return -1;
+      const groupA = config!.groups.find(g => g.name === a);
+      const groupB = config!.groups.find(g => g.name === b);
+      return (groupA?.order ?? 0) - (groupB?.order ?? 0);
+    });
+    return sortedGroups.flatMap(g => grouped[g]);
+  }
+
   // Handle command palette actions
   function handleCommandAction(actionId: string) {
     showCommandPalette = false;
@@ -677,10 +700,11 @@
         if (shortcutApp) {
           selectApp(shortcutApp);
         } else {
-          // Fall back to positional index for apps without explicit shortcuts
+          // Fall back to visual position (matches splash tile numbering)
+          const ordered = getVisuallyOrderedApps();
           const appIndex = slot - 1;
-          if (apps[appIndex]) {
-            selectApp(apps[appIndex]);
+          if (ordered[appIndex]) {
+            selectApp(ordered[appIndex]);
           }
         }
         break;

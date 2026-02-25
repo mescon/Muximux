@@ -57,6 +57,19 @@
     return allApps.findIndex(a => a.name === app.name);
   }
 
+  // Returns the number key (1-9) that activates this app, matching the key
+  // handler logic: explicit shortcut wins, then positional fallback (but only
+  // if that position isn't claimed by another app's explicit shortcut).
+  function getDisplayKey(app: App): number | undefined {
+    if (app.shortcut) return app.shortcut;
+    const pos = getAppIndex(app);
+    if (pos >= 9) return undefined;
+    const key = pos + 1;
+    const allApps = groups.flatMap(g => groupedApps[g]);
+    if (allApps.some(a => a.shortcut === key && a.name !== app.name)) return undefined;
+    return key;
+  }
+
   // Calculate stagger delay based on position
   function getStaggerDelay(groupIndex: number, appIndex: number): string {
     const delay = (groupIndex * 50) + (appIndex * 30);
@@ -125,7 +138,7 @@
         <!-- App cards grid -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
           {#each groupedApps[group] as app, appIndex (app.name)}
-            {@const globalIndex = getAppIndex(app)}
+            {@const displayKey = getDisplayKey(app)}
             <button
               class="app-card group opacity-0"
               class:animate-slide-up={mounted}
@@ -140,10 +153,10 @@
               {/if}
 
               <!-- Keyboard shortcut badge (1-9) -->
-              {#if globalIndex < 9}
+              {#if displayKey !== undefined}
                 <div class="absolute top-2.5 left-2.5 z-10">
                   <span class="kbd">
-                    {globalIndex + 1}
+                    {displayKey}
                   </span>
                 </div>
               {/if}

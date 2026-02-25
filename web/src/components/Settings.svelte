@@ -248,6 +248,16 @@
     newApp.order = localApps.length;
     const app: App & Record<string, unknown> = { ...newApp };
     app.id = app.name;
+    // Auto-create the group if it doesn't exist yet (e.g. gallery apps with preset groups)
+    if (app.group && !localConfig.groups.some(g => g.name === app.group)) {
+      localConfig.groups = [...localConfig.groups, {
+        name: app.group as string,
+        icon: { type: 'lucide', name: 'folder', file: '', url: '', variant: 'svg', background: '' },
+        color: '',
+        order: localConfig.groups.length,
+        expanded: true,
+      }];
+    }
     localApps = [...localApps, app];
     newApp = { ...newAppTemplate };
     showAddApp = false;

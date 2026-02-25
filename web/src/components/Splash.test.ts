@@ -252,4 +252,44 @@ describe('Splash', () => {
     expect(footer!.textContent).toContain('1');
     expect(footer!.textContent).toContain('group');
   });
+
+  // -------------------------------------------------------------------------
+  // Keyboard shortcut badge display
+  // -------------------------------------------------------------------------
+  describe('Keyboard shortcut badges', () => {
+    it('shows positional number for apps without explicit shortcut', () => {
+      const apps = [
+        makeApp({ name: 'First', order: 0 }),
+        makeApp({ name: 'Second', order: 1 }),
+      ];
+      const { container } = render(Splash, { props: { apps, config: makeConfig() } });
+      const cards = container.querySelectorAll('.app-card');
+      expect(cards[0].querySelector('.kbd')?.textContent?.trim()).toBe('1');
+      expect(cards[1].querySelector('.kbd')?.textContent?.trim()).toBe('2');
+    });
+
+    it('shows explicit shortcut number instead of positional', () => {
+      const apps = [
+        makeApp({ name: 'First', order: 0, shortcut: 5 }),
+      ];
+      const { container } = render(Splash, { props: { apps, config: makeConfig() } });
+      const badge = container.querySelector('.app-card .kbd');
+      expect(badge?.textContent?.trim()).toBe('5');
+    });
+
+    it('hides positional badge when another app claims that number', () => {
+      const apps = [
+        makeApp({ name: 'First', order: 0 }),       // would be positional 1
+        makeApp({ name: 'Second', order: 1, shortcut: 1 }),  // explicitly claims key 1
+      ];
+      const { container } = render(Splash, { props: { apps, config: makeConfig() } });
+      const cards = container.querySelectorAll('.app-card');
+      // First card should NOT show badge "1" because Second explicitly claims it
+      const firstBadge = cards[0].querySelector('.kbd');
+      expect(firstBadge).toBeNull();
+      // Second card shows "1" (its explicit shortcut)
+      const secondBadge = cards[1].querySelector('.kbd');
+      expect(secondBadge?.textContent?.trim()).toBe('1');
+    });
+  });
 });
