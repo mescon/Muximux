@@ -198,6 +198,9 @@
     const handleResize = () => { isMobile = isMobileViewport(); };
     window.addEventListener('resize', handleResize);
 
+    // Auto-switch active split panel when the user clicks inside an iframe.
+    document.addEventListener('focus', handleIframeFocus, true);
+
     // Handle browser back/forward with hash-based app routing
     window.addEventListener('hashchange', () => {
       if (location.hash) {
@@ -317,6 +320,7 @@
   onDestroy(() => {
     stopHealthPolling();
     disconnectWs();
+    document.removeEventListener('focus', handleIframeFocus, true);
   });
 
   async function handleLoginSuccess() {
@@ -517,6 +521,18 @@
       console.error('Failed to save config:', e);
       toasts.error('Failed to save configuration');
     }
+  }
+
+  // Iframe clicks don't bubble to the parent DOM, but the <iframe> element
+  // receives a focus event (capture phase needed because focus doesn't bubble).
+  function handleIframeFocus(e: FocusEvent) {
+    if (!splitState.enabled) return;
+    const target = e.target;
+    if (!(target instanceof HTMLIFrameElement)) return;
+    const panel = target.closest('[aria-label="Split panel 1"]') ? 0
+      : target.closest('[aria-label="Split panel 2"]') ? 1
+      : null;
+    if (panel !== null) setActivePanel(panel);
   }
 
   function refreshActiveApp() {

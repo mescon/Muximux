@@ -1076,6 +1076,7 @@ func securityHeadersMiddleware(next http.Handler) http.Handler {
 			"img-src 'self' data: blob: https:",
 			"connect-src 'self' ws: wss:",
 			"frame-src *",
+			"manifest-src 'self' blob:",
 			"object-src 'none'",
 			"base-uri 'self'",
 		}, "; "))
