@@ -20,6 +20,7 @@
     onsettings,
     onlogs,
     onlogout,
+    onrefresh,
     splitEnabled = false,
     splitOrientation = 'horizontal' as 'horizontal' | 'vertical',
     splitActivePanel = 0 as 0 | 1,
@@ -39,6 +40,7 @@
     onsettings?: () => void;
     onlogs?: () => void;
     onlogout?: () => void;
+    onrefresh?: () => void;
     splitEnabled?: boolean;
     splitOrientation?: 'horizontal' | 'vertical';
     splitActivePanel?: 0 | 1;
@@ -872,6 +874,18 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
           </svg>
         </button>
+        {#if currentApp && !showSplash}
+          <button
+            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+            onclick={() => onrefresh?.()}
+            title="Refresh app"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+              <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+            </svg>
+          </button>
+        {/if}
         {#if !isMobile}
           {#if splitEnabled}
             <div class="flex items-center gap-0.5">
@@ -1107,6 +1121,22 @@
               <span style="white-space: nowrap;">Logs</span>
             </button>
 
+            {#if currentApp && !showSplash}
+              <button
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+                onclick={() => onrefresh?.()}
+                title="Refresh app"
+              >
+                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                    <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+                  </svg>
+                </div>
+                <span style="white-space: nowrap;">Refresh</span>
+              </button>
+            {/if}
+
             {#if !isMobile}
               {#if splitEnabled}
                 <div class="w-full flex items-center py-1.5 gap-1">
@@ -1194,6 +1224,24 @@
           </div>
           <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
+
+        {#if currentApp && !showSplash}
+          <button
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+            style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsed ? 'none' : 'auto'};"
+            tabindex={isCollapsed ? -1 : 0}
+            onclick={() => onrefresh?.()}
+            title="Refresh app"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Refresh</span>
+          </button>
+        {/if}
 
         {#if !isMobile}
           {#if splitEnabled}
@@ -1458,6 +1506,22 @@
               <span style="white-space: nowrap;">Logs</span>
             </button>
 
+            {#if currentApp && !showSplash}
+              <button
+                class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+                onclick={() => onrefresh?.()}
+                title="Refresh app"
+              >
+                <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                    <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+                  </svg>
+                </div>
+                <span style="white-space: nowrap;">Refresh</span>
+              </button>
+            {/if}
+
             {#if !isMobile}
               {#if splitEnabled}
                 <div class="w-full flex items-center py-1.5 gap-1">
@@ -1545,6 +1609,24 @@
           </div>
           <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Logs</span>
         </button>
+
+        {#if currentApp && !showSplash}
+          <button
+            class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+            style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; pointer-events: {isCollapsedRight ? 'none' : 'auto'};"
+            tabindex={isCollapsedRight ? -1 : 0}
+            onclick={() => onrefresh?.()}
+            title="Refresh app"
+          >
+            <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+              </svg>
+            </div>
+            <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Refresh</span>
+          </button>
+        {/if}
 
         {#if !isMobile}
           {#if splitEnabled}
@@ -1825,6 +1907,18 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
           </svg>
         </button>
+        {#if currentApp && !showSplash}
+          <button
+            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+            onclick={() => onrefresh?.()}
+            title="Refresh app"
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+              <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+            </svg>
+          </button>
+        {/if}
         {#if !isMobile}
           {#if splitEnabled}
             <div class="flex items-center gap-0.5">
@@ -2028,6 +2122,18 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
             </svg>
           </button>
+          {#if currentApp && !showSplash}
+            <button
+              class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+              onclick={() => { onrefresh?.(); panelOpen = false; }}
+              title="Refresh app"
+            >
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+                <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+              </svg>
+            </button>
+          {/if}
           {#if !isMobile}
             {#if splitEnabled}
               <div class="flex items-center gap-0.5">

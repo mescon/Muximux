@@ -3355,4 +3355,65 @@ describe('Navigation', () => {
       });
     });
   });
+
+  // --------------------------------------------------------------------------
+  // Refresh button
+  // --------------------------------------------------------------------------
+  describe('Refresh button', () => {
+    it('shows refresh button when an app is active (top nav)', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: ungroupedApps[0],
+          showSplash: false,
+          config: makeConfig({ navigation: { position: 'top' } }),
+        },
+      });
+      const btn = container.querySelector('[title="Refresh app"]');
+      expect(btn).toBeTruthy();
+    });
+
+    it('hides refresh button on splash screen', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: null,
+          showSplash: true,
+          config: makeConfig({ navigation: { position: 'top' } }),
+        },
+      });
+      const btn = container.querySelector('[title="Refresh app"]');
+      expect(btn).toBeFalsy();
+    });
+
+    it('calls onrefresh callback when clicked', async () => {
+      const onrefresh = vi.fn();
+      const { container } = render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: ungroupedApps[0],
+          showSplash: false,
+          config: makeConfig({ navigation: { position: 'top' } }),
+          onrefresh,
+        },
+      });
+      const btn = container.querySelector('[title="Refresh app"]') as HTMLButtonElement;
+      expect(btn).toBeTruthy();
+      await fireEvent.click(btn);
+      expect(onrefresh).toHaveBeenCalledTimes(1);
+    });
+
+    it('shows refresh button in bottom nav when app is active', () => {
+      const { container } = render(Navigation, {
+        props: {
+          apps: ungroupedApps,
+          currentApp: ungroupedApps[0],
+          showSplash: false,
+          config: makeConfig({ navigation: { position: 'bottom' } }),
+        },
+      });
+      const btn = container.querySelector('[title="Refresh app"]');
+      expect(btn).toBeTruthy();
+    });
+  });
 });

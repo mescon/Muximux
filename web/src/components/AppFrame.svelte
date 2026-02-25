@@ -128,6 +128,7 @@
   {/if}
 
   <iframe
+    data-app={app.name}
     bind:this={iframeRef}
     src={effectiveUrl}
     title={app.name}

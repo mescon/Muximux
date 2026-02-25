@@ -519,6 +519,12 @@
     }
   }
 
+  function refreshActiveApp() {
+    if (!currentApp || showSplash) return;
+    const frame = document.querySelector<HTMLIFrameElement>(`iframe[data-app="${currentApp.name}"]`);
+    if (frame) frame.src = frame.src;
+  }
+
   // Handle command palette actions
   function handleCommandAction(actionId: string) {
     showCommandPalette = false;
@@ -534,10 +540,7 @@
         toggleFullscreen();
         break;
       case 'refresh':
-        if (currentApp && !showSplash) {
-          const frame = document.querySelector('iframe');
-          if (frame) frame.src = frame.src;
-        }
+        refreshActiveApp();
         break;
       case 'home':
         showSplash = true;
@@ -624,10 +627,7 @@
         resetSplit();
         break;
       case 'refresh':
-        if (currentApp && !showSplash) {
-          const frame = document.querySelector('iframe');
-          if (frame) frame.src = frame.src;
-        }
+        refreshActiveApp();
         break;
       case 'fullscreen':
         toggleFullscreen();
@@ -734,6 +734,7 @@
         onsplitvertical={() => { showSplash = false; showLogs = false; enableSplit('vertical'); updateHash(); }}
         onsplitclose={() => { disableSplit(); updateHash(); showSplash = !splitState.panels[0]; }}
         onsplitpanel={(panel) => setActivePanel(panel)}
+        onrefresh={refreshActiveApp}
       />
     {/if}
 

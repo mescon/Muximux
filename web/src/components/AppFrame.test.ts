@@ -621,4 +621,26 @@ describe('AppFrame', () => {
       expect(style).not.toContain('top left');
     });
   });
+
+  describe('data-app attribute', () => {
+    it('sets data-app attribute to the app name', () => {
+      const { container } = render(AppFrame, {
+        props: { app: makeApp({ name: 'Grafana' }) },
+      });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.getAttribute('data-app')).toBe('Grafana');
+    });
+
+    it('can be used to query the correct iframe by app name', () => {
+      const { container: c1 } = render(AppFrame, {
+        props: { app: makeApp({ name: 'Plex' }) },
+      });
+      const { container: c2 } = render(AppFrame, {
+        props: { app: makeApp({ name: 'Sonarr' }) },
+      });
+
+      expect(c1.querySelector('iframe[data-app="Plex"]')).toBeTruthy();
+      expect(c2.querySelector('iframe[data-app="Sonarr"]')).toBeTruthy();
+    });
+  });
 });
