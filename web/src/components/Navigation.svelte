@@ -7,6 +7,7 @@
   import { currentUser, isAuthenticated, isAdmin, logout } from '$lib/authStore';
   import { createEdgeSwipeHandlers, isTouchDevice } from '$lib/useSwipe';
   import MuximuxLogo from './MuximuxLogo.svelte';
+  import { keybindings, formatKeybinding } from '$lib/keybindingsStore';
 
   let {
     apps,
@@ -635,6 +636,9 @@
   // Icon scale for app icons (not logo, search, settings, logout)
   let iconScale = $derived(config.navigation.icon_scale || 1);
 
+  // Dynamic search shortcut label from keybindings store
+  let searchShortcutLabel = $derived(formatKeybinding($keybindings.find(b => b.action === 'search')!));
+
   // Should the footer drawer be active? Active when the user explicitly enables
   // it OR when the sidebar is collapsed (show_labels=false) — collapsed sidebars
   // use the cogwheel+drawer pattern so all footer actions remain accessible.
@@ -785,7 +789,7 @@
                           <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
                         {/if}
                         {#if app.open_mode !== 'iframe'}
-                          <span class="text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
+                          <span class="ml-1 text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
                         {/if}
                       </button>
                     {/each}
@@ -848,7 +852,7 @@
                   <HealthIndicator appName={app.name} size="sm" />
                 {/if}
                 {#if app.open_mode !== 'iframe'}
-                  <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                 {/if}
               </button>
             {/each}
@@ -861,7 +865,7 @@
         <button
           class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => onsearch?.()}
-          title="Search (Ctrl+K)"
+          title="Search ({searchShortcutLabel})"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -997,7 +1001,7 @@
       <button
         class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
         onclick={() => onsearch?.()}
-        title="Search (Ctrl+K)"
+        title="Search ({searchShortcutLabel})"
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1005,7 +1009,7 @@
           </svg>
         </div>
         <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Search...</span>
-        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
+        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{searchShortcutLabel}</span>
       </button>
     </div>
 
@@ -1081,7 +1085,7 @@
                     </span>
                   {/if}
                   {#if app.open_mode !== 'iframe'}
-                    <span class="text-xs pr-1" style="opacity: {isCollapsed ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
+                    <span class="ml-1 text-xs pr-1" style="opacity: {isCollapsed ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
               {/each}
@@ -1383,7 +1387,7 @@
       <button
         class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
         onclick={() => onsearch?.()}
-        title="Search (Ctrl+K)"
+        title="Search ({searchShortcutLabel})"
       >
         <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px;">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1391,7 +1395,7 @@
           </svg>
         </div>
         <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">Search...</span>
-        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">⌘K</span>
+        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{searchShortcutLabel}</span>
       </button>
     </div>
 
@@ -1466,7 +1470,7 @@
                     </span>
                   {/if}
                   {#if app.open_mode !== 'iframe'}
-                    <span class="text-xs pr-1" style="opacity: {isCollapsedRight ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
+                    <span class="ml-1 text-xs pr-1" style="opacity: {isCollapsedRight ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
               {/each}
@@ -1819,7 +1823,7 @@
                           <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
                         {/if}
                         {#if app.open_mode !== 'iframe'}
-                          <span class="text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
+                          <span class="ml-1 text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
                         {/if}
                       </button>
                     {/each}
@@ -1881,7 +1885,7 @@
                   <HealthIndicator appName={app.name} size="sm" />
                 {/if}
                 {#if app.open_mode !== 'iframe'}
-                  <span class="text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                 {/if}
               </button>
             {/each}
@@ -1894,7 +1898,7 @@
         <button
           class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => onsearch?.()}
-          title="Search (Ctrl+K)"
+          title="Search ({searchShortcutLabel})"
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -2070,7 +2074,7 @@
                         </span>
                       {/if}
                       {#if app.open_mode !== 'iframe'}
-                        <span class="text-xs opacity-60 pr-1">{getOpenModeIcon(app.open_mode)}</span>
+                        <span class="ml-1 text-xs opacity-60 pr-1">{getOpenModeIcon(app.open_mode)}</span>
                       {/if}
                     </button>
                   {/each}
@@ -2108,7 +2112,7 @@
           <button
             class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
             onclick={() => { onsearch?.(); panelOpen = false; }}
-            title="Search (Ctrl+K)"
+            title="Search ({searchShortcutLabel})"
           >
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />

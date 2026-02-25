@@ -25,21 +25,27 @@ vi.mock('$lib/keybindingsStore', () => ({
   formatKeybinding: vi.fn(() => ''),
 }));
 
-// Mock $lib/authStore - provide a readable store for isAdmin
-const { mockIsAdminStore } = vi.hoisted(() => {
-  const subscribers = new Set<(value: boolean) => void>();
-  const store = {
-    subscribe: (fn: (value: boolean) => void) => {
-      fn(false);
-      subscribers.add(fn);
-      return () => subscribers.delete(fn);
-    },
+// Mock $lib/authStore - provide readable stores for isAdmin and isAuthenticated
+const { mockIsAdminStore, mockIsAuthenticatedStore } = vi.hoisted(() => {
+  function makeBoolStore(initial: boolean) {
+    const subscribers = new Set<(value: boolean) => void>();
+    return {
+      subscribe: (fn: (value: boolean) => void) => {
+        fn(initial);
+        subscribers.add(fn);
+        return () => subscribers.delete(fn);
+      },
+    };
+  }
+  return {
+    mockIsAdminStore: makeBoolStore(false),
+    mockIsAuthenticatedStore: makeBoolStore(false),
   };
-  return { mockIsAdminStore: store };
 });
 
 vi.mock('$lib/authStore', () => ({
   isAdmin: mockIsAdminStore,
+  isAuthenticated: mockIsAuthenticatedStore,
 }));
 
 // Mock $lib/api (AppIcon imports it)

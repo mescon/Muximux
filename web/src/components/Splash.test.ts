@@ -137,14 +137,15 @@ describe('Splash', () => {
     expect(footer!.textContent).toContain('active');
   });
 
-  it('shows keyboard hints (Ctrl K for search)', () => {
+  it('shows keyboard hints derived from keybindings store', () => {
     const apps = [makeApp()];
     render(Splash, { props: { apps, config: makeConfig() } });
 
-    // The splash header contains keyboard shortcut hints
+    // The splash header contains keyboard shortcut hints from the keybindings store
     expect(screen.getByText('Search')).toBeInTheDocument();
-    expect(screen.getByText('Ctrl')).toBeInTheDocument();
-    expect(screen.getByText('K')).toBeInTheDocument();
+    expect(screen.getByText('Ctrl+K')).toBeInTheDocument();
+    expect(screen.getByText('Shortcuts')).toBeInTheDocument();
+    expect(screen.getByText('?')).toBeInTheDocument();
   });
 
   it('shows open mode icon for new_tab apps', () => {

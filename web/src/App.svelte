@@ -560,6 +560,10 @@
         break;
       case 'home':
         showSplash = true;
+        resetSplit();
+        break;
+      case 'logout':
+        handleLogout();
         break;
       case 'logs':
         showLogs = true;
@@ -636,6 +640,7 @@
         break;
       case 'home':
         showSplash = true;
+        resetSplit();
         break;
       case 'logs':
         showLogs = true;

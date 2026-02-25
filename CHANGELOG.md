@@ -4,8 +4,14 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Logout action in the command palette -- visible when authenticated
+
 ### Fixed
 - Keyboard shortcut `?` (Show Shortcuts) now works on keyboards where `?` requires Shift
+- URL hash not cleared when navigating home via command palette or keyboard shortcut
+- Open-mode icons (↗ ⧉) now have proper spacing from app names in all navigation layouts
+- Search shortcut labels in navigation bars and splash screen now reflect custom keybindings instead of being hardcoded
 
 ## [3.0.1] - 2026-02-25
 

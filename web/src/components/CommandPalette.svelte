@@ -5,7 +5,7 @@
   import AppIcon from './AppIcon.svelte';
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
-  import { isAdmin } from '$lib/authStore';
+  import { isAdmin, isAuthenticated } from '$lib/authStore';
 
   // Props with callbacks instead of dispatchers
   let {
@@ -70,6 +70,7 @@
     { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
     { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
     { id: 'logs', type: 'action' as const, label: 'View Logs', shortcut: getShortcut('logs'), icon: 'logs' },
+    ...($isAuthenticated ? [{ id: 'logout', type: 'action' as const, label: 'Log Out', icon: 'logout' }] : []),
     { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
     { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
     { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },
@@ -315,6 +316,8 @@
         return 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6';
       case 'logs':
         return 'M4 6h16M4 10h16M4 14h16M4 18h12';
+      case 'logout':
+        return 'M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1';
       case 'moon':
         return 'M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z';
       case 'sun':

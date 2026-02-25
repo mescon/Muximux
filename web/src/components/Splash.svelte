@@ -5,6 +5,7 @@
   import AppIcon from './AppIcon.svelte';
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
+  import { keybindings, formatKeybinding } from '$lib/keybindingsStore';
 
   let { apps, config, showHealth = true, onselect, onsettings, onabout }: {
     apps: App[];
@@ -58,6 +59,10 @@
     return app.shortcut || undefined;
   }
 
+  // Dynamic shortcut labels from keybindings store
+  let searchLabel = $derived(formatKeybinding($keybindings.find(b => b.action === 'search')!));
+  let shortcutsLabel = $derived(formatKeybinding($keybindings.find(b => b.action === 'shortcuts')!));
+
   // Calculate stagger delay based on position
   function getStaggerDelay(groupIndex: number, appIndex: number): string {
     const delay = (groupIndex * 50) + (appIndex * 30);
@@ -89,8 +94,7 @@
       <!-- Quick keyboard hints -->
       <div class="mt-4 flex items-center justify-center gap-4 text-xs" style="color: var(--text-muted);">
         <span class="flex items-center gap-1.5">
-          <kbd class="kbd">Ctrl</kbd>
-          <kbd class="kbd">K</kbd>
+          <kbd class="kbd">{searchLabel}</kbd>
           <span class="ml-1">Search</span>
         </span>
         <span class="flex items-center gap-1.5">
@@ -100,7 +104,7 @@
           <span class="ml-1">Quick access</span>
         </span>
         <span class="flex items-center gap-1.5">
-          <kbd class="kbd">?</kbd>
+          <kbd class="kbd">{shortcutsLabel}</kbd>
           <span class="ml-1">Shortcuts</span>
         </span>
       </div>
