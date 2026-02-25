@@ -615,6 +615,11 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			if req.Headers != nil {
 				h.config.Auth.Headers = req.Headers
 			}
+		} else {
+			// Clear forward-auth fields so stale values don't linger in YAML
+			h.config.Auth.TrustedProxies = nil
+			h.config.Auth.Headers = nil
+			h.config.Auth.LogoutURL = ""
 		}
 		h.authMiddleware.UpdateConfig(&authCfg)
 		return h.config.Save(h.configPath)

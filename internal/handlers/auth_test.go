@@ -1408,6 +1408,46 @@ func TestUpdateAuthMethod(t *testing.T) {
 		}
 	})
 
+	t.Run("switching away from forward_auth clears stale fields", func(t *testing.T) {
+		handler, _ := setupAuthTestWithConfig(t)
+
+		// First switch to forward_auth to populate fields
+		body, _ := json.Marshal(map[string]interface{}{
+			"method":          "forward_auth",
+			"trusted_proxies": []string{"10.0.0.0/8"},
+			"headers":         map[string]string{"user": "X-Auth-User"},
+			"logout_url":      "https://auth.example.com/logout",
+		})
+		req := httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+		handler.UpdateAuthMethod(w, req)
+		if w.Code != http.StatusOK {
+			t.Fatalf("setup: expected 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		// Now switch to builtin — forward_auth fields should be cleared
+		body, _ = json.Marshal(map[string]string{"method": "builtin"})
+		req = httptest.NewRequest(http.MethodPut, "/api/auth/method", bytes.NewReader(body))
+		w = httptest.NewRecorder()
+		handler.UpdateAuthMethod(w, req)
+		if w.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		if handler.config.Auth.Method != "builtin" {
+			t.Errorf("expected method 'builtin', got %q", handler.config.Auth.Method)
+		}
+		if handler.config.Auth.TrustedProxies != nil {
+			t.Errorf("expected TrustedProxies to be cleared, got %v", handler.config.Auth.TrustedProxies)
+		}
+		if handler.config.Auth.Headers != nil {
+			t.Errorf("expected Headers to be cleared, got %v", handler.config.Auth.Headers)
+		}
+		if handler.config.Auth.LogoutURL != "" {
+			t.Errorf("expected LogoutURL to be cleared, got %q", handler.config.Auth.LogoutURL)
+		}
+	})
+
 	t.Run("bad JSON", func(t *testing.T) {
 		handler, _ := setupAuthTestWithConfig(t)
 
