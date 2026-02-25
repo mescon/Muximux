@@ -260,9 +260,7 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 		cfg.Keybindings = *update.Keybindings
 	}
 
-	// Build lookup of existing apps to preserve sensitive data.
-	// Index by name for direct matches, and keep the ordered slice
-	// as fallback for renamed apps (matched by position).
+	// Build lookup of existing apps by name to preserve sensitive data.
 	existingApps := make(map[string]config.AppConfig)
 	for i := range cfg.Apps {
 		existingApps[cfg.Apps[i].Name] = cfg.Apps[i]
@@ -270,10 +268,6 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 
 	newApps := make([]config.AppConfig, 0, len(update.Apps))
 	for i := range update.Apps {
-		// Fall back to positional match for renamed apps
-		if _, ok := existingApps[update.Apps[i].Name]; !ok && i < len(cfg.Apps) {
-			existingApps[update.Apps[i].Name] = cfg.Apps[i]
-		}
 		app := mergeClientApp(&update.Apps[i], existingApps)
 		newApps = append(newApps, app)
 	}
@@ -283,17 +277,9 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 // mergeClientApp converts a client app config back to a full app config,
 // preserving sensitive fields from the existing app if it was previously configured.
 func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
-	// Get original URL if this was a proxied app
-	appURL := clientApp.URL
-	if clientApp.Proxy {
-		if existing, ok := existingApps[clientApp.Name]; ok {
-			appURL = existing.URL // Preserve original URL for proxied apps
-		}
-	}
-
 	app := config.AppConfig{
 		Name:                clientApp.Name,
-		URL:                 appURL,
+		URL:                 clientApp.URL,
 		HealthURL:           clientApp.HealthURL,
 		Icon:                clientApp.Icon,
 		Color:               clientApp.Color,
@@ -316,10 +302,6 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 	if existing, ok := existingApps[clientApp.Name]; ok {
 		app.AuthBypass = existing.AuthBypass
 		app.Access = existing.Access
-		// If URL wasn't proxied, use the new one
-		if !clientApp.Proxy {
-			app.URL = clientApp.URL
-		}
 	}
 
 	return app
@@ -450,16 +432,10 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	// Preserve sensitive fields
 	existing := h.config.Apps[idx]
 
-	// Preserve original URL for proxied apps (frontend only sees the proxy path)
-	appURL := clientApp.URL
-	if clientApp.Proxy && existing.URL != "" {
-		appURL = existing.URL
-	}
-
 	// Update app config
 	h.config.Apps[idx] = config.AppConfig{
 		Name:                clientApp.Name,
-		URL:                 appURL,
+		URL:                 clientApp.URL,
 		HealthURL:           clientApp.HealthURL,
 		Icon:                clientApp.Icon,
 		Color:               clientApp.Color,

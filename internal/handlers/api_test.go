@@ -668,6 +668,39 @@ func TestUpdateApp(t *testing.T) {
 			t.Errorf("expected 1 access role, got %d", len(cfg.Apps[0].Access.Roles))
 		}
 	})
+
+	t.Run("proxied app URL update", func(t *testing.T) {
+		cfg := createTestConfig()
+		tmpFile, err := os.CreateTemp("", "config-*.yaml")
+		if err != nil {
+			t.Fatal(err)
+		}
+		defer os.Remove(tmpFile.Name())
+
+		handler := NewAPIHandler(cfg, tmpFile.Name(), &sync.RWMutex{})
+
+		updated := ClientAppConfig{
+			Name:    "App2",
+			URL:     "http://new-server:9090", // Frontend sends real URL
+			Proxy:   true,
+			Enabled: true,
+		}
+		body, _ := json.Marshal(updated)
+
+		req := httptest.NewRequest(http.MethodPut, "/api/apps/App2", bytes.NewReader(body))
+		w := httptest.NewRecorder()
+
+		handler.UpdateApp(w, req, "App2")
+
+		if w.Code != http.StatusOK {
+			t.Errorf("expected status 200, got %d: %s", w.Code, w.Body.String())
+		}
+
+		// URL should be updated, not preserved from old config
+		if cfg.Apps[1].URL != "http://new-server:9090" {
+			t.Errorf("expected URL 'http://new-server:9090', got %q", cfg.Apps[1].URL)
+		}
+	})
 }
 
 func TestUpdateGroup(t *testing.T) {
@@ -787,16 +820,15 @@ func TestMergeConfigUpdate(t *testing.T) {
 		}
 	})
 
-	t.Run("preserves proxy URL", func(t *testing.T) {
+	t.Run("proxied app URL update", func(t *testing.T) {
 		cfg := createTestConfig()
-		originalURL := cfg.Apps[1].URL // App2 is proxied
 
 		update := &ClientConfigUpdate{
 			Title: "Test",
 			Apps: []ClientAppConfig{
 				{
 					Name:    "App2",
-					URL:     "/proxy/app2/", // Client sends proxy URL
+					URL:     "http://new-server:8081", // Client sends the real URL
 					Proxy:   true,
 					Enabled: true,
 				},
@@ -805,12 +837,41 @@ func TestMergeConfigUpdate(t *testing.T) {
 
 		mergeConfigUpdate(cfg, update)
 
-		// Should preserve original URL for proxied apps
+		// Frontend sends real URL (not proxy path), so it should be saved
 		if len(cfg.Apps) != 1 {
 			t.Fatalf("expected 1 app, got %d", len(cfg.Apps))
 		}
-		if cfg.Apps[0].URL != originalURL {
-			t.Errorf("expected original URL %q to be preserved, got %q", originalURL, cfg.Apps[0].URL)
+		if cfg.Apps[0].URL != "http://new-server:8081" {
+			t.Errorf("expected updated URL %q, got %q", "http://new-server:8081", cfg.Apps[0].URL)
+		}
+	})
+
+	t.Run("rename and reorder does not mix up auth rules", func(t *testing.T) {
+		cfg := createTestConfig()
+		// Give App1 auth bypass rules
+		cfg.Apps[0].AuthBypass = []config.AuthBypassRule{{Path: "/api/*"}}
+
+		// Frontend sends: reordered [App2, App1_renamed] — App2 moved to pos 0, App1 renamed
+		update := &ClientConfigUpdate{
+			Title: "Test",
+			Apps: []ClientAppConfig{
+				{Name: "App2", URL: "http://localhost:8081", Proxy: true, Enabled: true},
+				{Name: "App1Renamed", URL: "http://localhost:8080", Enabled: true},
+			},
+		}
+
+		mergeConfigUpdate(cfg, update)
+
+		if len(cfg.Apps) != 2 {
+			t.Fatalf("expected 2 apps, got %d", len(cfg.Apps))
+		}
+		// App2 should NOT have App1's auth bypass rules
+		if len(cfg.Apps[0].AuthBypass) != 0 {
+			t.Errorf("App2 should have no auth bypass rules, got %d", len(cfg.Apps[0].AuthBypass))
+		}
+		// Renamed app is new — no auth bypass rules inherited from wrong position
+		if len(cfg.Apps[1].AuthBypass) != 0 {
+			t.Errorf("App1Renamed should have no auth bypass rules (new name), got %d", len(cfg.Apps[1].AuthBypass))
 		}
 	})
 
@@ -860,7 +921,7 @@ func TestMergeClientApp(t *testing.T) {
 		}
 	})
 
-	t.Run("existing proxied app preserves URL", func(t *testing.T) {
+	t.Run("existing proxied app updates URL", func(t *testing.T) {
 		existing := map[string]config.AppConfig{
 			"ProxiedApp": {
 				Name:    "ProxiedApp",
@@ -874,16 +935,18 @@ func TestMergeClientApp(t *testing.T) {
 		}
 		clientApp := ClientAppConfig{
 			Name:    "ProxiedApp",
-			URL:     "/proxy/proxiedapp/", // The proxy URL sent by the client
+			URL:     "http://new-internal:9090", // Frontend sends real URL, not proxy path
 			Proxy:   true,
 			Enabled: true,
 		}
 
 		result := mergeClientApp(&clientApp, existing)
 
-		if result.URL != "http://internal:8080" {
-			t.Errorf("expected preserved URL 'http://internal:8080', got %q", result.URL)
+		// URL should be updated to the new value
+		if result.URL != "http://new-internal:9090" {
+			t.Errorf("expected updated URL 'http://new-internal:9090', got %q", result.URL)
 		}
+		// AuthBypass should still be preserved
 		if len(result.AuthBypass) != 1 {
 			t.Errorf("expected 1 auth bypass rule, got %d", len(result.AuthBypass))
 		}
