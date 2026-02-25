@@ -2,7 +2,7 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.0.1] - 2026-02-25
 
 ### Added
 - Fetch icons from URL in the Custom tab -- paste an image URL and the server downloads, validates, and stores it locally as a custom icon, avoiding hotlinking issues
@@ -138,4 +138,5 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.1
 [3.0.0]: https://github.com/mescon/Muximux/releases/tag/v3.0.0
