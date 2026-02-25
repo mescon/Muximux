@@ -10,8 +10,19 @@ All notable changes to Muximux are documented in this file.
 - Refresh button in the navigation bar (all 5 layout positions) -- visible when an app is active
 - Auto-switch active split panel when clicking inside an iframe, so refresh and other actions target the correct panel
 
+### Changed
+- Number keys 1-9 now require explicit `shortcut` assignment -- positional fallback removed for clarity
+- Onboarding wizard auto-assigns shortcuts 1-9 to the first 9 apps
+- Splash tile badges only appear on apps with an explicit shortcut
+
+### Security
+- SSRF protection on `POST /api/icons/custom/fetch` -- rejects private, loopback, and link-local addresses
+
 ### Fixed
 - Refresh action (command palette / `R` key) now targets the correct iframe in split view instead of always refreshing the first panel
+- Gallery apps with preset group names that don't exist in the config now auto-create the group on add
+- Collapsed sidebars (`show_labels: false`) now use the footer drawer pattern (cogwheel + hover-to-expand) so all footer actions remain accessible
+- Fixed horizontal scrolling in collapsed left/right sidebars
 - Logout URL not persisting in the settings security tab
 - Forward-auth fields (`trusted_proxies`, `headers`, `logout_url`) now cleared from config when switching to a different auth method
 - App rename/reorder no longer risks inheriting auth bypass rules from the wrong app due to positional matching

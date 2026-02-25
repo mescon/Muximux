@@ -635,9 +635,11 @@
   // Icon scale for app icons (not logo, search, settings, logout)
   let iconScale = $derived(config.navigation.icon_scale || 1);
 
-  // Should the footer drawer be active? Only for expanded left/right sidebars on desktop.
+  // Should the footer drawer be active? Active when the user explicitly enables
+  // it OR when the sidebar is collapsed (show_labels=false) — collapsed sidebars
+  // use the cogwheel+drawer pattern so all footer actions remain accessible.
   let useFooterDrawer = $derived(
-    config.navigation.hide_sidebar_footer &&
+    (config.navigation.hide_sidebar_footer || !config.navigation.show_labels) &&
     (effectivePosition === 'left' || effectivePosition === 'right') &&
     !isMobile
   );
@@ -1011,7 +1013,7 @@
     <div class="relative flex-1 min-h-0">
       <div class="scroll-fade-top" class:visible={leftCanScrollUp}></div>
       <div bind:this={leftScrollEl}
-           class="h-full overflow-y-auto scrollbar-styled"
+           class="h-full overflow-y-auto overflow-x-hidden scrollbar-styled"
            onscroll={() => updateScrollFade(leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown)}
            style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
@@ -1397,7 +1399,7 @@
     <div class="relative flex-1 min-h-0">
       <div class="scroll-fade-top" class:visible={rightCanScrollUp}></div>
       <div bind:this={rightScrollEl}
-           class="h-full overflow-y-auto scrollbar-styled"
+           class="h-full overflow-y-auto overflow-x-hidden scrollbar-styled"
            onscroll={() => updateScrollFade(rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown)}
            style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}

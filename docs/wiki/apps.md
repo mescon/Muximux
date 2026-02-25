@@ -89,6 +89,8 @@ groups:
 
 Each app's `group` field must match the `name` of a defined group. If an app references a group that does not exist, or has no `group` set, it will appear in an "Ungrouped" section at the bottom of the navigation.
 
+When adding apps from the gallery (in the onboarding wizard or Settings), if the app's preset group doesn't exist in your configuration, Muximux automatically creates the group with default settings. You can then customize the group's icon, color, and order in Settings.
+
 ---
 
 ## App Ordering

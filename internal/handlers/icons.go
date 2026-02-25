@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"io"
+	"net"
 	"net/http"
 	"net/url"
 	"path/filepath"
@@ -12,6 +13,22 @@ import (
 	"github.com/mescon/muximux/v3/internal/icons"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
+
+// validateHostSSRF resolves a hostname and rejects private/internal IPs.
+// Defined as a variable so tests can override it for localhost test servers.
+var validateHostSSRF = func(hostname string) error {
+	ips, err := net.LookupHost(hostname)
+	if err != nil {
+		return err
+	}
+	for _, ipStr := range ips {
+		ip := net.ParseIP(ipStr)
+		if ip == nil || ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified() {
+			return &net.AddrError{Err: "address is private or internal", Addr: ipStr}
+		}
+	}
+	return nil
+}
 
 // IconHandler handles icon-related requests
 type IconHandler struct {
@@ -287,6 +304,12 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 	parsed, err := url.Parse(req.URL)
 	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") {
 		http.Error(w, "Invalid URL: must be http or https", http.StatusBadRequest)
+		return
+	}
+
+	// SSRF protection: resolve hostname and reject private/internal IPs
+	if err := validateHostSSRF(parsed.Hostname()); err != nil {
+		http.Error(w, "URL must not point to a private or internal address", http.StatusBadRequest)
 		return
 	}
 

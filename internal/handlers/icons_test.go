@@ -15,6 +15,15 @@ import (
 	"github.com/mescon/muximux/v3/internal/icons"
 )
 
+// disableSSRF replaces the SSRF validator with a no-op for tests that use
+// httptest.NewServer (which binds to 127.0.0.1). Returns a cleanup function.
+func disableSSRF(t *testing.T) {
+	t.Helper()
+	orig := validateHostSSRF
+	validateHostSSRF = func(hostname string) error { return nil }
+	t.Cleanup(func() { validateHostSSRF = orig })
+}
+
 func TestGetDashboardIcon(t *testing.T) {
 	t.Run("empty name", func(t *testing.T) {
 		cacheDir := t.TempDir()
@@ -413,6 +422,7 @@ func TestUploadCustomIcon(t *testing.T) {
 
 func TestFetchCustomIcon(t *testing.T) {
 	t.Run("happy path PNG", func(t *testing.T) {
+		disableSSRF(t)
 		// Start a mock server serving a PNG
 		pngData := append([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, make([]byte, 100)...)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -454,6 +464,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 
 	t.Run("with custom name", func(t *testing.T) {
+		disableSSRF(t)
 		svgData := []byte(`<svg xmlns="http://www.w3.org/2000/svg"><rect width="10" height="10"/></svg>`)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "image/svg+xml")
@@ -515,6 +526,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 
 	t.Run("non-image content type", func(t *testing.T) {
+		disableSSRF(t)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "text/html")
 			w.Write([]byte("<html>not an icon</html>"))
@@ -537,6 +549,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 
 	t.Run("file too large", func(t *testing.T) {
+		disableSSRF(t)
 		// Serve a file larger than MaxIconSize
 		bigData := make([]byte, icons.MaxIconSize+1)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -561,6 +574,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 
 	t.Run("server returns 404", func(t *testing.T) {
+		disableSSRF(t)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			http.NotFound(w, r)
 		}))
@@ -597,6 +611,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 
 	t.Run("content type with parameters", func(t *testing.T) {
+		disableSSRF(t)
 		pngData := append([]byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}, make([]byte, 50)...)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "image/png; charset=utf-8")
@@ -620,6 +635,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 
 	t.Run("name derived from URL path", func(t *testing.T) {
+		disableSSRF(t)
 		svgData := []byte(`<svg xmlns="http://www.w3.org/2000/svg"></svg>`)
 		ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			w.Header().Set("Content-Type", "image/svg+xml")
@@ -645,6 +661,76 @@ func TestFetchCustomIcon(t *testing.T) {
 		json.NewDecoder(w.Body).Decode(&resp)
 		if resp["name"] != "my-app-icon" {
 			t.Errorf("expected name 'my-app-icon', got %q", resp["name"])
+		}
+	})
+
+	// SSRF protection tests (these do NOT disable SSRF validation)
+	t.Run("rejects loopback address", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": "http://127.0.0.1:9999/icon.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400 for loopback, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("rejects private IP", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		// Use a hostname that resolves to a private IP
+		body, _ := json.Marshal(map[string]string{"url": "http://10.0.0.1/icon.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400 for private IP, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("rejects localhost hostname", func(t *testing.T) {
+		dir := t.TempDir()
+		handler := NewIconHandler(nil, nil, dir)
+
+		body, _ := json.Marshal(map[string]string{"url": "http://localhost/icon.png"})
+		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		handler.FetchCustomIcon(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected status 400 for localhost, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+}
+
+func TestValidateHostSSRF(t *testing.T) {
+	t.Run("rejects loopback", func(t *testing.T) {
+		if err := validateHostSSRF("127.0.0.1"); err == nil {
+			t.Error("expected error for loopback address")
+		}
+	})
+
+	t.Run("rejects localhost", func(t *testing.T) {
+		if err := validateHostSSRF("localhost"); err == nil {
+			t.Error("expected error for localhost")
+		}
+	})
+
+	t.Run("rejects unresolvable host", func(t *testing.T) {
+		if err := validateHostSSRF("this-host-does-not-exist.invalid"); err == nil {
+			t.Error("expected error for unresolvable hostname")
 		}
 	})
 }

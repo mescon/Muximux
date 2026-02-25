@@ -75,6 +75,16 @@ navigation:
   hide_sidebar_footer: false  # Hide the footer section in left/right sidebars
 ```
 
+## Collapsed Sidebar
+
+When `show_labels` is `false` on left or right sidebars, the sidebar collapses to a narrow icon strip. In this mode, the footer automatically uses a drawer pattern:
+
+- A **cogwheel icon** appears at the bottom of the sidebar.
+- **Hover** over it to expand the sidebar and reveal a drawer with all footer actions (Logs, Refresh, Split View, Sign Out, Settings) and their labels.
+- The drawer closes when the mouse leaves the sidebar.
+
+This ensures all controls remain accessible regardless of whether labels are visible or hidden.
+
 ## Split View Controls
 
 The navigation bar includes inline split view controls on all five positions. When split view is off, a single icon enables it. When split view is active, the controls expand to show orientation toggle, panel selector arrows, and a close button — all within the existing button row.

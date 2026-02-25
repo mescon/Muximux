@@ -65,20 +65,20 @@ Only customized bindings are stored in the configuration file. Any action that i
 
 ## Assigning Number Keys to Apps
 
-By default, keys `1` through `9` switch to apps by their position in the navigation (first app = `1`, second = `2`, etc.). You can override this by assigning a specific number to an app using the `shortcut` field:
+Keys `1` through `9` switch to apps that have an explicit `shortcut` assignment. During onboarding, shortcuts are automatically assigned to the first 9 apps. After that, you manage them manually -- assigning a number to a new app removes it from whichever app previously held it.
 
 ```yaml
 apps:
   - name: Plex
     url: http://plex:32400
-    shortcut: 1              # Always accessible via key "1"
+    shortcut: 1              # Accessible via key "1"
 
   - name: Sonarr
     url: http://sonarr:8989
-    shortcut: 5              # Always accessible via key "5"
+    shortcut: 5              # Accessible via key "5"
 ```
 
-When a number key is explicitly assigned to an app, it always points to that app regardless of navigation order. Unassigned number keys continue to work positionally for the remaining apps.
+Only apps with an explicit `shortcut` value respond to number keys. Apps without a shortcut have no number key binding. The splash screen badges reflect this -- only apps with assigned shortcuts show a number badge.
 
 You can also assign shortcuts in **Settings > Keybindings** without editing the config file.
 

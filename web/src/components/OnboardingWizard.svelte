@@ -560,6 +560,11 @@
       }
     }
 
+    // Auto-assign keyboard shortcuts 1-9 to the first 9 apps
+    for (let i = 0; i < Math.min(apps.length, 9); i++) {
+      apps[i].shortcut = i + 1;
+    }
+
     // Set first app as default if any
     if (apps.length > 0) {
       apps[0].default = true;

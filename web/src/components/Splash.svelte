@@ -52,22 +52,10 @@
     }
   }
 
-  function getAppIndex(app: App): number {
-    const allApps = groups.flatMap(g => groupedApps[g]);
-    return allApps.findIndex(a => a.name === app.name);
-  }
-
-  // Returns the number key (1-9) that activates this app, matching the key
-  // handler logic: explicit shortcut wins, then positional fallback (but only
-  // if that position isn't claimed by another app's explicit shortcut).
+  // Returns the keyboard shortcut (1-9) assigned to this app, if any.
+  // Only explicitly assigned shortcuts are shown — there is no positional fallback.
   function getDisplayKey(app: App): number | undefined {
-    if (app.shortcut) return app.shortcut;
-    const pos = getAppIndex(app);
-    if (pos >= 9) return undefined;
-    const key = pos + 1;
-    const allApps = groups.flatMap(g => groupedApps[g]);
-    if (allApps.some(a => a.shortcut === key && a.name !== app.name)) return undefined;
-    return key;
+    return app.shortcut || undefined;
   }
 
   // Calculate stagger delay based on position
