@@ -101,6 +101,7 @@ navigation:
   floating_position: bottom-right  # Floating button position (when position: floating)
                                # bottom-right, bottom-left, top-right, top-left
   hide_sidebar_footer: false   # Hide the footer section in left/right sidebars
+  max_open_tabs: 0             # Max app tabs kept alive in memory (0 = unlimited)
 
 # ─── Keyboard Shortcuts ────────────────────────
 # Only overrides — defaults are managed client-side.

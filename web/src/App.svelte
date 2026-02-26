@@ -337,7 +337,7 @@
           }
           wasConnected = true;
         } else if (state === 'disconnected' && wasConnected) {
-          toasts.warning('Connection lost — reconnecting...');
+          toasts.warning('Connection lost - reconnecting...');
         }
       });
 

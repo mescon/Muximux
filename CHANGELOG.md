@@ -4,6 +4,23 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+### Added
+- Configurable iframe cache limit (`navigation.max_open_tabs`) -- set the number of app tabs kept alive in memory, with LRU eviction for the oldest unused tabs (0 = unlimited, default)
+- Iframe load error handling -- loading spinner, 30-second timeout, and error overlay with retry button when an embedded app fails to load
+- WebSocket disconnect/reconnect toast notifications -- "Connection lost" warning when the server goes down, "Connection restored" when it comes back
+- Collapsible groups on the splash page -- click a group header to collapse/expand, state persisted across reloads
+- PWA service worker for static asset caching -- cache-first for hashed JS/CSS/fonts, network-first for HTML
+- Accessibility labels on 70+ icon-only navigation buttons for screen reader support
+
+### Changed
+- Lazy-load Settings, CommandPalette, Logs, ShortcutsHelp, and OnboardingWizard -- initial bundle reduced from ~500kB to ~266kB
+- Frontend performance improvements: rAF-gated scroll throttling, debounced resize listeners, cached getComputedStyle during drag, single-pass command palette grouping, fix healthStore subscription leak
+- Global CSS transition rule replaced with targeted theme-switch-only class -- eliminates 150ms transition overhead on every hover
+- "Shortcuts" hint on splash page changed to "All shortcuts" for clarity
+
+### Fixed
+- WebSocket reconnection no longer causes DOM flickering (state transitions suppressed during retry loop)
+
 ## [3.0.2] - 2026-02-26
 
 ### Added

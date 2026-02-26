@@ -95,6 +95,7 @@ navigation:
   bar_style: grouped           # grouped or flat (top/bottom bars only)
   floating_position: bottom-right  # bottom-right, bottom-left, top-right, top-left
   hide_sidebar_footer: false   # Hide the footer section in sidebars
+  max_open_tabs: 0             # Max app tabs kept alive in memory (0 = unlimited)
 
 # ─── Icons ──────────────────────────────────────
 icons:
