@@ -487,7 +487,9 @@ func TestFetchCustomIcon(t *testing.T) {
 		}
 
 		var resp map[string]string
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["name"] != "my-custom-name" {
 			t.Errorf("expected name 'my-custom-name', got %q", resp["name"])
 		}
@@ -658,7 +660,9 @@ func TestFetchCustomIcon(t *testing.T) {
 		}
 
 		var resp map[string]string
-		json.NewDecoder(w.Body).Decode(&resp)
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("failed to decode response: %v", err)
+		}
 		if resp["name"] != "my-app-icon" {
 			t.Errorf("expected name 'my-app-icon', got %q", resp["name"])
 		}

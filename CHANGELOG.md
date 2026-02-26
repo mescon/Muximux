@@ -157,5 +157,6 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.2]: https://github.com/mescon/Muximux/releases/tag/v3.0.2
 [3.0.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.1
 [3.0.0]: https://github.com/mescon/Muximux/releases/tag/v3.0.0
