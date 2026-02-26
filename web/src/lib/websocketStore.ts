@@ -84,8 +84,8 @@ export function connect(): void {
       }
     };
 
-    ws.onerror = (event) => {
-      console.error('WebSocket error', event);
+    ws.onerror = () => {
+      debug('ws', 'connection error');
       lastError.set('WebSocket connection error');
     };
 
@@ -102,7 +102,7 @@ export function connect(): void {
       }
     };
   } catch (e) {
-    console.error('Error creating WebSocket', e);
+    debug('ws', 'failed to create connection');
     lastError.set('Failed to create WebSocket connection');
     connectionState.set('error');
   }
