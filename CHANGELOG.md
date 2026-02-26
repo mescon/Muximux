@@ -4,15 +4,20 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+## [3.0.2] - 2026-02-26
+
 ### Added
 - Logout action in the command palette -- visible when authenticated
+- Reserved URL hashes: `#settings`, `#logs`, and `#overview` -- navigate directly to settings, logs, or the overview screen via URL
+- URL hash now reflects the current view at all times (`#plex`, `#settings`, `#logs`, or `/` for overview)
 
 ### Changed
-- Add App modal now exposes all settings (health check, proxy options, keyboard shortcut, min role, etc.) — no longer requires a second trip to Edit
+- Add App modal now exposes all settings (health check, proxy options, keyboard shortcut, min role, etc.) -- no longer requires a second trip to Edit
 
 ### Fixed
 - Keyboard shortcut `?` (Show Shortcuts) now works on keyboards where `?` requires Shift
-- URL hash not cleared when navigating home via command palette or keyboard shortcut
+- URL hash not cleared when navigating home via logo click, command palette, or keyboard shortcut
+- Collapsed sidebar cogwheel flyout now shows all footer actions including split view controls (orientation toggle, panel arrows, close)
 - Open-mode icons (↗ ⧉) now have proper spacing from app names in all navigation layouts
 - Search shortcut labels in navigation bars and splash screen now reflect custom keybindings instead of being hardcoded
 

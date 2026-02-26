@@ -107,13 +107,8 @@
     return result.trim() || 'Muximux';
   }
 
-  // Keep URL hash in sync: clear it when returning to splash / no app.
-  // Guard with `loading` so the hash isn't wiped before showDefaultApp() reads it.
-  $effect(() => {
-    if (!loading && !splitState.panels[0] && !splitState.panels[1] && location.hash) {
-      history.replaceState(null, '', location.pathname + location.search);
-    }
-  });
+  // Hash clearing is handled explicitly by navigateHome() and clearHash().
+  // No reactive $effect needed — all "go home" code paths call clearHash() directly.
 
   // Mobile swipe state
   let isMobile = $state(false);
@@ -205,8 +200,11 @@
     window.addEventListener('hashchange', () => {
       if (location.hash) {
         selectAppFromHash();
-      } else if (splitState.panels[0] || splitState.panels[1]) {
-        resetSplit();
+      } else {
+        // Hash cleared (e.g. navigating to /) — go home
+        showSettings = false;
+        showLogs = false;
+        if (splitState.panels[0] || splitState.panels[1]) resetSplit();
         showSplash = true;
       }
     });
@@ -270,7 +268,7 @@
       if (returnTo) {
         sessionStorage.removeItem('muximux_return_to');
         settingsInitialTab = returnTo as typeof settingsInitialTab;
-        showSettings = true;
+        openSettings();
       }
 
       showDefaultApp();
@@ -355,7 +353,7 @@
       if (returnTo) {
         sessionStorage.removeItem('muximux_return_to');
         settingsInitialTab = returnTo as typeof settingsInitialTab;
-        showSettings = true;
+        openSettings();
       }
 
       showDefaultApp();
@@ -456,10 +454,54 @@
     }
   }
 
-  /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app, /#plex+sonarr). */
+  function clearHash() {
+    if (location.hash) {
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  }
+
+  function navigateHome() {
+    showSplash = true;
+    showLogs = false;
+    showSettings = false;
+    resetSplit();
+    clearHash();
+  }
+
+  function openSettings() {
+    showSettings = true;
+    history.replaceState(null, '', '#settings');
+  }
+
+  function openLogs() {
+    showLogs = true;
+    showSplash = false;
+    resetSplit();
+    history.replaceState(null, '', '#logs');
+  }
+
+  /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app, /#plex+sonarr).
+   *  Also handles reserved hashes: #settings, #logs, #overview. */
   function selectAppFromHash(): boolean {
     const hash = location.hash.slice(1);
     if (!hash || !apps.length) return false;
+
+    // Reserved hashes
+    if (hash === 'settings') {
+      if (get(isAdmin)) showSettings = true;
+      return true;
+    }
+    if (hash === 'logs') {
+      showLogs = true;
+      showSplash = false;
+      return true;
+    }
+    if (hash === 'overview') {
+      showSplash = true;
+      showLogs = false;
+      clearHash();
+      return true;
+    }
 
     if (hash.includes('+')) {
       const [slug1, slug2] = hash.split('+', 2);
@@ -547,7 +589,7 @@
 
     switch (actionId) {
       case 'settings':
-        if (get(isAdmin)) showSettings = true;
+        if (get(isAdmin)) openSettings();
         break;
       case 'shortcuts':
         showShortcuts = true;
@@ -559,16 +601,13 @@
         refreshActiveApp();
         break;
       case 'home':
-        showSplash = true;
-        resetSplit();
+        navigateHome();
         break;
       case 'logout':
         handleLogout();
         break;
       case 'logs':
-        showLogs = true;
-        showSplash = false;
-        resetSplit();
+        openLogs();
         break;
       case 'theme-dark':
         setTheme('dark');
@@ -596,7 +635,7 @@
       if (event.key === 'Escape') {
         if (showCommandPalette) showCommandPalette = false;
         else if (showSettings) {
-          if (!settingsRef?.handleEscape()) showSettings = false;
+          if (!settingsRef?.handleEscape()) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); }
         }
       }
       return;
@@ -607,10 +646,10 @@
       if (showCommandPalette) showCommandPalette = false;
       else if (showSettings) {
         // Let Settings close its sub-modals first; only close Settings itself if no sub-modal was open
-        if (!settingsRef?.handleEscape()) showSettings = false;
+        if (!settingsRef?.handleEscape()) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); }
       }
       else if (showShortcuts) showShortcuts = false;
-      else if (showLogs) { showLogs = false; showSplash = true; }
+      else if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); }
       else if (!showSplash && currentApp) showSplash = true;
       return;
     }
@@ -633,19 +672,16 @@
         showCommandPalette = true;
         break;
       case 'settings':
-        if ($isAdmin) showSettings = !showSettings;
+        if ($isAdmin) { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }
         break;
       case 'shortcuts':
         showShortcuts = !showShortcuts;
         break;
       case 'home':
-        showSplash = true;
-        resetSplit();
+        navigateHome();
         break;
       case 'logs':
-        showLogs = true;
-        showSplash = false;
-        resetSplit();
+        if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); } else openLogs();
         break;
       case 'refresh':
         refreshActiveApp();
@@ -737,9 +773,9 @@
         {showSplash}
         onselect={(app) => selectApp(app)}
         onsearch={() => showCommandPalette = true}
-        onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { showSplash = true; showLogs = false; } }}
-        onsettings={() => showSettings = !showSettings}
-        onlogs={() => { if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; } else { showLogs = true; showSplash = false; } }}
+        onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { navigateHome(); } }}
+        onsettings={() => { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }}
+        onlogs={() => { if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); } else openLogs(); }}
         onlogout={handleLogout}
         splitEnabled={splitState.enabled}
         splitOrientation={splitState.orientation}
@@ -762,11 +798,11 @@
       onpointercancel={isMobile ? swipeHandlers.onpointercancel : undefined}
     >
       {#if showSplash && !$isFullscreen}
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
       {:else if showLogs}
-        <Logs onclose={() => { showLogs = false; showSplash = !splitState.panels[0]; }} />
+        <Logs onclose={() => { showLogs = false; showSplash = !splitState.panels[0]; if (location.hash === '#logs') { if (splitState.panels[0]) updateHash(); else clearHash(); } }} />
       {:else if $isFullscreen && !currentApp}
-        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => showSettings = true : undefined} onabout={() => { settingsInitialTab = 'about'; showSettings = true; }} />
+        <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
       {/if}
 
       {#if splitState.enabled}
@@ -874,7 +910,7 @@
       {config}
       {apps}
       initialTab={settingsInitialTab}
-      onclose={() => { showSettings = false; settingsInitialTab = 'general'; }}
+      onclose={() => { showSettings = false; settingsInitialTab = 'general'; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
       onsave={(newConfig) => handleSaveConfig(newConfig)}
     />
   {/if}

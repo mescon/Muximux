@@ -244,6 +244,9 @@
   // Footer drawer state (for collapsible sidebar footer)
   let footerDrawerOpen = $state(false);
   let footerDrawerTimer: ReturnType<typeof setTimeout> | null = null;
+  // When show_labels=false (without auto_hide), hovering the collapsed cogwheel
+  // temporarily expands the sidebar panel as an overlay to reveal the drawer.
+  let footerHoverExpand = $state(false);
 
   // Group expansion state (persisted to localStorage)
   let expandedGroups: Record<string, boolean> = $state({});
@@ -597,6 +600,12 @@
   }
 
   function handleNavLeave() {
+    // Collapse footer hover-expand (show_labels=false without auto_hide)
+    if (footerHoverExpand) {
+      footerHoverExpand = false;
+      if (footerDrawerTimer) clearTimeout(footerDrawerTimer);
+      footerDrawerTimer = setTimeout(() => { footerDrawerOpen = false; }, 300);
+    }
     if (!config.navigation.auto_hide) return;
     if (hideTimeout) clearTimeout(hideTimeout);
     // Immediately hide overflow when collapsing
@@ -619,10 +628,12 @@
     if (footerDrawerTimer) clearTimeout(footerDrawerTimer);
     footerDrawerTimer = setTimeout(() => { footerDrawerOpen = false; }, 300);
   }
-  // When the collapsed cogwheel is hovered, pre-open the drawer so it's
-  // visible as soon as the sidebar expands via the aside's handleNavEnter.
+  // When the collapsed cogwheel is hovered, expand the sidebar panel as an
+  // overlay and open the drawer so footer actions become accessible.
   function handleCollapsedFooterEnter() {
+    footerHoverExpand = true;
     footerDrawerOpen = true;
+    if (footerDrawerTimer) clearTimeout(footerDrawerTimer);
   }
 
   function parseDelay(delay: string): number {
@@ -653,6 +664,78 @@
 
 
 </script>
+
+{#snippet footerFlyoutActions()}
+  <button
+    class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+    onclick={() => { onlogs?.(); mobileMenuOpen = false; footerHoverExpand = false; }}
+  >
+    <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
+    </svg>
+    Logs
+  </button>
+  {#if currentApp && !showSplash}
+    <button
+      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+      onclick={() => { onrefresh?.(); footerHoverExpand = false; }}
+    >
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+        <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+      </svg>
+      Refresh
+    </button>
+  {/if}
+  {#if splitEnabled}
+    <div class="flex items-center gap-1 px-3 py-1.5">
+      <button class="p-1 rounded transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title="Horizontal split">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+      </button>
+      <button class="p-1 rounded transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title="Vertical split">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+      </button>
+      <div class="flex items-center">
+        <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title="Target panel 1"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+        <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title="Target panel 2"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+      </div>
+      <button class="p-1 rounded transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => { onsplitclose?.(); footerHoverExpand = false; }} title="Close split">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+      </button>
+    </div>
+  {:else}
+    <button
+      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+      onclick={() => { onsplithorizontal?.(); footerHoverExpand = false; }}
+    >
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+      Split view
+    </button>
+  {/if}
+  {#if hasRealAuth && $isAuthenticated && $currentUser}
+    <button
+      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-red-400 rounded-md hover:bg-bg-hover text-sm transition-colors"
+      onclick={() => { handleLogout(); footerHoverExpand = false; }}
+    >
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+      Sign out
+    </button>
+  {/if}
+  {#if $isAdmin}
+    <button
+      class="w-full flex items-center gap-2 px-3 py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
+      onclick={() => { onsettings?.(); footerHoverExpand = false; }}
+    >
+      <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+      </svg>
+      Settings
+    </button>
+  {/if}
+{/snippet}
 
 <!-- Mobile hamburger menu -->
 {#if isMobile && effectivePosition !== 'bottom' && effectivePosition !== 'floating'}
@@ -1313,6 +1396,20 @@
     {/if}
     </div> <!-- End content wrapper -->
 
+    <!-- Footer flyout — outside overflow:hidden panel so it's not clipped -->
+    {#if footerHoverExpand && useFooterDrawer && isCollapsed}
+      <div
+        class="absolute bottom-0 left-0 z-40 rounded-tr-lg border-t border-r py-2 px-1"
+        style="width: {sidebarWidth}px; background: var(--bg-surface); border-color: var(--border-subtle); box-shadow: 4px -4px 12px rgba(0,0,0,0.2);"
+        role="menu"
+        tabindex="-1"
+        onmouseenter={handleFooterEnter}
+        onmouseleave={handleFooterLeave}
+      >
+        {@render footerFlyoutActions()}
+      </div>
+    {/if}
+
     <!-- Resize handle - only when not auto-hiding and labels visible -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
@@ -1697,6 +1794,20 @@
       </div>
     {/if}
     </div> <!-- End content wrapper -->
+
+    <!-- Footer flyout — outside overflow:hidden panel so it's not clipped -->
+    {#if footerHoverExpand && useFooterDrawer && isCollapsedRight}
+      <div
+        class="absolute bottom-0 right-0 z-40 rounded-tl-lg border-t border-l py-2 px-1"
+        style="width: {sidebarWidth}px; background: var(--bg-surface); border-color: var(--border-subtle); box-shadow: -4px -4px 12px rgba(0,0,0,0.2);"
+        role="menu"
+        tabindex="-1"
+        onmouseenter={handleFooterEnter}
+        onmouseleave={handleFooterLeave}
+      >
+        {@render footerFlyoutActions()}
+      </div>
+    {/if}
 
     <!-- Resize handle (left side for right sidebar) - only when not auto-hiding and labels visible -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
