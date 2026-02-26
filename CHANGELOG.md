@@ -4,6 +4,8 @@ All notable changes to Muximux are documented in this file.
 
 ## [Unreleased]
 
+## [3.0.3] - 2026-02-26
+
 ### Added
 - Configurable iframe cache limit (`navigation.max_open_tabs`) -- set the number of app tabs kept alive in memory, with LRU eviction for the oldest unused tabs (0 = unlimited, default)
 - Iframe load error handling -- loading spinner, 30-second timeout, and error overlay with retry button when an embedded app fails to load
@@ -174,6 +176,7 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.3]: https://github.com/mescon/Muximux/releases/tag/v3.0.3
 [3.0.2]: https://github.com/mescon/Muximux/releases/tag/v3.0.2
 [3.0.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.1
 [3.0.0]: https://github.com/mescon/Muximux/releases/tag/v3.0.0
