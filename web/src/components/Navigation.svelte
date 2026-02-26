@@ -241,14 +241,6 @@
   const collapsedStripWidth = 48; // Width of visible strip when sidebar collapsed (fits icon + border)
   const collapsedBarHeight = 6; // Height of visible strip when top/bottom bar collapsed (thin reveal strip)
 
-  // User-controlled sidebar collapse state (persisted to localStorage)
-  let sidebarCollapsedLeft = $state(false);
-  let sidebarCollapsedRight = $state(false);
-
-  $effect(() => {
-    localStorage.setItem('muximux_sidebar_collapsed', JSON.stringify({ left: sidebarCollapsedLeft, right: sidebarCollapsedRight }));
-  });
-
   // Footer drawer state (for collapsible sidebar footer)
   let footerDrawerOpen = $state(false);
   let footerDrawerTimer: ReturnType<typeof setTimeout> | null = null;
@@ -284,7 +276,7 @@
   // When auto_hide is on, always reserve only the collapsed strip in the layout.
   // The expanded sidebar overlays the content instead of pushing it.
   // Also collapse when user has manually collapsed the sidebar.
-  let effectiveSidebarWidth = $derived((config.navigation.auto_hide || !config.navigation.show_labels || sidebarCollapsedLeft || sidebarCollapsedRight) && !isMobile ? collapsedStripWidth : sidebarWidth);
+  let effectiveSidebarWidth = $derived((config.navigation.auto_hide || !config.navigation.show_labels) && !isMobile ? collapsedStripWidth : sidebarWidth);
   let mobileMenuOpen = $state(false);
   let cachedPanelBorders = 0;
   let panelOpen = $state(false);
@@ -366,16 +358,6 @@
     const storedWidth = localStorage.getItem('muximux_sidebar_width');
     if (storedWidth) {
       sidebarWidth = parseInt(storedWidth, 10);
-    }
-
-    // Restore sidebar collapse state
-    const storedCollapse = localStorage.getItem('muximux_sidebar_collapsed');
-    if (storedCollapse) {
-      try {
-        const state = JSON.parse(storedCollapse);
-        if (state.left !== undefined) sidebarCollapsedLeft = state.left;
-        if (state.right !== undefined) sidebarCollapsedRight = state.right;
-      } catch { /* ignore malformed data */ }
     }
 
     // Set up responsive listeners
@@ -1077,7 +1059,7 @@
 <!-- LEFT SIDEBAR -->
 {:else if effectivePosition === 'left'}
   {@const labelsCollapsed = !config.navigation.show_labels && !isMobile}
-  {@const isCollapsed = labelsCollapsed || sidebarCollapsedLeft || (isHidden && config.navigation.auto_hide && !isMobile)}
+  {@const isCollapsed = labelsCollapsed || (isHidden && config.navigation.auto_hide && !isMobile)}
   <aside
     class="flex-shrink-0 h-full relative z-10
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : '-translate-x-full') : ''}"
@@ -1462,7 +1444,7 @@
     {/if}
 
     <!-- Resize handle - only when not auto-hiding, labels visible, and not manually collapsed -->
-    {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels && !sidebarCollapsedLeft}
+    {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
         class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
@@ -1475,27 +1457,12 @@
         aria-valuemax={maxWidth}
       ></div>
     {/if}
-
-    <!-- Collapse toggle — only for left sidebar with labels enabled, not auto-hide -->
-    {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
-      <button
-        class="absolute top-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded-r transition-colors z-10"
-        style="right: -16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-left: none; color: var(--text-muted);"
-        onclick={() => sidebarCollapsedLeft = !sidebarCollapsedLeft}
-        aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        <svg class="w-3 h-3 transition-transform duration-200" style="transform: rotate({isCollapsed ? '0deg' : '180deg'});" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7" />
-        </svg>
-      </button>
-    {/if}
   </aside>
 
 <!-- RIGHT SIDEBAR -->
 {:else if effectivePosition === 'right'}
   {@const labelsCollapsedRight = !config.navigation.show_labels && !isMobile}
-  {@const isCollapsedRight = labelsCollapsedRight || sidebarCollapsedRight || (isHidden && config.navigation.auto_hide && !isMobile)}
+  {@const isCollapsedRight = labelsCollapsedRight || (isHidden && config.navigation.auto_hide && !isMobile)}
   <aside
     class="flex-shrink-0 h-full relative z-10
            {isMobile ? (mobileMenuOpen ? 'translate-x-0' : 'translate-x-full') : ''}"
@@ -1878,8 +1845,8 @@
       </div>
     {/if}
 
-    <!-- Resize handle (left side for right sidebar) - only when not auto-hiding, labels visible, and not manually collapsed -->
-    {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels && !sidebarCollapsedRight}
+    <!-- Resize handle (left side for right sidebar) - only when not auto-hiding and labels visible -->
+    {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
         class="absolute top-0 left-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
@@ -1891,21 +1858,6 @@
         aria-valuemin={minWidth}
         aria-valuemax={maxWidth}
       ></div>
-    {/if}
-
-    <!-- Collapse toggle — only for right sidebar with labels enabled, not auto-hide -->
-    {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
-      <button
-        class="absolute top-1/2 -translate-y-1/2 w-4 h-8 flex items-center justify-center rounded-l transition-colors z-10"
-        style="left: -16px; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-right: none; color: var(--text-muted);"
-        onclick={() => sidebarCollapsedRight = !sidebarCollapsedRight}
-        aria-label={isCollapsedRight ? 'Expand sidebar' : 'Collapse sidebar'}
-        title={isCollapsedRight ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        <svg class="w-3 h-3 transition-transform duration-200" style="transform: rotate({isCollapsedRight ? '180deg' : '0deg'});" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
-        </svg>
-      </button>
     {/if}
   </aside>
 
