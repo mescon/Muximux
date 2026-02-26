@@ -101,7 +101,7 @@ export function connect(): void {
         console.error('Error parsing WebSocket message', e);
       }
     };
-  } catch (e) {
+  } catch {
     debug('ws', 'failed to create connection');
     lastError.set('Failed to create WebSocket connection');
     connectionState.set('error');
