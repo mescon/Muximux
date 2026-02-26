@@ -778,6 +778,13 @@ func TestResolveBackendPath(t *testing.T) {
 			requestPath: "/proxy/radarr/proxy/radarr/api/v3",
 			expected:    "/api/v3",
 		},
+		{
+			name:        "prefix as substring of path segment is not stripped",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/",
+			requestPath: "/proxy/app/api/proxy/application/status",
+			expected:    "/api/proxy/application/status",
+		},
 	}
 
 	for _, tt := range tests {

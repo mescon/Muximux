@@ -585,10 +585,10 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 			reqPath = "/"
 		}
 
-		// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint
-		if strings.Contains(reqPath, proxyPrefix) {
-			reqPath = strings.ReplaceAll(reqPath, proxyPrefix, "")
-		}
+		// Handle double-prefixing caused by SPAs that construct URLs with urlBase + endpoint.
+		// Use TrimPrefix (not ReplaceAll) to avoid corrupting paths that happen to
+		// contain the proxy prefix as a substring (e.g. /api/proxy/application/).
+		reqPath = strings.TrimPrefix(reqPath, proxyPrefix)
 
 		req.URL.Path = resolveBackendRequestPath(reqPath, targetPath)
 		req.URL.Scheme = targetURL.Scheme
@@ -940,9 +940,7 @@ func (route *proxyRoute) resolveBackendPath(reqPath string) string {
 		path = "/"
 	}
 
-	if strings.Contains(path, route.proxyPrefix) {
-		path = strings.ReplaceAll(path, route.proxyPrefix, "")
-	}
+	path = strings.TrimPrefix(path, route.proxyPrefix)
 
 	return resolveBackendRequestPath(path, route.targetPath)
 }

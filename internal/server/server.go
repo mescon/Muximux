@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -140,6 +141,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Forward-declare so /themes/ handler closure can reference it
 	var staticHandler http.Handler
+	var inlineScriptHash string
 
 	// Extract embedded dist filesystem (used for bundled themes + static serving)
 	var distFS fs.FS
@@ -227,14 +229,16 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		fileServer := http.FileServer(http.Dir("web/dist"))
 		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
 	} else {
-		staticHandler = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, cfg.Server.NormalizedBasePath())
+		var scriptHash string
+		staticHandler, scriptHash = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, cfg.Server.NormalizedBasePath())
+		inlineScriptHash = scriptHash
 	}
 
 	// Serve static files with SPA fallback
 	mux.Handle("/", staticHandler)
 
 	// Create the final handler with security middleware
-	handler := s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware))
+	handler := s.setupGuardMiddleware(wrapMiddleware(mux, cfg, authMiddleware, inlineScriptHash))
 
 	// Wrap with base path stripping if configured
 	basePath := cfg.Server.NormalizedBasePath()
@@ -616,12 +620,12 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 }
 
 // wrapMiddleware applies auth and security middleware around the mux.
-func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.Middleware) http.Handler {
+func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.Middleware, inlineScriptHash string) http.Handler {
 	// Always apply RequireAuth — it injects a virtual admin when auth is
 	// "none", which downstream adminGuard checks rely on.
 	handler := authMiddleware.RequireAuth(mux)
 	// Wrap with security middleware (outermost = runs first)
-	handler = securityHeadersMiddleware(handler)
+	handler = securityHeadersMiddleware(handler, inlineScriptHash)
 	handler = csrfMiddleware(handler)
 	handler = bodySizeLimitMiddleware(handler)
 	return handler
@@ -1005,15 +1009,20 @@ func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) ht
 
 // spaHandlerEmbed wraps a file server for embedded files.
 // basePath is injected into index.html as window.__MUXIMUX_BASE__ for frontend API calls.
-func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) http.Handler {
+// Returns the handler and a CSP script hash for the injected inline script (empty if no base path).
+func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http.Handler, string) {
 	indexContent, err := fs.ReadFile(fsys, "index.html")
 	if err != nil {
-		return fileServer
+		return fileServer, ""
 	}
 
+	var scriptHash string
 	if basePath != "" {
-		injection := []byte(fmt.Sprintf(`<script>window.__MUXIMUX_BASE__=%q;</script></head>`, basePath))
+		scriptBody := fmt.Sprintf(`window.__MUXIMUX_BASE__=%q;`, basePath)
+		injection := []byte(fmt.Sprintf(`<script>%s</script></head>`, scriptBody))
 		indexContent = bytes.Replace(indexContent, []byte("</head>"), injection, 1)
+		h := sha256.Sum256([]byte(scriptBody))
+		scriptHash = "'sha256-" + base64.StdEncoding.EncodeToString(h[:]) + "'"
 	}
 
 	// Pre-compute headers at startup for zero-allocation index serving
@@ -1035,7 +1044,7 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) http.
 			return
 		}
 		fileServer.ServeHTTP(w, r)
-	})
+	}), scriptHash
 }
 
 // parseDuration parses a duration string like "7d", "24h", "30m"
@@ -1062,25 +1071,38 @@ func parseDuration(s string, defaultVal time.Duration) time.Duration {
 	return defaultVal
 }
 
-// securityHeadersMiddleware adds standard security headers to all responses
-func securityHeadersMiddleware(next http.Handler) http.Handler {
+// securityHeadersMiddleware adds standard security headers to all responses.
+// inlineScriptHash is the CSP hash for the base-path injection script (empty when no base path).
+func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.Handler {
+	scriptSrc := "script-src 'self'"
+	if inlineScriptHash != "" {
+		scriptSrc = "script-src 'self' " + inlineScriptHash
+	}
+
+	csp := strings.Join([]string{
+		"default-src 'self'",
+		scriptSrc,
+		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+		"font-src 'self' https://fonts.gstatic.com",
+		"img-src 'self' data: blob: https:",
+		"connect-src 'self' ws: wss:",
+		"frame-src *",
+		"manifest-src 'self' blob:",
+		"object-src 'none'",
+		"base-uri 'self'",
+	}, "; ")
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
-		w.Header().Set("X-Frame-Options", "SAMEORIGIN")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
-		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
-		w.Header().Set("Content-Security-Policy", strings.Join([]string{
-			"default-src 'self'",
-			"script-src 'self'",
-			"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
-			"font-src 'self' https://fonts.gstatic.com",
-			"img-src 'self' data: blob: https:",
-			"connect-src 'self' ws: wss:",
-			"frame-src *",
-			"manifest-src 'self' blob:",
-			"object-src 'none'",
-			"base-uri 'self'",
-		}, "; "))
+
+		// Skip CSP and X-Frame-Options for proxied content — those apps have
+		// their own scripts, styles, and framing needs that our policy would break.
+		if !strings.HasPrefix(r.URL.Path, proxyPathPrefix) {
+			w.Header().Set("X-Frame-Options", "SAMEORIGIN")
+			w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+			w.Header().Set("Content-Security-Policy", csp)
+		}
 		next.ServeHTTP(w, r)
 	})
 }

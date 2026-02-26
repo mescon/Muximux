@@ -249,25 +249,67 @@ func TestSecurityHeadersMiddleware(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	handler := securityHeadersMiddleware(inner)
-	req := httptest.NewRequest(http.MethodGet, "/", nil)
-	rec := httptest.NewRecorder()
+	t.Run("without script hash", func(t *testing.T) {
+		handler := securityHeadersMiddleware(inner, "")
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
 
-	handler.ServeHTTP(rec, req)
-
-	expected := map[string]string{
-		"X-Content-Type-Options": "nosniff",
-		"X-Frame-Options":        "SAMEORIGIN",
-		"Referrer-Policy":        "strict-origin-when-cross-origin",
-		"Permissions-Policy":     "camera=(), microphone=(), geolocation=()",
-	}
-
-	for header, value := range expected {
-		got := rec.Header().Get(header)
-		if got != value {
-			t.Errorf("header %s = %q, want %q", header, got, value)
+		expected := map[string]string{
+			"X-Content-Type-Options": "nosniff",
+			"X-Frame-Options":        "SAMEORIGIN",
+			"Referrer-Policy":        "strict-origin-when-cross-origin",
+			"Permissions-Policy":     "camera=(), microphone=(), geolocation=()",
 		}
-	}
+		for header, value := range expected {
+			got := rec.Header().Get(header)
+			if got != value {
+				t.Errorf("header %s = %q, want %q", header, got, value)
+			}
+		}
+
+		csp := rec.Header().Get("Content-Security-Policy")
+		if !strings.Contains(csp, "script-src 'self'") {
+			t.Errorf("CSP missing script-src 'self': %s", csp)
+		}
+		if strings.Contains(csp, "sha256") {
+			t.Errorf("CSP should not contain sha256 hash without base path: %s", csp)
+		}
+	})
+
+	t.Run("with script hash", func(t *testing.T) {
+		hash := "'sha256-abc123'"
+		handler := securityHeadersMiddleware(inner, hash)
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		csp := rec.Header().Get("Content-Security-Policy")
+		if !strings.Contains(csp, "script-src 'self' 'sha256-abc123'") {
+			t.Errorf("CSP missing script hash: %s", csp)
+		}
+	})
+
+	t.Run("proxy paths skip CSP and X-Frame-Options", func(t *testing.T) {
+		handler := securityHeadersMiddleware(inner, "")
+		req := httptest.NewRequest(http.MethodGet, "/proxy/myapp/index.html", nil)
+		rec := httptest.NewRecorder()
+		handler.ServeHTTP(rec, req)
+
+		if rec.Header().Get("Content-Security-Policy") != "" {
+			t.Error("proxy path should not have CSP header")
+		}
+		if rec.Header().Get("X-Frame-Options") != "" {
+			t.Error("proxy path should not have X-Frame-Options header")
+		}
+		// nosniff and Referrer-Policy should still be set
+		if rec.Header().Get("X-Content-Type-Options") != "nosniff" {
+			t.Error("proxy path should still have X-Content-Type-Options")
+		}
+		if rec.Header().Get("Referrer-Policy") == "" {
+			t.Error("proxy path should still have Referrer-Policy")
+		}
+	})
 }
 
 // --- csrfMiddleware ---
@@ -510,7 +552,7 @@ func TestSPAHandlerEmbed(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "")
+	handler, _ := spaHandlerEmbed(fileServer, testFS, "")
 
 	t.Run("root serves index.html", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -572,7 +614,7 @@ func TestSPAHandlerEmbed_BasePath(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "/dash")
+	handler, scriptHash := spaHandlerEmbed(fileServer, testFS, "/dash")
 
 	t.Run("injects base path script", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -587,14 +629,26 @@ func TestSPAHandlerEmbed_BasePath(t *testing.T) {
 		}
 	})
 
+	t.Run("returns script hash for CSP", func(t *testing.T) {
+		if scriptHash == "" {
+			t.Error("expected non-empty script hash when base path is set")
+		}
+		if !strings.HasPrefix(scriptHash, "'sha256-") || !strings.HasSuffix(scriptHash, "'") {
+			t.Errorf("script hash should be CSP-formatted, got: %s", scriptHash)
+		}
+	})
+
 	t.Run("no injection with empty base path", func(t *testing.T) {
-		handler2 := spaHandlerEmbed(fileServer, testFS, "")
+		handler2, hash2 := spaHandlerEmbed(fileServer, testFS, "")
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
 		rec := httptest.NewRecorder()
 		handler2.ServeHTTP(rec, req)
 		body := rec.Body.String()
 		if strings.Contains(body, "__MUXIMUX_BASE__") {
 			t.Errorf("expected no base path injection, got: %s", body)
+		}
+		if hash2 != "" {
+			t.Errorf("expected empty script hash without base path, got: %s", hash2)
 		}
 	})
 }
@@ -605,7 +659,7 @@ func TestSPAHandlerEmbed_MissingIndex(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.FS(testFS))
-	handler := spaHandlerEmbed(fileServer, testFS, "")
+	handler, _ := spaHandlerEmbed(fileServer, testFS, "")
 
 	if handler == nil {
 		t.Fatal("expected non-nil handler even with missing index")
@@ -626,7 +680,7 @@ func TestWrapMiddleware(t *testing.T) {
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
 		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
-		handler := wrapMiddleware(inner, cfg, am)
+		handler := wrapMiddleware(inner, cfg, am, "")
 
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
@@ -642,7 +696,7 @@ func TestWrapMiddleware(t *testing.T) {
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
 		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
-		handler := wrapMiddleware(inner, cfg, am)
+		handler := wrapMiddleware(inner, cfg, am, "")
 
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
@@ -658,7 +712,7 @@ func TestWrapMiddleware(t *testing.T) {
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
 		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
-		handler := wrapMiddleware(inner, cfg, am)
+		handler := wrapMiddleware(inner, cfg, am, "")
 
 		req := httptest.NewRequest(http.MethodGet, "/test", nil)
 		rec := httptest.NewRecorder()
@@ -677,7 +731,7 @@ func TestWrapMiddleware(t *testing.T) {
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
 		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, ss, us)
-		handler := wrapMiddleware(inner, cfg, am)
+		handler := wrapMiddleware(inner, cfg, am, "")
 
 		req := httptest.NewRequest(http.MethodPost, "/api/config", nil)
 		rec := httptest.NewRecorder()
@@ -693,7 +747,7 @@ func TestWrapMiddleware(t *testing.T) {
 		ss := auth.NewSessionStore("test", time.Hour, false)
 		us := auth.NewUserStore()
 		am := auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodBuiltin}, ss, us)
-		handler := wrapMiddleware(inner, cfg, am)
+		handler := wrapMiddleware(inner, cfg, am, "")
 
 		req := httptest.NewRequest(http.MethodGet, "/api/test", nil)
 		rec := httptest.NewRecorder()
