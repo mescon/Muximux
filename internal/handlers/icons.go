@@ -313,11 +313,12 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Download with timeout and size limit
+	// Download with timeout and size limit (use parsed URL, not raw input)
+	sanitizedURL := parsed.String()
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(req.URL)
+	resp, err := client.Get(sanitizedURL)
 	if err != nil {
-		logging.Warn("Custom icon fetch failed", "source", "icons", "url", req.URL, "error", err)
+		logging.Warn("Custom icon fetch failed", "source", "icons", "url", sanitizedURL, "error", err)
 		http.Error(w, "Failed to download icon", http.StatusBadGateway)
 		return
 	}
