@@ -47,7 +47,10 @@ export function connect(): void {
   const url = `${protocol}//${host}${basePath}/ws`;
   debug('ws', 'connecting', url);
 
-  connectionState.set('connecting');
+  // Only set 'connecting' on first attempt, not during retries
+  if (reconnectAttempts === 0) {
+    connectionState.set('connecting');
+  }
   lastError.set(null);
 
   try {
@@ -60,11 +63,14 @@ export function connect(): void {
     };
 
     ws.onclose = () => {
-      connectionState.set('disconnected');
       ws = null;
 
       // Attempt to reconnect
       if (reconnectAttempts < maxReconnectAttempts) {
+        // Only transition to 'disconnected' on the first close, not during retries
+        if (reconnectAttempts === 0) {
+          connectionState.set('disconnected');
+        }
         const delay = getReconnectDelay();
         debug('ws', 'reconnecting', { attempt: reconnectAttempts + 1, delay: Math.round(delay) });
         reconnectTimeout = setTimeout(() => {
