@@ -17,10 +17,23 @@
   } = $props();
 
   let mounted = $state(false);
+
+  // Collapsible group state — persisted to localStorage
+  let collapsedGroups = $state<Record<string, boolean>>({});
+
   onMount(() => {
     // Trigger staggered animations after mount
     mounted = true;
+    const stored = localStorage.getItem('muximux_splash_groups');
+    if (stored) {
+      try { collapsedGroups = JSON.parse(stored); } catch { /* ignore */ }
+    }
   });
+
+  function toggleGroupCollapse(group: string) {
+    collapsedGroups[group] = !collapsedGroups[group];
+    localStorage.setItem('muximux_splash_groups', JSON.stringify(collapsedGroups));
+  }
 
   // Group apps by their group
   let groupedApps = $derived(apps.reduce((acc, app) => {
@@ -108,7 +121,7 @@
         </span>
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">{shortcutsLabel}</kbd>
-          <span class="ml-1">Shortcuts</span>
+          <span class="ml-1">All shortcuts</span>
         </span>
       </div>
     </header>
@@ -118,7 +131,17 @@
       <section class="mb-8 md:mb-10">
         <!-- Group header -->
         {#if groups.length > 1 || group !== 'Ungrouped'}
-          <div class="flex items-center gap-3 mb-4">
+          <button
+            class="w-full flex items-center gap-3 mb-4 cursor-pointer"
+            onclick={() => toggleGroupCollapse(group)}
+          >
+            <svg
+              class="w-3.5 h-3.5 flex-shrink-0 transition-transform duration-200"
+              style="color: var(--text-muted); transform: rotate({collapsedGroups[group] ? '-90deg' : '0deg'});"
+              fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+            >
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+            </svg>
             <h2 class="font-display text-xs font-semibold tracking-widest uppercase"
                 style="color: var(--text-muted);">
               {group}
@@ -127,64 +150,66 @@
             <span class="text-xs tabular-nums" style="color: var(--text-disabled);">
               {sortedGroupedApps[group].length} {sortedGroupedApps[group].length === 1 ? 'app' : 'apps'}
             </span>
-          </div>
+          </button>
         {/if}
 
         <!-- App cards grid -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-          {#each sortedGroupedApps[group] as app, appIndex (app.name)}
-            {@const displayKey = getDisplayKey(app)}
-            <button
-              class="app-card group opacity-0"
-              class:animate-slide-up={mounted}
-              style="animation-delay: {getStaggerDelay(groupIndex, appIndex)};"
-              onclick={() => onselect?.(app)}
-            >
-              <!-- Health indicator — per-app control -->
-              {#if showHealth && app.health_check === true}
-                <div class="absolute top-2.5 right-2.5 z-10">
-                  <HealthIndicator appName={app.name} size="sm" />
-                </div>
-              {/if}
+        {#if !collapsedGroups[group]}
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
+            {#each sortedGroupedApps[group] as app, appIndex (app.name)}
+              {@const displayKey = getDisplayKey(app)}
+              <button
+                class="app-card group opacity-0"
+                class:animate-slide-up={mounted}
+                style="animation-delay: {getStaggerDelay(groupIndex, appIndex)};"
+                onclick={() => onselect?.(app)}
+              >
+                <!-- Health indicator — per-app control -->
+                {#if showHealth && app.health_check === true}
+                  <div class="absolute top-2.5 right-2.5 z-10">
+                    <HealthIndicator appName={app.name} size="sm" />
+                  </div>
+                {/if}
 
-              <!-- Keyboard shortcut badge (1-9) -->
-              {#if displayKey !== undefined}
-                <div class="absolute top-2.5 left-2.5 z-10">
-                  <span class="kbd">
-                    {displayKey}
-                  </span>
-                </div>
-              {/if}
+                <!-- Keyboard shortcut badge (1-9) -->
+                {#if displayKey !== undefined}
+                  <div class="absolute top-2.5 left-2.5 z-10">
+                    <span class="kbd">
+                      {displayKey}
+                    </span>
+                  </div>
+                {/if}
 
-              <!-- App icon with glow effect on hover -->
-              <div class="relative mb-3 mt-2">
-                <!-- Glow effect -->
+                <!-- App icon with glow effect on hover -->
+                <div class="relative mb-3 mt-2">
+                  <!-- Glow effect -->
+                  <div
+                    class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-40 transition-opacity blur-xl"
+                    style="background: {app.color || 'var(--accent-primary)'};"
+                  ></div>
+                  <div class="relative">
+                    <AppIcon icon={app.icon} name={app.name} color={app.color} size="xl" />
+                  </div>
+                </div>
+
+                <!-- App name -->
+                <span class="text-sm font-medium text-center transition-colors"
+                      style="color: var(--text-secondary);">
+                  <span class="group-hover:text-[var(--text-primary)]">{app.name}</span>
+                  {#if app.open_mode !== 'iframe'}
+                    <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  {/if}
+                </span>
+
+                <!-- Color accent bar at bottom -->
                 <div
-                  class="absolute inset-0 rounded-full opacity-0 group-hover:opacity-40 transition-opacity blur-xl"
+                  class="app-card-accent"
                   style="background: {app.color || 'var(--accent-primary)'};"
                 ></div>
-                <div class="relative">
-                  <AppIcon icon={app.icon} name={app.name} color={app.color} size="xl" />
-                </div>
-              </div>
-
-              <!-- App name -->
-              <span class="text-sm font-medium text-center transition-colors"
-                    style="color: var(--text-secondary);">
-                <span class="group-hover:text-[var(--text-primary)]">{app.name}</span>
-                {#if app.open_mode !== 'iframe'}
-                  <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
-                {/if}
-              </span>
-
-              <!-- Color accent bar at bottom -->
-              <div
-                class="app-card-accent"
-                style="background: {app.color || 'var(--accent-primary)'};"
-              ></div>
-            </button>
-          {/each}
-        </div>
+              </button>
+            {/each}
+          </div>
+        {/if}
       </section>
     {/each}
 

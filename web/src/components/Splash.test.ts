@@ -35,6 +35,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
       bar_style: 'grouped',
       floating_position: 'bottom-right',
       hide_sidebar_footer: false,
+      max_open_tabs: 0,
     },
     groups: [{ name: 'Media', order: 0, icon: { type: 'lucide', name: 'play', file: '', url: '', variant: '', }, color: '', expanded: true }],
     apps: [],
@@ -144,7 +145,7 @@ describe('Splash', () => {
     // The splash header contains keyboard shortcut hints from the keybindings store
     expect(screen.getByText('Search')).toBeInTheDocument();
     expect(screen.getByText('Ctrl+K')).toBeInTheDocument();
-    expect(screen.getByText('Shortcuts')).toBeInTheDocument();
+    expect(screen.getByText('All shortcuts')).toBeInTheDocument();
     expect(screen.getByText('?')).toBeInTheDocument();
   });
 
