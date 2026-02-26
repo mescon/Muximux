@@ -2,8 +2,6 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
-
 ## [3.0.3] - 2026-02-26
 
 ### Added
