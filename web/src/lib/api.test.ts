@@ -76,6 +76,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
       floating_position: 'bottom-right',
       bar_style: 'grouped',
       hide_sidebar_footer: false,
+      max_open_tabs: 0,
     },
     groups: [],
     apps: [],

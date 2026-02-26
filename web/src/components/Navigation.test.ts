@@ -118,6 +118,7 @@ function makeNav(overrides: Partial<NavigationConfig> = {}): NavigationConfig {
     floating_position: 'bottom-right',
     bar_style: 'flat',
     hide_sidebar_footer: false,
+    max_open_tabs: 0,
     ...overrides,
   };
 }

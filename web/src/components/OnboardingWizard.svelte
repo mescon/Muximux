@@ -404,7 +404,8 @@
       show_shadow: navShowShadow,
       floating_position: navFloatingPosition,
       bar_style: navBarStyle,
-      hide_sidebar_footer: navHideSidebarFooter
+      hide_sidebar_footer: navHideSidebarFooter,
+      max_open_tabs: 0
     },
     groups: previewGroups, apps: previewApps
   });
@@ -589,7 +590,8 @@
       show_shadow: navShowShadow,
       floating_position: navFloatingPosition,
       bar_style: navBarStyle,
-      hide_sidebar_footer: navHideSidebarFooter
+      hide_sidebar_footer: navHideSidebarFooter,
+      max_open_tabs: 0
     };
 
     // Capture current theme from stores

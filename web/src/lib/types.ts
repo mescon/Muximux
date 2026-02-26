@@ -63,6 +63,7 @@ export interface NavigationConfig {
   floating_position: 'bottom-right' | 'bottom-left' | 'top-right' | 'top-left';
   bar_style: 'grouped' | 'flat';
   hide_sidebar_footer: boolean;
+  max_open_tabs: number;
 }
 
 export interface HealthConfig {

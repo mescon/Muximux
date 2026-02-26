@@ -57,6 +57,7 @@ function makeConfig(overrides: Partial<Config['auth']> = {}): Config {
       bar_style: 'grouped',
       floating_position: 'bottom-right',
       hide_sidebar_footer: false,
+      max_open_tabs: 0,
     },
     groups: [],
     apps: [],

@@ -261,6 +261,26 @@
         </label>
       </div>
     {/if}
+
+    <div class="mt-4 pt-4" style="border-top: 1px solid var(--border-subtle);">
+      <label class="flex items-center gap-3">
+        <div class="flex-1">
+          <div class="text-sm font-medium" style="color: var(--text-primary);">Max open tabs</div>
+          <div class="text-xs" style="color: var(--text-muted);">Number of app tabs kept alive in memory. 0 = unlimited.</div>
+        </div>
+        <input
+          type="number"
+          min="0"
+          max="50"
+          value={localConfig.navigation.max_open_tabs}
+          onchange={(e) => {
+            localConfig.navigation.max_open_tabs = parseInt((e.currentTarget as HTMLInputElement).value) || 0;
+          }}
+          class="w-20 px-2 py-1 text-sm rounded-lg text-center"
+          style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default);"
+        />
+      </label>
+    </div>
   </div>
 
   <!-- Health Monitoring bulk actions -->

@@ -147,6 +147,7 @@ type NavigationConfig struct {
 	FloatingPosition   string  `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
 	BarStyle           string  `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
 	HideSidebarFooter  bool    `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
+	MaxOpenTabs        int     `yaml:"max_open_tabs" json:"max_open_tabs"`
 }
 
 // IconsConfig holds icon settings
