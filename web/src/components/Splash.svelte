@@ -30,20 +30,23 @@
     return acc;
   }, {} as Record<string, App[]>));
 
-  // Sort apps within groups and get group order
-  let groups = $derived.by(() => {
-    // Sort within groups
-    for (const group of Object.keys(groupedApps)) {
-      groupedApps[group].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  let sortedGroupedApps = $derived.by(() => {
+    const result: Record<string, App[]> = {};
+    for (const [group, appList] of Object.entries(groupedApps)) {
+      result[group] = [...appList].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
     }
-    return Object.keys(groupedApps).sort((a, b) => {
+    return result;
+  });
+
+  let groups = $derived(
+    Object.keys(sortedGroupedApps).sort((a, b) => {
       if (a === 'Ungrouped') return 1;
       if (b === 'Ungrouped') return -1;
       const groupA = config.groups.find(g => g.name === a);
       const groupB = config.groups.find(g => g.name === b);
       return (groupA?.order ?? 0) - (groupB?.order ?? 0);
-    });
-  });
+    })
+  );
 
   function getOpenModeIcon(mode: string): string {
     switch (mode) {
@@ -122,14 +125,14 @@
             </h2>
             <div class="flex-1 h-px" style="background: var(--border-subtle);"></div>
             <span class="text-xs tabular-nums" style="color: var(--text-disabled);">
-              {groupedApps[group].length} {groupedApps[group].length === 1 ? 'app' : 'apps'}
+              {sortedGroupedApps[group].length} {sortedGroupedApps[group].length === 1 ? 'app' : 'apps'}
             </span>
           </div>
         {/if}
 
         <!-- App cards grid -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-          {#each groupedApps[group] as app, appIndex (app.name)}
+          {#each sortedGroupedApps[group] as app, appIndex (app.name)}
             {@const displayKey = getDisplayKey(app)}
             <button
               class="app-card group opacity-0"

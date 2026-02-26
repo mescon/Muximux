@@ -208,6 +208,9 @@ async function applyTheme(theme: string) {
     await loadCustomThemeCSS(theme);
   }
 
+  // Enable smooth transitions for the theme switch
+  root.classList.add('theme-transitioning');
+
   // Set data-theme attribute
   root.dataset.theme = theme;
   debug('theme', 'applied', theme);
@@ -218,6 +221,9 @@ async function applyTheme(theme: string) {
   } else {
     root.classList.remove('dark');
   }
+
+  // Remove transition class after animations complete
+  setTimeout(() => root.classList.remove('theme-transitioning'), 200);
 }
 
 // --- Public API ---

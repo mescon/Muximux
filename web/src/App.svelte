@@ -190,7 +190,8 @@
 
     // Check if mobile viewport
     isMobile = isMobileViewport();
-    const handleResize = () => { isMobile = isMobileViewport(); };
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { isMobile = isMobileViewport(); }, 100); };
     window.addEventListener('resize', handleResize);
 
     // Auto-switch active split panel when the user clicks inside an iframe.

@@ -1,4 +1,4 @@
-import { writable, derived } from 'svelte/store';
+import { writable, derived, get } from 'svelte/store';
 import type { AppHealth, HealthStatus } from './api';
 import { fetchAllAppHealth } from './api';
 import { debug } from './debug';
@@ -58,14 +58,8 @@ export function stopHealthPolling(): void {
 
 // Get health status for a specific app
 export function getAppHealthStatus(appName: string): HealthStatus {
-  let status: HealthStatus = 'unknown';
-  healthData.subscribe((data) => {
-    const health = data.get(appName);
-    if (health) {
-      status = health.status;
-    }
-  })();
-  return status;
+  const health = get(healthData).get(appName);
+  return health?.status ?? 'unknown';
 }
 
 // Derived store for getting health by app name

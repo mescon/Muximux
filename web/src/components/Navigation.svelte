@@ -277,6 +277,7 @@
   // The expanded sidebar overlays the content instead of pushing it.
   let effectiveSidebarWidth = $derived((config.navigation.auto_hide || !config.navigation.show_labels) && !isMobile ? collapsedStripWidth : sidebarWidth);
   let mobileMenuOpen = $state(false);
+  let cachedPanelBorders = 0;
   let panelOpen = $state(false);
   let hasTouchSupport = $state(false);
 
@@ -360,7 +361,9 @@
 
     // Set up responsive listeners
     checkResponsive();
-    window.addEventListener('resize', checkResponsive);
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const debouncedResize = () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(() => { checkResponsive(); handleFabResize(); }, 100); };
+    window.addEventListener('resize', debouncedResize);
 
     // Detect touch support
     hasTouchSupport = isTouchDevice();
@@ -384,8 +387,6 @@
       fabX = coords.x; fabY = coords.y;
     }
     fabInitialized = true;
-    window.addEventListener('resize', handleFabResize);
-
     // Set up scroll fade ResizeObserver
     updateAllScrollFades();
     const scrollObserver = new ResizeObserver(updateAllScrollFades);
@@ -394,8 +395,7 @@
     if (floatScrollEl) scrollObserver.observe(floatScrollEl);
 
     return () => {
-      window.removeEventListener('resize', checkResponsive);
-      window.removeEventListener('resize', handleFabResize);
+      window.removeEventListener('resize', debouncedResize);
       document.removeEventListener('pointermove', handleResizeMove);
       document.removeEventListener('pointerup', handleResizeEnd);
       document.removeEventListener('pointercancel', handleResizeEnd);
@@ -417,6 +417,13 @@
   // Constrain floating panel scroll height when panel opens or FAB moves
   $effect(() => {
     void panelOpen; void fabX; void fabY;
+    if (panelOpen && floatScrollEl) {
+      const panel = floatScrollEl.closest('.floating-panel') as HTMLElement | null;
+      if (panel) {
+        const style = getComputedStyle(panel);
+        cachedPanelBorders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0);
+      }
+    }
     requestAnimationFrame(constrainFloatScroll);
   });
 
@@ -458,12 +465,27 @@
     if (!panel) return;
     const panelMaxH = parseFloat(panel.style.maxHeight);
     if (!panelMaxH || panelMaxH <= 0) { floatScrollEl.style.maxHeight = ''; return; }
-    const style = getComputedStyle(panel);
-    const borders = (parseFloat(style.borderTopWidth) || 0) + (parseFloat(style.borderBottomWidth) || 0);
     const footer = panel.lastElementChild as HTMLElement | null;
     const footerH = footer?.offsetHeight || 0;
-    const available = panelMaxH - borders - footerH;
+    const available = panelMaxH - cachedPanelBorders - footerH;
     floatScrollEl.style.maxHeight = available > 0 ? Math.floor(available) + 'px' : '';
+  }
+
+  // rAF-gated scroll handler — ensures updateScrollFade runs at most once per frame
+  let scrollRAF: Record<string, number> = {};
+  function throttledScrollFade(
+    key: string,
+    el: HTMLElement | null | undefined,
+    setUp: (v: boolean) => void,
+    setDown: (v: boolean) => void,
+    getUp: () => boolean,
+    getDown: () => boolean,
+  ) {
+    if (scrollRAF[key]) return;
+    scrollRAF[key] = requestAnimationFrame(() => {
+      updateScrollFade(el ?? null, setUp, setDown, getUp, getDown);
+      scrollRAF[key] = 0;
+    });
   }
 
   function getGroupConfig(name: string): Group | undefined {
@@ -803,7 +825,7 @@
         </button>
       {:else}
         <button
-          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-all"
+          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => onsplash?.()}
           title="Overview"
@@ -915,7 +937,7 @@
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
               <button
-                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1
+                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
                        {currentApp?.name === app.name
                          ? 'bg-bg-base text-text-primary'
                          : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
@@ -1066,7 +1088,7 @@
       <div class="border-b border-border flex items-center justify-center overflow-hidden"
            style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
         <button
-          class="p-2 rounded-md hover:bg-bg-hover transition-all"
+          class="p-2 rounded-md hover:bg-bg-hover transition-colors"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
           title="Overview"
@@ -1101,7 +1123,7 @@
       <div class="scroll-fade-top" class:visible={leftCanScrollUp}></div>
       <div bind:this={leftScrollEl}
            class="h-full overflow-y-auto overflow-x-hidden scrollbar-styled"
-           onscroll={() => updateScrollFade(leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown)}
+           onscroll={() => throttledScrollFade('left', leftScrollEl, v => leftCanScrollUp = v, v => leftCanScrollDown = v, () => leftCanScrollUp, () => leftCanScrollDown)}
            style="padding: 0.5rem {isCollapsed ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
@@ -1466,7 +1488,7 @@
       <div class="border-b border-border flex items-center justify-center overflow-hidden"
            style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
         <button
-          class="p-2 rounded-md hover:bg-bg-hover transition-all"
+          class="p-2 rounded-md hover:bg-bg-hover transition-colors"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
           title="Overview"
@@ -1501,7 +1523,7 @@
       <div class="scroll-fade-top" class:visible={rightCanScrollUp}></div>
       <div bind:this={rightScrollEl}
            class="h-full overflow-y-auto overflow-x-hidden scrollbar-styled"
-           onscroll={() => updateScrollFade(rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown)}
+           onscroll={() => throttledScrollFade('right', rightScrollEl, v => rightCanScrollUp = v, v => rightCanScrollDown = v, () => rightCanScrollUp, () => rightCanScrollDown)}
            style="padding: 0.5rem {isCollapsedRight ? '0' : '0.5rem'}; transition: padding 0.3s ease;">
       {#each groupNames as groupName (groupName)}
         {@const groupConfig = getGroupConfig(groupName)}
@@ -1865,7 +1887,7 @@
         </button>
       {:else}
         <button
-          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-all"
+          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
           style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
           onclick={() => onsplash?.()}
           title="Overview"
@@ -1976,7 +1998,7 @@
             {/if}
             {#each groupedApps[groupName] || [] as app (app.name)}
               <button
-                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-all whitespace-nowrap flex items-center gap-1
+                class="relative group flex-shrink-0 px-2 py-2 rounded-md text-sm font-medium transition-colors whitespace-nowrap flex items-center gap-1
                        {currentApp?.name === app.name
                          ? 'bg-bg-base text-text-primary'
                          : 'text-text-secondary hover:bg-bg-hover hover:text-text-primary'}
@@ -2121,7 +2143,7 @@
           <div class="scroll-fade-top" class:visible={floatCanScrollUp}></div>
           <div bind:this={floatScrollEl}
                class="overflow-y-auto scrollbar-styled flex flex-col"
-               onscroll={() => updateScrollFade(floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown)}
+               onscroll={() => throttledScrollFade('float', floatScrollEl, v => floatCanScrollUp = v, v => floatCanScrollDown = v, () => floatCanScrollUp, () => floatCanScrollDown)}
                style="padding: 0.5rem;">
           {#each groupNames as groupName (groupName)}
             {@const groupConfig = getGroupConfig(groupName)}
@@ -2210,7 +2232,7 @@
             </button>
           {:else}
             <button
-              class="p-1.5 rounded-md hover:bg-bg-hover transition-all"
+              class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
               style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
               onclick={() => { onsplash?.(); panelOpen = false; }}
               title="Overview"
@@ -2315,7 +2337,7 @@
     role="navigation"
   >
     <button
-      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-all"
+      class="p-4 bg-brand-600 hover:bg-brand-700 text-white rounded-full shadow-lg transition-colors"
       class:hover:scale-110={!isDraggingFab}
       style="
         opacity: {isCollapsedFloat && !panelOpen ? 0.5 : 1};
@@ -2348,24 +2370,21 @@
      style attribute replacement never removes the transition declaration */
   .sidebar-panel {
     transition: width 0.3s ease, box-shadow 0.3s ease;
-    will-change: width;
   }
 
   /* Top nav panel — clips content as height shrinks (like sidebar clips on width) */
   .top-nav-panel {
     transition: height 0.3s ease, box-shadow 0.3s ease;
-    will-change: height;
     overflow: hidden;
   }
 
   /* Bottom nav panel — clips content as height shrinks + glass effect */
   .bottom-nav-panel {
     transition: height 0.3s ease, box-shadow 0.3s ease;
-    will-change: height;
     overflow: hidden;
     background: var(--glass-bg) !important;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
 
   /* ═══════════════════════════════════════════════════════════════════════════

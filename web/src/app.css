@@ -320,21 +320,15 @@ h1, h2, h3, h4, h5, h6,
 
 /* ─────────────────────────────────────────────────────────────────────────────
    SMOOTH THEME TRANSITIONS
+   Only applied during theme changes (class toggled by themeStore.ts).
+   Interactive transitions (hover, focus) are handled by Tailwind utility
+   classes (transition-colors, transition-opacity, etc.) on each element.
    ───────────────────────────────────────────────────────────────────────────── */
-*,
-*::before,
-*::after {
-  transition-property: color, background-color, border-color, fill, stroke, box-shadow;
-  transition-duration: 150ms;
-  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-/* Disable transitions during theme switch to prevent flash */
-html.theme-switching,
-html.theme-switching *,
-html.theme-switching *::before,
-html.theme-switching *::after {
-  transition: none !important;
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition: color 150ms ease, background-color 150ms ease, border-color 150ms ease,
+              fill 150ms ease, stroke 150ms ease, box-shadow 150ms ease !important;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

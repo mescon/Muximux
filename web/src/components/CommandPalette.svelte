@@ -149,40 +149,50 @@
         .map(({ cmd }) => cmd)
     : allCommands);
 
-  // When no query: show Recent apps (up to 3), then remaining apps, then actions, then settings
-  // When query: flat filtered list grouped by type
-  const showRecentHeader = $derived(!query && recentAppNames.length > 0);
-  const recentCommands = $derived(showRecentHeader
-    ? filteredCommands.filter(c => c.type === 'app' && c.app && recentAppNames.includes(c.app.name)).slice(0, 3)
-    : []);
-  const otherAppCommands = $derived(showRecentHeader
-    ? filteredCommands.filter(c => c.type === 'app' && (!c.app || !recentAppNames.includes(c.app.name)))
-    : filteredCommands.filter(c => c.type === 'app'));
-  const actionCommands = $derived(filteredCommands.filter(c => c.type === 'action'));
-  const settingCommands = $derived(filteredCommands.filter(c => c.type === 'setting'));
+  // Single-pass grouping: recent apps, other apps, actions, settings
+  const commandGroups = $derived.by(() => {
+    const recent: Command[] = [];
+    const apps: Command[] = [];
+    const actions: Command[] = [];
+    const settings: Command[] = [];
 
-  const hasRecent = $derived(recentCommands.length > 0);
-  const hasApps = $derived(otherAppCommands.length > 0);
-  const hasActions = $derived(actionCommands.length > 0);
-  const hasSettings = $derived(settingCommands.length > 0);
-
-  // Global index mapping for keyboard navigation
-  const flatCommands = $derived([
-    ...recentCommands,
-    ...otherAppCommands,
-    ...actionCommands,
-    ...settingCommands,
-  ]);
-
-  // Reset selection when it exceeds bounds or query changes
-  $effect(() => {
-    if (selectedIndex >= flatCommands.length) {
-      selectedIndex = Math.max(0, flatCommands.length - 1);
+    if (!query && recentAppNames.length > 0) {
+      for (const cmd of filteredCommands) {
+        if (cmd.type === 'app' && cmd.app && recentAppNames.includes(cmd.app.name) && recent.length < 3) {
+          recent.push(cmd);
+        } else if (cmd.type === 'app') {
+          apps.push(cmd);
+        } else if (cmd.type === 'action') {
+          actions.push(cmd);
+        } else if (cmd.type === 'setting') {
+          settings.push(cmd);
+        }
+      }
+    } else {
+      for (const cmd of filteredCommands) {
+        if (cmd.type === 'app') apps.push(cmd);
+        else if (cmd.type === 'action') actions.push(cmd);
+        else if (cmd.type === 'setting') settings.push(cmd);
+      }
     }
+
+    return { recent, apps, actions, settings };
   });
 
+  const hasRecent = $derived(commandGroups.recent.length > 0);
+  const hasApps = $derived(commandGroups.apps.length > 0);
+  const hasActions = $derived(commandGroups.actions.length > 0);
+  const hasSettings = $derived(commandGroups.settings.length > 0);
+
+  const flatCommands = $derived([
+    ...commandGroups.recent,
+    ...commandGroups.apps,
+    ...commandGroups.actions,
+    ...commandGroups.settings,
+  ]);
+
+  // Reset selection when query changes
   $effect(() => {
-    // Reset selection when query changes
     query;
     selectedIndex = 0;
   });
@@ -399,7 +409,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Recent</span>
           </div>
           <ul class="pb-2">
-            {#each recentCommands as cmd (cmd.id)}
+            {#each commandGroups.recent as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
@@ -441,7 +451,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Apps</span>
           </div>
           <ul class="pb-2">
-            {#each otherAppCommands as cmd (cmd.id)}
+            {#each commandGroups.apps as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
@@ -483,7 +493,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Actions</span>
           </div>
           <ul class="pb-2">
-            {#each actionCommands as cmd (cmd.id)}
+            {#each commandGroups.actions as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
@@ -519,7 +529,7 @@
             <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Settings</span>
           </div>
           <ul class="pb-2">
-            {#each settingCommands as cmd (cmd.id)}
+            {#each commandGroups.settings as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
