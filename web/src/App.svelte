@@ -4,19 +4,14 @@
   import Navigation from './components/Navigation.svelte';
   import AppFrame from './components/AppFrame.svelte';
   import Splash from './components/Splash.svelte';
-  import Settings from './components/Settings.svelte';
-  import ShortcutsHelp from './components/ShortcutsHelp.svelte';
-  import CommandPalette from './components/CommandPalette.svelte';
   import Login from './components/Login.svelte';
-  import OnboardingWizard from './components/OnboardingWizard.svelte';
-  import Logs from './components/Logs.svelte';
   import { Toaster } from 'svelte-sonner';
   import ErrorState from './components/ErrorState.svelte';
   import { getEffectiveUrl, type App, type Config, type NavigationConfig, type Group, type ThemeConfig } from './lib/types';
   import { fetchConfig, saveConfig, submitSetup, fetchSystemInfo, slugify } from './lib/api';
   import { toasts } from './lib/toastStore';
   import { startHealthPolling, stopHealthPolling } from './lib/healthStore';
-  import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent } from './lib/websocketStore';
+  import { connect as connectWs, disconnect as disconnectWs, on as onWsEvent, connectionState } from './lib/websocketStore';
   import { initLogStore } from './lib/logStore';
   import { get } from 'svelte/store';
   import { checkAuthStatus, isAuthenticated, isAdmin, login, setupRequired } from './lib/authStore';
@@ -36,16 +31,67 @@
   let showSplash = $state(true);
   let showSettings = $state(false);
   let settingsInitialTab = $state<'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about'>('general');
-  let settingsRef = $state<Settings | undefined>(undefined);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- dynamic imports lose component typing
+  type LazyComponent = any;
+  let settingsRef = $state<LazyComponent>(undefined);
   let showShortcuts = $state(false);
   let showCommandPalette = $state(false);
   let showLogs = $state(false);
+
+  // Lazy-loaded components (code splitting)
+  let SettingsComponent = $state<LazyComponent>(null);
+  let ShortcutsHelpComponent = $state<LazyComponent>(null);
+  let CommandPaletteComponent = $state<LazyComponent>(null);
+  let OnboardingWizardComponent = $state<LazyComponent>(null);
+  let LogsComponent = $state<LazyComponent>(null);
+
+  async function loadSettings() {
+    if (!SettingsComponent) SettingsComponent = (await import('./components/Settings.svelte')).default;
+  }
+  async function loadShortcutsHelp() {
+    if (!ShortcutsHelpComponent) ShortcutsHelpComponent = (await import('./components/ShortcutsHelp.svelte')).default;
+  }
+  async function loadCommandPalette() {
+    if (!CommandPaletteComponent) CommandPaletteComponent = (await import('./components/CommandPalette.svelte')).default;
+  }
+  async function loadOnboardingWizard() {
+    if (!OnboardingWizardComponent) OnboardingWizardComponent = (await import('./components/OnboardingWizard.svelte')).default;
+  }
+  async function loadLogs() {
+    if (!LogsComponent) LogsComponent = (await import('./components/Logs.svelte')).default;
+  }
   let loading = $state(true);
   let error = $state<string | null>(null);
+
+  // WebSocket connection toast tracking
+  let unsubWs: (() => void) | null = null;
 
   // Iframe caching: track which apps the user has visited so their iframes stay alive
   let visitedAppNames = new SvelteSet<string>();
   let visitedApps = $derived(apps.filter(a => visitedAppNames.has(a.name)));
+
+  let visitedOrder: string[] = []; // LRU order — most recent at end
+
+  function trackVisit(appName: string) {
+    // Move to end of LRU list
+    visitedOrder = visitedOrder.filter(n => n !== appName);
+    visitedOrder.push(appName);
+    visitedAppNames.add(appName);
+
+    // Evict oldest if over limit
+    const limit = config?.navigation.max_open_tabs || 0;
+    if (limit > 0) {
+      while (visitedOrder.length > limit) {
+        const oldest = visitedOrder.shift()!;
+        // Don't evict currently visible apps (in any split panel)
+        if (splitState.panels[0]?.name === oldest || splitState.panels[1]?.name === oldest) {
+          visitedOrder.push(oldest); // Put back
+          break; // Can't evict without removing visible apps
+        }
+        visitedAppNames.delete(oldest);
+      }
+    }
+  }
 
   // Toast position adapts to navigation position to avoid overlay
   let toastPosition = $derived.by(() => {
@@ -188,6 +234,11 @@
     const faviconObserver = new MutationObserver(() => syncFaviconsWithTheme());
     faviconObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['style', 'data-theme', 'class'] });
 
+    // Register service worker for offline asset caching
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('./sw.js').catch(() => {});
+    }
+
     // Check if mobile viewport
     isMobile = isMobileViewport();
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -216,6 +267,7 @@
 
     // If setup is needed, go straight to unified wizard
     if (get(setupRequired)) {
+      await loadOnboardingWizard();
       showOnboarding = true;
       loading = false;
       return;
@@ -256,6 +308,7 @@
       // Show onboarding when no apps are configured
       if (apps.length === 0) {
         resetOnboarding();
+        await loadOnboardingWizard();
         showOnboarding = true;
         loading = false;
         return;
@@ -274,6 +327,19 @@
 
       showDefaultApp();
       startServices();
+
+      // Show toast notifications on WebSocket disconnect/reconnect
+      let wasConnected = false;
+      unsubWs = connectionState.subscribe((state) => {
+        if (state === 'connected') {
+          if (wasConnected) {
+            toasts.success('Connection restored');
+          }
+          wasConnected = true;
+        } else if (state === 'disconnected' && wasConnected) {
+          toasts.warning('Connection lost — reconnecting...');
+        }
+      });
 
       // Listen for config updates via WebSocket
       onWsEvent('config_updated', (payload) => {
@@ -317,6 +383,7 @@
   });
 
   onDestroy(() => {
+    unsubWs?.();
     stopHealthPolling();
     disconnectWs();
     document.removeEventListener('focus', handleIframeFocus, true);
@@ -374,6 +441,7 @@
     apps = [];
     resetSplit();
     visitedAppNames.clear();
+    visitedOrder = [];
     showSplash = true;
     showSettings = false;
   }
@@ -436,7 +504,7 @@
     } else if (app.open_mode === 'new_window') {
       window.open(url, app.name);
     } else {
-      visitedAppNames.add(app.name);
+      trackVisit(app.name);
       setPanelApp(app);
       showSplash = false;
       showLogs = false;
@@ -469,12 +537,14 @@
     clearHash();
   }
 
-  function openSettings() {
+  async function openSettings() {
+    await loadSettings();
     showSettings = true;
     history.replaceState(null, '', '#settings');
   }
 
-  function openLogs() {
+  async function openLogs() {
+    await loadLogs();
     showLogs = true;
     showSplash = false;
     resetSplit();
@@ -489,12 +559,11 @@
 
     // Reserved hashes
     if (hash === 'settings') {
-      if (get(isAdmin)) showSettings = true;
+      if (get(isAdmin)) loadSettings().then(() => showSettings = true);
       return true;
     }
     if (hash === 'logs') {
-      showLogs = true;
-      showSplash = false;
+      loadLogs().then(() => { showLogs = true; showSplash = false; });
       return true;
     }
     if (hash === 'overview') {
@@ -509,8 +578,8 @@
       const app1 = apps.find(a => slugify(a.name) === slug1);
       const app2 = apps.find(a => slugify(a.name) === slug2);
       if (app1 && app2 && !isMobile) {
-        visitedAppNames.add(app1.name);
-        visitedAppNames.add(app2.name);
+        trackVisit(app1.name);
+        trackVisit(app2.name);
         if (!splitState.enabled) enableSplit('horizontal');
         splitState.activePanel = 0;
         setPanelApp(app1);
@@ -521,7 +590,7 @@
         return true;
       }
       if (app1) {
-        visitedAppNames.add(app1.name);
+        trackVisit(app1.name);
         setPanelApp(app1);
         showSplash = false;
         showLogs = false;
@@ -593,7 +662,7 @@
         if (get(isAdmin)) openSettings();
         break;
       case 'shortcuts':
-        showShortcuts = true;
+        loadShortcutsHelp().then(() => showShortcuts = true);
         break;
       case 'fullscreen':
         toggleFullscreen();
@@ -670,13 +739,13 @@
     debug('keys', 'action', action);
     switch (action) {
       case 'search':
-        showCommandPalette = true;
+        loadCommandPalette().then(() => showCommandPalette = true);
         break;
       case 'settings':
         if ($isAdmin) { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }
         break;
       case 'shortcuts':
-        showShortcuts = !showShortcuts;
+        if (showShortcuts) { showShortcuts = false; } else { loadShortcutsHelp().then(() => showShortcuts = true); }
         break;
       case 'home':
         navigateHome();
@@ -738,8 +807,8 @@
       <p class="mt-4" style="color: var(--text-muted);">Loading Muximux...</p>
     </div>
   </div>
-{:else if $setupRequired || showOnboarding}
-  <OnboardingWizard
+{:else if ($setupRequired || showOnboarding) && OnboardingWizardComponent}
+  <OnboardingWizardComponent
     needsSetup={$setupRequired}
     oncomplete={handleOnboardingComplete}
   />
@@ -773,7 +842,7 @@
         {config}
         {showSplash}
         onselect={(app) => selectApp(app)}
-        onsearch={() => showCommandPalette = true}
+        onsearch={() => { loadCommandPalette().then(() => showCommandPalette = true); }}
         onsplash={() => { if (showSplash && splitState.panels[0]) { showSplash = false; } else { navigateHome(); } }}
         onsettings={() => { if (showSettings) { showSettings = false; if (splitState.panels[0]) updateHash(); else clearHash(); } else openSettings(); }}
         onlogs={() => { if (showLogs) { showLogs = false; showSplash = !splitState.panels[0]; if (splitState.panels[0]) updateHash(); else clearHash(); } else openLogs(); }}
@@ -800,8 +869,8 @@
     >
       {#if showSplash && !$isFullscreen}
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
-      {:else if showLogs}
-        <Logs onclose={() => { showLogs = false; showSplash = !splitState.panels[0]; if (location.hash === '#logs') { if (splitState.panels[0]) updateHash(); else clearHash(); } }} />
+      {:else if showLogs && LogsComponent}
+        <LogsComponent onclose={() => { showLogs = false; showSplash = !splitState.panels[0]; if (location.hash === '#logs') { if (splitState.panels[0]) updateHash(); else clearHash(); } }} />
       {:else if $isFullscreen && !currentApp}
         <Splash {apps} {config} onselect={(app) => selectApp(app)} onsettings={$isAdmin ? () => openSettings() : undefined} onabout={() => { settingsInitialTab = 'about'; openSettings(); }} />
       {/if}
@@ -905,28 +974,28 @@
   </div>
 
   <!-- Settings panel -->
-  {#if showSettings}
-    <Settings
+  {#if showSettings && SettingsComponent}
+    <SettingsComponent
       bind:this={settingsRef}
       {config}
       {apps}
       initialTab={settingsInitialTab}
       onclose={() => { showSettings = false; settingsInitialTab = 'general'; if (location.hash === '#settings') { if (splitState.panels[0]) updateHash(); else clearHash(); } }}
-      onsave={(newConfig) => handleSaveConfig(newConfig)}
+      onsave={(newConfig: Config) => handleSaveConfig(newConfig)}
     />
   {/if}
 
   <!-- Keyboard shortcuts help -->
-  {#if showShortcuts}
-    <ShortcutsHelp onclose={() => showShortcuts = false} />
+  {#if showShortcuts && ShortcutsHelpComponent}
+    <ShortcutsHelpComponent onclose={() => showShortcuts = false} />
   {/if}
 
   <!-- Command palette -->
-  {#if showCommandPalette}
-    <CommandPalette
+  {#if showCommandPalette && CommandPaletteComponent}
+    <CommandPaletteComponent
       {apps}
-      onselect={(app) => { selectApp(app); showCommandPalette = false; }}
-      onaction={(actionId) => handleCommandAction(actionId)}
+      onselect={(app: App) => { selectApp(app); showCommandPalette = false; }}
+      onaction={(actionId: string) => handleCommandAction(actionId)}
       onclose={() => showCommandPalette = false}
     />
   {/if}
