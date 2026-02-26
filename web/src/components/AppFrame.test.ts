@@ -332,13 +332,17 @@ describe('AppFrame', () => {
   });
 
   describe('pull-to-refresh (mobile)', () => {
-    it('does not show pull indicator on desktop', () => {
+    it('does not show pull indicator on desktop', async () => {
       mockIsMobileViewport.mockReturnValue(false);
       mockIsTouchDevice.mockReturnValue(false);
 
       const { container } = render(AppFrame, {
         props: { app: makeApp() },
       });
+
+      // Simulate iframe load to clear loading spinner
+      const iframe = container.querySelector('iframe')!;
+      await fireEvent.load(iframe);
 
       // Pull indicator should not be visible
       expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
@@ -351,6 +355,10 @@ describe('AppFrame', () => {
       const { container } = render(AppFrame, {
         props: { app: makeApp() },
       });
+
+      // Simulate iframe load to clear loading spinner
+      const iframe = container.querySelector('iframe')!;
+      await fireEvent.load(iframe);
 
       const appContainer = container.querySelector('[role="application"]')!;
 
