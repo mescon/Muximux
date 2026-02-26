@@ -275,6 +275,7 @@ var defaultBypassRules = []auth.BypassRule{
 	{Path: "/assets/*"},
 	{Path: "/themes/*"},
 	{Path: "/manifest.json"},
+	{Path: "/sw.js"},
 	{Path: "/favicon.ico"},
 	{Path: "/favicon-16x16.png"},
 	{Path: "/favicon-32x32.png"},
