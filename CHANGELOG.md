@@ -5,16 +5,15 @@ All notable changes to Muximux are documented in this file.
 ## [3.0.4] - 2026-02-27
 
 ### Changed
-- Service worker cache is now version-aware -- each deployment uses a distinct cache key, so old cached assets are cleaned up automatically instead of relying on `skipWaiting` alone
-- `base_path` injection now works in dev mode, matching production behavior
+- Service worker cache now updates automatically on each deployment -- previously, stale cached assets could persist until a hard refresh
 
 ### Fixed
-- Content Security Policy no longer blocks inline scripts in proxied apps -- CSP and X-Frame-Options are skipped for `/proxy/` responses so embedded apps render correctly
-- Inline base-path script is now allowed via a CSP `sha256` hash instead of being blocked by `script-src 'self'`
-- Proxy path resolution no longer corrupts URLs that contain the proxy prefix as a substring (e.g. `/proxy/application/` inside an app named `app`)
+- Proxied apps (like Pi-hole) no longer break due to Muximux's Content Security Policy blocking their inline scripts and styles
+- Apps configured with `base_path` no longer trigger CSP violations on page load
+- Rare proxy routing bug where an app named "app" could corrupt URLs containing `/proxy/application/` or similar substrings
 
 ### Security
-- Bump `golang.org/x/net` to v0.51.0 -- fixes CVE-2026-27141 (server panic from malformed HTTP/2 frames)
+- Bump `golang.org/x/net` to v0.51.0 -- fixes a denial-of-service vulnerability where malformed HTTP/2 frames could crash the server (CVE-2026-27141)
 - Bump Svelte 5.53.3 → 5.53.5, Rollup 4.57.1 → 4.59.0
 
 ## [3.0.3] - 2026-02-26
