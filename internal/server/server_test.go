@@ -463,7 +463,7 @@ func TestSPAHandlerDev(t *testing.T) {
 	tmpDir := t.TempDir()
 	indexPath := tmpDir + "/index.html"
 	cssPath := tmpDir + "/style.css"
-	if err := os.WriteFile(indexPath, []byte("<html>SPA</html>"), 0600); err != nil {
+	if err := os.WriteFile(indexPath, []byte("<html><head></head><body>SPA</body></html>"), 0600); err != nil {
 		t.Fatal(err)
 	}
 	if err := os.WriteFile(cssPath, []byte("body{}"), 0600); err != nil {
@@ -471,7 +471,7 @@ func TestSPAHandlerDev(t *testing.T) {
 	}
 
 	fileServer := http.FileServer(http.Dir(tmpDir))
-	handler := spaHandlerDev(fileServer, tmpDir, "index.html")
+	handler, _ := spaHandlerDev(fileServer, tmpDir, "")
 
 	t.Run("root serves index.html", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/", nil)
@@ -539,6 +539,27 @@ func TestSPAHandlerDev(t *testing.T) {
 		handler.ServeHTTP(rec, req)
 		if rec.Code == http.StatusOK && strings.Contains(rec.Body.String(), "SPA") {
 			t.Error("icons paths should not serve SPA index")
+		}
+	})
+
+	t.Run("base path injection", func(t *testing.T) {
+		handler2, hash := spaHandlerDev(fileServer, tmpDir, "/app")
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		rec := httptest.NewRecorder()
+		handler2.ServeHTTP(rec, req)
+		body := rec.Body.String()
+		if !strings.Contains(body, `window.__MUXIMUX_BASE__="/app"`) {
+			t.Errorf("expected base path injection, got: %s", body)
+		}
+		if hash == "" || !strings.HasPrefix(hash, "'sha256-") {
+			t.Errorf("expected CSP hash, got: %s", hash)
+		}
+	})
+
+	t.Run("no injection without base path", func(t *testing.T) {
+		_, hash := spaHandlerDev(fileServer, tmpDir, "")
+		if hash != "" {
+			t.Errorf("expected empty hash without base path, got: %s", hash)
 		}
 	})
 }
@@ -663,6 +684,40 @@ func TestSPAHandlerEmbed_MissingIndex(t *testing.T) {
 
 	if handler == nil {
 		t.Fatal("expected non-nil handler even with missing index")
+	}
+}
+
+// --- handleServiceWorker ---
+
+func TestHandleServiceWorker(t *testing.T) {
+	swContent := `const CACHE_NAME = 'muximux-v1';`
+	testFS := fstest.MapFS{
+		"sw.js": &fstest.MapFile{Data: []byte(swContent)},
+	}
+
+	s := &Server{version: "3.0.4", commit: "abcdef1234567890"}
+	handler := s.handleServiceWorker(testFS)
+
+	req := httptest.NewRequest(http.MethodGet, "/sw.js", nil)
+	rec := httptest.NewRecorder()
+	handler(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Errorf("expected 200, got %d", rec.Code)
+	}
+
+	body := rec.Body.String()
+	if strings.Contains(body, "muximux-v1") {
+		t.Error("sw.js should not contain the placeholder cache name")
+	}
+	if !strings.Contains(body, "muximux-3.0.4-abcdef12") {
+		t.Errorf("sw.js should contain version-aware cache name, got: %s", body)
+	}
+	if rec.Header().Get("Content-Type") != "application/javascript; charset=utf-8" {
+		t.Errorf("wrong content type: %s", rec.Header().Get("Content-Type"))
+	}
+	if rec.Header().Get("Cache-Control") != "no-cache" {
+		t.Errorf("sw.js should have no-cache: %s", rec.Header().Get("Cache-Control"))
 	}
 }
 

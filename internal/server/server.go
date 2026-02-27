@@ -227,12 +227,13 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	if distErr != nil {
 		// Fallback to serving from web/dist during development
 		fileServer := http.FileServer(http.Dir("web/dist"))
-		staticHandler = spaHandlerDev(fileServer, "web/dist", "index.html")
+		staticHandler, inlineScriptHash = spaHandlerDev(fileServer, "web/dist", cfg.Server.NormalizedBasePath())
 	} else {
-		var scriptHash string
-		staticHandler, scriptHash = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, cfg.Server.NormalizedBasePath())
-		inlineScriptHash = scriptHash
+		staticHandler, inlineScriptHash = spaHandlerEmbed(http.FileServer(http.FS(distFS)), distFS, cfg.Server.NormalizedBasePath())
 	}
+
+	// Serve sw.js with version-aware cache name so deployments bust the cache.
+	mux.HandleFunc("/sw.js", s.handleServiceWorker(distFS))
 
 	// Serve static files with SPA fallback
 	mux.Handle("/", staticHandler)
@@ -996,15 +997,76 @@ func isSPARoute(path string) bool {
 		!strings.HasPrefix(path, "/icons/")
 }
 
-// spaHandlerDev wraps a file server for development (filesystem-based)
-func spaHandlerDev(fileServer http.Handler, distDir string, indexPath string) http.Handler {
+// handleServiceWorker serves sw.js with the app version baked into the cache name,
+// so each deployment uses a distinct cache and the activate handler cleans old ones.
+func (s *Server) handleServiceWorker(distFS fs.FS) http.HandlerFunc {
+	cacheVersion := s.version
+	if s.commit != "" {
+		cacheVersion += "-" + s.commit[:min(8, len(s.commit))]
+	}
+
+	// Read sw.js from embedded FS (production) or dev fallback
+	var swContent []byte
+	if distFS != nil {
+		swContent, _ = fs.ReadFile(distFS, "sw.js")
+	}
+	if swContent == nil {
+		swContent, _ = os.ReadFile("web/dist/sw.js")
+	}
+	if swContent == nil {
+		swContent, _ = os.ReadFile("web/public/sw.js")
+	}
+
+	if swContent != nil {
+		swContent = bytes.Replace(swContent, []byte("muximux-v1"), []byte("muximux-"+cacheVersion), 1)
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		if swContent == nil {
+			http.NotFound(w, r)
+			return
+		}
+		w.Header().Set(headerContentType, "application/javascript; charset=utf-8")
+		w.Header().Set("Cache-Control", "no-cache")
+		w.Write(swContent)
+	}
+}
+
+// spaHandlerDev wraps a file server for development (filesystem-based).
+// Like spaHandlerEmbed, it injects the base path script and returns its CSP hash.
+func spaHandlerDev(fileServer http.Handler, distDir, basePath string) (http.Handler, string) {
+	indexFile := filepath.Join(distDir, "index.html")
+
+	var injection []byte
+	var scriptHash string
+	if basePath != "" {
+		scriptBody := fmt.Sprintf(`window.__MUXIMUX_BASE__=%q;`, basePath)
+		injection = []byte(fmt.Sprintf(`<script>%s</script></head>`, scriptBody))
+		h := sha256.Sum256([]byte(scriptBody))
+		scriptHash = "'sha256-" + base64.StdEncoding.EncodeToString(h[:]) + "'"
+	}
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if isSPARoute(r.URL.Path) {
-			http.ServeFile(w, r, filepath.Join(distDir, indexPath))
+			if injection == nil {
+				http.ServeFile(w, r, indexFile)
+				return
+			}
+			// Read, inject, and serve the modified index on each request
+			// so dev changes to the file are picked up immediately.
+			content, err := os.ReadFile(indexFile)
+			if err != nil {
+				http.ServeFile(w, r, indexFile)
+				return
+			}
+			content = bytes.Replace(content, []byte("</head>"), injection, 1)
+			w.Header().Set(headerContentType, "text/html; charset=utf-8")
+			w.Header().Set("Cache-Control", "no-cache")
+			w.Write(content)
 			return
 		}
 		fileServer.ServeHTTP(w, r)
-	})
+	}), scriptHash
 }
 
 // spaHandlerEmbed wraps a file server for embedded files.
