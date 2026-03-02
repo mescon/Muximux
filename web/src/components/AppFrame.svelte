@@ -125,7 +125,7 @@
 
 <div
   bind:this={containerRef}
-  class="w-full h-full overflow-hidden bg-white relative"
+  class="w-full h-full overflow-hidden bg-[var(--bg-base)] relative"
   role="application"
   in:fade={{ duration: 150, delay: 50 }}
   ontouchstart={handleTouchStart}

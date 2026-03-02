@@ -256,8 +256,8 @@ cd web && npm run build && cd ..
 # Build binary (embeds frontend)
 go build -tags embed_web -o muximux ./cmd/muximux
 
-# With version info
-go build -tags embed_web -ldflags "-X main.version=3.0.0" -o muximux ./cmd/muximux
+# With version info (uses latest git tag)
+go build -tags embed_web -ldflags "-X main.version=$(git describe --tags --abbrev=0)" -o muximux ./cmd/muximux
 ```
 
 ---

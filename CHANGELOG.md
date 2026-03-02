@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.5] - 2026-03-03
+
+### Fixed
+- White flash when switching between app iframes on dark themes -- iframe container now uses theme background instead of hardcoded white
+
 ## [3.0.4] - 2026-02-27
 
 ### Changed

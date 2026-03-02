@@ -305,12 +305,12 @@ describe('AppFrame', () => {
   });
 
   describe('container styling', () => {
-    it('has bg-white class on the container', () => {
+    it('has theme-aware background on the container', () => {
       const { container } = render(AppFrame, {
         props: { app: makeApp() },
       });
       const appContainer = container.querySelector('[role="application"]');
-      expect(appContainer?.classList.contains('bg-white')).toBe(true);
+      expect(appContainer?.classList.contains('bg-[var(--bg-base)]')).toBe(true);
     });
 
     it('has w-full and h-full classes on the container', () => {
