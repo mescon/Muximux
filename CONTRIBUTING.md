@@ -2,6 +2,10 @@
 
 Thank you for considering contributing to Muximux! This guide covers development setup, building, testing, and the PR process.
 
+## Development Tooling
+
+The primary development environment for Muximux is Claude Code (Opus 4.6) with MCP servers for browser automation, GitHub integration, and validation. All code is reviewed, tested, and committed by the maintainer - AI output is treated the same way as any other pull request. Contributors are welcome to use whatever tools they prefer.
+
 ## Prerequisites
 
 - **Go** 1.26+ (check with `go version`)

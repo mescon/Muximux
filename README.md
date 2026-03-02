@@ -221,7 +221,17 @@ For the full configuration reference, authentication options, TLS setup, and mor
 
 ---
 
+## Project Philosophy
+
+Muximux aims to be a solid, focused piece of software. The goal is a homelab dashboard that does its job well - not a monitoring suite, not a system management tool, not a kitchen sink. Features are evaluated by whether they serve the core purpose: giving you a single page to access and organize your self-hosted apps.
+
+Suggestions and ideas are always welcome. Not everything will make it in, but that's by design - quality over quantity, and the project is better for it.
+
 ## Development
+
+Muximux is developed using Claude Code (Opus 4.6) with MCP servers for browser automation (Playwright), GitHub integration, and other validation tools. It's a heavily AI-assisted workflow, but all code is reviewed, tested, and committed by the sole maintainer. AI output is treated the same way as a pull request from a contributor - nothing ships without understanding and approval.
+
+Every push goes through CI with 86%+ backend and 87%+ frontend test coverage, golangci-lint, ESLint, `svelte-check`, CodeQL analysis, Snyk vulnerability scanning (Go, Node, Docker), govulncheck, SonarCloud quality gates, and a pre-push hook that blocks pushes below coverage thresholds. The security model is designed against [OWASP ASVS Level 2](docs/wiki/security.md).
 
 ```bash
 git clone https://github.com/mescon/Muximux.git
