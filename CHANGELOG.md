@@ -7,6 +7,11 @@ All notable changes to Muximux are documented in this file.
 ### Fixed
 - Proxied apps that access `window.parent` (e.g. qBittorrent's MochaUI/MooTools) no longer crash by calling methods on the Muximux host window -- the proxy interceptor now overrides `window.parent` and `window.top` so embedded apps behave as if running in a standalone tab
 - Service worker no longer attempts to cache cross-origin requests
+- Settings group editor no longer crashes after Svelte 5.53.7 effect scheduling changes
+
+### Security
+- Bump Svelte 5.53.5 → 5.53.7, svelte-check 4.4.2 → 4.4.4, svelte-sonner 1.0.5 → 1.0.8, globals 16.0.0 → 17.4.0
+- Bump CI actions: actions/download-artifact v7 → v8, actions/setup-go 6.2.0 → 6.3.0, actions/setup-node 6.2.0 → 6.3.0, docker/setup-qemu-action 3.7.0 → 4.0.0, docker/login-action 3.7.0 → 4.0.0
 
 ## [3.0.5] - 2026-03-03
 
