@@ -1979,3 +1979,25 @@ func TestStripIntegrity(t *testing.T) {
 		})
 	}
 }
+
+func TestInterceptorScriptIframeIsolation(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	script := string(rewriter.interceptorScript())
+
+	// The interceptor must override window.parent and window.top so proxied
+	// apps cannot detect they are embedded in an iframe.
+	if !strings.Contains(script, `Object.defineProperty(window,"parent"`) {
+		t.Error("interceptor script should override window.parent")
+	}
+	if !strings.Contains(script, `Object.defineProperty(window,"top"`) {
+		t.Error("interceptor script should override window.top")
+	}
+
+	// The overrides must appear before the proxy prefix variable declaration,
+	// ensuring they run before any other interceptor code or app scripts.
+	parentIdx := strings.Index(script, `Object.defineProperty(window,"parent"`)
+	prefixIdx := strings.Index(script, `var P="`)
+	if parentIdx == -1 || prefixIdx == -1 || parentIdx > prefixIdx {
+		t.Error("window.parent override must appear before proxy prefix declaration")
+	}
+}

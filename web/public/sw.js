@@ -27,8 +27,9 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
-  // Skip non-GET, API calls, WebSocket upgrades, and proxy routes
+  // Skip non-GET, cross-origin, API calls, WebSocket upgrades, and proxy routes
   if (event.request.method !== 'GET') return;
+  if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/ws') || url.pathname.startsWith('/proxy/')) return;
 
   // Cache-first for static assets (hashed filenames)

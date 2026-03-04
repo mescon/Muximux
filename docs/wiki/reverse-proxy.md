@@ -61,6 +61,7 @@ For single-page applications (SPAs) that build URLs dynamically in JavaScript, s
 - **`WebSocket` and `EventSource`** — Real-time connections are routed through the proxy
 - **`img.src`, `script.src`, `video.poster`**, etc. — DOM property setters are overridden so the browser never requests the wrong URL
 - **`MutationObserver` fallback** — Catches elements created via `innerHTML` or HTML parsing where property setters don't fire
+- **`window.parent` and `window.top` isolation** — Overridden to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. This prevents libraries like MooTools/MochaUI (used by qBittorrent) from calling methods on the Muximux host window.
 
 This means apps like **Plex**, which construct all their image and API URLs in JavaScript at runtime, work through the proxy without needing any configuration in the app itself.
 
@@ -238,6 +239,8 @@ A small `<script>` tag injected into every HTML response patches browser APIs be
 | `HTMLSourceElement.src` | Property setter override on the prototype |
 | `HTMLMediaElement.src` | Property setter override on the prototype |
 | `HTMLVideoElement.poster` | Property setter override on the prototype |
+| `window.parent` | `Object.defineProperty` override to `window` |
+| `window.top` | `Object.defineProperty` override to `window` |
 
 Property setter overrides are **synchronous** — when the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. This preserves the app's normal event chain (load events, animations, etc.) because the image loads from the correct URL on the first try.
 

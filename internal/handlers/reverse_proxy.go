@@ -697,10 +697,19 @@ func rewriteLinkHeaders(resp *http.Response, proxyPrefix string) {
 // URLs through the proxy prefix. Property setters (img.src, etc.) provide synchronous
 // rewriting so the browser never sees the wrong URL, preserving normal event chains
 // and animations. A MutationObserver serves as fallback for innerHTML/parser cases.
+// It also overrides window.parent and window.top to point back to the iframe's own
+// window, so proxied apps cannot detect they are embedded and their libraries
+// (e.g. MooTools/MochaUI) do not call methods on the Muximux host window.
 func (r *contentRewriter) interceptorScript() []byte {
 	// The proxy prefix is derived from slugified app names (alphanumeric + hyphens),
 	// so it's safe to embed directly in a JavaScript string literal.
 	return []byte(`<script data-muximux-proxy>(function(){` +
+		// Override window.parent/top so the proxied app thinks it is top-level.
+		// Uses Object.defineProperty because these are read-only accessors.
+		`try{if(window.parent!==window){` +
+		`Object.defineProperty(window,"parent",{value:window,configurable:true});` +
+		`Object.defineProperty(window,"top",{value:window,configurable:true})` +
+		`}}catch(e){}` +
 		`var P="` + r.proxyPrefix + `";` +
 		// R(u) rewrites root-relative and same-origin absolute URLs to go through the proxy
 		`function R(u){` +

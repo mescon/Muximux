@@ -2,6 +2,12 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.6] - 2026-03-04
+
+### Fixed
+- Proxied apps that access `window.parent` (e.g. qBittorrent's MochaUI/MooTools) no longer crash by calling methods on the Muximux host window -- the proxy interceptor now overrides `window.parent` and `window.top` so embedded apps behave as if running in a standalone tab
+- Service worker no longer attempts to cache cross-origin requests
+
 ## [3.0.5] - 2026-03-03
 
 ### Fixed
