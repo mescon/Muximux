@@ -23,10 +23,10 @@
     "@vitest/coverage-v8": "^4.0.18",
     "eslint": "^10.0.2",
     "eslint-plugin-svelte": "^3.15.0",
-    "globals": "^17.3.0",
+    "globals": "^17.4.0",
     "jsdom": "^28.1.0",
-    "svelte": "^5.53.5",
-    "svelte-check": "^4.4.3",
+    "svelte": "^5.53.7",
+    "svelte-check": "^4.4.4",
     "tailwindcss": "^4.1.18",
     "tslib": "^2.6.0",
     "typescript": "^5.3.0",
@@ -37,7 +37,7 @@
   "dependencies": {
     "marked": "^17.0.3",
     "svelte-dnd-action": "^0.9.69",
-    "svelte-sonner": "^1.0.7",
+    "svelte-sonner": "^1.0.8",
     "zod": "^4.3.6"
   }
 }
