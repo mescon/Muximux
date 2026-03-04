@@ -271,3 +271,7 @@ GPL v2 - see [LICENSE](LICENSE) for details.
 - [Lucide Icons](https://lucide.dev/) for the icon library
 - [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) by Homarr Labs
 - [Caddy](https://caddyserver.com/) for embedded TLS and gateway support
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/image?repos=mescon/Muximux&type=date&legend=top-left)](https://www.star-history.com/?repos=mescon%2FMuximux&type=date&legend=bottom-right)
