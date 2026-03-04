@@ -924,7 +924,7 @@
               </p>
             </div>
           </div>
-          {#if editingGroup.icon?.type === 'lucide'}
+          {#if editingGroup?.icon?.type === 'lucide'}
             <div class="flex items-center gap-4 mt-2">
               <label class="flex items-center gap-2 text-xs text-text-muted">
                 Icon color
