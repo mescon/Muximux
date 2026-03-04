@@ -97,7 +97,7 @@ var projectLinks = SystemLinks{
 // GetInfo returns system information.
 func (h *SystemHandler) GetInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -117,14 +117,13 @@ func (h *SystemHandler) GetInfo(w http.ResponseWriter, r *http.Request) {
 		Links:       projectLinks,
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(resp)
+	sendJSON(w, http.StatusOK, resp)
 }
 
 // CheckUpdate checks GitHub for the latest release.
 func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -133,7 +132,7 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 
 	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, apiURL, nil)
 	if err != nil {
-		http.Error(w, "Failed to create request", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to create request")
 		return
 	}
 	req.Header.Set("User-Agent", "Muximux/"+h.version)
@@ -141,18 +140,15 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 
 	ghResp, err := client.Do(req)
 	if err != nil {
-		logging.Warn("Update check failed", "source", "system", "error", err)
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to check for updates: " + err.Error()})
+		logging.From(r.Context()).Warn("Update check failed", "source", "system", "error", err)
+		sendJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Failed to check for updates: " + err.Error()})
 		return
 	}
 	defer ghResp.Body.Close()
 
 	if ghResp.StatusCode == http.StatusNotFound {
 		// No releases yet
-		w.Header().Set(headerContentType, contentTypeJSON)
-		json.NewEncoder(w).Encode(UpdateCheckResponse{
+		sendJSON(w, http.StatusOK, UpdateCheckResponse{
 			CurrentVersion:  h.version,
 			LatestVersion:   h.version,
 			UpdateAvailable: false,
@@ -163,15 +159,13 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 
 	if ghResp.StatusCode != http.StatusOK {
 		body, _ := io.ReadAll(io.LimitReader(ghResp.Body, 1024))
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("GitHub API error %d: %s", ghResp.StatusCode, string(body))})
+		sendJSON(w, http.StatusServiceUnavailable, map[string]string{"error": fmt.Sprintf("GitHub API error %d: %s", ghResp.StatusCode, string(body))})
 		return
 	}
 
 	var release gitHubRelease
 	if err := json.NewDecoder(ghResp.Body).Decode(&release); err != nil {
-		http.Error(w, "Failed to parse GitHub response", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to parse GitHub response")
 		return
 	}
 
@@ -190,13 +184,12 @@ func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if updateAvailable {
-		logging.Info("Update available", "source", "system", "current", h.version, "latest", latestVersion)
+		logging.From(r.Context()).Info("Update available", "source", "system", "current", h.version, "latest", latestVersion)
 	} else {
-		logging.Debug("Update check: up to date", "source", "system", "version", h.version)
+		logging.From(r.Context()).Debug("Update check: up to date", "source", "system", "version", h.version)
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(resp)
+	sendJSON(w, http.StatusOK, resp)
 }
 
 // detectEnvironment returns "docker" if running inside a container, "native" otherwise.

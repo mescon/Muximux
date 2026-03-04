@@ -3,8 +3,10 @@ package server
 import (
 	"bytes"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -14,6 +16,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime/debug"
 	"strconv"
 	"strings"
 	"sync"
@@ -329,21 +332,7 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 
 // setupOIDC configures and returns the OIDC provider.
 func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *auth.UserStore) *auth.OIDCProvider {
-	oidcConfig := auth.OIDCConfig{
-		Enabled:          cfg.Auth.OIDC.Enabled,
-		IssuerURL:        cfg.Auth.OIDC.IssuerURL,
-		ClientID:         cfg.Auth.OIDC.ClientID,
-		ClientSecret:     cfg.Auth.OIDC.ClientSecret,
-		RedirectURL:      cfg.Auth.OIDC.RedirectURL,
-		Scopes:           cfg.Auth.OIDC.Scopes,
-		UsernameClaim:    cfg.Auth.OIDC.UsernameClaim,
-		EmailClaim:       cfg.Auth.OIDC.EmailClaim,
-		GroupsClaim:      cfg.Auth.OIDC.GroupsClaim,
-		DisplayNameClaim: cfg.Auth.OIDC.DisplayNameClaim,
-		AdminGroups:      cfg.Auth.OIDC.AdminGroups,
-		BasePath:         cfg.Server.NormalizedBasePath(),
-	}
-	return auth.NewOIDCProvider(&oidcConfig, sessionStore, userStore)
+	return auth.NewOIDCProvider(&cfg.Auth.OIDC, cfg.Server.NormalizedBasePath(), sessionStore, userStore)
 }
 
 // registerAuthRoutes registers authentication and WebSocket endpoints.
@@ -622,13 +611,16 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 
 // wrapMiddleware applies auth and security middleware around the mux.
 func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.Middleware, inlineScriptHash string) http.Handler {
-	// Always apply RequireAuth — it injects a virtual admin when auth is
-	// "none", which downstream adminGuard checks rely on.
+	// Build middleware chain from innermost to outermost.
+	// Final order: panicRecovery → requestID → requestLogging → bodySize →
+	// securityHeaders → csrf → auth → mux
 	handler := authMiddleware.RequireAuth(mux)
-	// Wrap with security middleware (outermost = runs first)
-	handler = securityHeadersMiddleware(handler, inlineScriptHash)
 	handler = csrfMiddleware(handler)
+	handler = securityHeadersMiddleware(handler, inlineScriptHash)
 	handler = bodySizeLimitMiddleware(handler)
+	handler = requestLoggingMiddleware(handler)
+	handler = requestIDMiddleware(handler)
+	handler = panicRecoveryMiddleware(handler)
 	return handler
 }
 
@@ -640,7 +632,7 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 			return
 		}
 
-		logging.Debug("API blocked: setup not complete", "source", "server", "path", r.URL.Path)
+		logging.From(r.Context()).Debug("API blocked: setup not complete", "source", "server", "path", r.URL.Path)
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusServiceUnavailable)
 		json.NewEncoder(w).Encode(map[string]string{"error": "setup_required"})
@@ -734,14 +726,14 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.config.Auth.SetupComplete = true
 		return s.config.Save(s.configPath)
 	}(); err != nil {
-		logging.Error("Failed to save config after setup", "source", "server", "error", err)
+		logging.From(r.Context()).Error("Failed to save config after setup", "source", "server", "error", err)
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
 		return
 	}
 
-	logging.Info("Setup completed", "source", "config", "method", req.Method)
+	logging.From(r.Context()).Info("Setup completed", "source", "config", "method", req.Method)
 
 	s.needsSetup.Store(false)
 
@@ -796,14 +788,14 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	s.configMu.Unlock()
 
 	if err != nil {
-		logging.Error("Failed to save restored config", "source", "config", "error", err)
+		logging.From(r.Context()).Error("Failed to save restored config", "source", "config", "error", err)
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
 		return
 	}
 
-	logging.Info("Config restored from backup", "source", "config", "apps", len(cfg.Apps), "groups", len(cfg.Groups))
+	logging.From(r.Context()).Info("Config restored from backup", "source", "config", "apps", len(cfg.Apps), "groups", len(cfg.Groups))
 	s.needsSetup.Store(false)
 
 	setJSONContentType(w)
@@ -1133,6 +1125,112 @@ func parseDuration(s string, defaultVal time.Duration) time.Duration {
 	return defaultVal
 }
 
+// panicRecoveryMiddleware catches panics in downstream handlers, logs them,
+// and returns a 500 response instead of crashing the server.
+func panicRecoveryMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		defer func() {
+			if rec := recover(); rec != nil {
+				logging.From(r.Context()).Error("Panic recovered",
+					"source", "server",
+					"panic", rec,
+					"stack", string(debug.Stack()),
+					"method", r.Method,
+					"path", r.URL.Path,
+				)
+				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+			}
+		}()
+		next.ServeHTTP(w, r)
+	})
+}
+
+// requestIDMiddleware generates a short random request ID, stores it in context
+// via logging.SetRequestID, and sets the X-Request-ID response header.
+func requestIDMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		b := make([]byte, 8)
+		_, _ = rand.Read(b)
+		rid := hex.EncodeToString(b)
+
+		ctx := logging.SetRequestID(r.Context(), rid)
+		w.Header().Set("X-Request-ID", rid)
+		next.ServeHTTP(w, r.WithContext(ctx))
+	})
+}
+
+// statusRecorder wraps http.ResponseWriter to capture the response status code.
+type statusRecorder struct {
+	http.ResponseWriter
+	status  int
+	written bool
+}
+
+func (sr *statusRecorder) WriteHeader(code int) {
+	if !sr.written {
+		sr.status = code
+		sr.written = true
+	}
+	sr.ResponseWriter.WriteHeader(code)
+}
+
+func (sr *statusRecorder) Write(b []byte) (int, error) {
+	if !sr.written {
+		sr.status = http.StatusOK
+		sr.written = true
+	}
+	return sr.ResponseWriter.Write(b)
+}
+
+// isStaticAsset returns true for paths that serve static files.
+func isStaticAsset(path string) bool {
+	if strings.HasPrefix(path, "/assets/") {
+		return true
+	}
+	for _, ext := range []string{".js", ".css", ".png", ".jpg", ".svg", ".ico", ".woff", ".woff2", ".ttf", ".map"} {
+		if strings.HasSuffix(path, ext) {
+			return true
+		}
+	}
+	return false
+}
+
+// requestLoggingMiddleware logs HTTP requests after they complete.
+// API/page requests log at INFO; static assets log at DEBUG.
+// Controlled by the global log level — set level=debug to see all requests.
+func requestLoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
+		rec := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
+		next.ServeHTTP(rec, r)
+
+		latency := time.Since(start)
+		attrs := []any{
+			"source", "http",
+			"method", r.Method,
+			"path", r.URL.Path,
+			"status", rec.status,
+			"latency_ms", latency.Milliseconds(),
+			"remote_ip", remoteIP(r),
+		}
+
+		if isStaticAsset(r.URL.Path) {
+			logging.From(r.Context()).Debug("HTTP request", attrs...)
+		} else {
+			logging.From(r.Context()).Info("HTTP request", attrs...)
+		}
+	})
+}
+
+// remoteIP extracts the client IP from the request.
+func remoteIP(r *http.Request) string {
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
+}
+
 // securityHeadersMiddleware adds standard security headers to all responses.
 // inlineScriptHash is the CSP hash for the base-path injection script (empty when no base path).
 func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.Handler {
@@ -1178,7 +1276,7 @@ func csrfMiddleware(next http.Handler) http.Handler {
 		if strings.HasPrefix(r.URL.Path, "/api/") && (r.Method == http.MethodPost || r.Method == http.MethodPut) {
 			ct := r.Header.Get(headerContentType)
 			if !strings.HasPrefix(ct, contentTypeJSON) && !strings.HasPrefix(ct, "multipart/form-data") && !strings.HasPrefix(ct, "application/x-yaml") {
-				logging.Warn("CSRF check failed: invalid content-type", "source", "server", "path", r.URL.Path, "method", r.Method, "content_type", ct)
+				logging.From(r.Context()).Warn("CSRF check failed: invalid content-type", "source", "server", "path", r.URL.Path, "method", r.Method, "content_type", ct)
 				http.Error(w, "Forbidden: JSON Content-Type required", http.StatusForbidden)
 				return
 			}
@@ -1302,7 +1400,7 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 			ip = r.RemoteAddr
 		}
 		if !rl.allow(ip) {
-			logging.Warn("Rate limit exceeded", "source", "server", "ip", ip, "path", r.URL.Path)
+			logging.From(r.Context()).Warn("Rate limit exceeded", "source", "server", "ip", ip, "path", r.URL.Path)
 			w.Header().Set("Retry-After", fmt.Sprintf("%d", int(rl.window.Seconds())))
 			http.Error(w, "Too many requests", http.StatusTooManyRequests)
 			return

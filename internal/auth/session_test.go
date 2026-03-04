@@ -26,6 +26,7 @@ func TestSessionStore(t *testing.T) {
 		retrieved := store.Get(session.ID)
 		if retrieved == nil {
 			t.Fatal("Expected to find session")
+			return
 		}
 		if retrieved.Username != session.Username {
 			t.Errorf("Expected username %s, got %s", session.Username, retrieved.Username)
@@ -60,6 +61,7 @@ func TestSessionStore(t *testing.T) {
 		refreshed := store.Get(session.ID)
 		if refreshed == nil {
 			t.Fatal("Expected to find session")
+			return
 		}
 		if !refreshed.ExpiresAt.After(originalExpiry) {
 			t.Error("Expected expiry to be extended")
@@ -304,6 +306,7 @@ func TestGetFromRequest(t *testing.T) {
 		got := store.GetFromRequest(req)
 		if got == nil {
 			t.Fatal("expected session from request")
+			return
 		}
 		if got.ID != session.ID {
 			t.Errorf("expected session ID %s, got %s", session.ID, got.ID)

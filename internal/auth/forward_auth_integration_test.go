@@ -314,6 +314,7 @@ func TestForwardAuth_AdminGroupDetection(t *testing.T) {
 			user, _ := m.authenticateRequest(req, m.snapshot())
 			if user == nil {
 				t.Fatal("expected user")
+				return
 			}
 			if user.Role != tt.wantRole {
 				t.Errorf("Role = %q, want %q", user.Role, tt.wantRole)
@@ -529,6 +530,7 @@ func TestForwardAuth_ConfigUpdate(t *testing.T) {
 	user, _ = m.authenticateRequest(req2, m.snapshot())
 	if user == nil {
 		t.Fatal("expected user after config update with new trusted proxy")
+		return
 	}
 	if user.Username != "updated_user" {
 		t.Errorf("Username = %q, want updated_user", user.Username)
@@ -647,6 +649,7 @@ func TestForwardAuth_UserIDConsistency(t *testing.T) {
 	user, _ := m.authenticateRequest(req, m.snapshot())
 	if user == nil {
 		t.Fatal("expected user")
+		return
 	}
 	if user.ID != user.Username {
 		t.Errorf("user.ID = %q, user.Username = %q; expected them to match", user.ID, user.Username)

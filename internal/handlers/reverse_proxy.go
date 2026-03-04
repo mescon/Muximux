@@ -1093,8 +1093,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	targetHost := route.targetURL.Host
 	backendConn, err := route.dialBackend()
 	if err != nil {
-		logging.Error("Failed to dial backend", "source", "proxy", "app", route.name, "target", targetHost, "error", err)
-		http.Error(w, errBadGateway, http.StatusBadGateway)
+		respondError(w, r, http.StatusBadGateway, errBadGateway, "source", "proxy", "app", route.name, "target", targetHost, "error", err)
 		return
 	}
 	defer backendConn.Close()
@@ -1105,8 +1104,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	// Send upgrade request to backend
 	upgradeReq := route.buildUpgradeRequest(r, backendPath, targetHost)
 	if _, err = backendConn.Write(upgradeReq); err != nil {
-		logging.Error("Failed to write upgrade request", "source", "proxy", "app", route.name, "error", err)
-		http.Error(w, errBadGateway, http.StatusBadGateway)
+		respondError(w, r, http.StatusBadGateway, errBadGateway, "source", "proxy", "app", route.name, "error", err)
 		return
 	}
 
@@ -1114,14 +1112,13 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	backendBuf := bufio.NewReader(backendConn)
 	resp, err := http.ReadResponse(backendBuf, r)
 	if err != nil {
-		logging.Error("Failed to read upgrade response", "source", "proxy", "app", route.name, "error", err)
-		http.Error(w, errBadGateway, http.StatusBadGateway)
+		respondError(w, r, http.StatusBadGateway, errBadGateway, "source", "proxy", "app", route.name, "error", err)
 		return
 	}
 
 	// If backend didn't upgrade, forward the error response as-is
 	if resp.StatusCode != http.StatusSwitchingProtocols {
-		logging.Warn("Backend did not upgrade to WebSocket", "source", "proxy", "app", route.name, "status_code", resp.StatusCode)
+		logging.From(r.Context()).Warn("Backend did not upgrade to WebSocket", "source", "proxy", "app", route.name, "status_code", resp.StatusCode)
 		for k, vs := range resp.Header {
 			for _, v := range vs {
 				w.Header().Add(k, v)
@@ -1138,20 +1135,19 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	// Hijack the client connection
 	hijacker, ok := w.(http.Hijacker)
 	if !ok {
-		logging.Error("Response writer does not support hijacking", "source", "proxy", "app", route.name)
-		http.Error(w, "WebSocket not supported", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "WebSocket not supported", "source", "proxy", "app", route.name)
 		return
 	}
 	clientConn, clientBuf, err := hijacker.Hijack()
 	if err != nil {
-		logging.Error("Failed to hijack client connection", "source", "proxy", "app", route.name, "error", err)
+		logging.From(r.Context()).Error("Failed to hijack client connection", "source", "proxy", "app", route.name, "error", err)
 		return
 	}
 	defer clientConn.Close()
 
 	// Forward the 101 response to the client
 	if err = route.forwardUpgradeResponse(clientConn, resp); err != nil {
-		logging.Error("Failed to write upgrade response to client", "source", "proxy", "app", route.name, "error", err)
+		logging.From(r.Context()).Error("Failed to write upgrade response to client", "source", "proxy", "app", route.name, "error", err)
 		return
 	}
 
@@ -1166,7 +1162,7 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	path := strings.TrimPrefix(r.URL.Path, proxyPathPrefix)
 	parts := strings.SplitN(path, "/", 2)
 	if len(parts) == 0 {
-		http.Error(w, "Invalid proxy path", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Invalid proxy path")
 		return
 	}
 
@@ -1177,15 +1173,15 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 	h.mu.RUnlock()
 
 	if !exists {
-		http.Error(w, "App not found: "+slug, http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, "App not found: "+slug)
 		return
 	}
 
-	logging.Debug("Proxying request", "source", "proxy", "app", slug, "method", r.Method, "path", r.URL.Path)
+	logging.From(r.Context()).Debug("Proxying request", "source", "proxy", "app", slug, "method", r.Method, "path", r.URL.Path)
 
 	// WebSocket upgrade requests use hijack-based proxying
 	if isWebSocketUpgrade(r) {
-		logging.Debug("WebSocket upgrade detected", "source", "proxy", "app", slug)
+		logging.From(r.Context()).Debug("WebSocket upgrade detected", "source", "proxy", "app", slug)
 		route.handleWebSocket(w, r)
 		return
 	}

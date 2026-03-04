@@ -15,28 +15,14 @@ import (
 
 	gooidc "github.com/coreos/go-oidc/v3/oidc"
 
+	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
-// OIDCConfig holds OIDC provider configuration
-type OIDCConfig struct {
-	Enabled          bool     `yaml:"enabled"`
-	IssuerURL        string   `yaml:"issuer_url"`
-	ClientID         string   `yaml:"client_id"`
-	ClientSecret     string   `yaml:"client_secret"`
-	RedirectURL      string   `yaml:"redirect_url"`
-	Scopes           []string `yaml:"scopes"`
-	UsernameClaim    string   `yaml:"username_claim"`
-	EmailClaim       string   `yaml:"email_claim"`
-	GroupsClaim      string   `yaml:"groups_claim"`
-	DisplayNameClaim string   `yaml:"display_name_claim"`
-	AdminGroups      []string `yaml:"admin_groups"`
-	BasePath         string   // e.g. "/muximux" — prepended to fallback redirect
-}
-
 // OIDCProvider handles OIDC authentication
 type OIDCProvider struct {
-	config       OIDCConfig
+	config       config.OIDCConfig
+	basePath     string // e.g. "/muximux" — prepended to fallback redirect
 	httpClient   *http.Client
 	sessionStore *SessionStore
 	userStore    *UserStore
@@ -61,9 +47,10 @@ type stateEntry struct {
 }
 
 // NewOIDCProvider creates a new OIDC provider
-func NewOIDCProvider(config *OIDCConfig, sessionStore *SessionStore, userStore *UserStore) *OIDCProvider {
+func NewOIDCProvider(cfg *config.OIDCConfig, basePath string, sessionStore *SessionStore, userStore *UserStore) *OIDCProvider {
 	p := &OIDCProvider{
-		config:       *config,
+		config:       *cfg,
+		basePath:     basePath,
 		httpClient:   &http.Client{Timeout: 30 * time.Second},
 		sessionStore: sessionStore,
 		userStore:    userStore,
@@ -192,7 +179,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Check for errors from provider
 	if errParam := r.URL.Query().Get("error"); errParam != "" {
 		errDesc := r.URL.Query().Get("error_description")
-		logging.Error("OIDC authentication error", "source", "auth", "error", errParam, "description", errDesc)
+		logging.From(r.Context()).Warn("OIDC authentication error", "source", "auth", "error", errParam, "description", errDesc)
 		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}
@@ -207,7 +194,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	p.statesMu.Unlock()
 
 	if !ok {
-		logging.Warn("OIDC callback: invalid state parameter", "source", "auth")
+		logging.From(r.Context()).Warn("OIDC callback: invalid state parameter", "source", "auth")
 		http.Error(w, "Invalid state parameter", http.StatusBadRequest)
 		return
 	}
@@ -222,7 +209,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Exchange code for tokens
 	tokens, err := p.exchangeCode(code)
 	if err != nil {
-		logging.Error("OIDC code exchange failed", "source", "auth", "error", err)
+		logging.From(r.Context()).Error("OIDC code exchange failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
@@ -232,19 +219,19 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		ctx := context.Background()
 		provider, err := gooidc.NewProvider(ctx, p.config.IssuerURL)
 		if err != nil {
-			logging.Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
+			logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
 			http.Error(w, errAuthFailed, http.StatusInternalServerError)
 			return
 		}
 		verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
 		idToken, err := verifier.Verify(ctx, tokens.IDToken)
 		if err != nil {
-			logging.Audit("OIDC: ID token verification failed", "error", err.Error())
+			logging.From(r.Context()).Info("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
 			http.Error(w, errAuthFailed, http.StatusUnauthorized)
 			return
 		}
 		if idToken.Nonce != entry.nonce {
-			logging.Audit("OIDC: nonce mismatch")
+			logging.From(r.Context()).Info("OIDC: nonce mismatch", "source", "audit")
 			http.Error(w, errAuthFailed, http.StatusUnauthorized)
 			return
 		}
@@ -253,7 +240,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Get user info
 	userInfo, err := p.getUserInfo(tokens.AccessToken)
 	if err != nil {
-		logging.Error("OIDC user info retrieval failed", "source", "auth", "error", err)
+		logging.From(r.Context()).Error("OIDC user info retrieval failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
@@ -282,17 +269,17 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Create session
 	session, err := p.sessionStore.Create(user.ID, user.Username, user.Role)
 	if err != nil {
-		logging.Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
+		logging.From(r.Context()).Error("OIDC: failed to create session", "source", "auth", "user", username, "error", err)
 		http.Error(w, "Failed to create session", http.StatusInternalServerError)
 		return
 	}
 
 	// Set session cookie
 	p.sessionStore.SetCookie(w, session)
-	logging.Audit("OIDC user logged in", "user", username, "role", role)
+	logging.From(r.Context()).Info("OIDC user logged in", "source", "audit", "user", username, "role", role)
 
 	// Redirect to original destination or home
-	redirectURL := sanitizeRedirectURL(entry.redirectURL, p.config.BasePath)
+	redirectURL := sanitizeRedirectURL(entry.redirectURL, p.basePath)
 	http.Redirect(w, r, redirectURL, http.StatusFound)
 }
 
@@ -455,11 +442,11 @@ func sanitizeRedirectURL(redirectURL, basePath string) string {
 
 // HandleLogin redirects to the OIDC provider for authentication
 func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
-	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"), p.config.BasePath)
+	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"), p.basePath)
 
 	authURL, err := p.GetAuthorizationURL(redirectAfter)
 	if err != nil {
-		logging.Warn("OIDC: failed to generate authorization URL", "source", "auth", "error", err)
+		logging.From(r.Context()).Warn("OIDC: failed to generate authorization URL", "source", "auth", "error", err)
 		http.Error(w, "Failed to get authorization URL: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
@@ -479,7 +466,7 @@ func (p *OIDCProvider) Enabled() bool {
 }
 
 // GetConfig returns the OIDC configuration (without secrets)
-func (p *OIDCProvider) GetConfig() OIDCConfig {
+func (p *OIDCProvider) GetConfig() config.OIDCConfig {
 	cfg := p.config
 	cfg.ClientSecret = "" // Don't expose secret
 	return cfg

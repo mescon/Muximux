@@ -74,6 +74,7 @@ func TestUserStore(t *testing.T) {
 		user := store.Get("user")
 		if user == nil {
 			t.Fatal("Expected to find user")
+			return
 		}
 		if user.Username != "user" {
 			t.Errorf("Expected username user, got %s", user.Username)

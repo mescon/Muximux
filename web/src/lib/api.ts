@@ -7,55 +7,35 @@ export function getBase(): string {
 
 export const API_BASE = getBase() + '/api';
 
-async function fetchJSON<T>(path: string): Promise<T> {
-  const response = await fetch(`${API_BASE}${path}`);
-  if (!response.ok) {
-    throw new Error(`API error: ${response.status} ${response.statusText}`);
+async function request<R>(method: string, path: string, data?: unknown): Promise<R> {
+  const opts: RequestInit = { method };
+  if (data !== undefined) {
+    opts.headers = { 'Content-Type': 'application/json' };
+    opts.body = JSON.stringify(data);
   }
+  const response = await fetch(`${API_BASE}${path}`, opts);
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error: ${response.status} ${text}`);
+  }
+  if (response.status === 204 || method === 'DELETE') return undefined as R;
   return response.json();
+}
+
+async function fetchJSON<T>(path: string): Promise<T> {
+  return request<T>('GET', path);
 }
 
 async function postJSON<T, R>(path: string, data: T): Promise<R> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`API error: ${response.status} ${text}`);
-  }
-  return response.json();
+  return request<R>('POST', path, data);
 }
 
 async function putJSON<T, R>(path: string, data: T): Promise<R> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'PUT',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`API error: ${response.status} ${text}`);
-  }
-  return response.json();
+  return request<R>('PUT', path, data);
 }
 
 async function deleteJSON(path: string): Promise<void> {
-  const response = await fetch(`${API_BASE}${path}`, {
-    method: 'DELETE',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-  });
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(`API error: ${response.status} ${text}`);
-  }
+  return request<void>('DELETE', path);
 }
 
 export async function submitSetup(data: SetupRequest): Promise<SetupResponse> {

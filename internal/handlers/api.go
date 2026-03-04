@@ -58,8 +58,7 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.RUnlock()
 
 	userRole := getUserRole(r)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config, userRole))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, userRole))
 }
 
 // ExportConfig returns the full configuration as a downloadable YAML file,
@@ -84,12 +83,11 @@ func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 
 	data, err := yaml.Marshal(&cfg)
 	if err != nil {
-		logging.Error("Failed to marshal config for export", "source", "config", "error", err)
-		http.Error(w, "Failed to marshal config", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to marshal config", "source", "config", "error", err)
 		return
 	}
 
-	logging.Audit("Config exported")
+	logging.From(r.Context()).Info("Config exported", "source", "audit")
 	filename := fmt.Sprintf("muximux-config-%s.yaml", time.Now().Format("2006-01-02"))
 	w.Header().Set("Content-Type", "application/x-yaml")
 	w.Header().Set("Content-Disposition", fmt.Sprintf("attachment; filename=%q", filename))
@@ -100,42 +98,40 @@ func (h *APIHandler) ExportConfig(w http.ResponseWriter, r *http.Request) {
 // returns the parsed config as JSON so the frontend can preview before applying.
 func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	body, err := io.ReadAll(io.LimitReader(r.Body, 1<<20)) // 1 MB limit
 	if err != nil {
-		http.Error(w, "Failed to read request body", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Failed to read request body")
 		return
 	}
 
 	var cfg config.Config
 	if err := yaml.Unmarshal(body, &cfg); err != nil {
-		logging.Warn("Config import failed: invalid YAML", "source", "config", "error", err)
-		http.Error(w, fmt.Sprintf("Invalid YAML: %s", err.Error()), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid YAML: %s", err.Error()), "source", "config", "error", err)
 		return
 	}
 
 	if len(cfg.Apps) == 0 {
-		http.Error(w, "Config must contain at least one app", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Config must contain at least one app")
 		return
 	}
 
 	for i := range cfg.Apps {
 		if cfg.Apps[i].Name == "" {
-			http.Error(w, "Each app must have a name", http.StatusBadRequest)
+			respondError(w, r, http.StatusBadRequest, "Each app must have a name")
 			return
 		}
 		if cfg.Apps[i].URL == "" {
-			http.Error(w, fmt.Sprintf("App %q must have a URL", cfg.Apps[i].Name), http.StatusBadRequest)
+			respondError(w, r, http.StatusBadRequest, fmt.Sprintf("App %q must have a URL", cfg.Apps[i].Name))
 			return
 		}
 	}
 
 	// Return as the same sanitized JSON format the frontend expects
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(&cfg, ""))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(&cfg, ""))
 }
 
 // clientConfigResponse is the sanitized config structure sent to the frontend.
@@ -207,13 +203,13 @@ type ClientConfigUpdate struct {
 // SaveConfig updates and saves the configuration
 func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPut {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	var update ClientConfigUpdate
 	if err := json.NewDecoder(r.Body).Decode(&update); err != nil {
-		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
 
@@ -224,22 +220,20 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 
 	// Save to file
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config", "source", "config", "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "error", err)
 		return
 	}
 
-	logging.Audit("Configuration saved")
+	logging.From(r.Context()).Info("Configuration saved", "source", "audit")
 	h.notifyConfigSaved()
 
 	// Apply log level change at runtime
 	if h.config.Server.LogLevel != "" {
 		logging.SetLevel(logging.Level(h.config.Server.LogLevel))
-		logging.Info("Log level changed", "source", "config", "level", h.config.Server.LogLevel)
+		logging.From(r.Context()).Info("Log level changed", "source", "config", "level", h.config.Server.LogLevel)
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(buildClientConfigResponse(h.config, auth.RoleAdmin))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin))
 }
 
 // mergeConfigUpdate applies a client config update to the server config,
@@ -274,29 +268,34 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	cfg.Apps = newApps
 }
 
+// clientAppToConfig converts a client app payload to a full AppConfig.
+func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
+	return config.AppConfig{
+		Name:                c.Name,
+		URL:                 c.URL,
+		HealthURL:           c.HealthURL,
+		Icon:                c.Icon,
+		Color:               c.Color,
+		Group:               c.Group,
+		Order:               c.Order,
+		Enabled:             c.Enabled,
+		Default:             c.Default,
+		OpenMode:            c.OpenMode,
+		Proxy:               c.Proxy,
+		HealthCheck:         c.HealthCheck,
+		ProxySkipTLSVerify:  c.ProxySkipTLSVerify,
+		ProxyHeaders:        c.ProxyHeaders,
+		Scale:               c.Scale,
+		Shortcut:            c.Shortcut,
+		MinRole:             c.MinRole,
+		ForceIconBackground: c.ForceIconBackground,
+	}
+}
+
 // mergeClientApp converts a client app config back to a full app config,
 // preserving sensitive fields from the existing app if it was previously configured.
 func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
-	app := config.AppConfig{
-		Name:                clientApp.Name,
-		URL:                 clientApp.URL,
-		HealthURL:           clientApp.HealthURL,
-		Icon:                clientApp.Icon,
-		Color:               clientApp.Color,
-		Group:               clientApp.Group,
-		Order:               clientApp.Order,
-		Enabled:             clientApp.Enabled,
-		Default:             clientApp.Default,
-		OpenMode:            clientApp.OpenMode,
-		Proxy:               clientApp.Proxy,
-		HealthCheck:         clientApp.HealthCheck,
-		ProxySkipTLSVerify:  clientApp.ProxySkipTLSVerify,
-		ProxyHeaders:        clientApp.ProxyHeaders,
-		Scale:               clientApp.Scale,
-		Shortcut:            clientApp.Shortcut,
-		MinRole:             clientApp.MinRole,
-		ForceIconBackground: clientApp.ForceIconBackground,
-	}
+	app := clientAppToConfig(clientApp)
 
 	// Preserve auth bypass and access rules if app existed before
 	if existing, ok := existingApps[clientApp.Name]; ok {
@@ -313,8 +312,7 @@ func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.RUnlock()
 
 	userRole := getUserRole(r)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(sanitizeApps(h.config.Apps, userRole))
+	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole))
 }
 
 // GetGroups returns the list of groups
@@ -322,8 +320,7 @@ func (h *APIHandler) GetGroups(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(h.config.Groups)
+	sendJSON(w, http.StatusOK, h.config.Groups)
 }
 
 // GetApp returns a single app by name
@@ -333,25 +330,24 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 
 	for i := range h.config.Apps {
 		if h.config.Apps[i].Name == name {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[i]))
+			sendJSON(w, http.StatusOK, sanitizeApp(&h.config.Apps[i]))
 			return
 		}
 	}
 
-	http.Error(w, errAppNotFound, http.StatusNotFound)
+	respondError(w, r, http.StatusNotFound, errAppNotFound)
 }
 
 // CreateApp creates a new app
 func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	var clientApp ClientAppConfig
 	if err := json.NewDecoder(r.Body).Decode(&clientApp); err != nil {
-		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
 
 	if clientApp.Name == "" {
-		http.Error(w, "App name is required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "App name is required")
 		return
 	}
 
@@ -361,54 +357,33 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	// Check if app already exists
 	for i := range h.config.Apps {
 		if h.config.Apps[i].Name == clientApp.Name {
-			http.Error(w, "App already exists", http.StatusConflict)
+			respondError(w, r, http.StatusConflict, "App already exists")
 			return
 		}
 	}
 
 	// Create new app config
-	newApp := config.AppConfig{
-		Name:                clientApp.Name,
-		URL:                 clientApp.URL,
-		HealthURL:           clientApp.HealthURL,
-		Icon:                clientApp.Icon,
-		Color:               clientApp.Color,
-		Group:               clientApp.Group,
-		Order:               len(h.config.Apps), // Add at end
-		Enabled:             clientApp.Enabled,
-		Default:             clientApp.Default,
-		OpenMode:            clientApp.OpenMode,
-		Proxy:               clientApp.Proxy,
-		HealthCheck:         clientApp.HealthCheck,
-		ProxySkipTLSVerify:  clientApp.ProxySkipTLSVerify,
-		ProxyHeaders:        clientApp.ProxyHeaders,
-		Scale:               clientApp.Scale,
-		Shortcut:            clientApp.Shortcut,
-		MinRole:             clientApp.MinRole,
-		ForceIconBackground: clientApp.ForceIconBackground,
-	}
+	newApp := clientAppToConfig(&clientApp)
+	newApp.Order = len(h.config.Apps) // Add at end
 
 	h.config.Apps = append(h.config.Apps, newApp)
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config after app creation", "source", "config", "app", newApp.Name, "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "app", newApp.Name, "error", err)
 		return
 	}
 
-	logging.Audit("App created", "app", newApp.Name)
+	logging.From(r.Context()).Info("App created", "source", "audit", "app", newApp.Name)
 	h.notifyConfigSaved()
-	w.Header().Set(headerContentType, contentTypeJSON)
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(sanitizeApp(&newApp))
+	sendJSON(w, http.StatusCreated, sanitizeApp(&newApp))
 }
 
 // UpdateApp updates an existing app
 func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name string) {
 	var clientApp ClientAppConfig
 	if err := json.NewDecoder(r.Body).Decode(&clientApp); err != nil {
-		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
 
@@ -425,48 +400,26 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	if idx == -1 {
-		http.Error(w, errAppNotFound, http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
 		return
 	}
 
-	// Preserve sensitive fields
+	// Update app config, preserving sensitive fields
 	existing := h.config.Apps[idx]
-
-	// Update app config
-	h.config.Apps[idx] = config.AppConfig{
-		Name:                clientApp.Name,
-		URL:                 clientApp.URL,
-		HealthURL:           clientApp.HealthURL,
-		Icon:                clientApp.Icon,
-		Color:               clientApp.Color,
-		Group:               clientApp.Group,
-		Order:               clientApp.Order,
-		Enabled:             clientApp.Enabled,
-		Default:             clientApp.Default,
-		OpenMode:            clientApp.OpenMode,
-		Proxy:               clientApp.Proxy,
-		HealthCheck:         clientApp.HealthCheck,
-		ProxySkipTLSVerify:  clientApp.ProxySkipTLSVerify,
-		ProxyHeaders:        clientApp.ProxyHeaders,
-		Scale:               clientApp.Scale,
-		Shortcut:            clientApp.Shortcut,
-		MinRole:             clientApp.MinRole,
-		ForceIconBackground: clientApp.ForceIconBackground,
-		AuthBypass:          existing.AuthBypass,
-		Access:              existing.Access,
-	}
+	updated := clientAppToConfig(&clientApp)
+	updated.AuthBypass = existing.AuthBypass
+	updated.Access = existing.Access
+	h.config.Apps[idx] = updated
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config after app update", "source", "config", "app", clientApp.Name, "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "app", clientApp.Name, "error", err)
 		return
 	}
 
-	logging.Audit("App updated", "app", clientApp.Name)
+	logging.From(r.Context()).Info("App updated", "source", "audit", "app", clientApp.Name)
 	h.notifyConfigSaved()
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(sanitizeApp(&h.config.Apps[idx]))
+	sendJSON(w, http.StatusOK, sanitizeApp(&h.config.Apps[idx]))
 }
 
 // DeleteApp removes an app
@@ -484,7 +437,7 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 	}
 
 	if idx == -1 {
-		http.Error(w, errAppNotFound, http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, errAppNotFound)
 		return
 	}
 
@@ -492,12 +445,11 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config after app deletion", "source", "config", "app", name, "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "app", name, "error", err)
 		return
 	}
 
-	logging.Audit("App deleted", "app", name)
+	logging.From(r.Context()).Info("App deleted", "source", "audit", "app", name)
 	h.notifyConfigSaved()
 	w.WriteHeader(http.StatusNoContent)
 }
@@ -509,25 +461,24 @@ func (h *APIHandler) GetGroup(w http.ResponseWriter, r *http.Request, name strin
 
 	for i := range h.config.Groups {
 		if h.config.Groups[i].Name == name {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			json.NewEncoder(w).Encode(h.config.Groups[i])
+			sendJSON(w, http.StatusOK, h.config.Groups[i])
 			return
 		}
 	}
 
-	http.Error(w, errGroupNotFound, http.StatusNotFound)
+	respondError(w, r, http.StatusNotFound, errGroupNotFound)
 }
 
 // CreateGroup creates a new group
 func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	var group config.GroupConfig
 	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
-		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
 
 	if group.Name == "" {
-		http.Error(w, "Group name is required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Group name is required")
 		return
 	}
 
@@ -537,7 +488,7 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	// Check if group already exists
 	for i := range h.config.Groups {
 		if h.config.Groups[i].Name == group.Name {
-			http.Error(w, "Group already exists", http.StatusConflict)
+			respondError(w, r, http.StatusConflict, "Group already exists")
 			return
 		}
 	}
@@ -547,22 +498,19 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config after group creation", "source", "config", "group", group.Name, "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}
 
-	logging.Audit("Group created", "group", group.Name)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	w.WriteHeader(http.StatusCreated)
-	json.NewEncoder(w).Encode(group)
+	logging.From(r.Context()).Info("Group created", "source", "audit", "group", group.Name)
+	sendJSON(w, http.StatusCreated, group)
 }
 
 // UpdateGroup updates an existing group
 func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name string) {
 	var group config.GroupConfig
 	if err := json.NewDecoder(r.Body).Decode(&group); err != nil {
-		http.Error(w, errInvalidJSON+err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidJSON+err.Error())
 		return
 	}
 
@@ -579,7 +527,7 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 	}
 
 	if idx == -1 {
-		http.Error(w, errGroupNotFound, http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, errGroupNotFound)
 		return
 	}
 
@@ -587,14 +535,12 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config after group update", "source", "config", "group", group.Name, "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}
 
-	logging.Audit("Group updated", "group", group.Name)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(group)
+	logging.From(r.Context()).Info("Group updated", "source", "audit", "group", group.Name)
+	sendJSON(w, http.StatusOK, group)
 }
 
 // DeleteGroup removes a group
@@ -612,7 +558,7 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 	}
 
 	if idx == -1 {
-		http.Error(w, errGroupNotFound, http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, errGroupNotFound)
 		return
 	}
 
@@ -626,12 +572,11 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 
 	// Save config
 	if err := h.config.Save(h.configPath); err != nil {
-		logging.Error("Failed to save config after group deletion", "source", "config", "group", name, "error", err)
-		http.Error(w, errFailedSaveConfig, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", name, "error", err)
 		return
 	}
 
-	logging.Audit("Group deleted", "group", name)
+	logging.From(r.Context()).Info("Group deleted", "source", "audit", "group", name)
 	w.WriteHeader(http.StatusNoContent)
 }
 

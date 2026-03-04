@@ -132,6 +132,7 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 		if snap.config.Method == AuthMethodNone {
 			virtualAdmin := &User{ID: "admin", Username: "admin", Role: RoleAdmin}
 			ctx := context.WithValue(r.Context(), ContextKeyUser, virtualAdmin)
+			ctx = logging.SetUser(ctx, virtualAdmin.Username)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
@@ -139,10 +140,11 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 		// Check bypass rules — still attempt best-effort auth so that
 		// bypassed endpoints (e.g. /api/auth/status) can see the user.
 		if shouldBypass(r, snap) {
-			logging.Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
+			logging.From(r.Context()).Debug("Auth bypassed", "source", "auth", "path", r.URL.Path)
 			user, session := m.authenticateRequest(r, snap)
 			if user != nil {
 				ctx := context.WithValue(r.Context(), ContextKeyUser, user)
+				ctx = logging.SetUser(ctx, user.Username)
 				if session != nil {
 					ctx = context.WithValue(ctx, ContextKeySession, session)
 					m.sessionStore.Refresh(session.ID)
@@ -156,14 +158,15 @@ func (m *Middleware) RequireAuth(next http.Handler) http.Handler {
 
 		user, session := m.authenticateRequest(r, snap)
 		if user == nil {
-			logging.Debug("Unauthenticated request", "source", "auth", "path", r.URL.Path, "method", r.Method)
+			logging.From(r.Context()).Debug("Unauthenticated request", "source", "auth", "path", r.URL.Path, "method", r.Method)
 			handleUnauthenticated(w, r, snap)
 			return
 		}
 
-		logging.Debug("Authenticated request", "source", "auth", "user", user.Username, "path", r.URL.Path)
+		logging.From(r.Context()).Debug("Authenticated request", "source", "auth", "user", user.Username, "path", r.URL.Path)
 
 		ctx := context.WithValue(r.Context(), ContextKeyUser, user)
+		ctx = logging.SetUser(ctx, user.Username)
 		if session != nil {
 			ctx = context.WithValue(ctx, ContextKeySession, session)
 			m.sessionStore.Refresh(session.ID)
@@ -198,6 +201,7 @@ func (m *Middleware) RequireRole(roles ...string) func(http.Handler) http.Handle
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 			user := GetUserFromContext(r.Context())
 			if user == nil {
+				logging.From(r.Context()).Warn("Access denied: no user in context", "source", "auth", "path", r.URL.Path)
 				http.Error(w, "Unauthorized", http.StatusUnauthorized)
 				return
 			}
@@ -209,7 +213,7 @@ func (m *Middleware) RequireRole(roles ...string) func(http.Handler) http.Handle
 				}
 			}
 
-			logging.Warn("Access denied: insufficient role", "source", "auth", "user", user.Username, "role", user.Role, "path", r.URL.Path)
+			logging.From(r.Context()).Warn("Access denied: insufficient role", "source", "auth", "user", user.Username, "role", user.Role, "path", r.URL.Path)
 			http.Error(w, "Forbidden", http.StatusForbidden)
 		})
 	}
@@ -263,7 +267,7 @@ func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 		return false
 	}
 	if bcrypt.CompareHashAndPassword([]byte(snap.config.APIKeyHash), []byte(provided)) != nil {
-		logging.Audit("API key authentication failed", "path", r.URL.Path)
+		logging.From(r.Context()).Info("API key authentication failed", "source", "audit", "path", r.URL.Path)
 		return false
 	}
 	return true
@@ -288,7 +292,7 @@ func matchAllowedIPs(r *http.Request, rule BypassRule, snap *authSnapshot) bool 
 
 func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	if !isFromTrustedProxy(r, snap) {
-		logging.Warn("Forward auth request not from trusted proxy", "source", "auth", "client_ip", getClientIP(r, snap))
+		logging.From(r.Context()).Warn("Forward auth request not from trusted proxy", "source", "auth", "client_ip", getClientIP(r, snap))
 		return nil
 	}
 
@@ -328,7 +332,7 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 
 func isFromTrustedProxy(r *http.Request, snap *authSnapshot) bool {
 	if len(snap.trustedNets) == 0 {
-		logging.Warn("Forward auth enabled but no trusted_proxies configured; rejecting request", "source", "auth")
+		logging.From(r.Context()).Warn("Forward auth enabled but no trusted_proxies configured; rejecting request", "source", "auth")
 		return false
 	}
 

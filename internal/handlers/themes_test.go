@@ -71,6 +71,7 @@ func TestParseThemeMetadata(t *testing.T) {
 			theme := parseThemeMetadata(tt.css, tt.filename)
 			if theme == nil {
 				t.Fatal("expected non-nil theme")
+				return
 			}
 			if theme.ID != tt.expectedID {
 				t.Errorf("ID = %q, want %q", theme.ID, tt.expectedID)

@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 // TestOIDC_FullFlow exercises the complete OIDC lifecycle:
@@ -81,12 +83,14 @@ func TestOIDC_FullFlow(t *testing.T) {
 	}
 	if sessionCookie == nil {
 		t.Fatal("expected session cookie in callback response")
+		return
 	}
 
 	// Step 4: Verify session was created
 	session := ss.Get(sessionCookie.Value)
 	if session == nil {
 		t.Fatal("session not found in store")
+		return
 	}
 	if session.Username != "jane" {
 		t.Errorf("session.Username = %q, want jane", session.Username)
@@ -154,7 +158,7 @@ func TestOIDC_CustomClaimMapping(t *testing.T) {
 	ss := NewSessionStore("test_session", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := OIDCConfig{
+	cfg := config.OIDCConfig{
 		Enabled:          true,
 		IssuerURL:        srv.URL,
 		ClientID:         "test-client",
@@ -213,10 +217,12 @@ func TestOIDC_CustomClaimMapping(t *testing.T) {
 	}
 	if sessionCookie == nil {
 		t.Fatal("expected session cookie")
+		return
 	}
 	session := ss.Get(sessionCookie.Value)
 	if session == nil {
 		t.Fatal("session not found")
+		return
 	}
 	if session.Username != "custom_user" {
 		t.Errorf("session.Username = %q, want custom_user (from custom claim 'login')", session.Username)

@@ -47,13 +47,14 @@ function mockFetchOk(data: unknown) {
   });
 }
 
-function mockFetchError(status: number, statusText: string, body = '') {
+function mockFetchError(status: number, statusText: string, body?: string) {
+  const responseBody = body ?? statusText;
   return vi.fn().mockResolvedValue({
     ok: false,
     status,
     statusText,
     json: () => Promise.reject(new Error('not json')),
-    text: () => Promise.resolve(body),
+    text: () => Promise.resolve(responseBody),
   });
 }
 
@@ -187,7 +188,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(config);
       const result = await fetchConfig();
       expect(result).toEqual(config);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/config');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/config', { method: 'GET' });
     });
 
     it('throws on non-OK response', async () => {
@@ -221,7 +222,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(apps);
       const result = await fetchApps();
       expect(result).toEqual(apps);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps', { method: 'GET' });
     });
   });
 
@@ -231,7 +232,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(groups);
       const result = await fetchGroups();
       expect(result).toEqual(groups);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/groups');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/groups', { method: 'GET' });
     });
   });
 
@@ -241,13 +242,13 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(app);
       const result = await getApp('MyApp');
       expect(result).toEqual(app);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/MyApp');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/MyApp', { method: 'GET' });
     });
 
     it('encodes special characters in name', async () => {
       globalThis.fetch = mockFetchOk({});
       await getApp('my app/test');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/my%20app%2Ftest');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/my%20app%2Ftest', { method: 'GET' });
     });
   });
 
@@ -298,7 +299,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(group);
       const result = await getGroup('MyGroup');
       expect(result).toEqual(group);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/group/MyGroup');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/group/MyGroup', { method: 'GET' });
     });
   });
 
@@ -368,13 +369,13 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('listDashboardIcons fetches without query', async () => {
       globalThis.fetch = mockFetchOk([]);
       await listDashboardIcons();
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/dashboard');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/dashboard', { method: 'GET' });
     });
 
     it('listDashboardIcons fetches with query', async () => {
       globalThis.fetch = mockFetchOk([]);
       await listDashboardIcons('home');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/dashboard?q=home');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/dashboard?q=home', { method: 'GET' });
     });
 
     it('getDashboardIconUrl returns correct URL', () => {
@@ -385,13 +386,13 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('listLucideIcons fetches without query', async () => {
       globalThis.fetch = mockFetchOk([]);
       await listLucideIcons();
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/lucide');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/lucide', { method: 'GET' });
     });
 
     it('listLucideIcons fetches with query', async () => {
       globalThis.fetch = mockFetchOk([]);
       await listLucideIcons('arrow');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/lucide?q=arrow');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/lucide?q=arrow', { method: 'GET' });
     });
 
     it('getLucideIconUrl returns correct URL', () => {
@@ -401,7 +402,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('listCustomIcons fetches', async () => {
       globalThis.fetch = mockFetchOk([]);
       await listCustomIcons();
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/custom');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/custom', { method: 'GET' });
     });
 
     it('getCustomIconUrl returns correct URL', () => {
@@ -489,13 +490,13 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('fetchAllAppHealth fetches /apps/health', async () => {
       globalThis.fetch = mockFetchOk([]);
       await fetchAllAppHealth();
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps/health');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps/health', { method: 'GET' });
     });
 
     it('fetchAppHealth fetches single app health', async () => {
       globalThis.fetch = mockFetchOk({ name: 'app1', status: 'healthy' });
       await fetchAppHealth('app1');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps/app1/health');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps/app1/health', { method: 'GET' });
     });
 
     it('triggerHealthCheck posts to health/check', async () => {
@@ -515,7 +516,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(status);
       const result = await getProxyStatus();
       expect(result).toEqual(status);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/proxy/status');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/proxy/status', { method: 'GET' });
     });
   });
 
@@ -528,7 +529,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchOk(users);
       const result = await listUsers();
       expect(result).toEqual(users);
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users');
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users', { method: 'GET' });
     });
 
     it('throws on non-OK response', async () => {
@@ -607,7 +608,6 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       await deleteUserAccount('testuser');
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/testuser', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
       });
     });
 
@@ -621,7 +621,6 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       await deleteUserAccount('user name/special');
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/user%20name%2Fspecial', {
         method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
       });
     });
 

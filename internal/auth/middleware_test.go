@@ -510,6 +510,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		user, sess := m.authenticateRequest(req, m.snapshot())
 		if user == nil {
 			t.Fatal("expected user from session")
+			return
 		}
 		if user.Username != "alice" {
 			t.Errorf("expected alice, got %s", user.Username)
@@ -549,6 +550,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		user, _ := m.authenticateRequest(req, m.snapshot())
 		if user == nil {
 			t.Fatal("expected user from forward auth")
+			return
 		}
 		if user.Username != "bob" {
 			t.Errorf("expected bob, got %s", user.Username)
@@ -587,6 +589,7 @@ func TestAuthenticateRequest(t *testing.T) {
 		user, _ := m.authenticateRequest(req, m.snapshot())
 		if user == nil {
 			t.Fatal("expected user")
+			return
 		}
 		if user.Role != RoleAdmin {
 			t.Errorf("expected admin role, got %s", user.Role)
@@ -931,6 +934,7 @@ func TestUpdateConfig_TrustedProxies(t *testing.T) {
 	user, _ = m.authenticateRequest(req, m.snapshot())
 	if user == nil {
 		t.Fatal("expected user after updating trusted proxies")
+		return
 	}
 	if user.Username != "bob" {
 		t.Errorf("expected bob, got %s", user.Username)

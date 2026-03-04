@@ -10,6 +10,7 @@ func TestNewHub(t *testing.T) {
 	hub := NewHub()
 	if hub == nil {
 		t.Fatal("expected non-nil hub")
+		return
 	}
 	if hub.clients == nil {
 		t.Error("expected initialized clients map")

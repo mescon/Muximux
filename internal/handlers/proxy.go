@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/mescon/muximux/v3/internal/config"
@@ -31,7 +30,7 @@ type ProxyStatusResponse struct {
 // GetStatus returns the proxy status
 func (h *ProxyHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -43,6 +42,5 @@ func (h *ProxyHandler) GetStatus(w http.ResponseWriter, r *http.Request) {
 		Gateway: h.serverConfig.Gateway,
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(status)
+	sendJSON(w, http.StatusOK, status)
 }

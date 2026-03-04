@@ -86,8 +86,7 @@ func (h *ThemeHandler) ListThemes(w http.ResponseWriter, r *http.Request) {
 		return themes[i].Name < themes[j].Name
 	})
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(themes)
+	sendJSON(w, http.StatusOK, themes)
 }
 
 // loadBundledThemes scans bundled themes from the embedded filesystem and adds them to the map.
@@ -141,42 +140,42 @@ func (h *ThemeHandler) loadUserThemes(themeMap map[string]ThemeInfo) {
 // SaveTheme creates or updates a custom theme
 func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	var req ThemeSaveRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Invalid JSON")
 		return
 	}
 
 	if req.Name == "" {
-		http.Error(w, "Theme name is required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Theme name is required")
 		return
 	}
 
 	// Sanitize the ID from the name
 	id := sanitizeThemeID(req.Name)
 	if id == "" {
-		http.Error(w, "Invalid theme name", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Invalid theme name")
 		return
 	}
 
 	// Don't allow overwriting builtin themes
 	if id == "dark" || id == "light" {
-		http.Error(w, "Cannot overwrite builtin themes", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Cannot overwrite builtin themes")
 		return
 	}
 
 	// Validate CSS variable names and values to prevent CSS injection
 	for varName, varValue := range req.Variables {
 		if !reCSSVarName.MatchString(varName) {
-			http.Error(w, fmt.Sprintf("Invalid CSS variable name: %s", varName), http.StatusBadRequest)
+			respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid CSS variable name: %s", varName))
 			return
 		}
 		if strings.Contains(varValue, "}") || strings.Contains(varValue, "{") || reCSSBadValue.MatchString(varValue) {
-			http.Error(w, fmt.Sprintf("Invalid CSS variable value for %s", varName), http.StatusBadRequest)
+			respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid CSS variable value for %s", varName))
 			return
 		}
 	}
@@ -187,14 +186,12 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	// Write to file
 	filename := filepath.Join(h.themesDir, id+".css")
 	if err := os.WriteFile(filename, []byte(css), 0600); err != nil {
-		logging.Error("Failed to save theme file", "source", "themes", "theme", id, "error", err)
-		http.Error(w, "Failed to save theme", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to save theme", "source", "themes", "theme", id, "error", err)
 		return
 	}
 
-	logging.Info("Theme saved", "source", "themes", "theme", id)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]string{
+	logging.From(r.Context()).Info("Theme saved", "source", "themes", "theme", id)
+	sendJSON(w, http.StatusOK, map[string]string{
 		"id":     id,
 		"status": "saved",
 	})
@@ -203,44 +200,42 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 // DeleteTheme removes a custom theme
 func (h *ThemeHandler) DeleteTheme(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	// Extract theme name from path: /api/themes/{name}
 	name := strings.TrimPrefix(r.URL.Path, "/api/themes/")
 	if name == "" {
-		http.Error(w, "Theme name required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Theme name required")
 		return
 	}
 
 	// Sanitize to prevent path traversal — only allow [a-z0-9-]
 	name = sanitizeThemeID(name)
 	if name == "" {
-		http.Error(w, "Invalid theme name", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Invalid theme name")
 		return
 	}
 
 	// Don't allow deleting builtin themes (dark/light are CSS-only, others are bundled files)
 	if name == "dark" || name == "light" || h.isBundledTheme(name) {
-		http.Error(w, "Cannot delete builtin themes", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Cannot delete builtin themes")
 		return
 	}
 
 	filename := filepath.Join(h.themesDir, name+".css")
 	if err := os.Remove(filename); err != nil {
 		if os.IsNotExist(err) {
-			http.Error(w, "Theme not found", http.StatusNotFound)
+			respondError(w, r, http.StatusNotFound, "Theme not found")
 		} else {
-			logging.Error("Failed to delete theme file", "source", "themes", "theme", name, "error", err)
-			http.Error(w, "Failed to delete theme", http.StatusInternalServerError)
+			respondError(w, r, http.StatusInternalServerError, "Failed to delete theme", "source", "themes", "theme", name, "error", err)
 		}
 		return
 	}
 
-	logging.Info("Theme deleted", "source", "themes", "theme", name)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]string{
+	logging.From(r.Context()).Info("Theme deleted", "source", "themes", "theme", name)
+	sendJSON(w, http.StatusOK, map[string]string{
 		"status": "deleted",
 	})
 }

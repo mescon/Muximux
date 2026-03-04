@@ -1398,6 +1398,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
+			return
 		}
 		if route.name != "Test App" {
 			t.Errorf("expected name 'Test App', got %q", route.name)
@@ -1458,6 +1459,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
+			return
 		}
 		if route.targetPath != "/" {
 			t.Errorf("expected targetPath '/', got %q", route.targetPath)

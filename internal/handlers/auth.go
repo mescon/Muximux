@@ -77,15 +77,13 @@ type UserResponse struct {
 // Login handles POST /api/auth/login
 func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	var req LoginRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(LoginResponse{
+		sendJSON(w, http.StatusBadRequest, LoginResponse{
 			Success: false,
 			Message: errInvalidBody,
 		})
@@ -94,9 +92,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Validate input
 	if req.Username == "" || req.Password == "" {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(LoginResponse{
+		sendJSON(w, http.StatusBadRequest, LoginResponse{
 			Success: false,
 			Message: "Username and password are required",
 		})
@@ -106,10 +102,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Authenticate
 	user, err := h.userStore.Authenticate(req.Username, req.Password)
 	if err != nil {
-		logging.Audit("Login failed", "user", req.Username)
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(LoginResponse{
+		logging.From(r.Context()).Info("Login failed", "source", "audit", "user", req.Username)
+		sendJSON(w, http.StatusUnauthorized, LoginResponse{
 			Success: false,
 			Message: "Invalid username or password",
 		})
@@ -119,10 +113,8 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Create session
 	session, err := h.sessionStore.Create(user.ID, user.Username, user.Role)
 	if err != nil {
-		logging.Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(LoginResponse{
+		logging.From(r.Context()).Error("Failed to create session", "source", "auth", "user", user.Username, "error", err)
+		sendJSON(w, http.StatusInternalServerError, LoginResponse{
 			Success: false,
 			Message: "Failed to create session",
 		})
@@ -131,10 +123,9 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 
 	// Set session cookie
 	h.sessionStore.SetCookie(w, session)
-	logging.Audit("User logged in", "user", user.Username)
+	logging.From(r.Context()).Info("User logged in", "source", "audit", "user", user.Username)
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(LoginResponse{
+	sendJSON(w, http.StatusOK, LoginResponse{
 		Success: true,
 		User: &UserResponse{
 			Username:    user.Username,
@@ -148,7 +139,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 // Logout handles POST /api/auth/logout
 func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -162,31 +153,27 @@ func (h *AuthHandler) Logout(w http.ResponseWriter, r *http.Request) {
 
 	// Clear cookie
 	h.sessionStore.ClearCookie(w)
-	logging.Audit("User logged out", "user", username)
+	logging.From(r.Context()).Info("User logged out", "source", "audit", "user", username)
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
 
 // Me handles GET /api/auth/me - returns current user info
 func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	user := auth.GetUserFromContext(r.Context())
 	if user == nil {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		sendJSON(w, http.StatusUnauthorized, map[string]interface{}{
 			"authenticated": false,
 		})
 		return
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"authenticated": true,
 		"user": UserResponse{
 			Username:    user.Username,
@@ -200,13 +187,13 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 // ChangePassword handles POST /api/auth/password
 func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	user := auth.GetUserFromContext(r.Context())
 	if user == nil {
-		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		respondError(w, r, http.StatusUnauthorized, "Unauthorized")
 		return
 	}
 
@@ -215,14 +202,12 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		NewPassword     string `json:"new_password"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, errInvalidBody, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
 
 	if len(req.NewPassword) < 8 {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{
 			"success": false,
 			"message": "Password must be at least 8 characters",
 		})
@@ -232,9 +217,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Verify current password
 	_, err := h.userStore.Authenticate(user.Username, req.CurrentPassword)
 	if err != nil {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{
 			"success": false,
 			"message": "Current password is incorrect",
 		})
@@ -244,24 +227,24 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	// Hash new password
 	hash, err := auth.HashPassword(req.NewPassword)
 	if err != nil {
-		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to hash password")
 		return
 	}
 
 	// Update user
 	fullUser := h.userStore.Get(user.Username)
 	if fullUser == nil {
-		http.Error(w, errUserNotFound, http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, errUserNotFound)
 		return
 	}
 	fullUser.PasswordHash = hash
 	if err := h.userStore.Update(fullUser); err != nil {
-		http.Error(w, "Failed to update password", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to update password")
 		return
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.Error("Failed to persist password change", "source", "auth", "error", err)
+		logging.From(r.Context()).Error("Failed to persist password change", "source", "auth", "error", err)
 	}
 
 	// Invalidate all other sessions for this user
@@ -272,15 +255,14 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 	h.sessionStore.DeleteByUserID(user.ID, exceptID)
 
-	logging.Audit("Password changed", "user", user.Username)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	logging.From(r.Context()).Info("Password changed", "source", "audit", "user", user.Username)
+	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
 
 // AuthStatus handles GET /api/auth/status - returns auth configuration status
 func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -319,14 +301,13 @@ func (h *AuthHandler) AuthStatus(w http.ResponseWriter, r *http.Request) {
 		response["setup_required"] = h.setupChecker()
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(response)
+	sendJSON(w, http.StatusOK, response)
 }
 
 // OIDCLogin handles GET /api/auth/oidc/login - redirects to OIDC provider
 func (h *AuthHandler) OIDCLogin(w http.ResponseWriter, r *http.Request) {
 	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
-		http.Error(w, "OIDC not configured", http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, "OIDC not configured")
 		return
 	}
 
@@ -336,7 +317,7 @@ func (h *AuthHandler) OIDCLogin(w http.ResponseWriter, r *http.Request) {
 // OIDCCallback handles GET /api/auth/oidc/callback - OIDC callback
 func (h *AuthHandler) OIDCCallback(w http.ResponseWriter, r *http.Request) {
 	if h.oidcProvider == nil || !h.oidcProvider.Enabled() {
-		http.Error(w, "OIDC not configured", http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, "OIDC not configured")
 		return
 	}
 
@@ -379,8 +360,7 @@ func (h *AuthHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 			DisplayName: u.DisplayName,
 		})
 	}
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(resp)
+	sendJSON(w, http.StatusOK, resp)
 }
 
 // CreateUser handles POST /api/auth/users
@@ -393,20 +373,16 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		DisplayName string `json:"display_name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, errInvalidBody, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
 
 	if strings.TrimSpace(req.Username) == "" {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Username is required"})
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Username is required"})
 		return
 	}
 	if len(req.Password) < 8 {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Password must be at least 8 characters"})
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Password must be at least 8 characters"})
 		return
 	}
 	// Validate role
@@ -416,7 +392,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 
 	hash, err := auth.HashPassword(req.Password)
 	if err != nil {
-		http.Error(w, "Failed to hash password", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to hash password")
 		return
 	}
 
@@ -430,19 +406,16 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.userStore.Add(user); err != nil {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": err.Error()})
+		sendJSON(w, http.StatusConflict, map[string]interface{}{"success": false, "message": err.Error()})
 		return
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.Error("Failed to persist user creation", "source", "auth", "error", err)
+		logging.From(r.Context()).Error("Failed to persist user creation", "source", "auth", "error", err)
 	}
 
-	logging.Audit("User created", "user", user.Username, "role", user.Role)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	logging.From(r.Context()).Info("User created", "source", "audit", "user", user.Username, "role", user.Role)
+	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"user": UserResponse{
 			Username:    user.Username,
@@ -457,7 +430,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimPrefix(r.URL.Path, "/api/auth/users/")
 	if username == "" {
-		http.Error(w, "Username required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Username required")
 		return
 	}
 
@@ -467,21 +440,19 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		DisplayName *string `json:"display_name"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, errInvalidBody, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
 
 	user := h.userStore.Get(username)
 	if user == nil {
-		http.Error(w, errUserNotFound, http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, errUserNotFound)
 		return
 	}
 
 	if req.Role != "" {
 		if req.Role != auth.RoleAdmin && req.Role != auth.RolePowerUser && req.Role != auth.RoleUser {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Invalid role"})
+			sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Invalid role"})
 			return
 		}
 		user.Role = req.Role
@@ -494,17 +465,16 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.userStore.Update(user); err != nil {
-		http.Error(w, "Failed to update user", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to update user")
 		return
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.Error("Failed to persist user update", "source", "auth", "error", err)
+		logging.From(r.Context()).Error("Failed to persist user update", "source", "auth", "error", err)
 	}
 
-	logging.Audit("User updated", "user", username, "role", user.Role)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	logging.From(r.Context()).Info("User updated", "source", "audit", "user", username, "role", user.Role)
+	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"user": UserResponse{
 			Username:    user.Username,
@@ -519,37 +489,32 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	username := strings.TrimPrefix(r.URL.Path, "/api/auth/users/")
 	if username == "" {
-		http.Error(w, "Username required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Username required")
 		return
 	}
 
 	// Can't delete self
 	currentUser := auth.GetUserFromContext(r.Context())
 	if currentUser != nil && currentUser.Username == username {
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Cannot delete your own account"})
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Cannot delete your own account"})
 		return
 	}
 
 	if err := h.userStore.DeleteIfNotLastAdmin(username); err != nil {
 		if err.Error() == "user not found" {
-			http.Error(w, errUserNotFound, http.StatusNotFound)
+			respondError(w, r, http.StatusNotFound, errUserNotFound)
 			return
 		}
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": err.Error()})
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": err.Error()})
 		return
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.Error("Failed to persist user deletion", "source", "auth", "error", err)
+		logging.From(r.Context()).Error("Failed to persist user deletion", "source", "auth", "error", err)
 	}
 
-	logging.Audit("User deleted", "user", username)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+	logging.From(r.Context()).Info("User deleted", "source", "audit", "user", username)
+	sendJSON(w, http.StatusOK, map[string]bool{"success": true})
 }
 
 // UpdateAuthMethod handles PUT /api/auth/method
@@ -561,7 +526,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		LogoutURL      string            `json:"logout_url"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, errInvalidBody, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
 
@@ -570,18 +535,14 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	switch req.Method {
 	case "builtin":
 		if h.userStore.Count() == 0 {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "At least one user is required for builtin auth"})
+			sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "At least one user is required for builtin auth"})
 			return
 		}
 		authCfg = auth.AuthConfig{Method: auth.AuthMethodBuiltin}
 
 	case "forward_auth":
 		if len(req.TrustedProxies) == 0 {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Trusted proxies required for forward_auth"})
+			sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Trusted proxies required for forward_auth"})
 			return
 		}
 		authCfg = auth.AuthConfig{
@@ -594,9 +555,7 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		authCfg = auth.AuthConfig{Method: auth.AuthMethodNone}
 
 	default:
-		w.Header().Set(headerContentType, contentTypeJSON)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]interface{}{"success": false, "message": "Invalid method"})
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": "Invalid method"})
 		return
 	}
 
@@ -624,14 +583,12 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		h.authMiddleware.UpdateConfig(&authCfg)
 		return h.config.Save(h.configPath)
 	}(); err != nil {
-		logging.Error("Failed to save config after auth method change", "source", "auth", "method", req.Method, "error", err)
-		http.Error(w, "Failed to save config", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to save config", "source", "auth", "method", req.Method, "error", err)
 		return
 	}
 
-	logging.Audit("Auth method changed", "method", req.Method)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	logging.From(r.Context()).Info("Auth method changed", "source", "audit", "method", req.Method)
+	sendJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"method":  req.Method,
 	})

@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
 	"net/http"
 	"strconv"
 	"strings"
@@ -21,14 +20,13 @@ func NewLogsHandler() *LogsHandler {
 // Query params: ?limit=200&level=info&source=proxy
 func (h *LogsHandler) GetRecent(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, "Method not allowed")
 		return
 	}
 
 	buf := logging.Buffer()
 	if buf == nil {
-		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode([]logging.LogEntry{})
+		sendJSON(w, http.StatusOK, []logging.LogEntry{})
 		return
 	}
 
@@ -63,6 +61,5 @@ func (h *LogsHandler) GetRecent(w http.ResponseWriter, r *http.Request) {
 		entries = filtered
 	}
 
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(entries)
+	sendJSON(w, http.StatusOK, entries)
 }

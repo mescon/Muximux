@@ -22,6 +22,7 @@ func TestMonitor_CheckApp_Healthy(t *testing.T) {
 	result := m.CheckNow("testapp")
 	if result == nil {
 		t.Fatal("expected health result")
+		return
 	}
 	if result.Status != StatusHealthy {
 		t.Errorf("expected healthy, got %s", result.Status)
@@ -54,6 +55,7 @@ func TestMonitor_CheckApp_Unhealthy(t *testing.T) {
 	result := m.CheckNow("badapp")
 	if result == nil {
 		t.Fatal("expected health result")
+		return
 	}
 	if result.Status != StatusUnhealthy {
 		t.Errorf("expected unhealthy, got %s", result.Status)
@@ -81,6 +83,7 @@ func TestMonitor_CheckApp_Timeout(t *testing.T) {
 	result := m.CheckNow("slowapp")
 	if result == nil {
 		t.Fatal("expected health result")
+		return
 	}
 	if result.Status != StatusUnhealthy {
 		t.Errorf("expected unhealthy for timeout, got %s", result.Status)
@@ -110,6 +113,7 @@ func TestMonitor_CheckApp_CustomHealthURL(t *testing.T) {
 	result := m.CheckNow("app-with-health")
 	if result == nil {
 		t.Fatal("expected health result")
+		return
 	}
 	if result.Status != StatusHealthy {
 		t.Errorf("expected healthy (should use health URL), got %s", result.Status)
@@ -131,6 +135,7 @@ func TestMonitor_CheckApp_Redirect(t *testing.T) {
 	result := m.CheckNow("redirect-app")
 	if result == nil {
 		t.Fatal("expected health result")
+		return
 	}
 	// 301 redirects are followed; the redirect handler loops, so the client
 	// eventually sees a response. Status 200-399 is healthy.
@@ -176,6 +181,7 @@ func TestMonitor_CheckNow(t *testing.T) {
 	initial := m.GetHealth("myapp")
 	if initial == nil {
 		t.Fatal("expected initial health entry")
+		return
 	}
 	if initial.Status != StatusUnknown {
 		t.Errorf("expected unknown initially, got %s", initial.Status)
@@ -230,6 +236,7 @@ func TestMonitor_Callback(t *testing.T) {
 	}
 	if health == nil {
 		t.Fatal("expected health in callback")
+		return
 	}
 	if health.Status != StatusHealthy {
 		t.Errorf("expected healthy in callback, got %s", health.Status)

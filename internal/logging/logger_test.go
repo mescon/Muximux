@@ -932,3 +932,111 @@ func TestSetLevel_DebugMessagesFiltered(t *testing.T) {
 		t.Error("Debug message should appear after SetLevel(Debug)")
 	}
 }
+
+func TestSetRequestID(t *testing.T) {
+	ctx := context.Background()
+	ctx = SetRequestID(ctx, "req-123")
+
+	val, ok := ctx.Value(ctxRequestID).(string)
+	if !ok || val != "req-123" {
+		t.Errorf("expected request_id=req-123, got %q (ok=%v)", val, ok)
+	}
+}
+
+func TestSetUser(t *testing.T) {
+	ctx := context.Background()
+	ctx = SetUser(ctx, "alice")
+
+	val, ok := ctx.Value(ctxUser).(string)
+	if !ok || val != "alice" {
+		t.Errorf("expected user=alice, got %q (ok=%v)", val, ok)
+	}
+}
+
+func TestFrom_NilContext(t *testing.T) {
+	defaultLogger = nil
+	buffer = nil
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	l := From(context.TODO()) //nolint:staticcheck // testing unenriched context
+	if l == nil {
+		t.Fatal("From(unenriched context) should return non-nil logger")
+	}
+}
+
+func TestFrom_EmptyContext(t *testing.T) {
+	defaultLogger = nil
+	buffer = nil
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	l := From(context.Background())
+	if l == nil {
+		t.Fatal("From(background) should return non-nil logger")
+	}
+}
+
+func TestFrom_WithRequestIDAndUser(t *testing.T) {
+	defaultLogger = nil
+	buffer = nil
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	ctx := context.Background()
+	ctx = SetRequestID(ctx, "req-456")
+	ctx = SetUser(ctx, "bob")
+
+	l := From(ctx)
+	l.Info("test message", "source", "test")
+
+	buf := Buffer()
+	entries := buf.Recent(10)
+
+	var found bool
+	for _, e := range entries {
+		if e.Message == "test message" {
+			found = true
+			if e.Attrs["request_id"] != "req-456" {
+				t.Errorf("expected request_id=req-456, got %q", e.Attrs["request_id"])
+			}
+			if e.Attrs["user"] != "bob" {
+				t.Errorf("expected user=bob, got %q", e.Attrs["user"])
+			}
+			break
+		}
+	}
+	if !found {
+		t.Error("expected to find 'test message' in buffer")
+	}
+}
+
+func TestFrom_WithRequestIDOnly(t *testing.T) {
+	defaultLogger = nil
+	buffer = nil
+	if err := Init(Config{Level: LevelDebug, Format: "text", Output: "stdout"}); err != nil {
+		t.Fatal(err)
+	}
+
+	ctx := SetRequestID(context.Background(), "req-789")
+
+	l := From(ctx)
+	l.Info("rid only")
+
+	entries := Buffer().Recent(10)
+	for _, e := range entries {
+		if e.Message == "rid only" {
+			if e.Attrs["request_id"] != "req-789" {
+				t.Errorf("expected request_id=req-789, got %q", e.Attrs["request_id"])
+			}
+			if _, hasUser := e.Attrs["user"]; hasUser {
+				t.Error("user attr should not be present")
+			}
+			return
+		}
+	}
+	t.Error("expected to find 'rid only' in buffer")
+}

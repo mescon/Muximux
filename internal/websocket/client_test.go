@@ -17,6 +17,7 @@ func TestNewClient(t *testing.T) {
 
 	if client == nil {
 		t.Fatal("expected non-nil client")
+		return
 	}
 	if client.hub != hub {
 		t.Error("expected client hub to match")

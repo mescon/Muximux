@@ -313,3 +313,37 @@ func Audit(msg string, args ...any) {
 func With(args ...any) *slog.Logger {
 	return Logger().With(args...)
 }
+
+// Context key type for logging-specific context values.
+type ctxKey string
+
+const (
+	ctxRequestID ctxKey = "request_id"
+	ctxUser      ctxKey = "user"
+)
+
+// SetRequestID returns a context enriched with a request ID.
+func SetRequestID(ctx context.Context, id string) context.Context {
+	return context.WithValue(ctx, ctxRequestID, id)
+}
+
+// SetUser returns a context enriched with a username for log correlation.
+func SetUser(ctx context.Context, user string) context.Context {
+	return context.WithValue(ctx, ctxUser, user)
+}
+
+// From returns a logger enriched with context fields (request_id, user).
+// Safe to call with nil or unenriched context — returns the default logger.
+func From(ctx context.Context) *slog.Logger {
+	l := Logger()
+	if ctx == nil {
+		return l
+	}
+	if rid, ok := ctx.Value(ctxRequestID).(string); ok {
+		l = l.With("request_id", rid)
+	}
+	if u, ok := ctx.Value(ctxUser).(string); ok {
+		l = l.With("user", u)
+	}
+	return l
+}

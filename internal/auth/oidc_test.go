@@ -8,6 +8,8 @@ import (
 	"strings"
 	"testing"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 // mockOIDCServer creates a test HTTP server that simulates an OIDC provider.
@@ -83,7 +85,7 @@ func newTestOIDCProvider(t *testing.T, issuerURL string) (*OIDCProvider, *Sessio
 	ss := NewSessionStore("test_session", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := OIDCConfig{
+	cfg := config.OIDCConfig{
 		Enabled:      true,
 		IssuerURL:    issuerURL,
 		ClientID:     "test-client-id",
@@ -495,32 +497,32 @@ func TestHandleLogin_UnsafeRedirect(t *testing.T) {
 func TestEnabled(t *testing.T) {
 	tests := []struct {
 		name     string
-		config   OIDCConfig
+		config   config.OIDCConfig
 		expected bool
 	}{
 		{
 			name:     "fully configured",
-			config:   OIDCConfig{Enabled: true, IssuerURL: "http://idp.example.com", ClientID: "client"},
+			config:   config.OIDCConfig{Enabled: true, IssuerURL: "http://idp.example.com", ClientID: "client"},
 			expected: true,
 		},
 		{
 			name:     "disabled",
-			config:   OIDCConfig{Enabled: false, IssuerURL: "http://idp.example.com", ClientID: "client"},
+			config:   config.OIDCConfig{Enabled: false, IssuerURL: "http://idp.example.com", ClientID: "client"},
 			expected: false,
 		},
 		{
 			name:     "missing issuer URL",
-			config:   OIDCConfig{Enabled: true, ClientID: "client"},
+			config:   config.OIDCConfig{Enabled: true, ClientID: "client"},
 			expected: false,
 		},
 		{
 			name:     "missing client ID",
-			config:   OIDCConfig{Enabled: true, IssuerURL: "http://idp.example.com"},
+			config:   config.OIDCConfig{Enabled: true, IssuerURL: "http://idp.example.com"},
 			expected: false,
 		},
 		{
 			name:     "all empty",
-			config:   OIDCConfig{},
+			config:   config.OIDCConfig{},
 			expected: false,
 		},
 	}
@@ -539,7 +541,7 @@ func TestEnabled(t *testing.T) {
 
 func TestGetConfig_HidesSecret(t *testing.T) {
 	p := &OIDCProvider{
-		config: OIDCConfig{
+		config: config.OIDCConfig{
 			Enabled:      true,
 			IssuerURL:    "http://idp.example.com",
 			ClientID:     "client-id",
@@ -569,7 +571,7 @@ func TestGetConfig_HidesSecret(t *testing.T) {
 
 func TestVerify(t *testing.T) {
 	t.Run("disabled provider returns nil", func(t *testing.T) {
-		p := &OIDCProvider{config: OIDCConfig{Enabled: false}}
+		p := &OIDCProvider{config: config.OIDCConfig{Enabled: false}}
 		if err := p.Verify(context.Background()); err != nil {
 			t.Errorf("expected nil error for disabled provider, got %v", err)
 		}
@@ -601,7 +603,7 @@ func TestVerify(t *testing.T) {
 // --- Close ---
 
 func TestClose(t *testing.T) {
-	p := &OIDCProvider{config: OIDCConfig{}}
+	p := &OIDCProvider{config: config.OIDCConfig{}}
 	if err := p.Close(); err != nil {
 		t.Errorf("Close returned error: %v", err)
 	}
@@ -911,13 +913,13 @@ func TestNewOIDCProvider_Defaults(t *testing.T) {
 	ss := NewSessionStore("test", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := &OIDCConfig{
+	cfg := &config.OIDCConfig{
 		Enabled:   true,
 		IssuerURL: "http://idp.example.com",
 		ClientID:  "client",
 	}
 
-	p := NewOIDCProvider(cfg, ss, us)
+	p := NewOIDCProvider(cfg, "", ss, us)
 
 	if len(p.config.Scopes) != 3 {
 		t.Errorf("expected 3 default scopes, got %d", len(p.config.Scopes))
@@ -940,7 +942,7 @@ func TestNewOIDCProvider_CustomClaims(t *testing.T) {
 	ss := NewSessionStore("test", time.Hour, false)
 	us := NewUserStore()
 
-	cfg := &OIDCConfig{
+	cfg := &config.OIDCConfig{
 		Enabled:          true,
 		IssuerURL:        "http://idp.example.com",
 		ClientID:         "client",
@@ -951,7 +953,7 @@ func TestNewOIDCProvider_CustomClaims(t *testing.T) {
 		GroupsClaim:      "custom_groups",
 	}
 
-	p := NewOIDCProvider(cfg, ss, us)
+	p := NewOIDCProvider(cfg, "", ss, us)
 
 	if len(p.config.Scopes) != 1 {
 		t.Errorf("expected 1 custom scope, got %d", len(p.config.Scopes))

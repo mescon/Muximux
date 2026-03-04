@@ -51,7 +51,7 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 	// Extract icon name from path: /api/icons/dashboard/{name}.{ext}
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/dashboard/")
 	if path == "" {
-		http.Error(w, errIconNameRequired, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errIconNameRequired)
 		return
 	}
 
@@ -71,7 +71,7 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 	// Get the icon (falls back through svg → webp → png)
 	data, contentType, err := h.dashboardClient.GetIcon(name, variant)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -94,12 +94,11 @@ func (h *IconHandler) ListDashboardIcons(w http.ResponseWriter, r *http.Request)
 	}
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(iconList)
+	sendJSON(w, http.StatusOK, iconList)
 }
 
 // ListLucideIcons returns a list of available Lucide icons with optional search
@@ -116,25 +115,24 @@ func (h *IconHandler) ListLucideIcons(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(iconList)
+	sendJSON(w, http.StatusOK, iconList)
 }
 
 // GetLucideIcon serves a single Lucide icon by name
 func (h *IconHandler) GetLucideIcon(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/lucide/")
 	if path == "" {
-		http.Error(w, errIconNameRequired, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errIconNameRequired)
 		return
 	}
 
 	data, contentType, err := h.lucideClient.GetIcon(path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, err.Error())
 		return
 	}
 
@@ -149,7 +147,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, "/icons/")
 	parts := strings.SplitN(path, "/", 2)
 	if len(parts) < 2 {
-		http.Error(w, "Invalid icon path", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Invalid icon path")
 		return
 	}
 
@@ -172,7 +170,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 
 		data, contentType, err := h.dashboardClient.GetIcon(iconName, variant)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			respondError(w, r, http.StatusNotFound, err.Error())
 			return
 		}
 
@@ -184,7 +182,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		// Serve from custom icons directory
 		data, contentType, err := h.customManager.GetIcon(iconName)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			respondError(w, r, http.StatusNotFound, err.Error())
 			return
 		}
 
@@ -197,7 +195,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		name := strings.TrimSuffix(iconName, filepath.Ext(iconName))
 		data, contentType, err := h.lucideClient.GetIcon(name)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusNotFound)
+			respondError(w, r, http.StatusNotFound, err.Error())
 			return
 		}
 
@@ -206,7 +204,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		w.Write(data)
 
 	default:
-		http.Error(w, "Unknown icon type", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Unknown icon type")
 	}
 }
 
@@ -214,18 +212,17 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 func (h *IconHandler) ListCustomIcons(w http.ResponseWriter, r *http.Request) {
 	iconList, err := h.customManager.ListIcons()
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(iconList)
+	sendJSON(w, http.StatusOK, iconList)
 }
 
 // UploadCustomIcon handles custom icon file uploads
 func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
@@ -234,14 +231,14 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 
 	// Parse multipart form
 	if err := r.ParseMultipartForm(icons.MaxIconSize); err != nil {
-		http.Error(w, "File too large or invalid form", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "File too large or invalid form")
 		return
 	}
 
 	// Get the file
 	file, header, err := r.FormFile("icon")
 	if err != nil {
-		http.Error(w, "No icon file provided", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "No icon file provided")
 		return
 	}
 	defer file.Close()
@@ -255,7 +252,7 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 	// Read file content
 	data, err := io.ReadAll(file)
 	if err != nil {
-		http.Error(w, "Failed to read file", http.StatusInternalServerError)
+		respondError(w, r, http.StatusInternalServerError, "Failed to read file")
 		return
 	}
 
@@ -268,14 +265,12 @@ func (h *IconHandler) UploadCustomIcon(w http.ResponseWriter, r *http.Request) {
 
 	// Save the icon
 	if err := h.customManager.SaveIcon(name, data, contentType); err != nil {
-		logging.Warn("Custom icon upload failed", "source", "icons", "name", name, "error", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "icons", "name", name, "error", err)
 		return
 	}
 
-	logging.Info("Custom icon uploaded", "source", "icons", "name", name, "size", len(data))
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]string{
+	logging.From(r.Context()).Info("Custom icon uploaded", "source", "icons", "name", name, "size", len(data))
+	sendJSON(w, http.StatusOK, map[string]string{
 		"name":   name,
 		"status": "uploaded",
 	})
@@ -291,25 +286,25 @@ type fetchIconRequest struct {
 func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 	var req fetchIconRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		http.Error(w, errInvalidBody, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errInvalidBody)
 		return
 	}
 
 	if req.URL == "" {
-		http.Error(w, "URL is required", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "URL is required")
 		return
 	}
 
 	// Parse and validate URL scheme
 	parsed, err := url.Parse(req.URL)
 	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") {
-		http.Error(w, "Invalid URL: must be http or https", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Invalid URL: must be http or https")
 		return
 	}
 
 	// SSRF protection: resolve hostname and reject private/internal IPs
 	if err := validateHostSSRF(parsed.Hostname()); err != nil {
-		http.Error(w, "URL must not point to a private or internal address", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "URL must not point to a private or internal address")
 		return
 	}
 
@@ -318,25 +313,24 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 	client := &http.Client{Timeout: 10 * time.Second}
 	resp, err := client.Get(sanitizedURL)
 	if err != nil {
-		logging.Warn("Custom icon fetch failed", "source", "icons", "url", sanitizedURL, "error", err)
-		http.Error(w, "Failed to download icon", http.StatusBadGateway)
+		respondError(w, r, http.StatusBadGateway, "Failed to download icon", "source", "icons", "url", sanitizedURL, "error", err)
 		return
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		http.Error(w, "Remote server returned "+resp.Status, http.StatusBadGateway)
+		respondError(w, r, http.StatusBadGateway, "Remote server returned "+resp.Status)
 		return
 	}
 
 	// Read with size limit
 	data, err := io.ReadAll(io.LimitReader(resp.Body, icons.MaxIconSize+1))
 	if err != nil {
-		http.Error(w, "Failed to read response", http.StatusBadGateway)
+		respondError(w, r, http.StatusBadGateway, "Failed to read response")
 		return
 	}
 	if len(data) > icons.MaxIconSize {
-		http.Error(w, "File too large: max size is 2MB", http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "File too large: max size is 2MB")
 		return
 	}
 
@@ -352,7 +346,7 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 
 	// Validate MIME type
 	if _, ok := icons.AllowedMimeTypes[contentType]; !ok {
-		http.Error(w, "Unsupported file type: "+contentType, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, "Unsupported file type: "+contentType)
 		return
 	}
 
@@ -368,14 +362,12 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 
 	// Save the icon (reuses same validation as file upload)
 	if err := h.customManager.SaveIcon(name, data, contentType); err != nil {
-		logging.Warn("Custom icon fetch save failed", "source", "icons", "name", name, "error", err)
-		http.Error(w, err.Error(), http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "icons", "name", name, "error", err)
 		return
 	}
 
-	logging.Info("Custom icon fetched from URL", "source", "icons", "name", name, "url", req.URL, "size", len(data))
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]string{
+	logging.From(r.Context()).Info("Custom icon fetched from URL", "source", "icons", "name", name, "url", req.URL, "size", len(data))
+	sendJSON(w, http.StatusOK, map[string]string{
 		"name":   name,
 		"status": "uploaded",
 	})
@@ -384,25 +376,24 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 // DeleteCustomIcon handles custom icon deletion
 func (h *IconHandler) DeleteCustomIcon(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodDelete {
-		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
 	// Extract icon name from path: /api/icons/custom/{name}
 	path := strings.TrimPrefix(r.URL.Path, "/api/icons/custom/")
 	if path == "" {
-		http.Error(w, errIconNameRequired, http.StatusBadRequest)
+		respondError(w, r, http.StatusBadRequest, errIconNameRequired)
 		return
 	}
 
 	if err := h.customManager.DeleteIcon(path); err != nil {
-		http.Error(w, err.Error(), http.StatusNotFound)
+		respondError(w, r, http.StatusNotFound, err.Error())
 		return
 	}
 
-	logging.Info("Custom icon deleted", "source", "icons", "name", path)
-	w.Header().Set(headerContentType, contentTypeJSON)
-	json.NewEncoder(w).Encode(map[string]string{
+	logging.From(r.Context()).Info("Custom icon deleted", "source", "icons", "name", path)
+	sendJSON(w, http.StatusOK, map[string]string{
 		"status": "deleted",
 	})
 }
