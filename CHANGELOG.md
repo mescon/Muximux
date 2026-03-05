@@ -2,7 +2,7 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [Unreleased]
+## [3.0.7] - 2026-03-05
 
 ### Added
 - Log rotation -- `muximux.log` is automatically rotated at 10 MB with up to 3 archived copies; no external tooling needed
@@ -18,6 +18,11 @@ All notable changes to Muximux are documented in this file.
 ### Changed
 - All HTTP error responses now log at appropriate severity (5xx at ERROR, 401/403 at WARN, 4xx at DEBUG)
 - Simplified frontend API layer with shared request helper
+
+### Fixed
+- Proxied apps with internal sub-iframes (e.g. qBittorrent search download dialog) no longer lose access to parent window state -- the proxy interceptor now distinguishes between internal frames and the Muximux host
+- Proxy runtime interceptor now handles `URL` objects passed to `fetch()` and `XMLHttpRequest` -- previously only string URLs were rewritten
+- Proxy runtime interceptor now rewrites URLs in dynamically created `<iframe>`, `<link>`, `<a>`, and `<img srcset>` elements -- previously only `<img>`, `<script>`, `<source>`, `<video>` were covered
 
 ### Removed
 - Unused error helper functions (internal cleanup, no user-facing impact)
@@ -224,6 +229,10 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.7]: https://github.com/mescon/Muximux/releases/tag/v3.0.7
+[3.0.6]: https://github.com/mescon/Muximux/releases/tag/v3.0.6
+[3.0.5]: https://github.com/mescon/Muximux/releases/tag/v3.0.5
+[3.0.4]: https://github.com/mescon/Muximux/releases/tag/v3.0.4
 [3.0.3]: https://github.com/mescon/Muximux/releases/tag/v3.0.3
 [3.0.2]: https://github.com/mescon/Muximux/releases/tag/v3.0.2
 [3.0.1]: https://github.com/mescon/Muximux/releases/tag/v3.0.1

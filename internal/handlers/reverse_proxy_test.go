@@ -2010,3 +2010,30 @@ func TestInterceptorScriptIframeIsolation(t *testing.T) {
 		t.Error("interceptor should check if parent is within same proxy app before overriding")
 	}
 }
+
+func TestInterceptorScriptURLCoverage(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	script := string(rewriter.interceptorScript())
+
+	// Property setters should cover iframe.src and link.href for dynamically
+	// created elements (e.g. SPAs injecting stylesheets or sub-iframes).
+	if !strings.Contains(script, `W(HTMLIFrameElement,"src")`) {
+		t.Error("interceptor should override HTMLIFrameElement.src setter")
+	}
+	if !strings.Contains(script, `W(HTMLLinkElement,"href")`) {
+		t.Error("interceptor should override HTMLLinkElement.href setter")
+	}
+
+	// MutationObserver should watch href and srcset attributes in addition
+	// to src and poster, so innerHTML-injected links and responsive images
+	// get rewritten.
+	if !strings.Contains(script, `"href":1`) {
+		t.Error("MutationObserver urlAttrs should include href")
+	}
+	if !strings.Contains(script, `attributeFilter:["src","poster","href","srcset"]`) {
+		t.Error("MutationObserver should filter on src, poster, href, and srcset")
+	}
+	if !strings.Contains(script, `fixSrcset`) {
+		t.Error("interceptor should include fixSrcset for dynamic srcset rewriting")
+	}
+}

@@ -762,20 +762,32 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(!d||!d.set)return;` +
 		`Object.defineProperty(C.prototype,a,{get:d.get,set:function(v){d.set.call(this,R(v))},enumerable:d.enumerable,configurable:d.configurable})}` +
 		`W(HTMLImageElement,"src");W(HTMLScriptElement,"src");W(HTMLSourceElement,"src");W(HTMLMediaElement,"src");W(HTMLVideoElement,"poster");` +
+		`W(HTMLIFrameElement,"src");W(HTMLLinkElement,"href");` +
 		// MutationObserver as fallback for elements created via innerHTML/parser
 		// where property setters don't fire. Only rewrites if URL isn't already prefixed.
-		`var urlAttrs={"src":1,"poster":1};` +
+		`var urlAttrs={"src":1,"poster":1,"href":1};` +
 		`function fixAttr(el,a){var v=el.getAttribute(a);if(v){var n=R(v);if(n!==v)el.setAttribute(a,n)}}` +
+		// fixSrcset rewrites each URL in a srcset attribute (comma-separated "url descriptor" pairs)
+		`function fixSrcset(el){` +
+		`var v=el.getAttribute("srcset");if(!v)return;` +
+		`var changed=false,parts=v.split(",");` +
+		`for(var i=0;i<parts.length;i++){var t=parts[i].trim();if(!t)continue;` +
+		`var sp=t.indexOf(" "),url=sp>0?t.substring(0,sp):t,rest=sp>0?t.substring(sp):"";` +
+		`var n=R(url);if(n!==url){parts[i]=(i?" ":"")+n+rest;changed=true}}` +
+		`if(changed)el.setAttribute("srcset",parts.join(","))}` +
 		`function fixEl(el){` +
 		`if(el.nodeType!==1)return;` +
 		`for(var a in urlAttrs){if(el.hasAttribute&&el.hasAttribute(a))fixAttr(el,a)}` +
-		`var ch=el.querySelectorAll("[src],[poster]");` +
-		`for(var i=0;i<ch.length;i++){for(var a in urlAttrs){if(ch[i].hasAttribute(a))fixAttr(ch[i],a)}}}` +
+		`if(el.hasAttribute&&el.hasAttribute("srcset"))fixSrcset(el);` +
+		`var ch=el.querySelectorAll("[src],[poster],[href],[srcset]");` +
+		`for(var i=0;i<ch.length;i++){for(var a in urlAttrs){if(ch[i].hasAttribute(a))fixAttr(ch[i],a)}` +
+		`if(ch[i].hasAttribute("srcset"))fixSrcset(ch[i])}}` +
 		`new MutationObserver(function(muts){` +
 		`for(var i=0;i<muts.length;i++){var m=muts[i];` +
 		`if(m.type==="childList"){for(var j=0;j<m.addedNodes.length;j++)fixEl(m.addedNodes[j])}` +
-		`else if(m.type==="attributes"&&urlAttrs[m.attributeName]){fixAttr(m.target,m.attributeName)}}` +
-		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster"]});` +
+		`else if(m.type==="attributes"){if(urlAttrs[m.attributeName])fixAttr(m.target,m.attributeName);` +
+		`else if(m.attributeName==="srcset")fixSrcset(m.target)}}` +
+		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster","href","srcset"]});` +
 		// Chrome may freeze document.timeline in iframes, leaving Web Animations
 		// (like Plex's opacity fade-in) stuck indefinitely. Periodic scan detects
 		// loaded images with opacity stuck at 0, cancels their frozen animations,
