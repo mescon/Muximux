@@ -68,6 +68,7 @@ type ServerConfig struct {
 	BasePath     string    `yaml:"base_path" json:"base_path"` // e.g. "/muximux" — for serving behind a reverse proxy subpath
 	Title        string    `yaml:"title" json:"title"`
 	LogLevel     string    `yaml:"log_level" json:"log_level"`
+	LogFormat    string    `yaml:"log_format" json:"log_format"`       // "text" or "json" (default: "text")
 	ProxyTimeout string    `yaml:"proxy_timeout" json:"proxy_timeout"` // e.g. "30s", "1m" — timeout for proxied requests
 	TLS          TLSConfig `yaml:"tls" json:"tls"`
 	Gateway      string    `yaml:"gateway" json:"gateway"`
@@ -339,6 +340,7 @@ func defaultConfig() *Config {
 			Listen:       ":8080",
 			Title:        "Muximux",
 			LogLevel:     "info",
+			LogFormat:    "text",
 			ProxyTimeout: "30s",
 		},
 		Auth: AuthConfig{

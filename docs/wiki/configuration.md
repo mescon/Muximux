@@ -20,6 +20,7 @@ server:
   listen: ":8080"              # Listen address (default: ":8080")
   title: "Muximux"             # Page title shown in browser tab
   log_level: info              # Log verbosity: debug, info, warn, error
+  log_format: text             # Log output format: text or json
   proxy_timeout: 30s           # Global timeout for proxied requests
   base_path: ""                # Subpath for reverse proxy (e.g. "/muximux")
 
@@ -200,6 +201,8 @@ These override the corresponding config file values without needing `${VAR}` syn
 | `MUXIMUX_CONFIG` | Override config file path | `<data>/config.yaml` |
 | `MUXIMUX_LISTEN` | Listen address (e.g., `:9090`) | From config file |
 | `MUXIMUX_BASE_PATH` | Subpath for reverse proxy (e.g., `/muximux`) | Empty (root) |
+| `MUXIMUX_LOG_LEVEL` | Log verbosity (debug, info, warn, error) | From config file |
+| `MUXIMUX_LOG_FORMAT` | Log format (`text` or `json`) | `text` |
 
 ## Validation Rules
 
@@ -220,7 +223,7 @@ The following settings **require a restart** to take effect:
 - `server.tls.*` (all TLS settings)
 - `server.gateway` (Caddyfile path)
 
-Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level -- is applied immediately.
+Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level, log format -- is applied immediately.
 
 ## Config Export and Import
 

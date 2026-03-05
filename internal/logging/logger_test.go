@@ -2,6 +2,7 @@ package logging
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
@@ -1039,4 +1040,313 @@ func TestFrom_WithRequestIDOnly(t *testing.T) {
 		}
 	}
 	t.Error("expected to find 'rid only' in buffer")
+}
+
+// ---------------------------------------------------------------------------
+// rotatingWriter tests
+// ---------------------------------------------------------------------------
+
+func TestRotatingWriter_RotatesOnSize(t *testing.T) {
+	dir := t.TempDir()
+	logPath := filepath.Join(dir, "test.log")
+
+	rw, err := newRotatingWriter(logPath, 100, 3) // rotate at 100 bytes
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rw.Close()
+
+	// Write enough to trigger rotation
+	data := strings.Repeat("x", 60)
+	rw.Write([]byte(data)) // 60 bytes
+	rw.Write([]byte(data)) // 120 > 100 → rotates, then writes
+
+	// .log.1 should exist with the first write's data
+	rotated, err := os.ReadFile(logPath + ".1")
+	if err != nil {
+		t.Fatalf("expected .log.1 to exist: %v", err)
+	}
+	if string(rotated) != data {
+		t.Errorf("rotated file should contain first write, got %d bytes", len(rotated))
+	}
+
+	// .log should contain only the second write
+	current, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if string(current) != data {
+		t.Errorf("current log should contain second write, got %d bytes", len(current))
+	}
+}
+
+func TestRotatingWriter_ShiftsFiles(t *testing.T) {
+	dir := t.TempDir()
+	logPath := filepath.Join(dir, "test.log")
+
+	rw, err := newRotatingWriter(logPath, 50, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rw.Close()
+
+	chunk := strings.Repeat("a", 51) // each write triggers rotation
+
+	// Write 5 times to trigger 4 rotations (first write doesn't rotate)
+	for i := 0; i < 5; i++ {
+		rw.Write([]byte(chunk))
+	}
+
+	// Should have .log.1, .log.2, .log.3 but NOT .log.4
+	for i := 1; i <= 3; i++ {
+		path := fmt.Sprintf("%s.%d", logPath, i)
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			t.Errorf("expected %s to exist", path)
+		}
+	}
+	path4 := logPath + ".4"
+	if _, err := os.Stat(path4); !os.IsNotExist(err) {
+		t.Errorf("expected %s to NOT exist (max 3 rotated files)", path4)
+	}
+}
+
+func TestRotatingWriter_ConcurrentWrites(t *testing.T) {
+	dir := t.TempDir()
+	logPath := filepath.Join(dir, "test.log")
+
+	rw, err := newRotatingWriter(logPath, 500, 3)
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer rw.Close()
+
+	var wg sync.WaitGroup
+	for i := 0; i < 50; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			rw.Write([]byte("concurrent write\n"))
+		}()
+	}
+	wg.Wait()
+
+	// Verify no panic and some data was written
+	content, err := os.ReadFile(logPath)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if len(content) == 0 {
+		t.Error("expected some data in log file after concurrent writes")
+	}
+}
+
+// ---------------------------------------------------------------------------
+// parseTextLogLine tests
+// ---------------------------------------------------------------------------
+
+func TestParseTextLogLine_Valid(t *testing.T) {
+	line := `time=2026-03-05T12:00:00.000+01:00 level=INFO msg="HTTP request" source=http method=GET path=/api/config status=200`
+
+	entry, err := parseTextLogLine(line)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if entry.Level != "info" {
+		t.Errorf("expected level 'info', got %q", entry.Level)
+	}
+	if entry.Message != "HTTP request" {
+		t.Errorf("expected message 'HTTP request', got %q", entry.Message)
+	}
+	if entry.Source != "http" {
+		t.Errorf("expected source 'http', got %q", entry.Source)
+	}
+	if entry.Attrs["method"] != "GET" {
+		t.Errorf("expected method=GET, got %q", entry.Attrs["method"])
+	}
+	if entry.Attrs["status"] != "200" {
+		t.Errorf("expected status=200, got %q", entry.Attrs["status"])
+	}
+}
+
+func TestParseTextLogLine_QuotedValues(t *testing.T) {
+	line := `time=2026-03-05T12:00:00.000+01:00 level=WARN msg="something went wrong" source=proxy error="connection refused"`
+
+	entry, err := parseTextLogLine(line)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if entry.Message != "something went wrong" {
+		t.Errorf("expected 'something went wrong', got %q", entry.Message)
+	}
+	if entry.Attrs["error"] != "connection refused" {
+		t.Errorf("expected error='connection refused', got %q", entry.Attrs["error"])
+	}
+}
+
+func TestParseTextLogLine_UnquotedMsg(t *testing.T) {
+	line := `time=2026-03-05T12:00:00.000+01:00 level=INFO msg=started source=server`
+
+	entry, err := parseTextLogLine(line)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if entry.Message != "started" {
+		t.Errorf("expected 'started', got %q", entry.Message)
+	}
+}
+
+func TestParseTextLogLine_Invalid(t *testing.T) {
+	tests := []string{
+		"",
+		"this is not a log line",
+		"garbage=data",
+	}
+	for _, line := range tests {
+		_, err := parseTextLogLine(line)
+		if err == nil {
+			t.Errorf("expected error for line %q", line)
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// LoadRecentFromFile tests
+// ---------------------------------------------------------------------------
+
+func TestLoadRecentFromFile_PopulatesBuffer(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	oldPath := logFilePath
+	oldWriter := logWriter
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+		logFilePath = oldPath
+		logWriter = oldWriter
+	}()
+
+	dir := t.TempDir()
+	logFile := filepath.Join(dir, "test.log")
+
+	// Write some slog text lines
+	lines := []string{
+		`time=2026-03-05T10:00:00.000+01:00 level=INFO msg="first entry" source=test`,
+		`time=2026-03-05T10:01:00.000+01:00 level=WARN msg="second entry" source=test key=val`,
+		`time=2026-03-05T10:02:00.000+01:00 level=ERROR msg="third entry" source=test`,
+	}
+	if err := os.WriteFile(logFile, []byte(strings.Join(lines, "\n")+"\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	// Initialize with the test log file
+	buffer = NewLogBuffer(1000)
+	logFilePath = logFile
+	logWriter = nil
+
+	LoadRecentFromFile()
+
+	entries := buffer.Recent(10)
+	if len(entries) != 3 {
+		t.Fatalf("expected 3 entries, got %d", len(entries))
+	}
+	if entries[0].Message != "first entry" {
+		t.Errorf("expected 'first entry', got %q", entries[0].Message)
+	}
+	if entries[1].Level != "warn" {
+		t.Errorf("expected level 'warn', got %q", entries[1].Level)
+	}
+	if entries[2].Message != "third entry" {
+		t.Errorf("expected 'third entry', got %q", entries[2].Message)
+	}
+}
+
+func TestLoadRecentFromFile_NoFile(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	oldPath := logFilePath
+	oldWriter := logWriter
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+		logFilePath = oldPath
+		logWriter = oldWriter
+	}()
+
+	buffer = NewLogBuffer(1000)
+	logFilePath = "/nonexistent/path/test.log"
+	logWriter = nil
+
+	// Should not panic
+	LoadRecentFromFile()
+
+	entries := buffer.Recent(10)
+	if len(entries) != 0 {
+		t.Errorf("expected 0 entries for missing file, got %d", len(entries))
+	}
+}
+
+func TestLoadRecentFromFile_SkipsInvalidLines(t *testing.T) {
+	oldBuffer := buffer
+	oldLogger := defaultLogger
+	oldPath := logFilePath
+	oldWriter := logWriter
+	defer func() {
+		buffer = oldBuffer
+		defaultLogger = oldLogger
+		logFilePath = oldPath
+		logWriter = oldWriter
+	}()
+
+	dir := t.TempDir()
+	logFile := filepath.Join(dir, "test.log")
+
+	lines := []string{
+		`time=2026-03-05T10:00:00.000+01:00 level=INFO msg="valid" source=test`,
+		`this is garbage`,
+		`also not valid`,
+		`time=2026-03-05T10:01:00.000+01:00 level=INFO msg="also valid" source=test`,
+	}
+	if err := os.WriteFile(logFile, []byte(strings.Join(lines, "\n")+"\n"), 0600); err != nil {
+		t.Fatal(err)
+	}
+
+	buffer = NewLogBuffer(1000)
+	logFilePath = logFile
+	logWriter = nil
+
+	LoadRecentFromFile()
+
+	entries := buffer.Recent(10)
+	if len(entries) != 2 {
+		t.Fatalf("expected 2 valid entries (skipping garbage), got %d", len(entries))
+	}
+}
+
+// ---------------------------------------------------------------------------
+// Close tests
+// ---------------------------------------------------------------------------
+
+func TestClose_NilWriter(t *testing.T) {
+	oldWriter := logWriter
+	defer func() { logWriter = oldWriter }()
+
+	logWriter = nil
+	Close() // should not panic
+}
+
+func TestClose_ClosesWriter(t *testing.T) {
+	oldWriter := logWriter
+	defer func() { logWriter = oldWriter }()
+
+	dir := t.TempDir()
+	rw, err := newRotatingWriter(filepath.Join(dir, "test.log"), defaultMaxLogSize, defaultMaxLogFiles)
+	if err != nil {
+		t.Fatal(err)
+	}
+	logWriter = rw
+	Close()
+
+	if logWriter != nil {
+		t.Error("expected logWriter to be nil after Close")
+	}
 }

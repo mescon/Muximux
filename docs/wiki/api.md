@@ -325,10 +325,17 @@ GET /api/logs/recent?limit=50&level=error
 ```json
 [
   {
-    "timestamp": "2025-01-15T14:23:01.234Z",
-    "level": "error",
-    "message": "Dial failed: connection refused",
-    "source": "proxy"
+    "timestamp": "2026-01-01T12:00:00Z",
+    "level": "INFO",
+    "message": "HTTP request",
+    "source": "http",
+    "attrs": {
+      "method": "GET",
+      "path": "/api/config",
+      "status": "200",
+      "latency_ms": "12",
+      "request_id": "a1b2c3d4e5f6a7b8"
+    }
   }
 ]
 ```

@@ -57,6 +57,9 @@ type Server struct {
 	loginLimiter   *rateLimiter
 	setupLimiter   *rateLimiter
 	logCh          chan logging.LogEntry
+	cleanupDone    chan struct{}
+	iconCacheDirs  []string
+	iconCacheTTL   time.Duration
 	version        string
 	commit         string
 	buildDate      string
@@ -157,7 +160,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	themesDir := filepath.Join(dataDir, "themes")
 	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler, themesDir)
-	registerIconRoutes(mux, cfg, requireAdmin, dataDir)
+	s.iconCacheDirs, s.iconCacheTTL = registerIconRoutes(mux, cfg, requireAdmin, dataDir)
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
 	// Always registered so routes added at runtime (via Settings) work without restart.
@@ -536,15 +539,17 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 }
 
 // registerIconRoutes registers icon API and serving routes.
-func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard, dataDir string) {
+// Returns the resolved cache dirs and TTL for use by the cache cleanup goroutine.
+func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard, dataDir string) ([]string, time.Duration) {
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
 	// Resolve CacheDir relative to dataDir unless it's an absolute path
 	cacheDir := cfg.Icons.DashboardIcons.CacheDir
 	if !filepath.IsAbs(cacheDir) {
 		cacheDir = filepath.Join(dataDir, cacheDir)
 	}
+	lucideDir := filepath.Join(dataDir, "icons", "lucide")
 	dashboardClient := icons.NewDashboardIconsClient(cacheDir, cacheTTL)
-	lucideClient := icons.NewLucideClient(filepath.Join(dataDir, "icons", "lucide"), cacheTTL)
+	lucideClient := icons.NewLucideClient(lucideDir, cacheTTL)
 	iconHandler := handlers.NewIconHandler(dashboardClient, lucideClient, filepath.Join(dataDir, "icons", "custom"))
 
 	mux.HandleFunc("/api/icons/dashboard", iconHandler.ListDashboardIcons)
@@ -570,6 +575,8 @@ func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adm
 	})
 	mux.HandleFunc("/api/icons/custom/", requireAdmin(iconHandler.DeleteCustomIcon))
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
+
+	return []string{cacheDir, lucideDir}, cacheTTL
 }
 
 // setupCaddy configures the Caddy reverse proxy when TLS or Gateway is active.
@@ -923,6 +930,12 @@ func (s *Server) Start() error {
 		s.healthMonitor.Start()
 	}
 
+	// Start icon cache cleanup
+	if len(s.iconCacheDirs) > 0 {
+		s.cleanupDone = make(chan struct{})
+		icons.StartCacheCleanup(s.iconCacheDirs, 2*s.iconCacheTTL, s.cleanupDone)
+	}
+
 	// Start Caddy if configured (must start before Go server claims its port)
 	if s.proxyServer != nil {
 		if err := s.proxyServer.Start(); err != nil {
@@ -962,6 +975,11 @@ func (s *Server) Stop() error {
 	}
 	if s.setupLimiter != nil {
 		s.setupLimiter.stop()
+	}
+
+	// Stop icon cache cleanup
+	if s.cleanupDone != nil {
+		close(s.cleanupDone)
 	}
 
 	// Unsubscribe log channel to stop the bridge goroutine
@@ -1145,13 +1163,35 @@ func panicRecoveryMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// requestIDMiddleware generates a short random request ID, stores it in context
-// via logging.SetRequestID, and sets the X-Request-ID response header.
+// isValidRequestID checks whether an incoming X-Request-ID header value is
+// safe to reuse (non-empty, reasonable length, alphanumeric/hex with hyphens
+// and underscores).
+func isValidRequestID(rid string) bool {
+	if len(rid) == 0 || len(rid) > 128 {
+		return false
+	}
+	for _, c := range rid {
+		if (c < '0' || c > '9') &&
+			(c < 'a' || c > 'z') &&
+			(c < 'A' || c > 'Z') &&
+			c != '-' && c != '_' {
+			return false
+		}
+	}
+	return true
+}
+
+// requestIDMiddleware reads an incoming X-Request-ID header (from upstream
+// proxies) or generates a new one. The ID is stored in context via
+// logging.SetRequestID and set on the X-Request-ID response header.
 func requestIDMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		b := make([]byte, 8)
-		_, _ = rand.Read(b)
-		rid := hex.EncodeToString(b)
+		rid := r.Header.Get("X-Request-ID")
+		if !isValidRequestID(rid) {
+			b := make([]byte, 8)
+			_, _ = rand.Read(b)
+			rid = hex.EncodeToString(b)
+		}
 
 		ctx := logging.SetRequestID(r.Context(), rid)
 		w.Header().Set("X-Request-ID", rid)
@@ -1159,11 +1199,13 @@ func requestIDMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// statusRecorder wraps http.ResponseWriter to capture the response status code.
+// statusRecorder wraps http.ResponseWriter to capture the response status code
+// and total bytes written.
 type statusRecorder struct {
 	http.ResponseWriter
-	status  int
-	written bool
+	status       int
+	written      bool
+	bytesWritten int64
 }
 
 func (sr *statusRecorder) WriteHeader(code int) {
@@ -1179,7 +1221,9 @@ func (sr *statusRecorder) Write(b []byte) (int, error) {
 		sr.status = http.StatusOK
 		sr.written = true
 	}
-	return sr.ResponseWriter.Write(b)
+	n, err := sr.ResponseWriter.Write(b)
+	sr.bytesWritten += int64(n)
+	return n, err
 }
 
 // isStaticAsset returns true for paths that serve static files.
@@ -1211,7 +1255,9 @@ func requestLoggingMiddleware(next http.Handler) http.Handler {
 			"path", r.URL.Path,
 			"status", rec.status,
 			"latency_ms", latency.Milliseconds(),
+			"bytes_written", rec.bytesWritten,
 			"remote_ip", remoteIP(r),
+			"user_agent", r.Header.Get("User-Agent"),
 		}
 
 		if isStaticAsset(r.URL.Path) {

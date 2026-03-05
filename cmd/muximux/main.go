@@ -129,15 +129,24 @@ func main() {
 		log.Fatalf("Failed to load configuration: %v", err)
 	}
 
+	// Environment variable overrides for logging (take precedence over config file)
+	if v := os.Getenv("MUXIMUX_LOG_LEVEL"); v != "" {
+		cfg.Server.LogLevel = v
+	}
+	if v := os.Getenv("MUXIMUX_LOG_FORMAT"); v != "" {
+		cfg.Server.LogFormat = v
+	}
+
 	logFile := filepath.Join(*dataDir, "muximux.log")
 	if err := logging.Init(logging.Config{
 		Level:   logging.Level(cfg.Server.LogLevel),
-		Format:  "text",
+		Format:  cfg.Server.LogFormat,
 		Output:  "stdout",
 		LogFile: logFile,
 	}); err != nil {
 		log.Fatalf("Failed to initialize logging: %v", err)
 	}
+	logging.LoadRecentFromFile()
 
 	applyOverrides(cfg, *listenAddr, *basePath)
 
@@ -171,5 +180,6 @@ func main() {
 		logging.Error("Error during shutdown", "source", "server", "error", err)
 	}
 
+	logging.Close()
 	logging.Info("Goodbye!", "source", "server")
 }

@@ -55,7 +55,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applica
 
 ### Logging & Monitoring (ASVS V7)
 
-- **Structured audit logging** -- Security-relevant events are logged with `source=audit`, making them easy to filter from operational logs. Audited events include:
+- **Structured audit logging** -- Security-relevant events are logged with `source=audit` and a unique `request_id` for correlation, making them easy to filter and trace. Audited events include:
   - User login (success and failure)
   - User logout
   - Password changes
@@ -65,6 +65,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applica
   - Config import/export/restore
   - OIDC authentication events
   - API key authentication failures
+- **Centralized error logging** -- All HTTP error responses are logged at appropriate severity: 5xx at ERROR, 401/403 at WARN, other 4xx at DEBUG. No silent errors.
 - **Real-time log streaming** -- The built-in log viewer supports WebSocket-based live streaming with source-based filtering, so you can monitor audit events in real time.
 - **File logging** -- Logs are written to both stdout and `data/muximux.log` for persistence.
 

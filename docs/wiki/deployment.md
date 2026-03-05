@@ -62,6 +62,15 @@ Mount a directory to `/app/data`. This stores:
 
 The Docker image includes a built-in health check (`GET /api/health` every 30s).
 
+### Logging
+
+To use JSON log format (recommended for container log drivers like Loki or ELK):
+
+```yaml
+    environment:
+      - MUXIMUX_LOG_FORMAT=json
+```
+
 ### Updating
 
 ```bash
@@ -128,6 +137,10 @@ sudo systemctl start muximux
 # Check status
 sudo systemctl status muximux
 sudo journalctl -u muximux -f
+
+# Enable debug logging temporarily
+sudo systemctl set-environment MUXIMUX_LOG_LEVEL=debug
+sudo systemctl restart muximux
 ```
 
 ---

@@ -2,6 +2,26 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [Unreleased]
+
+### Added
+- Log rotation -- `muximux.log` is automatically rotated at 10 MB with up to 3 archived copies; no external tooling needed
+- Log persistence across restarts -- the `/logs` page now shows entries from before the last restart by replaying the log file on startup
+- Icon cache cleanup -- expired dashboard and Lucide icon cache files are automatically pruned every 24 hours
+- Centralized request logging -- API and page requests are logged at INFO with method, path, status, latency, bytes written, remote IP, and user agent (`source=http`); static asset requests are logged at DEBUG only to avoid noise
+- Request ID correlation -- `X-Request-ID` header on every response; incoming IDs from upstream proxies are honored
+- Context-aware logging -- all log entries within a request carry `request_id` and authenticated `user` for correlation
+- Panic recovery middleware -- handler panics are caught, logged with stack trace, and return 500 with request ID
+- `MUXIMUX_LOG_LEVEL` and `MUXIMUX_LOG_FORMAT` environment variables for runtime log configuration
+- `server.log_format` config option (`text` or `json`; default: `text`)
+
+### Changed
+- All HTTP error responses now log at appropriate severity (5xx at ERROR, 401/403 at WARN, 4xx at DEBUG)
+- Simplified frontend API layer with shared request helper
+
+### Removed
+- Unused error helper functions (internal cleanup, no user-facing impact)
+
 ## [3.0.6] - 2026-03-04
 
 ### Fixed

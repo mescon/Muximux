@@ -1,6 +1,7 @@
 package logging
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"io"
@@ -21,6 +22,100 @@ const (
 	LevelWarn  Level = "warn"
 	LevelError Level = "error"
 )
+
+const (
+	defaultMaxLogSize  = 10 * 1024 * 1024 // 10 MB
+	defaultMaxLogFiles = 3
+)
+
+// rotatingWriter is an io.Writer that rotates the underlying log file
+// when it exceeds maxSize. It keeps at most maxFiles rotated copies
+// (e.g. .log.1, .log.2, .log.3).
+type rotatingWriter struct {
+	mu       sync.Mutex
+	file     *os.File
+	path     string
+	size     int64
+	maxSize  int64
+	maxFiles int
+}
+
+func newRotatingWriter(path string, maxSize int64, maxFiles int) (*rotatingWriter, error) { //nolint:unparam // maxFiles is a constant in production but parameterized for testability
+	if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+		return nil, fmt.Errorf("create log directory: %w", err)
+	}
+
+	f, err := os.OpenFile(path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return nil, err
+	}
+
+	info, err := f.Stat()
+	if err != nil {
+		f.Close()
+		return nil, err
+	}
+
+	return &rotatingWriter{
+		file:     f,
+		path:     path,
+		size:     info.Size(),
+		maxSize:  maxSize,
+		maxFiles: maxFiles,
+	}, nil
+}
+
+func (w *rotatingWriter) Write(p []byte) (int, error) {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+
+	if w.size+int64(len(p)) > w.maxSize {
+		if err := w.rotate(); err != nil {
+			return 0, fmt.Errorf("log rotation failed: %w", err)
+		}
+	}
+
+	n, err := w.file.Write(p)
+	w.size += int64(n)
+	return n, err
+}
+
+func (w *rotatingWriter) rotate() error {
+	if err := w.file.Close(); err != nil {
+		return err
+	}
+
+	// Shift existing rotated files: .log.N → .log.N+1, delete beyond max
+	for i := w.maxFiles; i >= 1; i-- {
+		src := fmt.Sprintf("%s.%d", w.path, i)
+		if i == w.maxFiles {
+			os.Remove(src) // delete the oldest
+			continue
+		}
+		dst := fmt.Sprintf("%s.%d", w.path, i+1)
+		_ = os.Rename(src, dst) // file may not exist
+	}
+
+	// Rename current .log → .log.1
+	if err := os.Rename(w.path, w.path+".1"); err != nil {
+		return err
+	}
+
+	// Open a fresh .log
+	f, err := os.OpenFile(w.path, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+	if err != nil {
+		return err
+	}
+	w.file = f
+	w.size = 0
+	return nil
+}
+
+func (w *rotatingWriter) Close() error {
+	w.mu.Lock()
+	defer w.mu.Unlock()
+	return w.file.Close()
+}
 
 // Config holds logging configuration
 type Config struct {
@@ -198,11 +293,14 @@ var (
 	defaultLogger *slog.Logger
 	buffer        *LogBuffer
 	levelVar      slog.LevelVar
+	logFilePath   string
+	logWriter     *rotatingWriter
 )
 
 // Init initializes the global logger with a BroadcastHandler that captures
 // log entries into an in-memory ring buffer.
-// If LogFile is set, logs are written to both stdout and the file.
+// If LogFile is set, logs are written to both stdout and the file via a
+// rotating writer that prevents unbounded growth.
 func Init(cfg Config) error {
 	buffer = NewLogBuffer(1000)
 
@@ -224,14 +322,13 @@ func Init(cfg Config) error {
 
 	// If a log file is configured, tee output to both the primary writer and the file.
 	if cfg.LogFile != "" {
-		if err := os.MkdirAll(filepath.Dir(cfg.LogFile), 0755); err != nil {
-			return fmt.Errorf("create log directory: %w", err)
-		}
-		file, err := os.OpenFile(cfg.LogFile, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		rw, err := newRotatingWriter(cfg.LogFile, defaultMaxLogSize, defaultMaxLogFiles)
 		if err != nil {
 			return fmt.Errorf("open log file: %w", err)
 		}
-		output = io.MultiWriter(output, file)
+		logWriter = rw
+		logFilePath = cfg.LogFile
+		output = io.MultiWriter(output, rw)
 	}
 
 	opts := &slog.HandlerOptions{Level: &levelVar}
@@ -248,6 +345,171 @@ func Init(cfg Config) error {
 	slog.SetDefault(defaultLogger)
 
 	return nil
+}
+
+// Close closes the rotating log writer. Call on shutdown.
+func Close() {
+	if logWriter != nil {
+		logWriter.Close()
+		logWriter = nil
+	}
+}
+
+// parseTextLogLine parses a single slog text-format line into a LogEntry.
+// Expected format: time=... level=... msg=... [key=value ...]
+func parseTextLogLine(line string) (LogEntry, error) {
+	pairs := parseKeyValuePairs(line)
+	if len(pairs) == 0 {
+		return LogEntry{}, fmt.Errorf("unparseable log line")
+	}
+
+	var entry LogEntry
+	attrs := map[string]string{}
+
+	for _, kv := range pairs {
+		switch kv.key {
+		case "time":
+			t, err := time.Parse(time.RFC3339Nano, kv.value)
+			if err != nil {
+				// Try with millisecond precision
+				t, err = time.Parse("2006-01-02T15:04:05.000-07:00", kv.value)
+				if err != nil {
+					return LogEntry{}, fmt.Errorf("invalid time: %w", err)
+				}
+			}
+			entry.Timestamp = t
+		case "level":
+			entry.Level = strings.ToLower(kv.value)
+		case "msg":
+			entry.Message = kv.value
+		case "source":
+			entry.Source = kv.value
+		default:
+			attrs[kv.key] = kv.value
+		}
+	}
+
+	if entry.Timestamp.IsZero() || entry.Level == "" {
+		return LogEntry{}, fmt.Errorf("missing required fields")
+	}
+
+	if len(attrs) > 0 {
+		entry.Attrs = attrs
+	}
+
+	return entry, nil
+}
+
+type keyValue struct {
+	key, value string
+}
+
+// parseKeyValuePairs parses slog text format: key=value or key="quoted value" pairs.
+func parseKeyValuePairs(line string) []keyValue {
+	var pairs []keyValue
+	i := 0
+	n := len(line)
+
+	for i < n {
+		// Skip whitespace
+		for i < n && line[i] == ' ' {
+			i++
+		}
+		if i >= n {
+			break
+		}
+
+		// Find '='
+		eqIdx := strings.IndexByte(line[i:], '=')
+		if eqIdx < 0 {
+			break
+		}
+		key := line[i : i+eqIdx]
+		i += eqIdx + 1
+
+		if i >= n {
+			pairs = append(pairs, keyValue{key, ""})
+			break
+		}
+
+		var value string
+		if line[i] == '"' {
+			// Quoted value — find closing quote (handle escaped quotes)
+			i++ // skip opening quote
+			var sb strings.Builder
+			for i < n {
+				if line[i] == '\\' && i+1 < n {
+					// slog escapes with backslash
+					sb.WriteByte(line[i+1])
+					i += 2
+					continue
+				}
+				if line[i] == '"' {
+					i++ // skip closing quote
+					break
+				}
+				sb.WriteByte(line[i])
+				i++
+			}
+			value = sb.String()
+		} else {
+			// Unquoted value — read until next space
+			end := strings.IndexByte(line[i:], ' ')
+			if end < 0 {
+				value = line[i:]
+				i = n
+			} else {
+				value = line[i : i+end]
+				i += end
+			}
+		}
+
+		pairs = append(pairs, keyValue{key, value})
+	}
+
+	return pairs
+}
+
+// LoadRecentFromFile reads the current log file and populates the ring buffer
+// with parsed entries. Call after Init(). Skips unparseable lines gracefully.
+func LoadRecentFromFile() {
+	if logFilePath == "" || buffer == nil {
+		return
+	}
+
+	f, err := os.Open(logFilePath)
+	if err != nil {
+		return // file may not exist yet — that's fine
+	}
+	defer f.Close()
+
+	// Read all lines, keeping only the last buffer.size entries
+	var entries []LogEntry
+	scanner := bufio.NewScanner(f)
+	// Increase scanner buffer for long lines
+	scanner.Buffer(make([]byte, 0, 64*1024), 256*1024)
+	for scanner.Scan() {
+		entry, err := parseTextLogLine(scanner.Text())
+		if err != nil {
+			continue // skip unparseable lines
+		}
+		entries = append(entries, entry)
+		// Keep bounded — only store last buffer.size entries
+		if len(entries) > buffer.size {
+			entries = entries[len(entries)-buffer.size:]
+		}
+	}
+
+	// Add entries to the ring buffer (without broadcasting to subscribers)
+	for i := range entries {
+		buffer.mu.Lock()
+		buffer.entries[buffer.head] = entries[i]
+		buffer.head = (buffer.head + 1) % buffer.size
+		if buffer.count < buffer.size {
+			buffer.count++
+		}
+		buffer.mu.Unlock()
+	}
 }
 
 // Buffer returns the global log buffer, or nil if Init has not been called.

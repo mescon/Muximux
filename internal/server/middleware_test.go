@@ -76,6 +76,73 @@ func TestRequestIDMiddleware_Uniqueness(t *testing.T) {
 	}
 }
 
+func TestRequestIDMiddleware_HonorsIncoming(t *testing.T) {
+	var sawID string
+
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sawID = w.Header().Get("X-Request-ID")
+		w.WriteHeader(http.StatusOK)
+	})
+
+	handler := requestIDMiddleware(inner)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("X-Request-ID", "upstream-abc-123")
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	if sawID != "upstream-abc-123" {
+		t.Errorf("expected upstream ID to be honored, got %q", sawID)
+	}
+}
+
+func TestRequestIDMiddleware_RejectsInvalidIncoming(t *testing.T) {
+	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
+	handler := requestIDMiddleware(inner)
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.Header.Set("X-Request-ID", "has spaces and <html>")
+	rec := httptest.NewRecorder()
+
+	handler.ServeHTTP(rec, req)
+
+	rid := rec.Header().Get("X-Request-ID")
+	if rid == "has spaces and <html>" {
+		t.Error("invalid X-Request-ID should not be honored")
+	}
+	if len(rid) != 16 {
+		t.Errorf("expected generated 16-char hex ID, got %q (len %d)", rid, len(rid))
+	}
+}
+
+// --- isValidRequestID ---
+
+func TestIsValidRequestID(t *testing.T) {
+	tests := []struct {
+		input string
+		valid bool
+	}{
+		{"abc123", true},
+		{"ABC-def_456", true},
+		{"a1b2c3d4e5f6a1b2", true},
+		{"", false},
+		{"has spaces", false},
+		{"has<html>", false},
+		{string(make([]byte, 129)), false}, // too long
+		{"valid-id", true},
+		{"UPPER_CASE", true},
+	}
+
+	for _, tt := range tests {
+		got := isValidRequestID(tt.input)
+		if got != tt.valid {
+			t.Errorf("isValidRequestID(%q) = %v, want %v", tt.input, got, tt.valid)
+		}
+	}
+}
+
 // --- panicRecoveryMiddleware ---
 
 func TestPanicRecoveryMiddleware_Returns500(t *testing.T) {
@@ -201,6 +268,21 @@ func TestStatusRecorder_WriteDefaultsToOK(t *testing.T) {
 	}
 	if !sr.written {
 		t.Error("expected written to be true after Write")
+	}
+	if sr.bytesWritten != 5 {
+		t.Errorf("expected bytesWritten 5, got %d", sr.bytesWritten)
+	}
+}
+
+func TestStatusRecorder_BytesWrittenAccumulates(t *testing.T) {
+	rec := httptest.NewRecorder()
+	sr := &statusRecorder{ResponseWriter: rec, status: http.StatusOK}
+
+	_, _ = sr.Write([]byte("hello"))
+	_, _ = sr.Write([]byte(" world"))
+
+	if sr.bytesWritten != 11 {
+		t.Errorf("expected bytesWritten 11, got %d", sr.bytesWritten)
 	}
 }
 

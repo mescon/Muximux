@@ -77,16 +77,45 @@ server:
   log_level: debug
 ```
 
-### What Gets Logged
+Or override with an environment variable (takes precedence over config file):
 
-Backend debug logging adds detailed request-level information:
+```bash
+MUXIMUX_LOG_LEVEL=debug muximux
+```
+
+### What Gets Logged at Each Level
+
+Some log sources are active at the default INFO level; others only appear when you switch to DEBUG.
+
+**Always active (INFO and above):**
 
 | Source | What's Logged |
 |---|---|
+| `http` | API and page requests: method, path, status, latency, bytes written, remote IP, user agent |
+| `audit` | Security events: login, logout, password changes, user management, config changes |
+| `server` | Panic recovery with stack traces (logged at ERROR) |
+
+**Debug level only (set log level to `debug` to see these):**
+
+| Source | What's Logged |
+|---|---|
+| `http` | Static asset requests (`/assets/*`, `.js`, `.css`, images, fonts) -- suppressed at INFO to avoid noise |
 | `auth` | Every request showing whether it was authenticated, bypassed, or rejected, including the matched user and request path |
 | `health` | Individual health check results per app with response times |
 | `proxy` | Route rebuilds when config changes |
 | `websocket` | Client connect/disconnect events |
+
+> **Tip:** At the default `info` level, you'll see one log line per API call -- not per CSS/JS/image load. Set `log_level: warn` to suppress request logs entirely and see only warnings and errors.
+
+### Request ID Correlation
+
+Every HTTP request is assigned a unique `request_id` that appears in all log entries for that request. This makes it easy to trace a single request across auth, handler, and proxy logs.
+
+- If an upstream proxy (Nginx, Traefik, Caddy) sends an `X-Request-ID` header, Muximux reuses it
+- Otherwise, a random 16-character hex ID is generated
+- The `X-Request-ID` response header is always set, so you can match browser requests to server logs
+
+Filter logs by request ID in the log viewer to see the full lifecycle of a single request.
 
 ### Understanding Auth Bypass Messages
 
@@ -126,7 +155,21 @@ When reporting an issue:
 4. Copy the relevant console output and server logs
 5. Include them in your bug report
 
-Frontend logs can be copied from the browser's DevTools Console tab. Backend logs appear in the server's standard output (or wherever you've configured logging).
+Frontend logs can be copied from the browser's DevTools Console tab. Backend logs appear in the server's standard output and in `muximux.log` inside the data directory.
+
+---
+
+## Log Rotation
+
+The `muximux.log` file (in the data directory) is automatically rotated to prevent unbounded disk growth:
+
+- When the log file reaches **10 MB**, it is rotated
+- Up to **3** rotated copies are kept (`muximux.log.1`, `muximux.log.2`, `muximux.log.3`)
+- Older rotated files are automatically deleted
+
+No external log rotation tool (e.g., `logrotate`) is needed.
+
+On restart, the most recent log entries are reloaded into the in-memory buffer so the **/logs** page shows history from before the restart.
 
 ---
 
