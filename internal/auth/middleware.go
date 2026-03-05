@@ -20,6 +20,9 @@ const (
 	ContextKeyUser ContextKey = "user"
 	// ContextKeySession is the context key for the session
 	ContextKeySession ContextKey = "session"
+	// ContextKeyClientIP is the context key for the real client IP
+	// (resolved from X-Forwarded-For / X-Real-IP when behind a trusted proxy).
+	ContextKeyClientIP ContextKey = "client_ip"
 )
 
 // AuthMethod defines the authentication method
@@ -120,6 +123,17 @@ func parseTrustedProxies(proxies []string) []*net.IPNet {
 // snapshot returns the current auth config snapshot (lock-free via atomic.Pointer).
 func (m *Middleware) snapshot() *authSnapshot {
 	return m.snap.Load()
+}
+
+// ResolveClientIP returns middleware that stores the real client IP in the
+// request context.  It must be chained OUTSIDE the logging middleware so that
+// log entries see the resolved IP instead of the proxy's address.
+func (m *Middleware) ResolveClientIP(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		snap := m.snapshot()
+		clientIP := getClientIP(r, snap)
+		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ContextKeyClientIP, clientIP)))
+	})
 }
 
 // RequireAuth returns middleware that requires authentication

@@ -753,6 +753,12 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(_E){window.EventSource=function(u,c){return new _E(R(u),c)};` +
 		`window.EventSource.prototype=_E.prototype;` +
 		`window.EventSource.CONNECTING=_E.CONNECTING;window.EventSource.OPEN=_E.OPEN;window.EventSource.CLOSED=_E.CLOSED}` +
+		// Block service worker registration from proxied apps — their SWs would
+		// register under Muximux's origin and intercept unrelated requests.
+		`if(navigator.serviceWorker){` +
+		`navigator.serviceWorker.register=function(){return Promise.resolve()};` +
+		`try{navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(reg){` +
+		`if(reg.scope.indexOf(P)!==-1)reg.unregister()})})}catch(e){}}` +
 		// Property setter overrides for synchronous URL rewriting on DOM elements.
 		// When an SPA sets img.src = "/photo/...", the setter intercepts it and
 		// rewrites the URL BEFORE the browser starts loading, preserving the normal

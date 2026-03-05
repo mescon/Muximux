@@ -299,6 +299,15 @@
         syncFromConfig(config.theme);
       }
 
+      // Inject PWA manifest now that auth has passed — deferred from index.html
+      // so forward-auth proxies don't redirect the manifest fetch to a login page.
+      if (!document.querySelector('link[rel="manifest"]')) {
+        const link = document.createElement('link');
+        link.rel = 'manifest';
+        link.href = './manifest.json';
+        document.head.appendChild(link);
+      }
+
       // Load custom themes from server (non-blocking)
       loadCustomThemesFromServer();
 

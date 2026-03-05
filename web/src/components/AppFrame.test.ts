@@ -340,12 +340,12 @@ describe('AppFrame', () => {
         props: { app: makeApp() },
       });
 
-      // Simulate iframe load to clear loading spinner
+      // Simulate iframe load to clear loading spinner (uses rAF internally)
       const iframe = container.querySelector('iframe')!;
       await fireEvent.load(iframe);
-
-      // Pull indicator should not be visible
-      expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
+      await waitFor(() => {
+        expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
+      });
     });
 
     it('does not respond to touch events when not mobile or touch device', async () => {
@@ -356,9 +356,12 @@ describe('AppFrame', () => {
         props: { app: makeApp() },
       });
 
-      // Simulate iframe load to clear loading spinner
+      // Simulate iframe load to clear loading spinner (uses rAF internally)
       const iframe = container.querySelector('iframe')!;
       await fireEvent.load(iframe);
+      await waitFor(() => {
+        expect(container.querySelector('.animate-spin')).not.toBeInTheDocument();
+      });
 
       const appContainer = container.querySelector('[role="application"]')!;
 

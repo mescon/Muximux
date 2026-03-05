@@ -71,9 +71,9 @@ The proxy mitigates this by rewriting base path configuration variables (e.g., `
 
 **Symptom:** The app works on first load but breaks after a page refresh, or cached content appears stale, or the app tries to serve offline content at wrong paths.
 
-**What happens:** Service workers intercept network requests and serve cached responses. When an app is proxied, the service worker may cache responses under paths that don't include the proxy prefix, or its scope may not cover the `/proxy/{slug}/` path correctly. The proxy cannot modify service worker behavior after it has been registered in the browser.
+**What happens:** Service workers register under the page's origin and intercept network requests. When an app is proxied through Muximux, its service worker would register under Muximux's origin, potentially intercepting unrelated requests.
 
-**Workaround:** If the app has a service worker toggle, try disabling it. Otherwise, clear the service worker from your browser: open DevTools > Application > Service Workers > Unregister. If the problem persists, use `open_mode: new_tab` instead.
+**Mitigation:** Since v3.0.9, Muximux's proxy interceptor automatically blocks `navigator.serviceWorker.register()` calls from proxied apps and cleans up any previously leaked registrations. If you still experience stale cache issues from a service worker registered before upgrading, clear it manually: open DevTools > Application > Service Workers > Unregister.
 
 ### Binary and Non-Text Protocols
 

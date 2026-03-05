@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"crypto/rand"
@@ -619,13 +620,14 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 // wrapMiddleware applies auth and security middleware around the mux.
 func wrapMiddleware(mux *http.ServeMux, _ *config.Config, authMiddleware *auth.Middleware, inlineScriptHash string) http.Handler {
 	// Build middleware chain from innermost to outermost.
-	// Final order: panicRecovery → requestID → requestLogging → bodySize →
-	// securityHeaders → csrf → auth → mux
+	// Final order: panicRecovery → requestID → resolveClientIP → requestLogging
+	// → bodySize → securityHeaders → csrf → auth → mux
 	handler := authMiddleware.RequireAuth(mux)
 	handler = csrfMiddleware(handler)
 	handler = securityHeadersMiddleware(handler, inlineScriptHash)
 	handler = bodySizeLimitMiddleware(handler)
 	handler = requestLoggingMiddleware(handler)
+	handler = authMiddleware.ResolveClientIP(handler)
 	handler = requestIDMiddleware(handler)
 	handler = panicRecoveryMiddleware(handler)
 	return handler
@@ -1226,6 +1228,23 @@ func (sr *statusRecorder) Write(b []byte) (int, error) {
 	return n, err
 }
 
+// Hijack implements http.Hijacker so WebSocket upgrades work through the
+// logging middleware. Delegates to the underlying ResponseWriter.
+func (sr *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
+	if hj, ok := sr.ResponseWriter.(http.Hijacker); ok {
+		return hj.Hijack()
+	}
+	return nil, nil, fmt.Errorf("underlying ResponseWriter does not implement http.Hijacker")
+}
+
+// Flush implements http.Flusher so streaming responses (SSE, chunked)
+// work through the logging middleware.
+func (sr *statusRecorder) Flush() {
+	if f, ok := sr.ResponseWriter.(http.Flusher); ok {
+		f.Flush()
+	}
+}
+
 // isStaticAsset returns true for paths that serve static files.
 func isStaticAsset(path string) bool {
 	if strings.HasPrefix(path, "/assets/") {
@@ -1268,8 +1287,13 @@ func requestLoggingMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// remoteIP extracts the client IP from the request.
+// remoteIP extracts the client IP from the request.  When behind a trusted
+// proxy the auth middleware stores the resolved client IP in the context
+// (via X-Forwarded-For / X-Real-IP); prefer that over r.RemoteAddr.
 func remoteIP(r *http.Request) string {
+	if ip, ok := r.Context().Value(auth.ContextKeyClientIP).(string); ok && ip != "" {
+		return ip
+	}
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
 		return r.RemoteAddr

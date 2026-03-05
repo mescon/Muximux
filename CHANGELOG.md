@@ -2,6 +2,15 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.9] - 2026-03-05
+
+### Fixed
+- WebSocket connections no longer fail with `response does not implement http.Hijacker` -- the request logging wrapper now delegates `Hijack()` and `Flush()` to the underlying `ResponseWriter`
+- PWA manifest no longer triggers a CSP violation when behind a forward-auth proxy (Authelia, Authentik) -- the `<link rel="manifest">` is now injected after authentication instead of being present in the static HTML
+- Request logs now show the real client IP instead of the upstream proxy IP when running behind a trusted reverse proxy (Traefik, nginx, etc.)
+- Proxied apps can no longer register service workers under Muximux's origin -- the proxy interceptor now blocks `navigator.serviceWorker.register()` and cleans up any previously leaked registrations
+- White flash eliminated when loading a new app on dark themes -- the iframe is kept invisible behind the loading overlay until the page has painted, then fades in smoothly
+
 ## [3.0.8] - 2026-03-05
 
 ### Fixed
@@ -237,6 +246,7 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.9]: https://github.com/mescon/Muximux/releases/tag/v3.0.9
 [3.0.8]: https://github.com/mescon/Muximux/releases/tag/v3.0.8
 [3.0.7]: https://github.com/mescon/Muximux/releases/tag/v3.0.7
 [3.0.6]: https://github.com/mescon/Muximux/releases/tag/v3.0.6

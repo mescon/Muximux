@@ -662,6 +662,12 @@ html.theme-transitioning *::after {
 .app-frame {
   @apply w-full h-full border-0;
   background: var(--bg-base);
+  opacity: 0;
+  transition: opacity 150ms ease-in;
+}
+
+.app-frame-ready {
+  opacity: 1;
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────

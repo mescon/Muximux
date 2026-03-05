@@ -1,5 +1,4 @@
 <script lang="ts">
-  import { fade } from 'svelte/transition';
   import { onMount } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
@@ -17,6 +16,7 @@
   // Loading / error state
   let loadError = $state(false);
   let isLoading = $state(true);
+  let iframeReady = $state(false);
   let loadTimeout: ReturnType<typeof setTimeout>;
 
   // Pull-to-refresh state
@@ -34,8 +34,13 @@
 
   function handleIframeLoad() {
     clearTimeout(loadTimeout);
-    isLoading = false;
     loadError = false;
+    // Brief delay lets the loaded page paint its own background before we
+    // reveal the iframe, preventing a white flash on dark themes.
+    requestAnimationFrame(() => {
+      iframeReady = true;
+      isLoading = false;
+    });
   }
 
   function handleIframeError() {
@@ -47,6 +52,7 @@
   function retryLoad() {
     loadError = false;
     isLoading = true;
+    iframeReady = false;
     loadTimeout = setTimeout(() => {
       if (isLoading) {
         isLoading = false;
@@ -127,7 +133,6 @@
   bind:this={containerRef}
   class="w-full h-full overflow-hidden bg-[var(--bg-base)] relative"
   role="application"
-  in:fade={{ duration: 150, delay: 50 }}
   ontouchstart={handleTouchStart}
   ontouchmove={handleTouchMove}
   ontouchend={handleTouchEnd}
@@ -172,6 +177,7 @@
     src={effectiveUrl}
     title={app.name}
     class="app-frame"
+    class:app-frame-ready={iframeReady}
     style:transform="{transform} translateY({pullDistance}px)"
     style:transform-origin={transformOrigin}
     style:width
