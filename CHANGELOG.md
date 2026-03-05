@@ -2,6 +2,14 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.8] - 2026-03-05
+
+### Fixed
+- PWA "Add to Home Screen" icons now use the correct teal accent color (`#2dd4bf`) on a solid dark background (`#09090b`) instead of appearing with wrong colors on a transparent background
+- PWA icons are no longer visually distorted -- the logo is properly centered within the maskable icon safe zone
+- Added 512×512 icon for high-density Android home screen launchers
+- Corrected `theme-color` and `background-color` meta tags and manifest to match the default dark theme
+
 ## [3.0.7] - 2026-03-05
 
 ### Added
@@ -229,6 +237,7 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.8]: https://github.com/mescon/Muximux/releases/tag/v3.0.8
 [3.0.7]: https://github.com/mescon/Muximux/releases/tag/v3.0.7
 [3.0.6]: https://github.com/mescon/Muximux/releases/tag/v3.0.6
 [3.0.5]: https://github.com/mescon/Muximux/releases/tag/v3.0.5
