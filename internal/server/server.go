@@ -1077,6 +1077,9 @@ func spaHandlerDev(fileServer http.Handler, distDir, basePath string) (http.Hand
 			w.Write(content)
 			return
 		}
+		if !strings.HasPrefix(r.URL.Path, "/assets/") {
+			w.Header().Set("Cache-Control", "no-cache")
+		}
 		fileServer.ServeHTTP(w, r)
 	}), scriptHash
 }
@@ -1116,6 +1119,11 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 			}
 			w.Write(indexContent)
 			return
+		}
+		// Root-level static files (icons, manifest, browserconfig) must
+		// revalidate so PWA icon updates are picked up promptly.
+		if !strings.HasPrefix(r.URL.Path, "/assets/") {
+			w.Header().Set("Cache-Control", "no-cache")
 		}
 		fileServer.ServeHTTP(w, r)
 	}), scriptHash

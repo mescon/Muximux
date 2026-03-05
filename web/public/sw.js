@@ -1,4 +1,4 @@
-const CACHE_NAME = 'muximux-v1';
+const CACHE_NAME = 'muximux-v2';
 const STATIC_ASSETS = [
   './',
   './index.html',

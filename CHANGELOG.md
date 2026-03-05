@@ -10,6 +10,7 @@ All notable changes to Muximux are documented in this file.
 - Request logs now show the real client IP instead of the upstream proxy IP when running behind a trusted reverse proxy (Traefik, nginx, etc.)
 - Proxied apps can no longer register service workers under Muximux's origin -- the proxy interceptor now blocks `navigator.serviceWorker.register()` and cleans up any previously leaked registrations
 - White flash eliminated when loading a new app on dark themes -- the iframe is kept invisible behind the loading overlay until the page has painted, then fades in smoothly
+- PWA icon updates now take effect without clearing browser cache -- bumped service worker cache version and added revalidation headers for root-level static files (icons, manifest, browserconfig)
 
 ## [3.0.8] - 2026-03-05
 
