@@ -727,14 +727,16 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`}}catch(e){}` +
 		// R(u) rewrites root-relative and same-origin absolute URLs to go through the proxy
 		`function R(u){` +
+		`if(u instanceof URL)u=u.href;` +
 		`if(typeof u!=="string")return u;` +
 		`if(u[0]==="/"&&!u.startsWith(P+"/")&&u!==P)return P+u;` +
 		`try{var p=new URL(u);if(p.host===location.host&&!p.pathname.startsWith(P+"/")&&p.pathname!==P){p.pathname=P+p.pathname;return p.href}}catch(e){}` +
 		`return u}` +
-		// Patch fetch()
+		// Patch fetch() — handle string URLs, Request objects, and URL objects
 		`var _F=window.fetch;` +
 		`window.fetch=function(i,o){` +
 		`if(typeof i==="string")i=R(i);` +
+		`else if(i instanceof URL)i=R(i.href);` +
 		`else if(i instanceof Request){var n=R(i.url);if(n!==i.url)i=new Request(n,i)}` +
 		`return _F.call(this,i,o)};` +
 		// Patch XMLHttpRequest.open()
