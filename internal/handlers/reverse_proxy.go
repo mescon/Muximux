@@ -704,13 +704,27 @@ func (r *contentRewriter) interceptorScript() []byte {
 	// The proxy prefix is derived from slugified app names (alphanumeric + hyphens),
 	// so it's safe to embed directly in a JavaScript string literal.
 	return []byte(`<script data-muximux-proxy>(function(){` +
-		// Override window.parent/top so the proxied app thinks it is top-level.
-		// Uses Object.defineProperty because these are read-only accessors.
-		`try{if(window.parent!==window){` +
-		`Object.defineProperty(window,"parent",{value:window,configurable:true});` +
-		`Object.defineProperty(window,"top",{value:window,configurable:true})` +
-		`}}catch(e){}` +
+		// P must be declared first — used by the window isolation check below.
 		`var P="` + r.proxyPrefix + `";` +
+		// Isolate window.parent/top so the proxied app thinks it is top-level,
+		// preventing crashes when libraries (e.g. MochaUI) call methods on the
+		// Muximux host window. However, if the parent is WITHIN the same proxy
+		// app (e.g. qBittorrent's download dialog in a MochaUI sub-iframe),
+		// keep window.parent intact so internal parent-child communication works.
+		// window.top is always overridden to prevent any frame from reaching the
+		// Muximux host.
+		`try{if(window.parent!==window){` +
+		`var _ip=false;` +
+		`try{_ip=window.parent.location.pathname.indexOf(P)===0}catch(e){}` +
+		`if(_ip){` +
+		// Parent is within same proxy app — keep window.parent, override only window.top
+		`try{if(window.top!==window.parent)Object.defineProperty(window,"top",{value:window.parent,configurable:true})}` +
+		`catch(e){Object.defineProperty(window,"top",{value:window.parent,configurable:true})}` +
+		`}else{` +
+		// Parent is the Muximux host (or cross-origin) — isolate completely
+		`Object.defineProperty(window,"parent",{value:window,configurable:true});` +
+		`Object.defineProperty(window,"top",{value:window,configurable:true})}` +
+		`}}catch(e){}` +
 		// R(u) rewrites root-relative and same-origin absolute URLs to go through the proxy
 		`function R(u){` +
 		`if(typeof u!=="string")return u;` +

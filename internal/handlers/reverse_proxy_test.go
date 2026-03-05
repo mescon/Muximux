@@ -1995,11 +1995,18 @@ func TestInterceptorScriptIframeIsolation(t *testing.T) {
 		t.Error("interceptor script should override window.top")
 	}
 
-	// The overrides must appear before the proxy prefix variable declaration,
-	// ensuring they run before any other interceptor code or app scripts.
-	parentIdx := strings.Index(script, `Object.defineProperty(window,"parent"`)
+	// The proxy prefix variable must be declared before the window isolation
+	// check, since the check compares window.parent.location.pathname against P.
 	prefixIdx := strings.Index(script, `var P="`)
-	if parentIdx == -1 || prefixIdx == -1 || parentIdx > prefixIdx {
-		t.Error("window.parent override must appear before proxy prefix declaration")
+	isolationIdx := strings.Index(script, `window.parent.location.pathname.indexOf(P)`)
+	if prefixIdx == -1 || isolationIdx == -1 || prefixIdx > isolationIdx {
+		t.Error("proxy prefix declaration must appear before the window isolation check")
+	}
+
+	// When the parent is within the same proxy app (internal sub-iframe),
+	// window.parent must NOT be overridden so internal communication works
+	// (e.g. qBittorrent's download dialog reading preferences from parent cache).
+	if !strings.Contains(script, `window.parent.location.pathname.indexOf(P)===0`) {
+		t.Error("interceptor should check if parent is within same proxy app before overriding")
 	}
 }
