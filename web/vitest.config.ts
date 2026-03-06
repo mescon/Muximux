@@ -20,7 +20,7 @@ export default defineConfig({
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
       include: ['src/lib/**/*.ts', 'src/components/**/*.svelte'],
-      exclude: ['src/test/**', '**/*.d.ts'],
+      exclude: ['src/test/**', '**/*.d.ts', 'src/lib/paraglide/**'],
       thresholds: {
         statements: 85,
         branches: 70,

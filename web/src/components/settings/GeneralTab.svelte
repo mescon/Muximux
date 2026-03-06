@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { App, Config } from '$lib/types';
+  import { getAvailableLocales } from '$lib/localeStore';
 
   let {
     localConfig = $bindable(),
@@ -44,6 +45,26 @@
       <code class="text-text-muted">%version%</code>,
       <code class="text-text-muted">%url%</code>.
       Example: <code class="text-text-muted">Muximux - %title%</code>
+    </p>
+  </div>
+
+  <!-- Language -->
+  <div>
+    <label for="language" class="block text-sm font-medium text-text-secondary mb-2">
+      Language
+    </label>
+    <select
+      id="language"
+      bind:value={localConfig.language}
+      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
+             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
+    >
+      {#each getAvailableLocales() as locale (locale.tag)}
+        <option value={locale.tag}>{locale.name}</option>
+      {/each}
+    </select>
+    <p class="text-xs text-text-disabled mt-1.5">
+      Select the display language for the interface. Changes take effect after saving.
     </p>
   </div>
 

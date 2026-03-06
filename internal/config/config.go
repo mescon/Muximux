@@ -67,6 +67,7 @@ type ServerConfig struct {
 	Listen       string    `yaml:"listen" json:"listen"`
 	BasePath     string    `yaml:"base_path" json:"base_path"` // e.g. "/muximux" — for serving behind a reverse proxy subpath
 	Title        string    `yaml:"title" json:"title"`
+	Language     string    `yaml:"language" json:"language"` // BCP 47 tag: "en", "sv", "ar", etc.
 	LogLevel     string    `yaml:"log_level" json:"log_level"`
 	LogFormat    string    `yaml:"log_format" json:"log_format"`       // "text" or "json" (default: "text")
 	ProxyTimeout string    `yaml:"proxy_timeout" json:"proxy_timeout"` // e.g. "30s", "1m" — timeout for proxied requests
@@ -339,6 +340,7 @@ func defaultConfig() *Config {
 		Server: ServerConfig{
 			Listen:       ":8080",
 			Title:        "Muximux",
+			Language:     "en",
 			LogLevel:     "info",
 			LogFormat:    "text",
 			ProxyTimeout: "30s",

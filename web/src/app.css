@@ -93,8 +93,11 @@ input[type="color"]::-moz-color-swatch {
   --color-brand-950: #042f2e;
 
   /* ── Typography ── */
-  --font-family-display: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
-  --font-family-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-family-display: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas,
+    'Noto Sans CJK SC', 'Microsoft YaHei', 'PingFang SC', monospace, sans-serif;
+  --font-family-body: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Noto Sans', 'Noto Sans CJK SC', 'Noto Sans CJK JP', 'Noto Sans CJK KR',
+    'Microsoft YaHei', 'PingFang SC', 'Hiragino Sans', sans-serif;
   --font-family-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, 'SF Mono', Menlo, Consolas, monospace;
 
   /* ── Border radius ── */

@@ -22,6 +22,8 @@
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { initDebug, debug } from './lib/debug';
   import { syncFaviconsWithTheme } from './lib/favicon';
+  import { syncLocaleFromConfig } from './lib/localeStore';
+  import { getLocale } from '$lib/paraglide/runtime.js';
   import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
 
@@ -297,6 +299,12 @@
       // Sync theme from server config (keeps localStorage in sync across browsers)
       if (config.theme) {
         syncFromConfig(config.theme);
+      }
+
+      // Sync locale from server config (may trigger reload if different from localStorage)
+      if (config.language && config.language !== getLocale()) {
+        syncLocaleFromConfig(config.language);
+        return; // reload will re-run onMount
       }
 
       // Inject PWA manifest now that auth has passed — deferred from index.html

@@ -137,6 +137,7 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 // clientConfigResponse is the sanitized config structure sent to the frontend.
 type clientConfigResponse struct {
 	Title        string                    `json:"title"`
+	Language     string                    `json:"language"`
 	LogLevel     string                    `json:"log_level"`
 	ProxyTimeout string                    `json:"proxy_timeout,omitempty"`
 	Navigation   config.NavigationConfig   `json:"navigation"`
@@ -160,8 +161,13 @@ type clientAuthConfig struct {
 // buildClientConfigResponse creates a sanitized config response from the server config.
 // userRole filters apps by minimum role; empty string means no filtering (e.g. import preview).
 func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfigResponse {
+	language := cfg.Server.Language
+	if language == "" {
+		language = "en"
+	}
 	resp := clientConfigResponse{
 		Title:        cfg.Server.Title,
+		Language:     language,
 		LogLevel:     cfg.Server.LogLevel,
 		ProxyTimeout: cfg.Server.ProxyTimeout,
 		Navigation:   cfg.Navigation,
@@ -190,6 +196,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfig
 // ClientConfigUpdate represents the configuration update from the frontend
 type ClientConfigUpdate struct {
 	Title        string                    `json:"title"`
+	Language     string                    `json:"language"`
 	LogLevel     string                    `json:"log_level"`
 	ProxyTimeout string                    `json:"proxy_timeout"`
 	Navigation   config.NavigationConfig   `json:"navigation"`
@@ -240,6 +247,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 // preserving sensitive fields (auth bypass, access rules, original proxy URLs).
 func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	cfg.Server.Title = update.Title
+	cfg.Server.Language = update.Language
 	cfg.Server.LogLevel = update.LogLevel
 	if update.ProxyTimeout != "" {
 		cfg.Server.ProxyTimeout = update.ProxyTimeout

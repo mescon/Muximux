@@ -113,6 +113,7 @@ export interface LogEntry {
 
 export interface Config {
   title: string;
+  language?: string;
   log_level?: string;
   proxy_timeout?: string;
   navigation: NavigationConfig;
