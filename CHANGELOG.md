@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.10] - 2026-03-06
+
+### Fixed
+- Settings popup now always closes after saving -- if a render error occurred during the config update, the popup would remain stuck open requiring a page reload
+
 ## [3.0.9] - 2026-03-05
 
 ### Fixed

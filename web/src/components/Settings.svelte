@@ -194,19 +194,22 @@
   }
 
   function handleSave() {
-    // Update config with local changes
-    localConfig.apps = localApps;
-    // Capture current theme from stores into config
-    localConfig.theme = {
-      family: get(selectedFamily),
-      variant: get(variantMode)
-    };
-    // Include keybindings if changed
-    if (keybindingsChanged) {
-      localConfig.keybindings = getKeybindingsForConfig();
+    try {
+      // Update config with local changes
+      localConfig.apps = localApps;
+      // Capture current theme from stores into config
+      localConfig.theme = {
+        family: get(selectedFamily),
+        variant: get(variantMode)
+      };
+      // Include keybindings if changed
+      if (keybindingsChanged) {
+        localConfig.keybindings = getKeybindingsForConfig();
+      }
+      onsave?.(localConfig);
+    } finally {
+      onclose?.();
     }
-    onsave?.(localConfig);
-    onclose?.();
   }
 
   // Inline confirmation state
