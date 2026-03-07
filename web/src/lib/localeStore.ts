@@ -1,4 +1,4 @@
-import { setLocale, getLocale, locales, localStorageKey } from '$lib/paraglide/runtime.js';
+import { setLocale, getLocale, locales } from '$lib/paraglide/runtime.js';
 
 const RTL_LOCALES = new Set(['ar']);
 
