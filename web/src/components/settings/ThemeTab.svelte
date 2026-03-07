@@ -199,7 +199,7 @@
         {@const isSelected = $selectedFamily === family.id}
         {@const isCustom = family.darkTheme ? !family.darkTheme.isBuiltin : family.lightTheme ? !family.lightTheme.isBuiltin : false}
         <div
-          class="relative p-4 rounded-xl text-left transition-all group cursor-pointer"
+          class="relative p-4 rounded-xl text-start transition-all group cursor-pointer"
           style="
             background: var(--bg-surface);
             border: 2px solid {isSelected ? 'var(--accent-primary)' : 'var(--border-subtle)'};
@@ -211,7 +211,7 @@
           tabindex="0"
         >
           <!-- Selection indicator / delete button -->
-          <div class="absolute top-3 right-3 flex items-center gap-1">
+          <div class="absolute top-3 end-3 flex items-center gap-1">
             {#if isCustom}
               <button
                 class="w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
@@ -285,7 +285,7 @@
             {/if}
           </div>
           {#if family.description}
-            <div class="text-xs mt-0.5 pr-1" style="color: var(--text-muted);">{family.description}</div>
+            <div class="text-xs mt-0.5 pe-1" style="color: var(--text-muted);">{family.description}</div>
           {/if}
 
           <!-- Delete confirmation overlay -->
@@ -325,7 +325,7 @@
   <div class="space-y-3">
     {#if !showThemeEditor}
       <button
-        class="w-full p-4 rounded-lg text-left transition-all hover:border-brand-500/50 flex items-center gap-3"
+        class="w-full p-4 rounded-lg text-start transition-all hover:border-brand-500/50 flex items-center gap-3"
         style="background: var(--bg-surface); border: 1px solid var(--border-subtle);"
         onclick={openThemeEditor}
       >

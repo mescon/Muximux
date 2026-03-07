@@ -630,7 +630,7 @@
           <!-- Custom App card -->
           {#if !addAppSearch}
             <button
-              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-left"
+              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-start"
               onclick={startCustomApp}
             >
               <div class="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center flex-shrink-0">
@@ -655,7 +655,7 @@
                   {#each filtered as template (template.name)}
                     {@const alreadyAdded = localApps.some(a => a.name === template.name)}
                     <button
-                      class="flex items-center gap-3 p-2.5 rounded-lg text-left transition-colors hover:bg-bg-hover {alreadyAdded ? 'bg-bg-elevated/30' : 'bg-bg-surface'}"
+                      class="flex items-center gap-3 p-2.5 rounded-lg text-start transition-colors hover:bg-bg-hover {alreadyAdded ? 'bg-bg-elevated/30' : 'bg-bg-surface'}"
                       onclick={() => selectPopularApp(template)}
                       title={template.description}
                     >
@@ -771,7 +771,7 @@
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             </button>
             <button
-              class="btn btn-secondary btn-sm flex-1 text-left"
+              class="btn btn-secondary btn-sm flex-1 text-start"
               onclick={() => openIconBrowser('newGroup')}
             >
               {newGroup.icon?.name || m.settings_chooseIcon()}
@@ -918,7 +918,7 @@
             </button>
             <div class="flex-1">
               <button
-                class="btn btn-secondary btn-sm w-full text-left"
+                class="btn btn-secondary btn-sm w-full text-start"
                 onclick={() => openIconBrowser('editGroup')}
               >
                 {editingGroup.icon?.name || m.settings_chooseIcon()}

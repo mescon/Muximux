@@ -112,17 +112,17 @@
       <div class="mt-4 flex items-center justify-center gap-4 text-xs" style="color: var(--text-muted);">
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">{searchLabel}</kbd>
-          <span class="ml-1">{m.common_search()}</span>
+          <span class="ms-1">{m.common_search()}</span>
         </span>
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">1</kbd>
           <span>-</span>
           <kbd class="kbd">9</kbd>
-          <span class="ml-1">{m.splash_quickAccess()}</span>
+          <span class="ms-1">{m.splash_quickAccess()}</span>
         </span>
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">{shortcutsLabel}</kbd>
-          <span class="ml-1">{m.splash_allShortcuts()}</span>
+          <span class="ms-1">{m.splash_allShortcuts()}</span>
         </span>
       </div>
     </header>
@@ -167,14 +167,14 @@
               >
                 <!-- Health indicator — per-app control -->
                 {#if showHealth && app.health_check === true}
-                  <div class="absolute top-2.5 right-2.5 z-10">
+                  <div class="absolute top-2.5 end-2.5 z-10">
                     <HealthIndicator appName={app.name} size="sm" />
                   </div>
                 {/if}
 
                 <!-- Keyboard shortcut badge (1-9) -->
                 {#if displayKey !== undefined}
-                  <div class="absolute top-2.5 left-2.5 z-10">
+                  <div class="absolute top-2.5 start-2.5 z-10">
                     <span class="kbd">
                       {displayKey}
                     </span>
@@ -198,7 +198,7 @@
                       style="color: var(--text-secondary);">
                   <span class="group-hover:text-[var(--text-primary)]">{app.name}</span>
                   {#if app.open_mode !== 'iframe'}
-                    <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                    <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </span>
 

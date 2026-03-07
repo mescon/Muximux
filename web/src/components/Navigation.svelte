@@ -764,7 +764,7 @@
 <!-- Mobile hamburger menu -->
 {#if isMobile && effectivePosition !== 'bottom' && effectivePosition !== 'floating'}
   <button
-    class="fixed top-4 left-4 z-50 p-2 bg-bg-surface rounded-lg border border-border text-text-primary lg:hidden"
+    class="fixed top-4 start-4 z-50 p-2 bg-bg-surface rounded-lg border border-border text-text-primary lg:hidden"
     onclick={() => mobileMenuOpen = !mobileMenuOpen}
     aria-label={mobileMenuOpen ? m.nav_closeNavMenu() : m.nav_openNavMenu()}
   >
@@ -873,7 +873,7 @@
               {#if openGroupDropdown === groupName}
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
-                  class="absolute top-full left-0 mt-1 min-w-[200px] max-w-[280px] rounded-lg border shadow-xl overflow-hidden z-50"
+                  class="absolute top-full start-0 mt-1 min-w-[200px] max-w-[280px] rounded-lg border shadow-xl overflow-hidden z-50"
                   style="background: var(--bg-surface); border-color: var(--border-subtle);"
                   onmouseenter={cancelDropdownClose}
                   onmouseleave={scheduleDropdownClose}
@@ -890,15 +890,15 @@
                         onclick={() => { onselect?.(app); openGroupDropdown = null; }}
                       >
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
-                          <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                          <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if shouldShowHealth(app)}
-                          <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
+                          <span class="ms-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
                         {/if}
                         {#if app.open_mode !== 'iframe'}
-                          <span class="ml-1 text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
+                          <span class="ms-1 text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
                         {/if}
                       </button>
                     {/each}
@@ -920,7 +920,7 @@
               <div
                 class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
                        {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
-                style="{gi > 0 ? 'margin-left: 2px;' : ''}"
+                style="{gi > 0 ? 'margin-inline-start: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
                 title={groupName}
               >
@@ -961,7 +961,7 @@
                   <HealthIndicator appName={app.name} size="sm" />
                 {/if}
                 {#if app.open_mode !== 'iframe'}
-                  <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                 {/if}
               </button>
             {/each}
@@ -1126,7 +1126,7 @@
           </svg>
         </div>
         <span style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{m.nav_searchPlaceholder()}</span>
-        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{searchShortcutLabel}</span>
+        <span class="ms-auto me-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{searchShortcutLabel}</span>
       </button>
     </div>
 
@@ -1163,20 +1163,20 @@
             <div class="flex items-center overflow-hidden flex-1 min-w-0" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
               {#if groupConfig?.icon?.name || groupConfig?.color}
                 <svg
-                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} mr-1 flex-shrink-0"
+                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} me-1 flex-shrink-0"
                   fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 >
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               {/if}
               <span class="truncate">{groupName}</span>
-              <span class="ml-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
           <!-- Apps in group -->
           <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
-            <div class="group-apps-inner mt-1 space-y-0.5" style="padding-left: {isCollapsed ? '0' : '0.375rem'};">
+            <div class="group-apps-inner mt-1 space-y-0.5" style="padding-inline-start: {isCollapsed ? '0' : '0.375rem'};">
               {#each groupedApps[groupName] || [] as app (app.name)}
                 {@const shouldDim = (isCollapsed && currentApp?.name !== app.name) || (isUnhealthy(app) && currentApp?.name !== app.name)}
                 <button
@@ -1188,7 +1188,7 @@
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
-                    <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                    <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
                     <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
@@ -1197,12 +1197,12 @@
                     <span class="truncate" style="opacity: {isCollapsed ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
                   {#if shouldShowHealth(app)}
-                    <span class="ml-auto pr-2" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
+                    <span class="ms-auto pe-2" style="opacity: {isCollapsed ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
                   {/if}
                   {#if app.open_mode !== 'iframe'}
-                    <span class="ml-1 text-xs pr-1" style="opacity: {isCollapsed ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
+                    <span class="ms-1 text-xs pe-1" style="opacity: {isCollapsed ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
               {/each}
@@ -1334,7 +1334,7 @@
       </div>
     {:else}
       <!-- Standard footer -->
-      <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsed ? '0' : '0.5rem'}; padding-right: {isCollapsed ? '0' : '0.5rem'};">
+      <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-inline: {isCollapsed ? '0' : '0.5rem'};">
         <button
           class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
           onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
@@ -1433,7 +1433,7 @@
     <!-- Footer flyout — outside overflow:hidden panel so it's not clipped -->
     {#if footerHoverExpand && useFooterDrawer && isCollapsed}
       <div
-        class="absolute bottom-0 left-0 z-40 rounded-tr-lg border-t border-r py-2 px-1"
+        class="absolute bottom-0 start-0 z-40 rounded-se-lg border-t border-e py-2 px-1"
         style="width: {sidebarWidth}px; background: var(--bg-surface); border-color: var(--border-subtle); box-shadow: 4px -4px 12px rgba(0,0,0,0.2);"
         role="menu"
         tabindex="-1"
@@ -1447,7 +1447,7 @@
     <!-- Resize handle - only when not auto-hiding, labels visible, and not manually collapsed -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 right-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        class="absolute top-0 end-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -1529,7 +1529,7 @@
           </svg>
         </div>
         <span style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{m.nav_searchPlaceholder()}</span>
-        <span class="ml-auto mr-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{searchShortcutLabel}</span>
+        <span class="ms-auto me-2 text-xs bg-bg-elevated px-1.5 py-0.5 rounded" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease; white-space: nowrap;">{searchShortcutLabel}</span>
       </button>
     </div>
 
@@ -1566,19 +1566,19 @@
             <div class="flex items-center overflow-hidden flex-1 min-w-0" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
               {#if groupConfig?.icon?.name || groupConfig?.color}
                 <svg
-                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} mr-1 flex-shrink-0"
+                  class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} me-1 flex-shrink-0"
                   fill="none" viewBox="0 0 24 24" stroke="currentColor"
                 >
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                 </svg>
               {/if}
               <span class="truncate">{groupName}</span>
-              <span class="ml-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+              <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
             </div>
           </button>
 
           <div class="group-apps-wrapper" class:expanded={expandedGroups[groupName]}>
-            <div class="group-apps-inner mt-1 space-y-0.5" style="padding-left: {isCollapsedRight ? '0' : '0.375rem'};">
+            <div class="group-apps-inner mt-1 space-y-0.5" style="padding-inline-start: {isCollapsedRight ? '0' : '0.375rem'};">
               {#each groupedApps[groupName] || [] as app (app.name)}
                 {@const shouldDim = (isCollapsedRight && currentApp?.name !== app.name) || (isUnhealthy(app) && currentApp?.name !== app.name)}
                 <button
@@ -1590,7 +1590,7 @@
                   onclick={() => { onselect?.(app); mobileMenuOpen = false; }}
                 >
                   {#if config.navigation.show_app_colors && currentApp?.name === app.name}
-                    <div class="absolute right-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                    <div class="absolute end-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                   {/if}
                   <div class="flex-shrink-0 flex items-center justify-center" style="width: {collapsedStripWidth}px; opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
                     <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
@@ -1599,12 +1599,12 @@
                     <span class="truncate" style="opacity: {isCollapsedRight ? '0' : shouldDim ? '0.5' : '1'}; transition: opacity 0.15s ease;">{app.name}</span>
                   {/if}
                   {#if shouldShowHealth(app)}
-                    <span class="ml-auto pr-2" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
+                    <span class="ms-auto pe-2" style="opacity: {isCollapsedRight ? '0' : '1'}; transition: opacity 0.15s ease;">
                       <HealthIndicator appName={app.name} size="sm" />
                     </span>
                   {/if}
                   {#if app.open_mode !== 'iframe'}
-                    <span class="ml-1 text-xs pr-1" style="opacity: {isCollapsedRight ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
+                    <span class="ms-1 text-xs pe-1" style="opacity: {isCollapsedRight ? '0' : '0.6'}; transition: opacity 0.15s ease;">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </button>
               {/each}
@@ -1736,7 +1736,7 @@
       </div>
     {:else}
       <!-- Standard footer -->
-      <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-left: {isCollapsedRight ? '0' : '0.5rem'}; padding-right: {isCollapsedRight ? '0' : '0.5rem'};">
+      <div class="flex-shrink-0 pt-2 pb-1 border-t" style="border-color: var(--border-subtle); padding-inline: {isCollapsedRight ? '0' : '0.5rem'};">
         <button
           class="w-full flex items-center py-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover text-sm"
           onclick={() => { onlogs?.(); mobileMenuOpen = false; }}
@@ -1835,7 +1835,7 @@
     <!-- Footer flyout — outside overflow:hidden panel so it's not clipped -->
     {#if footerHoverExpand && useFooterDrawer && isCollapsedRight}
       <div
-        class="absolute bottom-0 right-0 z-40 rounded-tl-lg border-t border-l py-2 px-1"
+        class="absolute bottom-0 end-0 z-40 rounded-ss-lg border-t border-s py-2 px-1"
         style="width: {sidebarWidth}px; background: var(--bg-surface); border-color: var(--border-subtle); box-shadow: -4px -4px 12px rgba(0,0,0,0.2);"
         role="menu"
         tabindex="-1"
@@ -1849,7 +1849,7 @@
     <!-- Resize handle (left side for right sidebar) - only when not auto-hiding and labels visible -->
     {#if !isMobile && !config.navigation.auto_hide && config.navigation.show_labels}
       <div
-        class="absolute top-0 left-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
+        class="absolute top-0 start-0 w-2 h-full cursor-ew-resize hover:bg-brand-500/50 active:bg-brand-500/70 transition-colors touch-none"
         onpointerdown={handleResizeStart}
         onkeydown={handleResizeKeydown}
         role="slider"
@@ -1948,7 +1948,7 @@
               {#if openGroupDropdown === groupName}
                 <!-- svelte-ignore a11y_no_static_element_interactions -->
                 <div
-                  class="absolute bottom-full left-0 mb-1 min-w-[200px] max-w-[280px] rounded-lg border shadow-xl overflow-hidden z-50"
+                  class="absolute bottom-full start-0 mb-1 min-w-[200px] max-w-[280px] rounded-lg border shadow-xl overflow-hidden z-50"
                   style="background: var(--bg-surface); border-color: var(--border-subtle);"
                   onmouseenter={cancelDropdownClose}
                   onmouseleave={scheduleDropdownClose}
@@ -1965,15 +1965,15 @@
                         onclick={() => { onselect?.(app); openGroupDropdown = null; }}
                       >
                         {#if config.navigation.show_app_colors && currentApp?.name === app.name}
-                          <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                          <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                         {/if}
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                         <span class="truncate">{app.name}</span>
                         {#if shouldShowHealth(app)}
-                          <span class="ml-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
+                          <span class="ms-auto flex-shrink-0"><HealthIndicator appName={app.name} size="sm" /></span>
                         {/if}
                         {#if app.open_mode !== 'iframe'}
-                          <span class="ml-1 text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
+                          <span class="ms-1 text-xs opacity-60 flex-shrink-0">{getOpenModeIcon(app.open_mode)}</span>
                         {/if}
                       </button>
                     {/each}
@@ -1994,7 +1994,7 @@
               <div
                 class="flat-group-divider relative flex-shrink-0 flex items-center px-1.5 py-2 rounded-md transition-colors cursor-default
                        {hoveredGroup === groupName ? 'bg-bg-elevated/60' : ''}"
-                style="{gi > 0 ? 'margin-left: 2px;' : ''}"
+                style="{gi > 0 ? 'margin-inline-start: 2px;' : ''}"
                 onmouseenter={() => hoveredGroup = groupName}
                 title={groupName}
               >
@@ -2035,7 +2035,7 @@
                   <HealthIndicator appName={app.name} size="sm" />
                 {/if}
                 {#if app.open_mode !== 'iframe'}
-                  <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                  <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                 {/if}
               </button>
             {/each}
@@ -2189,17 +2189,17 @@
                     </svg>
                   {/if}
                 </div>
-                <div class="flex items-center flex-1 min-w-0 ml-1">
+                <div class="flex items-center flex-1 min-w-0 ms-1">
                   {#if groupConfig?.icon?.name || groupConfig?.color}
                     <svg
-                      class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} mr-1 flex-shrink-0"
+                      class="w-3 h-3 transition-transform {expandedGroups[groupName] ? 'rotate-90' : ''} me-1 flex-shrink-0"
                       fill="none" viewBox="0 0 24 24" stroke="currentColor"
                     >
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                   {/if}
                   <span class="truncate">{groupName}</span>
-                  <span class="ml-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
+                  <span class="ms-auto text-text-disabled flex-shrink-0">{groupedApps[groupName]?.length || 0}</span>
                 </div>
               </button>
 
@@ -2217,19 +2217,19 @@
                       onclick={() => { onselect?.(app); panelOpen = false; }}
                     >
                       {#if config.navigation.show_app_colors && currentApp?.name === app.name}
-                        <div class="absolute left-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
+                        <div class="absolute start-0 top-1 bottom-1 w-[3px] rounded-full" style="background: {app.color || '#22c55e'};"></div>
                       {/if}
-                      <div class="flex-shrink-0 flex items-center justify-center w-6 ml-1" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
+                      <div class="flex-shrink-0 flex items-center justify-center w-6 ms-1" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">
                         <AppIcon icon={app.icon} name={app.name} color={app.color} size="sm" scale={iconScale} showBackground={config.navigation.show_icon_background} forceBackground={app.force_icon_background} />
                       </div>
-                      <span class="truncate ml-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
+                      <span class="truncate ms-2" style="opacity: {shouldDim ? 0.5 : 1}; transition: opacity 0.15s ease;">{app.name}</span>
                       {#if shouldShowHealth(app)}
-                        <span class="ml-auto pr-1">
+                        <span class="ms-auto pe-1">
                           <HealthIndicator appName={app.name} size="sm" />
                         </span>
                       {/if}
                       {#if app.open_mode !== 'iframe'}
-                        <span class="ml-1 text-xs opacity-60 pr-1">{getOpenModeIcon(app.open_mode)}</span>
+                        <span class="ms-1 text-xs opacity-60 pe-1">{getOpenModeIcon(app.open_mode)}</span>
                       {/if}
                     </button>
                   {/each}

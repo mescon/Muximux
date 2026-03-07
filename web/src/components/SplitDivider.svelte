@@ -94,8 +94,7 @@
   .split-divider-h:hover,
   .split-divider-h.dragging {
     width: 6px;
-    margin-left: -1px;
-    margin-right: -1px;
+    margin-inline: -1px;
   }
 
   /* Vertical divider */
@@ -113,11 +112,11 @@
 
   /* Active panel accent line — 2px accent on the active side */
   .split-divider-h.active-0 {
-    border-left: 2px solid var(--accent-primary);
+    border-inline-start: 2px solid var(--accent-primary);
   }
 
   .split-divider-h.active-1 {
-    border-right: 2px solid var(--accent-primary);
+    border-inline-end: 2px solid var(--accent-primary);
   }
 
   .split-divider-v.active-0 {

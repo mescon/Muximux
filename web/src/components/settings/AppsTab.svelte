@@ -144,7 +144,7 @@
   <!-- App actions -->
   {#if confirmDeleteApp?.name === app.name}
     <div class="flex items-center gap-1">
-      <span class="text-xs text-red-400 mr-1">{m.common_deleteConfirm()}</span>
+      <span class="text-xs text-red-400 me-1">{m.common_deleteConfirm()}</span>
       <button class="btn btn-danger btn-sm"
               onclick={confirmDeleteAppAction}>{m.common_yes()}</button>
       <button class="btn btn-secondary btn-sm"
@@ -233,13 +233,13 @@
           <!-- Group info -->
           <div class="flex-1 min-w-0">
             <span class="font-medium text-text-primary text-sm">{group.name}</span>
-            <span class="text-xs text-text-disabled ml-2">{m.apps_appCount({ count: `${appsInGroup.length}` })}</span>
+            <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${appsInGroup.length}` })}</span>
           </div>
 
           <!-- Group actions -->
           {#if confirmDeleteGroup?.name === group.name}
             <div class="flex items-center gap-1">
-              <span class="text-xs text-red-400 mr-1">{m.common_deleteConfirm()}</span>
+              <span class="text-xs text-red-400 me-1">{m.common_deleteConfirm()}</span>
               <button class="btn btn-danger btn-sm"
                       onclick={confirmDeleteGroupAction}>{m.common_yes()}</button>
               <button class="btn btn-secondary btn-sm"
@@ -288,9 +288,9 @@
       <div class="p-3 bg-bg-elevated/20 rounded-t-lg">
         <span class="text-sm font-medium text-text-muted">{m.apps_ungrouped()}</span>
         {#if ungroupedApps.length > 0}
-          <span class="text-xs text-text-disabled ml-2">{m.apps_appCount({ count: `${ungroupedApps.length}` })}</span>
+          <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${ungroupedApps.length}` })}</span>
         {:else}
-          <span class="text-xs text-text-disabled ml-2">{m.apps_dragToUngroup()}</span>
+          <span class="text-xs text-text-disabled ms-2">{m.apps_dragToUngroup()}</span>
         {/if}
       </div>
       <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>

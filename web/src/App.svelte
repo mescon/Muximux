@@ -977,7 +977,7 @@
 
     <!-- Fullscreen exit button -->
     {#if $isFullscreen}
-      <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+      <div class="fixed top-4 end-4 z-50 flex items-center gap-2">
         <button
           class="fullscreen-exit-btn p-2 rounded-lg backdrop-blur-sm shadow-lg transition-all opacity-30 hover:opacity-100"
           onclick={exitFullscreen}

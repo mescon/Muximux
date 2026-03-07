@@ -256,7 +256,7 @@
       onclick={() => activeTab = 'dashboard'}
     >
       {m.iconBrowser_dashboardIcons()}
-      <span class="text-xs text-text-disabled ml-1">({dashboardIcons.length})</span>
+      <span class="text-xs text-text-disabled ms-1">({dashboardIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
@@ -266,7 +266,7 @@
       onclick={() => activeTab = 'lucide'}
     >
       {m.iconBrowser_lucide()}
-      <span class="text-xs text-text-disabled ml-1">({lucideIcons.length})</span>
+      <span class="text-xs text-text-disabled ms-1">({lucideIcons.length})</span>
     </button>
     <button
       class="px-4 py-2 text-sm font-medium transition-colors border-b-2
@@ -276,7 +276,7 @@
       onclick={() => activeTab = 'custom'}
     >
       {m.iconBrowser_custom()}
-      <span class="text-xs text-text-disabled ml-1">({customIcons.length})</span>
+      <span class="text-xs text-text-disabled ms-1">({customIcons.length})</span>
     </button>
   </div>
 
@@ -435,7 +435,7 @@
                 </div>
               {:else}
                 <button
-                  class="absolute -top-1 -right-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
+                  class="absolute -top-1 -end-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
                          text-text-primary flex items-center justify-center opacity-0 group-hover:opacity-100
                          transition-opacity text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}

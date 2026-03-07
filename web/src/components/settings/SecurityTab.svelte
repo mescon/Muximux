@@ -232,7 +232,7 @@
     <div class="space-y-3">
       <!-- Password card -->
       <div
-        class="rounded-xl border text-left transition-all overflow-hidden
+        class="rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'builtin'; }}>
@@ -242,7 +242,7 @@
               <path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
           </div>
-          <div class="flex-1 text-left">
+          <div class="flex-1 text-start">
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.security_passwordAuth()}</h3>
               {#if currentMethod === 'builtin'}
@@ -253,7 +253,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'builtin'}
-          <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
               {#if currentMethod === 'builtin'}
                 <p class="text-sm text-text-muted mb-4">{m.security_passwordAuthActive()}</p>
@@ -401,7 +401,7 @@
 
       <!-- Auth Proxy card -->
       <div
-        class="rounded-xl border text-left transition-all overflow-hidden
+        class="rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
@@ -410,7 +410,7 @@
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <div class="flex-1 text-left">
+          <div class="flex-1 text-start">
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.security_authProxy()}</h3>
               {#if currentMethod === 'forward_auth'}
@@ -421,7 +421,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'forward_auth'}
-          <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
               <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
               <div class="flex gap-2">
@@ -503,7 +503,7 @@
 
       <!-- No authentication card -->
       <div
-        class="rounded-xl border text-left transition-all overflow-hidden
+        class="rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'none'; }}>
@@ -513,7 +513,7 @@
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
             </svg>
           </div>
-          <div class="flex-1 text-left">
+          <div class="flex-1 text-start">
             <div class="flex items-center gap-2">
               <h3 class="font-semibold text-text-primary">{m.security_noAuth()}</h3>
               {#if currentMethod === 'none'}
@@ -524,7 +524,7 @@
           </div>
         </button>
         {#if selectedAuthMethod === 'none'}
-          <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
               <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
                 <div class="flex gap-3">

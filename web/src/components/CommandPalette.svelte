@@ -414,7 +414,7 @@
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3.5' : 'py-3'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -428,7 +428,7 @@
                     <div class="font-medium truncate" style="color: var(--text-primary);">
                       {cmd.label}
                       {#if cmd.app && cmd.app.open_mode !== 'iframe'}
-                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
+                        <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
                       {/if}
                     </div>
                     {#if cmd.description}
@@ -456,7 +456,7 @@
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3.5' : 'py-3'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -470,7 +470,7 @@
                     <div class="font-medium truncate" style="color: var(--text-primary);">
                       {cmd.label}
                       {#if cmd.app && cmd.app.open_mode !== 'iframe'}
-                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
+                        <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
                       {/if}
                     </div>
                     {#if cmd.description}
@@ -498,7 +498,7 @@
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3' : 'py-2.5'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -534,7 +534,7 @@
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3' : 'py-2.5'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}

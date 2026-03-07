@@ -158,6 +158,13 @@ input[type="color"]::-moz-color-swatch {
 }
 
 /* ─────────────────────────────────────────────────────────────────────────────
+   RTL / LTR DIRECTION MULTIPLIER
+   Use calc(var(--dir) * <value>) for direction-aware translateX animations.
+   ───────────────────────────────────────────────────────────────────────────── */
+[dir="ltr"], :root { --dir: 1; }
+[dir="rtl"] { --dir: -1; }
+
+/* ─────────────────────────────────────────────────────────────────────────────
    DARK THEME (Default)
    Deep charcoals with blue undertones, refined and focused
    ───────────────────────────────────────────────────────────────────────────── */

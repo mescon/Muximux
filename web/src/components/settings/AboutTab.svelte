@@ -41,7 +41,7 @@
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
       </svg>
-      <span class="ml-3 text-text-muted">{m.about_loadingSystemInfo()}</span>
+      <span class="ms-3 text-text-muted">{m.about_loadingSystemInfo()}</span>
     </div>
   {:else if aboutError}
     <div class="p-4 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400">
@@ -111,7 +111,7 @@
     {#if updateInfo?.changelog}
       <div class="rounded-xl border border-border overflow-hidden">
         <button
-          class="w-full flex items-center justify-between p-4 text-left hover:bg-bg-surface/50 transition-colors"
+          class="w-full flex items-center justify-between p-4 text-start hover:bg-bg-surface/50 transition-colors"
           onclick={() => changelogExpanded = !changelogExpanded}
         >
           <h3 class="text-sm font-semibold text-text-primary">{m.about_releaseNotes()}</h3>
@@ -137,7 +137,7 @@
     {#if updateInfo}
       <div class="rounded-xl border border-border overflow-hidden">
         <button
-          class="w-full flex items-center justify-between p-4 text-left hover:bg-bg-surface/50 transition-colors"
+          class="w-full flex items-center justify-between p-4 text-start hover:bg-bg-surface/50 transition-colors"
           onclick={() => updateInstructionsExpanded = !updateInstructionsExpanded}
         >
           <h3 class="text-sm font-semibold text-text-primary">{m.about_howToUpdate()}</h3>
@@ -370,7 +370,7 @@ chmod +x muximux-darwin-arm64
 
   .changelog-content :global(ul),
   .changelog-content :global(ol) {
-    padding-left: 1.5em;
+    padding-inline-start: 1.5em;
     margin: 0.5em 0;
   }
   .changelog-content :global(ul) { list-style: disc; }
@@ -418,8 +418,8 @@ chmod +x muximux-darwin-arm64
   }
 
   .changelog-content :global(blockquote) {
-    border-left: 3px solid var(--border-subtle, #374151);
-    padding-left: 1em;
+    border-inline-start: 3px solid var(--border-subtle, #374151);
+    padding-inline-start: 1em;
     margin: 0.5em 0;
     color: var(--text-secondary, #9ca3af);
   }

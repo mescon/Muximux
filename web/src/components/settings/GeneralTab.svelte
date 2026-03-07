@@ -73,7 +73,7 @@
     <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
       {#each navPositions as pos (pos.value)}
         <button
-          class="p-3 rounded-lg border text-left transition-colors
+          class="p-3 rounded-lg border text-start transition-colors
                  {localConfig.navigation.position === pos.value
                    ? 'border-brand-500 bg-brand-500/10 text-text-primary'
                    : 'border-border-subtle hover:border-border-strong text-text-secondary'}"
@@ -98,7 +98,7 @@
           { value: 'flat', get label() { return m.general_barStyleFlat(); }, get description() { return m.general_barStyleFlatDesc(); } }
         ] as style (style.value)}
           <button
-            class="p-3 rounded-lg border text-left transition-colors
+            class="p-3 rounded-lg border text-start transition-colors
                    {(localConfig.navigation.bar_style || 'grouped') === style.value
                      ? 'border-brand-500 bg-brand-500/10 text-text-primary'
                      : 'border-border-subtle hover:border-border-strong text-text-secondary'}"
@@ -221,7 +221,7 @@
         </div>
       </label>
       {#if localApps.find(a => a.default) && !localConfig.navigation.show_splash_on_startup}
-        <p class="text-xs text-brand-400 mt-1 pl-7">
+        <p class="text-xs text-brand-400 mt-1 ps-7">
           {m.general_defaultAppDisabled({ appName: localApps.find(a => a.default)?.name || '' })}
         </p>
       {/if}
@@ -241,7 +241,7 @@
       </label>
       {#if localConfig.navigation.auto_hide}
         <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border-subtle">
-          <div class="flex-1 text-xs text-text-muted pl-7">{m.general_hideAfter()}</div>
+          <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
           <select
             bind:value={localConfig.navigation.auto_hide_delay}
             class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-primary focus:ring-brand-500 focus:border-brand-500"
@@ -253,7 +253,7 @@
             <option value="3s">3s</option>
           </select>
         </div>
-        <label class="flex items-center gap-3 mt-2 pl-7 cursor-pointer">
+        <label class="flex items-center gap-3 mt-2 ps-7 cursor-pointer">
           <input
             type="checkbox"
             bind:checked={localConfig.navigation.show_shadow}

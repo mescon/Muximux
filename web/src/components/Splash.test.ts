@@ -206,14 +206,14 @@ describe('Splash', () => {
     const { container } = render(Splash, { props: { apps, config: makeConfig(), showHealth: true } });
     // The health indicator wrapper should be present
     // HealthIndicator is rendered inside a div with specific classes
-    const healthDiv = container.querySelector('.absolute.top-2\\.5.right-2\\.5');
+    const healthDiv = container.querySelector('.absolute.top-2\\.5.end-2\\.5');
     expect(healthDiv).toBeInTheDocument();
   });
 
   it('does not show health indicator when showHealth is false', () => {
     const apps = [makeApp({ name: 'HealthApp', health_check: true })];
     const { container } = render(Splash, { props: { apps, config: makeConfig(), showHealth: false } });
-    const healthDiv = container.querySelector('.absolute.top-2\\.5.right-2\\.5');
+    const healthDiv = container.querySelector('.absolute.top-2\\.5.end-2\\.5');
     expect(healthDiv).not.toBeInTheDocument();
   });
 

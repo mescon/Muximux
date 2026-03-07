@@ -191,7 +191,7 @@
               <p class="text-xs text-text-disabled mt-0.5">{binding.description}</p>
             </div>
 
-            <div class="flex items-center gap-2 ml-4">
+            <div class="flex items-center gap-2 ms-4">
               <!-- Key combos -->
               <div class="flex flex-wrap gap-1.5 justify-end">
                 {#each binding.combos as combo, i (i)}

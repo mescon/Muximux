@@ -32,7 +32,7 @@
 </script>
 
 {#snippet helpTip(text: string)}
-  <span class="help-trigger relative ml-1 inline-block align-middle">
+  <span class="help-trigger relative ms-1 inline-block align-middle">
     <svg class="w-3.5 h-3.5 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
@@ -83,7 +83,7 @@
       </button>
       <div class="flex-1">
         <button
-          class="btn btn-secondary btn-sm w-full text-left"
+          class="btn btn-secondary btn-sm w-full text-start"
           onclick={() => onopenicon?.()}
         >
           {app.icon?.name || m.appForm_chooseIcon()}
@@ -236,7 +236,7 @@
         </div>
       </label>
       {#if app.proxy}
-        <div class="ml-7 space-y-3 border-l-2 border-border pl-4 min-w-0 overflow-hidden">
+        <div class="ms-7 space-y-3 border-s-2 border-border ps-4 min-w-0 overflow-hidden">
           <label class="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
@@ -320,7 +320,7 @@
         </div>
       </label>
       {#if app.health_check === true}
-        <div class="ml-7 pl-4 border-l-2 border-border">
+        <div class="ms-7 ps-4 border-s-2 border-border">
           <label for="{prefix}-app-health-url" class="block text-sm text-text-muted mb-1">{m.appForm_healthCheckUrl()}</label>
           <input
             id="{prefix}-app-health-url"
@@ -406,7 +406,7 @@
     display: none;
     position: absolute;
     top: calc(100% + 6px);
-    left: 0;
+    inset-inline-start: 0;
     width: 240px;
     padding: 8px 10px;
     border-radius: 8px;

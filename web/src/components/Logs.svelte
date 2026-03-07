@@ -447,7 +447,7 @@
 
   .log-search-icon {
     position: absolute;
-    left: 0.5rem;
+    inset-inline-start: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     width: 1rem;
@@ -478,7 +478,7 @@
 
   .log-search-clear {
     position: absolute;
-    right: 0.375rem;
+    inset-inline-end: 0.375rem;
     top: 50%;
     transform: translateY(-50%);
     padding: 0.125rem;
@@ -662,7 +662,7 @@
   .log-attrs {
     display: inline-flex;
     gap: 0.5rem;
-    margin-left: 0.5rem;
+    margin-inline-start: 0.5rem;
     flex-shrink: 0;
   }
 

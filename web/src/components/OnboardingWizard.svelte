@@ -930,7 +930,7 @@
           />
         {/if}
 
-        <div class="flex-1 overflow-y-auto px-8 py-6 relative" style="background: var(--bg-base); {$selectedNavigation === 'left' ? 'margin-left: 220px;' : $selectedNavigation === 'right' ? 'margin-right: 220px;' : ''}">
+        <div class="flex-1 overflow-y-auto px-8 py-6 relative" style="background: var(--bg-base); {$selectedNavigation === 'left' ? 'margin-inline-start: 220px;' : $selectedNavigation === 'right' ? 'margin-inline-end: 220px;' : ''}">
           <div class="max-w-3xl mx-auto">
             {#if $currentStep === 'navigation'}
             <div class="text-center mb-6">
@@ -1066,7 +1066,7 @@
                 </label>
                 {#if navAutoHide}
                   <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
-                    <div class="flex-1 text-xs text-text-muted pl-7">{m.general_hideAfter()}</div>
+                    <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
                       class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500">
                       <option value="0.25s">0.25s</option>
@@ -1076,7 +1076,7 @@
                       <option value="3s">3s</option>
                     </select>
                   </div>
-                  <label class="flex items-center gap-3 mt-2 pl-7 cursor-pointer">
+                  <label class="flex items-center gap-3 mt-2 ps-7 cursor-pointer">
                     <input type="checkbox" bind:checked={navShowShadow}
                       class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                     <div class="text-xs text-text-muted">{m.general_shadow()}</div>
@@ -1130,7 +1130,7 @@
                 {@const preferred = wantDark ? family.darkTheme?.preview : family.lightTheme?.preview}
                 {@const preview = preferred || family.darkTheme?.preview || family.lightTheme?.preview}
                 <button
-                  class="relative p-4 rounded-xl border text-left transition-all
+                  class="relative p-4 rounded-xl border text-start transition-all
                          {isSelected
                            ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/30'
                            : 'border-border hover:border-border-strong bg-bg-surface'}"
@@ -1158,7 +1158,7 @@
 
                   <!-- Selection checkmark -->
                   {#if isSelected}
-                    <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
+                    <div class="absolute top-2 end-2 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
                       <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
@@ -1202,7 +1202,7 @@
           </p>
 
           <!-- Feature highlights -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-left">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-start">
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
               <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1275,7 +1275,7 @@
             <div class="max-w-2xl mx-auto space-y-3">
               <!-- Builtin password -->
               <div
-                class="rounded-xl border text-left transition-all overflow-hidden
+                class="rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
@@ -1285,7 +1285,7 @@
                       <path d="M7 11V7a5 5 0 0110 0v4" />
                     </svg>
                   </div>
-                  <div class="flex-1 text-left">
+                  <div class="flex-1 text-start">
                     <div class="flex items-center gap-2">
                       <h3 class="font-semibold text-text-primary">{m.onboarding_createPassword()}</h3>
                       <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">{m.onboarding_recommended()}</span>
@@ -1294,7 +1294,7 @@
                   </div>
                 </button>
                 {#if authMethod === 'builtin'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-border pt-4">
                       <label for="setup-username" class="block text-sm text-text-muted mb-1">{m.common_username()}</label>
                       <input
@@ -1343,7 +1343,7 @@
 
               <!-- Forward auth -->
               <div
-                class="rounded-xl border text-left transition-all overflow-hidden
+                class="rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
@@ -1352,13 +1352,13 @@
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                   </div>
-                  <div class="text-left">
+                  <div class="text-start">
                     <h3 class="font-semibold text-text-primary">{m.onboarding_iUseAuthProxy()}</h3>
                     <p class="text-sm text-text-muted mt-1">{m.security_authProxyDesc()}</p>
                   </div>
                 </button>
                 {#if authMethod === 'forward_auth'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-border pt-4">
                       <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
                       <div class="flex gap-2">
@@ -1440,7 +1440,7 @@
 
               <!-- None -->
               <div
-                class="rounded-xl border text-left transition-all overflow-hidden
+                class="rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
@@ -1450,13 +1450,13 @@
                       <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
                     </svg>
                   </div>
-                  <div class="text-left">
+                  <div class="text-start">
                     <h3 class="font-semibold text-text-primary">{m.security_noAuth()}</h3>
                     <p class="text-sm text-text-muted mt-1">{m.security_noAuthDesc()}</p>
                   </div>
                 </button>
                 {#if authMethod === 'none'}
-                  <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-border pt-4">
                       <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
                         <div class="flex gap-3">
@@ -1559,7 +1559,7 @@
                         tabindex="0"
                       >
                         <!-- Checkbox + Add Instance -->
-                        <div class="absolute top-2.5 right-2.5 flex items-center gap-1">
+                        <div class="absolute top-2.5 end-2.5 flex items-center gap-1">
                           {#if selection?.selected}
                             <button
                               class="w-5 h-5 rounded border border-brand-500 bg-brand-500/20 flex items-center justify-center
@@ -1589,7 +1589,7 @@
                             color={app.color}
                             size="lg"
                           />
-                          <div class="flex-1 min-w-0 pr-6">
+                          <div class="flex-1 min-w-0 pe-6">
                             <h4 class="font-medium text-text-primary text-sm">{app.name}</h4>
                             <p class="text-xs text-text-disabled">{app.description}</p>
                           </div>
@@ -1747,7 +1747,7 @@
                                         <option value={mode.value}>{mode.label}</option>
                                       {/each}
                                     </select>
-                                    <span class="help-trigger relative ml-0.5" use:positionTooltip>
+                                    <span class="help-trigger relative ms-0.5" use:positionTooltip>
                                       <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                       </svg>
@@ -1764,7 +1764,7 @@
                                         class="w-3 h-3 rounded border-border-subtle text-brand-500"
                                       />
                                       <span class="text-[11px] text-text-muted">{m.apps_proxy()}</span>
-                                      <span class="help-trigger relative ml-0.5" use:positionTooltip>
+                                      <span class="help-trigger relative ms-0.5" use:positionTooltip>
                                         <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                           <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                         </svg>
@@ -1820,7 +1820,7 @@
           </p>
 
           <!-- Summary -->
-          <div class="max-w-md mx-auto mb-8 p-4 bg-bg-surface rounded-lg border border-border text-left">
+          <div class="max-w-md mx-auto mb-8 p-4 bg-bg-surface rounded-lg border border-border text-start">
             <h4 class="font-medium text-text-secondary mb-3">{m.onboarding_setupSummary()}</h4>
             <dl class="space-y-2 text-sm">
               <div class="flex justify-between">
@@ -1950,8 +1950,7 @@
   .stepper-rail-fill {
     position: absolute;
     top: 14px; /* vertically center on the 28px circles */
-    left: 14px;
-    right: 14px;
+    inset-inline: 14px;
     height: 2px;
     border-radius: 1px;
   }
