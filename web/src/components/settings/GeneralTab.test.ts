@@ -831,10 +831,12 @@ describe('GeneralTab', () => {
         },
       });
 
-      expect(screen.getByText('%title%')).toBeInTheDocument();
-      expect(screen.getByText('%group%')).toBeInTheDocument();
-      expect(screen.getByText('%version%')).toBeInTheDocument();
-      expect(screen.getByText('%url%')).toBeInTheDocument();
+      const hints = screen.getAllByText((_content, element) => {
+        if (element?.tagName !== 'P') return false;
+        const text = element?.textContent || '';
+        return text.includes('%title%') && text.includes('%group%') && text.includes('%version%') && text.includes('%url%');
+      });
+      expect(hints.length).toBeGreaterThan(0);
     });
   });
 });
