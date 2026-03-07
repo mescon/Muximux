@@ -10,147 +10,143 @@ const en_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1In
 };
 
 const sv_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Förhandsgranskning:`)
 };
 
 const uk_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Попередній перегляд:`)
 };
 
 const zh_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`预览：`)
 };
 
 const es_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Vista previa:`)
 };
 
 const hi_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`पूर्वावलोकन:`)
 };
 
 const pt_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Pré-visualização:`)
 };
 
 const bn_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`প্রিভিউ:`)
 };
 
 const ru_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Предпросмотр:`)
 };
 
 const ja_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
-};
-
-const pa_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`プレビュー：`)
 };
 
 const vi_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Xem trước:`)
 };
 
 const yue_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`預覽：`)
 };
 
 const tr_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Önizleme:`)
 };
 
 const ar_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`معاينة:`)
 };
 
 const wuu_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`预览：`)
 };
 
 const mr_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`पूर्वावलोकन:`)
 };
 
 const nb_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Forhåndsvisning:`)
 };
 
 const fi_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Esikatselu:`)
 };
 
 const da_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Forhåndsvisning:`)
 };
 
 const et_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Eelvaade:`)
 };
 
 const lv_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Priekšskatījums:`)
 };
 
 const lt_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Peržiūra:`)
 };
 
 const pl_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Podgląd:`)
 };
 
 const de_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Vorschau:`)
 };
 
 const nl_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Voorbeeld:`)
 };
 
 const fr_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Aperçu :`)
 };
 
 const it_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Anteprima:`)
 };
 
 const hu_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Előnézet:`)
 };
 
 const cs_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Náhled:`)
 };
 
 const ro_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Previzualizare:`)
 };
 
 const el_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Προεπισκόπηση:`)
 };
 
 const bg_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Преглед:`)
 };
 
 const hr_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Pregled:`)
 };
 
 const sr_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Pregled:`)
 };
 
 const sk_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Náhľad:`)
 };
 
 const sl_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Preview:`)
+	return /** @type {LocalizedString} */ (`Predogled:`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_importpreview1 = /** @type {(inputs: Settings_Importpreview1In
 * | "Preview:" |
 *
 * @param {Settings_Importpreview1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_importpreview1 = /** @type {((inputs?: Settings_Importpreview1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Importpreview1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_importpreview1 = /** @type {((inputs?: Settings_Importpreview1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Importpreview1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_importpreview1(inputs)
 	if (locale === "sv") return sv_settings_importpreview1(inputs)
@@ -174,7 +170,6 @@ const settings_importpreview1 = /** @type {((inputs?: Settings_Importpreview1Inp
 	if (locale === "bn") return bn_settings_importpreview1(inputs)
 	if (locale === "ru") return ru_settings_importpreview1(inputs)
 	if (locale === "ja") return ja_settings_importpreview1(inputs)
-	if (locale === "pa") return pa_settings_importpreview1(inputs)
 	if (locale === "vi") return vi_settings_importpreview1(inputs)
 	if (locale === "yue") return yue_settings_importpreview1(inputs)
 	if (locale === "tr") return tr_settings_importpreview1(inputs)

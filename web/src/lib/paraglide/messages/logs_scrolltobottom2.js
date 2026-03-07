@@ -10,147 +10,143 @@ const en_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) 
 };
 
 const sv_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Scrolla till botten`)
 };
 
 const uk_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Прокрутити вниз`)
 };
 
 const zh_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`滚动到底部`)
 };
 
 const es_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Desplazar al final`)
 };
 
 const hi_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`नीचे स्क्रॉल करें`)
 };
 
 const pt_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Deslocar para o fundo`)
 };
 
 const bn_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`নিচে স্ক্রল করুন`)
 };
 
 const ru_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Прокрутить вниз`)
 };
 
 const ja_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
-};
-
-const pa_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`下部にスクロール`)
 };
 
 const vi_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Cuộn xuống cuối`)
 };
 
 const yue_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`捲動到底部`)
 };
 
 const tr_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Alta kaydır`)
 };
 
 const ar_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`التمرير إلى الأسفل`)
 };
 
 const wuu_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`滚到底部`)
 };
 
 const mr_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`तळाशी स्क्रोल करा`)
 };
 
 const nb_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Rull til bunnen`)
 };
 
 const fi_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Vieritä alas`)
 };
 
 const da_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Rul til bunden`)
 };
 
 const et_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Keri alla`)
 };
 
 const lv_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Ritināt uz leju`)
 };
 
 const lt_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Slinkti į apačią`)
 };
 
 const pl_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Przewiń na dół`)
 };
 
 const de_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Zum Ende scrollen`)
 };
 
 const nl_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Naar beneden scrollen`)
 };
 
 const fr_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Défiler vers le bas`)
 };
 
 const it_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Scorri in basso`)
 };
 
 const hu_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Görgetés az aljára`)
 };
 
 const cs_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Posunout dolů`)
 };
 
 const ro_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Derulează în jos`)
 };
 
 const el_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Κύλιση στο κάτω μέρος`)
 };
 
 const bg_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Превърти надолу`)
 };
 
 const hr_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Pomakni se na dno`)
 };
 
 const sr_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Pomeri se na dno`)
 };
 
 const sk_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Posunúť nadol`)
 };
 
 const sl_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scroll to bottom`)
+	return /** @type {LocalizedString} */ (`Pomakni se na dno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_logs_scrolltobottom2 = /** @type {(inputs: Logs_Scrolltobottom2Inputs) 
 * | "Scroll to bottom" |
 *
 * @param {Logs_Scrolltobottom2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const logs_scrolltobottom2 = /** @type {((inputs?: Logs_Scrolltobottom2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_Scrolltobottom2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const logs_scrolltobottom2 = /** @type {((inputs?: Logs_Scrolltobottom2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_Scrolltobottom2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_logs_scrolltobottom2(inputs)
 	if (locale === "sv") return sv_logs_scrolltobottom2(inputs)
@@ -174,7 +170,6 @@ const logs_scrolltobottom2 = /** @type {((inputs?: Logs_Scrolltobottom2Inputs, o
 	if (locale === "bn") return bn_logs_scrolltobottom2(inputs)
 	if (locale === "ru") return ru_logs_scrolltobottom2(inputs)
 	if (locale === "ja") return ja_logs_scrolltobottom2(inputs)
-	if (locale === "pa") return pa_logs_scrolltobottom2(inputs)
 	if (locale === "vi") return vi_logs_scrolltobottom2(inputs)
 	if (locale === "yue") return yue_logs_scrolltobottom2(inputs)
 	if (locale === "tr") return tr_logs_scrolltobottom2(inputs)

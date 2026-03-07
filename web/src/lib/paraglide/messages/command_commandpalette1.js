@@ -10,147 +10,143 @@ const en_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1In
 };
 
 const sv_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Kommandopalett`)
 };
 
 const uk_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Палітра команд`)
 };
 
 const zh_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`命令面板`)
 };
 
 const es_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta de comandos`)
 };
 
 const hi_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`कमांड पैलेट`)
 };
 
 const pt_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta de comandos`)
 };
 
 const bn_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`কমান্ড প্যালেট`)
 };
 
 const ru_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Палитра команд`)
 };
 
 const ja_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
-};
-
-const pa_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`コマンドパレット`)
 };
 
 const vi_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Bảng lệnh`)
 };
 
 const yue_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`命令面板`)
 };
 
 const tr_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Komut paleti`)
 };
 
 const ar_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`لوحة الأوامر`)
 };
 
 const wuu_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`命令面板`)
 };
 
 const mr_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`कमांड पॅलेट`)
 };
 
 const nb_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Kommandopalett`)
 };
 
 const fi_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Komentovalikko`)
 };
 
 const da_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Kommandopalette`)
 };
 
 const et_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Käsupalett`)
 };
 
 const lv_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Komandu palete`)
 };
 
 const lt_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Komandų paletė`)
 };
 
 const pl_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta poleceń`)
 };
 
 const de_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Befehlspalette`)
 };
 
 const nl_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Opdrachtenpalet`)
 };
 
 const fr_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Palette de commandes`)
 };
 
 const it_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Palette dei comandi`)
 };
 
 const hu_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Parancspaletta`)
 };
 
 const cs_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta příkazů`)
 };
 
 const ro_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paletă de comenzi`)
 };
 
 const el_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Παλέτα εντολών`)
 };
 
 const bg_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Палитра от команди`)
 };
 
 const hr_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta naredbi`)
 };
 
 const sr_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta komandi`)
 };
 
 const sk_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta príkazov`)
 };
 
 const sl_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Command palette`)
+	return /** @type {LocalizedString} */ (`Paleta ukazov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_commandpalette1 = /** @type {(inputs: Command_Commandpalette1In
 * | "Command palette" |
 *
 * @param {Command_Commandpalette1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_commandpalette1 = /** @type {((inputs?: Command_Commandpalette1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Commandpalette1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_commandpalette1 = /** @type {((inputs?: Command_Commandpalette1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Commandpalette1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_commandpalette1(inputs)
 	if (locale === "sv") return sv_command_commandpalette1(inputs)
@@ -174,7 +170,6 @@ const command_commandpalette1 = /** @type {((inputs?: Command_Commandpalette1Inp
 	if (locale === "bn") return bn_command_commandpalette1(inputs)
 	if (locale === "ru") return ru_command_commandpalette1(inputs)
 	if (locale === "ja") return ja_command_commandpalette1(inputs)
-	if (locale === "pa") return pa_command_commandpalette1(inputs)
 	if (locale === "vi") return vi_command_commandpalette1(inputs)
 	if (locale === "yue") return yue_command_commandpalette1(inputs)
 	if (locale === "tr") return tr_command_commandpalette1(inputs)

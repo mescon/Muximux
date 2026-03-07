@@ -10,75 +10,71 @@ const en_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd6
 };
 
 const sv_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Ladda ner linux-amd64`)
 };
 
 const uk_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Завантажити linux-amd64`)
 };
 
 const zh_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`下载 linux-amd64`)
 };
 
 const es_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Descargar linux-amd64`)
 };
 
 const hi_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`linux-amd64 डाउनलोड करें`)
 };
 
 const pt_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Transferir linux-amd64`)
 };
 
 const bn_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`linux-amd64 ডাউনলোড করুন`)
 };
 
 const ru_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Скачать linux-amd64`)
 };
 
 const ja_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
-};
-
-const pa_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`linux-amd64 をダウンロード`)
 };
 
 const vi_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Tải linux-amd64`)
 };
 
 const yue_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`下載 linux-amd64`)
 };
 
 const tr_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`linux-amd64 İndir`)
 };
 
 const ar_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`تنزيل linux-amd64`)
 };
 
 const wuu_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`下载 linux-amd64`)
 };
 
 const mr_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`linux-amd64 डाउनलोड करा`)
 };
 
 const nb_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Last ned linux-amd64`)
 };
 
 const fi_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Lataa linux-amd64`)
 };
 
 const da_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd6
 };
 
 const et_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Laadi alla linux-amd64`)
 };
 
 const lv_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Lejupielādēt linux-amd64`)
 };
 
 const lt_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Atsisiųsti linux-amd64`)
 };
 
 const pl_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Pobierz linux-amd64`)
 };
 
 const de_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd6
 };
 
 const hu_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Letöltés linux-amd64`)
 };
 
 const cs_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Stáhnout linux-amd64`)
 };
 
 const ro_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Descarcă linux-amd64`)
 };
 
 const el_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Λήψη linux-amd64`)
 };
 
 const bg_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Изтегли linux-amd64`)
 };
 
 const hr_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Preuzmi linux-amd64`)
 };
 
 const sr_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Preuzmi linux-amd64`)
 };
 
 const sk_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Stiahnuť linux-amd64`)
 };
 
 const sl_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-amd64`)
+	return /** @type {LocalizedString} */ (`Prenesi linux-amd64`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_downloadlinuxamd642 = /** @type {(inputs: About_Downloadlinuxamd6
 * | "Download linux-amd64" |
 *
 * @param {About_Downloadlinuxamd642Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_downloadlinuxamd642 = /** @type {((inputs?: About_Downloadlinuxamd642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloadlinuxamd642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_downloadlinuxamd642 = /** @type {((inputs?: About_Downloadlinuxamd642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloadlinuxamd642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_downloadlinuxamd642(inputs)
 	if (locale === "sv") return sv_about_downloadlinuxamd642(inputs)
@@ -174,7 +170,6 @@ const about_downloadlinuxamd642 = /** @type {((inputs?: About_Downloadlinuxamd64
 	if (locale === "bn") return bn_about_downloadlinuxamd642(inputs)
 	if (locale === "ru") return ru_about_downloadlinuxamd642(inputs)
 	if (locale === "ja") return ja_about_downloadlinuxamd642(inputs)
-	if (locale === "pa") return pa_about_downloadlinuxamd642(inputs)
 	if (locale === "vi") return vi_about_downloadlinuxamd642(inputs)
 	if (locale === "yue") return yue_about_downloadlinuxamd642(inputs)
 	if (locale === "tr") return tr_about_downloadlinuxamd642(inputs)

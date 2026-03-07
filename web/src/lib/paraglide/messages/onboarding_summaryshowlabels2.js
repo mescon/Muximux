@@ -10,147 +10,143 @@ const en_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summarys
 };
 
 const sv_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Visa etiketter`)
 };
 
 const uk_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Показувати підписи`)
 };
 
 const zh_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`显示标签`)
 };
 
 const es_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Mostrar etiquetas`)
 };
 
 const hi_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`लेबल दिखाएं`)
 };
 
 const pt_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Mostrar etiquetas`)
 };
 
 const bn_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`লেবেল দেখান`)
 };
 
 const ru_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Показывать названия`)
 };
 
 const ja_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
-};
-
-const pa_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`ラベルを表示`)
 };
 
 const vi_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Hiển thị nhãn`)
 };
 
 const yue_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`顯示標籤`)
 };
 
 const tr_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Etiketleri Göster`)
 };
 
 const ar_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`إظهار التسميات`)
 };
 
 const wuu_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`显示标签`)
 };
 
 const mr_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`लेबल दाखवा`)
 };
 
 const nb_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Vis etiketter`)
 };
 
 const fi_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Näytä nimet`)
 };
 
 const da_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Vis etiketter`)
 };
 
 const et_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Kuva sildid`)
 };
 
 const lv_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Rādīt birkas`)
 };
 
 const lt_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Rodyti etiketes`)
 };
 
 const pl_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Pokaż etykiety`)
 };
 
 const de_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Beschriftungen anzeigen`)
 };
 
 const nl_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Labels tonen`)
 };
 
 const fr_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Afficher les libellés`)
 };
 
 const it_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Mostra etichette`)
 };
 
 const hu_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Címkék megjelenítése`)
 };
 
 const cs_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Zobrazit popisky`)
 };
 
 const ro_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Afișează etichetele`)
 };
 
 const el_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Εμφάνιση ετικετών`)
 };
 
 const bg_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Показвай етикети`)
 };
 
 const hr_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Prikaži oznake`)
 };
 
 const sr_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Prikaži oznake`)
 };
 
 const sk_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Zobraziť popisky`)
 };
 
 const sl_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summaryshowlabels2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Show Labels`)
+	return /** @type {LocalizedString} */ (`Prikaži oznake`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_summaryshowlabels2 = /** @type {(inputs: Onboarding_Summarys
 * | "Show Labels" |
 *
 * @param {Onboarding_Summaryshowlabels2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_summaryshowlabels2 = /** @type {((inputs?: Onboarding_Summaryshowlabels2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Summaryshowlabels2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_summaryshowlabels2 = /** @type {((inputs?: Onboarding_Summaryshowlabels2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Summaryshowlabels2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_summaryshowlabels2(inputs)
 	if (locale === "sv") return sv_onboarding_summaryshowlabels2(inputs)
@@ -174,7 +170,6 @@ const onboarding_summaryshowlabels2 = /** @type {((inputs?: Onboarding_Summarysh
 	if (locale === "bn") return bn_onboarding_summaryshowlabels2(inputs)
 	if (locale === "ru") return ru_onboarding_summaryshowlabels2(inputs)
 	if (locale === "ja") return ja_onboarding_summaryshowlabels2(inputs)
-	if (locale === "pa") return pa_onboarding_summaryshowlabels2(inputs)
 	if (locale === "vi") return vi_onboarding_summaryshowlabels2(inputs)
 	if (locale === "yue") return yue_onboarding_summaryshowlabels2(inputs)
 	if (locale === "tr") return tr_onboarding_summaryshowlabels2(inputs)

@@ -10,15 +10,15 @@ const en_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 };
 
 const sv_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Bas`)
 };
 
 const uk_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Базовий`)
 };
 
 const zh_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`基础`)
 };
 
 const es_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 };
 
 const hi_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`आधार`)
 };
 
 const pt_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
@@ -34,43 +34,39 @@ const pt_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 };
 
 const bn_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`বেস`)
 };
 
 const ru_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Основной`)
 };
 
 const ja_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
-};
-
-const pa_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`ベース`)
 };
 
 const vi_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Nền cơ sở`)
 };
 
 const yue_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`基礎`)
 };
 
 const tr_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Temel`)
 };
 
 const ar_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`أساسي`)
 };
 
 const wuu_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`基础色`)
 };
 
 const mr_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`मूळ`)
 };
 
 const nb_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
@@ -78,7 +74,7 @@ const nb_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 };
 
 const fi_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Pohja`)
 };
 
 const da_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
@@ -86,27 +82,27 @@ const da_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 };
 
 const et_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Alus`)
 };
 
 const lv_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Bāze`)
 };
 
 const lt_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Bazinė`)
 };
 
 const pl_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Bazowy`)
 };
 
 const de_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Basis`)
 };
 
 const nl_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Basis`)
 };
 
 const fr_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 };
 
 const hu_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Alap`)
 };
 
 const cs_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Základní`)
 };
 
 const ro_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Bază`)
 };
 
 const el_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Βάση`)
 };
 
 const bg_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Основа`)
 };
 
 const hr_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Osnova`)
 };
 
 const sr_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Osnova`)
 };
 
 const sk_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Základný`)
 };
 
 const sl_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Base`)
+	return /** @type {LocalizedString} */ (`Osnova`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_colorbase1 = /** @type {(inputs: Theme_Colorbase1Inputs) => Local
 * | "Base" |
 *
 * @param {Theme_Colorbase1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_colorbase1 = /** @type {((inputs?: Theme_Colorbase1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Colorbase1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_colorbase1 = /** @type {((inputs?: Theme_Colorbase1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Colorbase1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_colorbase1(inputs)
 	if (locale === "sv") return sv_theme_colorbase1(inputs)
@@ -174,7 +170,6 @@ const theme_colorbase1 = /** @type {((inputs?: Theme_Colorbase1Inputs, options?:
 	if (locale === "bn") return bn_theme_colorbase1(inputs)
 	if (locale === "ru") return ru_theme_colorbase1(inputs)
 	if (locale === "ja") return ja_theme_colorbase1(inputs)
-	if (locale === "pa") return pa_theme_colorbase1(inputs)
 	if (locale === "vi") return vi_theme_colorbase1(inputs)
 	if (locale === "yue") return yue_theme_colorbase1(inputs)
 	if (locale === "tr") return tr_theme_colorbase1(inputs)

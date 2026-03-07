@@ -10,147 +10,143 @@ const en_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => Local
 };
 
 const sv_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Byggdatum`)
 };
 
 const uk_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Дата збірки`)
 };
 
 const zh_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`构建日期`)
 };
 
 const es_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Fecha de compilación`)
 };
 
 const hi_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`बिल्ड तिथि`)
 };
 
 const pt_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Data de compilação`)
 };
 
 const bn_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`বিল্ড তারিখ`)
 };
 
 const ru_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Дата сборки`)
 };
 
 const ja_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
-};
-
-const pa_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`ビルド日`)
 };
 
 const vi_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Ngày biên dịch`)
 };
 
 const yue_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`建置日期`)
 };
 
 const tr_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Derleme Tarihi`)
 };
 
 const ar_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`تاريخ البناء`)
 };
 
 const wuu_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`构建日期`)
 };
 
 const mr_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`बिल्ड तारीख`)
 };
 
 const nb_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Byggedato`)
 };
 
 const fi_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Käännöspäivä`)
 };
 
 const da_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Byggedato`)
 };
 
 const et_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Ehituse kuupäev`)
 };
 
 const lv_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Būvējuma datums`)
 };
 
 const lt_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Surinkimo data`)
 };
 
 const pl_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Data kompilacji`)
 };
 
 const de_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Build-Datum`)
 };
 
 const nl_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Build-datum`)
 };
 
 const fr_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Date de build`)
 };
 
 const it_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Data di build`)
 };
 
 const hu_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Összeállítás dátuma`)
 };
 
 const cs_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Datum sestavení`)
 };
 
 const ro_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Data compilării`)
 };
 
 const el_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Ημερομηνία κατασκευής`)
 };
 
 const bg_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Дата на компилация`)
 };
 
 const hr_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Datum izgradnje`)
 };
 
 const sr_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Datum izgradnje`)
 };
 
 const sk_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Dátum zostavenia`)
 };
 
 const sl_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Build Date`)
+	return /** @type {LocalizedString} */ (`Datum gradnje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_builddate1 = /** @type {(inputs: About_Builddate1Inputs) => Local
 * | "Build Date" |
 *
 * @param {About_Builddate1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_builddate1 = /** @type {((inputs?: About_Builddate1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Builddate1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_builddate1 = /** @type {((inputs?: About_Builddate1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Builddate1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_builddate1(inputs)
 	if (locale === "sv") return sv_about_builddate1(inputs)
@@ -174,7 +170,6 @@ const about_builddate1 = /** @type {((inputs?: About_Builddate1Inputs, options?:
 	if (locale === "bn") return bn_about_builddate1(inputs)
 	if (locale === "ru") return ru_about_builddate1(inputs)
 	if (locale === "ja") return ja_about_builddate1(inputs)
-	if (locale === "pa") return pa_about_builddate1(inputs)
 	if (locale === "vi") return vi_about_builddate1(inputs)
 	if (locale === "yue") return yue_about_builddate1(inputs)
 	if (locale === "tr") return tr_about_builddate1(inputs)

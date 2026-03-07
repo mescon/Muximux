@@ -10,147 +10,143 @@ const en_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingcon
 };
 
 const sv_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Har du en befintlig konfiguration?`)
 };
 
 const uk_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Маєте наявну конфігурацію?`)
 };
 
 const zh_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`有现有配置？`)
 };
 
 const es_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`¿Tienes una configuración existente?`)
 };
 
 const hi_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`मौजूदा कॉन्फ़िगरेशन है?`)
 };
 
 const pt_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Tens uma configuração existente?`)
 };
 
 const bn_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`বিদ্যমান কনফিগারেশন আছে?`)
 };
 
 const ru_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Есть существующая конфигурация?`)
 };
 
 const ja_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
-};
-
-const pa_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`既存の設定がありますか？`)
 };
 
 const vi_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Đã có cấu hình sẵn?`)
 };
 
 const yue_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`有現有設定？`)
 };
 
 const tr_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Mevcut bir yapılandırmanız var mı?`)
 };
 
 const ar_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`لديك إعدادات موجودة؟`)
 };
 
 const wuu_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`有现成的配置？`)
 };
 
 const mr_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`विद्यमान कॉन्फिगरेशन आहे?`)
 };
 
 const nb_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Har du en eksisterende konfigurasjon?`)
 };
 
 const fi_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Onko sinulla olemassa oleva konfiguraatio?`)
 };
 
 const da_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Har du en eksisterende konfiguration?`)
 };
 
 const et_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Kas teil on olemasolev konfiguratsioon?`)
 };
 
 const lv_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Vai jums ir esoša konfigurācija?`)
 };
 
 const lt_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Turite esamą konfigūraciją?`)
 };
 
 const pl_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Masz istniejącą konfigurację?`)
 };
 
 const de_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Vorhandene Konfiguration?`)
 };
 
 const nl_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Bestaande configuratie?`)
 };
 
 const fr_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Configuration existante ?`)
 };
 
 const it_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Hai una configurazione esistente?`)
 };
 
 const hu_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Van meglévő konfigurációja?`)
 };
 
 const cs_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Máte existující konfiguraci?`)
 };
 
 const ro_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Ai o configurație existentă?`)
 };
 
 const el_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Έχετε υπάρχουσα διαμόρφωση;`)
 };
 
 const bg_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Имате съществуваща конфигурация?`)
 };
 
 const hr_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Imate postojeću konfiguraciju?`)
 };
 
 const sr_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Imate postojeću konfiguraciju?`)
 };
 
 const sk_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Máte existujúcu konfiguráciu?`)
 };
 
 const sl_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Have an existing configuration?`)
+	return /** @type {LocalizedString} */ (`Imate obstoječo konfiguracijo?`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_existingconfig1 = /** @type {(inputs: Onboarding_Existingcon
 * | "Have an existing configuration?" |
 *
 * @param {Onboarding_Existingconfig1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_existingconfig1 = /** @type {((inputs?: Onboarding_Existingconfig1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Existingconfig1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_existingconfig1 = /** @type {((inputs?: Onboarding_Existingconfig1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Existingconfig1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_existingconfig1(inputs)
 	if (locale === "sv") return sv_onboarding_existingconfig1(inputs)
@@ -174,7 +170,6 @@ const onboarding_existingconfig1 = /** @type {((inputs?: Onboarding_Existingconf
 	if (locale === "bn") return bn_onboarding_existingconfig1(inputs)
 	if (locale === "ru") return ru_onboarding_existingconfig1(inputs)
 	if (locale === "ja") return ja_onboarding_existingconfig1(inputs)
-	if (locale === "pa") return pa_onboarding_existingconfig1(inputs)
 	if (locale === "vi") return vi_onboarding_existingconfig1(inputs)
 	if (locale === "yue") return yue_onboarding_existingconfig1(inputs)
 	if (locale === "tr") return tr_onboarding_existingconfig1(inputs)

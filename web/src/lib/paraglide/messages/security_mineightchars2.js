@@ -10,147 +10,143 @@ const en_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2In
 };
 
 const sv_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minst 8 tecken`)
 };
 
 const uk_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Мінімум 8 символів`)
 };
 
 const zh_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`至少 8 个字符`)
 };
 
 const es_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Mínimo 8 caracteres`)
 };
 
 const hi_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`न्यूनतम 8 अक्षर`)
 };
 
 const pt_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Mínimo 8 caracteres`)
 };
 
 const bn_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`সর্বনিম্ন ৮ অক্ষর`)
 };
 
 const ru_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Минимум 8 символов`)
 };
 
 const ja_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
-};
-
-const pa_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`8文字以上`)
 };
 
 const vi_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Tối thiểu 8 ký tự`)
 };
 
 const yue_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`至少 8 個字元`)
 };
 
 const tr_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`En az 8 karakter`)
 };
 
 const ar_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`8 أحرف كحد أدنى`)
 };
 
 const wuu_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`至少 8 个字符`)
 };
 
 const mr_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`किमान ८ अक्षरे`)
 };
 
 const nb_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimum 8 tegn`)
 };
 
 const fi_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Vähintään 8 merkkiä`)
 };
 
 const da_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimum 8 tegn`)
 };
 
 const et_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimaalselt 8 tähemärki`)
 };
 
 const lv_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimums 8 rakstzīmes`)
 };
 
 const lt_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Mažiausiai 8 simboliai`)
 };
 
 const pl_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimum 8 znaków`)
 };
 
 const de_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Mindestens 8 Zeichen`)
 };
 
 const nl_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimaal 8 tekens`)
 };
 
 const fr_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`8 caractères minimum`)
 };
 
 const it_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimo 8 caratteri`)
 };
 
 const hu_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimum 8 karakter`)
 };
 
 const cs_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimálně 8 znaků`)
 };
 
 const ro_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimum 8 caractere`)
 };
 
 const el_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Τουλάχιστον 8 χαρακτήρες`)
 };
 
 const bg_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Минимум 8 символа`)
 };
 
 const hr_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Najmanje 8 znakova`)
 };
 
 const sr_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Najmanje 8 znakova`)
 };
 
 const sk_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Minimálne 8 znakov`)
 };
 
 const sl_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum 8 characters`)
+	return /** @type {LocalizedString} */ (`Najmanj 8 znakov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_mineightchars2 = /** @type {(inputs: Security_Mineightchars2In
 * | "Minimum 8 characters" |
 *
 * @param {Security_Mineightchars2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_mineightchars2 = /** @type {((inputs?: Security_Mineightchars2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Mineightchars2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_mineightchars2 = /** @type {((inputs?: Security_Mineightchars2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Mineightchars2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_mineightchars2(inputs)
 	if (locale === "sv") return sv_security_mineightchars2(inputs)
@@ -174,7 +170,6 @@ const security_mineightchars2 = /** @type {((inputs?: Security_Mineightchars2Inp
 	if (locale === "bn") return bn_security_mineightchars2(inputs)
 	if (locale === "ru") return ru_security_mineightchars2(inputs)
 	if (locale === "ja") return ja_security_mineightchars2(inputs)
-	if (locale === "pa") return pa_security_mineightchars2(inputs)
 	if (locale === "vi") return vi_security_mineightchars2(inputs)
 	if (locale === "yue") return yue_security_mineightchars2(inputs)
 	if (locale === "tr") return tr_security_mineightchars2(inputs)

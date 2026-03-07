@@ -10,147 +10,143 @@ const en_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inpu
 };
 
 const sv_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Byt ikon`)
 };
 
 const uk_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Змінити іконку`)
 };
 
 const zh_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`更换图标`)
 };
 
 const es_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Cambiar icono`)
 };
 
 const hi_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`आइकन बदलें`)
 };
 
 const pt_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Alterar ícone`)
 };
 
 const bn_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`আইকন পরিবর্তন করুন`)
 };
 
 const ru_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Сменить иконку`)
 };
 
 const ja_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
-};
-
-const pa_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`アイコンを変更`)
 };
 
 const vi_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Đổi biểu tượng`)
 };
 
 const yue_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`更換圖示`)
 };
 
 const tr_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Simgeyi değiştir`)
 };
 
 const ar_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`تغيير الأيقونة`)
 };
 
 const wuu_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`换图标`)
 };
 
 const mr_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`आयकॉन बदला`)
 };
 
 const nb_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Endre ikon`)
 };
 
 const fi_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Vaihda kuvake`)
 };
 
 const da_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Skift ikon`)
 };
 
 const et_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Muuda ikooni`)
 };
 
 const lv_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Mainīt ikonu`)
 };
 
 const lt_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Keisti piktogramą`)
 };
 
 const pl_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Zmień ikonę`)
 };
 
 const de_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Icon ändern`)
 };
 
 const nl_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Pictogram wijzigen`)
 };
 
 const fr_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Changer l'icône`)
 };
 
 const it_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Cambia icona`)
 };
 
 const hu_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Ikon módosítása`)
 };
 
 const cs_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Změnit ikonu`)
 };
 
 const ro_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Schimbă pictograma`)
 };
 
 const el_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Αλλαγή εικονιδίου`)
 };
 
 const bg_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Промени иконата`)
 };
 
 const hr_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Promijeni ikonu`)
 };
 
 const sr_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Promeni ikonu`)
 };
 
 const sk_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Zmeniť ikonu`)
 };
 
 const sl_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change icon`)
+	return /** @type {LocalizedString} */ (`Spremeni ikono`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_changeicon1 = /** @type {(inputs: Onboarding_Changeicon1Inpu
 * | "Change icon" |
 *
 * @param {Onboarding_Changeicon1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_changeicon1 = /** @type {((inputs?: Onboarding_Changeicon1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Changeicon1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_changeicon1 = /** @type {((inputs?: Onboarding_Changeicon1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Changeicon1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_changeicon1(inputs)
 	if (locale === "sv") return sv_onboarding_changeicon1(inputs)
@@ -174,7 +170,6 @@ const onboarding_changeicon1 = /** @type {((inputs?: Onboarding_Changeicon1Input
 	if (locale === "bn") return bn_onboarding_changeicon1(inputs)
 	if (locale === "ru") return ru_onboarding_changeicon1(inputs)
 	if (locale === "ja") return ja_onboarding_changeicon1(inputs)
-	if (locale === "pa") return pa_onboarding_changeicon1(inputs)
 	if (locale === "vi") return vi_onboarding_changeicon1(inputs)
 	if (locale === "yue") return yue_onboarding_changeicon1(inputs)
 	if (locale === "tr") return tr_onboarding_changeicon1(inputs)

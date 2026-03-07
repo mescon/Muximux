@@ -10,147 +10,143 @@ const en_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2
 };
 
 const sv_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Jägare av saknad media`)
 };
 
 const uk_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Шукач відсутніх медіа`)
 };
 
 const zh_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`缺失媒体搜寻器`)
 };
 
 const es_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Buscador de medios faltantes`)
 };
 
 const hi_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`लापता मीडिया खोजकर्ता`)
 };
 
 const pt_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Caçador de media em falta`)
 };
 
 const bn_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`অনুপস্থিত মিডিয়া অনুসন্ধানকারী`)
 };
 
 const ru_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Поиск недостающего медиа`)
 };
 
 const ja_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
-};
-
-const pa_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`不足メディアハンター`)
 };
 
 const vi_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Tìm kiếm đa phương tiện thiếu`)
 };
 
 const yue_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`缺少嘅媒體搜尋器`)
 };
 
 const tr_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Eksik medya avcısı`)
 };
 
 const ar_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`باحث عن الوسائط المفقودة`)
 };
 
 const wuu_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`缺失媒体搜寻`)
 };
 
 const mr_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`गहाळ मीडिया शोधक`)
 };
 
 const nb_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Jeger av manglende media`)
 };
 
 const fi_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Puuttuvan median etsijä`)
 };
 
 const da_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Jæger af manglende medier`)
 };
 
 const et_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Puuduva meedia otsija`)
 };
 
 const lv_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Trūkstošās multivides meklētājs`)
 };
 
 const lt_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Trūkstamos medijos ieškiklis`)
 };
 
 const pl_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Wyszukiwarka brakujących mediów`)
 };
 
 const de_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Fehlende-Medien-Suche`)
 };
 
 const nl_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Ontbrekende media-zoeker`)
 };
 
 const fr_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Recherche de médias manquants`)
 };
 
 const it_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Ricerca media mancanti`)
 };
 
 const hu_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Hiányzó média kereső`)
 };
 
 const cs_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Vyhledávač chybějících médií`)
 };
 
 const ro_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Căutător de media lipsă`)
 };
 
 const el_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Κυνηγός ελλιπών πολυμέσων`)
 };
 
 const bg_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Търсач на липсваща медия`)
 };
 
 const hr_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Tražilica nedostajućih medija`)
 };
 
 const sr_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Tražilica nedostajućih medija`)
 };
 
 const sk_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Vyhľadávač chýbajúcich médií`)
 };
 
 const sl_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Missing media hunter`)
+	return /** @type {LocalizedString} */ (`Iskalec manjkajočih medijev`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_huntarrdesc2 = /** @type {(inputs: Popularapps_Huntarrdesc2
 * | "Missing media hunter" |
 *
 * @param {Popularapps_Huntarrdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_huntarrdesc2 = /** @type {((inputs?: Popularapps_Huntarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Huntarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_huntarrdesc2 = /** @type {((inputs?: Popularapps_Huntarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Huntarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_huntarrdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_huntarrdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_huntarrdesc2 = /** @type {((inputs?: Popularapps_Huntarrdesc2I
 	if (locale === "bn") return bn_popularapps_huntarrdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_huntarrdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_huntarrdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_huntarrdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_huntarrdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_huntarrdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_huntarrdesc2(inputs)

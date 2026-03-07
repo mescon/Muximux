@@ -10,147 +10,143 @@ const en_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1
 };
 
 const sv_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Användarhantering`)
 };
 
 const uk_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Керування користувачами`)
 };
 
 const zh_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`用户管理`)
 };
 
 const es_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Gestión de usuarios`)
 };
 
 const hi_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता प्रबंधन`)
 };
 
 const pt_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Gestão de utilizadores`)
 };
 
 const bn_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী ব্যবস্থাপনা`)
 };
 
 const ru_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Управление пользователями`)
 };
 
 const ja_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
-};
-
-const pa_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`ユーザー管理`)
 };
 
 const vi_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Quản lý người dùng`)
 };
 
 const yue_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`使用者管理`)
 };
 
 const tr_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Kullanıcı Yönetimi`)
 };
 
 const ar_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`إدارة المستخدمين`)
 };
 
 const wuu_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`用户管理`)
 };
 
 const mr_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`वापरकर्ता व्यवस्थापन`)
 };
 
 const nb_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Brukeradministrasjon`)
 };
 
 const fi_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Käyttäjähallinta`)
 };
 
 const da_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Brugerhåndtering`)
 };
 
 const et_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Kasutajahaldus`)
 };
 
 const lv_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Lietotāju pārvaldība`)
 };
 
 const lt_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Naudotojų valdymas`)
 };
 
 const pl_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Zarządzanie użytkownikami`)
 };
 
 const de_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Benutzerverwaltung`)
 };
 
 const nl_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Gebruikersbeheer`)
 };
 
 const fr_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Gestion des utilisateurs`)
 };
 
 const it_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Gestione utenti`)
 };
 
 const hu_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Felhasználókezelés`)
 };
 
 const cs_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Správa uživatelů`)
 };
 
 const ro_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Gestionarea utilizatorilor`)
 };
 
 const el_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Διαχείριση χρηστών`)
 };
 
 const bg_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Управление на потребители`)
 };
 
 const hr_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Upravljanje korisnicima`)
 };
 
 const sr_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Upravljanje korisnicima`)
 };
 
 const sk_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Správa používateľov`)
 };
 
 const sl_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User Management`)
+	return /** @type {LocalizedString} */ (`Upravljanje uporabnikov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_usermanagement1 = /** @type {(inputs: Security_Usermanagement1
 * | "User Management" |
 *
 * @param {Security_Usermanagement1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_usermanagement1 = /** @type {((inputs?: Security_Usermanagement1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Usermanagement1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_usermanagement1 = /** @type {((inputs?: Security_Usermanagement1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Usermanagement1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_usermanagement1(inputs)
 	if (locale === "sv") return sv_security_usermanagement1(inputs)
@@ -174,7 +170,6 @@ const security_usermanagement1 = /** @type {((inputs?: Security_Usermanagement1I
 	if (locale === "bn") return bn_security_usermanagement1(inputs)
 	if (locale === "ru") return ru_security_usermanagement1(inputs)
 	if (locale === "ja") return ja_security_usermanagement1(inputs)
-	if (locale === "pa") return pa_security_usermanagement1(inputs)
 	if (locale === "vi") return vi_security_usermanagement1(inputs)
 	if (locale === "yue") return yue_security_usermanagement1(inputs)
 	if (locale === "tr") return tr_security_usermanagement1(inputs)

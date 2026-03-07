@@ -10,147 +10,143 @@ const en_common_disabled = /** @type {(inputs: Common_DisabledInputs) => Localiz
 };
 
 const sv_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Inaktiverad`)
 };
 
 const uk_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Вимкнено`)
 };
 
 const zh_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`已禁用`)
 };
 
 const es_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Desactivado`)
 };
 
 const hi_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`अक्षम`)
 };
 
 const pt_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Desativado`)
 };
 
 const bn_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`নিষ্ক্রিয়`)
 };
 
 const ru_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Отключено`)
 };
 
 const ja_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
-};
-
-const pa_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`無効`)
 };
 
 const vi_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Đã tắt`)
 };
 
 const yue_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`已停用`)
 };
 
 const tr_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Devre dışı`)
 };
 
 const ar_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`معطّل`)
 };
 
 const wuu_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`已禁用`)
 };
 
 const mr_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`अक्षम`)
 };
 
 const nb_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Deaktivert`)
 };
 
 const fi_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Pois käytöstä`)
 };
 
 const da_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Deaktiveret`)
 };
 
 const et_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Keelatud`)
 };
 
 const lv_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Atspējots`)
 };
 
 const lt_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Išjungta`)
 };
 
 const pl_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Wyłączony`)
 };
 
 const de_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Deaktiviert`)
 };
 
 const nl_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Uitgeschakeld`)
 };
 
 const fr_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Désactivé`)
 };
 
 const it_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Disattivato`)
 };
 
 const hu_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Letiltva`)
 };
 
 const cs_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Zakázáno`)
 };
 
 const ro_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Dezactivat`)
 };
 
 const el_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Απενεργοποιημένο`)
 };
 
 const bg_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Изключено`)
 };
 
 const hr_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Onemogućeno`)
 };
 
 const sr_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Onemogućeno`)
 };
 
 const sk_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Zakázané`)
 };
 
 const sl_common_disabled = /** @type {(inputs: Common_DisabledInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Disabled`)
+	return /** @type {LocalizedString} */ (`Onemogočeno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_disabled = /** @type {(inputs: Common_DisabledInputs) => Localiz
 * | "Disabled" |
 *
 * @param {Common_DisabledInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_disabled = /** @type {((inputs?: Common_DisabledInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DisabledInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_disabled = /** @type {((inputs?: Common_DisabledInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DisabledInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_disabled(inputs)
 	if (locale === "sv") return sv_common_disabled(inputs)
@@ -174,7 +170,6 @@ export const common_disabled = /** @type {((inputs?: Common_DisabledInputs, opti
 	if (locale === "bn") return bn_common_disabled(inputs)
 	if (locale === "ru") return ru_common_disabled(inputs)
 	if (locale === "ja") return ja_common_disabled(inputs)
-	if (locale === "pa") return pa_common_disabled(inputs)
 	if (locale === "vi") return vi_common_disabled(inputs)
 	if (locale === "yue") return yue_common_disabled(inputs)
 	if (locale === "tr") return tr_common_disabled(inputs)

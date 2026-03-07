@@ -10,75 +10,71 @@ const en_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm6
 };
 
 const sv_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Ladda ner linux-arm64`)
 };
 
 const uk_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Завантажити linux-arm64`)
 };
 
 const zh_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`下载 linux-arm64`)
 };
 
 const es_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Descargar linux-arm64`)
 };
 
 const hi_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`linux-arm64 डाउनलोड करें`)
 };
 
 const pt_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Transferir linux-arm64`)
 };
 
 const bn_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`linux-arm64 ডাউনলোড করুন`)
 };
 
 const ru_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Скачать linux-arm64`)
 };
 
 const ja_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
-};
-
-const pa_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`linux-arm64 をダウンロード`)
 };
 
 const vi_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Tải linux-arm64`)
 };
 
 const yue_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`下載 linux-arm64`)
 };
 
 const tr_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`linux-arm64 İndir`)
 };
 
 const ar_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`تنزيل linux-arm64`)
 };
 
 const wuu_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`下载 linux-arm64`)
 };
 
 const mr_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`linux-arm64 डाउनलोड करा`)
 };
 
 const nb_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Last ned linux-arm64`)
 };
 
 const fi_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Lataa linux-arm64`)
 };
 
 const da_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm6
 };
 
 const et_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Laadi alla linux-arm64`)
 };
 
 const lv_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Lejupielādēt linux-arm64`)
 };
 
 const lt_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Atsisiųsti linux-arm64`)
 };
 
 const pl_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Pobierz linux-arm64`)
 };
 
 const de_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm6
 };
 
 const hu_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Letöltés linux-arm64`)
 };
 
 const cs_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Stáhnout linux-arm64`)
 };
 
 const ro_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Descarcă linux-arm64`)
 };
 
 const el_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Λήψη linux-arm64`)
 };
 
 const bg_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Изтегли linux-arm64`)
 };
 
 const hr_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Preuzmi linux-arm64`)
 };
 
 const sr_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Preuzmi linux-arm64`)
 };
 
 const sk_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Stiahnuť linux-arm64`)
 };
 
 const sl_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download linux-arm64`)
+	return /** @type {LocalizedString} */ (`Prenesi linux-arm64`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_downloadlinuxarm642 = /** @type {(inputs: About_Downloadlinuxarm6
 * | "Download linux-arm64" |
 *
 * @param {About_Downloadlinuxarm642Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_downloadlinuxarm642 = /** @type {((inputs?: About_Downloadlinuxarm642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloadlinuxarm642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_downloadlinuxarm642 = /** @type {((inputs?: About_Downloadlinuxarm642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloadlinuxarm642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_downloadlinuxarm642(inputs)
 	if (locale === "sv") return sv_about_downloadlinuxarm642(inputs)
@@ -174,7 +170,6 @@ const about_downloadlinuxarm642 = /** @type {((inputs?: About_Downloadlinuxarm64
 	if (locale === "bn") return bn_about_downloadlinuxarm642(inputs)
 	if (locale === "ru") return ru_about_downloadlinuxarm642(inputs)
 	if (locale === "ja") return ja_about_downloadlinuxarm642(inputs)
-	if (locale === "pa") return pa_about_downloadlinuxarm642(inputs)
 	if (locale === "vi") return vi_about_downloadlinuxarm642(inputs)
 	if (locale === "yue") return yue_about_downloadlinuxarm642(inputs)
 	if (locale === "tr") return tr_about_downloadlinuxarm642(inputs)

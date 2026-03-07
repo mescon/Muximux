@@ -10,115 +10,111 @@ const en_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2In
 };
 
 const sv_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet-nedladdare`)
 };
 
 const uk_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Завантажувач Usenet`)
 };
 
 const zh_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet 下载器`)
 };
 
 const es_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Descargador Usenet`)
 };
 
 const hi_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet डाउनलोडर`)
 };
 
 const pt_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Transferidor Usenet`)
 };
 
 const bn_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet ডাউনলোডার`)
 };
 
 const ru_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Загрузчик Usenet`)
 };
 
 const ja_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
-};
-
-const pa_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet ダウンローダー`)
 };
 
 const vi_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Trình tải Usenet`)
 };
 
 const yue_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet 下載器`)
 };
 
 const tr_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet indirici`)
 };
 
 const ar_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`برنامج تنزيل Usenet`)
 };
 
 const wuu_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet 下载器`)
 };
 
 const mr_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet डाउनलोडर`)
 };
 
 const nb_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet-nedlaster`)
 };
 
 const fi_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet-lataaja`)
 };
 
 const da_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet-downloader`)
 };
 
 const et_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet allalaadija`)
 };
 
 const lv_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet lejupielādētājs`)
 };
 
 const lt_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet atsisiuntimo programa`)
 };
 
 const pl_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Downloader Usenet`)
 };
 
 const de_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet-Downloader`)
 };
 
 const nl_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet-downloader`)
 };
 
 const fr_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Téléchargeur Usenet`)
 };
 
 const it_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Downloader Usenet`)
 };
 
 const hu_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet letöltő`)
 };
 
 const cs_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
@@ -126,23 +122,23 @@ const cs_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2In
 };
 
 const ro_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Descărcător Usenet`)
 };
 
 const el_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Πρόγραμμα λήψης Usenet`)
 };
 
 const bg_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet изтегляне`)
 };
 
 const hr_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet preuzimanje`)
 };
 
 const sr_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet preuzimanje`)
 };
 
 const sk_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
@@ -150,7 +146,7 @@ const sk_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2In
 };
 
 const sl_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Usenet downloader`)
+	return /** @type {LocalizedString} */ (`Usenet prenos`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_nzbgetdesc2 = /** @type {(inputs: Popularapps_Nzbgetdesc2In
 * | "Usenet downloader" |
 *
 * @param {Popularapps_Nzbgetdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_nzbgetdesc2 = /** @type {((inputs?: Popularapps_Nzbgetdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Nzbgetdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_nzbgetdesc2 = /** @type {((inputs?: Popularapps_Nzbgetdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Nzbgetdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_nzbgetdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_nzbgetdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_nzbgetdesc2 = /** @type {((inputs?: Popularapps_Nzbgetdesc2Inp
 	if (locale === "bn") return bn_popularapps_nzbgetdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_nzbgetdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_nzbgetdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_nzbgetdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_nzbgetdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_nzbgetdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_nzbgetdesc2(inputs)

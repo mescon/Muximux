@@ -10,147 +10,143 @@ const en_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdash
 };
 
 const sv_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Starta panelen`)
 };
 
 const uk_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Запустити панель керування`)
 };
 
 const zh_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`启动仪表盘`)
 };
 
 const es_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Abrir panel`)
 };
 
 const hi_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`डैशबोर्ड लॉन्च करें`)
 };
 
 const pt_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Abrir painel`)
 };
 
 const bn_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`ড্যাশবোর্ড চালু করুন`)
 };
 
 const ru_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Запустить панель`)
 };
 
 const ja_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
-};
-
-const pa_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`ダッシュボードを起動`)
 };
 
 const vi_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Khởi chạy bảng điều khiển`)
 };
 
 const yue_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`啟動儀表板`)
 };
 
 const tr_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Panoyu Başlat`)
 };
 
 const ar_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`تشغيل لوحة التحكم`)
 };
 
 const wuu_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`启动仪表盘`)
 };
 
 const mr_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`डॅशबोर्ड लाँच करा`)
 };
 
 const nb_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Start panelet`)
 };
 
 const fi_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Käynnistä paneeli`)
 };
 
 const da_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Start panelet`)
 };
 
 const et_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Käivita töölaud`)
 };
 
 const lv_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Palaist paneli`)
 };
 
 const lt_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Paleisti valdymo skydą`)
 };
 
 const pl_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Uruchom panel`)
 };
 
 const de_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Dashboard starten`)
 };
 
 const nl_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Dashboard starten`)
 };
 
 const fr_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Lancer le tableau de bord`)
 };
 
 const it_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Avvia dashboard`)
 };
 
 const hu_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Vezérlőpult indítása`)
 };
 
 const cs_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Spustit panel`)
 };
 
 const ro_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Lansează panoul de control`)
 };
 
 const el_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Εκκίνηση πίνακα ελέγχου`)
 };
 
 const bg_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Стартирай таблото`)
 };
 
 const hr_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Pokreni nadzornu ploču`)
 };
 
 const sr_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Pokreni kontrolnu tablu`)
 };
 
 const sk_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Spustiť panel`)
 };
 
 const sl_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdashboard1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Launch Dashboard`)
+	return /** @type {LocalizedString} */ (`Zaženi nadzorno ploščo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_launchdashboard1 = /** @type {(inputs: Onboarding_Launchdash
 * | "Launch Dashboard" |
 *
 * @param {Onboarding_Launchdashboard1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_launchdashboard1 = /** @type {((inputs?: Onboarding_Launchdashboard1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Launchdashboard1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_launchdashboard1 = /** @type {((inputs?: Onboarding_Launchdashboard1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Launchdashboard1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_launchdashboard1(inputs)
 	if (locale === "sv") return sv_onboarding_launchdashboard1(inputs)
@@ -174,7 +170,6 @@ const onboarding_launchdashboard1 = /** @type {((inputs?: Onboarding_Launchdashb
 	if (locale === "bn") return bn_onboarding_launchdashboard1(inputs)
 	if (locale === "ru") return ru_onboarding_launchdashboard1(inputs)
 	if (locale === "ja") return ja_onboarding_launchdashboard1(inputs)
-	if (locale === "pa") return pa_onboarding_launchdashboard1(inputs)
 	if (locale === "vi") return vi_onboarding_launchdashboard1(inputs)
 	if (locale === "yue") return yue_onboarding_launchdashboard1(inputs)
 	if (locale === "tr") return tr_onboarding_launchdashboard1(inputs)

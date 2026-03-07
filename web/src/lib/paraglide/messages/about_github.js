@@ -45,10 +45,6 @@ const ja_about_github = /** @type {(inputs: About_GithubInputs) => LocalizedStri
 	return /** @type {LocalizedString} */ (`GitHub`)
 };
 
-const pa_about_github = /** @type {(inputs: About_GithubInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`GitHub`)
-};
-
 const vi_about_github = /** @type {(inputs: About_GithubInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`GitHub`)
 };
@@ -159,10 +155,10 @@ const sl_about_github = /** @type {(inputs: About_GithubInputs) => LocalizedStri
 * | "GitHub" |
 *
 * @param {About_GithubInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_github = /** @type {((inputs?: About_GithubInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_GithubInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_github = /** @type {((inputs?: About_GithubInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_GithubInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_github(inputs)
 	if (locale === "sv") return sv_about_github(inputs)
@@ -174,7 +170,6 @@ export const about_github = /** @type {((inputs?: About_GithubInputs, options?: 
 	if (locale === "bn") return bn_about_github(inputs)
 	if (locale === "ru") return ru_about_github(inputs)
 	if (locale === "ja") return ja_about_github(inputs)
-	if (locale === "pa") return pa_about_github(inputs)
 	if (locale === "vi") return vi_about_github(inputs)
 	if (locale === "yue") return yue_about_github(inputs)
 	if (locale === "tr") return tr_about_github(inputs)

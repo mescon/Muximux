@@ -10,147 +10,143 @@ const en_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} 
 };
 
 const sv_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Rensa`)
 };
 
 const uk_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Очистити`)
 };
 
 const zh_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`清除`)
 };
 
 const es_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Limpiar`)
 };
 
 const hi_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`साफ़ करें`)
 };
 
 const pt_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Limpar`)
 };
 
 const bn_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`পরিষ্কার করুন`)
 };
 
 const ru_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Очистить`)
 };
 
 const ja_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
-};
-
-const pa_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`クリア`)
 };
 
 const vi_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Xóa`)
 };
 
 const yue_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`清除`)
 };
 
 const tr_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Temizle`)
 };
 
 const ar_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`مسح`)
 };
 
 const wuu_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`清除`)
 };
 
 const mr_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`साफ करा`)
 };
 
 const nb_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Tøm`)
 };
 
 const fi_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Tyhjennä`)
 };
 
 const da_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Ryd`)
 };
 
 const et_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Tühjenda`)
 };
 
 const lv_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Notīrīt`)
 };
 
 const lt_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Išvalyti`)
 };
 
 const pl_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Wyczyść`)
 };
 
 const de_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Leeren`)
 };
 
 const nl_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Wissen`)
 };
 
 const fr_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Effacer`)
 };
 
 const it_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Cancella`)
 };
 
 const hu_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Törlés`)
 };
 
 const cs_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Vymazat`)
 };
 
 const ro_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Șterge`)
 };
 
 const el_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Εκκαθάριση`)
 };
 
 const bg_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Изчисти`)
 };
 
 const hr_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Očisti`)
 };
 
 const sr_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Očisti`)
 };
 
 const sk_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Vymazať`)
 };
 
 const sl_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Clear`)
+	return /** @type {LocalizedString} */ (`Počisti`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_logs_clear = /** @type {(inputs: Logs_ClearInputs) => LocalizedString} 
 * | "Clear" |
 *
 * @param {Logs_ClearInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const logs_clear = /** @type {((inputs?: Logs_ClearInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_ClearInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const logs_clear = /** @type {((inputs?: Logs_ClearInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_ClearInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_logs_clear(inputs)
 	if (locale === "sv") return sv_logs_clear(inputs)
@@ -174,7 +170,6 @@ export const logs_clear = /** @type {((inputs?: Logs_ClearInputs, options?: { lo
 	if (locale === "bn") return bn_logs_clear(inputs)
 	if (locale === "ru") return ru_logs_clear(inputs)
 	if (locale === "ja") return ja_logs_clear(inputs)
-	if (locale === "pa") return pa_logs_clear(inputs)
 	if (locale === "vi") return vi_logs_clear(inputs)
 	if (locale === "yue") return yue_logs_clear(inputs)
 	if (locale === "tr") return tr_logs_clear(inputs)

@@ -10,95 +10,91 @@ const en_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedStri
 };
 
 const sv_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Ärenden`)
 };
 
 const uk_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Проблеми`)
 };
 
 const zh_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`问题`)
 };
 
 const es_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Incidencias`)
 };
 
 const hi_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`समस्याएं`)
 };
 
 const pt_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problemas`)
 };
 
 const bn_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`সমস্যা`)
 };
 
 const ru_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Проблемы`)
 };
 
 const ja_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Issues`)
 };
 
-const pa_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
-};
-
 const vi_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Vấn đề`)
 };
 
 const yue_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`問題`)
 };
 
 const tr_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Sorunlar`)
 };
 
 const ar_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`المشكلات`)
 };
 
 const wuu_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`问题`)
 };
 
 const mr_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`समस्या`)
 };
 
 const nb_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problemer`)
 };
 
 const fi_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Ongelmat`)
 };
 
 const da_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problemer`)
 };
 
 const et_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Probleemid`)
 };
 
 const lv_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problēmas`)
 };
 
 const lt_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problemos`)
 };
 
 const pl_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Zgłoszenia`)
 };
 
 const de_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedStri
 };
 
 const hu_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Hibajegyek`)
 };
 
 const cs_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problémy`)
 };
 
 const ro_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Probleme`)
 };
 
 const el_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Ζητήματα`)
 };
 
 const bg_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Проблеми`)
 };
 
 const hr_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problemi`)
 };
 
 const sr_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problemi`)
 };
 
 const sk_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Problémy`)
 };
 
 const sl_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Issues`)
+	return /** @type {LocalizedString} */ (`Težave`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_issues = /** @type {(inputs: About_IssuesInputs) => LocalizedStri
 * | "Issues" |
 *
 * @param {About_IssuesInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_issues = /** @type {((inputs?: About_IssuesInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_IssuesInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_issues = /** @type {((inputs?: About_IssuesInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_IssuesInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_issues(inputs)
 	if (locale === "sv") return sv_about_issues(inputs)
@@ -174,7 +170,6 @@ export const about_issues = /** @type {((inputs?: About_IssuesInputs, options?: 
 	if (locale === "bn") return bn_about_issues(inputs)
 	if (locale === "ru") return ru_about_issues(inputs)
 	if (locale === "ja") return ja_about_issues(inputs)
-	if (locale === "pa") return pa_about_issues(inputs)
 	if (locale === "vi") return vi_about_issues(inputs)
 	if (locale === "yue") return yue_about_issues(inputs)
 	if (locale === "tr") return tr_about_issues(inputs)

@@ -10,147 +10,143 @@ const en_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs
 };
 
 const sv_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nytt lösenord`)
 };
 
 const uk_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Новий пароль`)
 };
 
 const zh_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`新密码`)
 };
 
 const es_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nueva contraseña`)
 };
 
 const hi_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`नया पासवर्ड`)
 };
 
 const pt_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nova palavra-passe`)
 };
 
 const bn_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`নতুন পাসওয়ার্ড`)
 };
 
 const ru_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Новый пароль`)
 };
 
 const ja_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
-};
-
-const pa_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`新しいパスワード`)
 };
 
 const vi_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Mật khẩu mới`)
 };
 
 const yue_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`新密碼`)
 };
 
 const tr_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Yeni şifre`)
 };
 
 const ar_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`كلمة المرور الجديدة`)
 };
 
 const wuu_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`新密码`)
 };
 
 const mr_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`नवीन पासवर्ड`)
 };
 
 const nb_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nytt passord`)
 };
 
 const fi_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Uusi salasana`)
 };
 
 const da_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Ny adgangskode`)
 };
 
 const et_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Uus parool`)
 };
 
 const lv_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Jaunā parole`)
 };
 
 const lt_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Naujas slaptažodis`)
 };
 
 const pl_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nowe hasło`)
 };
 
 const de_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Neues Passwort`)
 };
 
 const nl_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nieuw wachtwoord`)
 };
 
 const fr_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nouveau mot de passe`)
 };
 
 const it_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nuova password`)
 };
 
 const hu_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Új jelszó`)
 };
 
 const cs_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nové heslo`)
 };
 
 const ro_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Parolă nouă`)
 };
 
 const el_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Νέος κωδικός`)
 };
 
 const bg_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Нова парола`)
 };
 
 const hr_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nova lozinka`)
 };
 
 const sr_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nova lozinka`)
 };
 
 const sk_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Nové heslo`)
 };
 
 const sl_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New password`)
+	return /** @type {LocalizedString} */ (`Novo geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_newpassword1 = /** @type {(inputs: Security_Newpassword1Inputs
 * | "New password" |
 *
 * @param {Security_Newpassword1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_newpassword1 = /** @type {((inputs?: Security_Newpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Newpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_newpassword1 = /** @type {((inputs?: Security_Newpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Newpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_newpassword1(inputs)
 	if (locale === "sv") return sv_security_newpassword1(inputs)
@@ -174,7 +170,6 @@ const security_newpassword1 = /** @type {((inputs?: Security_Newpassword1Inputs,
 	if (locale === "bn") return bn_security_newpassword1(inputs)
 	if (locale === "ru") return ru_security_newpassword1(inputs)
 	if (locale === "ja") return ja_security_newpassword1(inputs)
-	if (locale === "pa") return pa_security_newpassword1(inputs)
 	if (locale === "vi") return vi_security_newpassword1(inputs)
 	if (locale === "yue") return yue_security_newpassword1(inputs)
 	if (locale === "tr") return tr_security_newpassword1(inputs)

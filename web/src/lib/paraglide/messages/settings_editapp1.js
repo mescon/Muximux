@@ -10,147 +10,143 @@ const en_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => Loc
 };
 
 const sv_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Redigera ${i?.appName}`)
 };
 
 const uk_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Редагувати ${i?.appName}`)
 };
 
 const zh_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`编辑 ${i?.appName}`)
 };
 
 const es_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Editar ${i?.appName}`)
 };
 
 const hi_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} संपादित करें`)
 };
 
 const pt_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Editar ${i?.appName}`)
 };
 
 const bn_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} সম্পাদনা করুন`)
 };
 
 const ru_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Редактировать ${i?.appName}`)
 };
 
 const ja_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
-};
-
-const pa_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} を編集`)
 };
 
 const vi_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Sửa ${i?.appName}`)
 };
 
 const yue_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`編輯 ${i?.appName}`)
 };
 
 const tr_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} Düzenle`)
 };
 
 const ar_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`تعديل ${i?.appName}`)
 };
 
 const wuu_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`编辑 ${i?.appName}`)
 };
 
 const mr_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} संपादित करा`)
 };
 
 const nb_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Rediger ${i?.appName}`)
 };
 
 const fi_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Muokkaa ${i?.appName}`)
 };
 
 const da_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Rediger ${i?.appName}`)
 };
 
 const et_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Muuda rakendust ${i?.appName}`)
 };
 
 const lv_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Rediģēt ${i?.appName}`)
 };
 
 const lt_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Redaguoti ${i?.appName}`)
 };
 
 const pl_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Edytuj ${i?.appName}`)
 };
 
 const de_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} bearbeiten`)
 };
 
 const nl_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} bewerken`)
 };
 
 const fr_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Modifier ${i?.appName}`)
 };
 
 const it_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Modifica ${i?.appName}`)
 };
 
 const hu_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} szerkesztése`)
 };
 
 const cs_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Upravit ${i?.appName}`)
 };
 
 const ro_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Editează ${i?.appName}`)
 };
 
 const el_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Επεξεργασία ${i?.appName}`)
 };
 
 const bg_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Редактирай ${i?.appName}`)
 };
 
 const hr_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Uredi ${i?.appName}`)
 };
 
 const sr_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Uredi ${i?.appName}`)
 };
 
 const sk_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Upraviť ${i?.appName}`)
 };
 
 const sl_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Uredi ${i?.appName}`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_editapp1 = /** @type {(inputs: Settings_Editapp1Inputs) => Loc
 * | "Edit {appName}" |
 *
 * @param {Settings_Editapp1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_editapp1 = /** @type {((inputs: Settings_Editapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Editapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
+const settings_editapp1 = /** @type {((inputs: Settings_Editapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Editapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_editapp1(inputs)
 	if (locale === "sv") return sv_settings_editapp1(inputs)
@@ -174,7 +170,6 @@ const settings_editapp1 = /** @type {((inputs: Settings_Editapp1Inputs, options?
 	if (locale === "bn") return bn_settings_editapp1(inputs)
 	if (locale === "ru") return ru_settings_editapp1(inputs)
 	if (locale === "ja") return ja_settings_editapp1(inputs)
-	if (locale === "pa") return pa_settings_editapp1(inputs)
 	if (locale === "vi") return vi_settings_editapp1(inputs)
 	if (locale === "yue") return yue_settings_editapp1(inputs)
 	if (locale === "tr") return tr_settings_editapp1(inputs)

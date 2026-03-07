@@ -10,147 +10,143 @@ const en_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedSt
 };
 
 const sv_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Misslyckades`)
 };
 
 const uk_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Не вдалося`)
 };
 
 const zh_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`失败`)
 };
 
 const es_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Error`)
 };
 
 const hi_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`विफल`)
 };
 
 const pt_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Falhou`)
 };
 
 const bn_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`ব্যর্থ`)
 };
 
 const ru_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Ошибка`)
 };
 
 const ja_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
-};
-
-const pa_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`失敗`)
 };
 
 const vi_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Thất bại`)
 };
 
 const yue_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`失敗`)
 };
 
 const tr_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Başarısız`)
 };
 
 const ar_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`فشل`)
 };
 
 const wuu_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`失败`)
 };
 
 const mr_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`अयशस्वी`)
 };
 
 const nb_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Mislyktes`)
 };
 
 const fi_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Epäonnistui`)
 };
 
 const da_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Mislykkedes`)
 };
 
 const et_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Ebaõnnestus`)
 };
 
 const lv_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Neizdevās`)
 };
 
 const lt_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Nepavyko`)
 };
 
 const pl_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Nie powiodło się`)
 };
 
 const de_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Fehlgeschlagen`)
 };
 
 const nl_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Mislukt`)
 };
 
 const fr_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Échoué`)
 };
 
 const it_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Non riuscito`)
 };
 
 const hu_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Sikertelen`)
 };
 
 const cs_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Selhalo`)
 };
 
 const ro_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Eșuat`)
 };
 
 const el_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Απέτυχε`)
 };
 
 const bg_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Неуспешно`)
 };
 
 const hr_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Neuspjelo`)
 };
 
 const sr_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Neuspelo`)
 };
 
 const sk_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Zlyhalo`)
 };
 
 const sl_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed`)
+	return /** @type {LocalizedString} */ (`Neuspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_failed = /** @type {(inputs: Common_FailedInputs) => LocalizedSt
 * | "Failed" |
 *
 * @param {Common_FailedInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_failed = /** @type {((inputs?: Common_FailedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_FailedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_failed = /** @type {((inputs?: Common_FailedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_FailedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_failed(inputs)
 	if (locale === "sv") return sv_common_failed(inputs)
@@ -174,7 +170,6 @@ export const common_failed = /** @type {((inputs?: Common_FailedInputs, options?
 	if (locale === "bn") return bn_common_failed(inputs)
 	if (locale === "ru") return ru_common_failed(inputs)
 	if (locale === "ja") return ja_common_failed(inputs)
-	if (locale === "pa") return pa_common_failed(inputs)
 	if (locale === "vi") return vi_common_failed(inputs)
 	if (locale === "yue") return yue_common_failed(inputs)
 	if (locale === "tr") return tr_common_failed(inputs)

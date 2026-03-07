@@ -10,147 +10,143 @@ const en_general_advanced = /** @type {(inputs: General_AdvancedInputs) => Local
 };
 
 const sv_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avancerat`)
 };
 
 const uk_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Розширені`)
 };
 
 const zh_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`高级`)
 };
 
 const es_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avanzado`)
 };
 
 const hi_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`उन्नत`)
 };
 
 const pt_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avançado`)
 };
 
 const bn_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`উন্নত`)
 };
 
 const ru_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Дополнительно`)
 };
 
 const ja_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
-};
-
-const pa_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`詳細設定`)
 };
 
 const vi_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Nâng cao`)
 };
 
 const yue_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`進階`)
 };
 
 const tr_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Gelişmiş`)
 };
 
 const ar_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`متقدم`)
 };
 
 const wuu_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`高级`)
 };
 
 const mr_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`प्रगत`)
 };
 
 const nb_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avansert`)
 };
 
 const fi_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Edistyneet`)
 };
 
 const da_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avanceret`)
 };
 
 const et_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Täpsemad`)
 };
 
 const lv_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Papildu`)
 };
 
 const lt_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Išplėstiniai`)
 };
 
 const pl_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Zaawansowane`)
 };
 
 const de_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Erweitert`)
 };
 
 const nl_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Geavanceerd`)
 };
 
 const fr_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avancé`)
 };
 
 const it_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avanzate`)
 };
 
 const hu_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Haladó`)
 };
 
 const cs_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Pokročilé`)
 };
 
 const ro_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avansat`)
 };
 
 const el_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Προχωρημένα`)
 };
 
 const bg_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Разширени`)
 };
 
 const hr_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Napredno`)
 };
 
 const sr_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Napredno`)
 };
 
 const sk_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Pokročilé`)
 };
 
 const sl_general_advanced = /** @type {(inputs: General_AdvancedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Napredno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_advanced = /** @type {(inputs: General_AdvancedInputs) => Local
 * | "Advanced" |
 *
 * @param {General_AdvancedInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const general_advanced = /** @type {((inputs?: General_AdvancedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_AdvancedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const general_advanced = /** @type {((inputs?: General_AdvancedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_AdvancedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_advanced(inputs)
 	if (locale === "sv") return sv_general_advanced(inputs)
@@ -174,7 +170,6 @@ export const general_advanced = /** @type {((inputs?: General_AdvancedInputs, op
 	if (locale === "bn") return bn_general_advanced(inputs)
 	if (locale === "ru") return ru_general_advanced(inputs)
 	if (locale === "ja") return ja_general_advanced(inputs)
-	if (locale === "pa") return pa_general_advanced(inputs)
 	if (locale === "vi") return vi_general_advanced(inputs)
 	if (locale === "yue") return yue_general_advanced(inputs)
 	if (locale === "tr") return tr_general_advanced(inputs)

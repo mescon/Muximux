@@ -10,147 +10,143 @@ const en_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => Loc
 };
 
 const sv_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systeminformation`)
 };
 
 const uk_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Інформація про систему`)
 };
 
 const zh_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`系统信息`)
 };
 
 const es_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Información del sistema`)
 };
 
 const hi_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`सिस्टम जानकारी`)
 };
 
 const pt_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informação do sistema`)
 };
 
 const bn_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`সিস্টেম তথ্য`)
 };
 
 const ru_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Информация о системе`)
 };
 
 const ja_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
-};
-
-const pa_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`システム情報`)
 };
 
 const vi_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Thông tin hệ thống`)
 };
 
 const yue_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`系統資訊`)
 };
 
 const tr_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Sistem Bilgisi`)
 };
 
 const ar_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`معلومات النظام`)
 };
 
 const wuu_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`系统信息`)
 };
 
 const mr_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`सिस्टम माहिती`)
 };
 
 const nb_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systeminformasjon`)
 };
 
 const fi_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Järjestelmätiedot`)
 };
 
 const da_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systeminformation`)
 };
 
 const et_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Süsteemiteave`)
 };
 
 const lv_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Sistēmas informācija`)
 };
 
 const lt_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Sistemos informacija`)
 };
 
 const pl_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informacje systemowe`)
 };
 
 const de_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systeminformationen`)
 };
 
 const nl_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systeeminformatie`)
 };
 
 const fr_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informations système`)
 };
 
 const it_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informazioni di sistema`)
 };
 
 const hu_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Rendszerinformációk`)
 };
 
 const cs_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systémové informace`)
 };
 
 const ro_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informații de sistem`)
 };
 
 const el_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Πληροφορίες συστήματος`)
 };
 
 const bg_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Системна информация`)
 };
 
 const hr_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informacije o sustavu`)
 };
 
 const sr_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Informacije o sistemu`)
 };
 
 const sk_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Systémové informácie`)
 };
 
 const sl_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System Information`)
+	return /** @type {LocalizedString} */ (`Sistemske informacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_systeminfo1 = /** @type {(inputs: About_Systeminfo1Inputs) => Loc
 * | "System Information" |
 *
 * @param {About_Systeminfo1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_systeminfo1 = /** @type {((inputs?: About_Systeminfo1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Systeminfo1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_systeminfo1 = /** @type {((inputs?: About_Systeminfo1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Systeminfo1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_systeminfo1(inputs)
 	if (locale === "sv") return sv_about_systeminfo1(inputs)
@@ -174,7 +170,6 @@ const about_systeminfo1 = /** @type {((inputs?: About_Systeminfo1Inputs, options
 	if (locale === "bn") return bn_about_systeminfo1(inputs)
 	if (locale === "ru") return ru_about_systeminfo1(inputs)
 	if (locale === "ja") return ja_about_systeminfo1(inputs)
-	if (locale === "pa") return pa_about_systeminfo1(inputs)
 	if (locale === "vi") return vi_about_systeminfo1(inputs)
 	if (locale === "yue") return yue_about_systeminfo1(inputs)
 	if (locale === "tr") return tr_about_systeminfo1(inputs)

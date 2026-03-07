@@ -10,147 +10,143 @@ const en_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2
 };
 
 const sv_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Kunde inte tolka konfigurationsfilen`)
 };
 
 const uk_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Не вдалося розібрати файл конфігурації`)
 };
 
 const zh_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`解析配置文件失败`)
 };
 
 const es_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Error al analizar el archivo de configuración`)
 };
 
 const hi_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`कॉन्फ़िग फ़ाइल पार्स करने में विफल`)
 };
 
 const pt_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Erro ao analisar o ficheiro de configuração`)
 };
 
 const bn_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`কনফিগ ফাইল পার্স করতে ব্যর্থ`)
 };
 
 const ru_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Не удалось разобрать файл конфигурации`)
 };
 
 const ja_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
-};
-
-const pa_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`設定ファイルの解析に失敗しました`)
 };
 
 const vi_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Không thể phân tích tệp cấu hình`)
 };
 
 const yue_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`解析設定檔失敗`)
 };
 
 const tr_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Yapılandırma dosyası ayrıştırılamadı`)
 };
 
 const ar_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`فشل تحليل ملف الإعدادات`)
 };
 
 const wuu_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`配置文件解析失败`)
 };
 
 const mr_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`कॉन्फिग फाइल पार्स अयशस्वी`)
 };
 
 const nb_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Kunne ikke tolke konfigurasjonsfilen`)
 };
 
 const fi_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Konfiguraatiotiedoston jäsentäminen epäonnistui`)
 };
 
 const da_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Kunne ikke fortolke konfigurationsfilen`)
 };
 
 const et_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Konfiguratsioonifaili analüüsimine ebaõnnestus`)
 };
 
 const lv_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Neizdevās parsēt konfigurācijas failu`)
 };
 
 const lt_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Nepavyko apdoroti konfigūracijos failo`)
 };
 
 const pl_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Nie udało się przetworzyć pliku konfiguracji`)
 };
 
 const de_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Konfigurationsdatei konnte nicht verarbeitet werden`)
 };
 
 const nl_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Configuratiebestand verwerken mislukt`)
 };
 
 const fr_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Échec de l'analyse du fichier de configuration`)
 };
 
 const it_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Analisi del file di configurazione non riuscita`)
 };
 
 const hu_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Nem sikerült feldolgozni a konfigurációs fájlt`)
 };
 
 const cs_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se zpracovat konfigurační soubor`)
 };
 
 const ro_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Parsarea fișierului de configurare a eșuat`)
 };
 
 const el_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Αποτυχία ανάλυσης αρχείου διαμόρφωσης`)
 };
 
 const bg_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Парсването на конфигурационния файл е неуспешно`)
 };
 
 const hr_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Raščlanjivanje konfiguracijske datoteke nije uspjelo`)
 };
 
 const sr_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Raščlanjivanje konfiguracione datoteke nije uspelo`)
 };
 
 const sk_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa spracovať konfiguračný súbor`)
 };
 
 const sl_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to parse config file`)
+	return /** @type {LocalizedString} */ (`Razčlenjevanje konfiguracijske datoteke ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_failedparseconfig2 = /** @type {(inputs: Toast_Failedparseconfig2
 * | "Failed to parse config file" |
 *
 * @param {Toast_Failedparseconfig2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_failedparseconfig2 = /** @type {((inputs?: Toast_Failedparseconfig2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Failedparseconfig2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_failedparseconfig2 = /** @type {((inputs?: Toast_Failedparseconfig2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Failedparseconfig2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_failedparseconfig2(inputs)
 	if (locale === "sv") return sv_toast_failedparseconfig2(inputs)
@@ -174,7 +170,6 @@ const toast_failedparseconfig2 = /** @type {((inputs?: Toast_Failedparseconfig2I
 	if (locale === "bn") return bn_toast_failedparseconfig2(inputs)
 	if (locale === "ru") return ru_toast_failedparseconfig2(inputs)
 	if (locale === "ja") return ja_toast_failedparseconfig2(inputs)
-	if (locale === "pa") return pa_toast_failedparseconfig2(inputs)
 	if (locale === "vi") return vi_toast_failedparseconfig2(inputs)
 	if (locale === "yue") return yue_toast_failedparseconfig2(inputs)
 	if (locale === "tr") return tr_toast_failedparseconfig2(inputs)

@@ -10,147 +10,143 @@ const en_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectws
 };
 
 const sv_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Kunde inte ansluta efter flera försök`)
 };
 
 const uk_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Не вдалося підключитися після кількох спроб`)
 };
 
 const zh_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`多次尝试后连接失败`)
 };
 
 const es_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Error de conexión tras varios intentos`)
 };
 
 const hi_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`कई प्रयासों के बाद कनेक्ट करने में विफल`)
 };
 
 const pt_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Erro de ligação após várias tentativas`)
 };
 
 const bn_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`একাধিক প্রচেষ্টার পর সংযোগ করতে ব্যর্থ`)
 };
 
 const ru_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Не удалось подключиться после нескольких попыток`)
 };
 
 const ja_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
-};
-
-const pa_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`複数回の試行後も接続に失敗しました`)
 };
 
 const vi_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Kết nối thất bại sau nhiều lần thử`)
 };
 
 const yue_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`多次嘗試後連線失敗`)
 };
 
 const tr_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Birden fazla denemeden sonra bağlanılamadı`)
 };
 
 const ar_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`فشل الاتصال بعد عدة محاولات`)
 };
 
 const wuu_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`试了几趟还是连不上`)
 };
 
 const mr_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`अनेक प्रयत्नांनंतरही कनेक्ट अयशस्वी`)
 };
 
 const nb_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Kunne ikke koble til etter flere forsøk`)
 };
 
 const fi_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Yhdistäminen epäonnistui useiden yritysten jälkeen`)
 };
 
 const da_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Kunne ikke oprette forbindelse efter flere forsøg`)
 };
 
 const et_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Ühendamine ebaõnnestus pärast mitut katset`)
 };
 
 const lv_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Neizdevās savienoties pēc vairākiem mēģinājumiem`)
 };
 
 const lt_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Nepavyko prisijungti po kelių bandymų`)
 };
 
 const pl_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Nie udało się połączyć po wielu próbach`)
 };
 
 const de_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Verbindung nach mehreren Versuchen fehlgeschlagen`)
 };
 
 const nl_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Verbinden mislukt na meerdere pogingen`)
 };
 
 const fr_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Échec de la connexion après plusieurs tentatives`)
 };
 
 const it_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Connessione non riuscita dopo più tentativi`)
 };
 
 const hu_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Nem sikerült csatlakozni több próbálkozás után`)
 };
 
 const cs_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se připojit po několika pokusech`)
 };
 
 const ro_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Conectarea a eșuat după mai multe încercări`)
 };
 
 const el_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Αποτυχία σύνδεσης μετά από πολλαπλές προσπάθειες`)
 };
 
 const bg_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Свързването е неуспешно след множество опити`)
 };
 
 const hr_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Povezivanje nakon više pokušaja nije uspjelo`)
 };
 
 const sr_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Povezivanje nakon više pokušaja nije uspelo`)
 };
 
 const sk_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa pripojiť po viacerých pokusoch`)
 };
 
 const sl_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectwsretry3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to connect after multiple attempts`)
+	return /** @type {LocalizedString} */ (`Povezovanje po več poskusih ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_error_failedconnectwsretry3 = /** @type {(inputs: Error_Failedconnectws
 * | "Failed to connect after multiple attempts" |
 *
 * @param {Error_Failedconnectwsretry3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const error_failedconnectwsretry3 = /** @type {((inputs?: Error_Failedconnectwsretry3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedconnectwsretry3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const error_failedconnectwsretry3 = /** @type {((inputs?: Error_Failedconnectwsretry3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedconnectwsretry3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_error_failedconnectwsretry3(inputs)
 	if (locale === "sv") return sv_error_failedconnectwsretry3(inputs)
@@ -174,7 +170,6 @@ const error_failedconnectwsretry3 = /** @type {((inputs?: Error_Failedconnectwsr
 	if (locale === "bn") return bn_error_failedconnectwsretry3(inputs)
 	if (locale === "ru") return ru_error_failedconnectwsretry3(inputs)
 	if (locale === "ja") return ja_error_failedconnectwsretry3(inputs)
-	if (locale === "pa") return pa_error_failedconnectwsretry3(inputs)
 	if (locale === "vi") return vi_error_failedconnectwsretry3(inputs)
 	if (locale === "yue") return yue_error_failedconnectwsretry3(inputs)
 	if (locale === "tr") return tr_error_failedconnectwsretry3(inputs)

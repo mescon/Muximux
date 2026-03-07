@@ -10,147 +10,143 @@ const en_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) 
 };
 
 const sv_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Klar`)
 };
 
 const uk_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Готово`)
 };
 
 const zh_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完成`)
 };
 
 const es_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Listo`)
 };
 
 const hi_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`पूर्ण`)
 };
 
 const pt_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Concluído`)
 };
 
 const bn_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`সম্পন্ন`)
 };
 
 const ru_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Готово`)
 };
 
 const ja_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
-};
-
-const pa_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完了`)
 };
 
 const vi_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Xong`)
 };
 
 const yue_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完成`)
 };
 
 const tr_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Tamam`)
 };
 
 const ar_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`تم`)
 };
 
 const wuu_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完成`)
 };
 
 const mr_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`पूर्ण`)
 };
 
 const nb_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Ferdig`)
 };
 
 const fi_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Valmis`)
 };
 
 const da_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Færdig`)
 };
 
 const et_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Valmis`)
 };
 
 const lv_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gatavs`)
 };
 
 const lt_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Atlikta`)
 };
 
 const pl_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gotowe`)
 };
 
 const de_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Fertig`)
 };
 
 const nl_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Klaar`)
 };
 
 const fr_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Terminé`)
 };
 
 const it_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Fatto`)
 };
 
 const hu_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Kész`)
 };
 
 const cs_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Hotovo`)
 };
 
 const ro_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gata`)
 };
 
 const el_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Ολοκληρώθηκε`)
 };
 
 const bg_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Готово`)
 };
 
 const hr_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gotovo`)
 };
 
 const sr_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gotovo`)
 };
 
 const sk_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Hotovo`)
 };
 
 const sl_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Končano`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_stepdone1 = /** @type {(inputs: Onboarding_Stepdone1Inputs) 
 * | "Done" |
 *
 * @param {Onboarding_Stepdone1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_stepdone1 = /** @type {((inputs?: Onboarding_Stepdone1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Stepdone1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_stepdone1 = /** @type {((inputs?: Onboarding_Stepdone1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Stepdone1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_stepdone1(inputs)
 	if (locale === "sv") return sv_onboarding_stepdone1(inputs)
@@ -174,7 +170,6 @@ const onboarding_stepdone1 = /** @type {((inputs?: Onboarding_Stepdone1Inputs, o
 	if (locale === "bn") return bn_onboarding_stepdone1(inputs)
 	if (locale === "ru") return ru_onboarding_stepdone1(inputs)
 	if (locale === "ja") return ja_onboarding_stepdone1(inputs)
-	if (locale === "pa") return pa_onboarding_stepdone1(inputs)
 	if (locale === "vi") return vi_onboarding_stepdone1(inputs)
 	if (locale === "yue") return yue_onboarding_stepdone1(inputs)
 	if (locale === "tr") return tr_onboarding_stepdone1(inputs)

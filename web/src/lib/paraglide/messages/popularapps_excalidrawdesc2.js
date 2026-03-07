@@ -10,147 +10,143 @@ const en_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidra
 };
 
 const sv_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Samarbetswhiteboard`)
 };
 
 const uk_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Спільна дошка для малювання`)
 };
 
 const zh_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`协作白板`)
 };
 
 const es_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Pizarra colaborativa`)
 };
 
 const hi_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`सहयोगी व्हाइटबोर्ड`)
 };
 
 const pt_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Quadro branco colaborativo`)
 };
 
 const bn_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`সহযোগী হোয়াইটবোর্ড`)
 };
 
 const ru_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Совместная доска для рисования`)
 };
 
 const ja_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
-};
-
-const pa_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`コラボレーションホワイトボード`)
 };
 
 const vi_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Bảng trắng cộng tác`)
 };
 
 const yue_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`協作白板`)
 };
 
 const tr_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`İşbirlikçi beyaz tahta`)
 };
 
 const ar_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`سبورة بيضاء تعاونية`)
 };
 
 const wuu_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`协作白板`)
 };
 
 const mr_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`सहयोगी व्हाइटबोर्ड`)
 };
 
 const nb_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Samarbeidstavle`)
 };
 
 const fi_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Yhteistyövalkotaulu`)
 };
 
 const da_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Samarbejdstavle`)
 };
 
 const et_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Koostööline tahvel`)
 };
 
 const lv_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Sadarbības tāfele`)
 };
 
 const lt_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Bendradarbiavimo piešimo lenta`)
 };
 
 const pl_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Współpracująca tablica`)
 };
 
 const de_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Kollaboratives Whiteboard`)
 };
 
 const nl_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Collaboratief whiteboard`)
 };
 
 const fr_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Tableau blanc collaboratif`)
 };
 
 const it_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Lavagna collaborativa`)
 };
 
 const hu_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Kollaboratív rajztábla`)
 };
 
 const cs_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Spolupracující tabule`)
 };
 
 const ro_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Tablă albă colaborativă`)
 };
 
 const el_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Συνεργατικός πίνακας σχεδίασης`)
 };
 
 const bg_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Колаборативна бяла дъска`)
 };
 
 const hr_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Kolaborativna bijela ploča`)
 };
 
 const sr_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Kolaborativna bela tabla`)
 };
 
 const sk_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Spolupracujúca tabuľa`)
 };
 
 const sl_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidrawdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Collaborative whiteboard`)
+	return /** @type {LocalizedString} */ (`Sodelovalna bela tabla`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_excalidrawdesc2 = /** @type {(inputs: Popularapps_Excalidra
 * | "Collaborative whiteboard" |
 *
 * @param {Popularapps_Excalidrawdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_excalidrawdesc2 = /** @type {((inputs?: Popularapps_Excalidrawdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Excalidrawdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_excalidrawdesc2 = /** @type {((inputs?: Popularapps_Excalidrawdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Excalidrawdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_excalidrawdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_excalidrawdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_excalidrawdesc2 = /** @type {((inputs?: Popularapps_Excalidraw
 	if (locale === "bn") return bn_popularapps_excalidrawdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_excalidrawdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_excalidrawdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_excalidrawdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_excalidrawdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_excalidrawdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_excalidrawdesc2(inputs)

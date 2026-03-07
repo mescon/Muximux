@@ -10,15 +10,15 @@ const en_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => Localized
 };
 
 const sv_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} appar`)
 };
 
 const uk_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} застосунків`)
 };
 
 const zh_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} 个应用`)
 };
 
 const es_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
@@ -26,7 +26,7 @@ const es_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => Localized
 };
 
 const hi_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} ऐप्स`)
 };
 
 const pt_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
@@ -34,51 +34,47 @@ const pt_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => Localized
 };
 
 const bn_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} অ্যাপ`)
 };
 
 const ru_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} приложений`)
 };
 
 const ja_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
-};
-
-const pa_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} 個のアプリ`)
 };
 
 const vi_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} ứng dụng`)
 };
 
 const yue_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} 個應用程式`)
 };
 
 const tr_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} uygulama`)
 };
 
 const ar_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} تطبيقات`)
 };
 
 const wuu_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} 个应用`)
 };
 
 const mr_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} अॅप्स`)
 };
 
 const nb_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} apper`)
 };
 
 const fi_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} sovellusta`)
 };
 
 const da_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
@@ -86,23 +82,23 @@ const da_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => Localized
 };
 
 const et_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} rakendust`)
 };
 
 const lv_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} lietotnes`)
 };
 
 const lt_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} programų`)
 };
 
 const pl_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplikacji`)
 };
 
 const de_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} Apps`)
 };
 
 const nl_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
@@ -114,43 +110,43 @@ const fr_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => Localized
 };
 
 const it_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} app`)
 };
 
 const hu_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} alkalmazás`)
 };
 
 const cs_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplikací`)
 };
 
 const ro_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplicații`)
 };
 
 const el_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} εφαρμογές`)
 };
 
 const bg_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} приложения`)
 };
 
 const hr_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplikacija`)
 };
 
 const sr_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplikacija`)
 };
 
 const sk_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplikácií`)
 };
 
 const sl_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`${i?.count} apps`)
+	return /** @type {LocalizedString} */ (`${i?.count} aplikacij`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_appcount1 = /** @type {(inputs: Apps_Appcount1Inputs) => Localized
 * | "{count} apps" |
 *
 * @param {Apps_Appcount1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const apps_appcount1 = /** @type {((inputs: Apps_Appcount1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Appcount1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
+const apps_appcount1 = /** @type {((inputs: Apps_Appcount1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Appcount1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_appcount1(inputs)
 	if (locale === "sv") return sv_apps_appcount1(inputs)
@@ -174,7 +170,6 @@ const apps_appcount1 = /** @type {((inputs: Apps_Appcount1Inputs, options?: { lo
 	if (locale === "bn") return bn_apps_appcount1(inputs)
 	if (locale === "ru") return ru_apps_appcount1(inputs)
 	if (locale === "ja") return ja_apps_appcount1(inputs)
-	if (locale === "pa") return pa_apps_appcount1(inputs)
 	if (locale === "vi") return vi_apps_appcount1(inputs)
 	if (locale === "yue") return yue_apps_appcount1(inputs)
 	if (locale === "tr") return tr_apps_appcount1(inputs)

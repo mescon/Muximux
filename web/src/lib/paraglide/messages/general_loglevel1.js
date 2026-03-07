@@ -10,147 +10,143 @@ const en_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => Loc
 };
 
 const sv_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Loggnivå`)
 };
 
 const uk_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Рівень журналювання`)
 };
 
 const zh_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`日志级别`)
 };
 
 const es_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Nivel de log`)
 };
 
 const hi_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`लॉग स्तर`)
 };
 
 const pt_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Nível de log`)
 };
 
 const bn_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`লগ স্তর`)
 };
 
 const ru_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Уровень логирования`)
 };
 
 const ja_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
-};
-
-const pa_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`ログレベル`)
 };
 
 const vi_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Mức nhật ký`)
 };
 
 const yue_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`日誌等級`)
 };
 
 const tr_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Günlük Seviyesi`)
 };
 
 const ar_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`مستوى السجل`)
 };
 
 const wuu_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`日志级别`)
 };
 
 const mr_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`लॉग स्तर`)
 };
 
 const nb_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Loggnivå`)
 };
 
 const fi_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Lokitaso`)
 };
 
 const da_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Logniveau`)
 };
 
 const et_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Logitase`)
 };
 
 const lv_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Žurnāla līmenis`)
 };
 
 const lt_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Žurnalo lygis`)
 };
 
 const pl_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Poziom logowania`)
 };
 
 const de_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Log-Level`)
 };
 
 const nl_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Log-niveau`)
 };
 
 const fr_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Niveau de log`)
 };
 
 const it_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Livello di log`)
 };
 
 const hu_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Naplózási szint`)
 };
 
 const cs_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Úroveň logování`)
 };
 
 const ro_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Nivel jurnal`)
 };
 
 const el_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Επίπεδο καταγραφής`)
 };
 
 const bg_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Ниво на журнала`)
 };
 
 const hr_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Razina zapisivanja`)
 };
 
 const sr_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Nivo evidencije`)
 };
 
 const sk_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Úroveň logovania`)
 };
 
 const sl_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Log Level`)
+	return /** @type {LocalizedString} */ (`Raven beleženja`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_loglevel1 = /** @type {(inputs: General_Loglevel1Inputs) => Loc
 * | "Log Level" |
 *
 * @param {General_Loglevel1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_loglevel1 = /** @type {((inputs?: General_Loglevel1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Loglevel1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_loglevel1 = /** @type {((inputs?: General_Loglevel1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Loglevel1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_loglevel1(inputs)
 	if (locale === "sv") return sv_general_loglevel1(inputs)
@@ -174,7 +170,6 @@ const general_loglevel1 = /** @type {((inputs?: General_Loglevel1Inputs, options
 	if (locale === "bn") return bn_general_loglevel1(inputs)
 	if (locale === "ru") return ru_general_loglevel1(inputs)
 	if (locale === "ja") return ja_general_loglevel1(inputs)
-	if (locale === "pa") return pa_general_loglevel1(inputs)
 	if (locale === "vi") return vi_general_loglevel1(inputs)
 	if (locale === "yue") return yue_general_loglevel1(inputs)
 	if (locale === "tr") return tr_general_loglevel1(inputs)

@@ -45,10 +45,6 @@ const ja_about_macos = /** @type {(inputs: About_MacosInputs) => LocalizedString
 	return /** @type {LocalizedString} */ (`macOS`)
 };
 
-const pa_about_macos = /** @type {(inputs: About_MacosInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`macOS`)
-};
-
 const vi_about_macos = /** @type {(inputs: About_MacosInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`macOS`)
 };
@@ -159,10 +155,10 @@ const sl_about_macos = /** @type {(inputs: About_MacosInputs) => LocalizedString
 * | "macOS" |
 *
 * @param {About_MacosInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_macos = /** @type {((inputs?: About_MacosInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_MacosInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_macos = /** @type {((inputs?: About_MacosInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_MacosInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_macos(inputs)
 	if (locale === "sv") return sv_about_macos(inputs)
@@ -174,7 +170,6 @@ export const about_macos = /** @type {((inputs?: About_MacosInputs, options?: { 
 	if (locale === "bn") return bn_about_macos(inputs)
 	if (locale === "ru") return ru_about_macos(inputs)
 	if (locale === "ja") return ja_about_macos(inputs)
-	if (locale === "pa") return pa_about_macos(inputs)
 	if (locale === "vi") return vi_about_macos(inputs)
 	if (locale === "yue") return yue_about_macos(inputs)
 	if (locale === "tr") return tr_about_macos(inputs)

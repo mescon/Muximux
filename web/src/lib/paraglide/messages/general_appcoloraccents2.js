@@ -10,147 +10,143 @@ const en_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2
 };
 
 const sv_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Appfärgaccenter`)
 };
 
 const uk_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Кольорові акценти застосунків`)
 };
 
 const zh_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`应用颜色强调`)
 };
 
 const es_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Acentos de color de app`)
 };
 
 const hi_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`ऐप रंग एक्सेंट`)
 };
 
 const pt_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Acentos de cor da app`)
 };
 
 const bn_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`অ্যাপ রঙ অ্যাকসেন্ট`)
 };
 
 const ru_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Цветовые акценты приложений`)
 };
 
 const ja_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
-};
-
-const pa_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`アプリカラーアクセント`)
 };
 
 const vi_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Màu nhấn ứng dụng`)
 };
 
 const yue_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`應用程式顏色強調`)
 };
 
 const tr_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Uygulama Renk Vurguları`)
 };
 
 const ar_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`ألوان التطبيقات المميزة`)
 };
 
 const wuu_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`应用颜色强调`)
 };
 
 const mr_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`अॅप रंग ॲक्सेंट`)
 };
 
 const nb_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Appfargeaksenter`)
 };
 
 const fi_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Sovellusten värikorostukset`)
 };
 
 const da_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Appfarveaccenter`)
 };
 
 const et_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Rakenduse värviaktsendid`)
 };
 
 const lv_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Lietotņu krāsu akcenti`)
 };
 
 const lt_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Programų spalvų akcentai`)
 };
 
 const pl_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Kolorowe akcenty aplikacji`)
 };
 
 const de_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`App-Farbakzente`)
 };
 
 const nl_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`App-kleuraccenten`)
 };
 
 const fr_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Accents de couleur des apps`)
 };
 
 const it_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Accenti di colore delle app`)
 };
 
 const hu_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Alkalmazás szín kiemelések`)
 };
 
 const cs_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Barevné akcenty aplikací`)
 };
 
 const ro_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Accente de culoare ale aplicațiilor`)
 };
 
 const el_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Χρωματικές εμφάσεις εφαρμογών`)
 };
 
 const bg_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Цветови акценти на приложенията`)
 };
 
 const hr_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Boje naglaska aplikacija`)
 };
 
 const sr_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Boje naglaska aplikacija`)
 };
 
 const sk_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Farebné akcenty aplikácií`)
 };
 
 const sl_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App Color Accents`)
+	return /** @type {LocalizedString} */ (`Barvni poudarki aplikacij`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_appcoloraccents2 = /** @type {(inputs: General_Appcoloraccents2
 * | "App Color Accents" |
 *
 * @param {General_Appcoloraccents2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_appcoloraccents2 = /** @type {((inputs?: General_Appcoloraccents2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Appcoloraccents2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_appcoloraccents2 = /** @type {((inputs?: General_Appcoloraccents2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Appcoloraccents2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_appcoloraccents2(inputs)
 	if (locale === "sv") return sv_general_appcoloraccents2(inputs)
@@ -174,7 +170,6 @@ const general_appcoloraccents2 = /** @type {((inputs?: General_Appcoloraccents2I
 	if (locale === "bn") return bn_general_appcoloraccents2(inputs)
 	if (locale === "ru") return ru_general_appcoloraccents2(inputs)
 	if (locale === "ja") return ja_general_appcoloraccents2(inputs)
-	if (locale === "pa") return pa_general_appcoloraccents2(inputs)
 	if (locale === "vi") return vi_general_appcoloraccents2(inputs)
 	if (locale === "yue") return yue_general_appcoloraccents2(inputs)
 	if (locale === "tr") return tr_general_appcoloraccents2(inputs)

@@ -10,15 +10,15 @@ const en_settings_general = /** @type {(inputs: Settings_GeneralInputs) => Local
 };
 
 const sv_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Allmänt`)
 };
 
 const uk_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Загальні`)
 };
 
 const zh_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`常规`)
 };
 
 const es_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
@@ -26,103 +26,99 @@ const es_settings_general = /** @type {(inputs: Settings_GeneralInputs) => Local
 };
 
 const hi_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`सामान्य`)
 };
 
 const pt_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Geral`)
 };
 
 const bn_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`সাধারণ`)
 };
 
 const ru_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Общие`)
 };
 
 const ja_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
-};
-
-const pa_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`一般`)
 };
 
 const vi_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Chung`)
 };
 
 const yue_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`一般`)
 };
 
 const tr_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Genel`)
 };
 
 const ar_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`عام`)
 };
 
 const wuu_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`常规`)
 };
 
 const mr_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`सामान्य`)
 };
 
 const nb_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Generelt`)
 };
 
 const fi_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Yleiset`)
 };
 
 const da_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Generelt`)
 };
 
 const et_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Üldine`)
 };
 
 const lv_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Vispārīgi`)
 };
 
 const lt_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Bendrieji`)
 };
 
 const pl_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Ogólne`)
 };
 
 const de_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Allgemein`)
 };
 
 const nl_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Algemeen`)
 };
 
 const fr_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Général`)
 };
 
 const it_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Generale`)
 };
 
 const hu_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Általános`)
 };
 
 const cs_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Obecné`)
 };
 
 const ro_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
@@ -130,27 +126,27 @@ const ro_settings_general = /** @type {(inputs: Settings_GeneralInputs) => Local
 };
 
 const el_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Γενικά`)
 };
 
 const bg_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Общи`)
 };
 
 const hr_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Općenito`)
 };
 
 const sr_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Opšte`)
 };
 
 const sk_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Všeobecné`)
 };
 
 const sl_settings_general = /** @type {(inputs: Settings_GeneralInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`General`)
+	return /** @type {LocalizedString} */ (`Splošno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_general = /** @type {(inputs: Settings_GeneralInputs) => Local
 * | "General" |
 *
 * @param {Settings_GeneralInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_general = /** @type {((inputs?: Settings_GeneralInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_GeneralInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_general = /** @type {((inputs?: Settings_GeneralInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_GeneralInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_general(inputs)
 	if (locale === "sv") return sv_settings_general(inputs)
@@ -174,7 +170,6 @@ export const settings_general = /** @type {((inputs?: Settings_GeneralInputs, op
 	if (locale === "bn") return bn_settings_general(inputs)
 	if (locale === "ru") return ru_settings_general(inputs)
 	if (locale === "ja") return ja_settings_general(inputs)
-	if (locale === "pa") return pa_settings_general(inputs)
 	if (locale === "vi") return vi_settings_general(inputs)
 	if (locale === "yue") return yue_settings_general(inputs)
 	if (locale === "tr") return tr_settings_general(inputs)

@@ -10,15 +10,15 @@ const en_settings_color = /** @type {(inputs: Settings_ColorInputs) => Localized
 };
 
 const sv_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Färg`)
 };
 
 const uk_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Колір`)
 };
 
 const zh_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`颜色`)
 };
 
 const es_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
@@ -26,131 +26,127 @@ const es_settings_color = /** @type {(inputs: Settings_ColorInputs) => Localized
 };
 
 const hi_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`रंग`)
 };
 
 const pt_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Cor`)
 };
 
 const bn_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`রঙ`)
 };
 
 const ru_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Цвет`)
 };
 
 const ja_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
-};
-
-const pa_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`色`)
 };
 
 const vi_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Màu`)
 };
 
 const yue_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`顏色`)
 };
 
 const tr_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Renk`)
 };
 
 const ar_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`اللون`)
 };
 
 const wuu_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`颜色`)
 };
 
 const mr_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`रंग`)
 };
 
 const nb_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Farge`)
 };
 
 const fi_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Väri`)
 };
 
 const da_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Farve`)
 };
 
 const et_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Värv`)
 };
 
 const lv_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Krāsa`)
 };
 
 const lt_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Spalva`)
 };
 
 const pl_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Kolor`)
 };
 
 const de_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Farbe`)
 };
 
 const nl_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Kleur`)
 };
 
 const fr_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Couleur`)
 };
 
 const it_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Colore`)
 };
 
 const hu_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Szín`)
 };
 
 const cs_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Barva`)
 };
 
 const ro_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Culoare`)
 };
 
 const el_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Χρώμα`)
 };
 
 const bg_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Цвят`)
 };
 
 const hr_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Boja`)
 };
 
 const sr_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Boja`)
 };
 
 const sk_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Farba`)
 };
 
 const sl_settings_color = /** @type {(inputs: Settings_ColorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Color`)
+	return /** @type {LocalizedString} */ (`Barva`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_color = /** @type {(inputs: Settings_ColorInputs) => Localized
 * | "Color" |
 *
 * @param {Settings_ColorInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_color = /** @type {((inputs?: Settings_ColorInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_ColorInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_color = /** @type {((inputs?: Settings_ColorInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_ColorInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_color(inputs)
 	if (locale === "sv") return sv_settings_color(inputs)
@@ -174,7 +170,6 @@ export const settings_color = /** @type {((inputs?: Settings_ColorInputs, option
 	if (locale === "bn") return bn_settings_color(inputs)
 	if (locale === "ru") return ru_settings_color(inputs)
 	if (locale === "ja") return ja_settings_color(inputs)
-	if (locale === "pa") return pa_settings_color(inputs)
 	if (locale === "vi") return vi_settings_color(inputs)
 	if (locale === "yue") return yue_settings_color(inputs)
 	if (locale === "tr") return tr_settings_color(inputs)

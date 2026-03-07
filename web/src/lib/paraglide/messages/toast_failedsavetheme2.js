@@ -10,147 +10,143 @@ const en_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inpu
 };
 
 const sv_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Kunde inte spara temat`)
 };
 
 const uk_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Не вдалося зберегти тему`)
 };
 
 const zh_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`保存主题失败`)
 };
 
 const es_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Error al guardar el tema`)
 };
 
 const hi_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`थीम सहेजने में विफल`)
 };
 
 const pt_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Erro ao guardar o tema`)
 };
 
 const bn_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`থিম সংরক্ষণ করতে ব্যর্থ`)
 };
 
 const ru_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Не удалось сохранить тему`)
 };
 
 const ja_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
-};
-
-const pa_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`テーマの保存に失敗しました`)
 };
 
 const vi_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Không thể lưu giao diện`)
 };
 
 const yue_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`儲存主題失敗`)
 };
 
 const tr_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Tema kaydedilemedi`)
 };
 
 const ar_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`فشل حفظ السمة`)
 };
 
 const wuu_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`主题保存失败`)
 };
 
 const mr_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`थीम जतन अयशस्वी`)
 };
 
 const nb_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Kunne ikke lagre temaet`)
 };
 
 const fi_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Teeman tallennus epäonnistui`)
 };
 
 const da_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Kunne ikke gemme temaet`)
 };
 
 const et_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Teema salvestamine ebaõnnestus`)
 };
 
 const lv_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Neizdevās saglabāt motīvu`)
 };
 
 const lt_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Nepavyko išsaugoti temos`)
 };
 
 const pl_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Nie udało się zapisać motywu`)
 };
 
 const de_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Theme konnte nicht gespeichert werden`)
 };
 
 const nl_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Thema opslaan mislukt`)
 };
 
 const fr_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Échec de l'enregistrement du thème`)
 };
 
 const it_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Salvataggio del tema non riuscito`)
 };
 
 const hu_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Nem sikerült menteni a témát`)
 };
 
 const cs_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se uložit motiv`)
 };
 
 const ro_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Salvarea temei a eșuat`)
 };
 
 const el_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Αποτυχία αποθήκευσης θέματος`)
 };
 
 const bg_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Запазването на темата е неуспешно`)
 };
 
 const hr_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Spremanje teme nije uspjelo`)
 };
 
 const sr_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Čuvanje teme nije uspelo`)
 };
 
 const sk_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa uložiť motív`)
 };
 
 const sl_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to save theme`)
+	return /** @type {LocalizedString} */ (`Shranjevanje teme ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_failedsavetheme2 = /** @type {(inputs: Toast_Failedsavetheme2Inpu
 * | "Failed to save theme" |
 *
 * @param {Toast_Failedsavetheme2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_failedsavetheme2 = /** @type {((inputs?: Toast_Failedsavetheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Failedsavetheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_failedsavetheme2 = /** @type {((inputs?: Toast_Failedsavetheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Failedsavetheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_failedsavetheme2(inputs)
 	if (locale === "sv") return sv_toast_failedsavetheme2(inputs)
@@ -174,7 +170,6 @@ const toast_failedsavetheme2 = /** @type {((inputs?: Toast_Failedsavetheme2Input
 	if (locale === "bn") return bn_toast_failedsavetheme2(inputs)
 	if (locale === "ru") return ru_toast_failedsavetheme2(inputs)
 	if (locale === "ja") return ja_toast_failedsavetheme2(inputs)
-	if (locale === "pa") return pa_toast_failedsavetheme2(inputs)
 	if (locale === "vi") return vi_toast_failedsavetheme2(inputs)
 	if (locale === "yue") return yue_toast_failedsavetheme2(inputs)
 	if (locale === "tr") return tr_toast_failedsavetheme2(inputs)

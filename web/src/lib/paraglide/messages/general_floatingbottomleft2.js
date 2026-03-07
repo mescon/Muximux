@@ -10,147 +10,143 @@ const en_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbotto
 };
 
 const sv_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Nedre vänster`)
 };
 
 const uk_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Знизу зліва`)
 };
 
 const zh_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`左下`)
 };
 
 const es_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Inferior izquierda`)
 };
 
 const hi_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`नीचे बाएँ`)
 };
 
 const pt_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Inferior esquerda`)
 };
 
 const bn_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`নিচে বামে`)
 };
 
 const ru_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Внизу слева`)
 };
 
 const ja_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
-};
-
-const pa_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`左下`)
 };
 
 const vi_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Dưới trái`)
 };
 
 const yue_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`左下`)
 };
 
 const tr_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Sol Alt`)
 };
 
 const ar_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`أسفل اليسار`)
 };
 
 const wuu_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`左下角`)
 };
 
 const mr_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`तळ डावे`)
 };
 
 const nb_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Nederst til venstre`)
 };
 
 const fi_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Alhaalla vasemmalla`)
 };
 
 const da_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Nederst til venstre`)
 };
 
 const et_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`All vasakul`)
 };
 
 const lv_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Apakšā pa kreisi`)
 };
 
 const lt_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Apačioje kairėje`)
 };
 
 const pl_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Lewy dolny róg`)
 };
 
 const de_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Unten links`)
 };
 
 const nl_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Linksonder`)
 };
 
 const fr_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`En bas à gauche`)
 };
 
 const it_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`In basso a sinistra`)
 };
 
 const hu_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Bal alsó`)
 };
 
 const cs_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Vlevo dole`)
 };
 
 const ro_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Stânga jos`)
 };
 
 const el_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Κάτω αριστερά`)
 };
 
 const bg_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Долу вляво`)
 };
 
 const hr_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Dolje lijevo`)
 };
 
 const sr_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Dole levo`)
 };
 
 const sk_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Vľavo dole`)
 };
 
 const sl_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbottomleft2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Left`)
+	return /** @type {LocalizedString} */ (`Spodaj levo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_floatingbottomleft2 = /** @type {(inputs: General_Floatingbotto
 * | "Bottom Left" |
 *
 * @param {General_Floatingbottomleft2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_floatingbottomleft2 = /** @type {((inputs?: General_Floatingbottomleft2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Floatingbottomleft2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_floatingbottomleft2 = /** @type {((inputs?: General_Floatingbottomleft2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Floatingbottomleft2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_floatingbottomleft2(inputs)
 	if (locale === "sv") return sv_general_floatingbottomleft2(inputs)
@@ -174,7 +170,6 @@ const general_floatingbottomleft2 = /** @type {((inputs?: General_Floatingbottom
 	if (locale === "bn") return bn_general_floatingbottomleft2(inputs)
 	if (locale === "ru") return ru_general_floatingbottomleft2(inputs)
 	if (locale === "ja") return ja_general_floatingbottomleft2(inputs)
-	if (locale === "pa") return pa_general_floatingbottomleft2(inputs)
 	if (locale === "vi") return vi_general_floatingbottomleft2(inputs)
 	if (locale === "yue") return yue_general_floatingbottomleft2(inputs)
 	if (locale === "tr") return tr_general_floatingbottomleft2(inputs)

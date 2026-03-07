@@ -45,10 +45,6 @@ const ja_about_windows = /** @type {(inputs: About_WindowsInputs) => LocalizedSt
 	return /** @type {LocalizedString} */ (`Windows`)
 };
 
-const pa_about_windows = /** @type {(inputs: About_WindowsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Windows`)
-};
-
 const vi_about_windows = /** @type {(inputs: About_WindowsInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Windows`)
 };
@@ -159,10 +155,10 @@ const sl_about_windows = /** @type {(inputs: About_WindowsInputs) => LocalizedSt
 * | "Windows" |
 *
 * @param {About_WindowsInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_windows = /** @type {((inputs?: About_WindowsInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_WindowsInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_windows = /** @type {((inputs?: About_WindowsInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_WindowsInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_windows(inputs)
 	if (locale === "sv") return sv_about_windows(inputs)
@@ -174,7 +170,6 @@ export const about_windows = /** @type {((inputs?: About_WindowsInputs, options?
 	if (locale === "bn") return bn_about_windows(inputs)
 	if (locale === "ru") return ru_about_windows(inputs)
 	if (locale === "ja") return ja_about_windows(inputs)
-	if (locale === "pa") return pa_about_windows(inputs)
 	if (locale === "vi") return vi_about_windows(inputs)
 	if (locale === "yue") return yue_about_windows(inputs)
 	if (locale === "tr") return tr_about_windows(inputs)

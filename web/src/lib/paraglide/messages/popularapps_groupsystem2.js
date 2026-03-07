@@ -14,63 +14,59 @@ const sv_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2
 };
 
 const uk_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Система`)
 };
 
 const zh_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`系统`)
 };
 
 const es_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const hi_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`सिस्टम`)
 };
 
 const pt_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const bn_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`সিস্টেম`)
 };
 
 const ru_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Система`)
 };
 
 const ja_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
-};
-
-const pa_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`システム`)
 };
 
 const vi_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Hệ thống`)
 };
 
 const yue_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`系統`)
 };
 
 const tr_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 const ar_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`النظام`)
 };
 
 const wuu_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`系统`)
 };
 
 const mr_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`सिस्टम`)
 };
 
 const nb_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
@@ -78,7 +74,7 @@ const nb_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2
 };
 
 const fi_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Järjestelmä`)
 };
 
 const da_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
@@ -86,15 +82,15 @@ const da_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2
 };
 
 const et_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Süsteem`)
 };
 
 const lv_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistēma`)
 };
 
 const lt_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const pl_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
@@ -106,51 +102,51 @@ const de_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2
 };
 
 const nl_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systeem`)
 };
 
 const fr_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Système`)
 };
 
 const it_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const hu_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Rendszer`)
 };
 
 const cs_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systém`)
 };
 
 const ro_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 const el_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Σύστημα`)
 };
 
 const bg_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Система`)
 };
 
 const hr_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sustav`)
 };
 
 const sr_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 const sk_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systém`)
 };
 
 const sl_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_groupsystem2 = /** @type {(inputs: Popularapps_Groupsystem2
 * | "System" |
 *
 * @param {Popularapps_Groupsystem2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_groupsystem2 = /** @type {((inputs?: Popularapps_Groupsystem2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupsystem2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_groupsystem2 = /** @type {((inputs?: Popularapps_Groupsystem2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupsystem2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_groupsystem2(inputs)
 	if (locale === "sv") return sv_popularapps_groupsystem2(inputs)
@@ -174,7 +170,6 @@ const popularapps_groupsystem2 = /** @type {((inputs?: Popularapps_Groupsystem2I
 	if (locale === "bn") return bn_popularapps_groupsystem2(inputs)
 	if (locale === "ru") return ru_popularapps_groupsystem2(inputs)
 	if (locale === "ja") return ja_popularapps_groupsystem2(inputs)
-	if (locale === "pa") return pa_popularapps_groupsystem2(inputs)
 	if (locale === "vi") return vi_popularapps_groupsystem2(inputs)
 	if (locale === "yue") return yue_popularapps_groupsystem2(inputs)
 	if (locale === "tr") return tr_popularapps_groupsystem2(inputs)

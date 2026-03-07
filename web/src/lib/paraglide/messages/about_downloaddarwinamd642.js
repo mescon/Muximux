@@ -10,75 +10,71 @@ const en_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinam
 };
 
 const sv_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Ladda ner darwin-amd64`)
 };
 
 const uk_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Завантажити darwin-amd64`)
 };
 
 const zh_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`下载 darwin-amd64`)
 };
 
 const es_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Descargar darwin-amd64`)
 };
 
 const hi_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`darwin-amd64 डाउनलोड करें`)
 };
 
 const pt_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Transferir darwin-amd64`)
 };
 
 const bn_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`darwin-amd64 ডাউনলোড করুন`)
 };
 
 const ru_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Скачать darwin-amd64`)
 };
 
 const ja_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
-};
-
-const pa_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`darwin-amd64 をダウンロード`)
 };
 
 const vi_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Tải darwin-amd64`)
 };
 
 const yue_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`下載 darwin-amd64`)
 };
 
 const tr_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`darwin-amd64 İndir`)
 };
 
 const ar_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`تنزيل darwin-amd64`)
 };
 
 const wuu_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`下载 darwin-amd64`)
 };
 
 const mr_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`darwin-amd64 डाउनलोड करा`)
 };
 
 const nb_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Last ned darwin-amd64`)
 };
 
 const fi_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Lataa darwin-amd64`)
 };
 
 const da_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinam
 };
 
 const et_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Laadi alla darwin-amd64`)
 };
 
 const lv_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Lejupielādēt darwin-amd64`)
 };
 
 const lt_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Atsisiųsti darwin-amd64`)
 };
 
 const pl_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Pobierz darwin-amd64`)
 };
 
 const de_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinam
 };
 
 const hu_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Letöltés darwin-amd64`)
 };
 
 const cs_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Stáhnout darwin-amd64`)
 };
 
 const ro_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Descarcă darwin-amd64`)
 };
 
 const el_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Λήψη darwin-amd64`)
 };
 
 const bg_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Изтегли darwin-amd64`)
 };
 
 const hr_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Preuzmi darwin-amd64`)
 };
 
 const sr_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Preuzmi darwin-amd64`)
 };
 
 const sk_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Stiahnuť darwin-amd64`)
 };
 
 const sl_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-amd64`)
+	return /** @type {LocalizedString} */ (`Prenesi darwin-amd64`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_downloaddarwinamd642 = /** @type {(inputs: About_Downloaddarwinam
 * | "Download darwin-amd64" |
 *
 * @param {About_Downloaddarwinamd642Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_downloaddarwinamd642 = /** @type {((inputs?: About_Downloaddarwinamd642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloaddarwinamd642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_downloaddarwinamd642 = /** @type {((inputs?: About_Downloaddarwinamd642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloaddarwinamd642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_downloaddarwinamd642(inputs)
 	if (locale === "sv") return sv_about_downloaddarwinamd642(inputs)
@@ -174,7 +170,6 @@ const about_downloaddarwinamd642 = /** @type {((inputs?: About_Downloaddarwinamd
 	if (locale === "bn") return bn_about_downloaddarwinamd642(inputs)
 	if (locale === "ru") return ru_about_downloaddarwinamd642(inputs)
 	if (locale === "ja") return ja_about_downloaddarwinamd642(inputs)
-	if (locale === "pa") return pa_about_downloaddarwinamd642(inputs)
 	if (locale === "vi") return vi_about_downloaddarwinamd642(inputs)
 	if (locale === "yue") return yue_about_downloaddarwinamd642(inputs)
 	if (locale === "tr") return tr_about_downloaddarwinamd642(inputs)

@@ -10,147 +10,143 @@ const en_security_createuserenable2 = /** @type {(inputs: Security_Createuserena
 };
 
 const sv_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Skapa användare och aktivera`)
 };
 
 const uk_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Створити користувача та увімкнути`)
 };
 
 const zh_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`创建用户并启用`)
 };
 
 const es_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Crear usuario y activar`)
 };
 
 const hi_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता बनाएं और सक्षम करें`)
 };
 
 const pt_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Criar utilizador e ativar`)
 };
 
 const bn_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী তৈরি করুন এবং সক্রিয় করুন`)
 };
 
 const ru_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Создать пользователя и включить`)
 };
 
 const ja_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
-};
-
-const pa_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`ユーザーを作成して有効化`)
 };
 
 const vi_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Tạo người dùng & Bật`)
 };
 
 const yue_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`建立使用者並啟用`)
 };
 
 const tr_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Kullanıcı Oluştur ve Etkinleştir`)
 };
 
 const ar_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`إنشاء مستخدم وتفعيل`)
 };
 
 const wuu_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`创建用户并启用`)
 };
 
 const mr_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`वापरकर्ता तयार करा आणि सक्षम करा`)
 };
 
 const nb_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Opprett bruker og aktiver`)
 };
 
 const fi_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Luo käyttäjä ja ota käyttöön`)
 };
 
 const da_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Opret bruger og aktivér`)
 };
 
 const et_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Loo kasutaja ja luba`)
 };
 
 const lv_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Izveidot lietotāju un iespējot`)
 };
 
 const lt_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Sukurti naudotoją ir įjungti`)
 };
 
 const pl_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Utwórz użytkownika i włącz`)
 };
 
 const de_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Benutzer erstellen & aktivieren`)
 };
 
 const nl_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Gebruiker aanmaken & inschakelen`)
 };
 
 const fr_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Créer l'utilisateur & activer`)
 };
 
 const it_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Crea utente e attiva`)
 };
 
 const hu_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Felhasználó létrehozása és engedélyezés`)
 };
 
 const cs_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Vytvořit uživatele a povolit`)
 };
 
 const ro_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Creează utilizator și activează`)
 };
 
 const el_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Δημιουργία χρήστη & Ενεργοποίηση`)
 };
 
 const bg_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Създай потребител и активирай`)
 };
 
 const hr_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Stvori korisnika i omogući`)
 };
 
 const sr_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Kreiraj korisnika i omogući`)
 };
 
 const sk_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Vytvoriť používateľa a povoliť`)
 };
 
 const sl_security_createuserenable2 = /** @type {(inputs: Security_Createuserenable2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Create User & Enable`)
+	return /** @type {LocalizedString} */ (`Ustvari uporabnika in omogoči`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_createuserenable2 = /** @type {(inputs: Security_Createuserena
 * | "Create User & Enable" |
 *
 * @param {Security_Createuserenable2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_createuserenable2 = /** @type {((inputs?: Security_Createuserenable2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Createuserenable2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_createuserenable2 = /** @type {((inputs?: Security_Createuserenable2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Createuserenable2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_createuserenable2(inputs)
 	if (locale === "sv") return sv_security_createuserenable2(inputs)
@@ -174,7 +170,6 @@ const security_createuserenable2 = /** @type {((inputs?: Security_Createuserenab
 	if (locale === "bn") return bn_security_createuserenable2(inputs)
 	if (locale === "ru") return ru_security_createuserenable2(inputs)
 	if (locale === "ja") return ja_security_createuserenable2(inputs)
-	if (locale === "pa") return pa_security_createuserenable2(inputs)
 	if (locale === "vi") return vi_security_createuserenable2(inputs)
 	if (locale === "yue") return yue_security_createuserenable2(inputs)
 	if (locale === "tr") return tr_security_createuserenable2(inputs)

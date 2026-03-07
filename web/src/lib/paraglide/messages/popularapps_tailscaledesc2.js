@@ -10,7 +10,7 @@ const en_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const sv_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`Mesh-VPN`)
 };
 
 const uk_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
@@ -22,7 +22,7 @@ const zh_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const es_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`VPN en malla`)
 };
 
 const hi_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
@@ -30,7 +30,7 @@ const hi_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const pt_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`VPN em malha`)
 };
 
 const bn_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
@@ -42,10 +42,6 @@ const ru_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const ja_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
-};
-
-const pa_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Mesh VPN`)
 };
 
@@ -74,15 +70,15 @@ const mr_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const nb_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`Mesh-VPN`)
 };
 
 const fi_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`Mesh-VPN`)
 };
 
 const da_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`Mesh-VPN`)
 };
 
 const et_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
@@ -98,23 +94,23 @@ const lt_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const pl_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`VPN siatkowy`)
 };
 
 const de_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`Mesh-VPN`)
 };
 
 const nl_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`Mesh-VPN`)
 };
 
 const fr_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`VPN mesh`)
 };
 
 const it_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`VPN mesh`)
 };
 
 const hu_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
@@ -126,7 +122,7 @@ const cs_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 };
 
 const ro_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Mesh VPN`)
+	return /** @type {LocalizedString} */ (`VPN mesh`)
 };
 
 const el_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaledesc2Inputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_popularapps_tailscaledesc2 = /** @type {(inputs: Popularapps_Tailscaled
 * | "Mesh VPN" |
 *
 * @param {Popularapps_Tailscaledesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_tailscaledesc2 = /** @type {((inputs?: Popularapps_Tailscaledesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Tailscaledesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_tailscaledesc2 = /** @type {((inputs?: Popularapps_Tailscaledesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Tailscaledesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_tailscaledesc2(inputs)
 	if (locale === "sv") return sv_popularapps_tailscaledesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_tailscaledesc2 = /** @type {((inputs?: Popularapps_Tailscalede
 	if (locale === "bn") return bn_popularapps_tailscaledesc2(inputs)
 	if (locale === "ru") return ru_popularapps_tailscaledesc2(inputs)
 	if (locale === "ja") return ja_popularapps_tailscaledesc2(inputs)
-	if (locale === "pa") return pa_popularapps_tailscaledesc2(inputs)
 	if (locale === "vi") return vi_popularapps_tailscaledesc2(inputs)
 	if (locale === "yue") return yue_popularapps_tailscaledesc2(inputs)
 	if (locale === "tr") return tr_popularapps_tailscaledesc2(inputs)

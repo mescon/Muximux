@@ -10,123 +10,119 @@ const en_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2
 };
 
 const sv_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Kantrouter och proxy`)
 };
 
 const uk_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Edge router та proxy`)
 };
 
 const zh_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`边缘路由与代理`)
 };
 
 const es_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Enrutador edge y proxy`)
 };
 
 const hi_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`एज राउटर और proxy`)
 };
 
 const pt_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Router edge e proxy`)
 };
 
 const bn_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`এজ রাউটার ও proxy`)
 };
 
 const ru_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Граничный маршрутизатор и proxy`)
 };
 
 const ja_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
-};
-
-const pa_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`エッジルーター・プロキシ`)
 };
 
 const vi_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Bộ định tuyến biên & proxy`)
 };
 
 const yue_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`邊緣路由同代理`)
 };
 
 const tr_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Uç yönlendirici ve proxy`)
 };
 
 const ar_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`موجّه حافة و proxy`)
 };
 
 const wuu_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`边缘路由与代理`)
 };
 
 const mr_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`एज राउटर आणि प्रॉक्सी`)
 };
 
 const nb_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Kantruter og proxy`)
 };
 
 const fi_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Reunareititin ja proxy`)
 };
 
 const da_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Kantruter og proxy`)
 };
 
 const et_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Servaruuter ja proxy`)
 };
 
 const lv_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Malas maršrutētājs un proxy`)
 };
 
 const lt_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Edge router ir proxy`)
 };
 
 const pl_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Router brzegowy i proxy`)
 };
 
 const de_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Edge-Router & Proxy`)
 };
 
 const nl_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Edge-router & proxy`)
 };
 
 const fr_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Routeur edge & proxy`)
 };
 
 const it_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Router edge e proxy`)
 };
 
 const hu_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Perem router és proxy`)
 };
 
 const cs_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Hraniční router a proxy`)
 };
 
 const ro_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Router de margine și proxy`)
 };
 
 const el_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
@@ -134,23 +130,23 @@ const el_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2
 };
 
 const bg_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Граничен маршрутизатор и proxy`)
 };
 
 const hr_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Rubni usmjerivač i proxy`)
 };
 
 const sr_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Rubni ruter i proxy`)
 };
 
 const sk_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Hraničný router a proxy`)
 };
 
 const sl_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Edge router & proxy`)
+	return /** @type {LocalizedString} */ (`Robni usmerjevalnik in proxy`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_traefikdesc2 = /** @type {(inputs: Popularapps_Traefikdesc2
 * | "Edge router & proxy" |
 *
 * @param {Popularapps_Traefikdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_traefikdesc2 = /** @type {((inputs?: Popularapps_Traefikdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Traefikdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_traefikdesc2 = /** @type {((inputs?: Popularapps_Traefikdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Traefikdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_traefikdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_traefikdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_traefikdesc2 = /** @type {((inputs?: Popularapps_Traefikdesc2I
 	if (locale === "bn") return bn_popularapps_traefikdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_traefikdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_traefikdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_traefikdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_traefikdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_traefikdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_traefikdesc2(inputs)

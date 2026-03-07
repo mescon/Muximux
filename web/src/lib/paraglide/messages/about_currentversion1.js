@@ -10,147 +10,143 @@ const en_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs
 };
 
 const sv_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Nuvarande:`)
 };
 
 const uk_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Поточна:`)
 };
 
 const zh_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`当前版本：`)
 };
 
 const es_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Actual:`)
 };
 
 const hi_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`वर्तमान:`)
 };
 
 const pt_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Atual:`)
 };
 
 const bn_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`বর্তমান:`)
 };
 
 const ru_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Текущая:`)
 };
 
 const ja_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
-};
-
-const pa_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`現在：`)
 };
 
 const vi_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Hiện tại:`)
 };
 
 const yue_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`目前版本：`)
 };
 
 const tr_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Mevcut:`)
 };
 
 const ar_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`الحالي:`)
 };
 
 const wuu_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`当前版本：`)
 };
 
 const mr_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`सध्याचे:`)
 };
 
 const nb_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Nåværende:`)
 };
 
 const fi_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Nykyinen:`)
 };
 
 const da_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Nuværende:`)
 };
 
 const et_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Praegune:`)
 };
 
 const lv_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Pašreizējā:`)
 };
 
 const lt_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Dabartinė:`)
 };
 
 const pl_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Obecna:`)
 };
 
 const de_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Aktuell:`)
 };
 
 const nl_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Huidig:`)
 };
 
 const fr_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Actuelle :`)
 };
 
 const it_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Attuale:`)
 };
 
 const hu_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Jelenlegi:`)
 };
 
 const cs_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Aktuální:`)
 };
 
 const ro_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Curent:`)
 };
 
 const el_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Τρέχουσα:`)
 };
 
 const bg_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Текуща:`)
 };
 
 const hr_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Trenutna:`)
 };
 
 const sr_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Trenutna:`)
 };
 
 const sk_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Aktuálna:`)
 };
 
 const sl_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current:`)
+	return /** @type {LocalizedString} */ (`Trenutna:`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_currentversion1 = /** @type {(inputs: About_Currentversion1Inputs
 * | "Current:" |
 *
 * @param {About_Currentversion1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_currentversion1 = /** @type {((inputs?: About_Currentversion1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Currentversion1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_currentversion1 = /** @type {((inputs?: About_Currentversion1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Currentversion1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_currentversion1(inputs)
 	if (locale === "sv") return sv_about_currentversion1(inputs)
@@ -174,7 +170,6 @@ const about_currentversion1 = /** @type {((inputs?: About_Currentversion1Inputs,
 	if (locale === "bn") return bn_about_currentversion1(inputs)
 	if (locale === "ru") return ru_about_currentversion1(inputs)
 	if (locale === "ja") return ja_about_currentversion1(inputs)
-	if (locale === "pa") return pa_about_currentversion1(inputs)
 	if (locale === "vi") return vi_about_currentversion1(inputs)
 	if (locale === "yue") return yue_about_currentversion1(inputs)
 	if (locale === "tr") return tr_about_currentversion1(inputs)

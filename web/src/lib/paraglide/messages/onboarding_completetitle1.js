@@ -10,147 +10,143 @@ const en_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitl
 };
 
 const sv_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Allt är klart!`)
 };
 
 const uk_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Все готово!`)
 };
 
 const zh_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`一切就绪！`)
 };
 
 const es_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`¡Todo listo!`)
 };
 
 const hi_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`सब तैयार है!`)
 };
 
 const pt_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Tudo pronto!`)
 };
 
 const bn_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`সব প্রস্তুত!`)
 };
 
 const ru_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Всё готово!`)
 };
 
 const ja_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
-};
-
-const pa_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`準備完了！`)
 };
 
 const vi_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Đã sẵn sàng!`)
 };
 
 const yue_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`全部搞掂！`)
 };
 
 const tr_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Her Şey Hazır!`)
 };
 
 const ar_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`كل شيء جاهز!`)
 };
 
 const wuu_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`全部搞定！`)
 };
 
 const mr_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`सर्व तयार आहे!`)
 };
 
 const nb_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Alt er klart!`)
 };
 
 const fi_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Kaikki on valmista!`)
 };
 
 const da_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Alt er klar!`)
 };
 
 const et_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Kõik on valmis!`)
 };
 
 const lv_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Viss ir gatavs!`)
 };
 
 const lt_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Viskas paruošta!`)
 };
 
 const pl_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Wszystko gotowe!`)
 };
 
 const de_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Alles bereit!`)
 };
 
 const nl_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Alles klaar!`)
 };
 
 const fr_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Tout est prêt !`)
 };
 
 const it_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Tutto pronto!`)
 };
 
 const hu_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Minden készen áll!`)
 };
 
 const cs_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Vše je připraveno!`)
 };
 
 const ro_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Totul este gata!`)
 };
 
 const el_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Είστε έτοιμοι!`)
 };
 
 const bg_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Всичко е готово!`)
 };
 
 const hr_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Sve je spremno!`)
 };
 
 const sr_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Sve je spremno!`)
 };
 
 const sk_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Všetko je pripravené!`)
 };
 
 const sl_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`You're All Set!`)
+	return /** @type {LocalizedString} */ (`Vse je pripravljeno!`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_completetitle1 = /** @type {(inputs: Onboarding_Completetitl
 * | "You're All Set!" |
 *
 * @param {Onboarding_Completetitle1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_completetitle1 = /** @type {((inputs?: Onboarding_Completetitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Completetitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_completetitle1 = /** @type {((inputs?: Onboarding_Completetitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Completetitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_completetitle1(inputs)
 	if (locale === "sv") return sv_onboarding_completetitle1(inputs)
@@ -174,7 +170,6 @@ const onboarding_completetitle1 = /** @type {((inputs?: Onboarding_Completetitle
 	if (locale === "bn") return bn_onboarding_completetitle1(inputs)
 	if (locale === "ru") return ru_onboarding_completetitle1(inputs)
 	if (locale === "ja") return ja_onboarding_completetitle1(inputs)
-	if (locale === "pa") return pa_onboarding_completetitle1(inputs)
 	if (locale === "vi") return vi_onboarding_completetitle1(inputs)
 	if (locale === "yue") return yue_onboarding_completetitle1(inputs)
 	if (locale === "tr") return tr_onboarding_completetitle1(inputs)

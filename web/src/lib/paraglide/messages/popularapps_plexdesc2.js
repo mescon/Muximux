@@ -10,147 +10,143 @@ const en_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs
 };
 
 const sv_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Strömma ditt mediebibliotek`)
 };
 
 const uk_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Трансляція вашої медіатеки`)
 };
 
 const zh_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`流媒体库`)
 };
 
 const es_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Transmite tu biblioteca multimedia`)
 };
 
 const hi_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`अपनी मीडिया लाइब्रेरी स्ट्रीम करें`)
 };
 
 const pt_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Transmite a tua biblioteca multimédia`)
 };
 
 const bn_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`আপনার মিডিয়া লাইব্রেরি স্ট্রিম করুন`)
 };
 
 const ru_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Потоковое воспроизведение медиатеки`)
 };
 
 const ja_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
-};
-
-const pa_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`メディアライブラリをストリーミング`)
 };
 
 const vi_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Phát trực tuyến thư viện đa phương tiện`)
 };
 
 const yue_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`串流你嘅媒體庫`)
 };
 
 const tr_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Medya kitaplığınızı izleyin`)
 };
 
 const ar_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`بث مكتبة الوسائط`)
 };
 
 const wuu_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`串流你的媒体库`)
 };
 
 const mr_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`तुमची मीडिया लायब्ररी स्ट्रीम करा`)
 };
 
 const nb_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Strøm mediebiblioteket ditt`)
 };
 
 const fi_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Striimaa mediakirjastosi`)
 };
 
 const da_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Stream dit mediebibliotek`)
 };
 
 const et_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Voogesitage oma meediateeki`)
 };
 
 const lv_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Straumējiet savu multivides bibliotēku`)
 };
 
 const lt_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Transliuokite savo medijos biblioteką`)
 };
 
 const pl_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Strumieniuj swoją bibliotekę mediów`)
 };
 
 const de_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Medienbibliothek streamen`)
 };
 
 const nl_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Stream je mediabibliotheek`)
 };
 
 const fr_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Streame ta bibliothèque multimédia`)
 };
 
 const it_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Streaming della tua libreria multimediale`)
 };
 
 const hu_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Médiakönyvtár streamelése`)
 };
 
 const cs_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Streamování mediální knihovny`)
 };
 
 const ro_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Transmite biblioteca media`)
 };
 
 const el_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Ροή της βιβλιοθήκης πολυμέσων σας`)
 };
 
 const bg_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Стриймвай медийната си библиотека`)
 };
 
 const hr_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Emitirajte svoju medijsku biblioteku`)
 };
 
 const sr_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Emitujte svoju medijsku biblioteku`)
 };
 
 const sk_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Streamovanie mediálnej knižnice`)
 };
 
 const sl_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Stream your media library`)
+	return /** @type {LocalizedString} */ (`Predvajajte svojo medijsko knjižnico`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_plexdesc2 = /** @type {(inputs: Popularapps_Plexdesc2Inputs
 * | "Stream your media library" |
 *
 * @param {Popularapps_Plexdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_plexdesc2 = /** @type {((inputs?: Popularapps_Plexdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Plexdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_plexdesc2 = /** @type {((inputs?: Popularapps_Plexdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Plexdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_plexdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_plexdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_plexdesc2 = /** @type {((inputs?: Popularapps_Plexdesc2Inputs,
 	if (locale === "bn") return bn_popularapps_plexdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_plexdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_plexdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_plexdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_plexdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_plexdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_plexdesc2(inputs)

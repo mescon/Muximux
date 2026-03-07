@@ -10,147 +10,143 @@ const en_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedSt
 };
 
 const sv_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ingen`)
 };
 
 const uk_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`немає`)
 };
 
 const zh_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`无`)
 };
 
 const es_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ninguno`)
 };
 
 const hi_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`कोई नहीं`)
 };
 
 const pt_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`nenhum`)
 };
 
 const bn_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`কোনোটি নয়`)
 };
 
 const ru_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`нет`)
 };
 
 const ja_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
-};
-
-const pa_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`なし`)
 };
 
 const vi_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`không có`)
 };
 
 const yue_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`冇`)
 };
 
 const tr_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`yok`)
 };
 
 const ar_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`لا شيء`)
 };
 
 const wuu_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`无`)
 };
 
 const mr_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`काहीही नाही`)
 };
 
 const nb_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ingen`)
 };
 
 const fi_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ei mitään`)
 };
 
 const da_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ingen`)
 };
 
 const et_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`puudub`)
 };
 
 const lv_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`nav`)
 };
 
 const lt_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`nėra`)
 };
 
 const pl_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`brak`)
 };
 
 const de_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`keine`)
 };
 
 const nl_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`geen`)
 };
 
 const fr_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`aucun`)
 };
 
 const it_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`nessuno`)
 };
 
 const hu_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`nincs`)
 };
 
 const cs_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`žádný`)
 };
 
 const ro_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`niciuna`)
 };
 
 const el_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`κανένα`)
 };
 
 const bg_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`няма`)
 };
 
 const hr_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ništa`)
 };
 
 const sr_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`ništa`)
 };
 
 const sk_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`žiadny`)
 };
 
 const sl_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`none`)
+	return /** @type {LocalizedString} */ (`brez`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_none = /** @type {(inputs: Settings_NoneInputs) => LocalizedSt
 * | "none" |
 *
 * @param {Settings_NoneInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_none = /** @type {((inputs?: Settings_NoneInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_NoneInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_none = /** @type {((inputs?: Settings_NoneInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_NoneInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_none(inputs)
 	if (locale === "sv") return sv_settings_none(inputs)
@@ -174,7 +170,6 @@ export const settings_none = /** @type {((inputs?: Settings_NoneInputs, options?
 	if (locale === "bn") return bn_settings_none(inputs)
 	if (locale === "ru") return ru_settings_none(inputs)
 	if (locale === "ja") return ja_settings_none(inputs)
-	if (locale === "pa") return pa_settings_none(inputs)
 	if (locale === "vi") return vi_settings_none(inputs)
 	if (locale === "yue") return yue_settings_none(inputs)
 	if (locale === "tr") return tr_settings_none(inputs)

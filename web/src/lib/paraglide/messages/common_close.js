@@ -10,147 +10,143 @@ const en_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedStri
 };
 
 const sv_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Stäng`)
 };
 
 const uk_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Закрити`)
 };
 
 const zh_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`关闭`)
 };
 
 const es_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Cerrar`)
 };
 
 const hi_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`बंद करें`)
 };
 
 const pt_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Fechar`)
 };
 
 const bn_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`বন্ধ করুন`)
 };
 
 const ru_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Закрыть`)
 };
 
 const ja_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
-};
-
-const pa_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`閉じる`)
 };
 
 const vi_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Đóng`)
 };
 
 const yue_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`關閉`)
 };
 
 const tr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Kapat`)
 };
 
 const ar_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`إغلاق`)
 };
 
 const wuu_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`关闭`)
 };
 
 const mr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`बंद करा`)
 };
 
 const nb_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Lukk`)
 };
 
 const fi_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Sulje`)
 };
 
 const da_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Luk`)
 };
 
 const et_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Sulge`)
 };
 
 const lv_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Aizvērt`)
 };
 
 const lt_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Uždaryti`)
 };
 
 const pl_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zamknij`)
 };
 
 const de_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Schließen`)
 };
 
 const nl_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Sluiten`)
 };
 
 const fr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Fermer`)
 };
 
 const it_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Chiudi`)
 };
 
 const hu_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Bezárás`)
 };
 
 const cs_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zavřít`)
 };
 
 const ro_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Închide`)
 };
 
 const el_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Κλείσιμο`)
 };
 
 const bg_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Затвори`)
 };
 
 const hr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zatvori`)
 };
 
 const sr_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zatvori`)
 };
 
 const sk_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zavrieť`)
 };
 
 const sl_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zapri`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_close = /** @type {(inputs: Common_CloseInputs) => LocalizedStri
 * | "Close" |
 *
 * @param {Common_CloseInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_close = /** @type {((inputs?: Common_CloseInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CloseInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_close = /** @type {((inputs?: Common_CloseInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CloseInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_close(inputs)
 	if (locale === "sv") return sv_common_close(inputs)
@@ -174,7 +170,6 @@ export const common_close = /** @type {((inputs?: Common_CloseInputs, options?: 
 	if (locale === "bn") return bn_common_close(inputs)
 	if (locale === "ru") return ru_common_close(inputs)
 	if (locale === "ja") return ja_common_close(inputs)
-	if (locale === "pa") return pa_common_close(inputs)
 	if (locale === "vi") return vi_common_close(inputs)
 	if (locale === "yue") return yue_common_close(inputs)
 	if (locale === "tr") return tr_common_close(inputs)

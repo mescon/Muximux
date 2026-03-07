@@ -10,95 +10,91 @@ const en_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs
 };
 
 const sv_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const uk_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Тема`)
 };
 
 const zh_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`主题`)
 };
 
 const es_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const hi_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`थीम`)
 };
 
 const pt_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const bn_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`থিম`)
 };
 
 const ru_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Тема`)
 };
 
 const ja_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
-};
-
-const pa_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`テーマ`)
 };
 
 const vi_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Giao diện`)
 };
 
 const yue_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`主題`)
 };
 
 const tr_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const ar_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`السمة`)
 };
 
 const wuu_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`主题`)
 };
 
 const mr_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`थीम`)
 };
 
 const nb_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const fi_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Teema`)
 };
 
 const da_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const et_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Teema`)
 };
 
 const lv_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Motīvs`)
 };
 
 const lt_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const pl_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Motyw`)
 };
 
 const de_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
@@ -106,51 +102,51 @@ const de_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs
 };
 
 const nl_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Thema`)
 };
 
 const fr_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Thème`)
 };
 
 const it_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const hu_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Téma`)
 };
 
 const cs_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Motiv`)
 };
 
 const ro_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Temă`)
 };
 
 const el_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Θέμα`)
 };
 
 const bg_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Тема`)
 };
 
 const hr_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const sr_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 const sk_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Motív`)
 };
 
 const sl_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme`)
+	return /** @type {LocalizedString} */ (`Tema`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_steptheme1 = /** @type {(inputs: Onboarding_Steptheme1Inputs
 * | "Theme" |
 *
 * @param {Onboarding_Steptheme1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_steptheme1 = /** @type {((inputs?: Onboarding_Steptheme1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Steptheme1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_steptheme1 = /** @type {((inputs?: Onboarding_Steptheme1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Steptheme1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_steptheme1(inputs)
 	if (locale === "sv") return sv_onboarding_steptheme1(inputs)
@@ -174,7 +170,6 @@ const onboarding_steptheme1 = /** @type {((inputs?: Onboarding_Steptheme1Inputs,
 	if (locale === "bn") return bn_onboarding_steptheme1(inputs)
 	if (locale === "ru") return ru_onboarding_steptheme1(inputs)
 	if (locale === "ja") return ja_onboarding_steptheme1(inputs)
-	if (locale === "pa") return pa_onboarding_steptheme1(inputs)
 	if (locale === "vi") return vi_onboarding_steptheme1(inputs)
 	if (locale === "yue") return yue_onboarding_steptheme1(inputs)
 	if (locale === "tr") return tr_onboarding_steptheme1(inputs)

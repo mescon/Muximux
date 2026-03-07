@@ -10,147 +10,143 @@ const en_common_username = /** @type {(inputs: Common_UsernameInputs) => Localiz
 };
 
 const sv_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Användarnamn`)
 };
 
 const uk_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Ім'я користувача`)
 };
 
 const zh_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`用户名`)
 };
 
 const es_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Nombre de usuario`)
 };
 
 const hi_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता नाम`)
 };
 
 const pt_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Nome de utilizador`)
 };
 
 const bn_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারীর নাম`)
 };
 
 const ru_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Имя пользователя`)
 };
 
 const ja_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
-};
-
-const pa_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`ユーザー名`)
 };
 
 const vi_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Tên người dùng`)
 };
 
 const yue_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`使用者名稱`)
 };
 
 const tr_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Kullanıcı Adı`)
 };
 
 const ar_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`اسم المستخدم`)
 };
 
 const wuu_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`用户名`)
 };
 
 const mr_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`वापरकर्तानाव`)
 };
 
 const nb_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Brukernavn`)
 };
 
 const fi_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Käyttäjänimi`)
 };
 
 const da_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Brugernavn`)
 };
 
 const et_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Kasutajanimi`)
 };
 
 const lv_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Lietotājvārds`)
 };
 
 const lt_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Naudotojo vardas`)
 };
 
 const pl_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Nazwa użytkownika`)
 };
 
 const de_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Benutzername`)
 };
 
 const nl_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Gebruikersnaam`)
 };
 
 const fr_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Nom d'utilisateur`)
 };
 
 const it_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Nome utente`)
 };
 
 const hu_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Felhasználónév`)
 };
 
 const cs_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Uživatelské jméno`)
 };
 
 const ro_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Nume utilizator`)
 };
 
 const el_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Όνομα χρήστη`)
 };
 
 const bg_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Потребителско име`)
 };
 
 const hr_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Korisničko ime`)
 };
 
 const sr_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Korisničko ime`)
 };
 
 const sk_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Používateľské meno`)
 };
 
 const sl_common_username = /** @type {(inputs: Common_UsernameInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Username`)
+	return /** @type {LocalizedString} */ (`Uporabniško ime`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_username = /** @type {(inputs: Common_UsernameInputs) => Localiz
 * | "Username" |
 *
 * @param {Common_UsernameInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_username = /** @type {((inputs?: Common_UsernameInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_UsernameInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_username = /** @type {((inputs?: Common_UsernameInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_UsernameInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_username(inputs)
 	if (locale === "sv") return sv_common_username(inputs)
@@ -174,7 +170,6 @@ export const common_username = /** @type {((inputs?: Common_UsernameInputs, opti
 	if (locale === "bn") return bn_common_username(inputs)
 	if (locale === "ru") return ru_common_username(inputs)
 	if (locale === "ja") return ja_common_username(inputs)
-	if (locale === "pa") return pa_common_username(inputs)
 	if (locale === "vi") return vi_common_username(inputs)
 	if (locale === "yue") return yue_common_username(inputs)
 	if (locale === "tr") return tr_common_username(inputs)

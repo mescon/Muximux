@@ -10,147 +10,143 @@ const en_security_currentpassword1 = /** @type {(inputs: Security_Currentpasswor
 };
 
 const sv_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Nuvarande lösenord`)
 };
 
 const uk_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Поточний пароль`)
 };
 
 const zh_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`当前密码`)
 };
 
 const es_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Contraseña actual`)
 };
 
 const hi_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`वर्तमान पासवर्ड`)
 };
 
 const pt_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Palavra-passe atual`)
 };
 
 const bn_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`বর্তমান পাসওয়ার্ড`)
 };
 
 const ru_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Текущий пароль`)
 };
 
 const ja_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
-};
-
-const pa_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`現在のパスワード`)
 };
 
 const vi_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Mật khẩu hiện tại`)
 };
 
 const yue_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`目前密碼`)
 };
 
 const tr_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Mevcut şifre`)
 };
 
 const ar_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`كلمة المرور الحالية`)
 };
 
 const wuu_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`当前密码`)
 };
 
 const mr_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`सध्याचा पासवर्ड`)
 };
 
 const nb_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Nåværende passord`)
 };
 
 const fi_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Nykyinen salasana`)
 };
 
 const da_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Nuværende adgangskode`)
 };
 
 const et_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Praegune parool`)
 };
 
 const lv_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Pašreizējā parole`)
 };
 
 const lt_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Dabartinis slaptažodis`)
 };
 
 const pl_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Obecne hasło`)
 };
 
 const de_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Aktuelles Passwort`)
 };
 
 const nl_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Huidig wachtwoord`)
 };
 
 const fr_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Mot de passe actuel`)
 };
 
 const it_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Password attuale`)
 };
 
 const hu_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Jelenlegi jelszó`)
 };
 
 const cs_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Aktuální heslo`)
 };
 
 const ro_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Parola curentă`)
 };
 
 const el_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Τρέχων κωδικός`)
 };
 
 const bg_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Текуща парола`)
 };
 
 const hr_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Trenutna lozinka`)
 };
 
 const sr_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Trenutna lozinka`)
 };
 
 const sk_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Aktuálne heslo`)
 };
 
 const sl_security_currentpassword1 = /** @type {(inputs: Security_Currentpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current password`)
+	return /** @type {LocalizedString} */ (`Trenutno geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_currentpassword1 = /** @type {(inputs: Security_Currentpasswor
 * | "Current password" |
 *
 * @param {Security_Currentpassword1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_currentpassword1 = /** @type {((inputs?: Security_Currentpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Currentpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_currentpassword1 = /** @type {((inputs?: Security_Currentpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Currentpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_currentpassword1(inputs)
 	if (locale === "sv") return sv_security_currentpassword1(inputs)
@@ -174,7 +170,6 @@ const security_currentpassword1 = /** @type {((inputs?: Security_Currentpassword
 	if (locale === "bn") return bn_security_currentpassword1(inputs)
 	if (locale === "ru") return ru_security_currentpassword1(inputs)
 	if (locale === "ja") return ja_security_currentpassword1(inputs)
-	if (locale === "pa") return pa_security_currentpassword1(inputs)
 	if (locale === "vi") return vi_security_currentpassword1(inputs)
 	if (locale === "yue") return yue_security_currentpassword1(inputs)
 	if (locale === "tr") return tr_security_currentpassword1(inputs)

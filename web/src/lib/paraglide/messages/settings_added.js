@@ -10,147 +10,143 @@ const en_settings_added = /** @type {(inputs: Settings_AddedInputs) => Localized
 };
 
 const sv_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`tillagd`)
 };
 
 const uk_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`додано`)
 };
 
 const zh_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`已添加`)
 };
 
 const es_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`añadido`)
 };
 
 const hi_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`जोड़ा गया`)
 };
 
 const pt_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`adicionado`)
 };
 
 const bn_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`যোগ করা হয়েছে`)
 };
 
 const ru_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`добавлено`)
 };
 
 const ja_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
-};
-
-const pa_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`追加済み`)
 };
 
 const vi_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`đã thêm`)
 };
 
 const yue_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`已新增`)
 };
 
 const tr_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`eklendi`)
 };
 
 const ar_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`تمت الإضافة`)
 };
 
 const wuu_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`已添加`)
 };
 
 const mr_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`जोडले`)
 };
 
 const nb_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`lagt til`)
 };
 
 const fi_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`lisätty`)
 };
 
 const da_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`tilføjet`)
 };
 
 const et_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`lisatud`)
 };
 
 const lv_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`pievienots`)
 };
 
 const lt_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`pridėta`)
 };
 
 const pl_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`dodano`)
 };
 
 const de_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`hinzugefügt`)
 };
 
 const nl_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`toegevoegd`)
 };
 
 const fr_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`ajouté`)
 };
 
 const it_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`aggiunto`)
 };
 
 const hu_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`hozzáadva`)
 };
 
 const cs_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`přidáno`)
 };
 
 const ro_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`adăugat`)
 };
 
 const el_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`προστέθηκε`)
 };
 
 const bg_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`добавено`)
 };
 
 const hr_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`dodano`)
 };
 
 const sr_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`dodato`)
 };
 
 const sk_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`pridané`)
 };
 
 const sl_settings_added = /** @type {(inputs: Settings_AddedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`added`)
+	return /** @type {LocalizedString} */ (`dodano`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_added = /** @type {(inputs: Settings_AddedInputs) => Localized
 * | "added" |
 *
 * @param {Settings_AddedInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_added = /** @type {((inputs?: Settings_AddedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_AddedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_added = /** @type {((inputs?: Settings_AddedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_AddedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_added(inputs)
 	if (locale === "sv") return sv_settings_added(inputs)
@@ -174,7 +170,6 @@ export const settings_added = /** @type {((inputs?: Settings_AddedInputs, option
 	if (locale === "bn") return bn_settings_added(inputs)
 	if (locale === "ru") return ru_settings_added(inputs)
 	if (locale === "ja") return ja_settings_added(inputs)
-	if (locale === "pa") return pa_settings_added(inputs)
 	if (locale === "vi") return vi_settings_added(inputs)
 	if (locale === "yue") return yue_settings_added(inputs)
 	if (locale === "tr") return tr_settings_added(inputs)

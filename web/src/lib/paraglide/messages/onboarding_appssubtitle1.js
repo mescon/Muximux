@@ -10,147 +10,143 @@ const en_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1
 };
 
 const sv_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Välj de tjänster du redan kör`)
 };
 
 const uk_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Оберіть сервіси, які ви вже запускаєте`)
 };
 
 const zh_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`选择你已经在运行的服务`)
 };
 
 const es_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Selecciona los servicios que ya estás ejecutando`)
 };
 
 const hi_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`अपनी पहले से चल रही सेवाएं चुनें`)
 };
 
 const pt_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Seleciona os serviços que já estás a executar`)
 };
 
 const bn_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`আপনি ইতিমধ্যে চালাচ্ছেন এমন সেবাগুলি নির্বাচন করুন`)
 };
 
 const ru_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Выберите сервисы, которые вы уже запустили`)
 };
 
 const ja_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
-};
-
-const pa_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`既に実行中のサービスを選択`)
 };
 
 const vi_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Chọn các dịch vụ bạn đang chạy`)
 };
 
 const yue_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`揀選你已經喺用嘅服務`)
 };
 
 const tr_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Zaten çalıştırdığınız hizmetleri seçin`)
 };
 
 const ar_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`اختر الخدمات التي تشغّلها بالفعل`)
 };
 
 const wuu_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`选择你已经在跑的服务`)
 };
 
 const mr_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`तुम्ही आधीपासून चालवत असलेल्या सेवा निवडा`)
 };
 
 const nb_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Velg tjenestene du allerede kjører`)
 };
 
 const fi_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Valitse palvelut, joita jo käytät`)
 };
 
 const da_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Vælg de tjenester du allerede kører`)
 };
 
 const et_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Valige teenused, mida juba kasutate`)
 };
 
 const lv_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Atlasiet pakalpojumus, kurus jau izmantojat`)
 };
 
 const lt_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Pasirinkite paslaugas, kurias jau naudojate`)
 };
 
 const pl_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Wybierz usługi, które już używasz`)
 };
 
 const de_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Wählen Sie die Dienste aus, die Sie bereits betreiben`)
 };
 
 const nl_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Selecteer de diensten die je al draait`)
 };
 
 const fr_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Sélectionne les services que tu exécutes déjà`)
 };
 
 const it_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Seleziona i servizi che stai già eseguendo`)
 };
 
 const hu_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Válassza ki a már futó szolgáltatásokat`)
 };
 
 const cs_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Vyberte služby, které již provozujete`)
 };
 
 const ro_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Selectează serviciile pe care le rulezi deja`)
 };
 
 const el_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Επιλέξτε τις υπηρεσίες που ήδη τρέχετε`)
 };
 
 const bg_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Изберете услугите, които вече използвате`)
 };
 
 const hr_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Odaberite usluge koje već koristite`)
 };
 
 const sr_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Izaberite servise koje već koristite`)
 };
 
 const sk_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Vyberte služby, ktoré už prevádzkujete`)
 };
 
 const sl_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select the services you're already running`)
+	return /** @type {LocalizedString} */ (`Izberite storitve, ki jih že uporabljate`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_appssubtitle1 = /** @type {(inputs: Onboarding_Appssubtitle1
 * | "Select the services you're already running" |
 *
 * @param {Onboarding_Appssubtitle1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_appssubtitle1 = /** @type {((inputs?: Onboarding_Appssubtitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Appssubtitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_appssubtitle1 = /** @type {((inputs?: Onboarding_Appssubtitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Appssubtitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_appssubtitle1(inputs)
 	if (locale === "sv") return sv_onboarding_appssubtitle1(inputs)
@@ -174,7 +170,6 @@ const onboarding_appssubtitle1 = /** @type {((inputs?: Onboarding_Appssubtitle1I
 	if (locale === "bn") return bn_onboarding_appssubtitle1(inputs)
 	if (locale === "ru") return ru_onboarding_appssubtitle1(inputs)
 	if (locale === "ja") return ja_onboarding_appssubtitle1(inputs)
-	if (locale === "pa") return pa_onboarding_appssubtitle1(inputs)
 	if (locale === "vi") return vi_onboarding_appssubtitle1(inputs)
 	if (locale === "yue") return yue_onboarding_appssubtitle1(inputs)
 	if (locale === "tr") return tr_onboarding_appssubtitle1(inputs)

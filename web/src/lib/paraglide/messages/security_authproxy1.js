@@ -10,7 +10,7 @@ const en_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) =>
 };
 
 const sv_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentiseringsproxy`)
 };
 
 const uk_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -18,7 +18,7 @@ const uk_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) =>
 };
 
 const zh_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`认证代理`)
 };
 
 const es_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -42,19 +42,15 @@ const ru_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) =>
 };
 
 const ja_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
-};
-
-const pa_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`認証プロキシ`)
 };
 
 const vi_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Proxy xác thực`)
 };
 
 const yue_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`認證代理`)
 };
 
 const tr_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -66,31 +62,31 @@ const ar_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) =>
 };
 
 const wuu_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`认证代理`)
 };
 
 const mr_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`ऑथ प्रॉक्सी`)
 };
 
 const nb_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentiseringsproxy`)
 };
 
 const fi_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Todennusproxy`)
 };
 
 const da_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Godkendelsesproxy`)
 };
 
 const et_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentimisproxy`)
 };
 
 const lv_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentifikācijas proxy`)
 };
 
 const lt_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -102,11 +98,11 @@ const pl_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) =>
 };
 
 const de_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Auth-Proxy`)
 };
 
 const nl_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Auth-proxy`)
 };
 
 const fr_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_security_authproxy1 = /** @type {(inputs: Security_Authproxy1Inputs) =>
 * | "Auth proxy" |
 *
 * @param {Security_Authproxy1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_authproxy1 = /** @type {((inputs?: Security_Authproxy1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Authproxy1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_authproxy1 = /** @type {((inputs?: Security_Authproxy1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Authproxy1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_authproxy1(inputs)
 	if (locale === "sv") return sv_security_authproxy1(inputs)
@@ -174,7 +170,6 @@ const security_authproxy1 = /** @type {((inputs?: Security_Authproxy1Inputs, opt
 	if (locale === "bn") return bn_security_authproxy1(inputs)
 	if (locale === "ru") return ru_security_authproxy1(inputs)
 	if (locale === "ja") return ja_security_authproxy1(inputs)
-	if (locale === "pa") return pa_security_authproxy1(inputs)
 	if (locale === "vi") return vi_security_authproxy1(inputs)
 	if (locale === "yue") return yue_security_authproxy1(inputs)
 	if (locale === "tr") return tr_security_authproxy1(inputs)

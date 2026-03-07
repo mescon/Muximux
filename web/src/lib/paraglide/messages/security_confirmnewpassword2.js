@@ -10,147 +10,143 @@ const en_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewp
 };
 
 const sv_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Bekräfta nytt lösenord`)
 };
 
 const uk_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Підтвердити новий пароль`)
 };
 
 const zh_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`确认新密码`)
 };
 
 const es_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Confirmar nueva contraseña`)
 };
 
 const hi_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`नया पासवर्ड पुष्टि करें`)
 };
 
 const pt_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Confirmar nova palavra-passe`)
 };
 
 const bn_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`নতুন পাসওয়ার্ড নিশ্চিত করুন`)
 };
 
 const ru_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Подтвердите новый пароль`)
 };
 
 const ja_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
-};
-
-const pa_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`新しいパスワードの確認`)
 };
 
 const vi_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Xác nhận mật khẩu mới`)
 };
 
 const yue_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`確認新密碼`)
 };
 
 const tr_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Yeni şifreyi onayla`)
 };
 
 const ar_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`تأكيد كلمة المرور الجديدة`)
 };
 
 const wuu_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`确认新密码`)
 };
 
 const mr_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`नवीन पासवर्ड निश्चित करा`)
 };
 
 const nb_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Bekreft nytt passord`)
 };
 
 const fi_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Vahvista uusi salasana`)
 };
 
 const da_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Bekræft ny adgangskode`)
 };
 
 const et_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Kinnita uus parool`)
 };
 
 const lv_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Apstiprināt jauno paroli`)
 };
 
 const lt_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Patvirtinti naują slaptažodį`)
 };
 
 const pl_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Potwierdź nowe hasło`)
 };
 
 const de_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Neues Passwort bestätigen`)
 };
 
 const nl_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Nieuw wachtwoord bevestigen`)
 };
 
 const fr_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Confirmer le nouveau mot de passe`)
 };
 
 const it_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Conferma nuova password`)
 };
 
 const hu_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Új jelszó megerősítése`)
 };
 
 const cs_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Potvrdit nové heslo`)
 };
 
 const ro_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Confirmă parola nouă`)
 };
 
 const el_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Επιβεβαίωση νέου κωδικού`)
 };
 
 const bg_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Потвърди новата парола`)
 };
 
 const hr_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Potvrdi novu lozinku`)
 };
 
 const sr_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Potvrdi novu lozinku`)
 };
 
 const sk_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Potvrdiť nové heslo`)
 };
 
 const sl_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewpassword2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Confirm new password`)
+	return /** @type {LocalizedString} */ (`Potrdite novo geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_confirmnewpassword2 = /** @type {(inputs: Security_Confirmnewp
 * | "Confirm new password" |
 *
 * @param {Security_Confirmnewpassword2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_confirmnewpassword2 = /** @type {((inputs?: Security_Confirmnewpassword2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Confirmnewpassword2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_confirmnewpassword2 = /** @type {((inputs?: Security_Confirmnewpassword2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Confirmnewpassword2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_confirmnewpassword2(inputs)
 	if (locale === "sv") return sv_security_confirmnewpassword2(inputs)
@@ -174,7 +170,6 @@ const security_confirmnewpassword2 = /** @type {((inputs?: Security_Confirmnewpa
 	if (locale === "bn") return bn_security_confirmnewpassword2(inputs)
 	if (locale === "ru") return ru_security_confirmnewpassword2(inputs)
 	if (locale === "ja") return ja_security_confirmnewpassword2(inputs)
-	if (locale === "pa") return pa_security_confirmnewpassword2(inputs)
 	if (locale === "vi") return vi_security_confirmnewpassword2(inputs)
 	if (locale === "yue") return yue_security_confirmnewpassword2(inputs)
 	if (locale === "tr") return tr_security_confirmnewpassword2(inputs)

@@ -10,147 +10,143 @@ const en_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroup
 };
 
 const sv_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Återställ till gruppfärg`)
 };
 
 const uk_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Скинути до кольору групи`)
 };
 
 const zh_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`重置为分组颜色`)
 };
 
 const es_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Restablecer al color del grupo`)
 };
 
 const hi_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`समूह रंग पर रीसेट करें`)
 };
 
 const pt_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Repor para a cor do grupo`)
 };
 
 const bn_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`গ্রুপ রঙে রিসেট করুন`)
 };
 
 const ru_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Сбросить к цвету группы`)
 };
 
 const ja_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
-};
-
-const pa_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`グループの色にリセット`)
 };
 
 const vi_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Đặt lại về màu nhóm`)
 };
 
 const yue_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`重設為群組顏色`)
 };
 
 const tr_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Grup rengine sıfırla`)
 };
 
 const ar_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`إعادة تعيين إلى لون المجموعة`)
 };
 
 const wuu_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`重置为分组颜色`)
 };
 
 const mr_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`गट रंगावर रीसेट करा`)
 };
 
 const nb_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Tilbakestill til gruppefarge`)
 };
 
 const fi_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Palauta ryhmän väriin`)
 };
 
 const da_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Nulstil til gruppefarve`)
 };
 
 const et_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Lähtesta grupi värvile`)
 };
 
 const lv_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Atiestatīt uz grupas krāsu`)
 };
 
 const lt_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Atstatyti į grupės spalvą`)
 };
 
 const pl_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Przywróć kolor grupy`)
 };
 
 const de_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Auf Gruppenfarbe zurücksetzen`)
 };
 
 const nl_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Herstellen naar groepskleur`)
 };
 
 const fr_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Réinitialiser à la couleur du groupe`)
 };
 
 const it_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Ripristina al colore del gruppo`)
 };
 
 const hu_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Visszaállítás a csoport színére`)
 };
 
 const cs_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Obnovit barvu skupiny`)
 };
 
 const ro_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Resetare la culoarea grupului`)
 };
 
 const el_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Επαναφορά στο χρώμα ομάδας`)
 };
 
 const bg_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Възстанови до цвета на групата`)
 };
 
 const hr_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Vrati na boju grupe`)
 };
 
 const sr_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Vrati na boju grupe`)
 };
 
 const sk_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Obnoviť farbu skupiny`)
 };
 
 const sl_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroupcolor3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to group color`)
+	return /** @type {LocalizedString} */ (`Ponastavi na barvo skupine`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_resettogroupcolor3 = /** @type {(inputs: Settings_Resettogroup
 * | "Reset to group color" |
 *
 * @param {Settings_Resettogroupcolor3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_resettogroupcolor3 = /** @type {((inputs?: Settings_Resettogroupcolor3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Resettogroupcolor3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_resettogroupcolor3 = /** @type {((inputs?: Settings_Resettogroupcolor3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Resettogroupcolor3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_resettogroupcolor3(inputs)
 	if (locale === "sv") return sv_settings_resettogroupcolor3(inputs)
@@ -174,7 +170,6 @@ const settings_resettogroupcolor3 = /** @type {((inputs?: Settings_Resettogroupc
 	if (locale === "bn") return bn_settings_resettogroupcolor3(inputs)
 	if (locale === "ru") return ru_settings_resettogroupcolor3(inputs)
 	if (locale === "ja") return ja_settings_resettogroupcolor3(inputs)
-	if (locale === "pa") return pa_settings_resettogroupcolor3(inputs)
 	if (locale === "vi") return vi_settings_resettogroupcolor3(inputs)
 	if (locale === "yue") return yue_settings_resettogroupcolor3(inputs)
 	if (locale === "tr") return tr_settings_resettogroupcolor3(inputs)

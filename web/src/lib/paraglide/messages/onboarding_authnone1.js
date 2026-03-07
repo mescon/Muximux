@@ -10,147 +10,143 @@ const en_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) 
 };
 
 const sv_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Ingen autentisering`)
 };
 
 const uk_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Без автентифікації`)
 };
 
 const zh_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`无认证`)
 };
 
 const es_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Sin autenticación`)
 };
 
 const hi_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`कोई प्रमाणीकरण नहीं`)
 };
 
 const pt_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Sem autenticação`)
 };
 
 const bn_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`কোনো প্রমাণীকরণ নেই`)
 };
 
 const ru_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Без аутентификации`)
 };
 
 const ja_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
-};
-
-const pa_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`認証なし`)
 };
 
 const vi_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Không xác thực`)
 };
 
 const yue_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`無認證`)
 };
 
 const tr_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Kimlik doğrulama yok`)
 };
 
 const ar_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`بدون مصادقة`)
 };
 
 const wuu_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`无认证`)
 };
 
 const mr_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`प्रमाणीकरण नाही`)
 };
 
 const nb_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Ingen autentisering`)
 };
 
 const fi_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Ei todennusta`)
 };
 
 const da_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Ingen godkendelse`)
 };
 
 const et_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Autentimine puudub`)
 };
 
 const lv_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Nav autentifikācijas`)
 };
 
 const lt_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Be autentifikavimo`)
 };
 
 const pl_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Brak uwierzytelniania`)
 };
 
 const de_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Keine Auth`)
 };
 
 const nl_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Geen auth`)
 };
 
 const fr_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Pas d'auth`)
 };
 
 const it_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Nessuna auth`)
 };
 
 const hu_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Nincs hitelesítés`)
 };
 
 const cs_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Bez ověřování`)
 };
 
 const ro_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Fără autentificare`)
 };
 
 const el_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Χωρίς αυθεντικοποίηση`)
 };
 
 const bg_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Без удостоверяване`)
 };
 
 const hr_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Bez autentifikacije`)
 };
 
 const sr_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Bez autentifikacije`)
 };
 
 const sk_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Bez overovania`)
 };
 
 const sl_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No auth`)
+	return /** @type {LocalizedString} */ (`Brez avtentikacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_authnone1 = /** @type {(inputs: Onboarding_Authnone1Inputs) 
 * | "No auth" |
 *
 * @param {Onboarding_Authnone1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_authnone1 = /** @type {((inputs?: Onboarding_Authnone1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Authnone1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_authnone1 = /** @type {((inputs?: Onboarding_Authnone1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Authnone1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_authnone1(inputs)
 	if (locale === "sv") return sv_onboarding_authnone1(inputs)
@@ -174,7 +170,6 @@ const onboarding_authnone1 = /** @type {((inputs?: Onboarding_Authnone1Inputs, o
 	if (locale === "bn") return bn_onboarding_authnone1(inputs)
 	if (locale === "ru") return ru_onboarding_authnone1(inputs)
 	if (locale === "ja") return ja_onboarding_authnone1(inputs)
-	if (locale === "pa") return pa_onboarding_authnone1(inputs)
 	if (locale === "vi") return vi_onboarding_authnone1(inputs)
 	if (locale === "yue") return yue_onboarding_authnone1(inputs)
 	if (locale === "tr") return tr_onboarding_authnone1(inputs)

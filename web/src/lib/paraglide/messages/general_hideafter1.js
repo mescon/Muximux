@@ -10,147 +10,143 @@ const en_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => L
 };
 
 const sv_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Dölj efter`)
 };
 
 const uk_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Приховати через`)
 };
 
 const zh_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`隐藏延迟`)
 };
 
 const es_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Ocultar tras`)
 };
 
 const hi_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`इसके बाद छिपाएं`)
 };
 
 const pt_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Ocultar após`)
 };
 
 const bn_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`এরপর লুকান`)
 };
 
 const ru_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Скрывать через`)
 };
 
 const ja_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
-};
-
-const pa_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`非表示までの時間`)
 };
 
 const vi_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Ẩn sau`)
 };
 
 const yue_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`隱藏延遲`)
 };
 
 const tr_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Sonra gizle`)
 };
 
 const ar_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`إخفاء بعد`)
 };
 
 const wuu_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`隐藏延时`)
 };
 
 const mr_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`नंतर लपवा`)
 };
 
 const nb_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Skjul etter`)
 };
 
 const fi_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Piilota jälkeen`)
 };
 
 const da_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Skjul efter`)
 };
 
 const et_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Peida pärast`)
 };
 
 const lv_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Paslēpt pēc`)
 };
 
 const lt_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Slėpti po`)
 };
 
 const pl_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Ukryj po`)
 };
 
 const de_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Ausblenden nach`)
 };
 
 const nl_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Verbergen na`)
 };
 
 const fr_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Masquer après`)
 };
 
 const it_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Nascondi dopo`)
 };
 
 const hu_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Elrejtés ennyi idő után`)
 };
 
 const cs_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Skrýt po`)
 };
 
 const ro_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Ascunde după`)
 };
 
 const el_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Απόκρυψη μετά από`)
 };
 
 const bg_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Скрий след`)
 };
 
 const hr_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Sakrij nakon`)
 };
 
 const sr_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Sakrij nakon`)
 };
 
 const sk_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Skryť po`)
 };
 
 const sl_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Hide after`)
+	return /** @type {LocalizedString} */ (`Skrij po`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_hideafter1 = /** @type {(inputs: General_Hideafter1Inputs) => L
 * | "Hide after" |
 *
 * @param {General_Hideafter1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_hideafter1 = /** @type {((inputs?: General_Hideafter1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Hideafter1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_hideafter1 = /** @type {((inputs?: General_Hideafter1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Hideafter1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_hideafter1(inputs)
 	if (locale === "sv") return sv_general_hideafter1(inputs)
@@ -174,7 +170,6 @@ const general_hideafter1 = /** @type {((inputs?: General_Hideafter1Inputs, optio
 	if (locale === "bn") return bn_general_hideafter1(inputs)
 	if (locale === "ru") return ru_general_hideafter1(inputs)
 	if (locale === "ja") return ja_general_hideafter1(inputs)
-	if (locale === "pa") return pa_general_hideafter1(inputs)
 	if (locale === "vi") return vi_general_hideafter1(inputs)
 	if (locale === "yue") return yue_general_hideafter1(inputs)
 	if (locale === "tr") return tr_general_hideafter1(inputs)

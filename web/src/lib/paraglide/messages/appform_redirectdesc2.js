@@ -10,147 +10,143 @@ const en_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs
 };
 
 const sv_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigera bort till appens URL`)
 };
 
 const uk_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Перейти на URL застосунку`)
 };
 
 const zh_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`跳转到应用 URL`)
 };
 
 const es_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navegar a la URL de la app`)
 };
 
 const hi_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`ऐप URL पर नेविगेट करें`)
 };
 
 const pt_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navegar para o URL da app`)
 };
 
 const bn_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`অ্যাপ URL-এ নেভিগেট করুন`)
 };
 
 const ru_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Перейти по URL приложения`)
 };
 
 const ja_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
-};
-
-const pa_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`アプリの URL に移動`)
 };
 
 const vi_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Chuyển đến URL ứng dụng`)
 };
 
 const yue_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`跳轉到應用程式 URL`)
 };
 
 const tr_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Uygulama URL'sine git`)
 };
 
 const ar_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`الانتقال إلى عنوان URL للتطبيق`)
 };
 
 const wuu_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`直接导航到应用 URL`)
 };
 
 const mr_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`अॅप URL वर नेव्हिगेट करा`)
 };
 
 const nb_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Naviger bort til appens URL`)
 };
 
 const fi_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Siirry pois sovelluksen URL:ään`)
 };
 
 const da_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Naviger væk til appens URL`)
 };
 
 const et_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigeeri rakenduse URL-ile`)
 };
 
 const lv_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Pāriet uz lietotnes URL`)
 };
 
 const lt_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Pereiti į programos URL`)
 };
 
 const pl_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Przejdź do URL aplikacji`)
 };
 
 const de_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Zur App-URL navigieren`)
 };
 
 const nl_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigeren naar de app-URL`)
 };
 
 const fr_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Naviguer vers l'URL de l'app`)
 };
 
 const it_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Naviga verso l'URL dell'app`)
 };
 
 const hu_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigálás az alkalmazás URL-jére`)
 };
 
 const cs_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Přejít na URL aplikace`)
 };
 
 const ro_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navighează la URL-ul aplicației`)
 };
 
 const el_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Μετάβαση στο URL της εφαρμογής`)
 };
 
 const bg_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Навигирай до URL адреса на приложението`)
 };
 
 const hr_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigiraj na URL aplikacije`)
 };
 
 const sr_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigiraj na URL aplikacije`)
 };
 
 const sk_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Prejsť na URL aplikácie`)
 };
 
 const sl_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate away to the app URL`)
+	return /** @type {LocalizedString} */ (`Navigiraj na URL aplikacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_redirectdesc2 = /** @type {(inputs: Appform_Redirectdesc2Inputs
 * | "Navigate away to the app URL" |
 *
 * @param {Appform_Redirectdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_redirectdesc2 = /** @type {((inputs?: Appform_Redirectdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Redirectdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_redirectdesc2 = /** @type {((inputs?: Appform_Redirectdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Redirectdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_redirectdesc2(inputs)
 	if (locale === "sv") return sv_appform_redirectdesc2(inputs)
@@ -174,7 +170,6 @@ const appform_redirectdesc2 = /** @type {((inputs?: Appform_Redirectdesc2Inputs,
 	if (locale === "bn") return bn_appform_redirectdesc2(inputs)
 	if (locale === "ru") return ru_appform_redirectdesc2(inputs)
 	if (locale === "ja") return ja_appform_redirectdesc2(inputs)
-	if (locale === "pa") return pa_appform_redirectdesc2(inputs)
 	if (locale === "vi") return vi_appform_redirectdesc2(inputs)
 	if (locale === "yue") return yue_appform_redirectdesc2(inputs)
 	if (locale === "tr") return tr_appform_redirectdesc2(inputs)

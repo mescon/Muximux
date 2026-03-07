@@ -10,147 +10,143 @@ const en_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2In
 };
 
 const sv_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Borttagning misslyckades`)
 };
 
 const uk_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Видалення не вдалося`)
 };
 
 const zh_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`删除失败`)
 };
 
 const es_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Error al eliminar`)
 };
 
 const hi_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`हटाने में विफल`)
 };
 
 const pt_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Erro ao eliminar`)
 };
 
 const bn_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`মুছতে ব্যর্থ`)
 };
 
 const ru_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Не удалось удалить`)
 };
 
 const ja_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
-};
-
-const pa_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`削除に失敗しました`)
 };
 
 const vi_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Xóa thất bại`)
 };
 
 const yue_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`刪除失敗`)
 };
 
 const tr_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Silme başarısız`)
 };
 
 const ar_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`فشل الحذف`)
 };
 
 const wuu_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`删除失败`)
 };
 
 const mr_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`हटवणे अयशस्वी`)
 };
 
 const nb_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Sletting mislyktes`)
 };
 
 const fi_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Poisto epäonnistui`)
 };
 
 const da_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Sletning mislykkedes`)
 };
 
 const et_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Kustutamine ebaõnnestus`)
 };
 
 const lv_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Dzēšana neizdevās`)
 };
 
 const lt_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Ištrynimas nepavyko`)
 };
 
 const pl_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Usuwanie nie powiodło się`)
 };
 
 const de_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Löschen fehlgeschlagen`)
 };
 
 const nl_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Verwijderen mislukt`)
 };
 
 const fr_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Échec de la suppression`)
 };
 
 const it_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Eliminazione non riuscita`)
 };
 
 const hu_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Törlés sikertelen`)
 };
 
 const cs_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Smazání se nezdařilo`)
 };
 
 const ro_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Ștergerea a eșuat`)
 };
 
 const el_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Η διαγραφή απέτυχε`)
 };
 
 const bg_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Изтриването е неуспешно`)
 };
 
 const hr_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Brisanje nije uspjelo`)
 };
 
 const sr_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Brisanje nije uspelo`)
 };
 
 const sk_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Vymazanie zlyhalo`)
 };
 
 const sl_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete failed`)
+	return /** @type {LocalizedString} */ (`Brisanje ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_faileddeleteicon2 = /** @type {(inputs: Toast_Faileddeleteicon2In
 * | "Delete failed" |
 *
 * @param {Toast_Faileddeleteicon2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_faileddeleteicon2 = /** @type {((inputs?: Toast_Faileddeleteicon2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Faileddeleteicon2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_faileddeleteicon2 = /** @type {((inputs?: Toast_Faileddeleteicon2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Faileddeleteicon2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_faileddeleteicon2(inputs)
 	if (locale === "sv") return sv_toast_faileddeleteicon2(inputs)
@@ -174,7 +170,6 @@ const toast_faileddeleteicon2 = /** @type {((inputs?: Toast_Faileddeleteicon2Inp
 	if (locale === "bn") return bn_toast_faileddeleteicon2(inputs)
 	if (locale === "ru") return ru_toast_faileddeleteicon2(inputs)
 	if (locale === "ja") return ja_toast_faileddeleteicon2(inputs)
-	if (locale === "pa") return pa_toast_faileddeleteicon2(inputs)
 	if (locale === "vi") return vi_toast_faileddeleteicon2(inputs)
 	if (locale === "yue") return yue_toast_faileddeleteicon2(inputs)
 	if (locale === "tr") return tr_toast_faileddeleteicon2(inputs)

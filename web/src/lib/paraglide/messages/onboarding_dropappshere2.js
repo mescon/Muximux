@@ -10,147 +10,143 @@ const en_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2
 };
 
 const sv_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Släpp appar här`)
 };
 
 const uk_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Перетягніть застосунки сюди`)
 };
 
 const zh_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`将应用拖到此处`)
 };
 
 const es_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Suelta las apps aquí`)
 };
 
 const hi_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`ऐप्स यहाँ छोड़ें`)
 };
 
 const pt_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Larga as apps aqui`)
 };
 
 const bn_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`অ্যাপ এখানে ছেড়ে দিন`)
 };
 
 const ru_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Перетащите приложения сюда`)
 };
 
 const ja_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
-};
-
-const pa_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`ここにアプリをドロップ`)
 };
 
 const vi_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Thả ứng dụng vào đây`)
 };
 
 const yue_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`將應用程式拖到呢度`)
 };
 
 const tr_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Uygulamaları buraya bırakın`)
 };
 
 const ar_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`أفلت التطبيقات هنا`)
 };
 
 const wuu_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`把应用拖到这里`)
 };
 
 const mr_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`अॅप्स इथे टाका`)
 };
 
 const nb_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Slipp apper her`)
 };
 
 const fi_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Pudota sovellukset tähän`)
 };
 
 const da_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Slip apps her`)
 };
 
 const et_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Kukutage rakendused siia`)
 };
 
 const lv_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Nometiet lietotnes šeit`)
 };
 
 const lt_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Numeskite programas čia`)
 };
 
 const pl_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Upuść aplikacje tutaj`)
 };
 
 const de_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Apps hier ablegen`)
 };
 
 const nl_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Apps hier neerzetten`)
 };
 
 const fr_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Dépose les apps ici`)
 };
 
 const it_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Rilascia le app qui`)
 };
 
 const hu_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Húzza ide az alkalmazásokat`)
 };
 
 const cs_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Přetáhněte aplikace sem`)
 };
 
 const ro_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Plasează aplicațiile aici`)
 };
 
 const el_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Αποθέστε εφαρμογές εδώ`)
 };
 
 const bg_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Пуснете приложенията тук`)
 };
 
 const hr_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Ispustite aplikacije ovdje`)
 };
 
 const sr_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Ispustite aplikacije ovde`)
 };
 
 const sk_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Preťahnite aplikácie sem`)
 };
 
 const sl_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Drop apps here`)
+	return /** @type {LocalizedString} */ (`Spustite aplikacije sem`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_dropappshere2 = /** @type {(inputs: Onboarding_Dropappshere2
 * | "Drop apps here" |
 *
 * @param {Onboarding_Dropappshere2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_dropappshere2 = /** @type {((inputs?: Onboarding_Dropappshere2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Dropappshere2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_dropappshere2 = /** @type {((inputs?: Onboarding_Dropappshere2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Dropappshere2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_dropappshere2(inputs)
 	if (locale === "sv") return sv_onboarding_dropappshere2(inputs)
@@ -174,7 +170,6 @@ const onboarding_dropappshere2 = /** @type {((inputs?: Onboarding_Dropappshere2I
 	if (locale === "bn") return bn_onboarding_dropappshere2(inputs)
 	if (locale === "ru") return ru_onboarding_dropappshere2(inputs)
 	if (locale === "ja") return ja_onboarding_dropappshere2(inputs)
-	if (locale === "pa") return pa_onboarding_dropappshere2(inputs)
 	if (locale === "vi") return vi_onboarding_dropappshere2(inputs)
 	if (locale === "yue") return yue_onboarding_dropappshere2(inputs)
 	if (locale === "tr") return tr_onboarding_dropappshere2(inputs)

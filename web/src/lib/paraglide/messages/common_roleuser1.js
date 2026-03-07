@@ -10,147 +10,143 @@ const en_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => Local
 };
 
 const sv_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Användare`)
 };
 
 const uk_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Користувач`)
 };
 
 const zh_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`用户`)
 };
 
 const es_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Usuario`)
 };
 
 const hi_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता`)
 };
 
 const pt_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Utilizador`)
 };
 
 const bn_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী`)
 };
 
 const ru_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Пользователь`)
 };
 
 const ja_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
-};
-
-const pa_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`ユーザー`)
 };
 
 const vi_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Người dùng`)
 };
 
 const yue_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`使用者`)
 };
 
 const tr_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Kullanıcı`)
 };
 
 const ar_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`مستخدم`)
 };
 
 const wuu_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`用户`)
 };
 
 const mr_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`वापरकर्ता`)
 };
 
 const nb_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Bruker`)
 };
 
 const fi_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Käyttäjä`)
 };
 
 const da_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Bruger`)
 };
 
 const et_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Kasutaja`)
 };
 
 const lv_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Lietotājs`)
 };
 
 const lt_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Naudotojas`)
 };
 
 const pl_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Użytkownik`)
 };
 
 const de_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Benutzer`)
 };
 
 const nl_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Gebruiker`)
 };
 
 const fr_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Utilisateur`)
 };
 
 const it_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Utente`)
 };
 
 const hu_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Felhasználó`)
 };
 
 const cs_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Uživatel`)
 };
 
 const ro_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Utilizator`)
 };
 
 const el_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Χρήστης`)
 };
 
 const bg_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Потребител`)
 };
 
 const hr_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Korisnik`)
 };
 
 const sr_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Korisnik`)
 };
 
 const sk_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Používateľ`)
 };
 
 const sl_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User`)
+	return /** @type {LocalizedString} */ (`Uporabnik`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_roleuser1 = /** @type {(inputs: Common_Roleuser1Inputs) => Local
 * | "User" |
 *
 * @param {Common_Roleuser1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const common_roleuser1 = /** @type {((inputs?: Common_Roleuser1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Roleuser1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const common_roleuser1 = /** @type {((inputs?: Common_Roleuser1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Roleuser1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_roleuser1(inputs)
 	if (locale === "sv") return sv_common_roleuser1(inputs)
@@ -174,7 +170,6 @@ const common_roleuser1 = /** @type {((inputs?: Common_Roleuser1Inputs, options?:
 	if (locale === "bn") return bn_common_roleuser1(inputs)
 	if (locale === "ru") return ru_common_roleuser1(inputs)
 	if (locale === "ja") return ja_common_roleuser1(inputs)
-	if (locale === "pa") return pa_common_roleuser1(inputs)
 	if (locale === "vi") return vi_common_roleuser1(inputs)
 	if (locale === "yue") return yue_common_roleuser1(inputs)
 	if (locale === "tr") return tr_common_roleuser1(inputs)

@@ -10,147 +10,143 @@ const en_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdes
 };
 
 const sv_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indexerarhantering`)
 };
 
 const uk_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Управління індексаторами`)
 };
 
 const zh_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`索引器管理`)
 };
 
 const es_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Gestión de indexadores`)
 };
 
 const hi_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`इंडेक्सर प्रबंधन`)
 };
 
 const pt_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Gestão de indexadores`)
 };
 
 const bn_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`ইনডেক্সার ব্যবস্থাপনা`)
 };
 
 const ru_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Управление индексаторами`)
 };
 
 const ja_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
-};
-
-const pa_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`インデクサー管理`)
 };
 
 const vi_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Quản lý indexer`)
 };
 
 const yue_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`索引器管理`)
 };
 
 const tr_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`İndeksleyici yönetimi`)
 };
 
 const ar_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`إدارة المفهرسات`)
 };
 
 const wuu_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`索引器管理`)
 };
 
 const mr_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`इंडेक्सर व्यवस्थापन`)
 };
 
 const nb_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indekseradministrasjon`)
 };
 
 const fi_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indeksoijien hallinta`)
 };
 
 const da_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indekserhåndtering`)
 };
 
 const et_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indekseerijate haldus`)
 };
 
 const lv_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indeksētāju pārvaldība`)
 };
 
 const lt_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indeksuotojų valdymas`)
 };
 
 const pl_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Zarządzanie indekserami`)
 };
 
 const de_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indexer-Verwaltung`)
 };
 
 const nl_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indexer-beheer`)
 };
 
 const fr_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Gestion d'indexeurs`)
 };
 
 const it_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Gestione indexer`)
 };
 
 const hu_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Indexelő kezelés`)
 };
 
 const cs_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Správa indexerů`)
 };
 
 const ro_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Gestionarea indexerilor`)
 };
 
 const el_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Διαχείριση indexer`)
 };
 
 const bg_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Управление на индексатори`)
 };
 
 const hr_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Upravljanje indekserima`)
 };
 
 const sr_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Upravljanje indekserima`)
 };
 
 const sk_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Správa indexerov`)
 };
 
 const sl_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Indexer management`)
+	return /** @type {LocalizedString} */ (`Upravljanje indekserjev`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_prowlarrdesc2 = /** @type {(inputs: Popularapps_Prowlarrdes
 * | "Indexer management" |
 *
 * @param {Popularapps_Prowlarrdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_prowlarrdesc2 = /** @type {((inputs?: Popularapps_Prowlarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Prowlarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_prowlarrdesc2 = /** @type {((inputs?: Popularapps_Prowlarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Prowlarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_prowlarrdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_prowlarrdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_prowlarrdesc2 = /** @type {((inputs?: Popularapps_Prowlarrdesc
 	if (locale === "bn") return bn_popularapps_prowlarrdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_prowlarrdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_prowlarrdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_prowlarrdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_prowlarrdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_prowlarrdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_prowlarrdesc2(inputs)

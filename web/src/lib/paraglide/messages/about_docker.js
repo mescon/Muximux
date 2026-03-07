@@ -45,10 +45,6 @@ const ja_about_docker = /** @type {(inputs: About_DockerInputs) => LocalizedStri
 	return /** @type {LocalizedString} */ (`Docker`)
 };
 
-const pa_about_docker = /** @type {(inputs: About_DockerInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Docker`)
-};
-
 const vi_about_docker = /** @type {(inputs: About_DockerInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Docker`)
 };
@@ -159,10 +155,10 @@ const sl_about_docker = /** @type {(inputs: About_DockerInputs) => LocalizedStri
 * | "Docker" |
 *
 * @param {About_DockerInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_docker = /** @type {((inputs?: About_DockerInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_DockerInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_docker = /** @type {((inputs?: About_DockerInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_DockerInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_docker(inputs)
 	if (locale === "sv") return sv_about_docker(inputs)
@@ -174,7 +170,6 @@ export const about_docker = /** @type {((inputs?: About_DockerInputs, options?: 
 	if (locale === "bn") return bn_about_docker(inputs)
 	if (locale === "ru") return ru_about_docker(inputs)
 	if (locale === "ja") return ja_about_docker(inputs)
-	if (locale === "pa") return pa_about_docker(inputs)
 	if (locale === "vi") return vi_about_docker(inputs)
 	if (locale === "yue") return yue_about_docker(inputs)
 	if (locale === "tr") return tr_about_docker(inputs)

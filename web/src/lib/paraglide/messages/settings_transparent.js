@@ -14,63 +14,59 @@ const sv_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 };
 
 const uk_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Прозорий`)
 };
 
 const zh_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const es_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Transparente`)
 };
 
 const hi_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`पारदर्शी`)
 };
 
 const pt_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Transparente`)
 };
 
 const bn_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`স্বচ্ছ`)
 };
 
 const ru_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Прозрачный`)
 };
 
 const ja_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
-};
-
-const pa_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const vi_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Trong suốt`)
 };
 
 const yue_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const tr_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Saydam`)
 };
 
 const ar_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`شفاف`)
 };
 
 const wuu_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const mr_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`पारदर्शक`)
 };
 
 const nb_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
@@ -78,7 +74,7 @@ const nb_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 };
 
 const fi_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Läpinäkyvä`)
 };
 
 const da_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 };
 
 const et_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Läbipaistev`)
 };
 
 const lv_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Caurspīdīgs`)
 };
 
 const lt_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Permatomas`)
 };
 
 const pl_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Przezroczysty`)
 };
 
 const de_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
@@ -106,7 +102,7 @@ const de_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 };
 
 const nl_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Transparant`)
 };
 
 const fr_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
@@ -114,15 +110,15 @@ const fr_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 };
 
 const it_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Trasparente`)
 };
 
 const hu_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Átlátszó`)
 };
 
 const cs_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Průhledný`)
 };
 
 const ro_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
@@ -130,27 +126,27 @@ const ro_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 };
 
 const el_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Διαφανές`)
 };
 
 const bg_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Прозрачен`)
 };
 
 const hr_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Prozirno`)
 };
 
 const sr_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Providno`)
 };
 
 const sk_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Priehľadný`)
 };
 
 const sl_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Prosojno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_transparent = /** @type {(inputs: Settings_TransparentInputs) 
 * | "Transparent" |
 *
 * @param {Settings_TransparentInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_transparent = /** @type {((inputs?: Settings_TransparentInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_TransparentInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_transparent = /** @type {((inputs?: Settings_TransparentInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_TransparentInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_transparent(inputs)
 	if (locale === "sv") return sv_settings_transparent(inputs)
@@ -174,7 +170,6 @@ export const settings_transparent = /** @type {((inputs?: Settings_TransparentIn
 	if (locale === "bn") return bn_settings_transparent(inputs)
 	if (locale === "ru") return ru_settings_transparent(inputs)
 	if (locale === "ja") return ja_settings_transparent(inputs)
-	if (locale === "pa") return pa_settings_transparent(inputs)
 	if (locale === "vi") return vi_settings_transparent(inputs)
 	if (locale === "yue") return yue_settings_transparent(inputs)
 	if (locale === "tr") return tr_settings_transparent(inputs)

@@ -10,147 +10,143 @@ const en_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedStri
 };
 
 const sv_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Temaredigerare`)
 };
 
 const uk_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Редактор тем`)
 };
 
 const zh_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`主题编辑器`)
 };
 
 const es_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Editor de temas`)
 };
 
 const hi_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`थीम संपादक`)
 };
 
 const pt_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Editor de temas`)
 };
 
 const bn_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`থিম সম্পাদক`)
 };
 
 const ru_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Редактор тем`)
 };
 
 const ja_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
-};
-
-const pa_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`テーマエディタ`)
 };
 
 const vi_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Trình chỉnh sửa giao diện`)
 };
 
 const yue_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`主題編輯器`)
 };
 
 const tr_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Tema Düzenleyici`)
 };
 
 const ar_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`محرر السمات`)
 };
 
 const wuu_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`主题编辑器`)
 };
 
 const mr_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`थीम एडिटर`)
 };
 
 const nb_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Temaredigerer`)
 };
 
 const fi_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Teemaeditori`)
 };
 
 const da_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Temaeditor`)
 };
 
 const et_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Teemaredaktor`)
 };
 
 const lv_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Motīvu redaktors`)
 };
 
 const lt_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Temų redaktorius`)
 };
 
 const pl_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Edytor motywów`)
 };
 
 const de_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Theme-Editor`)
 };
 
 const nl_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Thema-editor`)
 };
 
 const fr_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Éditeur de thème`)
 };
 
 const it_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Editor del tema`)
 };
 
 const hu_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Téma szerkesztő`)
 };
 
 const cs_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Editor motivů`)
 };
 
 const ro_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Editor de teme`)
 };
 
 const el_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Επεξεργαστής θεμάτων`)
 };
 
 const bg_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Редактор на теми`)
 };
 
 const hr_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Uređivač tema`)
 };
 
 const sr_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Uređivač tema`)
 };
 
 const sk_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Editor motívov`)
 };
 
 const sl_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme Editor`)
+	return /** @type {LocalizedString} */ (`Urejevalnik tem`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_editor = /** @type {(inputs: Theme_EditorInputs) => LocalizedStri
 * | "Theme Editor" |
 *
 * @param {Theme_EditorInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const theme_editor = /** @type {((inputs?: Theme_EditorInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_EditorInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const theme_editor = /** @type {((inputs?: Theme_EditorInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_EditorInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_editor(inputs)
 	if (locale === "sv") return sv_theme_editor(inputs)
@@ -174,7 +170,6 @@ export const theme_editor = /** @type {((inputs?: Theme_EditorInputs, options?: 
 	if (locale === "bn") return bn_theme_editor(inputs)
 	if (locale === "ru") return ru_theme_editor(inputs)
 	if (locale === "ja") return ja_theme_editor(inputs)
-	if (locale === "pa") return pa_theme_editor(inputs)
 	if (locale === "vi") return vi_theme_editor(inputs)
 	if (locale === "yue") return yue_theme_editor(inputs)
 	if (locale === "tr") return tr_theme_editor(inputs)

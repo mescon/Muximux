@@ -10,147 +10,143 @@ const en_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString
 };
 
 const sv_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Tillbaka`)
 };
 
 const uk_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Назад`)
 };
 
 const zh_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`返回`)
 };
 
 const es_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Atrás`)
 };
 
 const hi_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`पीछे`)
 };
 
 const pt_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Voltar`)
 };
 
 const bn_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`পেছনে`)
 };
 
 const ru_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Назад`)
 };
 
 const ja_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
-};
-
-const pa_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`戻る`)
 };
 
 const vi_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Quay lại`)
 };
 
 const yue_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`返回`)
 };
 
 const tr_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Geri`)
 };
 
 const ar_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`رجوع`)
 };
 
 const wuu_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`退回`)
 };
 
 const mr_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`मागे`)
 };
 
 const nb_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Tilbake`)
 };
 
 const fi_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Takaisin`)
 };
 
 const da_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Tilbage`)
 };
 
 const et_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Tagasi`)
 };
 
 const lv_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Atpakaļ`)
 };
 
 const lt_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Atgal`)
 };
 
 const pl_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Wstecz`)
 };
 
 const de_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Zurück`)
 };
 
 const nl_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Terug`)
 };
 
 const fr_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Retour`)
 };
 
 const it_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Indietro`)
 };
 
 const hu_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Vissza`)
 };
 
 const cs_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Zpět`)
 };
 
 const ro_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Înapoi`)
 };
 
 const el_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Πίσω`)
 };
 
 const bg_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Назад`)
 };
 
 const hr_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Natrag`)
 };
 
 const sr_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Nazad`)
 };
 
 const sk_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Späť`)
 };
 
 const sl_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Back`)
+	return /** @type {LocalizedString} */ (`Nazaj`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_back = /** @type {(inputs: Common_BackInputs) => LocalizedString
 * | "Back" |
 *
 * @param {Common_BackInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_back = /** @type {((inputs?: Common_BackInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_BackInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_back = /** @type {((inputs?: Common_BackInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_BackInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_back(inputs)
 	if (locale === "sv") return sv_common_back(inputs)
@@ -174,7 +170,6 @@ export const common_back = /** @type {((inputs?: Common_BackInputs, options?: { 
 	if (locale === "bn") return bn_common_back(inputs)
 	if (locale === "ru") return ru_common_back(inputs)
 	if (locale === "ja") return ja_common_back(inputs)
-	if (locale === "pa") return pa_common_back(inputs)
 	if (locale === "vi") return vi_common_back(inputs)
 	if (locale === "yue") return yue_common_back(inputs)
 	if (locale === "tr") return tr_common_back(inputs)

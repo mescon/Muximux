@@ -10,99 +10,95 @@ const en_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inpu
 };
 
 const sv_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Senaste`)
 };
 
 const uk_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Нещодавні`)
 };
 
 const zh_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`最近`)
 };
 
 const es_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Reciente`)
 };
 
 const hi_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`हाल के`)
 };
 
 const pt_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Recente`)
 };
 
 const bn_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`সাম্প্রতিক`)
 };
 
 const ru_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Недавние`)
 };
 
 const ja_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
-};
-
-const pa_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`最近`)
 };
 
 const vi_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Gần đây`)
 };
 
 const yue_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`最近`)
 };
 
 const tr_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Son Kullanılan`)
 };
 
 const ar_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`الأخيرة`)
 };
 
 const wuu_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`最近`)
 };
 
 const mr_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`अलीकडील`)
 };
 
 const nb_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nylige`)
 };
 
 const fi_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Viimeisimmät`)
 };
 
 const da_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Seneste`)
 };
 
 const et_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Hiljutised`)
 };
 
 const lv_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nesenie`)
 };
 
 const lt_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Naujausi`)
 };
 
 const pl_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Ostatnie`)
 };
 
 const de_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Zuletzt verwendet`)
 };
 
 const nl_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
@@ -110,47 +106,47 @@ const nl_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inpu
 };
 
 const fr_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Récents`)
 };
 
 const it_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Recenti`)
 };
 
 const hu_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Legutóbbi`)
 };
 
 const cs_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nedávné`)
 };
 
 const ro_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Recente`)
 };
 
 const el_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Πρόσφατα`)
 };
 
 const bg_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Скорошни`)
 };
 
 const hr_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nedavno`)
 };
 
 const sr_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nedavno`)
 };
 
 const sk_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nedávne`)
 };
 
 const sl_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recent`)
+	return /** @type {LocalizedString} */ (`Nedavno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_sectionrecent1 = /** @type {(inputs: Command_Sectionrecent1Inpu
 * | "Recent" |
 *
 * @param {Command_Sectionrecent1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_sectionrecent1 = /** @type {((inputs?: Command_Sectionrecent1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Sectionrecent1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_sectionrecent1 = /** @type {((inputs?: Command_Sectionrecent1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Sectionrecent1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_sectionrecent1(inputs)
 	if (locale === "sv") return sv_command_sectionrecent1(inputs)
@@ -174,7 +170,6 @@ const command_sectionrecent1 = /** @type {((inputs?: Command_Sectionrecent1Input
 	if (locale === "bn") return bn_command_sectionrecent1(inputs)
 	if (locale === "ru") return ru_command_sectionrecent1(inputs)
 	if (locale === "ja") return ja_command_sectionrecent1(inputs)
-	if (locale === "pa") return pa_command_sectionrecent1(inputs)
 	if (locale === "vi") return vi_command_sectionrecent1(inputs)
 	if (locale === "yue") return yue_command_sectionrecent1(inputs)
 	if (locale === "tr") return tr_command_sectionrecent1(inputs)

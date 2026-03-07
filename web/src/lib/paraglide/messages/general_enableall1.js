@@ -10,147 +10,143 @@ const en_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => L
 };
 
 const sv_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Aktivera alla`)
 };
 
 const uk_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Увімкнути всі`)
 };
 
 const zh_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`全部启用`)
 };
 
 const es_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Activar todos`)
 };
 
 const hi_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`सभी सक्षम करें`)
 };
 
 const pt_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Ativar todos`)
 };
 
 const bn_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`সব সক্রিয় করুন`)
 };
 
 const ru_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Включить все`)
 };
 
 const ja_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
-};
-
-const pa_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`すべて有効`)
 };
 
 const vi_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Bật tất cả`)
 };
 
 const yue_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`全部啟用`)
 };
 
 const tr_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Tümünü etkinleştir`)
 };
 
 const ar_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`تفعيل الكل`)
 };
 
 const wuu_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`全部启用`)
 };
 
 const mr_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`सर्व सक्षम करा`)
 };
 
 const nb_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Aktiver alle`)
 };
 
 const fi_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Ota kaikki käyttöön`)
 };
 
 const da_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Aktivér alle`)
 };
 
 const et_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Luba kõik`)
 };
 
 const lv_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Iespējot visas`)
 };
 
 const lt_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Įjungti visus`)
 };
 
 const pl_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Włącz wszystkie`)
 };
 
 const de_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Alle aktivieren`)
 };
 
 const nl_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Alles inschakelen`)
 };
 
 const fr_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Tout activer`)
 };
 
 const it_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Attiva tutti`)
 };
 
 const hu_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Összes engedélyezése`)
 };
 
 const cs_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Povolit vše`)
 };
 
 const ro_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Activează toate`)
 };
 
 const el_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Ενεργοποίηση όλων`)
 };
 
 const bg_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Активирай всички`)
 };
 
 const hr_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Omogući sve`)
 };
 
 const sr_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Omogući sve`)
 };
 
 const sk_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Povoliť všetky`)
 };
 
 const sl_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enable all`)
+	return /** @type {LocalizedString} */ (`Omogoči vse`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_enableall1 = /** @type {(inputs: General_Enableall1Inputs) => L
 * | "Enable all" |
 *
 * @param {General_Enableall1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_enableall1 = /** @type {((inputs?: General_Enableall1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Enableall1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_enableall1 = /** @type {((inputs?: General_Enableall1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Enableall1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_enableall1(inputs)
 	if (locale === "sv") return sv_general_enableall1(inputs)
@@ -174,7 +170,6 @@ const general_enableall1 = /** @type {((inputs?: General_Enableall1Inputs, optio
 	if (locale === "bn") return bn_general_enableall1(inputs)
 	if (locale === "ru") return ru_general_enableall1(inputs)
 	if (locale === "ja") return ja_general_enableall1(inputs)
-	if (locale === "pa") return pa_general_enableall1(inputs)
 	if (locale === "vi") return vi_general_enableall1(inputs)
 	if (locale === "yue") return yue_general_enableall1(inputs)
 	if (locale === "tr") return tr_general_enableall1(inputs)

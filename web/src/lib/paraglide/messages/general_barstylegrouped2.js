@@ -10,147 +10,143 @@ const en_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2
 };
 
 const sv_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupprullmenyer`)
 };
 
 const uk_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Випадаючі меню груп`)
 };
 
 const zh_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`分组下拉`)
 };
 
 const es_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Menús desplegables por grupo`)
 };
 
 const hi_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`समूह ड्रॉपडाउन`)
 };
 
 const pt_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Menus suspensos por grupo`)
 };
 
 const bn_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`গ্রুপ ড্রপডাউন`)
 };
 
 const ru_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Группы с выпадающим меню`)
 };
 
 const ja_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
-};
-
-const pa_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`グループドロップダウン`)
 };
 
 const vi_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Danh sách thả theo nhóm`)
 };
 
 const yue_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`群組下拉`)
 };
 
 const tr_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grup Açılır Menüleri`)
 };
 
 const ar_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`قوائم منسدلة للمجموعات`)
 };
 
 const wuu_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`分组下拉`)
 };
 
 const mr_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`गट ड्रॉपडाउन`)
 };
 
 const nb_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Gruppemenyer`)
 };
 
 const fi_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Ryhmävalikot`)
 };
 
 const da_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupperullemenuer`)
 };
 
 const et_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupi rippmenüüd`)
 };
 
 const lv_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupu nolaižamās izvēlnes`)
 };
 
 const lt_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupių išskleidžiamieji meniu`)
 };
 
 const pl_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupowane menu`)
 };
 
 const de_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Gruppen-Dropdowns`)
 };
 
 const nl_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Groep-dropdowns`)
 };
 
 const fr_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Menus déroulants par groupe`)
 };
 
 const it_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Menu a tendina per gruppi`)
 };
 
 const hu_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Csoportos legördülők`)
 };
 
 const cs_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Skupinové rozbalovací nabídky`)
 };
 
 const ro_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Meniuri derulante pe grupuri`)
 };
 
 const el_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Αναπτυσσόμενα μενού ομάδων`)
 };
 
 const bg_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Падащи менюта по групи`)
 };
 
 const hr_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupni padajući izbornici`)
 };
 
 const sr_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Grupni padajući meniji`)
 };
 
 const sk_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Skupinové rozbaľovacie ponuky`)
 };
 
 const sl_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group Dropdowns`)
+	return /** @type {LocalizedString} */ (`Skupinski spustni meniji`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_barstylegrouped2 = /** @type {(inputs: General_Barstylegrouped2
 * | "Group Dropdowns" |
 *
 * @param {General_Barstylegrouped2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_barstylegrouped2 = /** @type {((inputs?: General_Barstylegrouped2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Barstylegrouped2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_barstylegrouped2 = /** @type {((inputs?: General_Barstylegrouped2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Barstylegrouped2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_barstylegrouped2(inputs)
 	if (locale === "sv") return sv_general_barstylegrouped2(inputs)
@@ -174,7 +170,6 @@ const general_barstylegrouped2 = /** @type {((inputs?: General_Barstylegrouped2I
 	if (locale === "bn") return bn_general_barstylegrouped2(inputs)
 	if (locale === "ru") return ru_general_barstylegrouped2(inputs)
 	if (locale === "ja") return ja_general_barstylegrouped2(inputs)
-	if (locale === "pa") return pa_general_barstylegrouped2(inputs)
 	if (locale === "vi") return vi_general_barstylegrouped2(inputs)
 	if (locale === "yue") return yue_general_barstylegrouped2(inputs)
 	if (locale === "tr") return tr_general_barstylegrouped2(inputs)

@@ -10,147 +10,143 @@ const en_about_environment = /** @type {(inputs: About_EnvironmentInputs) => Loc
 };
 
 const sv_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Miljö`)
 };
 
 const uk_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Середовище`)
 };
 
 const zh_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`环境`)
 };
 
 const es_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Entorno`)
 };
 
 const hi_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`वातावरण`)
 };
 
 const pt_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Ambiente`)
 };
 
 const bn_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`পরিবেশ`)
 };
 
 const ru_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Окружение`)
 };
 
 const ja_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
-};
-
-const pa_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`環境`)
 };
 
 const vi_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Môi trường`)
 };
 
 const yue_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`環境`)
 };
 
 const tr_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Ortam`)
 };
 
 const ar_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`البيئة`)
 };
 
 const wuu_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`环境`)
 };
 
 const mr_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`वातावरण`)
 };
 
 const nb_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Miljø`)
 };
 
 const fi_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Ympäristö`)
 };
 
 const da_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Miljø`)
 };
 
 const et_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Keskkond`)
 };
 
 const lv_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Vide`)
 };
 
 const lt_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Aplinka`)
 };
 
 const pl_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Środowisko`)
 };
 
 const de_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Umgebung`)
 };
 
 const nl_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Omgeving`)
 };
 
 const fr_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Environnement`)
 };
 
 const it_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Ambiente`)
 };
 
 const hu_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Környezet`)
 };
 
 const cs_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Prostředí`)
 };
 
 const ro_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Mediu`)
 };
 
 const el_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Περιβάλλον`)
 };
 
 const bg_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Среда`)
 };
 
 const hr_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Okruženje`)
 };
 
 const sr_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Okruženje`)
 };
 
 const sk_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Prostredie`)
 };
 
 const sl_about_environment = /** @type {(inputs: About_EnvironmentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Environment`)
+	return /** @type {LocalizedString} */ (`Okolje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_environment = /** @type {(inputs: About_EnvironmentInputs) => Loc
 * | "Environment" |
 *
 * @param {About_EnvironmentInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_environment = /** @type {((inputs?: About_EnvironmentInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_EnvironmentInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_environment = /** @type {((inputs?: About_EnvironmentInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_EnvironmentInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_environment(inputs)
 	if (locale === "sv") return sv_about_environment(inputs)
@@ -174,7 +170,6 @@ export const about_environment = /** @type {((inputs?: About_EnvironmentInputs, 
 	if (locale === "bn") return bn_about_environment(inputs)
 	if (locale === "ru") return ru_about_environment(inputs)
 	if (locale === "ja") return ja_about_environment(inputs)
-	if (locale === "pa") return pa_about_environment(inputs)
 	if (locale === "vi") return vi_about_environment(inputs)
 	if (locale === "yue") return yue_about_environment(inputs)
 	if (locale === "tr") return tr_about_environment(inputs)

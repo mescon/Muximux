@@ -10,147 +10,143 @@ const en_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs
 };
 
 const sv_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Öppna inställningar`)
 };
 
 const uk_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Відкрити налаштування`)
 };
 
 const zh_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`打开设置`)
 };
 
 const es_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Abrir ajustes`)
 };
 
 const hi_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`सेटिंग्स खोलें`)
 };
 
 const pt_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Abrir definições`)
 };
 
 const bn_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`সেটিংস খুলুন`)
 };
 
 const ru_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Открыть настройки`)
 };
 
 const ja_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
-};
-
-const pa_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`設定を開く`)
 };
 
 const vi_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Mở cài đặt`)
 };
 
 const yue_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`開啟設定`)
 };
 
 const tr_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Ayarları Aç`)
 };
 
 const ar_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`فتح الإعدادات`)
 };
 
 const wuu_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`打开设置`)
 };
 
 const mr_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`सेटिंग्ज उघडा`)
 };
 
 const nb_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Åpne innstillinger`)
 };
 
 const fi_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Avaa asetukset`)
 };
 
 const da_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Åbn indstillinger`)
 };
 
 const et_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Ava seaded`)
 };
 
 const lv_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Atvērt iestatījumus`)
 };
 
 const lt_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Atidaryti nustatymus`)
 };
 
 const pl_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Otwórz ustawienia`)
 };
 
 const de_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Einstellungen öffnen`)
 };
 
 const nl_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Instellingen openen`)
 };
 
 const fr_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Ouvrir les paramètres`)
 };
 
 const it_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Apri impostazioni`)
 };
 
 const hu_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Beállítások megnyitása`)
 };
 
 const cs_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Otevřít nastavení`)
 };
 
 const ro_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Deschide setările`)
 };
 
 const el_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Άνοιγμα ρυθμίσεων`)
 };
 
 const bg_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Отвори настройките`)
 };
 
 const hr_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Otvori postavke`)
 };
 
 const sr_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Otvori podešavanja`)
 };
 
 const sk_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Otvoriť nastavenia`)
 };
 
 const sl_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Settings`)
+	return /** @type {LocalizedString} */ (`Odpri nastavitve`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_opensettings1 = /** @type {(inputs: Command_Opensettings1Inputs
 * | "Open Settings" |
 *
 * @param {Command_Opensettings1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_opensettings1 = /** @type {((inputs?: Command_Opensettings1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Opensettings1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_opensettings1 = /** @type {((inputs?: Command_Opensettings1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Opensettings1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_opensettings1(inputs)
 	if (locale === "sv") return sv_command_opensettings1(inputs)
@@ -174,7 +170,6 @@ const command_opensettings1 = /** @type {((inputs?: Command_Opensettings1Inputs,
 	if (locale === "bn") return bn_command_opensettings1(inputs)
 	if (locale === "ru") return ru_command_opensettings1(inputs)
 	if (locale === "ja") return ja_command_opensettings1(inputs)
-	if (locale === "pa") return pa_command_opensettings1(inputs)
 	if (locale === "vi") return vi_command_opensettings1(inputs)
 	if (locale === "yue") return yue_command_opensettings1(inputs)
 	if (locale === "tr") return tr_command_opensettings1(inputs)

@@ -10,147 +10,143 @@ const en_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanot
 };
 
 const sv_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Lägg till ytterligare ${i?.appName}`)
 };
 
 const uk_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Додати ще один ${i?.appName}`)
 };
 
 const zh_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`添加另一个 ${i?.appName}`)
 };
 
 const es_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Añadir otra instancia de ${i?.appName}`)
 };
 
 const hi_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`एक और ${i?.appName} जोड़ें`)
 };
 
 const pt_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Adicionar outra instância de ${i?.appName}`)
 };
 
 const bn_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`আরেকটি ${i?.appName} যোগ করুন`)
 };
 
 const ru_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Добавить ещё один ${i?.appName}`)
 };
 
 const ja_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
-};
-
-const pa_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`別の ${i?.appName} を追加`)
 };
 
 const vi_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Thêm ${i?.appName} khác`)
 };
 
 const yue_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`新增另一個 ${i?.appName}`)
 };
 
 const tr_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Başka bir ${i?.appName} ekle`)
 };
 
 const ar_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`إضافة ${i?.appName} آخر`)
 };
 
 const wuu_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`再添加一个 ${i?.appName}`)
 };
 
 const mr_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`आणखी एक ${i?.appName} जोडा`)
 };
 
 const nb_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Legg til enda en ${i?.appName}`)
 };
 
 const fi_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Lisää toinen ${i?.appName}`)
 };
 
 const da_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Tilføj endnu en ${i?.appName}`)
 };
 
 const et_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Lisa teine ${i?.appName}`)
 };
 
 const lv_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Pievienot vēl vienu ${i?.appName}`)
 };
 
 const lt_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Pridėti dar vieną ${i?.appName}`)
 };
 
 const pl_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Dodaj kolejną instancję ${i?.appName}`)
 };
 
 const de_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Weitere ${i?.appName}-Instanz hinzufügen`)
 };
 
 const nl_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Nog een ${i?.appName} toevoegen`)
 };
 
 const fr_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Ajouter une autre instance de ${i?.appName}`)
 };
 
 const it_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Aggiungi un'altra istanza di ${i?.appName}`)
 };
 
 const hu_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Még egy ${i?.appName} példány hozzáadása`)
 };
 
 const cs_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Přidat další instanci ${i?.appName}`)
 };
 
 const ro_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Adaugă o altă instanță ${i?.appName}`)
 };
 
 const el_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Προσθήκη ακόμα ενός ${i?.appName}`)
 };
 
 const bg_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Добави друг екземпляр на ${i?.appName}`)
 };
 
 const hr_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Dodaj još jednu instancu ${i?.appName}`)
 };
 
 const sr_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Dodaj još jednu instancu ${i?.appName}`)
 };
 
 const sk_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Pridať ďalšiu inštanciu ${i?.appName}`)
 };
 
 const sl_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanotherinstance2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Add another ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Dodaj še eno instanco ${i?.appName}`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_addanotherinstance2 = /** @type {(inputs: Onboarding_Addanot
 * | "Add another {appName}" |
 *
 * @param {Onboarding_Addanotherinstance2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_addanotherinstance2 = /** @type {((inputs: Onboarding_Addanotherinstance2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Addanotherinstance2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
+const onboarding_addanotherinstance2 = /** @type {((inputs: Onboarding_Addanotherinstance2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Addanotherinstance2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_addanotherinstance2(inputs)
 	if (locale === "sv") return sv_onboarding_addanotherinstance2(inputs)
@@ -174,7 +170,6 @@ const onboarding_addanotherinstance2 = /** @type {((inputs: Onboarding_Addanothe
 	if (locale === "bn") return bn_onboarding_addanotherinstance2(inputs)
 	if (locale === "ru") return ru_onboarding_addanotherinstance2(inputs)
 	if (locale === "ja") return ja_onboarding_addanotherinstance2(inputs)
-	if (locale === "pa") return pa_onboarding_addanotherinstance2(inputs)
 	if (locale === "vi") return vi_onboarding_addanotherinstance2(inputs)
 	if (locale === "yue") return yue_onboarding_addanotherinstance2(inputs)
 	if (locale === "tr") return tr_onboarding_addanotherinstance2(inputs)

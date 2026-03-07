@@ -45,10 +45,6 @@ const ja_shortcuts_keyescape1 = /** @type {(inputs: Shortcuts_Keyescape1Inputs) 
 	return /** @type {LocalizedString} */ (`Escape`)
 };
 
-const pa_shortcuts_keyescape1 = /** @type {(inputs: Shortcuts_Keyescape1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Escape`)
-};
-
 const vi_shortcuts_keyescape1 = /** @type {(inputs: Shortcuts_Keyescape1Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Escape`)
 };
@@ -159,10 +155,10 @@ const sl_shortcuts_keyescape1 = /** @type {(inputs: Shortcuts_Keyescape1Inputs) 
 * | "Escape" |
 *
 * @param {Shortcuts_Keyescape1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_keyescape1 = /** @type {((inputs?: Shortcuts_Keyescape1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Keyescape1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_keyescape1 = /** @type {((inputs?: Shortcuts_Keyescape1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Keyescape1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_keyescape1(inputs)
 	if (locale === "sv") return sv_shortcuts_keyescape1(inputs)
@@ -174,7 +170,6 @@ const shortcuts_keyescape1 = /** @type {((inputs?: Shortcuts_Keyescape1Inputs, o
 	if (locale === "bn") return bn_shortcuts_keyescape1(inputs)
 	if (locale === "ru") return ru_shortcuts_keyescape1(inputs)
 	if (locale === "ja") return ja_shortcuts_keyescape1(inputs)
-	if (locale === "pa") return pa_shortcuts_keyescape1(inputs)
 	if (locale === "vi") return vi_shortcuts_keyescape1(inputs)
 	if (locale === "yue") return yue_shortcuts_keyescape1(inputs)
 	if (locale === "tr") return tr_shortcuts_keyescape1(inputs)

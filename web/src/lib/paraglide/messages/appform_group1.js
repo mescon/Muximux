@@ -10,147 +10,143 @@ const en_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => Localized
 };
 
 const sv_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupp`)
 };
 
 const uk_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Група`)
 };
 
 const zh_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`分组`)
 };
 
 const es_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupo`)
 };
 
 const hi_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`समूह`)
 };
 
 const pt_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupo`)
 };
 
 const bn_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`গ্রুপ`)
 };
 
 const ru_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Группа`)
 };
 
 const ja_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
-};
-
-const pa_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`グループ`)
 };
 
 const vi_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Nhóm`)
 };
 
 const yue_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`群組`)
 };
 
 const tr_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grup`)
 };
 
 const ar_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`المجموعة`)
 };
 
 const wuu_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`分组`)
 };
 
 const mr_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`गट`)
 };
 
 const nb_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Gruppe`)
 };
 
 const fi_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Ryhmä`)
 };
 
 const da_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Gruppe`)
 };
 
 const et_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupp`)
 };
 
 const lv_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupa`)
 };
 
 const lt_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupė`)
 };
 
 const pl_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupa`)
 };
 
 const de_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Gruppe`)
 };
 
 const nl_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Groep`)
 };
 
 const fr_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Groupe`)
 };
 
 const it_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Gruppo`)
 };
 
 const hu_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Csoport`)
 };
 
 const cs_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Skupina`)
 };
 
 const ro_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grup`)
 };
 
 const el_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Ομάδα`)
 };
 
 const bg_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Група`)
 };
 
 const hr_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupa`)
 };
 
 const sr_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Grupa`)
 };
 
 const sk_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Skupina`)
 };
 
 const sl_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Group`)
+	return /** @type {LocalizedString} */ (`Skupina`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_group1 = /** @type {(inputs: Appform_Group1Inputs) => Localized
 * | "Group" |
 *
 * @param {Appform_Group1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_group1 = /** @type {((inputs?: Appform_Group1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Group1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_group1 = /** @type {((inputs?: Appform_Group1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Group1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_group1(inputs)
 	if (locale === "sv") return sv_appform_group1(inputs)
@@ -174,7 +170,6 @@ const appform_group1 = /** @type {((inputs?: Appform_Group1Inputs, options?: { l
 	if (locale === "bn") return bn_appform_group1(inputs)
 	if (locale === "ru") return ru_appform_group1(inputs)
 	if (locale === "ja") return ja_appform_group1(inputs)
-	if (locale === "pa") return pa_appform_group1(inputs)
 	if (locale === "vi") return vi_appform_group1(inputs)
 	if (locale === "yue") return yue_appform_group1(inputs)
 	if (locale === "tr") return tr_appform_group1(inputs)

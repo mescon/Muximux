@@ -10,147 +10,143 @@ const en_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedSt
 };
 
 const sv_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Avbryt`)
 };
 
 const uk_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Скасувати`)
 };
 
 const zh_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`取消`)
 };
 
 const es_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Cancelar`)
 };
 
 const hi_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`रद्द करें`)
 };
 
 const pt_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Cancelar`)
 };
 
 const bn_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`বাতিল`)
 };
 
 const ru_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Отмена`)
 };
 
 const ja_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
-};
-
-const pa_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`キャンセル`)
 };
 
 const vi_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Hủy`)
 };
 
 const yue_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`取消`)
 };
 
 const tr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`İptal`)
 };
 
 const ar_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`إلغاء`)
 };
 
 const wuu_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`取消`)
 };
 
 const mr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`रद्द करा`)
 };
 
 const nb_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Avbryt`)
 };
 
 const fi_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Peruuta`)
 };
 
 const da_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Annuller`)
 };
 
 const et_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Tühista`)
 };
 
 const lv_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Atcelt`)
 };
 
 const lt_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Atšaukti`)
 };
 
 const pl_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Anuluj`)
 };
 
 const de_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Abbrechen`)
 };
 
 const nl_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Annuleren`)
 };
 
 const fr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Annuler`)
 };
 
 const it_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Annulla`)
 };
 
 const hu_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Mégse`)
 };
 
 const cs_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Zrušit`)
 };
 
 const ro_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Anulare`)
 };
 
 const el_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Ακύρωση`)
 };
 
 const bg_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Отказ`)
 };
 
 const hr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Odustani`)
 };
 
 const sr_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Otkaži`)
 };
 
 const sk_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Zrušiť`)
 };
 
 const sl_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Cancel`)
+	return /** @type {LocalizedString} */ (`Prekliči`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_cancel = /** @type {(inputs: Common_CancelInputs) => LocalizedSt
 * | "Cancel" |
 *
 * @param {Common_CancelInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_cancel = /** @type {((inputs?: Common_CancelInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CancelInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_cancel = /** @type {((inputs?: Common_CancelInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CancelInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_cancel(inputs)
 	if (locale === "sv") return sv_common_cancel(inputs)
@@ -174,7 +170,6 @@ export const common_cancel = /** @type {((inputs?: Common_CancelInputs, options?
 	if (locale === "bn") return bn_common_cancel(inputs)
 	if (locale === "ru") return ru_common_cancel(inputs)
 	if (locale === "ja") return ja_common_cancel(inputs)
-	if (locale === "pa") return pa_common_cancel(inputs)
 	if (locale === "vi") return vi_common_cancel(inputs)
 	if (locale === "yue") return yue_common_cancel(inputs)
 	if (locale === "tr") return tr_common_cancel(inputs)

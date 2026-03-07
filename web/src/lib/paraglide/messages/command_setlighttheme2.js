@@ -10,147 +10,143 @@ const en_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inpu
 };
 
 const sv_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Byt till ljust tema`)
 };
 
 const uk_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Встановити світлу тему`)
 };
 
 const zh_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`设为浅色主题`)
 };
 
 const es_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Establecer tema claro`)
 };
 
 const hi_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`हल्की थीम सेट करें`)
 };
 
 const pt_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Definir tema claro`)
 };
 
 const bn_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`হালকা থিম সেট করুন`)
 };
 
 const ru_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Установить светлую тему`)
 };
 
 const ja_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
-};
-
-const pa_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`ライトテーマに設定`)
 };
 
 const vi_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Đặt giao diện sáng`)
 };
 
 const yue_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`設為淺色主題`)
 };
 
 const tr_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Açık Tema Ayarla`)
 };
 
 const ar_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`تعيين السمة الفاتحة`)
 };
 
 const wuu_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`设为浅色主题`)
 };
 
 const mr_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`हलकी थीम सेट करा`)
 };
 
 const nb_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Bytt til lyst tema`)
 };
 
 const fi_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Vaihda vaaleaan teemaan`)
 };
 
 const da_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Skift til lyst tema`)
 };
 
 const et_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Määra hele teema`)
 };
 
 const lv_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Iestatīt gaišo motīvu`)
 };
 
 const lt_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Nustatyti šviesią temą`)
 };
 
 const pl_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Ustaw jasny motyw`)
 };
 
 const de_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Helles Theme aktivieren`)
 };
 
 const nl_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Licht thema instellen`)
 };
 
 const fr_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Activer le thème clair`)
 };
 
 const it_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Attiva tema chiaro`)
 };
 
 const hu_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Világos téma beállítása`)
 };
 
 const cs_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Nastavit světlý motiv`)
 };
 
 const ro_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Setează tema luminoasă`)
 };
 
 const el_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Ρύθμιση ανοιχτού θέματος`)
 };
 
 const bg_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Задай светла тема`)
 };
 
 const hr_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Postavi svijetlu temu`)
 };
 
 const sr_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Postavi svetlu temu`)
 };
 
 const sk_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Nastaviť svetlý motív`)
 };
 
 const sl_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Set Light Theme`)
+	return /** @type {LocalizedString} */ (`Nastavi svetlo temo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_setlighttheme2 = /** @type {(inputs: Command_Setlighttheme2Inpu
 * | "Set Light Theme" |
 *
 * @param {Command_Setlighttheme2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_setlighttheme2 = /** @type {((inputs?: Command_Setlighttheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Setlighttheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_setlighttheme2 = /** @type {((inputs?: Command_Setlighttheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Setlighttheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_setlighttheme2(inputs)
 	if (locale === "sv") return sv_command_setlighttheme2(inputs)
@@ -174,7 +170,6 @@ const command_setlighttheme2 = /** @type {((inputs?: Command_Setlighttheme2Input
 	if (locale === "bn") return bn_command_setlighttheme2(inputs)
 	if (locale === "ru") return ru_command_setlighttheme2(inputs)
 	if (locale === "ja") return ja_command_setlighttheme2(inputs)
-	if (locale === "pa") return pa_command_setlighttheme2(inputs)
 	if (locale === "vi") return vi_command_setlighttheme2(inputs)
 	if (locale === "yue") return yue_command_setlighttheme2(inputs)
 	if (locale === "tr") return tr_command_setlighttheme2(inputs)

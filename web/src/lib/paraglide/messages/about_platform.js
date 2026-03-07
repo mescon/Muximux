@@ -10,51 +10,47 @@ const en_about_platform = /** @type {(inputs: About_PlatformInputs) => Localized
 };
 
 const sv_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Plattform`)
 };
 
 const uk_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Платформа`)
 };
 
 const zh_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`平台`)
 };
 
 const es_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Plataforma`)
 };
 
 const hi_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`प्लेटफ़ॉर्म`)
 };
 
 const pt_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Plataforma`)
 };
 
 const bn_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`প্ল্যাটফর্ম`)
 };
 
 const ru_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Платформа`)
 };
 
 const ja_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
-};
-
-const pa_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`プラットフォーム`)
 };
 
 const vi_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Nền tảng`)
 };
 
 const yue_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`平台`)
 };
 
 const tr_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
@@ -62,23 +58,23 @@ const tr_about_platform = /** @type {(inputs: About_PlatformInputs) => Localized
 };
 
 const ar_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`المنصة`)
 };
 
 const wuu_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`平台`)
 };
 
 const mr_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`प्लॅटफॉर्म`)
 };
 
 const nb_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Plattform`)
 };
 
 const fi_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Alusta`)
 };
 
 const da_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
@@ -86,23 +82,23 @@ const da_about_platform = /** @type {(inputs: About_PlatformInputs) => Localized
 };
 
 const et_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platvorm`)
 };
 
 const lv_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const lt_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const pl_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const de_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Plattform`)
 };
 
 const nl_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
@@ -110,11 +106,11 @@ const nl_about_platform = /** @type {(inputs: About_PlatformInputs) => Localized
 };
 
 const fr_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Plateforme`)
 };
 
 const it_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Piattaforma`)
 };
 
 const hu_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
@@ -122,35 +118,35 @@ const hu_about_platform = /** @type {(inputs: About_PlatformInputs) => Localized
 };
 
 const cs_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const ro_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platformă`)
 };
 
 const el_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Πλατφόρμα`)
 };
 
 const bg_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Платформа`)
 };
 
 const hr_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const sr_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const sk_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 const sl_about_platform = /** @type {(inputs: About_PlatformInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Platform`)
+	return /** @type {LocalizedString} */ (`Platforma`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_platform = /** @type {(inputs: About_PlatformInputs) => Localized
 * | "Platform" |
 *
 * @param {About_PlatformInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_platform = /** @type {((inputs?: About_PlatformInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_PlatformInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_platform = /** @type {((inputs?: About_PlatformInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_PlatformInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_platform(inputs)
 	if (locale === "sv") return sv_about_platform(inputs)
@@ -174,7 +170,6 @@ export const about_platform = /** @type {((inputs?: About_PlatformInputs, option
 	if (locale === "bn") return bn_about_platform(inputs)
 	if (locale === "ru") return ru_about_platform(inputs)
 	if (locale === "ja") return ja_about_platform(inputs)
-	if (locale === "pa") return pa_about_platform(inputs)
 	if (locale === "vi") return vi_about_platform(inputs)
 	if (locale === "yue") return yue_about_platform(inputs)
 	if (locale === "tr") return tr_about_platform(inputs)

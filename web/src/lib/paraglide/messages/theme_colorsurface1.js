@@ -10,103 +10,99 @@ const en_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) =>
 };
 
 const sv_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Yta`)
 };
 
 const uk_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Поверхня`)
 };
 
 const zh_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`表面`)
 };
 
 const es_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Superficie`)
 };
 
 const hi_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`सतह`)
 };
 
 const pt_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Superfície`)
 };
 
 const bn_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`সারফেস`)
 };
 
 const ru_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Поверхность`)
 };
 
 const ja_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
-};
-
-const pa_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`サーフェス`)
 };
 
 const vi_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Bề mặt`)
 };
 
 const yue_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`表面`)
 };
 
 const tr_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Yüzey`)
 };
 
 const ar_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`سطح`)
 };
 
 const wuu_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`表面色`)
 };
 
 const mr_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`पृष्ठभाग`)
 };
 
 const nb_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Overflate`)
 };
 
 const fi_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Pinta`)
 };
 
 const da_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Overflade`)
 };
 
 const et_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Pind`)
 };
 
 const lv_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Virsma`)
 };
 
 const lt_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Paviršius`)
 };
 
 const pl_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Powierzchnia`)
 };
 
 const de_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Oberfläche`)
 };
 
 const nl_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Oppervlak`)
 };
 
 const fr_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) =>
 };
 
 const it_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Superficie`)
 };
 
 const hu_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Felület`)
 };
 
 const cs_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Povrch`)
 };
 
 const ro_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Suprafață`)
 };
 
 const el_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Επιφάνεια`)
 };
 
 const bg_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Повърхност`)
 };
 
 const hr_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Površina`)
 };
 
 const sr_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Površina`)
 };
 
 const sk_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Povrch`)
 };
 
 const sl_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Surface`)
+	return /** @type {LocalizedString} */ (`Površina`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_colorsurface1 = /** @type {(inputs: Theme_Colorsurface1Inputs) =>
 * | "Surface" |
 *
 * @param {Theme_Colorsurface1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_colorsurface1 = /** @type {((inputs?: Theme_Colorsurface1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Colorsurface1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_colorsurface1 = /** @type {((inputs?: Theme_Colorsurface1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Colorsurface1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_colorsurface1(inputs)
 	if (locale === "sv") return sv_theme_colorsurface1(inputs)
@@ -174,7 +170,6 @@ const theme_colorsurface1 = /** @type {((inputs?: Theme_Colorsurface1Inputs, opt
 	if (locale === "bn") return bn_theme_colorsurface1(inputs)
 	if (locale === "ru") return ru_theme_colorsurface1(inputs)
 	if (locale === "ja") return ja_theme_colorsurface1(inputs)
-	if (locale === "pa") return pa_theme_colorsurface1(inputs)
 	if (locale === "vi") return vi_theme_colorsurface1(inputs)
 	if (locale === "yue") return yue_theme_colorsurface1(inputs)
 	if (locale === "tr") return tr_theme_colorsurface1(inputs)

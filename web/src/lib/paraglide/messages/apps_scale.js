@@ -10,147 +10,143 @@ const en_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} 
 };
 
 const sv_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skala`)
 };
 
 const uk_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Масштаб`)
 };
 
 const zh_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`缩放`)
 };
 
 const es_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Escala`)
 };
 
 const hi_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`स्केल`)
 };
 
 const pt_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Escala`)
 };
 
 const bn_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`স্কেল`)
 };
 
 const ru_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Масштаб`)
 };
 
 const ja_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
-};
-
-const pa_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`スケール`)
 };
 
 const vi_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Thu phóng`)
 };
 
 const yue_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`縮放`)
 };
 
 const tr_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Ölçek`)
 };
 
 const ar_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`تكبير/تصغير`)
 };
 
 const wuu_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`缩放`)
 };
 
 const mr_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`स्केल`)
 };
 
 const nb_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skala`)
 };
 
 const fi_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skaalaus`)
 };
 
 const da_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skala`)
 };
 
 const et_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skaala`)
 };
 
 const lv_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Mērogs`)
 };
 
 const lt_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Mastelis`)
 };
 
 const pl_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skala`)
 };
 
 const de_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Skalierung`)
 };
 
 const nl_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Schaal`)
 };
 
 const fr_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Échelle`)
 };
 
 const it_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Scala`)
 };
 
 const hu_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Méretezés`)
 };
 
 const cs_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Měřítko`)
 };
 
 const ro_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Scală`)
 };
 
 const el_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Κλίμακα`)
 };
 
 const bg_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Мащаб`)
 };
 
 const hr_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Mjerilo`)
 };
 
 const sr_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Razmera`)
 };
 
 const sk_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Mierka`)
 };
 
 const sl_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale`)
+	return /** @type {LocalizedString} */ (`Merilo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_scale = /** @type {(inputs: Apps_ScaleInputs) => LocalizedString} 
 * | "Scale" |
 *
 * @param {Apps_ScaleInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const apps_scale = /** @type {((inputs?: Apps_ScaleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_ScaleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const apps_scale = /** @type {((inputs?: Apps_ScaleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_ScaleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_scale(inputs)
 	if (locale === "sv") return sv_apps_scale(inputs)
@@ -174,7 +170,6 @@ export const apps_scale = /** @type {((inputs?: Apps_ScaleInputs, options?: { lo
 	if (locale === "bn") return bn_apps_scale(inputs)
 	if (locale === "ru") return ru_apps_scale(inputs)
 	if (locale === "ja") return ja_apps_scale(inputs)
-	if (locale === "pa") return pa_apps_scale(inputs)
 	if (locale === "vi") return vi_apps_scale(inputs)
 	if (locale === "yue") return yue_apps_scale(inputs)
 	if (locale === "tr") return tr_apps_scale(inputs)

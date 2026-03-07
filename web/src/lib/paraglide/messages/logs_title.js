@@ -10,15 +10,15 @@ const en_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} 
 };
 
 const sv_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Loggar`)
 };
 
 const uk_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Журнали`)
 };
 
 const zh_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`日志`)
 };
 
 const es_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} 
 };
 
 const hi_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`लॉग`)
 };
 
 const pt_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
@@ -34,71 +34,67 @@ const pt_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} 
 };
 
 const bn_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`লগ`)
 };
 
 const ru_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Журнал`)
 };
 
 const ja_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
-};
-
-const pa_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`ログ`)
 };
 
 const vi_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Nhật ký`)
 };
 
 const yue_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`日誌`)
 };
 
 const tr_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Günlükler`)
 };
 
 const ar_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`السجلات`)
 };
 
 const wuu_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`日志`)
 };
 
 const mr_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`लॉग`)
 };
 
 const nb_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Logger`)
 };
 
 const fi_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Lokit`)
 };
 
 const da_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Logfiler`)
 };
 
 const et_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Logid`)
 };
 
 const lv_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Žurnāli`)
 };
 
 const lt_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Žurnalai`)
 };
 
 const pl_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Logi`)
 };
 
 const de_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} 
 };
 
 const it_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Log`)
 };
 
 const hu_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Naplók`)
 };
 
 const cs_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Logy`)
 };
 
 const ro_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Jurnale`)
 };
 
 const el_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Αρχεία καταγραφής`)
 };
 
 const bg_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Журнали`)
 };
 
 const hr_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Zapisi`)
 };
 
 const sr_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Evidencija`)
 };
 
 const sk_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Logy`)
 };
 
 const sl_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logs`)
+	return /** @type {LocalizedString} */ (`Dnevniki`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_logs_title = /** @type {(inputs: Logs_TitleInputs) => LocalizedString} 
 * | "Logs" |
 *
 * @param {Logs_TitleInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const logs_title = /** @type {((inputs?: Logs_TitleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_TitleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const logs_title = /** @type {((inputs?: Logs_TitleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_TitleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_logs_title(inputs)
 	if (locale === "sv") return sv_logs_title(inputs)
@@ -174,7 +170,6 @@ export const logs_title = /** @type {((inputs?: Logs_TitleInputs, options?: { lo
 	if (locale === "bn") return bn_logs_title(inputs)
 	if (locale === "ru") return ru_logs_title(inputs)
 	if (locale === "ja") return ja_logs_title(inputs)
-	if (locale === "pa") return pa_logs_title(inputs)
 	if (locale === "vi") return vi_logs_title(inputs)
 	if (locale === "yue") return yue_logs_title(inputs)
 	if (locale === "tr") return tr_logs_title(inputs)

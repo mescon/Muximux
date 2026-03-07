@@ -10,7 +10,7 @@ const en_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const sv_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Avancerad användare`)
 };
 
 const uk_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
@@ -18,7 +18,7 @@ const uk_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const zh_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`高级用户`)
 };
 
 const es_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const hi_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`पावर उपयोगकर्ता`)
 };
 
 const pt_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
@@ -34,55 +34,51 @@ const pt_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const bn_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`পাওয়ার ব্যবহারকারী`)
 };
 
 const ru_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Опытный пользователь`)
 };
 
 const ja_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
-};
-
-const pa_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`パワーユーザー`)
 };
 
 const vi_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Người dùng nâng cao`)
 };
 
 const yue_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`進階使用者`)
 };
 
 const tr_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Uzman Kullanıcı`)
 };
 
 const ar_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`مستخدم متقدم`)
 };
 
 const wuu_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`高级用户`)
 };
 
 const mr_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`प्रगत वापरकर्ता`)
 };
 
 const nb_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Avansert bruker`)
 };
 
 const fi_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Tehokäyttäjä`)
 };
 
 const da_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Avanceret bruger`)
 };
 
 const et_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
@@ -98,7 +94,7 @@ const lt_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const pl_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Zaawansowany użytkownik`)
 };
 
 const de_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
@@ -118,11 +114,11 @@ const it_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const hu_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Kiemelt felhasználó`)
 };
 
 const cs_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Pokročilý uživatel`)
 };
 
 const ro_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
@@ -138,19 +134,19 @@ const bg_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 };
 
 const hr_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Napredni korisnik`)
 };
 
 const sr_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Napredni korisnik`)
 };
 
 const sk_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Pokročilý používateľ`)
 };
 
 const sl_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Power User`)
+	return /** @type {LocalizedString} */ (`Napredni uporabnik`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_rolepoweruser3 = /** @type {(inputs: Appform_Rolepoweruser3Inpu
 * | "Power User" |
 *
 * @param {Appform_Rolepoweruser3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_rolepoweruser3 = /** @type {((inputs?: Appform_Rolepoweruser3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Rolepoweruser3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_rolepoweruser3 = /** @type {((inputs?: Appform_Rolepoweruser3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Rolepoweruser3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_rolepoweruser3(inputs)
 	if (locale === "sv") return sv_appform_rolepoweruser3(inputs)
@@ -174,7 +170,6 @@ const appform_rolepoweruser3 = /** @type {((inputs?: Appform_Rolepoweruser3Input
 	if (locale === "bn") return bn_appform_rolepoweruser3(inputs)
 	if (locale === "ru") return ru_appform_rolepoweruser3(inputs)
 	if (locale === "ja") return ja_appform_rolepoweruser3(inputs)
-	if (locale === "pa") return pa_appform_rolepoweruser3(inputs)
 	if (locale === "vi") return vi_appform_rolepoweruser3(inputs)
 	if (locale === "yue") return yue_appform_rolepoweruser3(inputs)
 	if (locale === "tr") return tr_appform_rolepoweruser3(inputs)

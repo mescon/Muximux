@@ -10,147 +10,143 @@ const en_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1
 };
 
 const sv_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Anpassa genvägar i`)
 };
 
 const uk_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Налаштувати скорочення в`)
 };
 
 const zh_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`自定义快捷键请前往`)
 };
 
 const es_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Personalizar atajos en`)
 };
 
 const hi_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`शॉर्टकट कस्टमाइज़ करें:`)
 };
 
 const pt_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Personalizar atalhos em`)
 };
 
 const bn_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`শর্টকাট কাস্টমাইজ করুন:`)
 };
 
 const ru_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Настройте сочетания в`)
 };
 
 const ja_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
-};
-
-const pa_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`ショートカットのカスタマイズは`)
 };
 
 const vi_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Tùy chỉnh phím tắt trong`)
 };
 
 const yue_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`自訂快速鍵請前往`)
 };
 
 const tr_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Kısayolları özelleştirin:`)
 };
 
 const ar_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`تخصيص الاختصارات في`)
 };
 
 const wuu_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`在以下位置自定义快捷键`)
 };
 
 const mr_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`शॉर्टकट सानुकूलित करा येथे`)
 };
 
 const nb_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Tilpass snarveier i`)
 };
 
 const fi_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Mukauta pikanäppäimiä kohdassa`)
 };
 
 const da_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Tilpas genveje i`)
 };
 
 const et_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Kohanda kiirklahve siin:`)
 };
 
 const lv_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Pielāgot saīsnes šeit:`)
 };
 
 const lt_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Pritaikyti sparčiuosius klavišus skiltyje`)
 };
 
 const pl_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Dostosuj skróty w`)
 };
 
 const de_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Tastenkürzel anpassen in`)
 };
 
 const nl_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Sneltoetsen aanpassen in`)
 };
 
 const fr_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Personnaliser les raccourcis dans`)
 };
 
 const it_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Personalizza le scorciatoie in`)
 };
 
 const hu_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Parancsok testreszabása itt:`)
 };
 
 const cs_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Přizpůsobit zkratky v`)
 };
 
 const ro_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Personalizează scurtăturile în`)
 };
 
 const el_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Προσαρμογή συντομεύσεων στις`)
 };
 
 const bg_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Персонализирай комбинациите в`)
 };
 
 const hr_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Prilagodite prečace u`)
 };
 
 const sr_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Prilagodite prečice u`)
 };
 
 const sk_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Prispôsobiť skratky v`)
 };
 
 const sl_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize shortcuts in`)
+	return /** @type {LocalizedString} */ (`Prilagodite bližnjice v`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_shortcuts_customizehint1 = /** @type {(inputs: Shortcuts_Customizehint1
 * | "Customize shortcuts in" |
 *
 * @param {Shortcuts_Customizehint1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_customizehint1 = /** @type {((inputs?: Shortcuts_Customizehint1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Customizehint1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_customizehint1 = /** @type {((inputs?: Shortcuts_Customizehint1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Customizehint1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_customizehint1(inputs)
 	if (locale === "sv") return sv_shortcuts_customizehint1(inputs)
@@ -174,7 +170,6 @@ const shortcuts_customizehint1 = /** @type {((inputs?: Shortcuts_Customizehint1I
 	if (locale === "bn") return bn_shortcuts_customizehint1(inputs)
 	if (locale === "ru") return ru_shortcuts_customizehint1(inputs)
 	if (locale === "ja") return ja_shortcuts_customizehint1(inputs)
-	if (locale === "pa") return pa_shortcuts_customizehint1(inputs)
 	if (locale === "vi") return vi_shortcuts_customizehint1(inputs)
 	if (locale === "yue") return yue_shortcuts_customizehint1(inputs)
 	if (locale === "tr") return tr_shortcuts_customizehint1(inputs)

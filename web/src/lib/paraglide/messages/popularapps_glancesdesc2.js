@@ -10,147 +10,143 @@ const en_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2
 };
 
 const sv_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Systemövervakningspanel`)
 };
 
 const uk_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Панель моніторингу системи`)
 };
 
 const zh_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`系统监控仪表盘`)
 };
 
 const es_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Panel de monitorización del sistema`)
 };
 
 const hi_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`सिस्टम निगरानी डैशबोर्ड`)
 };
 
 const pt_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Painel de monitorização do sistema`)
 };
 
 const bn_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`সিস্টেম মনিটরিং ড্যাশবোর্ড`)
 };
 
 const ru_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Панель мониторинга системы`)
 };
 
 const ja_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
-};
-
-const pa_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`システム監視ダッシュボード`)
 };
 
 const vi_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Bảng giám sát hệ thống`)
 };
 
 const yue_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`系統監控儀表板`)
 };
 
 const tr_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Sistem izleme panosu`)
 };
 
 const ar_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`لوحة مراقبة النظام`)
 };
 
 const wuu_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`系统监控面板`)
 };
 
 const mr_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`सिस्टम निरीक्षण डॅशबोर्ड`)
 };
 
 const nb_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Systemovervåkingspanel`)
 };
 
 const fi_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Järjestelmän valvontapaneeli`)
 };
 
 const da_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Systemovervågningspanel`)
 };
 
 const et_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Süsteemi jälgimise töölaud`)
 };
 
 const lv_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Sistēmas monitoringa panelis`)
 };
 
 const lt_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Sistemos stebėjimo valdymo skydas`)
 };
 
 const pl_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Panel monitorowania systemu`)
 };
 
 const de_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`System-Monitoring-Dashboard`)
 };
 
 const nl_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Systeemmonitoring-dashboard`)
 };
 
 const fr_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Tableau de bord de surveillance système`)
 };
 
 const it_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Dashboard monitoraggio sistema`)
 };
 
 const hu_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Rendszer monitoring vezérlőpult`)
 };
 
 const cs_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Panel monitorování systému`)
 };
 
 const ro_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Panou de monitorizare a sistemului`)
 };
 
 const el_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Πίνακας ελέγχου παρακολούθησης συστήματος`)
 };
 
 const bg_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Табло за мониторинг на системата`)
 };
 
 const hr_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Nadzorna ploča sustava`)
 };
 
 const sr_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Kontrolna tabla za praćenje sistema`)
 };
 
 const sk_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Panel monitorovania systému`)
 };
 
 const sl_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System monitoring dashboard`)
+	return /** @type {LocalizedString} */ (`Nadzorna plošča sistema`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_glancesdesc2 = /** @type {(inputs: Popularapps_Glancesdesc2
 * | "System monitoring dashboard" |
 *
 * @param {Popularapps_Glancesdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_glancesdesc2 = /** @type {((inputs?: Popularapps_Glancesdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Glancesdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_glancesdesc2 = /** @type {((inputs?: Popularapps_Glancesdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Glancesdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_glancesdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_glancesdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_glancesdesc2 = /** @type {((inputs?: Popularapps_Glancesdesc2I
 	if (locale === "bn") return bn_popularapps_glancesdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_glancesdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_glancesdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_glancesdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_glancesdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_glancesdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_glancesdesc2(inputs)

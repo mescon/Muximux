@@ -10,147 +10,143 @@ const en_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs
 };
 
 const sv_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Anslutningen förlorad – återansluter...`)
 };
 
 const uk_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`З'єднання втрачено – повторне підключення...`)
 };
 
 const zh_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`连接已断开 - 正在重连...`)
 };
 
 const es_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Conexión perdida — reconectando...`)
 };
 
 const hi_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`कनेक्शन टूट गया — पुनः कनेक्ट हो रहा है...`)
 };
 
 const pt_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Ligação perdida — a reconectar...`)
 };
 
 const bn_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`সংযোগ বিচ্ছিন্ন হয়েছে — পুনরায় সংযোগ হচ্ছে...`)
 };
 
 const ru_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Соединение потеряно — переподключение...`)
 };
 
 const ja_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
-};
-
-const pa_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`接続が切断されました - 再接続中...`)
 };
 
 const vi_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Mất kết nối - đang kết nối lại...`)
 };
 
 const yue_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`連線中斷 - 正在重新連線...`)
 };
 
 const tr_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Bağlantı kesildi — yeniden bağlanılıyor...`)
 };
 
 const ar_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`انقطع الاتصال — جارٍ إعادة الاتصال...`)
 };
 
 const wuu_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`连接断了——重新连接当中...`)
 };
 
 const mr_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`कनेक्शन तुटले — पुन्हा जोडत आहे...`)
 };
 
 const nb_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Tilkoblingen mistet – kobler til på nytt...`)
 };
 
 const fi_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Yhteys katkennut – yhdistetään uudelleen...`)
 };
 
 const da_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Forbindelsen mistet – genopretter...`)
 };
 
 const et_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Ühendus katkes – taasühendamine...`)
 };
 
 const lv_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Savienojums zaudēts – atkārtota savienošana...`)
 };
 
 const lt_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Ryšys prarastas – jungiamasi iš naujo...`)
 };
 
 const pl_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Utracono połączenie — ponowne łączenie...`)
 };
 
 const de_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Verbindung verloren – Neuverbindung...`)
 };
 
 const nl_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Verbinding verloren – opnieuw verbinden...`)
 };
 
 const fr_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Connexion perdue – reconnexion...`)
 };
 
 const it_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Connessione persa – riconnessione...`)
 };
 
 const hu_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Kapcsolat megszakadt — újracsatlakozás...`)
 };
 
 const cs_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Připojení ztraceno — opětovné připojování...`)
 };
 
 const ro_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Conexiune pierdută - se reconectează...`)
 };
 
 const el_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Η σύνδεση χάθηκε - επανασύνδεση...`)
 };
 
 const bg_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Връзката е загубена - свързване отново...`)
 };
 
 const hr_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Veza prekinuta — ponovno povezivanje...`)
 };
 
 const sr_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Veza prekinuta — ponovno povezivanje...`)
 };
 
 const sk_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Pripojenie stratené — opätovné pripájanie...`)
 };
 
 const sl_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Connection lost - reconnecting...`)
+	return /** @type {LocalizedString} */ (`Povezava prekinjena — ponovno povezovanje...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_connectionlost1 = /** @type {(inputs: Toast_Connectionlost1Inputs
 * | "Connection lost - reconnecting..." |
 *
 * @param {Toast_Connectionlost1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_connectionlost1 = /** @type {((inputs?: Toast_Connectionlost1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Connectionlost1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_connectionlost1 = /** @type {((inputs?: Toast_Connectionlost1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Connectionlost1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_connectionlost1(inputs)
 	if (locale === "sv") return sv_toast_connectionlost1(inputs)
@@ -174,7 +170,6 @@ const toast_connectionlost1 = /** @type {((inputs?: Toast_Connectionlost1Inputs,
 	if (locale === "bn") return bn_toast_connectionlost1(inputs)
 	if (locale === "ru") return ru_toast_connectionlost1(inputs)
 	if (locale === "ja") return ja_toast_connectionlost1(inputs)
-	if (locale === "pa") return pa_toast_connectionlost1(inputs)
 	if (locale === "vi") return vi_toast_connectionlost1(inputs)
 	if (locale === "yue") return yue_toast_connectionlost1(inputs)
 	if (locale === "tr") return tr_toast_connectionlost1(inputs)

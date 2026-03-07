@@ -10,147 +10,143 @@ const en_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) 
 };
 
 const sv_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tangentbindningar`)
 };
 
 const uk_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Комбінації клавіш`)
 };
 
 const zh_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`快捷键`)
 };
 
 const es_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Atajos de teclado`)
 };
 
 const hi_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`कीबाइंडिंग`)
 };
 
 const pt_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Atalhos de teclado`)
 };
 
 const bn_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`কী-বাইন্ডিং`)
 };
 
 const ru_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Сочетания клавиш`)
 };
 
 const ja_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
-};
-
-const pa_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`キーバインド`)
 };
 
 const vi_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Phím tắt`)
 };
 
 const yue_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`快速鍵`)
 };
 
 const tr_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tuş Atamaları`)
 };
 
 const ar_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`اختصارات لوحة المفاتيح`)
 };
 
 const wuu_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`快捷键`)
 };
 
 const mr_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`कीबाइंडिंग्ज`)
 };
 
 const nb_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tastaturbindinger`)
 };
 
 const fi_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Näppäinsidokset`)
 };
 
 const da_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tastaturbindinger`)
 };
 
 const et_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Kiirklahvid`)
 };
 
 const lv_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Taustiņu piesaistes`)
 };
 
 const lt_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Klavišų kombinacijos`)
 };
 
 const pl_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Skróty klawiszowe`)
 };
 
 const de_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tastenkürzel`)
 };
 
 const nl_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Sneltoetsen`)
 };
 
 const fr_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Raccourcis clavier`)
 };
 
 const it_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Scorciatoie da tastiera`)
 };
 
 const hu_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Billentyűparancsok`)
 };
 
 const cs_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Klávesové zkratky`)
 };
 
 const ro_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Taste rapide`)
 };
 
 const el_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Συντομεύσεις πλήκτρων`)
 };
 
 const bg_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Клавишни комбинации`)
 };
 
 const hr_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tipkovni prečaci`)
 };
 
 const sr_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Prečice na tastaturi`)
 };
 
 const sk_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Klávesové skratky`)
 };
 
 const sl_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keybindings`)
+	return /** @type {LocalizedString} */ (`Tipkovne bližnjice`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_keybindings = /** @type {(inputs: Settings_KeybindingsInputs) 
 * | "Keybindings" |
 *
 * @param {Settings_KeybindingsInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_keybindings = /** @type {((inputs?: Settings_KeybindingsInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_KeybindingsInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_keybindings = /** @type {((inputs?: Settings_KeybindingsInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_KeybindingsInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_keybindings(inputs)
 	if (locale === "sv") return sv_settings_keybindings(inputs)
@@ -174,7 +170,6 @@ export const settings_keybindings = /** @type {((inputs?: Settings_KeybindingsIn
 	if (locale === "bn") return bn_settings_keybindings(inputs)
 	if (locale === "ru") return ru_settings_keybindings(inputs)
 	if (locale === "ja") return ja_settings_keybindings(inputs)
-	if (locale === "pa") return pa_settings_keybindings(inputs)
 	if (locale === "vi") return vi_settings_keybindings(inputs)
 	if (locale === "yue") return yue_settings_keybindings(inputs)
 	if (locale === "tr") return tr_settings_keybindings(inputs)

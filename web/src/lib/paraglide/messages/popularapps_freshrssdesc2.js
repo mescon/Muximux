@@ -10,147 +10,143 @@ const en_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdes
 };
 
 const sv_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS-flödessamlare`)
 };
 
 const uk_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Агрегатор RSS каналів`)
 };
 
 const zh_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS 聚合器`)
 };
 
 const es_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agregador de feeds RSS`)
 };
 
 const hi_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS फ़ीड एग्रीगेटर`)
 };
 
 const pt_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agregador de feeds RSS`)
 };
 
 const bn_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS ফিড এগ্রিগেটর`)
 };
 
 const ru_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Агрегатор RSS-лент`)
 };
 
 const ja_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
-};
-
-const pa_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS フィードアグリゲーター`)
 };
 
 const vi_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Trình tổng hợp RSS`)
 };
 
 const yue_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS 聚合器`)
 };
 
 const tr_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS akışı toplayıcı`)
 };
 
 const ar_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`مُجمّع خلاصات RSS`)
 };
 
 const wuu_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS 聚合器`)
 };
 
 const mr_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS फीड ॲग्रिगेटर`)
 };
 
 const nb_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS-feedaggregator`)
 };
 
 const fi_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS-syötteiden kokoaja`)
 };
 
 const da_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS-feedaggregator`)
 };
 
 const et_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS voo koguja`)
 };
 
 const lv_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS plūsmu apkopotājs`)
 };
 
 const lt_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS srautų kaupiklis`)
 };
 
 const pl_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agregator kanałów RSS`)
 };
 
 const de_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS-Feed-Aggregator`)
 };
 
 const nl_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS-feedaggregator`)
 };
 
 const fr_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agrégateur de flux RSS`)
 };
 
 const it_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Aggregatore feed RSS`)
 };
 
 const hu_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS hírfolyam gyűjtő`)
 };
 
 const cs_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agregátor RSS kanálů`)
 };
 
 const ro_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agregator de fluxuri RSS`)
 };
 
 const el_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Συγκεντρωτής RSS`)
 };
 
 const bg_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Агрегатор на RSS емисии`)
 };
 
 const hr_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS agregator`)
 };
 
 const sr_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS agregator`)
 };
 
 const sk_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`Agregátor RSS kanálov`)
 };
 
 const sl_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`RSS feed aggregator`)
+	return /** @type {LocalizedString} */ (`RSS agregator`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_freshrssdesc2 = /** @type {(inputs: Popularapps_Freshrssdes
 * | "RSS feed aggregator" |
 *
 * @param {Popularapps_Freshrssdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_freshrssdesc2 = /** @type {((inputs?: Popularapps_Freshrssdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Freshrssdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_freshrssdesc2 = /** @type {((inputs?: Popularapps_Freshrssdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Freshrssdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_freshrssdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_freshrssdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_freshrssdesc2 = /** @type {((inputs?: Popularapps_Freshrssdesc
 	if (locale === "bn") return bn_popularapps_freshrssdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_freshrssdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_freshrssdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_freshrssdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_freshrssdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_freshrssdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_freshrssdesc2(inputs)

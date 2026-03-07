@@ -10,147 +10,143 @@ const en_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => L
 };
 
 const sv_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Hämta`)
 };
 
 const uk_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Отримати`)
 };
 
 const zh_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`获取`)
 };
 
 const es_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Obtener`)
 };
 
 const hi_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`प्राप्त करें`)
 };
 
 const pt_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Obter`)
 };
 
 const bn_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`আনুন`)
 };
 
 const ru_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Получить`)
 };
 
 const ja_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
-};
-
-const pa_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`取得`)
 };
 
 const vi_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Lấy`)
 };
 
 const yue_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`擷取`)
 };
 
 const tr_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Al`)
 };
 
 const ar_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`جلب`)
 };
 
 const wuu_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`获取`)
 };
 
 const mr_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`मिळवा`)
 };
 
 const nb_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Hent`)
 };
 
 const fi_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Hae`)
 };
 
 const da_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Hent`)
 };
 
 const et_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Too`)
 };
 
 const lv_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Iegūt`)
 };
 
 const lt_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Gauti`)
 };
 
 const pl_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Pobierz`)
 };
 
 const de_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Abrufen`)
 };
 
 const nl_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Ophalen`)
 };
 
 const fr_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Récupérer`)
 };
 
 const it_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Recupera`)
 };
 
 const hu_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Lekérés`)
 };
 
 const cs_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Načíst`)
 };
 
 const ro_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Obține`)
 };
 
 const el_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Ανάκτηση`)
 };
 
 const bg_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Извлечи`)
 };
 
 const hr_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Dohvati`)
 };
 
 const sr_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Preuzmi`)
 };
 
 const sk_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Načítať`)
 };
 
 const sl_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Fetch`)
+	return /** @type {LocalizedString} */ (`Pridobi`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_iconbrowser_fetch1 = /** @type {(inputs: Iconbrowser_Fetch1Inputs) => L
 * | "Fetch" |
 *
 * @param {Iconbrowser_Fetch1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const iconbrowser_fetch1 = /** @type {((inputs?: Iconbrowser_Fetch1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Fetch1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const iconbrowser_fetch1 = /** @type {((inputs?: Iconbrowser_Fetch1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Fetch1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_iconbrowser_fetch1(inputs)
 	if (locale === "sv") return sv_iconbrowser_fetch1(inputs)
@@ -174,7 +170,6 @@ const iconbrowser_fetch1 = /** @type {((inputs?: Iconbrowser_Fetch1Inputs, optio
 	if (locale === "bn") return bn_iconbrowser_fetch1(inputs)
 	if (locale === "ru") return ru_iconbrowser_fetch1(inputs)
 	if (locale === "ja") return ja_iconbrowser_fetch1(inputs)
-	if (locale === "pa") return pa_iconbrowser_fetch1(inputs)
 	if (locale === "vi") return vi_iconbrowser_fetch1(inputs)
 	if (locale === "yue") return yue_iconbrowser_fetch1(inputs)
 	if (locale === "tr") return tr_iconbrowser_fetch1(inputs)

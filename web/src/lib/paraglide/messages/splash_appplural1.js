@@ -10,15 +10,15 @@ const en_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 };
 
 const sv_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`appar`)
 };
 
 const uk_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`застосунків`)
 };
 
 const zh_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`个应用`)
 };
 
 const es_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 };
 
 const hi_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`ऐप्स`)
 };
 
 const pt_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
@@ -34,51 +34,47 @@ const pt_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 };
 
 const bn_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`অ্যাপ`)
 };
 
 const ru_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`приложений`)
 };
 
 const ja_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
-};
-
-const pa_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`アプリ`)
 };
 
 const vi_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`ứng dụng`)
 };
 
 const yue_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`個應用程式`)
 };
 
 const tr_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`uygulama`)
 };
 
 const ar_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`تطبيقات`)
 };
 
 const wuu_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`个应用`)
 };
 
 const mr_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`अॅप्स`)
 };
 
 const nb_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`apper`)
 };
 
 const fi_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`sovellusta`)
 };
 
 const da_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
@@ -86,23 +82,23 @@ const da_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 };
 
 const et_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`rakendust`)
 };
 
 const lv_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`lietotnes`)
 };
 
 const lt_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`programos`)
 };
 
 const pl_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplikacji`)
 };
 
 const de_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`Apps`)
 };
 
 const nl_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 };
 
 const it_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`app`)
 };
 
 const hu_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`alkalmazás`)
 };
 
 const cs_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplikací`)
 };
 
 const ro_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplicații`)
 };
 
 const el_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`εφαρμογές`)
 };
 
 const bg_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`приложения`)
 };
 
 const hr_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplikacija`)
 };
 
 const sr_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplikacija`)
 };
 
 const sk_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplikácií`)
 };
 
 const sl_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`apps`)
+	return /** @type {LocalizedString} */ (`aplikacij`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_splash_appplural1 = /** @type {(inputs: Splash_Appplural1Inputs) => Loc
 * | "apps" |
 *
 * @param {Splash_Appplural1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const splash_appplural1 = /** @type {((inputs?: Splash_Appplural1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Splash_Appplural1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const splash_appplural1 = /** @type {((inputs?: Splash_Appplural1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Splash_Appplural1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_splash_appplural1(inputs)
 	if (locale === "sv") return sv_splash_appplural1(inputs)
@@ -174,7 +170,6 @@ const splash_appplural1 = /** @type {((inputs?: Splash_Appplural1Inputs, options
 	if (locale === "bn") return bn_splash_appplural1(inputs)
 	if (locale === "ru") return ru_splash_appplural1(inputs)
 	if (locale === "ja") return ja_splash_appplural1(inputs)
-	if (locale === "pa") return pa_splash_appplural1(inputs)
 	if (locale === "vi") return vi_splash_appplural1(inputs)
 	if (locale === "yue") return yue_splash_appplural1(inputs)
 	if (locale === "tr") return tr_splash_appplural1(inputs)

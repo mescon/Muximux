@@ -10,147 +10,143 @@ const en_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurre
 };
 
 const sv_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Anpassa nuvarande tema`)
 };
 
 const uk_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Налаштувати поточну тему`)
 };
 
 const zh_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`自定义当前主题`)
 };
 
 const es_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Personalizar tema actual`)
 };
 
 const hi_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`वर्तमान थीम कस्टमाइज़ करें`)
 };
 
 const pt_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Personalizar tema atual`)
 };
 
 const bn_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`বর্তমান থিম কাস্টমাইজ করুন`)
 };
 
 const ru_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Настроить текущую тему`)
 };
 
 const ja_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
-};
-
-const pa_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`現在のテーマをカスタマイズ`)
 };
 
 const vi_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Tùy chỉnh giao diện hiện tại`)
 };
 
 const yue_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`自訂目前主題`)
 };
 
 const tr_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Mevcut Temayı Özelleştir`)
 };
 
 const ar_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`تخصيص السمة الحالية`)
 };
 
 const wuu_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`自定义当前主题`)
 };
 
 const mr_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`सध्याची थीम सानुकूलित करा`)
 };
 
 const nb_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Tilpass nåværende tema`)
 };
 
 const fi_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Mukauta nykyistä teemaa`)
 };
 
 const da_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Tilpas nuværende tema`)
 };
 
 const et_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Kohanda praegust teemat`)
 };
 
 const lv_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Pielāgot pašreizējo motīvu`)
 };
 
 const lt_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Pritaikyti esamą temą`)
 };
 
 const pl_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Dostosuj bieżący motyw`)
 };
 
 const de_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Aktuelles Theme anpassen`)
 };
 
 const nl_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Huidig thema aanpassen`)
 };
 
 const fr_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Personnaliser le thème actuel`)
 };
 
 const it_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Personalizza il tema attuale`)
 };
 
 const hu_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Jelenlegi téma testreszabása`)
 };
 
 const cs_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Přizpůsobit aktuální motiv`)
 };
 
 const ro_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Personalizează tema curentă`)
 };
 
 const el_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Προσαρμογή τρέχοντος θέματος`)
 };
 
 const bg_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Персонализирай текущата тема`)
 };
 
 const hr_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Prilagodi trenutnu temu`)
 };
 
 const sr_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Prilagodi trenutnu temu`)
 };
 
 const sk_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Prispôsobiť aktuálny motív`)
 };
 
 const sl_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurrenttheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Customize Current Theme`)
+	return /** @type {LocalizedString} */ (`Prilagodi trenutno temo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_customizecurrenttheme2 = /** @type {(inputs: Theme_Customizecurre
 * | "Customize Current Theme" |
 *
 * @param {Theme_Customizecurrenttheme2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_customizecurrenttheme2 = /** @type {((inputs?: Theme_Customizecurrenttheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Customizecurrenttheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_customizecurrenttheme2 = /** @type {((inputs?: Theme_Customizecurrenttheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Customizecurrenttheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_customizecurrenttheme2(inputs)
 	if (locale === "sv") return sv_theme_customizecurrenttheme2(inputs)
@@ -174,7 +170,6 @@ const theme_customizecurrenttheme2 = /** @type {((inputs?: Theme_Customizecurren
 	if (locale === "bn") return bn_theme_customizecurrenttheme2(inputs)
 	if (locale === "ru") return ru_theme_customizecurrenttheme2(inputs)
 	if (locale === "ja") return ja_theme_customizecurrenttheme2(inputs)
-	if (locale === "pa") return pa_theme_customizecurrenttheme2(inputs)
 	if (locale === "vi") return vi_theme_customizecurrenttheme2(inputs)
 	if (locale === "yue") return yue_theme_customizecurrenttheme2(inputs)
 	if (locale === "tr") return tr_theme_customizecurrenttheme2(inputs)

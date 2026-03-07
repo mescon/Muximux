@@ -14,11 +14,11 @@ const sv_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const uk_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Медіа`)
 };
 
 const zh_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`媒体`)
 };
 
 const es_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const hi_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`मीडिया`)
 };
 
 const pt_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -34,43 +34,39 @@ const pt_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const bn_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`মিডিয়া`)
 };
 
 const ru_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Медиа`)
 };
 
 const ja_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
-};
-
-const pa_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`メディア`)
 };
 
 const vi_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Đa phương tiện`)
 };
 
 const yue_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`媒體`)
 };
 
 const tr_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medya`)
 };
 
 const ar_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`وسائط`)
 };
 
 const wuu_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`媒体`)
 };
 
 const mr_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`मीडिया`)
 };
 
 const nb_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -82,19 +78,19 @@ const fi_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const da_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medier`)
 };
 
 const et_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Meedia`)
 };
 
 const lv_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Multivide`)
 };
 
 const lt_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medija`)
 };
 
 const pl_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -102,7 +98,7 @@ const pl_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const de_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medien`)
 };
 
 const nl_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -110,7 +106,7 @@ const nl_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const fr_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Médias`)
 };
 
 const it_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -118,11 +114,11 @@ const it_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const hu_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Média`)
 };
 
 const cs_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Média`)
 };
 
 const ro_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -130,7 +126,7 @@ const ro_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const el_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Πολυμέσα`)
 };
 
 const bg_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
@@ -138,19 +134,19 @@ const bg_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 };
 
 const hr_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Mediji`)
 };
 
 const sr_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Mediji`)
 };
 
 const sk_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Médiá`)
 };
 
 const sl_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupnameplaceholder2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Mediji`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_groupnameplaceholder2 = /** @type {(inputs: Settings_Groupname
 * | "Media" |
 *
 * @param {Settings_Groupnameplaceholder2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_groupnameplaceholder2 = /** @type {((inputs?: Settings_Groupnameplaceholder2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Groupnameplaceholder2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_groupnameplaceholder2 = /** @type {((inputs?: Settings_Groupnameplaceholder2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Groupnameplaceholder2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_groupnameplaceholder2(inputs)
 	if (locale === "sv") return sv_settings_groupnameplaceholder2(inputs)
@@ -174,7 +170,6 @@ const settings_groupnameplaceholder2 = /** @type {((inputs?: Settings_Groupnamep
 	if (locale === "bn") return bn_settings_groupnameplaceholder2(inputs)
 	if (locale === "ru") return ru_settings_groupnameplaceholder2(inputs)
 	if (locale === "ja") return ja_settings_groupnameplaceholder2(inputs)
-	if (locale === "pa") return pa_settings_groupnameplaceholder2(inputs)
 	if (locale === "vi") return vi_settings_groupnameplaceholder2(inputs)
 	if (locale === "yue") return yue_settings_groupnameplaceholder2(inputs)
 	if (locale === "tr") return tr_settings_groupnameplaceholder2(inputs)

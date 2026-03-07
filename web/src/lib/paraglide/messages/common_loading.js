@@ -10,147 +10,143 @@ const en_common_loading = /** @type {(inputs: Common_LoadingInputs) => Localized
 };
 
 const sv_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Laddar...`)
 };
 
 const uk_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Завантаження...`)
 };
 
 const zh_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`加载中...`)
 };
 
 const es_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Cargando...`)
 };
 
 const hi_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`लोड हो रहा है...`)
 };
 
 const pt_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`A carregar...`)
 };
 
 const bn_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`লোড হচ্ছে...`)
 };
 
 const ru_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Загрузка...`)
 };
 
 const ja_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
-};
-
-const pa_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`読み込み中...`)
 };
 
 const vi_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Đang tải...`)
 };
 
 const yue_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`載入中...`)
 };
 
 const tr_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Yükleniyor...`)
 };
 
 const ar_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`جارٍ التحميل...`)
 };
 
 const wuu_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`加载当中...`)
 };
 
 const mr_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`लोड होत आहे...`)
 };
 
 const nb_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Laster...`)
 };
 
 const fi_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Ladataan...`)
 };
 
 const da_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Indlæser...`)
 };
 
 const et_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Laadimine...`)
 };
 
 const lv_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Ielāde...`)
 };
 
 const lt_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Kraunama...`)
 };
 
 const pl_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Ładowanie...`)
 };
 
 const de_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Laden...`)
 };
 
 const nl_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Laden...`)
 };
 
 const fr_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Chargement...`)
 };
 
 const it_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Caricamento...`)
 };
 
 const hu_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Betöltés...`)
 };
 
 const cs_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Načítání...`)
 };
 
 const ro_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Se încarcă...`)
 };
 
 const el_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Φόρτωση...`)
 };
 
 const bg_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Зареждане...`)
 };
 
 const hr_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Učitavanje...`)
 };
 
 const sr_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Učitavanje...`)
 };
 
 const sk_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Načítanie...`)
 };
 
 const sl_common_loading = /** @type {(inputs: Common_LoadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading...`)
+	return /** @type {LocalizedString} */ (`Nalaganje...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_loading = /** @type {(inputs: Common_LoadingInputs) => Localized
 * | "Loading..." |
 *
 * @param {Common_LoadingInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_loading = /** @type {((inputs?: Common_LoadingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_LoadingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_loading = /** @type {((inputs?: Common_LoadingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_LoadingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_loading(inputs)
 	if (locale === "sv") return sv_common_loading(inputs)
@@ -174,7 +170,6 @@ export const common_loading = /** @type {((inputs?: Common_LoadingInputs, option
 	if (locale === "bn") return bn_common_loading(inputs)
 	if (locale === "ru") return ru_common_loading(inputs)
 	if (locale === "ja") return ja_common_loading(inputs)
-	if (locale === "pa") return pa_common_loading(inputs)
 	if (locale === "vi") return vi_common_loading(inputs)
 	if (locale === "yue") return yue_common_loading(inputs)
 	if (locale === "tr") return tr_common_loading(inputs)

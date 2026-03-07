@@ -10,147 +10,143 @@ const en_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => Localiz
 };
 
 const sv_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Ny flik`)
 };
 
 const uk_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Нова вкладка`)
 };
 
 const zh_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`新标签页`)
 };
 
 const es_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nueva pestaña`)
 };
 
 const hi_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`नया टैब`)
 };
 
 const pt_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Novo separador`)
 };
 
 const bn_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`নতুন ট্যাব`)
 };
 
 const ru_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Новая вкладка`)
 };
 
 const ja_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
-};
-
-const pa_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`新しいタブ`)
 };
 
 const vi_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Tab mới`)
 };
 
 const yue_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`新分頁`)
 };
 
 const tr_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Yeni Sekme`)
 };
 
 const ar_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`تبويب جديد`)
 };
 
 const wuu_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`新标签页`)
 };
 
 const mr_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`नवीन टॅब`)
 };
 
 const nb_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Ny fane`)
 };
 
 const fi_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Uusi välilehti`)
 };
 
 const da_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Ny fane`)
 };
 
 const et_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Uus vahekaart`)
 };
 
 const lv_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Jauna cilne`)
 };
 
 const lt_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nauja kortelė`)
 };
 
 const pl_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nowa karta`)
 };
 
 const de_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Neuer Tab`)
 };
 
 const nl_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nieuw tabblad`)
 };
 
 const fr_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nouvel onglet`)
 };
 
 const it_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nuova scheda`)
 };
 
 const hu_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Új lap`)
 };
 
 const cs_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nová karta`)
 };
 
 const ro_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Filă nouă`)
 };
 
 const el_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Νέα καρτέλα`)
 };
 
 const bg_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Нов раздел`)
 };
 
 const hr_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nova kartica`)
 };
 
 const sr_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nova kartica`)
 };
 
 const sk_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nová karta`)
 };
 
 const sl_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New Tab`)
+	return /** @type {LocalizedString} */ (`Nov zavihek`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_newtab2 = /** @type {(inputs: Appform_Newtab2Inputs) => Localiz
 * | "New Tab" |
 *
 * @param {Appform_Newtab2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_newtab2 = /** @type {((inputs?: Appform_Newtab2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Newtab2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_newtab2 = /** @type {((inputs?: Appform_Newtab2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Newtab2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_newtab2(inputs)
 	if (locale === "sv") return sv_appform_newtab2(inputs)
@@ -174,7 +170,6 @@ const appform_newtab2 = /** @type {((inputs?: Appform_Newtab2Inputs, options?: {
 	if (locale === "bn") return bn_appform_newtab2(inputs)
 	if (locale === "ru") return ru_appform_newtab2(inputs)
 	if (locale === "ja") return ja_appform_newtab2(inputs)
-	if (locale === "pa") return pa_appform_newtab2(inputs)
 	if (locale === "vi") return vi_appform_newtab2(inputs)
 	if (locale === "yue") return yue_appform_newtab2(inputs)
 	if (locale === "tr") return tr_appform_newtab2(inputs)

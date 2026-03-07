@@ -14,63 +14,59 @@ const sv_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 };
 
 const uk_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Прозорий`)
 };
 
 const zh_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const es_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Transparente`)
 };
 
 const hi_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`पारदर्शी`)
 };
 
 const pt_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Transparente`)
 };
 
 const bn_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`স্বচ্ছ`)
 };
 
 const ru_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Прозрачный`)
 };
 
 const ja_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
-};
-
-const pa_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const vi_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Trong suốt`)
 };
 
 const yue_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const tr_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Saydam`)
 };
 
 const ar_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`شفاف`)
 };
 
 const wuu_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`透明`)
 };
 
 const mr_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`पारदर्शक`)
 };
 
 const nb_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
@@ -78,7 +74,7 @@ const nb_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 };
 
 const fi_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Läpinäkyvä`)
 };
 
 const da_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 };
 
 const et_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Läbipaistev`)
 };
 
 const lv_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Caurspīdīgs`)
 };
 
 const lt_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Permatomas`)
 };
 
 const pl_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Przezroczysty`)
 };
 
 const de_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
@@ -106,7 +102,7 @@ const de_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 };
 
 const nl_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Transparant`)
 };
 
 const fr_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
@@ -114,15 +110,15 @@ const fr_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 };
 
 const it_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Trasparente`)
 };
 
 const hu_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Átlátszó`)
 };
 
 const cs_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Průhledný`)
 };
 
 const ro_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
@@ -130,27 +126,27 @@ const ro_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 };
 
 const el_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Διαφανές`)
 };
 
 const bg_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Прозрачен`)
 };
 
 const hr_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Prozirno`)
 };
 
 const sr_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Providno`)
 };
 
 const sk_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Priehľadný`)
 };
 
 const sl_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Transparent`)
+	return /** @type {LocalizedString} */ (`Prosojno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_transparent1 = /** @type {(inputs: Appform_Transparent1Inputs) 
 * | "Transparent" |
 *
 * @param {Appform_Transparent1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_transparent1 = /** @type {((inputs?: Appform_Transparent1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Transparent1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_transparent1 = /** @type {((inputs?: Appform_Transparent1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Transparent1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_transparent1(inputs)
 	if (locale === "sv") return sv_appform_transparent1(inputs)
@@ -174,7 +170,6 @@ const appform_transparent1 = /** @type {((inputs?: Appform_Transparent1Inputs, o
 	if (locale === "bn") return bn_appform_transparent1(inputs)
 	if (locale === "ru") return ru_appform_transparent1(inputs)
 	if (locale === "ja") return ja_appform_transparent1(inputs)
-	if (locale === "pa") return pa_appform_transparent1(inputs)
 	if (locale === "vi") return vi_appform_transparent1(inputs)
 	if (locale === "yue") return yue_appform_transparent1(inputs)
 	if (locale === "tr") return tr_appform_transparent1(inputs)

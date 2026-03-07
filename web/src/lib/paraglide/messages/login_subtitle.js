@@ -10,147 +10,143 @@ const en_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => Localized
 };
 
 const sv_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Logga in på din panel`)
 };
 
 const uk_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Увійдіть до панелі керування`)
 };
 
 const zh_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`登录到你的仪表盘`)
 };
 
 const es_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Inicia sesión en tu panel`)
 };
 
 const hi_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`अपने डैशबोर्ड में साइन इन करें`)
 };
 
 const pt_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Inicia sessão no teu painel`)
 };
 
 const bn_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`আপনার ড্যাশবোর্ডে সাইন ইন করুন`)
 };
 
 const ru_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Войдите в свою панель`)
 };
 
 const ja_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
-};
-
-const pa_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`ダッシュボードにサインイン`)
 };
 
 const vi_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Đăng nhập vào bảng điều khiển`)
 };
 
 const yue_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`登入你嘅儀表板`)
 };
 
 const tr_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Panonuza giriş yapın`)
 };
 
 const ar_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`تسجيل الدخول إلى لوحة التحكم`)
 };
 
 const wuu_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`登录你的仪表盘`)
 };
 
 const mr_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`तुमच्या डॅशबोर्डमध्ये साइन इन करा`)
 };
 
 const nb_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Logg inn på panelet ditt`)
 };
 
 const fi_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Kirjaudu hallintapaneeliin`)
 };
 
 const da_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Log ind på dit panel`)
 };
 
 const et_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Logi oma töölauale sisse`)
 };
 
 const lv_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Pierakstieties savā panelī`)
 };
 
 const lt_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Prisijunkite prie savo valdymo skydo`)
 };
 
 const pl_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Zaloguj się do panelu`)
 };
 
 const de_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Melden Sie sich bei Ihrem Dashboard an`)
 };
 
 const nl_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Meld je aan bij je dashboard`)
 };
 
 const fr_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Connecte-toi à ton tableau de bord`)
 };
 
 const it_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Accedi alla tua dashboard`)
 };
 
 const hu_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Jelentkezzen be a vezérlőpultjába`)
 };
 
 const cs_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Přihlaste se do svého panelu`)
 };
 
 const ro_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Conectează-te la panoul de control`)
 };
 
 const el_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Συνδεθείτε στον πίνακα ελέγχου σας`)
 };
 
 const bg_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Влезте в таблото си`)
 };
 
 const hr_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Prijavite se na svoju nadzornu ploču`)
 };
 
 const sr_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Prijavite se na svoju kontrolnu tablu`)
 };
 
 const sk_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Prihláste sa do svojho panela`)
 };
 
 const sl_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Sign in to your dashboard`)
+	return /** @type {LocalizedString} */ (`Prijavite se v svojo nadzorno ploščo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_login_subtitle = /** @type {(inputs: Login_SubtitleInputs) => Localized
 * | "Sign in to your dashboard" |
 *
 * @param {Login_SubtitleInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const login_subtitle = /** @type {((inputs?: Login_SubtitleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_SubtitleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const login_subtitle = /** @type {((inputs?: Login_SubtitleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_SubtitleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_login_subtitle(inputs)
 	if (locale === "sv") return sv_login_subtitle(inputs)
@@ -174,7 +170,6 @@ export const login_subtitle = /** @type {((inputs?: Login_SubtitleInputs, option
 	if (locale === "bn") return bn_login_subtitle(inputs)
 	if (locale === "ru") return ru_login_subtitle(inputs)
 	if (locale === "ja") return ja_login_subtitle(inputs)
-	if (locale === "pa") return pa_login_subtitle(inputs)
 	if (locale === "vi") return vi_login_subtitle(inputs)
 	if (locale === "yue") return yue_login_subtitle(inputs)
 	if (locale === "tr") return tr_login_subtitle(inputs)

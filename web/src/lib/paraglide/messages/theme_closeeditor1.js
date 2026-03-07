@@ -10,147 +10,143 @@ const en_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => L
 };
 
 const sv_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Stäng temaredigeraren`)
 };
 
 const uk_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Закрити редактор тем`)
 };
 
 const zh_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`关闭主题编辑器`)
 };
 
 const es_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Cerrar editor de temas`)
 };
 
 const hi_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`थीम संपादक बंद करें`)
 };
 
 const pt_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Fechar editor de temas`)
 };
 
 const bn_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`থিম সম্পাদক বন্ধ করুন`)
 };
 
 const ru_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Закрыть редактор тем`)
 };
 
 const ja_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
-};
-
-const pa_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`テーマエディタを閉じる`)
 };
 
 const vi_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Đóng trình chỉnh sửa giao diện`)
 };
 
 const yue_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`關閉主題編輯器`)
 };
 
 const tr_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Tema düzenleyicisini kapat`)
 };
 
 const ar_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`إغلاق محرر السمات`)
 };
 
 const wuu_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`关闭主题编辑器`)
 };
 
 const mr_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`थीम एडिटर बंद करा`)
 };
 
 const nb_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Lukk temaredigerer`)
 };
 
 const fi_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Sulje teemaeditori`)
 };
 
 const da_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Luk temaeditor`)
 };
 
 const et_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Sulge teemaredaktor`)
 };
 
 const lv_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Aizvērt motīvu redaktoru`)
 };
 
 const lt_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Uždaryti temų redaktorių`)
 };
 
 const pl_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Zamknij edytor motywów`)
 };
 
 const de_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Theme-Editor schließen`)
 };
 
 const nl_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Thema-editor sluiten`)
 };
 
 const fr_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Fermer l'éditeur de thème`)
 };
 
 const it_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Chiudi editor del tema`)
 };
 
 const hu_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Téma szerkesztő bezárása`)
 };
 
 const cs_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Zavřít editor motivů`)
 };
 
 const ro_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Închide editorul de teme`)
 };
 
 const el_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Κλείσιμο επεξεργαστή θεμάτων`)
 };
 
 const bg_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Затвори редактора на теми`)
 };
 
 const hr_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Zatvori uređivač tema`)
 };
 
 const sr_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Zatvori uređivač tema`)
 };
 
 const sk_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Zavrieť editor motívov`)
 };
 
 const sl_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close theme editor`)
+	return /** @type {LocalizedString} */ (`Zapri urejevalnik tem`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_closeeditor1 = /** @type {(inputs: Theme_Closeeditor1Inputs) => L
 * | "Close theme editor" |
 *
 * @param {Theme_Closeeditor1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_closeeditor1 = /** @type {((inputs?: Theme_Closeeditor1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Closeeditor1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_closeeditor1 = /** @type {((inputs?: Theme_Closeeditor1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Closeeditor1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_closeeditor1(inputs)
 	if (locale === "sv") return sv_theme_closeeditor1(inputs)
@@ -174,7 +170,6 @@ const theme_closeeditor1 = /** @type {((inputs?: Theme_Closeeditor1Inputs, optio
 	if (locale === "bn") return bn_theme_closeeditor1(inputs)
 	if (locale === "ru") return ru_theme_closeeditor1(inputs)
 	if (locale === "ja") return ja_theme_closeeditor1(inputs)
-	if (locale === "pa") return pa_theme_closeeditor1(inputs)
 	if (locale === "vi") return vi_theme_closeeditor1(inputs)
 	if (locale === "yue") return yue_theme_closeeditor1(inputs)
 	if (locale === "tr") return tr_theme_closeeditor1(inputs)

@@ -10,147 +10,143 @@ const en_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs
 };
 
 const sv_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`eller fortsätt med användarnamn`)
 };
 
 const uk_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`або продовжити з ім'ям користувача`)
 };
 
 const zh_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`或使用用户名继续`)
 };
 
 const es_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`o continuar con nombre de usuario`)
 };
 
 const hi_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`या उपयोगकर्ता नाम से जारी रखें`)
 };
 
 const pt_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`ou continuar com nome de utilizador`)
 };
 
 const bn_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`অথবা ব্যবহারকারীর নাম দিয়ে চালিয়ে যান`)
 };
 
 const ru_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`или продолжить с именем пользователя`)
 };
 
 const ja_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
-};
-
-const pa_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`またはユーザー名で続行`)
 };
 
 const vi_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`hoặc tiếp tục bằng tên người dùng`)
 };
 
 const yue_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`或用使用者名稱繼續`)
 };
 
 const tr_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`veya kullanıcı adı ile devam et`)
 };
 
 const ar_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`أو المتابعة باسم المستخدم`)
 };
 
 const wuu_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`或用用户名继续`)
 };
 
 const mr_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`किंवा वापरकर्तानावाने सुरू ठेवा`)
 };
 
 const nb_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`eller fortsett med brukernavn`)
 };
 
 const fi_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`tai jatka käyttäjänimellä`)
 };
 
 const da_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`eller fortsæt med brugernavn`)
 };
 
 const et_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`või jätka kasutajanimega`)
 };
 
 const lv_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`vai turpināt ar lietotājvārdu`)
 };
 
 const lt_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`arba tęskite su naudotojo vardu`)
 };
 
 const pl_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`lub kontynuuj z nazwą użytkownika`)
 };
 
 const de_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`oder mit Benutzername fortfahren`)
 };
 
 const nl_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`of doorgaan met gebruikersnaam`)
 };
 
 const fr_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`ou continuer avec un nom d'utilisateur`)
 };
 
 const it_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`o continua con nome utente`)
 };
 
 const hu_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`vagy folytassa felhasználónévvel`)
 };
 
 const cs_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`nebo pokračujte s uživatelským jménem`)
 };
 
 const ro_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`sau continuă cu numele de utilizator`)
 };
 
 const el_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`ή συνεχίστε με όνομα χρήστη`)
 };
 
 const bg_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`или продължете с потребителско име`)
 };
 
 const hr_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`ili nastavite s korisničkim imenom`)
 };
 
 const sr_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`ili nastavite sa korisničkim imenom`)
 };
 
 const sk_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`alebo pokračujte s používateľským menom`)
 };
 
 const sl_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`or continue with username`)
+	return /** @type {LocalizedString} */ (`ali nadaljujte z uporabniškim imenom`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_login_orcontinuewith2 = /** @type {(inputs: Login_Orcontinuewith2Inputs
 * | "or continue with username" |
 *
 * @param {Login_Orcontinuewith2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const login_orcontinuewith2 = /** @type {((inputs?: Login_Orcontinuewith2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Orcontinuewith2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const login_orcontinuewith2 = /** @type {((inputs?: Login_Orcontinuewith2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Orcontinuewith2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_login_orcontinuewith2(inputs)
 	if (locale === "sv") return sv_login_orcontinuewith2(inputs)
@@ -174,7 +170,6 @@ const login_orcontinuewith2 = /** @type {((inputs?: Login_Orcontinuewith2Inputs,
 	if (locale === "bn") return bn_login_orcontinuewith2(inputs)
 	if (locale === "ru") return ru_login_orcontinuewith2(inputs)
 	if (locale === "ja") return ja_login_orcontinuewith2(inputs)
-	if (locale === "pa") return pa_login_orcontinuewith2(inputs)
 	if (locale === "vi") return vi_login_orcontinuewith2(inputs)
 	if (locale === "yue") return yue_login_orcontinuewith2(inputs)
 	if (locale === "tr") return tr_login_orcontinuewith2(inputs)

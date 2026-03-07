@@ -10,147 +10,143 @@ const en_common_default = /** @type {(inputs: Common_DefaultInputs) => Localized
 };
 
 const sv_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Standard`)
 };
 
 const uk_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Стандартний`)
 };
 
 const zh_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`默认`)
 };
 
 const es_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Predeterminado`)
 };
 
 const hi_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`डिफ़ॉल्ट`)
 };
 
 const pt_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Predefinido`)
 };
 
 const bn_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`ডিফল্ট`)
 };
 
 const ru_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`По умолчанию`)
 };
 
 const ja_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
-};
-
-const pa_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`デフォルト`)
 };
 
 const vi_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Mặc định`)
 };
 
 const yue_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`預設`)
 };
 
 const tr_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Varsayılan`)
 };
 
 const ar_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`افتراضي`)
 };
 
 const wuu_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`默认`)
 };
 
 const mr_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`डीफॉल्ट`)
 };
 
 const nb_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Standard`)
 };
 
 const fi_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Oletus`)
 };
 
 const da_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Standard`)
 };
 
 const et_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Vaikimisi`)
 };
 
 const lv_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Noklusējums`)
 };
 
 const lt_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Numatytasis`)
 };
 
 const pl_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Domyślny`)
 };
 
 const de_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Standard`)
 };
 
 const nl_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Standaard`)
 };
 
 const fr_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Par défaut`)
 };
 
 const it_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Predefinito`)
 };
 
 const hu_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Alapértelmezett`)
 };
 
 const cs_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Výchozí`)
 };
 
 const ro_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Implicit`)
 };
 
 const el_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Προεπιλογή`)
 };
 
 const bg_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`По подразбиране`)
 };
 
 const hr_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Zadano`)
 };
 
 const sr_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Podrazumevano`)
 };
 
 const sk_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Predvolený`)
 };
 
 const sl_common_default = /** @type {(inputs: Common_DefaultInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Default`)
+	return /** @type {LocalizedString} */ (`Privzeto`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_default = /** @type {(inputs: Common_DefaultInputs) => Localized
 * | "Default" |
 *
 * @param {Common_DefaultInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_default = /** @type {((inputs?: Common_DefaultInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DefaultInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_default = /** @type {((inputs?: Common_DefaultInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DefaultInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_default(inputs)
 	if (locale === "sv") return sv_common_default(inputs)
@@ -174,7 +170,6 @@ export const common_default = /** @type {((inputs?: Common_DefaultInputs, option
 	if (locale === "bn") return bn_common_default(inputs)
 	if (locale === "ru") return ru_common_default(inputs)
 	if (locale === "ja") return ja_common_default(inputs)
-	if (locale === "pa") return pa_common_default(inputs)
 	if (locale === "vi") return vi_common_default(inputs)
 	if (locale === "yue") return yue_common_default(inputs)
 	if (locale === "tr") return tr_common_default(inputs)

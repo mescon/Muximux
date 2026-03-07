@@ -10,147 +10,143 @@ const en_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1In
 };
 
 const sv_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Panelikon`)
 };
 
 const uk_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Іконка панелі керування`)
 };
 
 const zh_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`仪表盘图标`)
 };
 
 const es_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Icono del panel`)
 };
 
 const hi_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`डैशबोर्ड आइकन`)
 };
 
 const pt_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ícone do painel`)
 };
 
 const bn_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`ড্যাশবোর্ড আইকন`)
 };
 
 const ru_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Иконка панели`)
 };
 
 const ja_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
-};
-
-const pa_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`ダッシュボードアイコン`)
 };
 
 const vi_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Biểu tượng bảng điều khiển`)
 };
 
 const yue_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`儀表板圖示`)
 };
 
 const tr_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Pano Simgesi`)
 };
 
 const ar_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`أيقونة لوحة التحكم`)
 };
 
 const wuu_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`仪表盘图标`)
 };
 
 const mr_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`डॅशबोर्ड आयकॉन`)
 };
 
 const nb_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Panelikon`)
 };
 
 const fi_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Paneelin kuvake`)
 };
 
 const da_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Panelikon`)
 };
 
 const et_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Töölaua ikoon`)
 };
 
 const lv_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Paneļa ikona`)
 };
 
 const lt_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Valdymo skydo piktograma`)
 };
 
 const pl_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ikona panelu`)
 };
 
 const de_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Dashboard-Icon`)
 };
 
 const nl_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Dashboard-pictogram`)
 };
 
 const fr_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Icône du tableau de bord`)
 };
 
 const it_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Icona della dashboard`)
 };
 
 const hu_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Vezérlőpult ikon`)
 };
 
 const cs_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ikona panelu`)
 };
 
 const ro_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Pictogramă panou de control`)
 };
 
 const el_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Εικονίδιο πίνακα ελέγχου`)
 };
 
 const bg_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Икона на таблото`)
 };
 
 const hr_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ikona nadzorne ploče`)
 };
 
 const sr_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ikona kontrolne table`)
 };
 
 const sk_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ikona panela`)
 };
 
 const sl_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard Icon`)
+	return /** @type {LocalizedString} */ (`Ikona nadzorne plošče`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_dashboardicon1 = /** @type {(inputs: Settings_Dashboardicon1In
 * | "Dashboard Icon" |
 *
 * @param {Settings_Dashboardicon1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_dashboardicon1 = /** @type {((inputs?: Settings_Dashboardicon1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Dashboardicon1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_dashboardicon1 = /** @type {((inputs?: Settings_Dashboardicon1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Dashboardicon1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_dashboardicon1(inputs)
 	if (locale === "sv") return sv_settings_dashboardicon1(inputs)
@@ -174,7 +170,6 @@ const settings_dashboardicon1 = /** @type {((inputs?: Settings_Dashboardicon1Inp
 	if (locale === "bn") return bn_settings_dashboardicon1(inputs)
 	if (locale === "ru") return ru_settings_dashboardicon1(inputs)
 	if (locale === "ja") return ja_settings_dashboardicon1(inputs)
-	if (locale === "pa") return pa_settings_dashboardicon1(inputs)
 	if (locale === "vi") return vi_settings_dashboardicon1(inputs)
 	if (locale === "yue") return yue_settings_dashboardicon1(inputs)
 	if (locale === "tr") return tr_settings_dashboardicon1(inputs)

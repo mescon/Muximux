@@ -10,147 +10,143 @@ const en_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserve
 };
 
 const sv_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code i webbläsaren`)
 };
 
 const uk_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code у браузері`)
 };
 
 const zh_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`浏览器中的 VS Code`)
 };
 
 const es_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code en el navegador`)
 };
 
 const hi_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`ब्राउज़र में VS Code`)
 };
 
 const pt_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code no navegador`)
 };
 
 const bn_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`ব্রাউজারে VS Code`)
 };
 
 const ru_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code в браузере`)
 };
 
 const ja_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
-};
-
-const pa_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`ブラウザで VS Code`)
 };
 
 const vi_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code trong trình duyệt`)
 };
 
 const yue_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`瀏覽器入面嘅 VS Code`)
 };
 
 const tr_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`Tarayıcıda VS Code`)
 };
 
 const ar_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code في المتصفح`)
 };
 
 const wuu_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`浏览器里的 VS Code`)
 };
 
 const mr_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`ब्राउझरमध्ये VS Code`)
 };
 
 const nb_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code i nettleseren`)
 };
 
 const fi_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code selaimessa`)
 };
 
 const da_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code i browseren`)
 };
 
 const et_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code brauseris`)
 };
 
 const lv_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code pārlūkā`)
 };
 
 const lt_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code naršyklėje`)
 };
 
 const pl_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code w przeglądarce`)
 };
 
 const de_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code im Browser`)
 };
 
 const nl_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code in de browser`)
 };
 
 const fr_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code dans le navigateur`)
 };
 
 const it_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code nel browser`)
 };
 
 const hu_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code a böngészőben`)
 };
 
 const cs_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code v prohlížeči`)
 };
 
 const ro_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code în browser`)
 };
 
 const el_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code στον browser`)
 };
 
 const bg_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code в браузъра`)
 };
 
 const hr_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code u pregledniku`)
 };
 
 const sr_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code u pregledaču`)
 };
 
 const sk_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code v prehliadači`)
 };
 
 const sl_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserverdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VS Code in the browser`)
+	return /** @type {LocalizedString} */ (`VS Code v brskalniku`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_codeserverdesc3 = /** @type {(inputs: Popularapps_Codeserve
 * | "VS Code in the browser" |
 *
 * @param {Popularapps_Codeserverdesc3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_codeserverdesc3 = /** @type {((inputs?: Popularapps_Codeserverdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Codeserverdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_codeserverdesc3 = /** @type {((inputs?: Popularapps_Codeserverdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Codeserverdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_codeserverdesc3(inputs)
 	if (locale === "sv") return sv_popularapps_codeserverdesc3(inputs)
@@ -174,7 +170,6 @@ const popularapps_codeserverdesc3 = /** @type {((inputs?: Popularapps_Codeserver
 	if (locale === "bn") return bn_popularapps_codeserverdesc3(inputs)
 	if (locale === "ru") return ru_popularapps_codeserverdesc3(inputs)
 	if (locale === "ja") return ja_popularapps_codeserverdesc3(inputs)
-	if (locale === "pa") return pa_popularapps_codeserverdesc3(inputs)
 	if (locale === "vi") return vi_popularapps_codeserverdesc3(inputs)
 	if (locale === "yue") return yue_popularapps_codeserverdesc3(inputs)
 	if (locale === "tr") return tr_popularapps_codeserverdesc3(inputs)

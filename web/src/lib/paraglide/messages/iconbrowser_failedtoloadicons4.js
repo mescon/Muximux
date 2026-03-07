@@ -10,147 +10,143 @@ const en_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failed
 };
 
 const sv_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Kunde inte ladda ikoner`)
 };
 
 const uk_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Не вдалося завантажити іконки`)
 };
 
 const zh_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`加载图标失败`)
 };
 
 const es_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Error al cargar los iconos`)
 };
 
 const hi_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`आइकन लोड करने में विफल`)
 };
 
 const pt_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Erro ao carregar os ícones`)
 };
 
 const bn_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`আইকন লোড করতে ব্যর্থ`)
 };
 
 const ru_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Не удалось загрузить иконки`)
 };
 
 const ja_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
-};
-
-const pa_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`アイコンの読み込みに失敗しました`)
 };
 
 const vi_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Không thể tải biểu tượng`)
 };
 
 const yue_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`載入圖示失敗`)
 };
 
 const tr_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Simgeler yüklenemedi`)
 };
 
 const ar_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`فشل تحميل الأيقونات`)
 };
 
 const wuu_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`图标加载失败`)
 };
 
 const mr_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`आयकॉन लोड अयशस्वी`)
 };
 
 const nb_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Kunne ikke laste ikoner`)
 };
 
 const fi_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Kuvakkeiden lataus epäonnistui`)
 };
 
 const da_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Kunne ikke indlæse ikoner`)
 };
 
 const et_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Ikoonide laadimine ebaõnnestus`)
 };
 
 const lv_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Neizdevās ielādēt ikonas`)
 };
 
 const lt_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Nepavyko įkelti piktogramų`)
 };
 
 const pl_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Nie udało się załadować ikon`)
 };
 
 const de_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Icons konnten nicht geladen werden`)
 };
 
 const nl_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Pictogrammen laden mislukt`)
 };
 
 const fr_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Échec du chargement des icônes`)
 };
 
 const it_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Caricamento delle icone non riuscito`)
 };
 
 const hu_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Nem sikerült betölteni az ikonokat`)
 };
 
 const cs_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se načíst ikony`)
 };
 
 const ro_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Încărcarea pictogramelor a eșuat`)
 };
 
 const el_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Αποτυχία φόρτωσης εικονιδίων`)
 };
 
 const bg_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Зареждането на иконите е неуспешно`)
 };
 
 const hr_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Učitavanje ikona nije uspjelo`)
 };
 
 const sr_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Učitavanje ikona nije uspelo`)
 };
 
 const sk_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa načítať ikony`)
 };
 
 const sl_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failedtoloadicons4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load icons`)
+	return /** @type {LocalizedString} */ (`Nalaganje ikon ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_iconbrowser_failedtoloadicons4 = /** @type {(inputs: Iconbrowser_Failed
 * | "Failed to load icons" |
 *
 * @param {Iconbrowser_Failedtoloadicons4Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const iconbrowser_failedtoloadicons4 = /** @type {((inputs?: Iconbrowser_Failedtoloadicons4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Failedtoloadicons4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const iconbrowser_failedtoloadicons4 = /** @type {((inputs?: Iconbrowser_Failedtoloadicons4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Failedtoloadicons4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "sv") return sv_iconbrowser_failedtoloadicons4(inputs)
@@ -174,7 +170,6 @@ const iconbrowser_failedtoloadicons4 = /** @type {((inputs?: Iconbrowser_Failedt
 	if (locale === "bn") return bn_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "ru") return ru_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "ja") return ja_iconbrowser_failedtoloadicons4(inputs)
-	if (locale === "pa") return pa_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "vi") return vi_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "yue") return yue_iconbrowser_failedtoloadicons4(inputs)
 	if (locale === "tr") return tr_iconbrowser_failedtoloadicons4(inputs)

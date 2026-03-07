@@ -10,147 +10,143 @@ const en_security_changepassword1 = /** @type {(inputs: Security_Changepassword1
 };
 
 const sv_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Byt lösenord`)
 };
 
 const uk_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Змінити пароль`)
 };
 
 const zh_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`更改密码`)
 };
 
 const es_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Cambiar contraseña`)
 };
 
 const hi_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`पासवर्ड बदलें`)
 };
 
 const pt_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Alterar palavra-passe`)
 };
 
 const bn_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`পাসওয়ার্ড পরিবর্তন করুন`)
 };
 
 const ru_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Изменить пароль`)
 };
 
 const ja_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
-};
-
-const pa_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`パスワードを変更`)
 };
 
 const vi_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Đổi mật khẩu`)
 };
 
 const yue_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`更改密碼`)
 };
 
 const tr_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Şifre Değiştir`)
 };
 
 const ar_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`تغيير كلمة المرور`)
 };
 
 const wuu_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`修改密码`)
 };
 
 const mr_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`पासवर्ड बदला`)
 };
 
 const nb_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Endre passord`)
 };
 
 const fi_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Vaihda salasana`)
 };
 
 const da_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Skift adgangskode`)
 };
 
 const et_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Muuda parooli`)
 };
 
 const lv_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Mainīt paroli`)
 };
 
 const lt_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Keisti slaptažodį`)
 };
 
 const pl_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Zmień hasło`)
 };
 
 const de_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Passwort ändern`)
 };
 
 const nl_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Wachtwoord wijzigen`)
 };
 
 const fr_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Changer le mot de passe`)
 };
 
 const it_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Cambia password`)
 };
 
 const hu_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Jelszó módosítása`)
 };
 
 const cs_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Změnit heslo`)
 };
 
 const ro_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Schimbă parola`)
 };
 
 const el_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Αλλαγή κωδικού`)
 };
 
 const bg_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Промени паролата`)
 };
 
 const hr_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Promijeni lozinku`)
 };
 
 const sr_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Promeni lozinku`)
 };
 
 const sk_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Zmeniť heslo`)
 };
 
 const sl_security_changepassword1 = /** @type {(inputs: Security_Changepassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Change Password`)
+	return /** @type {LocalizedString} */ (`Spremeni geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_changepassword1 = /** @type {(inputs: Security_Changepassword1
 * | "Change Password" |
 *
 * @param {Security_Changepassword1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_changepassword1 = /** @type {((inputs?: Security_Changepassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Changepassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_changepassword1 = /** @type {((inputs?: Security_Changepassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Changepassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_changepassword1(inputs)
 	if (locale === "sv") return sv_security_changepassword1(inputs)
@@ -174,7 +170,6 @@ const security_changepassword1 = /** @type {((inputs?: Security_Changepassword1I
 	if (locale === "bn") return bn_security_changepassword1(inputs)
 	if (locale === "ru") return ru_security_changepassword1(inputs)
 	if (locale === "ja") return ja_security_changepassword1(inputs)
-	if (locale === "pa") return pa_security_changepassword1(inputs)
 	if (locale === "vi") return vi_security_changepassword1(inputs)
 	if (locale === "yue") return yue_security_changepassword1(inputs)
 	if (locale === "tr") return tr_security_changepassword1(inputs)

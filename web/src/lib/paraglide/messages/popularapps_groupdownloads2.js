@@ -10,75 +10,71 @@ const en_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdown
 };
 
 const sv_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Nedladdningar`)
 };
 
 const uk_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Завантаження`)
 };
 
 const zh_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`下载`)
 };
 
 const es_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Descargas`)
 };
 
 const hi_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`डाउनलोड`)
 };
 
 const pt_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Transferências`)
 };
 
 const bn_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`ডাউনলোড`)
 };
 
 const ru_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Загрузки`)
 };
 
 const ja_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
-};
-
-const pa_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`ダウンロード`)
 };
 
 const vi_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Tải xuống`)
 };
 
 const yue_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`下載`)
 };
 
 const tr_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`İndirmeler`)
 };
 
 const ar_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`تنزيلات`)
 };
 
 const wuu_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`下载`)
 };
 
 const mr_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`डाउनलोड्स`)
 };
 
 const nb_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Nedlastinger`)
 };
 
 const fi_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Lataukset`)
 };
 
 const da_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdown
 };
 
 const et_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Allalaadimised`)
 };
 
 const lv_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Lejupielādes`)
 };
 
 const lt_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Atsisiuntimai`)
 };
 
 const pl_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Pobieranie`)
 };
 
 const de_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
@@ -110,47 +106,47 @@ const nl_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdown
 };
 
 const fr_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Téléchargements`)
 };
 
 const it_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Download`)
 };
 
 const hu_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Letöltések`)
 };
 
 const cs_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Stahování`)
 };
 
 const ro_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Descărcări`)
 };
 
 const el_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Λήψεις`)
 };
 
 const bg_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Изтегляния`)
 };
 
 const hr_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Preuzimanja`)
 };
 
 const sr_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Preuzimanja`)
 };
 
 const sk_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Sťahovanie`)
 };
 
 const sl_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdownloads2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Downloads`)
+	return /** @type {LocalizedString} */ (`Prenosi`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_groupdownloads2 = /** @type {(inputs: Popularapps_Groupdown
 * | "Downloads" |
 *
 * @param {Popularapps_Groupdownloads2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_groupdownloads2 = /** @type {((inputs?: Popularapps_Groupdownloads2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupdownloads2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_groupdownloads2 = /** @type {((inputs?: Popularapps_Groupdownloads2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupdownloads2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_groupdownloads2(inputs)
 	if (locale === "sv") return sv_popularapps_groupdownloads2(inputs)
@@ -174,7 +170,6 @@ const popularapps_groupdownloads2 = /** @type {((inputs?: Popularapps_Groupdownl
 	if (locale === "bn") return bn_popularapps_groupdownloads2(inputs)
 	if (locale === "ru") return ru_popularapps_groupdownloads2(inputs)
 	if (locale === "ja") return ja_popularapps_groupdownloads2(inputs)
-	if (locale === "pa") return pa_popularapps_groupdownloads2(inputs)
 	if (locale === "vi") return vi_popularapps_groupdownloads2(inputs)
 	if (locale === "yue") return yue_popularapps_groupdownloads2(inputs)
 	if (locale === "tr") return tr_popularapps_groupdownloads2(inputs)

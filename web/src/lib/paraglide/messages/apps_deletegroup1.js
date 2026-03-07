@@ -10,147 +10,143 @@ const en_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => Loc
 };
 
 const sv_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Ta bort grupp`)
 };
 
 const uk_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Видалити групу`)
 };
 
 const zh_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`删除分组`)
 };
 
 const es_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Eliminar grupo`)
 };
 
 const hi_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`समूह हटाएं`)
 };
 
 const pt_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Eliminar grupo`)
 };
 
 const bn_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`গ্রুপ মুছুন`)
 };
 
 const ru_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Удалить группу`)
 };
 
 const ja_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
-};
-
-const pa_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`グループを削除`)
 };
 
 const vi_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Xóa nhóm`)
 };
 
 const yue_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`刪除群組`)
 };
 
 const tr_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Grubu sil`)
 };
 
 const ar_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`حذف المجموعة`)
 };
 
 const wuu_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`删除分组`)
 };
 
 const mr_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`गट हटवा`)
 };
 
 const nb_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Slett gruppe`)
 };
 
 const fi_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Poista ryhmä`)
 };
 
 const da_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Slet gruppe`)
 };
 
 const et_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Kustuta grupp`)
 };
 
 const lv_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Dzēst grupu`)
 };
 
 const lt_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Ištrinti grupę`)
 };
 
 const pl_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Usuń grupę`)
 };
 
 const de_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Gruppe löschen`)
 };
 
 const nl_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Groep verwijderen`)
 };
 
 const fr_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Supprimer le groupe`)
 };
 
 const it_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Elimina gruppo`)
 };
 
 const hu_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Csoport törlése`)
 };
 
 const cs_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Smazat skupinu`)
 };
 
 const ro_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Șterge grupul`)
 };
 
 const el_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Διαγραφή ομάδας`)
 };
 
 const bg_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Изтрий група`)
 };
 
 const hr_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Obriši grupu`)
 };
 
 const sr_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Obriši grupu`)
 };
 
 const sk_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Vymazať skupinu`)
 };
 
 const sl_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Delete group`)
+	return /** @type {LocalizedString} */ (`Izbriši skupino`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_deletegroup1 = /** @type {(inputs: Apps_Deletegroup1Inputs) => Loc
 * | "Delete group" |
 *
 * @param {Apps_Deletegroup1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const apps_deletegroup1 = /** @type {((inputs?: Apps_Deletegroup1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Deletegroup1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const apps_deletegroup1 = /** @type {((inputs?: Apps_Deletegroup1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Deletegroup1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_deletegroup1(inputs)
 	if (locale === "sv") return sv_apps_deletegroup1(inputs)
@@ -174,7 +170,6 @@ const apps_deletegroup1 = /** @type {((inputs?: Apps_Deletegroup1Inputs, options
 	if (locale === "bn") return bn_apps_deletegroup1(inputs)
 	if (locale === "ru") return ru_apps_deletegroup1(inputs)
 	if (locale === "ja") return ja_apps_deletegroup1(inputs)
-	if (locale === "pa") return pa_apps_deletegroup1(inputs)
 	if (locale === "vi") return vi_apps_deletegroup1(inputs)
 	if (locale === "yue") return yue_apps_deletegroup1(inputs)
 	if (locale === "tr") return tr_apps_deletegroup1(inputs)

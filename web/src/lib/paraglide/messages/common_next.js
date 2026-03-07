@@ -10,147 +10,143 @@ const en_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString
 };
 
 const sv_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Nästa`)
 };
 
 const uk_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Далі`)
 };
 
 const zh_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`下一步`)
 };
 
 const es_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Siguiente`)
 };
 
 const hi_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`अगला`)
 };
 
 const pt_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Seguinte`)
 };
 
 const bn_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`পরবর্তী`)
 };
 
 const ru_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Далее`)
 };
 
 const ja_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
-};
-
-const pa_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`次へ`)
 };
 
 const vi_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Tiếp theo`)
 };
 
 const yue_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`下一步`)
 };
 
 const tr_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`İleri`)
 };
 
 const ar_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`التالي`)
 };
 
 const wuu_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`下一步`)
 };
 
 const mr_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`पुढे`)
 };
 
 const nb_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Neste`)
 };
 
 const fi_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Seuraava`)
 };
 
 const da_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Næste`)
 };
 
 const et_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Edasi`)
 };
 
 const lv_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Tālāk`)
 };
 
 const lt_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Toliau`)
 };
 
 const pl_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Dalej`)
 };
 
 const de_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Weiter`)
 };
 
 const nl_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Volgende`)
 };
 
 const fr_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Suivant`)
 };
 
 const it_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Avanti`)
 };
 
 const hu_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Következő`)
 };
 
 const cs_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Další`)
 };
 
 const ro_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Înainte`)
 };
 
 const el_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Επόμενο`)
 };
 
 const bg_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Напред`)
 };
 
 const hr_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Dalje`)
 };
 
 const sr_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Dalje`)
 };
 
 const sk_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Ďalej`)
 };
 
 const sl_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Next`)
+	return /** @type {LocalizedString} */ (`Naprej`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_next = /** @type {(inputs: Common_NextInputs) => LocalizedString
 * | "Next" |
 *
 * @param {Common_NextInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_next = /** @type {((inputs?: Common_NextInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_NextInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_next = /** @type {((inputs?: Common_NextInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_NextInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_next(inputs)
 	if (locale === "sv") return sv_common_next(inputs)
@@ -174,7 +170,6 @@ export const common_next = /** @type {((inputs?: Common_NextInputs, options?: { 
 	if (locale === "bn") return bn_common_next(inputs)
 	if (locale === "ru") return ru_common_next(inputs)
 	if (locale === "ja") return ja_common_next(inputs)
-	if (locale === "pa") return pa_common_next(inputs)
 	if (locale === "vi") return vi_common_next(inputs)
 	if (locale === "yue") return yue_common_next(inputs)
 	if (locale === "tr") return tr_common_next(inputs)

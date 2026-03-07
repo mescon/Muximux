@@ -10,147 +10,143 @@ const en_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2In
 };
 
 const sv_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Recepthanterare`)
 };
 
 const uk_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Менеджер рецептів`)
 };
 
 const zh_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`食谱管理`)
 };
 
 const es_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Gestor de recetas`)
 };
 
 const hi_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`रेसिपी मैनेजर`)
 };
 
 const pt_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Gestor de receitas`)
 };
 
 const bn_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`রেসিপি ম্যানেজার`)
 };
 
 const ru_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Менеджер рецептов`)
 };
 
 const ja_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
-};
-
-const pa_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`レシピマネージャー`)
 };
 
 const vi_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Quản lý công thức nấu ăn`)
 };
 
 const yue_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`食譜管理`)
 };
 
 const tr_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Tarif yöneticisi`)
 };
 
 const ar_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`مدير الوصفات`)
 };
 
 const wuu_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`菜谱管理`)
 };
 
 const mr_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`रेसिपी व्यवस्थापक`)
 };
 
 const nb_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Oppskriftsbehandler`)
 };
 
 const fi_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Reseptien hallinta`)
 };
 
 const da_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Opskriftshåndterer`)
 };
 
 const et_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Retseptihaldur`)
 };
 
 const lv_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Recepšu pārvaldnieks`)
 };
 
 const lt_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Receptų tvarkyklė`)
 };
 
 const pl_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Menedżer przepisów`)
 };
 
 const de_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Rezeptverwaltung`)
 };
 
 const nl_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Receptbeheer`)
 };
 
 const fr_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Gestionnaire de recettes`)
 };
 
 const it_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Gestore ricette`)
 };
 
 const hu_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Recept kezelő`)
 };
 
 const cs_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Správce receptů`)
 };
 
 const ro_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Manager de rețete`)
 };
 
 const el_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Διαχειριστής συνταγών`)
 };
 
 const bg_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Мениджър на рецепти`)
 };
 
 const hr_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Upravitelj recepata`)
 };
 
 const sr_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Upravljač recepata`)
 };
 
 const sk_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Správca receptov`)
 };
 
 const sl_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Recipe manager`)
+	return /** @type {LocalizedString} */ (`Upravljalec receptov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_mealiedesc2 = /** @type {(inputs: Popularapps_Mealiedesc2In
 * | "Recipe manager" |
 *
 * @param {Popularapps_Mealiedesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_mealiedesc2 = /** @type {((inputs?: Popularapps_Mealiedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Mealiedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_mealiedesc2 = /** @type {((inputs?: Popularapps_Mealiedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Mealiedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_mealiedesc2(inputs)
 	if (locale === "sv") return sv_popularapps_mealiedesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_mealiedesc2 = /** @type {((inputs?: Popularapps_Mealiedesc2Inp
 	if (locale === "bn") return bn_popularapps_mealiedesc2(inputs)
 	if (locale === "ru") return ru_popularapps_mealiedesc2(inputs)
 	if (locale === "ja") return ja_popularapps_mealiedesc2(inputs)
-	if (locale === "pa") return pa_popularapps_mealiedesc2(inputs)
 	if (locale === "vi") return vi_popularapps_mealiedesc2(inputs)
 	if (locale === "yue") return yue_popularapps_mealiedesc2(inputs)
 	if (locale === "tr") return tr_popularapps_mealiedesc2(inputs)

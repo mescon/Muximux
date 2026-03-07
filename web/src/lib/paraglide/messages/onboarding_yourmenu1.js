@@ -10,147 +10,143 @@ const en_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) 
 };
 
 const sv_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Din meny`)
 };
 
 const uk_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Ваше меню`)
 };
 
 const zh_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`你的菜单`)
 };
 
 const es_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Tu menú`)
 };
 
 const hi_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`आपका मेनू`)
 };
 
 const pt_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`O teu menu`)
 };
 
 const bn_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`আপনার মেনু`)
 };
 
 const ru_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Ваше меню`)
 };
 
 const ja_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
-};
-
-const pa_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`あなたのメニュー`)
 };
 
 const vi_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Menu của bạn`)
 };
 
 const yue_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`你嘅選單`)
 };
 
 const tr_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Menünüz`)
 };
 
 const ar_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`قائمتك`)
 };
 
 const wuu_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`你的菜单`)
 };
 
 const mr_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`तुमचा मेनू`)
 };
 
 const nb_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Din meny`)
 };
 
 const fi_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Valikkosi`)
 };
 
 const da_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Din menu`)
 };
 
 const et_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Teie menüü`)
 };
 
 const lv_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Jūsu izvēlne`)
 };
 
 const lt_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Jūsų meniu`)
 };
 
 const pl_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Twoje menu`)
 };
 
 const de_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Ihr Menü`)
 };
 
 const nl_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Jouw menu`)
 };
 
 const fr_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Ton menu`)
 };
 
 const it_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Il tuo menu`)
 };
 
 const hu_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Az Ön menüje`)
 };
 
 const cs_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Vaše nabídka`)
 };
 
 const ro_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Meniul tău`)
 };
 
 const el_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Το μενού σας`)
 };
 
 const bg_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Вашето меню`)
 };
 
 const hr_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Vaš izbornik`)
 };
 
 const sr_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Vaš meni`)
 };
 
 const sk_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Vaša ponuka`)
 };
 
 const sl_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Menu`)
+	return /** @type {LocalizedString} */ (`Vaš meni`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_yourmenu1 = /** @type {(inputs: Onboarding_Yourmenu1Inputs) 
 * | "Your Menu" |
 *
 * @param {Onboarding_Yourmenu1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_yourmenu1 = /** @type {((inputs?: Onboarding_Yourmenu1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Yourmenu1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_yourmenu1 = /** @type {((inputs?: Onboarding_Yourmenu1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Yourmenu1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_yourmenu1(inputs)
 	if (locale === "sv") return sv_onboarding_yourmenu1(inputs)
@@ -174,7 +170,6 @@ const onboarding_yourmenu1 = /** @type {((inputs?: Onboarding_Yourmenu1Inputs, o
 	if (locale === "bn") return bn_onboarding_yourmenu1(inputs)
 	if (locale === "ru") return ru_onboarding_yourmenu1(inputs)
 	if (locale === "ja") return ja_onboarding_yourmenu1(inputs)
-	if (locale === "pa") return pa_onboarding_yourmenu1(inputs)
 	if (locale === "vi") return vi_onboarding_yourmenu1(inputs)
 	if (locale === "yue") return yue_onboarding_yourmenu1(inputs)
 	if (locale === "tr") return tr_onboarding_yourmenu1(inputs)

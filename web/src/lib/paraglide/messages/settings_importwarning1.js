@@ -10,147 +10,143 @@ const en_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1In
 };
 
 const sv_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Osparade ändringar skrivs över`)
 };
 
 const uk_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Незбережені зміни будуть перезаписані`)
 };
 
 const zh_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`未保存的更改将被覆盖`)
 };
 
 const es_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Los cambios sin guardar se sobrescribirán`)
 };
 
 const hi_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`सहेजे नहीं गए परिवर्तन ओवरराइट हो जाएंगे`)
 };
 
 const pt_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`As alterações por guardar serão sobrescritas`)
 };
 
 const bn_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`অসংরক্ষিত পরিবর্তনগুলি ওভাররাইট হয়ে যাবে`)
 };
 
 const ru_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Несохранённые изменения будут перезаписаны`)
 };
 
 const ja_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
-};
-
-const pa_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`未保存の変更は上書きされます`)
 };
 
 const vi_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Các thay đổi chưa lưu sẽ bị ghi đè`)
 };
 
 const yue_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`未儲存嘅變更會被覆蓋`)
 };
 
 const tr_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Kaydedilmemiş değişiklikler üzerine yazılacak`)
 };
 
 const ar_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`سيتم الكتابة فوق التغييرات غير المحفوظة`)
 };
 
 const wuu_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`没保存的改动会被覆盖`)
 };
 
 const mr_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`जतन न केलेले बदल ओव्हरराईट होतील`)
 };
 
 const nb_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Ulagrede endringer vil bli overskrevet`)
 };
 
 const fi_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Tallentamattomat muutokset ylikirjoitetaan`)
 };
 
 const da_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Ugemte ændringer vil blive overskrevet`)
 };
 
 const et_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Salvestamata muudatused kirjutatakse üle`)
 };
 
 const lv_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Nesaglabātās izmaiņas tiks pārrakstītas`)
 };
 
 const lt_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Neišsaugoti pakeitimai bus perrašyti`)
 };
 
 const pl_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Niezapisane zmiany zostaną nadpisane`)
 };
 
 const de_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Ungespeicherte Änderungen werden überschrieben`)
 };
 
 const nl_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Niet-opgeslagen wijzigingen worden overschreven`)
 };
 
 const fr_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Les modifications non enregistrées seront écrasées`)
 };
 
 const it_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Le modifiche non salvate verranno sovrascritte`)
 };
 
 const hu_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`A nem mentett változtatások felülíródnak`)
 };
 
 const cs_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Neuložené změny budou přepsány`)
 };
 
 const ro_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Modificările nesalvate vor fi suprascrise`)
 };
 
 const el_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Οι μη αποθηκευμένες αλλαγές θα αντικατασταθούν`)
 };
 
 const bg_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Незапазените промени ще бъдат презаписани`)
 };
 
 const hr_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Nespremljene promjene bit će prepisane`)
 };
 
 const sr_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Nesačuvane promene će biti prepisane`)
 };
 
 const sk_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Neuložené zmeny budú prepísané`)
 };
 
 const sl_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Unsaved changes will be overwritten`)
+	return /** @type {LocalizedString} */ (`Neshranjene spremembe bodo prepisane`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_importwarning1 = /** @type {(inputs: Settings_Importwarning1In
 * | "Unsaved changes will be overwritten" |
 *
 * @param {Settings_Importwarning1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_importwarning1 = /** @type {((inputs?: Settings_Importwarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Importwarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_importwarning1 = /** @type {((inputs?: Settings_Importwarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Importwarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_importwarning1(inputs)
 	if (locale === "sv") return sv_settings_importwarning1(inputs)
@@ -174,7 +170,6 @@ const settings_importwarning1 = /** @type {((inputs?: Settings_Importwarning1Inp
 	if (locale === "bn") return bn_settings_importwarning1(inputs)
 	if (locale === "ru") return ru_settings_importwarning1(inputs)
 	if (locale === "ja") return ja_settings_importwarning1(inputs)
-	if (locale === "pa") return pa_settings_importwarning1(inputs)
 	if (locale === "vi") return vi_settings_importwarning1(inputs)
 	if (locale === "yue") return yue_settings_importwarning1(inputs)
 	if (locale === "tr") return tr_settings_importwarning1(inputs)

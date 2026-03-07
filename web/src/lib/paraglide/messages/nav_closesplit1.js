@@ -10,147 +10,143 @@ const en_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => Localiz
 };
 
 const sv_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Stäng delning`)
 };
 
 const uk_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Закрити поділ`)
 };
 
 const zh_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`关闭分屏`)
 };
 
 const es_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Cerrar división`)
 };
 
 const hi_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`विभाजन बंद करें`)
 };
 
 const pt_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Fechar divisão`)
 };
 
 const bn_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`বিভাজন বন্ধ করুন`)
 };
 
 const ru_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Закрыть разделение`)
 };
 
 const ja_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
-};
-
-const pa_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`分割を閉じる`)
 };
 
 const vi_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Đóng chia`)
 };
 
 const yue_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`關閉分割`)
 };
 
 const tr_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Bölmeyi kapat`)
 };
 
 const ar_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`إغلاق التقسيم`)
 };
 
 const wuu_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`关闭分屏`)
 };
 
 const mr_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`विभाजन बंद करा`)
 };
 
 const nb_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Lukk deling`)
 };
 
 const fi_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Sulje jako`)
 };
 
 const da_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Luk opdeling`)
 };
 
 const et_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Sulge poolitamine`)
 };
 
 const lv_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Aizvērt dalījumu`)
 };
 
 const lt_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Uždaryti padalijimą`)
 };
 
 const pl_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Zamknij podział`)
 };
 
 const de_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Teilung schließen`)
 };
 
 const nl_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Splitsing sluiten`)
 };
 
 const fr_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Fermer la division`)
 };
 
 const it_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Chiudi divisione`)
 };
 
 const hu_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Osztás bezárása`)
 };
 
 const cs_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Zavřít rozdělení`)
 };
 
 const ro_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Închide împărțirea`)
 };
 
 const el_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Κλείσιμο διαίρεσης`)
 };
 
 const bg_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Затвори разделянето`)
 };
 
 const hr_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Zatvori dijeljenje`)
 };
 
 const sr_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Zatvori deljenje`)
 };
 
 const sk_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Zavrieť rozdelenie`)
 };
 
 const sl_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close split`)
+	return /** @type {LocalizedString} */ (`Zapri delitev`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_nav_closesplit1 = /** @type {(inputs: Nav_Closesplit1Inputs) => Localiz
 * | "Close split" |
 *
 * @param {Nav_Closesplit1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const nav_closesplit1 = /** @type {((inputs?: Nav_Closesplit1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Closesplit1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const nav_closesplit1 = /** @type {((inputs?: Nav_Closesplit1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Closesplit1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_nav_closesplit1(inputs)
 	if (locale === "sv") return sv_nav_closesplit1(inputs)
@@ -174,7 +170,6 @@ const nav_closesplit1 = /** @type {((inputs?: Nav_Closesplit1Inputs, options?: {
 	if (locale === "bn") return bn_nav_closesplit1(inputs)
 	if (locale === "ru") return ru_nav_closesplit1(inputs)
 	if (locale === "ja") return ja_nav_closesplit1(inputs)
-	if (locale === "pa") return pa_nav_closesplit1(inputs)
 	if (locale === "vi") return vi_nav_closesplit1(inputs)
 	if (locale === "yue") return yue_nav_closesplit1(inputs)
 	if (locale === "tr") return tr_nav_closesplit1(inputs)

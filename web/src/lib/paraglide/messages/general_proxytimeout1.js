@@ -10,147 +10,143 @@ const en_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs
 };
 
 const sv_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy-timeout`)
 };
 
 const uk_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Тайм-аут proxy`)
 };
 
 const zh_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`代理超时`)
 };
 
 const es_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Tiempo de espera del proxy`)
 };
 
 const hi_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy टाइमआउट`)
 };
 
 const pt_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Tempo limite do proxy`)
 };
 
 const bn_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy টাইমআউট`)
 };
 
 const ru_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Тайм-аут proxy`)
 };
 
 const ja_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
-};
-
-const pa_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`プロキシタイムアウト`)
 };
 
 const vi_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Thời gian chờ proxy`)
 };
 
 const yue_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`代理逾時`)
 };
 
 const tr_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy Zaman Aşımı`)
 };
 
 const ar_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`مهلة proxy`)
 };
 
 const wuu_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`代理超时`)
 };
 
 const mr_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`प्रॉक्सी टाइमआउट`)
 };
 
 const nb_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy-tidsavbrudd`)
 };
 
 const fi_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy-aikakatkaisu`)
 };
 
 const da_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy-timeout`)
 };
 
 const et_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy ajalõpp`)
 };
 
 const lv_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy noildze`)
 };
 
 const lt_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy skirtasis laikas`)
 };
 
 const pl_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Limit czasu proxy`)
 };
 
 const de_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy-Timeout`)
 };
 
 const nl_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy-timeout`)
 };
 
 const fr_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Délai d'expiration du proxy`)
 };
 
 const it_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Timeout del proxy`)
 };
 
 const hu_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Proxy időtúllépés`)
 };
 
 const cs_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Časový limit proxy`)
 };
 
 const ro_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Timeout proxy`)
 };
 
 const el_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Χρονικό όριο proxy`)
 };
 
 const bg_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Timeout на proxy`)
 };
 
 const hr_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Istek proxy veze`)
 };
 
 const sr_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Istek proxy veze`)
 };
 
 const sk_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Časový limit proxy`)
 };
 
 const sl_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy Timeout`)
+	return /** @type {LocalizedString} */ (`Časovna omejitev proxy`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_proxytimeout1 = /** @type {(inputs: General_Proxytimeout1Inputs
 * | "Proxy Timeout" |
 *
 * @param {General_Proxytimeout1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_proxytimeout1 = /** @type {((inputs?: General_Proxytimeout1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Proxytimeout1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_proxytimeout1 = /** @type {((inputs?: General_Proxytimeout1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Proxytimeout1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_proxytimeout1(inputs)
 	if (locale === "sv") return sv_general_proxytimeout1(inputs)
@@ -174,7 +170,6 @@ const general_proxytimeout1 = /** @type {((inputs?: General_Proxytimeout1Inputs,
 	if (locale === "bn") return bn_general_proxytimeout1(inputs)
 	if (locale === "ru") return ru_general_proxytimeout1(inputs)
 	if (locale === "ja") return ja_general_proxytimeout1(inputs)
-	if (locale === "pa") return pa_general_proxytimeout1(inputs)
 	if (locale === "vi") return vi_general_proxytimeout1(inputs)
 	if (locale === "yue") return yue_general_proxytimeout1(inputs)
 	if (locale === "tr") return tr_general_proxytimeout1(inputs)

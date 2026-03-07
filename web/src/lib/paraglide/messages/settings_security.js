@@ -10,147 +10,143 @@ const en_settings_security = /** @type {(inputs: Settings_SecurityInputs) => Loc
 };
 
 const sv_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Säkerhet`)
 };
 
 const uk_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Безпека`)
 };
 
 const zh_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`安全`)
 };
 
 const es_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Seguridad`)
 };
 
 const hi_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`सुरक्षा`)
 };
 
 const pt_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Segurança`)
 };
 
 const bn_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`নিরাপত্তা`)
 };
 
 const ru_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Безопасность`)
 };
 
 const ja_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
-};
-
-const pa_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`セキュリティ`)
 };
 
 const vi_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Bảo mật`)
 };
 
 const yue_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`安全`)
 };
 
 const tr_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Güvenlik`)
 };
 
 const ar_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`الأمان`)
 };
 
 const wuu_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`安全`)
 };
 
 const mr_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`सुरक्षा`)
 };
 
 const nb_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sikkerhet`)
 };
 
 const fi_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Tietoturva`)
 };
 
 const da_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sikkerhed`)
 };
 
 const et_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Turvalisus`)
 };
 
 const lv_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Drošība`)
 };
 
 const lt_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Saugumas`)
 };
 
 const pl_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Bezpieczeństwo`)
 };
 
 const de_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sicherheit`)
 };
 
 const nl_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Beveiliging`)
 };
 
 const fr_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sécurité`)
 };
 
 const it_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sicurezza`)
 };
 
 const hu_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Biztonság`)
 };
 
 const cs_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Zabezpečení`)
 };
 
 const ro_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Securitate`)
 };
 
 const el_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Ασφάλεια`)
 };
 
 const bg_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Сигурност`)
 };
 
 const hr_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sigurnost`)
 };
 
 const sr_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Bezbednost`)
 };
 
 const sk_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Zabezpečenie`)
 };
 
 const sl_settings_security = /** @type {(inputs: Settings_SecurityInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Varnost`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_security = /** @type {(inputs: Settings_SecurityInputs) => Loc
 * | "Security" |
 *
 * @param {Settings_SecurityInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_security = /** @type {((inputs?: Settings_SecurityInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_SecurityInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_security = /** @type {((inputs?: Settings_SecurityInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_SecurityInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_security(inputs)
 	if (locale === "sv") return sv_settings_security(inputs)
@@ -174,7 +170,6 @@ export const settings_security = /** @type {((inputs?: Settings_SecurityInputs, 
 	if (locale === "bn") return bn_settings_security(inputs)
 	if (locale === "ru") return ru_settings_security(inputs)
 	if (locale === "ja") return ja_settings_security(inputs)
-	if (locale === "pa") return pa_settings_security(inputs)
 	if (locale === "vi") return vi_settings_security(inputs)
 	if (locale === "yue") return yue_settings_security(inputs)
 	if (locale === "tr") return tr_settings_security(inputs)

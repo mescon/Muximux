@@ -10,147 +10,143 @@ const en_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inpu
 };
 
 const sv_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Grupprubrik`)
 };
 
 const uk_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Заголовок груп`)
 };
 
 const zh_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`分组头`)
 };
 
 const es_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Cabecera de grupos`)
 };
 
 const hi_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`समूह हेडर`)
 };
 
 const pt_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Cabeçalho de grupos`)
 };
 
 const bn_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`গ্রুপ হেডার`)
 };
 
 const ru_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Заголовок групп`)
 };
 
 const ja_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
-};
-
-const pa_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`グループヘッダー`)
 };
 
 const vi_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Header nhóm`)
 };
 
 const yue_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`群組標頭`)
 };
 
 const tr_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Gruplar başlığı`)
 };
 
 const ar_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`ترويسة المجموعات`)
 };
 
 const wuu_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`分组请求头`)
 };
 
 const mr_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`गट हेडर`)
 };
 
 const nb_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Gruppeheader`)
 };
 
 const fi_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Ryhmäotsikko`)
 };
 
 const da_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Gruppeheader`)
 };
 
 const et_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Gruppide päis`)
 };
 
 const lv_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Grupu galvene`)
 };
 
 const lt_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Grupių antraštė`)
 };
 
 const pl_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Nagłówek grup`)
 };
 
 const de_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Gruppen-Header`)
 };
 
 const nl_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Groepen-header`)
 };
 
 const fr_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`En-tête groupes`)
 };
 
 const it_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Header gruppi`)
 };
 
 const hu_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Csoportok fejléc`)
 };
 
 const cs_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Hlavička skupin`)
 };
 
 const ro_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Antet grupuri`)
 };
 
 const el_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Κεφαλίδα ομάδων`)
 };
 
 const bg_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Хедър за групи`)
 };
 
 const hr_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Zaglavlje grupa`)
 };
 
 const sr_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Zaglavlje grupa`)
 };
 
 const sk_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Hlavička skupín`)
 };
 
 const sl_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups header`)
+	return /** @type {LocalizedString} */ (`Glava skupin`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_groupsheader1 = /** @type {(inputs: Security_Groupsheader1Inpu
 * | "Groups header" |
 *
 * @param {Security_Groupsheader1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_groupsheader1 = /** @type {((inputs?: Security_Groupsheader1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Groupsheader1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_groupsheader1 = /** @type {((inputs?: Security_Groupsheader1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Groupsheader1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_groupsheader1(inputs)
 	if (locale === "sv") return sv_security_groupsheader1(inputs)
@@ -174,7 +170,6 @@ const security_groupsheader1 = /** @type {((inputs?: Security_Groupsheader1Input
 	if (locale === "bn") return bn_security_groupsheader1(inputs)
 	if (locale === "ru") return ru_security_groupsheader1(inputs)
 	if (locale === "ja") return ja_security_groupsheader1(inputs)
-	if (locale === "pa") return pa_security_groupsheader1(inputs)
 	if (locale === "vi") return vi_security_groupsheader1(inputs)
 	if (locale === "yue") return yue_security_groupsheader1(inputs)
 	if (locale === "tr") return tr_security_groupsheader1(inputs)

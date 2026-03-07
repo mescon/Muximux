@@ -10,147 +10,143 @@ const en_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositionto
 };
 
 const sv_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horisontellt fält högst upp`)
 };
 
 const uk_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Горизонтальна панель зверху`)
 };
 
 const zh_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`顶部水平栏`)
 };
 
 const es_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Barra horizontal en la parte superior`)
 };
 
 const hi_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`शीर्ष पर क्षैतिज बार`)
 };
 
 const pt_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Barra horizontal no topo`)
 };
 
 const bn_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`উপরে অনুভূমিক বার`)
 };
 
 const ru_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Горизонтальная панель сверху`)
 };
 
 const ja_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
-};
-
-const pa_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`上部の水平バー`)
 };
 
 const vi_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Thanh ngang ở phía trên`)
 };
 
 const yue_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`頂部水平列`)
 };
 
 const tr_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Üstte yatay çubuk`)
 };
 
 const ar_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`شريط أفقي في الأعلى`)
 };
 
 const wuu_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`顶部的水平栏`)
 };
 
 const mr_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`शीर्षस्थानी क्षैतिज बार`)
 };
 
 const nb_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horisontalt felt øverst`)
 };
 
 const fi_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vaakasuora palkki ylhäällä`)
 };
 
 const da_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vandret bjælke øverst`)
 };
 
 const et_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horisontaalne riba üleval`)
 };
 
 const lv_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horizontālā josla augšā`)
 };
 
 const lt_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horizontali juosta viršuje`)
 };
 
 const pl_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Poziomy pasek u góry`)
 };
 
 const de_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horizontale Leiste oben`)
 };
 
 const nl_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horizontale balk bovenaan`)
 };
 
 const fr_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Barre horizontale en haut`)
 };
 
 const it_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Barra orizzontale in alto`)
 };
 
 const hu_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vízszintes sáv felül`)
 };
 
 const cs_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vodorovná lišta nahoře`)
 };
 
 const ro_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Bară orizontală în partea de sus`)
 };
 
 const el_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Οριζόντια μπάρα στο πάνω μέρος`)
 };
 
 const bg_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Хоризонтална лента отгоре`)
 };
 
 const hr_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vodoravna traka na vrhu`)
 };
 
 const sr_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Horizontalna traka na vrhu`)
 };
 
 const sk_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vodorovná lišta hore`)
 };
 
 const sl_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositiontopdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Horizontal bar at the top`)
+	return /** @type {LocalizedString} */ (`Vodoravna vrstica na vrhu`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_navpositiontopdesc3 = /** @type {(inputs: General_Navpositionto
 * | "Horizontal bar at the top" |
 *
 * @param {General_Navpositiontopdesc3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_navpositiontopdesc3 = /** @type {((inputs?: General_Navpositiontopdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Navpositiontopdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_navpositiontopdesc3 = /** @type {((inputs?: General_Navpositiontopdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Navpositiontopdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_navpositiontopdesc3(inputs)
 	if (locale === "sv") return sv_general_navpositiontopdesc3(inputs)
@@ -174,7 +170,6 @@ const general_navpositiontopdesc3 = /** @type {((inputs?: General_Navpositiontop
 	if (locale === "bn") return bn_general_navpositiontopdesc3(inputs)
 	if (locale === "ru") return ru_general_navpositiontopdesc3(inputs)
 	if (locale === "ja") return ja_general_navpositiontopdesc3(inputs)
-	if (locale === "pa") return pa_general_navpositiontopdesc3(inputs)
 	if (locale === "vi") return vi_general_navpositiontopdesc3(inputs)
 	if (locale === "yue") return yue_general_navpositiontopdesc3(inputs)
 	if (locale === "tr") return tr_general_navpositiontopdesc3(inputs)

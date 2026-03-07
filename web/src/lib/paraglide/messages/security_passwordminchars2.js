@@ -10,147 +10,143 @@ const en_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminch
 };
 
 const sv_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Lösenord (minst 8 tecken)`)
 };
 
 const uk_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Пароль (мін. 8 символів)`)
 };
 
 const zh_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`密码（至少 8 个字符）`)
 };
 
 const es_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Contraseña (mín. 8 caracteres)`)
 };
 
 const hi_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`पासवर्ड (न्यूनतम 8 अक्षर)`)
 };
 
 const pt_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Palavra-passe (mín. 8 caracteres)`)
 };
 
 const bn_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`পাসওয়ার্ড (সর্বনিম্ন ৮ অক্ষর)`)
 };
 
 const ru_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Пароль (минимум 8 символов)`)
 };
 
 const ja_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
-};
-
-const pa_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`パスワード（8文字以上）`)
 };
 
 const vi_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Mật khẩu (tối thiểu 8 ký tự)`)
 };
 
 const yue_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`密碼（至少 8 個字元）`)
 };
 
 const tr_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Şifre (en az 8 karakter)`)
 };
 
 const ar_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`كلمة المرور (8 أحرف كحد أدنى)`)
 };
 
 const wuu_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`密码（至少 8 个字符）`)
 };
 
 const mr_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`पासवर्ड (किमान ८ अक्षरे)`)
 };
 
 const nb_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Passord (minst 8 tegn)`)
 };
 
 const fi_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Salasana (vähintään 8 merkkiä)`)
 };
 
 const da_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Adgangskode (mindst 8 tegn)`)
 };
 
 const et_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Parool (min 8 tähemärki)`)
 };
 
 const lv_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Parole (min 8 rakstzīmes)`)
 };
 
 const lt_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Slaptažodis (min. 8 simboliai)`)
 };
 
 const pl_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Hasło (min. 8 znaków)`)
 };
 
 const de_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Passwort (mind. 8 Zeichen)`)
 };
 
 const nl_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Wachtwoord (min. 8 tekens)`)
 };
 
 const fr_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Mot de passe (8 caractères min.)`)
 };
 
 const it_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Password (min. 8 caratteri)`)
 };
 
 const hu_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Jelszó (min. 8 karakter)`)
 };
 
 const cs_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Heslo (min. 8 znaků)`)
 };
 
 const ro_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Parolă (min. 8 caractere)`)
 };
 
 const el_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Κωδικός (τουλάχιστον 8 χαρακτήρες)`)
 };
 
 const bg_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Парола (мин. 8 символа)`)
 };
 
 const hr_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Lozinka (najmanje 8 znakova)`)
 };
 
 const sr_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Lozinka (najmanje 8 znakova)`)
 };
 
 const sk_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Heslo (min. 8 znakov)`)
 };
 
 const sl_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminchars2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password (min 8 characters)`)
+	return /** @type {LocalizedString} */ (`Geslo (najmanj 8 znakov)`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_passwordminchars2 = /** @type {(inputs: Security_Passwordminch
 * | "Password (min 8 characters)" |
 *
 * @param {Security_Passwordminchars2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_passwordminchars2 = /** @type {((inputs?: Security_Passwordminchars2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Passwordminchars2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_passwordminchars2 = /** @type {((inputs?: Security_Passwordminchars2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Passwordminchars2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_passwordminchars2(inputs)
 	if (locale === "sv") return sv_security_passwordminchars2(inputs)
@@ -174,7 +170,6 @@ const security_passwordminchars2 = /** @type {((inputs?: Security_Passwordmincha
 	if (locale === "bn") return bn_security_passwordminchars2(inputs)
 	if (locale === "ru") return ru_security_passwordminchars2(inputs)
 	if (locale === "ja") return ja_security_passwordminchars2(inputs)
-	if (locale === "pa") return pa_security_passwordminchars2(inputs)
 	if (locale === "vi") return vi_security_passwordminchars2(inputs)
 	if (locale === "yue") return yue_security_passwordminchars2(inputs)
 	if (locale === "tr") return tr_security_passwordminchars2(inputs)

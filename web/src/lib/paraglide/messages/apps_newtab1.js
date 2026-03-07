@@ -10,147 +10,143 @@ const en_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedStri
 };
 
 const sv_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Ny flik`)
 };
 
 const uk_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Нова вкладка`)
 };
 
 const zh_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`新标签页`)
 };
 
 const es_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nueva pestaña`)
 };
 
 const hi_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`नया टैब`)
 };
 
 const pt_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Novo separador`)
 };
 
 const bn_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`নতুন ট্যাব`)
 };
 
 const ru_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Новая вкладка`)
 };
 
 const ja_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
-};
-
-const pa_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`新しいタブ`)
 };
 
 const vi_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Tab mới`)
 };
 
 const yue_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`新分頁`)
 };
 
 const tr_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Yeni sekme`)
 };
 
 const ar_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`تبويب جديد`)
 };
 
 const wuu_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`新标签页`)
 };
 
 const mr_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`नवीन टॅब`)
 };
 
 const nb_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Ny fane`)
 };
 
 const fi_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Uusi välilehti`)
 };
 
 const da_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Ny fane`)
 };
 
 const et_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Uus vahekaart`)
 };
 
 const lv_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Jauna cilne`)
 };
 
 const lt_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nauja kortelė`)
 };
 
 const pl_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nowa karta`)
 };
 
 const de_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Neuer Tab`)
 };
 
 const nl_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nieuw tabblad`)
 };
 
 const fr_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nouvel onglet`)
 };
 
 const it_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nuova scheda`)
 };
 
 const hu_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Új lap`)
 };
 
 const cs_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nová karta`)
 };
 
 const ro_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Filă nouă`)
 };
 
 const el_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Νέα καρτέλα`)
 };
 
 const bg_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Нов раздел`)
 };
 
 const hr_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nova kartica`)
 };
 
 const sr_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nova kartica`)
 };
 
 const sk_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nová karta`)
 };
 
 const sl_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`New tab`)
+	return /** @type {LocalizedString} */ (`Nov zavihek`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_newtab1 = /** @type {(inputs: Apps_Newtab1Inputs) => LocalizedStri
 * | "New tab" |
 *
 * @param {Apps_Newtab1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const apps_newtab1 = /** @type {((inputs?: Apps_Newtab1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Newtab1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const apps_newtab1 = /** @type {((inputs?: Apps_Newtab1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Newtab1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_newtab1(inputs)
 	if (locale === "sv") return sv_apps_newtab1(inputs)
@@ -174,7 +170,6 @@ const apps_newtab1 = /** @type {((inputs?: Apps_Newtab1Inputs, options?: { local
 	if (locale === "bn") return bn_apps_newtab1(inputs)
 	if (locale === "ru") return ru_apps_newtab1(inputs)
 	if (locale === "ja") return ja_apps_newtab1(inputs)
-	if (locale === "pa") return pa_apps_newtab1(inputs)
 	if (locale === "vi") return vi_apps_newtab1(inputs)
 	if (locale === "yue") return yue_apps_newtab1(inputs)
 	if (locale === "tr") return tr_apps_newtab1(inputs)

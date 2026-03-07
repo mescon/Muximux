@@ -10,147 +10,143 @@ const en_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplacehol
 };
 
 const sv_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Ange ditt lösenord`)
 };
 
 const uk_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Введіть пароль`)
 };
 
 const zh_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`输入密码`)
 };
 
 const es_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Introduce tu contraseña`)
 };
 
 const hi_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`अपना पासवर्ड दर्ज करें`)
 };
 
 const pt_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Introduz a tua palavra-passe`)
 };
 
 const bn_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`আপনার পাসওয়ার্ড দিন`)
 };
 
 const ru_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Введите пароль`)
 };
 
 const ja_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
-};
-
-const pa_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`パスワードを入力`)
 };
 
 const vi_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Nhập mật khẩu`)
 };
 
 const yue_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`輸入密碼`)
 };
 
 const tr_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Şifrenizi girin`)
 };
 
 const ar_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`أدخل كلمة المرور`)
 };
 
 const wuu_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`输入密码`)
 };
 
 const mr_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`तुमचा पासवर्ड टाका`)
 };
 
 const nb_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Skriv inn passordet ditt`)
 };
 
 const fi_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Syötä salasanasi`)
 };
 
 const da_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Indtast din adgangskode`)
 };
 
 const et_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Sisesta parool`)
 };
 
 const lv_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Ievadiet paroli`)
 };
 
 const lt_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Įveskite savo slaptažodį`)
 };
 
 const pl_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Wpisz hasło`)
 };
 
 const de_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Passwort eingeben`)
 };
 
 const nl_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Voer je wachtwoord in`)
 };
 
 const fr_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Entre ton mot de passe`)
 };
 
 const it_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Inserisci la tua password`)
 };
 
 const hu_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Adja meg a jelszavát`)
 };
 
 const cs_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Zadejte heslo`)
 };
 
 const ro_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Introdu parola`)
 };
 
 const el_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Εισάγετε τον κωδικό σας`)
 };
 
 const bg_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Въведете парола`)
 };
 
 const hr_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Unesite lozinku`)
 };
 
 const sr_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Unesite lozinku`)
 };
 
 const sk_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Zadajte heslo`)
 };
 
 const sl_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Enter your password`)
+	return /** @type {LocalizedString} */ (`Vnesite geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_login_passwordplaceholder1 = /** @type {(inputs: Login_Passwordplacehol
 * | "Enter your password" |
 *
 * @param {Login_Passwordplaceholder1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const login_passwordplaceholder1 = /** @type {((inputs?: Login_Passwordplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Passwordplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const login_passwordplaceholder1 = /** @type {((inputs?: Login_Passwordplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Passwordplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_login_passwordplaceholder1(inputs)
 	if (locale === "sv") return sv_login_passwordplaceholder1(inputs)
@@ -174,7 +170,6 @@ const login_passwordplaceholder1 = /** @type {((inputs?: Login_Passwordplacehold
 	if (locale === "bn") return bn_login_passwordplaceholder1(inputs)
 	if (locale === "ru") return ru_login_passwordplaceholder1(inputs)
 	if (locale === "ja") return ja_login_passwordplaceholder1(inputs)
-	if (locale === "pa") return pa_login_passwordplaceholder1(inputs)
 	if (locale === "vi") return vi_login_passwordplaceholder1(inputs)
 	if (locale === "yue") return yue_login_passwordplaceholder1(inputs)
 	if (locale === "tr") return tr_login_passwordplaceholder1(inputs)

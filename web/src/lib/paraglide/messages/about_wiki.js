@@ -18,7 +18,7 @@ const uk_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} 
 };
 
 const zh_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
+	return /** @type {LocalizedString} */ (`维基`)
 };
 
 const es_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} 
 };
 
 const hi_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
+	return /** @type {LocalizedString} */ (`विकी`)
 };
 
 const pt_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
@@ -34,18 +34,14 @@ const pt_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} 
 };
 
 const bn_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
+	return /** @type {LocalizedString} */ (`উইকি`)
 };
 
 const ru_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
+	return /** @type {LocalizedString} */ (`Вики`)
 };
 
 const ja_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
-};
-
-const pa_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Wiki`)
 };
 
@@ -54,7 +50,7 @@ const vi_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} 
 };
 
 const yue_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
+	return /** @type {LocalizedString} */ (`維基`)
 };
 
 const tr_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
@@ -62,7 +58,7 @@ const tr_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} 
 };
 
 const ar_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Wiki`)
+	return /** @type {LocalizedString} */ (`ويكي`)
 };
 
 const wuu_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_about_wiki = /** @type {(inputs: About_WikiInputs) => LocalizedString} 
 * | "Wiki" |
 *
 * @param {About_WikiInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_wiki = /** @type {((inputs?: About_WikiInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_WikiInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_wiki = /** @type {((inputs?: About_WikiInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_WikiInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_wiki(inputs)
 	if (locale === "sv") return sv_about_wiki(inputs)
@@ -174,7 +170,6 @@ export const about_wiki = /** @type {((inputs?: About_WikiInputs, options?: { lo
 	if (locale === "bn") return bn_about_wiki(inputs)
 	if (locale === "ru") return ru_about_wiki(inputs)
 	if (locale === "ja") return ja_about_wiki(inputs)
-	if (locale === "pa") return pa_about_wiki(inputs)
 	if (locale === "vi") return vi_about_wiki(inputs)
 	if (locale === "yue") return yue_about_wiki(inputs)
 	if (locale === "tr") return tr_about_wiki(inputs)

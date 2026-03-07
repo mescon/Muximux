@@ -10,75 +10,71 @@ const en_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summaryn
 };
 
 const sv_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigering`)
 };
 
 const uk_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Навігація`)
 };
 
 const zh_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`导航`)
 };
 
 const es_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navegación`)
 };
 
 const hi_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`नेविगेशन`)
 };
 
 const pt_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navegação`)
 };
 
 const bn_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`নেভিগেশন`)
 };
 
 const ru_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Навигация`)
 };
 
 const ja_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
-};
-
-const pa_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`ナビゲーション`)
 };
 
 const vi_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Điều hướng`)
 };
 
 const yue_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`導覽`)
 };
 
 const tr_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigasyon`)
 };
 
 const ar_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`التنقل`)
 };
 
 const wuu_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`导航`)
 };
 
 const mr_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`नेव्हिगेशन`)
 };
 
 const nb_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigasjon`)
 };
 
 const fi_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigaatio`)
 };
 
 const da_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summaryn
 };
 
 const et_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigeerimine`)
 };
 
 const lv_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigācija`)
 };
 
 const lt_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigacija`)
 };
 
 const pl_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Nawigacja`)
 };
 
 const de_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
@@ -106,7 +102,7 @@ const de_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summaryn
 };
 
 const nl_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigatie`)
 };
 
 const fr_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summaryn
 };
 
 const it_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigazione`)
 };
 
 const hu_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigáció`)
 };
 
 const cs_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigace`)
 };
 
 const ro_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigare`)
 };
 
 const el_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Πλοήγηση`)
 };
 
 const bg_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Навигация`)
 };
 
 const hr_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigacija`)
 };
 
 const sr_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigacija`)
 };
 
 const sk_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigácia`)
 };
 
 const sl_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summarynavigation1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigation`)
+	return /** @type {LocalizedString} */ (`Navigacija`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_summarynavigation1 = /** @type {(inputs: Onboarding_Summaryn
 * | "Navigation" |
 *
 * @param {Onboarding_Summarynavigation1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_summarynavigation1 = /** @type {((inputs?: Onboarding_Summarynavigation1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Summarynavigation1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_summarynavigation1 = /** @type {((inputs?: Onboarding_Summarynavigation1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Summarynavigation1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_summarynavigation1(inputs)
 	if (locale === "sv") return sv_onboarding_summarynavigation1(inputs)
@@ -174,7 +170,6 @@ const onboarding_summarynavigation1 = /** @type {((inputs?: Onboarding_Summaryna
 	if (locale === "bn") return bn_onboarding_summarynavigation1(inputs)
 	if (locale === "ru") return ru_onboarding_summarynavigation1(inputs)
 	if (locale === "ja") return ja_onboarding_summarynavigation1(inputs)
-	if (locale === "pa") return pa_onboarding_summarynavigation1(inputs)
 	if (locale === "vi") return vi_onboarding_summarynavigation1(inputs)
 	if (locale === "yue") return yue_onboarding_summarynavigation1(inputs)
 	if (locale === "tr") return tr_onboarding_summarynavigation1(inputs)

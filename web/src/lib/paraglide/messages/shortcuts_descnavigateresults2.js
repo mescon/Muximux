@@ -10,147 +10,143 @@ const en_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavi
 };
 
 const sv_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigera resultat (i sök/palett)`)
 };
 
 const uk_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Навігація результатами (у пошуку/палітрі)`)
 };
 
 const zh_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`浏览结果（在搜索/命令面板中）`)
 };
 
 const es_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navegar resultados (en búsqueda/paleta)`)
 };
 
 const hi_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`परिणामों में नेविगेट करें (खोज/पैलेट में)`)
 };
 
 const pt_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navegar resultados (em pesquisa/paleta)`)
 };
 
 const bn_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`ফলাফলে নেভিগেট করুন (অনুসন্ধান/প্যালেটে)`)
 };
 
 const ru_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Навигация по результатам (в поиске/палитре)`)
 };
 
 const ja_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
-};
-
-const pa_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`結果をナビゲート（検索/パレット内）`)
 };
 
 const vi_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Điều hướng kết quả (trong tìm kiếm/bảng lệnh)`)
 };
 
 const yue_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`瀏覽結果（喺搜尋/命令面板入面）`)
 };
 
 const tr_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Sonuçlarda gezin (arama/palette)`)
 };
 
 const ar_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`التنقل بين النتائج (في البحث/لوحة الأوامر)`)
 };
 
 const wuu_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`在搜索/命令面板中导航结果`)
 };
 
 const mr_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`निकाल नेव्हिगेट करा (शोध/पॅलेटमध्ये)`)
 };
 
 const nb_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Naviger resultater (i søk/palett)`)
 };
 
 const fi_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigoi tuloksia (haussa/valikossa)`)
 };
 
 const da_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Naviger resultater (i søgning/palette)`)
 };
 
 const et_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigeeri tulemuste vahel (otsing/palett)`)
 };
 
 const lv_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigēt rezultātos (meklēšanā/paletē)`)
 };
 
 const lt_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Naršyti rezultatus (paieškoje/paletėje)`)
 };
 
 const pl_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Nawiguj po wynikach (w wyszukiwaniu/palecie)`)
 };
 
 const de_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Ergebnisse durchgehen (in Suche/Palette)`)
 };
 
 const nl_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Resultaten doorlopen (in zoeken/palet)`)
 };
 
 const fr_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Naviguer dans les résultats (dans recherche/palette)`)
 };
 
 const it_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Naviga nei risultati (in ricerca/palette)`)
 };
 
 const hu_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigálás az eredmények között (keresésben/palettán)`)
 };
 
 const cs_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigovat ve výsledcích (ve vyhledávání/paletě)`)
 };
 
 const ro_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navighează rezultatele (în căutare/paletă)`)
 };
 
 const el_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Πλοήγηση αποτελεσμάτων (σε αναζήτηση/παλέτα)`)
 };
 
 const bg_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Навигирай резултатите (в търсене/палитра)`)
 };
 
 const hr_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigiraj rezultate (u pretrazi/paleti)`)
 };
 
 const sr_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigiraj rezultate (u pretrazi/paleti)`)
 };
 
 const sk_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigovať vo výsledkoch (vo vyhľadávaní/palete)`)
 };
 
 const sl_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavigateresults2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Navigate results (in search/palette)`)
+	return /** @type {LocalizedString} */ (`Navigiraj rezultate (v iskanju/paleti)`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_shortcuts_descnavigateresults2 = /** @type {(inputs: Shortcuts_Descnavi
 * | "Navigate results (in search/palette)" |
 *
 * @param {Shortcuts_Descnavigateresults2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_descnavigateresults2 = /** @type {((inputs?: Shortcuts_Descnavigateresults2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Descnavigateresults2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_descnavigateresults2 = /** @type {((inputs?: Shortcuts_Descnavigateresults2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Descnavigateresults2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_descnavigateresults2(inputs)
 	if (locale === "sv") return sv_shortcuts_descnavigateresults2(inputs)
@@ -174,7 +170,6 @@ const shortcuts_descnavigateresults2 = /** @type {((inputs?: Shortcuts_Descnavig
 	if (locale === "bn") return bn_shortcuts_descnavigateresults2(inputs)
 	if (locale === "ru") return ru_shortcuts_descnavigateresults2(inputs)
 	if (locale === "ja") return ja_shortcuts_descnavigateresults2(inputs)
-	if (locale === "pa") return pa_shortcuts_descnavigateresults2(inputs)
 	if (locale === "vi") return vi_shortcuts_descnavigateresults2(inputs)
 	if (locale === "yue") return yue_shortcuts_descnavigateresults2(inputs)
 	if (locale === "tr") return tr_shortcuts_descnavigateresults2(inputs)

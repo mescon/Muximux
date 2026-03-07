@@ -10,147 +10,143 @@ const en_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs
 };
 
 const sv_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigera`)
 };
 
 const uk_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Навігація`)
 };
 
 const zh_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ 导航`)
 };
 
 const es_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navegar`)
 };
 
 const hi_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ नेविगेट करें`)
 };
 
 const pt_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navegar`)
 };
 
 const bn_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ নেভিগেট`)
 };
 
 const ru_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Навигация`)
 };
 
 const ja_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
-};
-
-const pa_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ ナビゲート`)
 };
 
 const vi_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Điều hướng`)
 };
 
 const yue_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ 導覽`)
 };
 
 const tr_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Gezin`)
 };
 
 const ar_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ تنقل`)
 };
 
 const wuu_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ 导航`)
 };
 
 const mr_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ नेव्हिगेट`)
 };
 
 const nb_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Naviger`)
 };
 
 const fi_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigoi`)
 };
 
 const da_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Naviger`)
 };
 
 const et_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigeeri`)
 };
 
 const lv_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigēt`)
 };
 
 const lt_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Naršyti`)
 };
 
 const pl_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Nawiguj`)
 };
 
 const de_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigieren`)
 };
 
 const nl_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigeren`)
 };
 
 const fr_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Naviguer`)
 };
 
 const it_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Naviga`)
 };
 
 const hu_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigálás`)
 };
 
 const cs_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigovat`)
 };
 
 const ro_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigare`)
 };
 
 const el_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Πλοήγηση`)
 };
 
 const bg_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Навигация`)
 };
 
 const hr_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigacija`)
 };
 
 const sr_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigacija`)
 };
 
 const sk_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigovať`)
 };
 
 const sl_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑↓ Navigate`)
+	return /** @type {LocalizedString} */ (`↑↓ Navigacija`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_hintnavigate1 = /** @type {(inputs: Command_Hintnavigate1Inputs
 * | "↑↓ Navigate" |
 *
 * @param {Command_Hintnavigate1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_hintnavigate1 = /** @type {((inputs?: Command_Hintnavigate1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Hintnavigate1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_hintnavigate1 = /** @type {((inputs?: Command_Hintnavigate1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Hintnavigate1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_hintnavigate1(inputs)
 	if (locale === "sv") return sv_command_hintnavigate1(inputs)
@@ -174,7 +170,6 @@ const command_hintnavigate1 = /** @type {((inputs?: Command_Hintnavigate1Inputs,
 	if (locale === "bn") return bn_command_hintnavigate1(inputs)
 	if (locale === "ru") return ru_command_hintnavigate1(inputs)
 	if (locale === "ja") return ja_command_hintnavigate1(inputs)
-	if (locale === "pa") return pa_command_hintnavigate1(inputs)
 	if (locale === "vi") return vi_command_hintnavigate1(inputs)
 	if (locale === "yue") return yue_command_hintnavigate1(inputs)
 	if (locale === "tr") return tr_command_hintnavigate1(inputs)

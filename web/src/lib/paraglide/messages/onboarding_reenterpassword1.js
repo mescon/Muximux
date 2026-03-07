@@ -10,147 +10,143 @@ const en_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpas
 };
 
 const sv_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Ange lösenordet igen`)
 };
 
 const uk_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Введіть пароль повторно`)
 };
 
 const zh_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`重新输入密码`)
 };
 
 const es_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Repite la contraseña`)
 };
 
 const hi_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`पासवर्ड पुनः दर्ज करें`)
 };
 
 const pt_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Reintroduz a palavra-passe`)
 };
 
 const bn_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`পাসওয়ার্ড পুনরায় দিন`)
 };
 
 const ru_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Повторите пароль`)
 };
 
 const ja_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
-};
-
-const pa_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`パスワードを再入力`)
 };
 
 const vi_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Nhập lại mật khẩu`)
 };
 
 const yue_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`重新輸入密碼`)
 };
 
 const tr_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Şifreyi tekrar girin`)
 };
 
 const ar_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`أعد إدخال كلمة المرور`)
 };
 
 const wuu_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`再次输入密码`)
 };
 
 const mr_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`पासवर्ड पुन्हा टाका`)
 };
 
 const nb_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Skriv inn passordet på nytt`)
 };
 
 const fi_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Syötä salasana uudelleen`)
 };
 
 const da_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Indtast adgangskoden igen`)
 };
 
 const et_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Sisestage parool uuesti`)
 };
 
 const lv_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Ievadiet paroli vēlreiz`)
 };
 
 const lt_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Pakartokite slaptažodį`)
 };
 
 const pl_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Wprowadź hasło ponownie`)
 };
 
 const de_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Passwort erneut eingeben`)
 };
 
 const nl_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Wachtwoord opnieuw invoeren`)
 };
 
 const fr_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Ressaisis le mot de passe`)
 };
 
 const it_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Reinserisci la password`)
 };
 
 const hu_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Jelszó újra megadása`)
 };
 
 const cs_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Zadejte heslo znovu`)
 };
 
 const ro_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Reintroduceți parola`)
 };
 
 const el_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Εισάγετε ξανά τον κωδικό`)
 };
 
 const bg_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Въведете паролата отново`)
 };
 
 const hr_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Ponovo unesite lozinku`)
 };
 
 const sr_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Ponovo unesite lozinku`)
 };
 
 const sk_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Zadajte heslo znova`)
 };
 
 const sl_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Re-enter password`)
+	return /** @type {LocalizedString} */ (`Ponovno vnesite geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_reenterpassword1 = /** @type {(inputs: Onboarding_Reenterpas
 * | "Re-enter password" |
 *
 * @param {Onboarding_Reenterpassword1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_reenterpassword1 = /** @type {((inputs?: Onboarding_Reenterpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Reenterpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_reenterpassword1 = /** @type {((inputs?: Onboarding_Reenterpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Reenterpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_reenterpassword1(inputs)
 	if (locale === "sv") return sv_onboarding_reenterpassword1(inputs)
@@ -174,7 +170,6 @@ const onboarding_reenterpassword1 = /** @type {((inputs?: Onboarding_Reenterpass
 	if (locale === "bn") return bn_onboarding_reenterpassword1(inputs)
 	if (locale === "ru") return ru_onboarding_reenterpassword1(inputs)
 	if (locale === "ja") return ja_onboarding_reenterpassword1(inputs)
-	if (locale === "pa") return pa_onboarding_reenterpassword1(inputs)
 	if (locale === "vi") return vi_onboarding_reenterpassword1(inputs)
 	if (locale === "yue") return yue_onboarding_reenterpassword1(inputs)
 	if (locale === "tr") return tr_onboarding_reenterpassword1(inputs)

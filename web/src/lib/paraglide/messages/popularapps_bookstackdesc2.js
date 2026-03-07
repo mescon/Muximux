@@ -10,147 +10,143 @@ const en_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackd
 };
 
 const sv_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentationswiki`)
 };
 
 const uk_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki документації`)
 };
 
 const zh_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`文档维基`)
 };
 
 const es_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki de documentación`)
 };
 
 const hi_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`डॉक्यूमेंटेशन विकी`)
 };
 
 const pt_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki de documentação`)
 };
 
 const bn_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`ডকুমেন্টেশন উইকি`)
 };
 
 const ru_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Документационная вики`)
 };
 
 const ja_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
-};
-
-const pa_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`ドキュメント Wiki`)
 };
 
 const vi_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki tài liệu`)
 };
 
 const yue_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`文件維基`)
 };
 
 const tr_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokümantasyon wiki`)
 };
 
 const ar_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`ويكي توثيقية`)
 };
 
 const wuu_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`文档 Wiki`)
 };
 
 const mr_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`दस्तऐवजीकरण विकी`)
 };
 
 const nb_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentasjonswiki`)
 };
 
 const fi_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentaatiowiki`)
 };
 
 const da_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentationswiki`)
 };
 
 const et_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentatsiooni wiki`)
 };
 
 const lv_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentācijas wiki`)
 };
 
 const lt_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentacijos wiki`)
 };
 
 const pl_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki dokumentacji`)
 };
 
 const de_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentations-Wiki`)
 };
 
 const nl_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Documentatiewiki`)
 };
 
 const fr_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki de documentation`)
 };
 
 const it_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki documentazione`)
 };
 
 const hu_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentációs wiki`)
 };
 
 const cs_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki pro dokumentaci`)
 };
 
 const ro_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki de documentare`)
 };
 
 const el_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki τεκμηρίωσης`)
 };
 
 const bg_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki за документация`)
 };
 
 const hr_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentacijski wiki`)
 };
 
 const sr_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentacioni wiki`)
 };
 
 const sk_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Wiki pre dokumentáciu`)
 };
 
 const sl_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Documentation wiki`)
+	return /** @type {LocalizedString} */ (`Dokumentacijski wiki`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_bookstackdesc2 = /** @type {(inputs: Popularapps_Bookstackd
 * | "Documentation wiki" |
 *
 * @param {Popularapps_Bookstackdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_bookstackdesc2 = /** @type {((inputs?: Popularapps_Bookstackdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Bookstackdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_bookstackdesc2 = /** @type {((inputs?: Popularapps_Bookstackdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Bookstackdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_bookstackdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_bookstackdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_bookstackdesc2 = /** @type {((inputs?: Popularapps_Bookstackde
 	if (locale === "bn") return bn_popularapps_bookstackdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_bookstackdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_bookstackdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_bookstackdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_bookstackdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_bookstackdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_bookstackdesc2(inputs)

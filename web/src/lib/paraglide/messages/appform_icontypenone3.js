@@ -10,147 +10,143 @@ const en_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs
 };
 
 const sv_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ingen ikon vald`)
 };
 
 const uk_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Іконку не встановлено`)
 };
 
 const zh_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`未设置图标`)
 };
 
 const es_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Sin icono definido`)
 };
 
 const hi_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`कोई आइकन सेट नहीं`)
 };
 
 const pt_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Nenhum ícone definido`)
 };
 
 const bn_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`কোনো আইকন সেট করা হয়নি`)
 };
 
 const ru_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Иконка не задана`)
 };
 
 const ja_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
-};
-
-const pa_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`アイコン未設定`)
 };
 
 const vi_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Chưa đặt biểu tượng`)
 };
 
 const yue_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`未設定圖示`)
 };
 
 const tr_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Simge ayarlanmadı`)
 };
 
 const ar_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`لم يتم تعيين أيقونة`)
 };
 
 const wuu_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`没设图标`)
 };
 
 const mr_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`आयकॉन सेट नाही`)
 };
 
 const nb_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ingen ikon valgt`)
 };
 
 const fi_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Kuvaketta ei valittu`)
 };
 
 const da_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Intet ikon valgt`)
 };
 
 const et_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ikoon puudub`)
 };
 
 const lv_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ikona nav iestatīta`)
 };
 
 const lt_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Piktograma nenustatyta`)
 };
 
 const pl_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Brak ikony`)
 };
 
 const de_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Kein Icon festgelegt`)
 };
 
 const nl_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Geen pictogram ingesteld`)
 };
 
 const fr_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Aucune icône définie`)
 };
 
 const it_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Nessuna icona impostata`)
 };
 
 const hu_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Nincs ikon beállítva`)
 };
 
 const cs_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Žádná ikona`)
 };
 
 const ro_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Nicio pictogramă setată`)
 };
 
 const el_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Κανένα εικονίδιο`)
 };
 
 const bg_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Не е зададена икона`)
 };
 
 const hr_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ikona nije postavljena`)
 };
 
 const sr_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ikona nije postavljena`)
 };
 
 const sk_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Žiadna ikona`)
 };
 
 const sl_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No icon set`)
+	return /** @type {LocalizedString} */ (`Ikona ni nastavljena`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_icontypenone3 = /** @type {(inputs: Appform_Icontypenone3Inputs
 * | "No icon set" |
 *
 * @param {Appform_Icontypenone3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_icontypenone3 = /** @type {((inputs?: Appform_Icontypenone3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Icontypenone3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_icontypenone3 = /** @type {((inputs?: Appform_Icontypenone3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Icontypenone3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_icontypenone3(inputs)
 	if (locale === "sv") return sv_appform_icontypenone3(inputs)
@@ -174,7 +170,6 @@ const appform_icontypenone3 = /** @type {((inputs?: Appform_Icontypenone3Inputs,
 	if (locale === "bn") return bn_appform_icontypenone3(inputs)
 	if (locale === "ru") return ru_appform_icontypenone3(inputs)
 	if (locale === "ja") return ja_appform_icontypenone3(inputs)
-	if (locale === "pa") return pa_appform_icontypenone3(inputs)
 	if (locale === "vi") return vi_appform_icontypenone3(inputs)
 	if (locale === "yue") return yue_appform_icontypenone3(inputs)
 	if (locale === "tr") return tr_appform_icontypenone3(inputs)

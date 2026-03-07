@@ -10,147 +10,143 @@ const en_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2In
 };
 
 const sv_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Välj ikon`)
 };
 
 const uk_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Обрати іконку`)
 };
 
 const zh_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`选择图标`)
 };
 
 const es_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Seleccionar icono`)
 };
 
 const hi_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`आइकन चुनें`)
 };
 
 const pt_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Selecionar ícone`)
 };
 
 const bn_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`আইকন নির্বাচন করুন`)
 };
 
 const ru_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Выбрать иконку`)
 };
 
 const ja_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
-};
-
-const pa_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`アイコンを選択`)
 };
 
 const vi_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Chọn biểu tượng`)
 };
 
 const yue_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`揀選圖示`)
 };
 
 const tr_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Simge Seç`)
 };
 
 const ar_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`اختيار أيقونة`)
 };
 
 const wuu_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`选择图标`)
 };
 
 const mr_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`आयकॉन निवडा`)
 };
 
 const nb_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Velg ikon`)
 };
 
 const fi_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Valitse kuvake`)
 };
 
 const da_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vælg ikon`)
 };
 
 const et_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vali ikoon`)
 };
 
 const lv_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Izvēlēties ikonu`)
 };
 
 const lt_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Pasirinkti piktogramą`)
 };
 
 const pl_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Wybierz ikonę`)
 };
 
 const de_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Icon auswählen`)
 };
 
 const nl_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Pictogram selecteren`)
 };
 
 const fr_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Sélectionner une icône`)
 };
 
 const it_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Seleziona icona`)
 };
 
 const hu_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Ikon kiválasztása`)
 };
 
 const cs_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vybrat ikonu`)
 };
 
 const ro_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Selectează pictogramă`)
 };
 
 const el_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Επιλογή εικονιδίου`)
 };
 
 const bg_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Избери икона`)
 };
 
 const hr_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Odaberi ikonu`)
 };
 
 const sr_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Izaberi ikonu`)
 };
 
 const sk_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vybrať ikonu`)
 };
 
 const sl_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Izberi ikono`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_iconbrowser_selecticon2 = /** @type {(inputs: Iconbrowser_Selecticon2In
 * | "Select Icon" |
 *
 * @param {Iconbrowser_Selecticon2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const iconbrowser_selecticon2 = /** @type {((inputs?: Iconbrowser_Selecticon2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Selecticon2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const iconbrowser_selecticon2 = /** @type {((inputs?: Iconbrowser_Selecticon2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Selecticon2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_iconbrowser_selecticon2(inputs)
 	if (locale === "sv") return sv_iconbrowser_selecticon2(inputs)
@@ -174,7 +170,6 @@ const iconbrowser_selecticon2 = /** @type {((inputs?: Iconbrowser_Selecticon2Inp
 	if (locale === "bn") return bn_iconbrowser_selecticon2(inputs)
 	if (locale === "ru") return ru_iconbrowser_selecticon2(inputs)
 	if (locale === "ja") return ja_iconbrowser_selecticon2(inputs)
-	if (locale === "pa") return pa_iconbrowser_selecticon2(inputs)
 	if (locale === "vi") return vi_iconbrowser_selecticon2(inputs)
 	if (locale === "yue") return yue_iconbrowser_selecticon2(inputs)
 	if (locale === "tr") return tr_iconbrowser_selecticon2(inputs)

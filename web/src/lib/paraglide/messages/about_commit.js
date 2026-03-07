@@ -18,7 +18,7 @@ const uk_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedStri
 };
 
 const zh_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Commit`)
+	return /** @type {LocalizedString} */ (`提交`)
 };
 
 const es_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
@@ -38,15 +38,11 @@ const bn_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedStri
 };
 
 const ru_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Commit`)
+	return /** @type {LocalizedString} */ (`Коммит`)
 };
 
 const ja_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Commit`)
-};
-
-const pa_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Commit`)
+	return /** @type {LocalizedString} */ (`コミット`)
 };
 
 const vi_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
@@ -54,7 +50,7 @@ const vi_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedStri
 };
 
 const yue_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Commit`)
+	return /** @type {LocalizedString} */ (`提交`)
 };
 
 const tr_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_about_commit = /** @type {(inputs: About_CommitInputs) => LocalizedStri
 * | "Commit" |
 *
 * @param {About_CommitInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_commit = /** @type {((inputs?: About_CommitInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_CommitInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_commit = /** @type {((inputs?: About_CommitInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_CommitInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_commit(inputs)
 	if (locale === "sv") return sv_about_commit(inputs)
@@ -174,7 +170,6 @@ export const about_commit = /** @type {((inputs?: About_CommitInputs, options?: 
 	if (locale === "bn") return bn_about_commit(inputs)
 	if (locale === "ru") return ru_about_commit(inputs)
 	if (locale === "ja") return ja_about_commit(inputs)
-	if (locale === "pa") return pa_about_commit(inputs)
 	if (locale === "vi") return vi_about_commit(inputs)
 	if (locale === "yue") return yue_about_commit(inputs)
 	if (locale === "tr") return tr_about_commit(inputs)

@@ -10,147 +10,143 @@ const en_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => Loc
 };
 
 const sv_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Öppningsläge`)
 };
 
 const uk_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Режим відкриття`)
 };
 
 const zh_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`打开方式`)
 };
 
 const es_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Modo de apertura`)
 };
 
 const hi_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`खोलने का तरीका`)
 };
 
 const pt_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Modo de abertura`)
 };
 
 const bn_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`ওপেন মোড`)
 };
 
 const ru_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Режим открытия`)
 };
 
 const ja_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
-};
-
-const pa_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`オープンモード`)
 };
 
 const vi_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Chế độ mở`)
 };
 
 const yue_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`開啟方式`)
 };
 
 const tr_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Açılış Modu`)
 };
 
 const ar_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`وضع الفتح`)
 };
 
 const wuu_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`打开方式`)
 };
 
 const mr_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`उघडण्याची पद्धत`)
 };
 
 const nb_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Åpningsmodus`)
 };
 
 const fi_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Avaustapa`)
 };
 
 const da_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Åbningstilstand`)
 };
 
 const et_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Avamisrežiim`)
 };
 
 const lv_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Atvēršanas režīms`)
 };
 
 const lt_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Atidarymo režimas`)
 };
 
 const pl_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Tryb otwierania`)
 };
 
 const de_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Öffnungsmodus`)
 };
 
 const nl_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Openmodus`)
 };
 
 const fr_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Mode d'ouverture`)
 };
 
 const it_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Modalità di apertura`)
 };
 
 const hu_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Megnyitási mód`)
 };
 
 const cs_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Režim otevření`)
 };
 
 const ro_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Mod de deschidere`)
 };
 
 const el_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Τρόπος ανοίγματος`)
 };
 
 const bg_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Режим на отваряне`)
 };
 
 const hr_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Način otvaranja`)
 };
 
 const sr_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Režim otvaranja`)
 };
 
 const sk_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Režim otvorenia`)
 };
 
 const sl_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Open Mode`)
+	return /** @type {LocalizedString} */ (`Način odpiranja`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_openmode2 = /** @type {(inputs: Appform_Openmode2Inputs) => Loc
 * | "Open Mode" |
 *
 * @param {Appform_Openmode2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_openmode2 = /** @type {((inputs?: Appform_Openmode2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Openmode2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_openmode2 = /** @type {((inputs?: Appform_Openmode2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Openmode2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_openmode2(inputs)
 	if (locale === "sv") return sv_appform_openmode2(inputs)
@@ -174,7 +170,6 @@ const appform_openmode2 = /** @type {((inputs?: Appform_Openmode2Inputs, options
 	if (locale === "bn") return bn_appform_openmode2(inputs)
 	if (locale === "ru") return ru_appform_openmode2(inputs)
 	if (locale === "ja") return ja_appform_openmode2(inputs)
-	if (locale === "pa") return pa_appform_openmode2(inputs)
 	if (locale === "vi") return vi_appform_openmode2(inputs)
 	if (locale === "yue") return yue_appform_openmode2(inputs)
 	if (locale === "tr") return tr_appform_openmode2(inputs)

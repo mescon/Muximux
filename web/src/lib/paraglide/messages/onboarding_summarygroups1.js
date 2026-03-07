@@ -10,147 +10,143 @@ const en_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroup
 };
 
 const sv_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupper`)
 };
 
 const uk_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Групи`)
 };
 
 const zh_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`分组`)
 };
 
 const es_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupos`)
 };
 
 const hi_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`समूह`)
 };
 
 const pt_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupos`)
 };
 
 const bn_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`গ্রুপ`)
 };
 
 const ru_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Группы`)
 };
 
 const ja_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
-};
-
-const pa_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`グループ`)
 };
 
 const vi_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Nhóm`)
 };
 
 const yue_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`群組`)
 };
 
 const tr_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Gruplar`)
 };
 
 const ar_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`المجموعات`)
 };
 
 const wuu_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`分组`)
 };
 
 const mr_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`गट`)
 };
 
 const nb_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupper`)
 };
 
 const fi_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Ryhmät`)
 };
 
 const da_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupper`)
 };
 
 const et_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupid`)
 };
 
 const lv_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupas`)
 };
 
 const lt_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupės`)
 };
 
 const pl_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupy`)
 };
 
 const de_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Gruppen`)
 };
 
 const nl_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Groepen`)
 };
 
 const fr_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Groupes`)
 };
 
 const it_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Gruppi`)
 };
 
 const hu_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Csoportok`)
 };
 
 const cs_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Skupiny`)
 };
 
 const ro_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupuri`)
 };
 
 const el_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Ομάδες`)
 };
 
 const bg_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Групи`)
 };
 
 const hr_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupe`)
 };
 
 const sr_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Grupe`)
 };
 
 const sk_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Skupiny`)
 };
 
 const sl_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroups1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Groups`)
+	return /** @type {LocalizedString} */ (`Skupine`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_summarygroups1 = /** @type {(inputs: Onboarding_Summarygroup
 * | "Groups" |
 *
 * @param {Onboarding_Summarygroups1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_summarygroups1 = /** @type {((inputs?: Onboarding_Summarygroups1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Summarygroups1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_summarygroups1 = /** @type {((inputs?: Onboarding_Summarygroups1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Summarygroups1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_summarygroups1(inputs)
 	if (locale === "sv") return sv_onboarding_summarygroups1(inputs)
@@ -174,7 +170,6 @@ const onboarding_summarygroups1 = /** @type {((inputs?: Onboarding_Summarygroups
 	if (locale === "bn") return bn_onboarding_summarygroups1(inputs)
 	if (locale === "ru") return ru_onboarding_summarygroups1(inputs)
 	if (locale === "ja") return ja_onboarding_summarygroups1(inputs)
-	if (locale === "pa") return pa_onboarding_summarygroups1(inputs)
 	if (locale === "vi") return vi_onboarding_summarygroups1(inputs)
 	if (locale === "yue") return yue_onboarding_summarygroups1(inputs)
 	if (locale === "tr") return tr_onboarding_summarygroups1(inputs)

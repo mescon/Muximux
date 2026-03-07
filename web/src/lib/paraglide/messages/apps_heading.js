@@ -10,147 +10,143 @@ const en_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedStri
 };
 
 const sv_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Appar och grupper`)
 };
 
 const uk_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Застосунки та групи`)
 };
 
 const zh_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`应用和分组`)
 };
 
 const es_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apps y grupos`)
 };
 
 const hi_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`ऐप्स और समूह`)
 };
 
 const pt_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apps e grupos`)
 };
 
 const bn_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`অ্যাপ ও গ্রুপ`)
 };
 
 const ru_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Приложения и группы`)
 };
 
 const ja_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
-};
-
-const pa_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`アプリとグループ`)
 };
 
 const vi_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Ứng dụng & Nhóm`)
 };
 
 const yue_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`應用程式同群組`)
 };
 
 const tr_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Uygulamalar ve Gruplar`)
 };
 
 const ar_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`التطبيقات والمجموعات`)
 };
 
 const wuu_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`应用和分组`)
 };
 
 const mr_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`अॅप्स आणि गट`)
 };
 
 const nb_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apper og grupper`)
 };
 
 const fi_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Sovellukset ja ryhmät`)
 };
 
 const da_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apps og grupper`)
 };
 
 const et_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Rakendused ja grupid`)
 };
 
 const lv_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Lietotnes un grupas`)
 };
 
 const lt_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Programos ir grupės`)
 };
 
 const pl_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplikacje i grupy`)
 };
 
 const de_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apps & Gruppen`)
 };
 
 const nl_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apps & Groepen`)
 };
 
 const fr_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Apps & Groupes`)
 };
 
 const it_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`App e Gruppi`)
 };
 
 const hu_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Alkalmazások és csoportok`)
 };
 
 const cs_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplikace a skupiny`)
 };
 
 const ro_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplicații și grupuri`)
 };
 
 const el_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Εφαρμογές & Ομάδες`)
 };
 
 const bg_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Приложения и групи`)
 };
 
 const hr_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplikacije i grupe`)
 };
 
 const sr_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplikacije i grupe`)
 };
 
 const sk_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplikácie a skupiny`)
 };
 
 const sl_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps & Groups`)
+	return /** @type {LocalizedString} */ (`Aplikacije in skupine`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_heading = /** @type {(inputs: Apps_HeadingInputs) => LocalizedStri
 * | "Apps & Groups" |
 *
 * @param {Apps_HeadingInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const apps_heading = /** @type {((inputs?: Apps_HeadingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_HeadingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const apps_heading = /** @type {((inputs?: Apps_HeadingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_HeadingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_heading(inputs)
 	if (locale === "sv") return sv_apps_heading(inputs)
@@ -174,7 +170,6 @@ export const apps_heading = /** @type {((inputs?: Apps_HeadingInputs, options?: 
 	if (locale === "bn") return bn_apps_heading(inputs)
 	if (locale === "ru") return ru_apps_heading(inputs)
 	if (locale === "ja") return ja_apps_heading(inputs)
-	if (locale === "pa") return pa_apps_heading(inputs)
 	if (locale === "vi") return vi_apps_heading(inputs)
 	if (locale === "yue") return yue_apps_heading(inputs)
 	if (locale === "tr") return tr_apps_heading(inputs)

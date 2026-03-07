@@ -10,147 +10,143 @@ const en_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString
 };
 
 const sv_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Klar`)
 };
 
 const uk_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Готово`)
 };
 
 const zh_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完成`)
 };
 
 const es_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Hecho`)
 };
 
 const hi_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`हो गया`)
 };
 
 const pt_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Concluído`)
 };
 
 const bn_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`হয়ে গেছে`)
 };
 
 const ru_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Готово`)
 };
 
 const ja_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
-};
-
-const pa_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完了`)
 };
 
 const vi_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Xong`)
 };
 
 const yue_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`完成`)
 };
 
 const tr_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Tamam`)
 };
 
 const ar_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`تم`)
 };
 
 const wuu_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`好了`)
 };
 
 const mr_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`पूर्ण`)
 };
 
 const nb_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Ferdig`)
 };
 
 const fi_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Valmis`)
 };
 
 const da_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Færdig`)
 };
 
 const et_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Valmis`)
 };
 
 const lv_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gatavs`)
 };
 
 const lt_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Atlikta`)
 };
 
 const pl_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gotowe`)
 };
 
 const de_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Fertig`)
 };
 
 const nl_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Klaar`)
 };
 
 const fr_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Terminé`)
 };
 
 const it_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Fatto`)
 };
 
 const hu_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Kész`)
 };
 
 const cs_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Hotovo`)
 };
 
 const ro_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gata`)
 };
 
 const el_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Ολοκληρώθηκε`)
 };
 
 const bg_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Готово`)
 };
 
 const hr_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gotovo`)
 };
 
 const sr_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Gotovo`)
 };
 
 const sk_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Hotovo`)
 };
 
 const sl_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Done`)
+	return /** @type {LocalizedString} */ (`Končano`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_done = /** @type {(inputs: Common_DoneInputs) => LocalizedString
 * | "Done" |
 *
 * @param {Common_DoneInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_done = /** @type {((inputs?: Common_DoneInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DoneInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_done = /** @type {((inputs?: Common_DoneInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_DoneInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_done(inputs)
 	if (locale === "sv") return sv_common_done(inputs)
@@ -174,7 +170,6 @@ export const common_done = /** @type {((inputs?: Common_DoneInputs, options?: { 
 	if (locale === "bn") return bn_common_done(inputs)
 	if (locale === "ru") return ru_common_done(inputs)
 	if (locale === "ja") return ja_common_done(inputs)
-	if (locale === "pa") return pa_common_done(inputs)
 	if (locale === "vi") return vi_common_done(inputs)
 	if (locale === "yue") return yue_common_done(inputs)
 	if (locale === "tr") return tr_common_done(inputs)

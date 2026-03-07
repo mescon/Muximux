@@ -10,147 +10,143 @@ const en_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetu
 };
 
 const sv_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Panelkonfigurationen klar!`)
 };
 
 const uk_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Налаштування панелі керування завершено!`)
 };
 
 const zh_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`仪表盘设置完成！`)
 };
 
 const es_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`¡Configuración del panel completada!`)
 };
 
 const hi_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`डैशबोर्ड सेटअप पूरा हुआ!`)
 };
 
 const pt_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Configuração do painel concluída!`)
 };
 
 const bn_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`ড্যাশবোর্ড সেটআপ সম্পন্ন!`)
 };
 
 const ru_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Настройка панели завершена!`)
 };
 
 const ja_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
-};
-
-const pa_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`ダッシュボードのセットアップが完了しました！`)
 };
 
 const vi_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Thiết lập bảng điều khiển hoàn tất!`)
 };
 
 const yue_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`儀表板設定完成！`)
 };
 
 const tr_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Pano kurulumu tamamlandı!`)
 };
 
 const ar_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`اكتمل إعداد لوحة التحكم!`)
 };
 
 const wuu_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`仪表盘设置好了！`)
 };
 
 const mr_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`डॅशबोर्ड सेटअप पूर्ण!`)
 };
 
 const nb_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Panelkonfigurasjonen fullført!`)
 };
 
 const fi_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Hallintapaneelin asennus valmis!`)
 };
 
 const da_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Panelopsætning fuldført!`)
 };
 
 const et_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Töölaua seadistamine lõpetatud!`)
 };
 
 const lv_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Paneļa iestatīšana pabeigta!`)
 };
 
 const lt_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Valdymo skydo sąranka baigta!`)
 };
 
 const pl_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Konfiguracja panelu zakończona!`)
 };
 
 const de_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Dashboard-Einrichtung abgeschlossen!`)
 };
 
 const nl_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Dashboard-installatie voltooid!`)
 };
 
 const fr_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Configuration du tableau de bord terminée !`)
 };
 
 const it_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Configurazione della dashboard completata!`)
 };
 
 const hu_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Vezérlőpult beállítás kész!`)
 };
 
 const cs_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Nastavení panelu dokončeno!`)
 };
 
 const ro_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Configurarea panoului de control este completă!`)
 };
 
 const el_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Η ρύθμιση του πίνακα ελέγχου ολοκληρώθηκε!`)
 };
 
 const bg_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Настройката на таблото е завършена!`)
 };
 
 const hr_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Postavljanje nadzorne ploče završeno!`)
 };
 
 const sr_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Podešavanje kontrolne table završeno!`)
 };
 
 const sk_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Nastavenie panela dokončené!`)
 };
 
 const sl_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetupcomplete2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard setup complete!`)
+	return /** @type {LocalizedString} */ (`Nastavitev nadzorne plošče končana!`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_dashboardsetupcomplete2 = /** @type {(inputs: Toast_Dashboardsetu
 * | "Dashboard setup complete!" |
 *
 * @param {Toast_Dashboardsetupcomplete2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_dashboardsetupcomplete2 = /** @type {((inputs?: Toast_Dashboardsetupcomplete2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Dashboardsetupcomplete2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_dashboardsetupcomplete2 = /** @type {((inputs?: Toast_Dashboardsetupcomplete2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Dashboardsetupcomplete2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "sv") return sv_toast_dashboardsetupcomplete2(inputs)
@@ -174,7 +170,6 @@ const toast_dashboardsetupcomplete2 = /** @type {((inputs?: Toast_Dashboardsetup
 	if (locale === "bn") return bn_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "ru") return ru_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "ja") return ja_toast_dashboardsetupcomplete2(inputs)
-	if (locale === "pa") return pa_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "vi") return vi_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "yue") return yue_toast_dashboardsetupcomplete2(inputs)
 	if (locale === "tr") return tr_toast_dashboardsetupcomplete2(inputs)

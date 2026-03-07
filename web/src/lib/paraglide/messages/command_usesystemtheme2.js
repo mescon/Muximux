@@ -10,147 +10,143 @@ const en_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2In
 };
 
 const sv_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Använd systemtema`)
 };
 
 const uk_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Використовувати системну тему`)
 };
 
 const zh_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`使用系统主题`)
 };
 
 const es_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Usar tema del sistema`)
 };
 
 const hi_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`सिस्टम थीम उपयोग करें`)
 };
 
 const pt_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Usar tema do sistema`)
 };
 
 const bn_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`সিস্টেম থিম ব্যবহার করুন`)
 };
 
 const ru_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Использовать системную тему`)
 };
 
 const ja_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
-};
-
-const pa_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`システムテーマを使用`)
 };
 
 const vi_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Sử dụng giao diện hệ thống`)
 };
 
 const yue_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`使用系統主題`)
 };
 
 const tr_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Sistem Temasını Kullan`)
 };
 
 const ar_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`استخدام سمة النظام`)
 };
 
 const wuu_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`使用系统主题`)
 };
 
 const mr_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`सिस्टम थीम वापरा`)
 };
 
 const nb_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Bruk systemtema`)
 };
 
 const fi_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Käytä järjestelmän teemaa`)
 };
 
 const da_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Brug systemtema`)
 };
 
 const et_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Kasuta süsteemi teemat`)
 };
 
 const lv_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Izmantot sistēmas motīvu`)
 };
 
 const lt_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Naudoti sistemos temą`)
 };
 
 const pl_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Użyj motywu systemowego`)
 };
 
 const de_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`System-Theme verwenden`)
 };
 
 const nl_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Systeemthema gebruiken`)
 };
 
 const fr_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Utiliser le thème système`)
 };
 
 const it_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Usa tema di sistema`)
 };
 
 const hu_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Rendszer téma használata`)
 };
 
 const cs_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Použít systémový motiv`)
 };
 
 const ro_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Folosește tema de sistem`)
 };
 
 const el_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Χρήση θέματος συστήματος`)
 };
 
 const bg_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Използвай системна тема`)
 };
 
 const hr_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Koristi sistemsku temu`)
 };
 
 const sr_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Koristi sistemsku temu`)
 };
 
 const sk_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Použiť systémový motív`)
 };
 
 const sl_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Use System Theme`)
+	return /** @type {LocalizedString} */ (`Uporabi sistemsko temo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_usesystemtheme2 = /** @type {(inputs: Command_Usesystemtheme2In
 * | "Use System Theme" |
 *
 * @param {Command_Usesystemtheme2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_usesystemtheme2 = /** @type {((inputs?: Command_Usesystemtheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Usesystemtheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_usesystemtheme2 = /** @type {((inputs?: Command_Usesystemtheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Usesystemtheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_usesystemtheme2(inputs)
 	if (locale === "sv") return sv_command_usesystemtheme2(inputs)
@@ -174,7 +170,6 @@ const command_usesystemtheme2 = /** @type {((inputs?: Command_Usesystemtheme2Inp
 	if (locale === "bn") return bn_command_usesystemtheme2(inputs)
 	if (locale === "ru") return ru_command_usesystemtheme2(inputs)
 	if (locale === "ja") return ja_command_usesystemtheme2(inputs)
-	if (locale === "pa") return pa_command_usesystemtheme2(inputs)
 	if (locale === "vi") return vi_command_usesystemtheme2(inputs)
 	if (locale === "yue") return yue_command_usesystemtheme2(inputs)
 	if (locale === "tr") return tr_command_usesystemtheme2(inputs)

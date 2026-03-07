@@ -10,147 +10,143 @@ const en_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1In
 };
 
 const sv_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ikonbakgrund`)
 };
 
 const uk_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Фон іконки`)
 };
 
 const zh_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`图标背景`)
 };
 
 const es_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Fondo del icono`)
 };
 
 const hi_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`आइकन पृष्ठभूमि`)
 };
 
 const pt_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Fundo do ícone`)
 };
 
 const bn_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`আইকন পটভূমি`)
 };
 
 const ru_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Фон иконок`)
 };
 
 const ja_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
-};
-
-const pa_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`アイコン背景`)
 };
 
 const vi_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Nền biểu tượng`)
 };
 
 const yue_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`圖示背景`)
 };
 
 const tr_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Simge Arka Planı`)
 };
 
 const ar_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`خلفية الأيقونة`)
 };
 
 const wuu_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`图标背景`)
 };
 
 const mr_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`आयकॉन पार्श्वभूमी`)
 };
 
 const nb_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ikonbakgrunn`)
 };
 
 const fi_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Kuvakkeen tausta`)
 };
 
 const da_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ikonbaggrund`)
 };
 
 const et_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ikooni taust`)
 };
 
 const lv_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ikonas fons`)
 };
 
 const lt_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Piktogramos fonas`)
 };
 
 const pl_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Tło ikony`)
 };
 
 const de_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Icon-Hintergrund`)
 };
 
 const nl_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Pictogramachtergrond`)
 };
 
 const fr_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Arrière-plan des icônes`)
 };
 
 const it_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Sfondo delle icone`)
 };
 
 const hu_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ikon háttér`)
 };
 
 const cs_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Pozadí ikony`)
 };
 
 const ro_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Fundal pictogramă`)
 };
 
 const el_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Φόντο εικονιδίου`)
 };
 
 const bg_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Фон на иконата`)
 };
 
 const hr_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Pozadina ikone`)
 };
 
 const sr_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Pozadina ikone`)
 };
 
 const sk_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Pozadie ikony`)
 };
 
 const sl_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon Background`)
+	return /** @type {LocalizedString} */ (`Ozadje ikone`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_iconbackground1 = /** @type {(inputs: General_Iconbackground1In
 * | "Icon Background" |
 *
 * @param {General_Iconbackground1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_iconbackground1 = /** @type {((inputs?: General_Iconbackground1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Iconbackground1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_iconbackground1 = /** @type {((inputs?: General_Iconbackground1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Iconbackground1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_iconbackground1(inputs)
 	if (locale === "sv") return sv_general_iconbackground1(inputs)
@@ -174,7 +170,6 @@ const general_iconbackground1 = /** @type {((inputs?: General_Iconbackground1Inp
 	if (locale === "bn") return bn_general_iconbackground1(inputs)
 	if (locale === "ru") return ru_general_iconbackground1(inputs)
 	if (locale === "ja") return ja_general_iconbackground1(inputs)
-	if (locale === "pa") return pa_general_iconbackground1(inputs)
 	if (locale === "vi") return vi_general_iconbackground1(inputs)
 	if (locale === "yue") return yue_general_iconbackground1(inputs)
 	if (locale === "tr") return tr_general_iconbackground1(inputs)

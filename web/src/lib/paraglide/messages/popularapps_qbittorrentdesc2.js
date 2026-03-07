@@ -10,147 +10,143 @@ const en_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorr
 };
 
 const sv_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrentklient`)
 };
 
 const uk_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent клієнт`)
 };
 
 const zh_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`种子客户端`)
 };
 
 const es_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Cliente de torrents`)
 };
 
 const hi_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`टोरेंट क्लाइंट`)
 };
 
 const pt_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Cliente de torrents`)
 };
 
 const bn_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`টরেন্ট ক্লায়েন্ট`)
 };
 
 const ru_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Торрент-клиент`)
 };
 
 const ja_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
-};
-
-const pa_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`トレントクライアント`)
 };
 
 const vi_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Ứng dụng torrent`)
 };
 
 const yue_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`種子用戶端`)
 };
 
 const tr_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent istemcisi`)
 };
 
 const ar_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`عميل تورنت`)
 };
 
 const wuu_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent 客户端`)
 };
 
 const mr_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent क्लायंट`)
 };
 
 const nb_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrentklient`)
 };
 
 const fi_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent-asiakas`)
 };
 
 const da_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrentklient`)
 };
 
 const et_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klient`)
 };
 
 const lv_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klients`)
 };
 
 const lt_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klientas`)
 };
 
 const pl_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Klient torrent`)
 };
 
 const de_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent-Client`)
 };
 
 const nl_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent-client`)
 };
 
 const fr_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Client torrent`)
 };
 
 const it_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Client torrent`)
 };
 
 const hu_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent kliens`)
 };
 
 const cs_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klient`)
 };
 
 const ro_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Client torrent`)
 };
 
 const el_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Πρόγραμμα torrent`)
 };
 
 const bg_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Торент клиент`)
 };
 
 const hr_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klijent`)
 };
 
 const sr_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klijent`)
 };
 
 const sk_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent klient`)
 };
 
 const sl_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorrentdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Torrent client`)
+	return /** @type {LocalizedString} */ (`Torrent odjemalec`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_qbittorrentdesc2 = /** @type {(inputs: Popularapps_Qbittorr
 * | "Torrent client" |
 *
 * @param {Popularapps_Qbittorrentdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_qbittorrentdesc2 = /** @type {((inputs?: Popularapps_Qbittorrentdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Qbittorrentdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_qbittorrentdesc2 = /** @type {((inputs?: Popularapps_Qbittorrentdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Qbittorrentdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_qbittorrentdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_qbittorrentdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_qbittorrentdesc2 = /** @type {((inputs?: Popularapps_Qbittorre
 	if (locale === "bn") return bn_popularapps_qbittorrentdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_qbittorrentdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_qbittorrentdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_qbittorrentdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_qbittorrentdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_qbittorrentdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_qbittorrentdesc2(inputs)

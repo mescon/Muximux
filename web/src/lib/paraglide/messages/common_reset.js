@@ -10,147 +10,143 @@ const en_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedStri
 };
 
 const sv_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Återställ`)
 };
 
 const uk_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Скинути`)
 };
 
 const zh_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`重置`)
 };
 
 const es_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Restablecer`)
 };
 
 const hi_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`रीसेट करें`)
 };
 
 const pt_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Repor`)
 };
 
 const bn_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`রিসেট করুন`)
 };
 
 const ru_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Сбросить`)
 };
 
 const ja_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
-};
-
-const pa_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`リセット`)
 };
 
 const vi_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Đặt lại`)
 };
 
 const yue_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`重設`)
 };
 
 const tr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Sıfırla`)
 };
 
 const ar_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`إعادة تعيين`)
 };
 
 const wuu_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`重置`)
 };
 
 const mr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`रीसेट करा`)
 };
 
 const nb_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Tilbakestill`)
 };
 
 const fi_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Palauta`)
 };
 
 const da_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Nulstil`)
 };
 
 const et_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Lähtesta`)
 };
 
 const lv_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Atiestatīt`)
 };
 
 const lt_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Atstatyti`)
 };
 
 const pl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Resetuj`)
 };
 
 const de_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Zurücksetzen`)
 };
 
 const nl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Herstellen`)
 };
 
 const fr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Réinitialiser`)
 };
 
 const it_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Ripristina`)
 };
 
 const hu_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Visszaállítás`)
 };
 
 const cs_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Resetovat`)
 };
 
 const ro_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Resetare`)
 };
 
 const el_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Επαναφορά`)
 };
 
 const bg_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Нулиране`)
 };
 
 const hr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Poništi`)
 };
 
 const sr_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Poništi`)
 };
 
 const sk_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Resetovať`)
 };
 
 const sl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset`)
+	return /** @type {LocalizedString} */ (`Ponastavi`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_reset = /** @type {(inputs: Common_ResetInputs) => LocalizedStri
 * | "Reset" |
 *
 * @param {Common_ResetInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_reset = /** @type {((inputs?: Common_ResetInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_ResetInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_reset = /** @type {((inputs?: Common_ResetInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_ResetInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_reset(inputs)
 	if (locale === "sv") return sv_common_reset(inputs)
@@ -174,7 +170,6 @@ export const common_reset = /** @type {((inputs?: Common_ResetInputs, options?: 
 	if (locale === "bn") return bn_common_reset(inputs)
 	if (locale === "ru") return ru_common_reset(inputs)
 	if (locale === "ja") return ja_common_reset(inputs)
-	if (locale === "pa") return pa_common_reset(inputs)
 	if (locale === "vi") return vi_common_reset(inputs)
 	if (locale === "yue") return yue_common_reset(inputs)
 	if (locale === "tr") return tr_common_reset(inputs)

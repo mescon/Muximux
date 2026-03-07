@@ -10,147 +10,143 @@ const en_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2In
 };
 
 const sv_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Undertexthantering`)
 };
 
 const uk_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Управління субтитрами`)
 };
 
 const zh_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`字幕管理`)
 };
 
 const es_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Gestión de subtítulos`)
 };
 
 const hi_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`उपशीर्षक प्रबंधन`)
 };
 
 const pt_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Gestão de legendas`)
 };
 
 const bn_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`সাবটাইটেল ব্যবস্থাপনা`)
 };
 
 const ru_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Управление субтитрами`)
 };
 
 const ja_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
-};
-
-const pa_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`字幕管理`)
 };
 
 const vi_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Quản lý phụ đề`)
 };
 
 const yue_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`字幕管理`)
 };
 
 const tr_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Altyazı yönetimi`)
 };
 
 const ar_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`إدارة الترجمات`)
 };
 
 const wuu_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`字幕管理`)
 };
 
 const mr_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`उपशीर्षक व्यवस्थापन`)
 };
 
 const nb_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Undertekstadministrasjon`)
 };
 
 const fi_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Tekstitysten hallinta`)
 };
 
 const da_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Underteksthåndtering`)
 };
 
 const et_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Subtiitrite haldus`)
 };
 
 const lv_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Subtitru pārvaldība`)
 };
 
 const lt_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Subtitrų valdymas`)
 };
 
 const pl_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Zarządzanie napisami`)
 };
 
 const de_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Untertitelverwaltung`)
 };
 
 const nl_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Ondertitelbeheer`)
 };
 
 const fr_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Gestion de sous-titres`)
 };
 
 const it_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Gestione sottotitoli`)
 };
 
 const hu_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Felirat kezelés`)
 };
 
 const cs_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Správa titulků`)
 };
 
 const ro_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Gestionarea subtitrărilor`)
 };
 
 const el_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Διαχείριση υποτίτλων`)
 };
 
 const bg_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Управление на субтитри`)
 };
 
 const hr_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Upravljanje titlovima`)
 };
 
 const sr_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Upravljanje titlovima`)
 };
 
 const sk_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Správa titulkov`)
 };
 
 const sl_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Subtitle management`)
+	return /** @type {LocalizedString} */ (`Upravljanje podnapisov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_bazarrdesc2 = /** @type {(inputs: Popularapps_Bazarrdesc2In
 * | "Subtitle management" |
 *
 * @param {Popularapps_Bazarrdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_bazarrdesc2 = /** @type {((inputs?: Popularapps_Bazarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Bazarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_bazarrdesc2 = /** @type {((inputs?: Popularapps_Bazarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Bazarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_bazarrdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_bazarrdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_bazarrdesc2 = /** @type {((inputs?: Popularapps_Bazarrdesc2Inp
 	if (locale === "bn") return bn_popularapps_bazarrdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_bazarrdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_bazarrdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_bazarrdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_bazarrdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_bazarrdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_bazarrdesc2(inputs)

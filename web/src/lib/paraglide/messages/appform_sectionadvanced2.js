@@ -10,147 +10,143 @@ const en_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2
 };
 
 const sv_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avancerat`)
 };
 
 const uk_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Розширені`)
 };
 
 const zh_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`高级`)
 };
 
 const es_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avanzado`)
 };
 
 const hi_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`उन्नत`)
 };
 
 const pt_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avançado`)
 };
 
 const bn_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`উন্নত`)
 };
 
 const ru_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Дополнительно`)
 };
 
 const ja_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
-};
-
-const pa_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`詳細設定`)
 };
 
 const vi_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Nâng cao`)
 };
 
 const yue_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`進階`)
 };
 
 const tr_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Gelişmiş`)
 };
 
 const ar_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`متقدم`)
 };
 
 const wuu_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`高级`)
 };
 
 const mr_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`प्रगत`)
 };
 
 const nb_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avansert`)
 };
 
 const fi_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Edistyneet`)
 };
 
 const da_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avanceret`)
 };
 
 const et_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Täpsemad`)
 };
 
 const lv_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Papildu`)
 };
 
 const lt_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Išplėstiniai`)
 };
 
 const pl_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Zaawansowane`)
 };
 
 const de_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Erweitert`)
 };
 
 const nl_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Geavanceerd`)
 };
 
 const fr_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avancé`)
 };
 
 const it_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avanzate`)
 };
 
 const hu_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Haladó`)
 };
 
 const cs_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Pokročilé`)
 };
 
 const ro_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Avansat`)
 };
 
 const el_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Προχωρημένα`)
 };
 
 const bg_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Разширени`)
 };
 
 const hr_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Napredno`)
 };
 
 const sr_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Napredno`)
 };
 
 const sk_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Pokročilé`)
 };
 
 const sl_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Advanced`)
+	return /** @type {LocalizedString} */ (`Napredno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_sectionadvanced2 = /** @type {(inputs: Appform_Sectionadvanced2
 * | "Advanced" |
 *
 * @param {Appform_Sectionadvanced2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_sectionadvanced2 = /** @type {((inputs?: Appform_Sectionadvanced2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Sectionadvanced2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_sectionadvanced2 = /** @type {((inputs?: Appform_Sectionadvanced2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Sectionadvanced2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_sectionadvanced2(inputs)
 	if (locale === "sv") return sv_appform_sectionadvanced2(inputs)
@@ -174,7 +170,6 @@ const appform_sectionadvanced2 = /** @type {((inputs?: Appform_Sectionadvanced2I
 	if (locale === "bn") return bn_appform_sectionadvanced2(inputs)
 	if (locale === "ru") return ru_appform_sectionadvanced2(inputs)
 	if (locale === "ja") return ja_appform_sectionadvanced2(inputs)
-	if (locale === "pa") return pa_appform_sectionadvanced2(inputs)
 	if (locale === "vi") return vi_appform_sectionadvanced2(inputs)
 	if (locale === "yue") return yue_appform_sectionadvanced2(inputs)
 	if (locale === "tr") return tr_appform_sectionadvanced2(inputs)

@@ -10,147 +10,143 @@ const en_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2
 };
 
 const sv_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Laddar systeminformation...`)
 };
 
 const uk_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Завантаження інформації про систему...`)
 };
 
 const zh_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`正在加载系统信息...`)
 };
 
 const es_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Cargando información del sistema...`)
 };
 
 const hi_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`सिस्टम जानकारी लोड हो रही है...`)
 };
 
 const pt_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`A carregar informações do sistema...`)
 };
 
 const bn_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`সিস্টেম তথ্য লোড হচ্ছে...`)
 };
 
 const ru_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Загрузка системной информации...`)
 };
 
 const ja_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
-};
-
-const pa_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`システム情報を読み込み中...`)
 };
 
 const vi_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Đang tải thông tin hệ thống...`)
 };
 
 const yue_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`正在載入系統資訊...`)
 };
 
 const tr_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Sistem bilgisi yükleniyor...`)
 };
 
 const ar_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`جارٍ تحميل معلومات النظام...`)
 };
 
 const wuu_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`加载系统信息当中...`)
 };
 
 const mr_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`सिस्टम माहिती लोड होत आहे...`)
 };
 
 const nb_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Laster systeminformasjon...`)
 };
 
 const fi_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Ladataan järjestelmätietoja...`)
 };
 
 const da_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Indlæser systeminformation...`)
 };
 
 const et_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Süsteemiteabe laadimine...`)
 };
 
 const lv_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Sistēmas informācijas ielāde...`)
 };
 
 const lt_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Kraunama sistemos informacija...`)
 };
 
 const pl_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Ładowanie informacji systemowych...`)
 };
 
 const de_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Systeminformationen werden geladen...`)
 };
 
 const nl_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Systeeminformatie laden...`)
 };
 
 const fr_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Chargement des informations système...`)
 };
 
 const it_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Caricamento informazioni di sistema...`)
 };
 
 const hu_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Rendszerinformációk betöltése...`)
 };
 
 const cs_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Načítání systémových informací...`)
 };
 
 const ro_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Se încarcă informațiile de sistem...`)
 };
 
 const el_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Φόρτωση πληροφοριών συστήματος...`)
 };
 
 const bg_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Зареждане на системна информация...`)
 };
 
 const hr_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Učitavanje informacija o sustavu...`)
 };
 
 const sr_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Učitavanje informacija o sistemu...`)
 };
 
 const sk_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Načítanie systémových informácií...`)
 };
 
 const sl_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Loading system info...`)
+	return /** @type {LocalizedString} */ (`Nalaganje sistemskih informacij...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_loadingsysteminfo2 = /** @type {(inputs: About_Loadingsysteminfo2
 * | "Loading system info..." |
 *
 * @param {About_Loadingsysteminfo2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_loadingsysteminfo2 = /** @type {((inputs?: About_Loadingsysteminfo2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Loadingsysteminfo2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_loadingsysteminfo2 = /** @type {((inputs?: About_Loadingsysteminfo2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Loadingsysteminfo2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_loadingsysteminfo2(inputs)
 	if (locale === "sv") return sv_about_loadingsysteminfo2(inputs)
@@ -174,7 +170,6 @@ const about_loadingsysteminfo2 = /** @type {((inputs?: About_Loadingsysteminfo2I
 	if (locale === "bn") return bn_about_loadingsysteminfo2(inputs)
 	if (locale === "ru") return ru_about_loadingsysteminfo2(inputs)
 	if (locale === "ja") return ja_about_loadingsysteminfo2(inputs)
-	if (locale === "pa") return pa_about_loadingsysteminfo2(inputs)
 	if (locale === "vi") return vi_about_loadingsysteminfo2(inputs)
 	if (locale === "yue") return yue_about_loadingsysteminfo2(inputs)
 	if (locale === "tr") return tr_about_loadingsysteminfo2(inputs)

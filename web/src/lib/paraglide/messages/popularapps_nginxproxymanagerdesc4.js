@@ -10,147 +10,143 @@ const en_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Ng
 };
 
 const sv_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Hantering av omvänd proxy`)
 };
 
 const uk_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Управління reverse proxy`)
 };
 
 const zh_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`反向代理管理`)
 };
 
 const es_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Gestión de reverse proxy`)
 };
 
 const hi_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse proxy प्रबंधन`)
 };
 
 const pt_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Gestão de reverse proxy`)
 };
 
 const bn_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse proxy ব্যবস্থাপনা`)
 };
 
 const ru_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Управление reverse proxy`)
 };
 
 const ja_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
-};
-
-const pa_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`リバースプロキシ管理`)
 };
 
 const vi_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Quản lý reverse proxy`)
 };
 
 const yue_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`反向代理管理`)
 };
 
 const tr_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse proxy yönetimi`)
 };
 
 const ar_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`إدارة reverse proxy`)
 };
 
 const wuu_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`反向代理管理`)
 };
 
 const mr_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`रिव्हर्स प्रॉक्सी व्यवस्थापन`)
 };
 
 const nb_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Administrasjon av omvendt proxy`)
 };
 
 const fi_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Käänteisproxyn hallinta`)
 };
 
 const da_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Omvendt proxy-administration`)
 };
 
 const et_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Pöördproxy haldus`)
 };
 
 const lv_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reversā proxy pārvaldība`)
 };
 
 const lt_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse proxy valdymas`)
 };
 
 const pl_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Zarządzanie reverse proxy`)
 };
 
 const de_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse-Proxy-Verwaltung`)
 };
 
 const nl_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse proxy-beheer`)
 };
 
 const fr_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Gestion du reverse proxy`)
 };
 
 const it_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Gestione reverse proxy`)
 };
 
 const hu_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Reverse proxy kezelés`)
 };
 
 const cs_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Správa reverse proxy`)
 };
 
 const ro_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Gestionare reverse proxy`)
 };
 
 const el_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Διαχείριση reverse proxy`)
 };
 
 const bg_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Управление на reverse proxy`)
 };
 
 const hr_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Upravljanje obrnutim proxy poslužiteljem`)
 };
 
 const sr_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Upravljanje obrnutim proxy serverom`)
 };
 
 const sk_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Správa reverse proxy`)
 };
 
 const sl_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Nginxproxymanagerdesc4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reverse proxy management`)
+	return /** @type {LocalizedString} */ (`Upravljanje obrnjenim proxy strežnikom`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_nginxproxymanagerdesc4 = /** @type {(inputs: Popularapps_Ng
 * | "Reverse proxy management" |
 *
 * @param {Popularapps_Nginxproxymanagerdesc4Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_nginxproxymanagerdesc4 = /** @type {((inputs?: Popularapps_Nginxproxymanagerdesc4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Nginxproxymanagerdesc4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_nginxproxymanagerdesc4 = /** @type {((inputs?: Popularapps_Nginxproxymanagerdesc4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Nginxproxymanagerdesc4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_nginxproxymanagerdesc4(inputs)
 	if (locale === "sv") return sv_popularapps_nginxproxymanagerdesc4(inputs)
@@ -174,7 +170,6 @@ const popularapps_nginxproxymanagerdesc4 = /** @type {((inputs?: Popularapps_Ngi
 	if (locale === "bn") return bn_popularapps_nginxproxymanagerdesc4(inputs)
 	if (locale === "ru") return ru_popularapps_nginxproxymanagerdesc4(inputs)
 	if (locale === "ja") return ja_popularapps_nginxproxymanagerdesc4(inputs)
-	if (locale === "pa") return pa_popularapps_nginxproxymanagerdesc4(inputs)
 	if (locale === "vi") return vi_popularapps_nginxproxymanagerdesc4(inputs)
 	if (locale === "yue") return yue_popularapps_nginxproxymanagerdesc4(inputs)
 	if (locale === "tr") return tr_popularapps_nginxproxymanagerdesc4(inputs)

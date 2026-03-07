@@ -10,147 +10,143 @@ const en_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inpu
 };
 
 const sv_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Temanamn...`)
 };
 
 const uk_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Назва теми...`)
 };
 
 const zh_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`主题名称...`)
 };
 
 const es_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Nombre del tema...`)
 };
 
 const hi_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`थीम नाम...`)
 };
 
 const pt_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Nome do tema...`)
 };
 
 const bn_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`থিমের নাম...`)
 };
 
 const ru_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Название темы...`)
 };
 
 const ja_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
-};
-
-const pa_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`テーマ名...`)
 };
 
 const vi_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Tên giao diện...`)
 };
 
 const yue_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`主題名稱...`)
 };
 
 const tr_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Tema adı...`)
 };
 
 const ar_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`اسم السمة...`)
 };
 
 const wuu_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`主题名称...`)
 };
 
 const mr_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`थीम नाव...`)
 };
 
 const nb_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Temanavn...`)
 };
 
 const fi_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Teeman nimi...`)
 };
 
 const da_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Temanavn...`)
 };
 
 const et_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Teema nimi...`)
 };
 
 const lv_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Motīva nosaukums...`)
 };
 
 const lt_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Temos pavadinimas...`)
 };
 
 const pl_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Nazwa motywu...`)
 };
 
 const de_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Theme-Name...`)
 };
 
 const nl_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Themanaam...`)
 };
 
 const fr_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Nom du thème...`)
 };
 
 const it_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Nome del tema...`)
 };
 
 const hu_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Téma neve...`)
 };
 
 const cs_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Název motivu...`)
 };
 
 const ro_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Numele temei...`)
 };
 
 const el_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Όνομα θέματος...`)
 };
 
 const bg_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Име на темата...`)
 };
 
 const hr_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Naziv teme...`)
 };
 
 const sr_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Naziv teme...`)
 };
 
 const sk_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Názov motívu...`)
 };
 
 const sl_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme name...`)
+	return /** @type {LocalizedString} */ (`Ime teme...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_nameplaceholder1 = /** @type {(inputs: Theme_Nameplaceholder1Inpu
 * | "Theme name..." |
 *
 * @param {Theme_Nameplaceholder1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_nameplaceholder1 = /** @type {((inputs?: Theme_Nameplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Nameplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_nameplaceholder1 = /** @type {((inputs?: Theme_Nameplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Nameplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_nameplaceholder1(inputs)
 	if (locale === "sv") return sv_theme_nameplaceholder1(inputs)
@@ -174,7 +170,6 @@ const theme_nameplaceholder1 = /** @type {((inputs?: Theme_Nameplaceholder1Input
 	if (locale === "bn") return bn_theme_nameplaceholder1(inputs)
 	if (locale === "ru") return ru_theme_nameplaceholder1(inputs)
 	if (locale === "ja") return ja_theme_nameplaceholder1(inputs)
-	if (locale === "pa") return pa_theme_nameplaceholder1(inputs)
 	if (locale === "vi") return vi_theme_nameplaceholder1(inputs)
 	if (locale === "yue") return yue_theme_nameplaceholder1(inputs)
 	if (locale === "tr") return tr_theme_nameplaceholder1(inputs)

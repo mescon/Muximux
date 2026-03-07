@@ -10,147 +10,143 @@ const en_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => L
 };
 
 const sv_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Ikonfärg`)
 };
 
 const uk_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Колір іконки`)
 };
 
 const zh_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`图标颜色`)
 };
 
 const es_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Color del icono`)
 };
 
 const hi_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`आइकन रंग`)
 };
 
 const pt_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Cor do ícone`)
 };
 
 const bn_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`আইকন রঙ`)
 };
 
 const ru_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Цвет иконки`)
 };
 
 const ja_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
-};
-
-const pa_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`アイコンの色`)
 };
 
 const vi_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Màu biểu tượng`)
 };
 
 const yue_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`圖示顏色`)
 };
 
 const tr_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Simge rengi`)
 };
 
 const ar_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`لون الأيقونة`)
 };
 
 const wuu_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`图标颜色`)
 };
 
 const mr_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`आयकॉन रंग`)
 };
 
 const nb_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Ikonfarge`)
 };
 
 const fi_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Kuvakkeen väri`)
 };
 
 const da_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Ikonfarve`)
 };
 
 const et_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Ikooni värv`)
 };
 
 const lv_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Ikonas krāsa`)
 };
 
 const lt_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Piktogramos spalva`)
 };
 
 const pl_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Kolor ikony`)
 };
 
 const de_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Icon-Farbe`)
 };
 
 const nl_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Pictogramkleur`)
 };
 
 const fr_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Couleur de l'icône`)
 };
 
 const it_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Colore dell'icona`)
 };
 
 const hu_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Ikon színe`)
 };
 
 const cs_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Barva ikony`)
 };
 
 const ro_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Culoarea pictogramei`)
 };
 
 const el_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Χρώμα εικονιδίου`)
 };
 
 const bg_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Цвят на иконата`)
 };
 
 const hr_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Boja ikone`)
 };
 
 const sr_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Boja ikone`)
 };
 
 const sk_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Farba ikony`)
 };
 
 const sl_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon color`)
+	return /** @type {LocalizedString} */ (`Barva ikone`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_iconcolor2 = /** @type {(inputs: Appform_Iconcolor2Inputs) => L
 * | "Icon color" |
 *
 * @param {Appform_Iconcolor2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_iconcolor2 = /** @type {((inputs?: Appform_Iconcolor2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Iconcolor2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_iconcolor2 = /** @type {((inputs?: Appform_Iconcolor2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Iconcolor2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_iconcolor2(inputs)
 	if (locale === "sv") return sv_appform_iconcolor2(inputs)
@@ -174,7 +170,6 @@ const appform_iconcolor2 = /** @type {((inputs?: Appform_Iconcolor2Inputs, optio
 	if (locale === "bn") return bn_appform_iconcolor2(inputs)
 	if (locale === "ru") return ru_appform_iconcolor2(inputs)
 	if (locale === "ja") return ja_appform_iconcolor2(inputs)
-	if (locale === "pa") return pa_appform_iconcolor2(inputs)
 	if (locale === "vi") return vi_appform_iconcolor2(inputs)
 	if (locale === "yue") return yue_appform_iconcolor2(inputs)
 	if (locale === "tr") return tr_appform_iconcolor2(inputs)

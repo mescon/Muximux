@@ -14,11 +14,11 @@ const sv_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const uk_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Медіа`)
 };
 
 const zh_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`媒体`)
 };
 
 const es_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const hi_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`मीडिया`)
 };
 
 const pt_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -34,43 +34,39 @@ const pt_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const bn_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`মিডিয়া`)
 };
 
 const ru_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Медиа`)
 };
 
 const ja_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
-};
-
-const pa_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`メディア`)
 };
 
 const vi_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Đa phương tiện`)
 };
 
 const yue_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`媒體`)
 };
 
 const tr_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medya`)
 };
 
 const ar_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`وسائط`)
 };
 
 const wuu_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`媒体`)
 };
 
 const mr_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`मीडिया`)
 };
 
 const nb_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -82,19 +78,19 @@ const fi_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const da_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medier`)
 };
 
 const et_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Meedia`)
 };
 
 const lv_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Multivide`)
 };
 
 const lt_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medija`)
 };
 
 const pl_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -102,7 +98,7 @@ const pl_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const de_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Medien`)
 };
 
 const nl_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -110,7 +106,7 @@ const nl_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const fr_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Médias`)
 };
 
 const it_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -118,11 +114,11 @@ const it_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const hu_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Média`)
 };
 
 const cs_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Média`)
 };
 
 const ro_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
@@ -130,27 +126,27 @@ const ro_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 };
 
 const el_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Πολυμέσα`)
 };
 
 const bg_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Медия`)
 };
 
 const hr_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Mediji`)
 };
 
 const sr_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Mediji`)
 };
 
 const sk_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Médiá`)
 };
 
 const sl_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Media`)
+	return /** @type {LocalizedString} */ (`Mediji`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_groupmedia2 = /** @type {(inputs: Popularapps_Groupmedia2In
 * | "Media" |
 *
 * @param {Popularapps_Groupmedia2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_groupmedia2 = /** @type {((inputs?: Popularapps_Groupmedia2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupmedia2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_groupmedia2 = /** @type {((inputs?: Popularapps_Groupmedia2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupmedia2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_groupmedia2(inputs)
 	if (locale === "sv") return sv_popularapps_groupmedia2(inputs)
@@ -174,7 +170,6 @@ const popularapps_groupmedia2 = /** @type {((inputs?: Popularapps_Groupmedia2Inp
 	if (locale === "bn") return bn_popularapps_groupmedia2(inputs)
 	if (locale === "ru") return ru_popularapps_groupmedia2(inputs)
 	if (locale === "ja") return ja_popularapps_groupmedia2(inputs)
-	if (locale === "pa") return pa_popularapps_groupmedia2(inputs)
 	if (locale === "vi") return vi_popularapps_groupmedia2(inputs)
 	if (locale === "yue") return yue_popularapps_groupmedia2(inputs)
 	if (locale === "tr") return tr_popularapps_groupmedia2(inputs)

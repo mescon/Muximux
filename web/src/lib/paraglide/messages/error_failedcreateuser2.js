@@ -10,147 +10,143 @@ const en_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2In
 };
 
 const sv_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Kunde inte skapa användare`)
 };
 
 const uk_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Не вдалося створити користувача`)
 };
 
 const zh_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`创建用户失败`)
 };
 
 const es_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Error al crear el usuario`)
 };
 
 const hi_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता बनाने में विफल`)
 };
 
 const pt_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Erro ao criar o utilizador`)
 };
 
 const bn_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী তৈরি করতে ব্যর্থ`)
 };
 
 const ru_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Не удалось создать пользователя`)
 };
 
 const ja_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
-};
-
-const pa_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`ユーザーの作成に失敗しました`)
 };
 
 const vi_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Không thể tạo người dùng`)
 };
 
 const yue_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`建立使用者失敗`)
 };
 
 const tr_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Kullanıcı oluşturulamadı`)
 };
 
 const ar_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`فشل إنشاء المستخدم`)
 };
 
 const wuu_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`用户创建失败`)
 };
 
 const mr_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`वापरकर्ता तयार करणे अयशस्वी`)
 };
 
 const nb_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Kunne ikke opprette bruker`)
 };
 
 const fi_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Käyttäjän luonti epäonnistui`)
 };
 
 const da_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Kunne ikke oprette bruger`)
 };
 
 const et_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Kasutaja loomine ebaõnnestus`)
 };
 
 const lv_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Neizdevās izveidot lietotāju`)
 };
 
 const lt_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Nepavyko sukurti naudotojo`)
 };
 
 const pl_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Nie udało się utworzyć użytkownika`)
 };
 
 const de_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Benutzer konnte nicht erstellt werden`)
 };
 
 const nl_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Gebruiker aanmaken mislukt`)
 };
 
 const fr_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Échec de la création de l'utilisateur`)
 };
 
 const it_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Creazione dell'utente non riuscita`)
 };
 
 const hu_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Nem sikerült létrehozni a felhasználót`)
 };
 
 const cs_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se vytvořit uživatele`)
 };
 
 const ro_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Crearea utilizatorului a eșuat`)
 };
 
 const el_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Αποτυχία δημιουργίας χρήστη`)
 };
 
 const bg_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Създаването на потребител е неуспешно`)
 };
 
 const hr_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Stvaranje korisnika nije uspjelo`)
 };
 
 const sr_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Kreiranje korisnika nije uspelo`)
 };
 
 const sk_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa vytvoriť používateľa`)
 };
 
 const sl_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to create user`)
+	return /** @type {LocalizedString} */ (`Ustvarjanje uporabnika ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_error_failedcreateuser2 = /** @type {(inputs: Error_Failedcreateuser2In
 * | "Failed to create user" |
 *
 * @param {Error_Failedcreateuser2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const error_failedcreateuser2 = /** @type {((inputs?: Error_Failedcreateuser2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedcreateuser2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const error_failedcreateuser2 = /** @type {((inputs?: Error_Failedcreateuser2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedcreateuser2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_error_failedcreateuser2(inputs)
 	if (locale === "sv") return sv_error_failedcreateuser2(inputs)
@@ -174,7 +170,6 @@ const error_failedcreateuser2 = /** @type {((inputs?: Error_Failedcreateuser2Inp
 	if (locale === "bn") return bn_error_failedcreateuser2(inputs)
 	if (locale === "ru") return ru_error_failedcreateuser2(inputs)
 	if (locale === "ja") return ja_error_failedcreateuser2(inputs)
-	if (locale === "pa") return pa_error_failedcreateuser2(inputs)
 	if (locale === "vi") return vi_error_failedcreateuser2(inputs)
 	if (locale === "yue") return yue_error_failedcreateuser2(inputs)
 	if (locale === "tr") return tr_error_failedcreateuser2(inputs)

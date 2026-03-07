@@ -45,10 +45,6 @@ const ja_shortcuts_keyupdown2 = /** @type {(inputs: Shortcuts_Keyupdown2Inputs) 
 	return /** @type {LocalizedString} */ (`↑/↓`)
 };
 
-const pa_shortcuts_keyupdown2 = /** @type {(inputs: Shortcuts_Keyupdown2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`↑/↓`)
-};
-
 const vi_shortcuts_keyupdown2 = /** @type {(inputs: Shortcuts_Keyupdown2Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`↑/↓`)
 };
@@ -159,10 +155,10 @@ const sl_shortcuts_keyupdown2 = /** @type {(inputs: Shortcuts_Keyupdown2Inputs) 
 * | "↑/↓" |
 *
 * @param {Shortcuts_Keyupdown2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_keyupdown2 = /** @type {((inputs?: Shortcuts_Keyupdown2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Keyupdown2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_keyupdown2 = /** @type {((inputs?: Shortcuts_Keyupdown2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Keyupdown2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_keyupdown2(inputs)
 	if (locale === "sv") return sv_shortcuts_keyupdown2(inputs)
@@ -174,7 +170,6 @@ const shortcuts_keyupdown2 = /** @type {((inputs?: Shortcuts_Keyupdown2Inputs, o
 	if (locale === "bn") return bn_shortcuts_keyupdown2(inputs)
 	if (locale === "ru") return ru_shortcuts_keyupdown2(inputs)
 	if (locale === "ja") return ja_shortcuts_keyupdown2(inputs)
-	if (locale === "pa") return pa_shortcuts_keyupdown2(inputs)
 	if (locale === "vi") return vi_shortcuts_keyupdown2(inputs)
 	if (locale === "yue") return yue_shortcuts_keyupdown2(inputs)
 	if (locale === "tr") return tr_shortcuts_keyupdown2(inputs)

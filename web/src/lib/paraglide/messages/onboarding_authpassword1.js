@@ -10,107 +10,103 @@ const en_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1
 };
 
 const sv_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Lösenord`)
 };
 
 const uk_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Пароль`)
 };
 
 const zh_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`密码`)
 };
 
 const es_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Contraseña`)
 };
 
 const hi_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`पासवर्ड`)
 };
 
 const pt_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Palavra-passe`)
 };
 
 const bn_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`পাসওয়ার্ড`)
 };
 
 const ru_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Пароль`)
 };
 
 const ja_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
-};
-
-const pa_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`パスワード`)
 };
 
 const vi_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Mật khẩu`)
 };
 
 const yue_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`密碼`)
 };
 
 const tr_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Şifre`)
 };
 
 const ar_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`كلمة المرور`)
 };
 
 const wuu_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`密码`)
 };
 
 const mr_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`पासवर्ड`)
 };
 
 const nb_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Passord`)
 };
 
 const fi_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Salasana`)
 };
 
 const da_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Adgangskode`)
 };
 
 const et_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Parool`)
 };
 
 const lv_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Parole`)
 };
 
 const lt_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Slaptažodis`)
 };
 
 const pl_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Hasło`)
 };
 
 const de_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Passwort`)
 };
 
 const nl_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Wachtwoord`)
 };
 
 const fr_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Mot de passe`)
 };
 
 const it_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1
 };
 
 const hu_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Jelszó`)
 };
 
 const cs_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Heslo`)
 };
 
 const ro_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Parolă`)
 };
 
 const el_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Κωδικός`)
 };
 
 const bg_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Парола`)
 };
 
 const hr_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Lozinka`)
 };
 
 const sr_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Lozinka`)
 };
 
 const sk_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Heslo`)
 };
 
 const sl_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Password`)
+	return /** @type {LocalizedString} */ (`Geslo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_authpassword1 = /** @type {(inputs: Onboarding_Authpassword1
 * | "Password" |
 *
 * @param {Onboarding_Authpassword1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_authpassword1 = /** @type {((inputs?: Onboarding_Authpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Authpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_authpassword1 = /** @type {((inputs?: Onboarding_Authpassword1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Authpassword1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_authpassword1(inputs)
 	if (locale === "sv") return sv_onboarding_authpassword1(inputs)
@@ -174,7 +170,6 @@ const onboarding_authpassword1 = /** @type {((inputs?: Onboarding_Authpassword1I
 	if (locale === "bn") return bn_onboarding_authpassword1(inputs)
 	if (locale === "ru") return ru_onboarding_authpassword1(inputs)
 	if (locale === "ja") return ja_onboarding_authpassword1(inputs)
-	if (locale === "pa") return pa_onboarding_authpassword1(inputs)
 	if (locale === "vi") return vi_onboarding_authpassword1(inputs)
 	if (locale === "yue") return yue_onboarding_authpassword1(inputs)
 	if (locale === "tr") return tr_onboarding_authpassword1(inputs)

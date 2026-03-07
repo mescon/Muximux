@@ -10,147 +10,143 @@ const en_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => Loc
 };
 
 const sv_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Välj en app från navigeringen`)
 };
 
 const uk_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Оберіть застосунок з навігації`)
 };
 
 const zh_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`从导航栏中选择一个应用`)
 };
 
 const es_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Selecciona una app de la navegación`)
 };
 
 const hi_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`नेविगेशन से एक ऐप चुनें`)
 };
 
 const pt_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Seleciona uma app da navegação`)
 };
 
 const bn_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`নেভিগেশন থেকে একটি অ্যাপ নির্বাচন করুন`)
 };
 
 const ru_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Выберите приложение в навигации`)
 };
 
 const ja_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
-};
-
-const pa_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`ナビゲーションからアプリを選択してください`)
 };
 
 const vi_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Chọn một ứng dụng từ thanh điều hướng`)
 };
 
 const yue_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`喺導覽列揀一個應用程式`)
 };
 
 const tr_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Navigasyondan bir uygulama seçin`)
 };
 
 const ar_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`اختر تطبيقًا من شريط التنقل`)
 };
 
 const wuu_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`从导航栏里选一个应用`)
 };
 
 const mr_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`नेव्हिगेशनमधून एक अॅप निवडा`)
 };
 
 const nb_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Velg en app fra navigasjonen`)
 };
 
 const fi_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Valitse sovellus navigaatiosta`)
 };
 
 const da_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Vælg en app fra navigationen`)
 };
 
 const et_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Vali rakendus navigeerimisribalt`)
 };
 
 const lv_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Izvēlieties lietotni no navigācijas`)
 };
 
 const lt_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Pasirinkite programą iš navigacijos`)
 };
 
 const pl_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Wybierz aplikację z nawigacji`)
 };
 
 const de_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Wählen Sie eine App aus der Navigation`)
 };
 
 const nl_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Selecteer een app uit de navigatie`)
 };
 
 const fr_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Sélectionne une application dans la navigation`)
 };
 
 const it_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Seleziona un'app dalla navigazione`)
 };
 
 const hu_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Válasszon egy alkalmazást a navigációból`)
 };
 
 const cs_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Vyberte aplikaci z navigace`)
 };
 
 const ro_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Selectează o aplicație din navigare`)
 };
 
 const el_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Επιλέξτε μια εφαρμογή από την πλοήγηση`)
 };
 
 const bg_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Избери приложение от навигацията`)
 };
 
 const hr_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Odaberite aplikaciju iz navigacije`)
 };
 
 const sr_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Izaberite aplikaciju iz navigacije`)
 };
 
 const sk_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Vyberte aplikáciu z navigácie`)
 };
 
 const sl_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select an app from the navigation`)
+	return /** @type {LocalizedString} */ (`Izberite aplikacijo iz navigacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_selectapp1 = /** @type {(inputs: Common_Selectapp1Inputs) => Loc
 * | "Select an app from the navigation" |
 *
 * @param {Common_Selectapp1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const common_selectapp1 = /** @type {((inputs?: Common_Selectapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Selectapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const common_selectapp1 = /** @type {((inputs?: Common_Selectapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Selectapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_selectapp1(inputs)
 	if (locale === "sv") return sv_common_selectapp1(inputs)
@@ -174,7 +170,6 @@ const common_selectapp1 = /** @type {((inputs?: Common_Selectapp1Inputs, options
 	if (locale === "bn") return bn_common_selectapp1(inputs)
 	if (locale === "ru") return ru_common_selectapp1(inputs)
 	if (locale === "ja") return ja_common_selectapp1(inputs)
-	if (locale === "pa") return pa_common_selectapp1(inputs)
 	if (locale === "vi") return vi_common_selectapp1(inputs)
 	if (locale === "yue") return yue_common_selectapp1(inputs)
 	if (locale === "tr") return tr_common_selectapp1(inputs)

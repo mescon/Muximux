@@ -10,147 +10,143 @@ const en_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs
 };
 
 const sv_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Spara ändringar`)
 };
 
 const uk_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Зберегти зміни`)
 };
 
 const zh_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`保存更改`)
 };
 
 const es_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Guardar cambios`)
 };
 
 const hi_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`परिवर्तन सहेजें`)
 };
 
 const pt_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Guardar alterações`)
 };
 
 const bn_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`পরিবর্তন সংরক্ষণ করুন`)
 };
 
 const ru_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Сохранить изменения`)
 };
 
 const ja_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
-};
-
-const pa_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`変更を保存`)
 };
 
 const vi_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Lưu thay đổi`)
 };
 
 const yue_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`儲存變更`)
 };
 
 const tr_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Değişiklikleri Kaydet`)
 };
 
 const ar_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`حفظ التغييرات`)
 };
 
 const wuu_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`保存改动`)
 };
 
 const mr_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`बदल जतन करा`)
 };
 
 const nb_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Lagre endringer`)
 };
 
 const fi_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Tallenna muutokset`)
 };
 
 const da_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Gem ændringer`)
 };
 
 const et_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Salvesta muudatused`)
 };
 
 const lv_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Saglabāt izmaiņas`)
 };
 
 const lt_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Išsaugoti pakeitimus`)
 };
 
 const pl_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Zapisz zmiany`)
 };
 
 const de_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Änderungen speichern`)
 };
 
 const nl_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Wijzigingen opslaan`)
 };
 
 const fr_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Enregistrer les modifications`)
 };
 
 const it_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Salva modifiche`)
 };
 
 const hu_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Változtatások mentése`)
 };
 
 const cs_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Uložit změny`)
 };
 
 const ro_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Salvează modificările`)
 };
 
 const el_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Αποθήκευση αλλαγών`)
 };
 
 const bg_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Запази промените`)
 };
 
 const hr_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Spremi promjene`)
 };
 
 const sr_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Sačuvaj promene`)
 };
 
 const sk_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Uložiť zmeny`)
 };
 
 const sl_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Save Changes`)
+	return /** @type {LocalizedString} */ (`Shrani spremembe`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_savechanges1 = /** @type {(inputs: Settings_Savechanges1Inputs
 * | "Save Changes" |
 *
 * @param {Settings_Savechanges1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_savechanges1 = /** @type {((inputs?: Settings_Savechanges1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Savechanges1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_savechanges1 = /** @type {((inputs?: Settings_Savechanges1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Savechanges1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_savechanges1(inputs)
 	if (locale === "sv") return sv_settings_savechanges1(inputs)
@@ -174,7 +170,6 @@ const settings_savechanges1 = /** @type {((inputs?: Settings_Savechanges1Inputs,
 	if (locale === "bn") return bn_settings_savechanges1(inputs)
 	if (locale === "ru") return ru_settings_savechanges1(inputs)
 	if (locale === "ja") return ja_settings_savechanges1(inputs)
-	if (locale === "pa") return pa_settings_savechanges1(inputs)
 	if (locale === "vi") return vi_settings_savechanges1(inputs)
 	if (locale === "yue") return yue_settings_savechanges1(inputs)
 	if (locale === "tr") return tr_settings_savechanges1(inputs)

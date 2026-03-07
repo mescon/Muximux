@@ -10,147 +10,143 @@ const en_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedStri
 };
 
 const sv_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Anpassat`)
 };
 
 const uk_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Власна`)
 };
 
 const zh_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`自定义`)
 };
 
 const es_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Personalizado`)
 };
 
 const hi_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`कस्टम`)
 };
 
 const pt_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Personalizado`)
 };
 
 const bn_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`কাস্টম`)
 };
 
 const ru_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Пользовательская`)
 };
 
 const ja_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
-};
-
-const pa_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`カスタム`)
 };
 
 const vi_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Tùy chỉnh`)
 };
 
 const yue_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`自訂`)
 };
 
 const tr_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Özel`)
 };
 
 const ar_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`مخصص`)
 };
 
 const wuu_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`自定义`)
 };
 
 const mr_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`सानुकूल`)
 };
 
 const nb_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Egendefinert`)
 };
 
 const fi_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Mukautettu`)
 };
 
 const da_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Brugerdefineret`)
 };
 
 const et_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Kohandatud`)
 };
 
 const lv_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Pielāgots`)
 };
 
 const lt_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Pasirinktinė`)
 };
 
 const pl_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Własny`)
 };
 
 const de_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Benutzerdefiniert`)
 };
 
 const nl_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Aangepast`)
 };
 
 const fr_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Personnalisé`)
 };
 
 const it_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Personalizzato`)
 };
 
 const hu_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Egyéni`)
 };
 
 const cs_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Vlastní`)
 };
 
 const ro_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Personalizată`)
 };
 
 const el_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Προσαρμοσμένο`)
 };
 
 const bg_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Персонализирана`)
 };
 
 const hr_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Prilagođeno`)
 };
 
 const sr_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Prilagođeno`)
 };
 
 const sk_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Vlastný`)
 };
 
 const sl_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Custom`)
+	return /** @type {LocalizedString} */ (`Prilagojeno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_custom = /** @type {(inputs: Theme_CustomInputs) => LocalizedStri
 * | "Custom" |
 *
 * @param {Theme_CustomInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const theme_custom = /** @type {((inputs?: Theme_CustomInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_CustomInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const theme_custom = /** @type {((inputs?: Theme_CustomInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_CustomInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_custom(inputs)
 	if (locale === "sv") return sv_theme_custom(inputs)
@@ -174,7 +170,6 @@ export const theme_custom = /** @type {((inputs?: Theme_CustomInputs, options?: 
 	if (locale === "bn") return bn_theme_custom(inputs)
 	if (locale === "ru") return ru_theme_custom(inputs)
 	if (locale === "ja") return ja_theme_custom(inputs)
-	if (locale === "pa") return pa_theme_custom(inputs)
 	if (locale === "vi") return vi_theme_custom(inputs)
 	if (locale === "yue") return yue_theme_custom(inputs)
 	if (locale === "tr") return tr_theme_custom(inputs)

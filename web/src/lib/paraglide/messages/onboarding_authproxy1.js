@@ -10,7 +10,7 @@ const en_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs
 };
 
 const sv_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentiseringsproxy`)
 };
 
 const uk_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -18,7 +18,7 @@ const uk_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs
 };
 
 const zh_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`认证代理`)
 };
 
 const es_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -42,19 +42,15 @@ const ru_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs
 };
 
 const ja_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
-};
-
-const pa_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`認証プロキシ`)
 };
 
 const vi_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Proxy xác thực`)
 };
 
 const yue_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`認證代理`)
 };
 
 const tr_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -66,31 +62,31 @@ const ar_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs
 };
 
 const wuu_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`认证代理`)
 };
 
 const mr_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`ऑथ प्रॉक्सी`)
 };
 
 const nb_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentiseringsproxy`)
 };
 
 const fi_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Todennusproxy`)
 };
 
 const da_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Godkendelsesproxy`)
 };
 
 const et_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentimisproxy`)
 };
 
 const lv_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Autentifikācijas proxy`)
 };
 
 const lt_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -102,11 +98,11 @@ const pl_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs
 };
 
 const de_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Auth-Proxy`)
 };
 
 const nl_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Auth proxy`)
+	return /** @type {LocalizedString} */ (`Auth-proxy`)
 };
 
 const fr_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_onboarding_authproxy1 = /** @type {(inputs: Onboarding_Authproxy1Inputs
 * | "Auth proxy" |
 *
 * @param {Onboarding_Authproxy1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_authproxy1 = /** @type {((inputs?: Onboarding_Authproxy1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Authproxy1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_authproxy1 = /** @type {((inputs?: Onboarding_Authproxy1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Authproxy1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_authproxy1(inputs)
 	if (locale === "sv") return sv_onboarding_authproxy1(inputs)
@@ -174,7 +170,6 @@ const onboarding_authproxy1 = /** @type {((inputs?: Onboarding_Authproxy1Inputs,
 	if (locale === "bn") return bn_onboarding_authproxy1(inputs)
 	if (locale === "ru") return ru_onboarding_authproxy1(inputs)
 	if (locale === "ja") return ja_onboarding_authproxy1(inputs)
-	if (locale === "pa") return pa_onboarding_authproxy1(inputs)
 	if (locale === "vi") return vi_onboarding_authproxy1(inputs)
 	if (locale === "yue") return yue_onboarding_authproxy1(inputs)
 	if (locale === "tr") return tr_onboarding_authproxy1(inputs)

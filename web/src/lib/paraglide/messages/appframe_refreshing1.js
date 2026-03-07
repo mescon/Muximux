@@ -10,147 +10,143 @@ const en_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) 
 };
 
 const sv_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Uppdaterar...`)
 };
 
 const uk_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Оновлення...`)
 };
 
 const zh_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`刷新中...`)
 };
 
 const es_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Actualizando...`)
 };
 
 const hi_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`रीफ़्रेश हो रहा है...`)
 };
 
 const pt_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`A atualizar...`)
 };
 
 const bn_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`রিফ্রেশ হচ্ছে...`)
 };
 
 const ru_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Обновление...`)
 };
 
 const ja_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
-};
-
-const pa_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`更新中...`)
 };
 
 const vi_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Đang làm mới...`)
 };
 
 const yue_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`重新整理中...`)
 };
 
 const tr_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Yenileniyor...`)
 };
 
 const ar_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`جارٍ التحديث...`)
 };
 
 const wuu_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`刷新当中...`)
 };
 
 const mr_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`रिफ्रेश होत आहे...`)
 };
 
 const nb_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Oppdaterer...`)
 };
 
 const fi_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Päivitetään...`)
 };
 
 const da_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Opdaterer...`)
 };
 
 const et_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Värskendamine...`)
 };
 
 const lv_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Atsvaidzināšana...`)
 };
 
 const lt_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Atnaujinama...`)
 };
 
 const pl_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Odświeżanie...`)
 };
 
 const de_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Aktualisieren...`)
 };
 
 const nl_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Vernieuwen...`)
 };
 
 const fr_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Actualisation...`)
 };
 
 const it_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Aggiornamento...`)
 };
 
 const hu_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Frissítés...`)
 };
 
 const cs_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Obnovování...`)
 };
 
 const ro_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Se reîmprospătează...`)
 };
 
 const el_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Ανανέωση...`)
 };
 
 const bg_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Обновяване...`)
 };
 
 const hr_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Osvježavanje...`)
 };
 
 const sr_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Osvežavanje...`)
 };
 
 const sk_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Obnovovanie...`)
 };
 
 const sl_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refreshing...`)
+	return /** @type {LocalizedString} */ (`Osveževanje...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appframe_refreshing1 = /** @type {(inputs: Appframe_Refreshing1Inputs) 
 * | "Refreshing..." |
 *
 * @param {Appframe_Refreshing1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appframe_refreshing1 = /** @type {((inputs?: Appframe_Refreshing1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appframe_Refreshing1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appframe_refreshing1 = /** @type {((inputs?: Appframe_Refreshing1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appframe_Refreshing1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appframe_refreshing1(inputs)
 	if (locale === "sv") return sv_appframe_refreshing1(inputs)
@@ -174,7 +170,6 @@ const appframe_refreshing1 = /** @type {((inputs?: Appframe_Refreshing1Inputs, o
 	if (locale === "bn") return bn_appframe_refreshing1(inputs)
 	if (locale === "ru") return ru_appframe_refreshing1(inputs)
 	if (locale === "ja") return ja_appframe_refreshing1(inputs)
-	if (locale === "pa") return pa_appframe_refreshing1(inputs)
 	if (locale === "vi") return vi_appframe_refreshing1(inputs)
 	if (locale === "yue") return yue_appframe_refreshing1(inputs)
 	if (locale === "tr") return tr_appframe_refreshing1(inputs)

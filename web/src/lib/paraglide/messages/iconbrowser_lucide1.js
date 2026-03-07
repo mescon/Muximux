@@ -45,10 +45,6 @@ const ja_iconbrowser_lucide1 = /** @type {(inputs: Iconbrowser_Lucide1Inputs) =>
 	return /** @type {LocalizedString} */ (`Lucide`)
 };
 
-const pa_iconbrowser_lucide1 = /** @type {(inputs: Iconbrowser_Lucide1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Lucide`)
-};
-
 const vi_iconbrowser_lucide1 = /** @type {(inputs: Iconbrowser_Lucide1Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Lucide`)
 };
@@ -159,10 +155,10 @@ const sl_iconbrowser_lucide1 = /** @type {(inputs: Iconbrowser_Lucide1Inputs) =>
 * | "Lucide" |
 *
 * @param {Iconbrowser_Lucide1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const iconbrowser_lucide1 = /** @type {((inputs?: Iconbrowser_Lucide1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Lucide1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const iconbrowser_lucide1 = /** @type {((inputs?: Iconbrowser_Lucide1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Lucide1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_iconbrowser_lucide1(inputs)
 	if (locale === "sv") return sv_iconbrowser_lucide1(inputs)
@@ -174,7 +170,6 @@ const iconbrowser_lucide1 = /** @type {((inputs?: Iconbrowser_Lucide1Inputs, opt
 	if (locale === "bn") return bn_iconbrowser_lucide1(inputs)
 	if (locale === "ru") return ru_iconbrowser_lucide1(inputs)
 	if (locale === "ja") return ja_iconbrowser_lucide1(inputs)
-	if (locale === "pa") return pa_iconbrowser_lucide1(inputs)
 	if (locale === "vi") return vi_iconbrowser_lucide1(inputs)
 	if (locale === "yue") return yue_iconbrowser_lucide1(inputs)
 	if (locale === "tr") return tr_iconbrowser_lucide1(inputs)

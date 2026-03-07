@@ -10,147 +10,143 @@ const en_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1
 };
 
 const sv_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Säkerhet`)
 };
 
 const uk_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Безпека`)
 };
 
 const zh_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`安全`)
 };
 
 const es_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Seguridad`)
 };
 
 const hi_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`सुरक्षा`)
 };
 
 const pt_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Segurança`)
 };
 
 const bn_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`নিরাপত্তা`)
 };
 
 const ru_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Безопасность`)
 };
 
 const ja_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
-};
-
-const pa_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`セキュリティ`)
 };
 
 const vi_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Bảo mật`)
 };
 
 const yue_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`安全`)
 };
 
 const tr_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Güvenlik`)
 };
 
 const ar_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`الأمان`)
 };
 
 const wuu_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`安全`)
 };
 
 const mr_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`सुरक्षा`)
 };
 
 const nb_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sikkerhet`)
 };
 
 const fi_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Tietoturva`)
 };
 
 const da_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sikkerhed`)
 };
 
 const et_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Turvalisus`)
 };
 
 const lv_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Drošība`)
 };
 
 const lt_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Saugumas`)
 };
 
 const pl_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Bezpieczeństwo`)
 };
 
 const de_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sicherheit`)
 };
 
 const nl_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Beveiliging`)
 };
 
 const fr_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sécurité`)
 };
 
 const it_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sicurezza`)
 };
 
 const hu_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Biztonság`)
 };
 
 const cs_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Zabezpečení`)
 };
 
 const ro_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Securitate`)
 };
 
 const el_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Ασφάλεια`)
 };
 
 const bg_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Сигурност`)
 };
 
 const hr_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Sigurnost`)
 };
 
 const sr_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Bezbednost`)
 };
 
 const sk_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Zabezpečenie`)
 };
 
 const sl_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Security`)
+	return /** @type {LocalizedString} */ (`Varnost`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_stepsecurity1 = /** @type {(inputs: Onboarding_Stepsecurity1
 * | "Security" |
 *
 * @param {Onboarding_Stepsecurity1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_stepsecurity1 = /** @type {((inputs?: Onboarding_Stepsecurity1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Stepsecurity1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_stepsecurity1 = /** @type {((inputs?: Onboarding_Stepsecurity1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Stepsecurity1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_stepsecurity1(inputs)
 	if (locale === "sv") return sv_onboarding_stepsecurity1(inputs)
@@ -174,7 +170,6 @@ const onboarding_stepsecurity1 = /** @type {((inputs?: Onboarding_Stepsecurity1I
 	if (locale === "bn") return bn_onboarding_stepsecurity1(inputs)
 	if (locale === "ru") return ru_onboarding_stepsecurity1(inputs)
 	if (locale === "ja") return ja_onboarding_stepsecurity1(inputs)
-	if (locale === "pa") return pa_onboarding_stepsecurity1(inputs)
 	if (locale === "vi") return vi_onboarding_stepsecurity1(inputs)
 	if (locale === "yue") return yue_onboarding_stepsecurity1(inputs)
 	if (locale === "tr") return tr_onboarding_stepsecurity1(inputs)

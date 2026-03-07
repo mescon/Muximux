@@ -10,147 +10,143 @@ const en_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabe
 };
 
 const sv_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Stäng`)
 };
 
 const uk_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Закрити`)
 };
 
 const zh_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`关闭`)
 };
 
 const es_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Cerrar`)
 };
 
 const hi_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`बंद करें`)
 };
 
 const pt_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Fechar`)
 };
 
 const bn_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`বন্ধ করুন`)
 };
 
 const ru_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Закрыть`)
 };
 
 const ja_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
-};
-
-const pa_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`閉じる`)
 };
 
 const vi_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Đóng`)
 };
 
 const yue_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`關閉`)
 };
 
 const tr_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Kapat`)
 };
 
 const ar_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`إغلاق`)
 };
 
 const wuu_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`关闭`)
 };
 
 const mr_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`बंद करा`)
 };
 
 const nb_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Lukk`)
 };
 
 const fi_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Sulje`)
 };
 
 const da_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Luk`)
 };
 
 const et_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Sulge`)
 };
 
 const lv_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Aizvērt`)
 };
 
 const lt_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Uždaryti`)
 };
 
 const pl_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zamknij`)
 };
 
 const de_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Schließen`)
 };
 
 const nl_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Sluiten`)
 };
 
 const fr_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Fermer`)
 };
 
 const it_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Chiudi`)
 };
 
 const hu_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Bezárás`)
 };
 
 const cs_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zavřít`)
 };
 
 const ro_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Închide`)
 };
 
 const el_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Κλείσιμο`)
 };
 
 const bg_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Затвори`)
 };
 
 const hr_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zatvori`)
 };
 
 const sr_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zatvori`)
 };
 
 const sk_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zavrieť`)
 };
 
 const sl_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabel2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close`)
+	return /** @type {LocalizedString} */ (`Zapri`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_shortcuts_closearialabel2 = /** @type {(inputs: Shortcuts_Closearialabe
 * | "Close" |
 *
 * @param {Shortcuts_Closearialabel2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_closearialabel2 = /** @type {((inputs?: Shortcuts_Closearialabel2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Closearialabel2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_closearialabel2 = /** @type {((inputs?: Shortcuts_Closearialabel2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Closearialabel2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_closearialabel2(inputs)
 	if (locale === "sv") return sv_shortcuts_closearialabel2(inputs)
@@ -174,7 +170,6 @@ const shortcuts_closearialabel2 = /** @type {((inputs?: Shortcuts_Closearialabel
 	if (locale === "bn") return bn_shortcuts_closearialabel2(inputs)
 	if (locale === "ru") return ru_shortcuts_closearialabel2(inputs)
 	if (locale === "ja") return ja_shortcuts_closearialabel2(inputs)
-	if (locale === "pa") return pa_shortcuts_closearialabel2(inputs)
 	if (locale === "vi") return vi_shortcuts_closearialabel2(inputs)
 	if (locale === "yue") return yue_shortcuts_closearialabel2(inputs)
 	if (locale === "tr") return tr_shortcuts_closearialabel2(inputs)

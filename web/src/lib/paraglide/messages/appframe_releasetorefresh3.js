@@ -10,147 +10,143 @@ const en_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefr
 };
 
 const sv_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Släpp för att uppdatera`)
 };
 
 const uk_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Відпустіть для оновлення`)
 };
 
 const zh_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`松开以刷新`)
 };
 
 const es_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Suelta para actualizar`)
 };
 
 const hi_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`रीफ़्रेश करने के लिए छोड़ें`)
 };
 
 const pt_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Larga para atualizar`)
 };
 
 const bn_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`রিফ্রেশ করতে ছেড়ে দিন`)
 };
 
 const ru_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Отпустите для обновления`)
 };
 
 const ja_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
-};
-
-const pa_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`離して更新`)
 };
 
 const vi_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Thả để làm mới`)
 };
 
 const yue_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`放開嚟重新整理`)
 };
 
 const tr_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Yenilemek için bırakın`)
 };
 
 const ar_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`أفلت للتحديث`)
 };
 
 const wuu_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`松手刷新`)
 };
 
 const mr_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`रिफ्रेश करण्यासाठी सोडा`)
 };
 
 const nb_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Slipp for å oppdatere`)
 };
 
 const fi_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Vapauta päivittääksesi`)
 };
 
 const da_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Slip for at opdatere`)
 };
 
 const et_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Vabastage värskendamiseks`)
 };
 
 const lv_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Atlaidiet, lai atsvaidzinātu`)
 };
 
 const lt_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Atleiskite, kad atnaujintumėte`)
 };
 
 const pl_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Zwolnij, aby odświeżyć`)
 };
 
 const de_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Loslassen zum Aktualisieren`)
 };
 
 const nl_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Loslaten om te vernieuwen`)
 };
 
 const fr_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Relâche pour actualiser`)
 };
 
 const it_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Rilascia per aggiornare`)
 };
 
 const hu_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Engedje el a frissítéshez`)
 };
 
 const cs_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Uvolněte pro obnovení`)
 };
 
 const ro_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Eliberează pentru reîmprospătare`)
 };
 
 const el_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Αφήστε για ανανέωση`)
 };
 
 const bg_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Пуснете за обновяване`)
 };
 
 const hr_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Otpustite za osvježavanje`)
 };
 
 const sr_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Otpustite za osvežavanje`)
 };
 
 const sk_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Uvoľnite pre obnovenie`)
 };
 
 const sl_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefresh3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release to refresh`)
+	return /** @type {LocalizedString} */ (`Spustite za osvežitev`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appframe_releasetorefresh3 = /** @type {(inputs: Appframe_Releasetorefr
 * | "Release to refresh" |
 *
 * @param {Appframe_Releasetorefresh3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appframe_releasetorefresh3 = /** @type {((inputs?: Appframe_Releasetorefresh3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appframe_Releasetorefresh3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appframe_releasetorefresh3 = /** @type {((inputs?: Appframe_Releasetorefresh3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appframe_Releasetorefresh3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appframe_releasetorefresh3(inputs)
 	if (locale === "sv") return sv_appframe_releasetorefresh3(inputs)
@@ -174,7 +170,6 @@ const appframe_releasetorefresh3 = /** @type {((inputs?: Appframe_Releasetorefre
 	if (locale === "bn") return bn_appframe_releasetorefresh3(inputs)
 	if (locale === "ru") return ru_appframe_releasetorefresh3(inputs)
 	if (locale === "ja") return ja_appframe_releasetorefresh3(inputs)
-	if (locale === "pa") return pa_appframe_releasetorefresh3(inputs)
 	if (locale === "vi") return vi_appframe_releasetorefresh3(inputs)
 	if (locale === "yue") return yue_appframe_releasetorefresh3(inputs)
 	if (locale === "tr") return tr_appframe_releasetorefresh3(inputs)

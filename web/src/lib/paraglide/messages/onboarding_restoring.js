@@ -10,147 +10,143 @@ const en_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) 
 };
 
 const sv_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Återställer...`)
 };
 
 const uk_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Відновлення...`)
 };
 
 const zh_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`正在恢复...`)
 };
 
 const es_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Restaurando...`)
 };
 
 const hi_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`पुनर्स्थापित हो रहा है...`)
 };
 
 const pt_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`A restaurar...`)
 };
 
 const bn_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`পুনরুদ্ধার হচ্ছে...`)
 };
 
 const ru_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Восстановление...`)
 };
 
 const ja_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
-};
-
-const pa_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`復元中...`)
 };
 
 const vi_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Đang khôi phục...`)
 };
 
 const yue_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`正在還原...`)
 };
 
 const tr_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Geri yükleniyor...`)
 };
 
 const ar_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`جارٍ الاستعادة...`)
 };
 
 const wuu_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`恢复当中...`)
 };
 
 const mr_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`पुनर्संचयित होत आहे...`)
 };
 
 const nb_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Gjenoppretter...`)
 };
 
 const fi_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Palautetaan...`)
 };
 
 const da_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Gendanner...`)
 };
 
 const et_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Taastamine...`)
 };
 
 const lv_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Atjaunošana...`)
 };
 
 const lt_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Atkuriama...`)
 };
 
 const pl_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Przywracanie...`)
 };
 
 const de_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Wiederherstellen...`)
 };
 
 const nl_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Herstellen...`)
 };
 
 const fr_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Restauration...`)
 };
 
 const it_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Ripristino...`)
 };
 
 const hu_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Visszaállítás...`)
 };
 
 const cs_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Obnovování...`)
 };
 
 const ro_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Se restaurează...`)
 };
 
 const el_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Επαναφορά...`)
 };
 
 const bg_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Възстановяване...`)
 };
 
 const hr_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Vraćanje...`)
 };
 
 const sr_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Vraćanje...`)
 };
 
 const sk_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Obnovovanie...`)
 };
 
 const sl_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restoring...`)
+	return /** @type {LocalizedString} */ (`Obnavljanje...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_restoring = /** @type {(inputs: Onboarding_RestoringInputs) 
 * | "Restoring..." |
 *
 * @param {Onboarding_RestoringInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const onboarding_restoring = /** @type {((inputs?: Onboarding_RestoringInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_RestoringInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const onboarding_restoring = /** @type {((inputs?: Onboarding_RestoringInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_RestoringInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_restoring(inputs)
 	if (locale === "sv") return sv_onboarding_restoring(inputs)
@@ -174,7 +170,6 @@ export const onboarding_restoring = /** @type {((inputs?: Onboarding_RestoringIn
 	if (locale === "bn") return bn_onboarding_restoring(inputs)
 	if (locale === "ru") return ru_onboarding_restoring(inputs)
 	if (locale === "ja") return ja_onboarding_restoring(inputs)
-	if (locale === "pa") return pa_onboarding_restoring(inputs)
 	if (locale === "vi") return vi_onboarding_restoring(inputs)
 	if (locale === "yue") return yue_onboarding_restoring(inputs)
 	if (locale === "tr") return tr_onboarding_restoring(inputs)

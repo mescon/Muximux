@@ -10,147 +10,143 @@ const en_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) 
 };
 
 const sv_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Lyckad`)
 };
 
 const uk_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Успіх`)
 };
 
 const zh_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`成功`)
 };
 
 const es_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Éxito`)
 };
 
 const hi_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`सफलता`)
 };
 
 const pt_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Sucesso`)
 };
 
 const bn_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`সফল`)
 };
 
 const ru_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Успех`)
 };
 
 const ja_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
-};
-
-const pa_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`成功`)
 };
 
 const vi_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Thành công`)
 };
 
 const yue_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`成功`)
 };
 
 const tr_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Başarılı`)
 };
 
 const ar_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`نجاح`)
 };
 
 const wuu_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`成功`)
 };
 
 const mr_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`यश`)
 };
 
 const nb_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Suksess`)
 };
 
 const fi_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Onnistui`)
 };
 
 const da_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Succes`)
 };
 
 const et_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Edu`)
 };
 
 const lv_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Veiksmīgs`)
 };
 
 const lt_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Sėkmė`)
 };
 
 const pl_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Sukces`)
 };
 
 const de_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Erfolg`)
 };
 
 const nl_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Succes`)
 };
 
 const fr_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Succès`)
 };
 
 const it_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Successo`)
 };
 
 const hu_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Siker`)
 };
 
 const cs_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Úspěch`)
 };
 
 const ro_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Succes`)
 };
 
 const el_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Επιτυχία`)
 };
 
 const bg_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Успех`)
 };
 
 const hr_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Uspjeh`)
 };
 
 const sr_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Uspeh`)
 };
 
 const sk_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Úspech`)
 };
 
 const sl_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Success`)
+	return /** @type {LocalizedString} */ (`Uspeh`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_statussuccess1 = /** @type {(inputs: Theme_Statussuccess1Inputs) 
 * | "Success" |
 *
 * @param {Theme_Statussuccess1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_statussuccess1 = /** @type {((inputs?: Theme_Statussuccess1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Statussuccess1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_statussuccess1 = /** @type {((inputs?: Theme_Statussuccess1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Statussuccess1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_statussuccess1(inputs)
 	if (locale === "sv") return sv_theme_statussuccess1(inputs)
@@ -174,7 +170,6 @@ const theme_statussuccess1 = /** @type {((inputs?: Theme_Statussuccess1Inputs, o
 	if (locale === "bn") return bn_theme_statussuccess1(inputs)
 	if (locale === "ru") return ru_theme_statussuccess1(inputs)
 	if (locale === "ja") return ja_theme_statussuccess1(inputs)
-	if (locale === "pa") return pa_theme_statussuccess1(inputs)
 	if (locale === "vi") return vi_theme_statussuccess1(inputs)
 	if (locale === "yue") return yue_theme_statussuccess1(inputs)
 	if (locale === "tr") return tr_theme_statussuccess1(inputs)

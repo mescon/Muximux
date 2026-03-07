@@ -45,10 +45,6 @@ const ja_appform_placeholderurl2 = /** @type {(inputs: Appform_Placeholderurl2In
 	return /** @type {LocalizedString} */ (`http://localhost:8080`)
 };
 
-const pa_appform_placeholderurl2 = /** @type {(inputs: Appform_Placeholderurl2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`http://localhost:8080`)
-};
-
 const vi_appform_placeholderurl2 = /** @type {(inputs: Appform_Placeholderurl2Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`http://localhost:8080`)
 };
@@ -159,10 +155,10 @@ const sl_appform_placeholderurl2 = /** @type {(inputs: Appform_Placeholderurl2In
 * | "http://localhost:8080" |
 *
 * @param {Appform_Placeholderurl2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_placeholderurl2 = /** @type {((inputs?: Appform_Placeholderurl2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Placeholderurl2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_placeholderurl2 = /** @type {((inputs?: Appform_Placeholderurl2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Placeholderurl2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_placeholderurl2(inputs)
 	if (locale === "sv") return sv_appform_placeholderurl2(inputs)
@@ -174,7 +170,6 @@ const appform_placeholderurl2 = /** @type {((inputs?: Appform_Placeholderurl2Inp
 	if (locale === "bn") return bn_appform_placeholderurl2(inputs)
 	if (locale === "ru") return ru_appform_placeholderurl2(inputs)
 	if (locale === "ja") return ja_appform_placeholderurl2(inputs)
-	if (locale === "pa") return pa_appform_placeholderurl2(inputs)
 	if (locale === "vi") return vi_appform_placeholderurl2(inputs)
 	if (locale === "yue") return yue_appform_placeholderurl2(inputs)
 	if (locale === "tr") return tr_appform_placeholderurl2(inputs)

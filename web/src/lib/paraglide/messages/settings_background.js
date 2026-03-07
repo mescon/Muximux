@@ -10,147 +10,143 @@ const en_settings_background = /** @type {(inputs: Settings_BackgroundInputs) =>
 };
 
 const sv_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Bakgrund`)
 };
 
 const uk_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Фон`)
 };
 
 const zh_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`背景`)
 };
 
 const es_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Fondo`)
 };
 
 const hi_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`पृष्ठभूमि`)
 };
 
 const pt_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Fundo`)
 };
 
 const bn_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`পটভূমি`)
 };
 
 const ru_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Фон`)
 };
 
 const ja_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
-};
-
-const pa_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`背景`)
 };
 
 const vi_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Nền`)
 };
 
 const yue_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`背景`)
 };
 
 const tr_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Arka plan`)
 };
 
 const ar_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`الخلفية`)
 };
 
 const wuu_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`背景`)
 };
 
 const mr_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`पार्श्वभूमी`)
 };
 
 const nb_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Bakgrunn`)
 };
 
 const fi_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Tausta`)
 };
 
 const da_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Baggrund`)
 };
 
 const et_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Taust`)
 };
 
 const lv_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Fons`)
 };
 
 const lt_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Fonas`)
 };
 
 const pl_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Tło`)
 };
 
 const de_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Hintergrund`)
 };
 
 const nl_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Achtergrond`)
 };
 
 const fr_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Arrière-plan`)
 };
 
 const it_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Sfondo`)
 };
 
 const hu_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Háttér`)
 };
 
 const cs_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Pozadí`)
 };
 
 const ro_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Fundal`)
 };
 
 const el_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Φόντο`)
 };
 
 const bg_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Фон`)
 };
 
 const hr_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Pozadina`)
 };
 
 const sr_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Pozadina`)
 };
 
 const sk_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Pozadie`)
 };
 
 const sl_settings_background = /** @type {(inputs: Settings_BackgroundInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Background`)
+	return /** @type {LocalizedString} */ (`Ozadje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_background = /** @type {(inputs: Settings_BackgroundInputs) =>
 * | "Background" |
 *
 * @param {Settings_BackgroundInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_background = /** @type {((inputs?: Settings_BackgroundInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_BackgroundInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_background = /** @type {((inputs?: Settings_BackgroundInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_BackgroundInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_background(inputs)
 	if (locale === "sv") return sv_settings_background(inputs)
@@ -174,7 +170,6 @@ export const settings_background = /** @type {((inputs?: Settings_BackgroundInpu
 	if (locale === "bn") return bn_settings_background(inputs)
 	if (locale === "ru") return ru_settings_background(inputs)
 	if (locale === "ja") return ja_settings_background(inputs)
-	if (locale === "pa") return pa_settings_background(inputs)
 	if (locale === "vi") return vi_settings_background(inputs)
 	if (locale === "yue") return yue_settings_background(inputs)
 	if (locale === "tr") return tr_settings_background(inputs)

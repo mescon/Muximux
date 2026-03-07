@@ -10,147 +10,143 @@ const en_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromed
 };
 
 const sv_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Personlig musikströmning`)
 };
 
 const uk_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Персональний стрімінг музики`)
 };
 
 const zh_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`个人音乐流媒体`)
 };
 
 const es_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Streaming de música personal`)
 };
 
 const hi_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`व्यक्तिगत संगीत स्ट्रीमिंग`)
 };
 
 const pt_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Streaming de música pessoal`)
 };
 
 const bn_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`ব্যক্তিগত সংগীত স্ট্রিমিং`)
 };
 
 const ru_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Персональный музыкальный стриминг`)
 };
 
 const ja_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
-};
-
-const pa_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`パーソナル音楽ストリーミング`)
 };
 
 const vi_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Phát nhạc cá nhân`)
 };
 
 const yue_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`個人音樂串流`)
 };
 
 const tr_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Kişisel müzik akışı`)
 };
 
 const ar_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`بث موسيقي شخصي`)
 };
 
 const wuu_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`个人音乐串流`)
 };
 
 const mr_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`वैयक्तिक संगीत स्ट्रीमिंग`)
 };
 
 const nb_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Personlig musikkstrømming`)
 };
 
 const fi_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Henkilökohtainen musiikin striimaus`)
 };
 
 const da_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Personlig musikstrømning`)
 };
 
 const et_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Isiklik muusika voogesitus`)
 };
 
 const lv_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Personīgā mūzikas straumēšana`)
 };
 
 const lt_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Asmeninė muzikos transliacija`)
 };
 
 const pl_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Osobisty streaming muzyki`)
 };
 
 const de_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Persönliches Musik-Streaming`)
 };
 
 const nl_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Persoonlijke muziekstreaming`)
 };
 
 const fr_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Streaming musical personnel`)
 };
 
 const it_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Streaming musicale personale`)
 };
 
 const hu_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Személyes zene streaming`)
 };
 
 const cs_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Osobní streaming hudby`)
 };
 
 const ro_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Streaming muzical personal`)
 };
 
 const el_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Προσωπική ροή μουσικής`)
 };
 
 const bg_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Персонален музикален стрийминг`)
 };
 
 const hr_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Osobno emitiranje glazbe`)
 };
 
 const sr_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Lično emitovanje muzike`)
 };
 
 const sk_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Osobný streaming hudby`)
 };
 
 const sl_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Personal music streaming`)
+	return /** @type {LocalizedString} */ (`Osebno predvajanje glasbe`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_navidromedesc2 = /** @type {(inputs: Popularapps_Navidromed
 * | "Personal music streaming" |
 *
 * @param {Popularapps_Navidromedesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_navidromedesc2 = /** @type {((inputs?: Popularapps_Navidromedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Navidromedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_navidromedesc2 = /** @type {((inputs?: Popularapps_Navidromedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Navidromedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_navidromedesc2(inputs)
 	if (locale === "sv") return sv_popularapps_navidromedesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_navidromedesc2 = /** @type {((inputs?: Popularapps_Navidromede
 	if (locale === "bn") return bn_popularapps_navidromedesc2(inputs)
 	if (locale === "ru") return ru_popularapps_navidromedesc2(inputs)
 	if (locale === "ja") return ja_popularapps_navidromedesc2(inputs)
-	if (locale === "pa") return pa_popularapps_navidromedesc2(inputs)
 	if (locale === "vi") return vi_popularapps_navidromedesc2(inputs)
 	if (locale === "yue") return yue_popularapps_navidromedesc2(inputs)
 	if (locale === "tr") return tr_popularapps_navidromedesc2(inputs)

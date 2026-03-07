@@ -10,15 +10,15 @@ const en_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) 
 };
 
 const sv_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Appar`)
 };
 
 const uk_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Застосунки`)
 };
 
 const zh_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`应用`)
 };
 
 const es_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) 
 };
 
 const hi_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`ऐप्स`)
 };
 
 const pt_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
@@ -34,51 +34,47 @@ const pt_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) 
 };
 
 const bn_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`অ্যাপ`)
 };
 
 const ru_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Приложения`)
 };
 
 const ja_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
-};
-
-const pa_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`アプリ`)
 };
 
 const vi_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Ứng dụng`)
 };
 
 const yue_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`應用程式`)
 };
 
 const tr_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Uygulamalar`)
 };
 
 const ar_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`التطبيقات`)
 };
 
 const wuu_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`应用`)
 };
 
 const mr_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`अॅप्स`)
 };
 
 const nb_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Apper`)
 };
 
 const fi_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Sovellukset`)
 };
 
 const da_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) 
 };
 
 const et_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Rakendused`)
 };
 
 const lv_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Lietotnes`)
 };
 
 const lt_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Programos`)
 };
 
 const pl_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplikacje`)
 };
 
 const de_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) 
 };
 
 const it_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`App`)
 };
 
 const hu_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Alkalmazások`)
 };
 
 const cs_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplikace`)
 };
 
 const ro_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplicații`)
 };
 
 const el_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Εφαρμογές`)
 };
 
 const bg_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Приложения`)
 };
 
 const hr_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplikacije`)
 };
 
 const sr_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplikacije`)
 };
 
 const sk_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplikácie`)
 };
 
 const sl_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Apps`)
+	return /** @type {LocalizedString} */ (`Aplikacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_stepapps1 = /** @type {(inputs: Onboarding_Stepapps1Inputs) 
 * | "Apps" |
 *
 * @param {Onboarding_Stepapps1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_stepapps1 = /** @type {((inputs?: Onboarding_Stepapps1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Stepapps1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_stepapps1 = /** @type {((inputs?: Onboarding_Stepapps1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Stepapps1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_stepapps1(inputs)
 	if (locale === "sv") return sv_onboarding_stepapps1(inputs)
@@ -174,7 +170,6 @@ const onboarding_stepapps1 = /** @type {((inputs?: Onboarding_Stepapps1Inputs, o
 	if (locale === "bn") return bn_onboarding_stepapps1(inputs)
 	if (locale === "ru") return ru_onboarding_stepapps1(inputs)
 	if (locale === "ja") return ja_onboarding_stepapps1(inputs)
-	if (locale === "pa") return pa_onboarding_stepapps1(inputs)
 	if (locale === "vi") return vi_onboarding_stepapps1(inputs)
 	if (locale === "yue") return yue_onboarding_stepapps1(inputs)
 	if (locale === "tr") return tr_onboarding_stepapps1(inputs)

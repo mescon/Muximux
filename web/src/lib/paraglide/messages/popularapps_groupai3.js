@@ -22,7 +22,7 @@ const zh_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) 
 };
 
 const es_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`IA`)
 };
 
 const hi_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
@@ -30,7 +30,7 @@ const hi_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) 
 };
 
 const pt_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`IA`)
 };
 
 const bn_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
@@ -38,14 +38,10 @@ const bn_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) 
 };
 
 const ru_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`ИИ`)
 };
 
 const ja_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
-};
-
-const pa_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`AI`)
 };
 
@@ -58,11 +54,11 @@ const yue_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs)
 };
 
 const tr_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`Yapay Zeka`)
 };
 
 const ar_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`ذكاء اصطناعي`)
 };
 
 const wuu_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
@@ -102,7 +98,7 @@ const pl_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) 
 };
 
 const de_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`KI`)
 };
 
 const nl_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
@@ -110,11 +106,11 @@ const nl_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) 
 };
 
 const fr_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`IA`)
 };
 
 const it_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`AI`)
+	return /** @type {LocalizedString} */ (`IA`)
 };
 
 const hu_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_popularapps_groupai3 = /** @type {(inputs: Popularapps_Groupai3Inputs) 
 * | "AI" |
 *
 * @param {Popularapps_Groupai3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_groupai3 = /** @type {((inputs?: Popularapps_Groupai3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupai3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_groupai3 = /** @type {((inputs?: Popularapps_Groupai3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Groupai3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_groupai3(inputs)
 	if (locale === "sv") return sv_popularapps_groupai3(inputs)
@@ -174,7 +170,6 @@ const popularapps_groupai3 = /** @type {((inputs?: Popularapps_Groupai3Inputs, o
 	if (locale === "bn") return bn_popularapps_groupai3(inputs)
 	if (locale === "ru") return ru_popularapps_groupai3(inputs)
 	if (locale === "ja") return ja_popularapps_groupai3(inputs)
-	if (locale === "pa") return pa_popularapps_groupai3(inputs)
 	if (locale === "vi") return vi_popularapps_groupai3(inputs)
 	if (locale === "yue") return yue_popularapps_groupai3(inputs)
 	if (locale === "tr") return tr_popularapps_groupai3(inputs)

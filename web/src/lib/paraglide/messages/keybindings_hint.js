@@ -10,147 +10,143 @@ const en_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => Local
 };
 
 const sv_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klicka på en tangentbindning för att ändra den. Tryck Escape för att avbryta.`)
 };
 
 const uk_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Натисніть на комбінацію клавіш, щоб змінити. Натисніть Escape для скасування.`)
 };
 
 const zh_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`点击快捷键进行更改。按 Escape 取消。`)
 };
 
 const es_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Haz clic en un atajo para cambiarlo. Pulsa Escape para cancelar.`)
 };
 
 const hi_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`बदलने के लिए किसी कीबाइंडिंग पर क्लिक करें। रद्द करने के लिए Escape दबाएं।`)
 };
 
 const pt_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Clica num atalho para o alterar. Prime Escape para cancelar.`)
 };
 
 const bn_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`পরিবর্তন করতে একটি কী-বাইন্ডিং-এ ক্লিক করুন। বাতিল করতে Escape চাপুন।`)
 };
 
 const ru_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Нажмите на сочетание клавиш, чтобы изменить его. Нажмите Escape для отмены.`)
 };
 
 const ja_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
-};
-
-const pa_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`キーバインドをクリックして変更します。Escape でキャンセル。`)
 };
 
 const vi_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Nhấp vào phím tắt để thay đổi. Nhấn Escape để hủy.`)
 };
 
 const yue_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`撳快速鍵嚟更改。撳 Escape 取消。`)
 };
 
 const tr_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Değiştirmek için bir tuş atamasına tıklayın. İptal etmek için Escape basın.`)
 };
 
 const ar_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`انقر على اختصار لتغييره. اضغط Escape للإلغاء.`)
 };
 
 const wuu_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`点击快捷键来修改。按 Escape 取消。`)
 };
 
 const mr_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`बदलण्यासाठी कीबाइंडिंगवर क्लिक करा. रद्द करण्यासाठी Escape दाबा.`)
 };
 
 const nb_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klikk på en tastaturbinding for å endre den. Trykk Escape for å avbryte.`)
 };
 
 const fi_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Napsauta näppäinsidosta muuttaaksesi sitä. Paina Escape peruuttaaksesi.`)
 };
 
 const da_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klik på en tastaturbinding for at ændre den. Tryk Escape for at annullere.`)
 };
 
 const et_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klõpsake kiirklahvil selle muutmiseks. Tühistamiseks vajutage Escape.`)
 };
 
 const lv_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Noklikšķiniet uz taustiņu piesaistes, lai to mainītu. Nospiediet Escape, lai atceltu.`)
 };
 
 const lt_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Spustelėkite klavišų kombinaciją, kad ją pakeistumėte. Paspauskite Escape, kad atšauktumėte.`)
 };
 
 const pl_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Kliknij skrót, aby go zmienić. Naciśnij Escape, aby anulować.`)
 };
 
 const de_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klicken Sie auf ein Tastenkürzel, um es zu ändern. Drücken Sie Escape zum Abbrechen.`)
 };
 
 const nl_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klik op een sneltoets om deze te wijzigen. Druk op Escape om te annuleren.`)
 };
 
 const fr_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Clique sur un raccourci pour le modifier. Appuie sur Escape pour annuler.`)
 };
 
 const it_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Clicca su una scorciatoia per cambiarla. Premi Escape per annullare.`)
 };
 
 const hu_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Kattintson egy billentyűparancsra a módosításához. Nyomjon Escape-et a visszavonáshoz.`)
 };
 
 const cs_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Klikněte na zkratku pro její změnu. Stiskněte Escape pro zrušení.`)
 };
 
 const ro_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Apasă pe o tastă rapidă pentru a o schimba. Apasă Escape pentru a anula.`)
 };
 
 const el_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Κάντε κλικ σε μια συντόμευση για αλλαγή. Πατήστε Escape για ακύρωση.`)
 };
 
 const bg_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Кликнете на клавишна комбинация, за да я промените. Натиснете Escape за отказ.`)
 };
 
 const hr_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Kliknite na tipkovni prečac da ga promijenite. Pritisnite Escape za odustajanje.`)
 };
 
 const sr_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Kliknite na prečicu da je promenite. Pritisnite Escape za otkazivanje.`)
 };
 
 const sk_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Kliknite na skratku na jej zmenu. Stlačte Escape na zrušenie.`)
 };
 
 const sl_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Click a keybinding to change it. Press Escape to cancel.`)
+	return /** @type {LocalizedString} */ (`Kliknite na tipkovno bližnjico, da jo spremenite. Pritisnite Escape za preklic.`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_keybindings_hint = /** @type {(inputs: Keybindings_HintInputs) => Local
 * | "Click a keybinding to change it. Press Escape to cancel." |
 *
 * @param {Keybindings_HintInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const keybindings_hint = /** @type {((inputs?: Keybindings_HintInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_HintInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const keybindings_hint = /** @type {((inputs?: Keybindings_HintInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_HintInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_keybindings_hint(inputs)
 	if (locale === "sv") return sv_keybindings_hint(inputs)
@@ -174,7 +170,6 @@ export const keybindings_hint = /** @type {((inputs?: Keybindings_HintInputs, op
 	if (locale === "bn") return bn_keybindings_hint(inputs)
 	if (locale === "ru") return ru_keybindings_hint(inputs)
 	if (locale === "ja") return ja_keybindings_hint(inputs)
-	if (locale === "pa") return pa_keybindings_hint(inputs)
 	if (locale === "vi") return vi_keybindings_hint(inputs)
 	if (locale === "yue") return yue_keybindings_hint(inputs)
 	if (locale === "tr") return tr_keybindings_hint(inputs)

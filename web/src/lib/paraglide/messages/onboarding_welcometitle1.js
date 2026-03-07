@@ -10,147 +10,143 @@ const en_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1
 };
 
 const sv_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Välkommen till Muximux`)
 };
 
 const uk_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Ласкаво просимо до Muximux`)
 };
 
 const zh_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`欢迎使用 Muximux`)
 };
 
 const es_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Bienvenido a Muximux`)
 };
 
 const hi_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Muximux में आपका स्वागत है`)
 };
 
 const pt_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Bem-vindo ao Muximux`)
 };
 
 const bn_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Muximux-এ স্বাগতম`)
 };
 
 const ru_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Добро пожаловать в Muximux`)
 };
 
 const ja_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
-};
-
-const pa_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Muximux へようこそ`)
 };
 
 const vi_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Chào mừng đến với Muximux`)
 };
 
 const yue_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`歡迎使用 Muximux`)
 };
 
 const tr_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Muximux'a Hoş Geldiniz`)
 };
 
 const ar_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`مرحبًا بك في Muximux`)
 };
 
 const wuu_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`欢迎使用 Muximux`)
 };
 
 const mr_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Muximux मध्ये स्वागत`)
 };
 
 const nb_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Velkommen til Muximux`)
 };
 
 const fi_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Tervetuloa Muximuxiin`)
 };
 
 const da_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Velkommen til Muximux`)
 };
 
 const et_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Tere tulemast Muximux-i`)
 };
 
 const lv_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Laipni lūgti Muximux`)
 };
 
 const lt_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Sveiki atvykę į Muximux`)
 };
 
 const pl_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Witaj w Muximux`)
 };
 
 const de_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Willkommen bei Muximux`)
 };
 
 const nl_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Welkom bij Muximux`)
 };
 
 const fr_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Bienvenue sur Muximux`)
 };
 
 const it_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Benvenuto su Muximux`)
 };
 
 const hu_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Üdvözöljük a Muximux-ban`)
 };
 
 const cs_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Vítejte v Muximux`)
 };
 
 const ro_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Bine ai venit la Muximux`)
 };
 
 const el_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Καλώς ήρθατε στο Muximux`)
 };
 
 const bg_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Добре дошли в Muximux`)
 };
 
 const hr_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Dobrodošli u Muximux`)
 };
 
 const sr_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Dobrodošli u Muximux`)
 };
 
 const sk_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Vitajte v Muximux`)
 };
 
 const sl_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Welcome to Muximux`)
+	return /** @type {LocalizedString} */ (`Dobrodošli v Muximux`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_welcometitle1 = /** @type {(inputs: Onboarding_Welcometitle1
 * | "Welcome to Muximux" |
 *
 * @param {Onboarding_Welcometitle1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_welcometitle1 = /** @type {((inputs?: Onboarding_Welcometitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Welcometitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_welcometitle1 = /** @type {((inputs?: Onboarding_Welcometitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Welcometitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_welcometitle1(inputs)
 	if (locale === "sv") return sv_onboarding_welcometitle1(inputs)
@@ -174,7 +170,6 @@ const onboarding_welcometitle1 = /** @type {((inputs?: Onboarding_Welcometitle1I
 	if (locale === "bn") return bn_onboarding_welcometitle1(inputs)
 	if (locale === "ru") return ru_onboarding_welcometitle1(inputs)
 	if (locale === "ja") return ja_onboarding_welcometitle1(inputs)
-	if (locale === "pa") return pa_onboarding_welcometitle1(inputs)
 	if (locale === "vi") return vi_onboarding_welcometitle1(inputs)
 	if (locale === "yue") return yue_onboarding_welcometitle1(inputs)
 	if (locale === "tr") return tr_onboarding_welcometitle1(inputs)

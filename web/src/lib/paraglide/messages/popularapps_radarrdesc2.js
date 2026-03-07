@@ -10,147 +10,143 @@ const en_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2In
 };
 
 const sv_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmhantering`)
 };
 
 const uk_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Управління фільмами`)
 };
 
 const zh_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`电影管理`)
 };
 
 const es_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Gestión de películas`)
 };
 
 const hi_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`फ़िल्म प्रबंधन`)
 };
 
 const pt_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Gestão de filmes`)
 };
 
 const bn_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`চলচ্চিত্র ব্যবস্থাপনা`)
 };
 
 const ru_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Управление фильмами`)
 };
 
 const ja_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
-};
-
-const pa_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`映画管理`)
 };
 
 const vi_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Quản lý phim`)
 };
 
 const yue_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`電影管理`)
 };
 
 const tr_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Film yönetimi`)
 };
 
 const ar_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`إدارة الأفلام`)
 };
 
 const wuu_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`电影管理`)
 };
 
 const mr_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`चित्रपट व्यवस्थापन`)
 };
 
 const nb_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmadministrasjon`)
 };
 
 const fi_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Elokuvien hallinta`)
 };
 
 const da_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmhåndtering`)
 };
 
 const et_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmide haldus`)
 };
 
 const lv_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmu pārvaldība`)
 };
 
 const lt_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmų valdymas`)
 };
 
 const pl_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Zarządzanie filmami`)
 };
 
 const de_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmverwaltung`)
 };
 
 const nl_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Filmbeheer`)
 };
 
 const fr_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Gestion de films`)
 };
 
 const it_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Gestione film`)
 };
 
 const hu_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Film kezelés`)
 };
 
 const cs_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Správa filmů`)
 };
 
 const ro_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Gestionarea filmelor`)
 };
 
 const el_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Διαχείριση ταινιών`)
 };
 
 const bg_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Управление на филми`)
 };
 
 const hr_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Upravljanje filmovima`)
 };
 
 const sr_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Upravljanje filmovima`)
 };
 
 const sk_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Správa filmov`)
 };
 
 const sl_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Movie management`)
+	return /** @type {LocalizedString} */ (`Upravljanje filmov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_radarrdesc2 = /** @type {(inputs: Popularapps_Radarrdesc2In
 * | "Movie management" |
 *
 * @param {Popularapps_Radarrdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_radarrdesc2 = /** @type {((inputs?: Popularapps_Radarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Radarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_radarrdesc2 = /** @type {((inputs?: Popularapps_Radarrdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Radarrdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_radarrdesc2(inputs)
 	if (locale === "sv") return sv_popularapps_radarrdesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_radarrdesc2 = /** @type {((inputs?: Popularapps_Radarrdesc2Inp
 	if (locale === "bn") return bn_popularapps_radarrdesc2(inputs)
 	if (locale === "ru") return ru_popularapps_radarrdesc2(inputs)
 	if (locale === "ja") return ja_popularapps_radarrdesc2(inputs)
-	if (locale === "pa") return pa_popularapps_radarrdesc2(inputs)
 	if (locale === "vi") return vi_popularapps_radarrdesc2(inputs)
 	if (locale === "yue") return yue_popularapps_radarrdesc2(inputs)
 	if (locale === "tr") return tr_popularapps_radarrdesc2(inputs)

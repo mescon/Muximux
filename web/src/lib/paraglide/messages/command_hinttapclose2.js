@@ -10,147 +10,143 @@ const en_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs
 };
 
 const sv_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Tryck utanför för att stänga`)
 };
 
 const uk_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Торкніться зовні, щоб закрити`)
 };
 
 const zh_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`点击外部关闭`)
 };
 
 const es_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Toca fuera para cerrar`)
 };
 
 const hi_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`बंद करने के लिए बाहर टैप करें`)
 };
 
 const pt_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Toca fora para fechar`)
 };
 
 const bn_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`বন্ধ করতে বাইরে ট্যাপ করুন`)
 };
 
 const ru_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Нажмите вне для закрытия`)
 };
 
 const ja_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
-};
-
-const pa_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`外側をタップして閉じる`)
 };
 
 const vi_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Nhấn bên ngoài để đóng`)
 };
 
 const yue_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`撳外面嚟關閉`)
 };
 
 const tr_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Kapatmak için dışına dokunun`)
 };
 
 const ar_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`انقر خارجًا للإغلاق`)
 };
 
 const wuu_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`点外面关闭`)
 };
 
 const mr_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`बंद करण्यासाठी बाहेर टॅप करा`)
 };
 
 const nb_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Trykk utenfor for å lukke`)
 };
 
 const fi_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Napauta ulkopuolelle sulkeaksesi`)
 };
 
 const da_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Tryk uden for for at lukke`)
 };
 
 const et_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Puudutage väljaspool sulgemiseks`)
 };
 
 const lv_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Pieskarieties ārpusē, lai aizvērtu`)
 };
 
 const lt_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Bakstelėkite lauke, kad uždarytumėte`)
 };
 
 const pl_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Dotknij na zewnątrz, aby zamknąć`)
 };
 
 const de_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Außerhalb tippen zum Schließen`)
 };
 
 const nl_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Tik buiten om te sluiten`)
 };
 
 const fr_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Appuie à l'extérieur pour fermer`)
 };
 
 const it_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Tocca fuori per chiudere`)
 };
 
 const hu_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Koppintson kívülre a bezáráshoz`)
 };
 
 const cs_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Klikněte mimo pro zavření`)
 };
 
 const ro_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Apasă în afară pentru a închide`)
 };
 
 const el_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Πατήστε έξω για κλείσιμο`)
 };
 
 const bg_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Докоснете навън, за да затворите`)
 };
 
 const hr_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Dodirnite izvan za zatvaranje`)
 };
 
 const sr_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Dodirnite izvan za zatvaranje`)
 };
 
 const sk_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Kliknite mimo pre zatvorenie`)
 };
 
 const sl_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Tap outside to close`)
+	return /** @type {LocalizedString} */ (`Dotaknite se zunaj za zaprtje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_hinttapclose2 = /** @type {(inputs: Command_Hinttapclose2Inputs
 * | "Tap outside to close" |
 *
 * @param {Command_Hinttapclose2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_hinttapclose2 = /** @type {((inputs?: Command_Hinttapclose2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Hinttapclose2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_hinttapclose2 = /** @type {((inputs?: Command_Hinttapclose2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Hinttapclose2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_hinttapclose2(inputs)
 	if (locale === "sv") return sv_command_hinttapclose2(inputs)
@@ -174,7 +170,6 @@ const command_hinttapclose2 = /** @type {((inputs?: Command_Hinttapclose2Inputs,
 	if (locale === "bn") return bn_command_hinttapclose2(inputs)
 	if (locale === "ru") return ru_command_hinttapclose2(inputs)
 	if (locale === "ja") return ja_command_hinttapclose2(inputs)
-	if (locale === "pa") return pa_command_hinttapclose2(inputs)
 	if (locale === "vi") return vi_command_hinttapclose2(inputs)
 	if (locale === "yue") return yue_command_hinttapclose2(inputs)
 	if (locale === "tr") return tr_command_hinttapclose2(inputs)

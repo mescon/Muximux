@@ -14,63 +14,59 @@ const sv_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedStri
 };
 
 const uk_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Системна`)
 };
 
 const zh_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`系统`)
 };
 
 const es_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const hi_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`सिस्टम`)
 };
 
 const pt_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const bn_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`সিস্টেম`)
 };
 
 const ru_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Системная`)
 };
 
 const ja_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
-};
-
-const pa_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`システム`)
 };
 
 const vi_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Hệ thống`)
 };
 
 const yue_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`系統`)
 };
 
 const tr_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 const ar_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`النظام`)
 };
 
 const wuu_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`跟随系统`)
 };
 
 const mr_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`सिस्टम`)
 };
 
 const nb_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
@@ -78,7 +74,7 @@ const nb_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedStri
 };
 
 const fi_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Järjestelmä`)
 };
 
 const da_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedStri
 };
 
 const et_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Süsteem`)
 };
 
 const lv_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistēma`)
 };
 
 const lt_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistemos`)
 };
 
 const pl_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systemowy`)
 };
 
 const de_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
@@ -106,51 +102,51 @@ const de_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedStri
 };
 
 const nl_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systeem`)
 };
 
 const fr_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Système`)
 };
 
 const it_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistema`)
 };
 
 const hu_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Rendszer`)
 };
 
 const cs_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systémový`)
 };
 
 const ro_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 const el_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Σύστημα`)
 };
 
 const bg_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Системна`)
 };
 
 const hr_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sustav`)
 };
 
 const sr_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 const sk_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Systémový`)
 };
 
 const sl_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`System`)
+	return /** @type {LocalizedString} */ (`Sistem`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_system = /** @type {(inputs: Theme_SystemInputs) => LocalizedStri
 * | "System" |
 *
 * @param {Theme_SystemInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const theme_system = /** @type {((inputs?: Theme_SystemInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_SystemInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const theme_system = /** @type {((inputs?: Theme_SystemInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_SystemInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_system(inputs)
 	if (locale === "sv") return sv_theme_system(inputs)
@@ -174,7 +170,6 @@ export const theme_system = /** @type {((inputs?: Theme_SystemInputs, options?: 
 	if (locale === "bn") return bn_theme_system(inputs)
 	if (locale === "ru") return ru_theme_system(inputs)
 	if (locale === "ja") return ja_theme_system(inputs)
-	if (locale === "pa") return pa_theme_system(inputs)
 	if (locale === "vi") return vi_theme_system(inputs)
 	if (locale === "yue") return yue_theme_system(inputs)
 	if (locale === "tr") return tr_theme_system(inputs)

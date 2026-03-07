@@ -18,7 +18,7 @@ const uk_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs
 };
 
 const zh_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`代理`)
 };
 
 const es_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
@@ -42,11 +42,7 @@ const ru_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs
 };
 
 const ja_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
-};
-
-const pa_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`プロキシ`)
 };
 
 const vi_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
@@ -54,7 +50,7 @@ const vi_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs
 };
 
 const yue_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`代理`)
 };
 
 const tr_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
@@ -66,11 +62,11 @@ const ar_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs
 };
 
 const wuu_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`代理`)
 };
 
 const mr_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`प्रॉक्सी`)
 };
 
 const nb_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_appform_sectionproxy2 = /** @type {(inputs: Appform_Sectionproxy2Inputs
 * | "Proxy" |
 *
 * @param {Appform_Sectionproxy2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_sectionproxy2 = /** @type {((inputs?: Appform_Sectionproxy2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Sectionproxy2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_sectionproxy2 = /** @type {((inputs?: Appform_Sectionproxy2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Sectionproxy2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_sectionproxy2(inputs)
 	if (locale === "sv") return sv_appform_sectionproxy2(inputs)
@@ -174,7 +170,6 @@ const appform_sectionproxy2 = /** @type {((inputs?: Appform_Sectionproxy2Inputs,
 	if (locale === "bn") return bn_appform_sectionproxy2(inputs)
 	if (locale === "ru") return ru_appform_sectionproxy2(inputs)
 	if (locale === "ja") return ja_appform_sectionproxy2(inputs)
-	if (locale === "pa") return pa_appform_sectionproxy2(inputs)
 	if (locale === "vi") return vi_appform_sectionproxy2(inputs)
 	if (locale === "yue") return yue_appform_sectionproxy2(inputs)
 	if (locale === "tr") return tr_appform_sectionproxy2(inputs)

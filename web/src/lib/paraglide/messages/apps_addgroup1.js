@@ -10,147 +10,143 @@ const en_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => Localized
 };
 
 const sv_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Lägg till grupp`)
 };
 
 const uk_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Додати групу`)
 };
 
 const zh_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`添加分组`)
 };
 
 const es_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Añadir grupo`)
 };
 
 const hi_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`समूह जोड़ें`)
 };
 
 const pt_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Adicionar grupo`)
 };
 
 const bn_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`গ্রুপ যোগ করুন`)
 };
 
 const ru_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Добавить группу`)
 };
 
 const ja_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
-};
-
-const pa_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`グループを追加`)
 };
 
 const vi_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Thêm nhóm`)
 };
 
 const yue_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`新增群組`)
 };
 
 const tr_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Grup Ekle`)
 };
 
 const ar_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`إضافة مجموعة`)
 };
 
 const wuu_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`添加分组`)
 };
 
 const mr_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`गट जोडा`)
 };
 
 const nb_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Legg til gruppe`)
 };
 
 const fi_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Lisää ryhmä`)
 };
 
 const da_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Tilføj gruppe`)
 };
 
 const et_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Lisa grupp`)
 };
 
 const lv_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Pievienot grupu`)
 };
 
 const lt_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Pridėti grupę`)
 };
 
 const pl_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Dodaj grupę`)
 };
 
 const de_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Gruppe hinzufügen`)
 };
 
 const nl_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Groep toevoegen`)
 };
 
 const fr_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Ajouter un groupe`)
 };
 
 const it_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Aggiungi gruppo`)
 };
 
 const hu_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Csoport hozzáadása`)
 };
 
 const cs_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Přidat skupinu`)
 };
 
 const ro_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Adaugă grup`)
 };
 
 const el_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Προσθήκη ομάδας`)
 };
 
 const bg_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Добави група`)
 };
 
 const hr_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Dodaj grupu`)
 };
 
 const sr_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Dodaj grupu`)
 };
 
 const sk_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Pridať skupinu`)
 };
 
 const sl_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add Group`)
+	return /** @type {LocalizedString} */ (`Dodaj skupino`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_addgroup1 = /** @type {(inputs: Apps_Addgroup1Inputs) => Localized
 * | "Add Group" |
 *
 * @param {Apps_Addgroup1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const apps_addgroup1 = /** @type {((inputs?: Apps_Addgroup1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Addgroup1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const apps_addgroup1 = /** @type {((inputs?: Apps_Addgroup1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_Addgroup1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_addgroup1(inputs)
 	if (locale === "sv") return sv_apps_addgroup1(inputs)
@@ -174,7 +170,6 @@ const apps_addgroup1 = /** @type {((inputs?: Apps_Addgroup1Inputs, options?: { l
 	if (locale === "bn") return bn_apps_addgroup1(inputs)
 	if (locale === "ru") return ru_apps_addgroup1(inputs)
 	if (locale === "ja") return ja_apps_addgroup1(inputs)
-	if (locale === "pa") return pa_apps_addgroup1(inputs)
 	if (locale === "vi") return vi_apps_addgroup1(inputs)
 	if (locale === "yue") return yue_apps_addgroup1(inputs)
 	if (locale === "tr") return tr_apps_addgroup1(inputs)

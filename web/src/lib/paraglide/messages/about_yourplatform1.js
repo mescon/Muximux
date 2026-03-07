@@ -10,147 +10,143 @@ const en_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) =>
 };
 
 const sv_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Din plattform`)
 };
 
 const uk_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Ваша платформа`)
 };
 
 const zh_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`你的平台`)
 };
 
 const es_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Tu plataforma`)
 };
 
 const hi_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`आपका प्लेटफ़ॉर्म`)
 };
 
 const pt_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`A tua plataforma`)
 };
 
 const bn_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`আপনার প্ল্যাটফর্ম`)
 };
 
 const ru_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Ваша платформа`)
 };
 
 const ja_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
-};
-
-const pa_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`お使いのプラットフォーム`)
 };
 
 const vi_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Nền tảng của bạn`)
 };
 
 const yue_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`你嘅平台`)
 };
 
 const tr_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Platformunuz`)
 };
 
 const ar_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`منصتك`)
 };
 
 const wuu_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`你的平台`)
 };
 
 const mr_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`तुमचे प्लॅटफॉर्म`)
 };
 
 const nb_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Din plattform`)
 };
 
 const fi_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Alustasi`)
 };
 
 const da_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Din platform`)
 };
 
 const et_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Teie platvorm`)
 };
 
 const lv_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Jūsu platforma`)
 };
 
 const lt_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Jūsų platforma`)
 };
 
 const pl_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Twoja platforma`)
 };
 
 const de_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Ihre Plattform`)
 };
 
 const nl_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Jouw platform`)
 };
 
 const fr_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Ta plateforme`)
 };
 
 const it_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`La tua piattaforma`)
 };
 
 const hu_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Az Ön platformja`)
 };
 
 const cs_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Vaše platforma`)
 };
 
 const ro_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Platforma ta`)
 };
 
 const el_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Η πλατφόρμα σας`)
 };
 
 const bg_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Вашата платформа`)
 };
 
 const hr_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Vaša platforma`)
 };
 
 const sr_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Vaša platforma`)
 };
 
 const sk_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Vaša platforma`)
 };
 
 const sl_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your Platform`)
+	return /** @type {LocalizedString} */ (`Vaša platforma`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_yourplatform1 = /** @type {(inputs: About_Yourplatform1Inputs) =>
 * | "Your Platform" |
 *
 * @param {About_Yourplatform1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_yourplatform1 = /** @type {((inputs?: About_Yourplatform1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Yourplatform1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_yourplatform1 = /** @type {((inputs?: About_Yourplatform1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Yourplatform1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_yourplatform1(inputs)
 	if (locale === "sv") return sv_about_yourplatform1(inputs)
@@ -174,7 +170,6 @@ const about_yourplatform1 = /** @type {((inputs?: About_Yourplatform1Inputs, opt
 	if (locale === "bn") return bn_about_yourplatform1(inputs)
 	if (locale === "ru") return ru_about_yourplatform1(inputs)
 	if (locale === "ja") return ja_about_yourplatform1(inputs)
-	if (locale === "pa") return pa_about_yourplatform1(inputs)
 	if (locale === "vi") return vi_about_yourplatform1(inputs)
 	if (locale === "yue") return yue_about_yourplatform1(inputs)
 	if (locale === "tr") return tr_about_yourplatform1(inputs)

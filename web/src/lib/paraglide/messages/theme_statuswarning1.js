@@ -10,119 +10,115 @@ const en_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) 
 };
 
 const sv_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Varning`)
 };
 
 const uk_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Попередження`)
 };
 
 const zh_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`警告`)
 };
 
 const es_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Advertencia`)
 };
 
 const hi_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`चेतावनी`)
 };
 
 const pt_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Aviso`)
 };
 
 const bn_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`সতর্কতা`)
 };
 
 const ru_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Предупреждение`)
 };
 
 const ja_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
-};
-
-const pa_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`警告`)
 };
 
 const vi_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Cảnh báo`)
 };
 
 const yue_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`警告`)
 };
 
 const tr_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Uyarı`)
 };
 
 const ar_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`تحذير`)
 };
 
 const wuu_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`警告`)
 };
 
 const mr_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`चेतावणी`)
 };
 
 const nb_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Advarsel`)
 };
 
 const fi_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Varoitus`)
 };
 
 const da_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Advarsel`)
 };
 
 const et_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Hoiatus`)
 };
 
 const lv_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Brīdinājums`)
 };
 
 const lt_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Įspėjimas`)
 };
 
 const pl_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Ostrzeżenie`)
 };
 
 const de_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Warnung`)
 };
 
 const nl_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Waarschuwing`)
 };
 
 const fr_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Avertissement`)
 };
 
 const it_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Avviso`)
 };
 
 const hu_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Figyelmeztetés`)
 };
 
 const cs_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Varování`)
 };
 
 const ro_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
@@ -130,7 +126,7 @@ const ro_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) 
 };
 
 const el_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Προειδοποίηση`)
 };
 
 const bg_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
@@ -138,19 +134,19 @@ const bg_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) 
 };
 
 const hr_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Upozorenje`)
 };
 
 const sr_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Upozorenje`)
 };
 
 const sk_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Varovanie`)
 };
 
 const sl_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
+	return /** @type {LocalizedString} */ (`Opozorilo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_statuswarning1 = /** @type {(inputs: Theme_Statuswarning1Inputs) 
 * | "Warning" |
 *
 * @param {Theme_Statuswarning1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_statuswarning1 = /** @type {((inputs?: Theme_Statuswarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Statuswarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_statuswarning1 = /** @type {((inputs?: Theme_Statuswarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Statuswarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_statuswarning1(inputs)
 	if (locale === "sv") return sv_theme_statuswarning1(inputs)
@@ -174,7 +170,6 @@ const theme_statuswarning1 = /** @type {((inputs?: Theme_Statuswarning1Inputs, o
 	if (locale === "bn") return bn_theme_statuswarning1(inputs)
 	if (locale === "ru") return ru_theme_statuswarning1(inputs)
 	if (locale === "ja") return ja_theme_statuswarning1(inputs)
-	if (locale === "pa") return pa_theme_statuswarning1(inputs)
 	if (locale === "vi") return vi_theme_statuswarning1(inputs)
 	if (locale === "yue") return yue_theme_statuswarning1(inputs)
 	if (locale === "tr") return tr_theme_statuswarning1(inputs)

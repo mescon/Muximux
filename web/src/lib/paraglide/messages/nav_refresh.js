@@ -10,147 +10,143 @@ const en_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString
 };
 
 const sv_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Uppdatera`)
 };
 
 const uk_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Оновити`)
 };
 
 const zh_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`刷新`)
 };
 
 const es_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Actualizar`)
 };
 
 const hi_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`रीफ़्रेश`)
 };
 
 const pt_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Atualizar`)
 };
 
 const bn_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`রিফ্রেশ`)
 };
 
 const ru_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Обновить`)
 };
 
 const ja_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
-};
-
-const pa_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`更新`)
 };
 
 const vi_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Làm mới`)
 };
 
 const yue_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`重新整理`)
 };
 
 const tr_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Yenile`)
 };
 
 const ar_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`تحديث`)
 };
 
 const wuu_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`刷新`)
 };
 
 const mr_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`रिफ्रेश`)
 };
 
 const nb_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Oppdater`)
 };
 
 const fi_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Päivitä`)
 };
 
 const da_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Opdater`)
 };
 
 const et_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Värskenda`)
 };
 
 const lv_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Atsvaidzināt`)
 };
 
 const lt_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Atnaujinti`)
 };
 
 const pl_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Odśwież`)
 };
 
 const de_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Aktualisieren`)
 };
 
 const nl_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Vernieuwen`)
 };
 
 const fr_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Actualiser`)
 };
 
 const it_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Aggiorna`)
 };
 
 const hu_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Frissítés`)
 };
 
 const cs_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Obnovit`)
 };
 
 const ro_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Reîmprospătare`)
 };
 
 const el_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Ανανέωση`)
 };
 
 const bg_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Обнови`)
 };
 
 const hr_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Osvježi`)
 };
 
 const sr_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Osveži`)
 };
 
 const sk_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Obnoviť`)
 };
 
 const sl_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh`)
+	return /** @type {LocalizedString} */ (`Osveži`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_nav_refresh = /** @type {(inputs: Nav_RefreshInputs) => LocalizedString
 * | "Refresh" |
 *
 * @param {Nav_RefreshInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const nav_refresh = /** @type {((inputs?: Nav_RefreshInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_RefreshInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const nav_refresh = /** @type {((inputs?: Nav_RefreshInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_RefreshInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_nav_refresh(inputs)
 	if (locale === "sv") return sv_nav_refresh(inputs)
@@ -174,7 +170,6 @@ export const nav_refresh = /** @type {((inputs?: Nav_RefreshInputs, options?: { 
 	if (locale === "bn") return bn_nav_refresh(inputs)
 	if (locale === "ru") return ru_nav_refresh(inputs)
 	if (locale === "ja") return ja_nav_refresh(inputs)
-	if (locale === "pa") return pa_nav_refresh(inputs)
 	if (locale === "vi") return vi_nav_refresh(inputs)
 	if (locale === "yue") return yue_nav_refresh(inputs)
 	if (locale === "tr") return tr_nav_refresh(inputs)

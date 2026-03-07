@@ -10,147 +10,143 @@ const en_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inpu
 };
 
 const sv_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Välj ditt tema`)
 };
 
 const uk_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Оберіть вашу тему`)
 };
 
 const zh_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`选择你的主题`)
 };
 
 const es_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Elige tu tema`)
 };
 
 const hi_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`अपनी थीम चुनें`)
 };
 
 const pt_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Escolhe o teu tema`)
 };
 
 const bn_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`আপনার থিম চয়ন করুন`)
 };
 
 const ru_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Выберите тему`)
 };
 
 const ja_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
-};
-
-const pa_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`テーマを選択`)
 };
 
 const vi_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Chọn giao diện`)
 };
 
 const yue_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`揀選你嘅主題`)
 };
 
 const tr_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Temanızı Seçin`)
 };
 
 const ar_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`اختر سمتك`)
 };
 
 const wuu_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`选择主题`)
 };
 
 const mr_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`तुमची थीम निवडा`)
 };
 
 const nb_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Velg ditt tema`)
 };
 
 const fi_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Valitse teemasi`)
 };
 
 const da_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Vælg dit tema`)
 };
 
 const et_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Valige oma teema`)
 };
 
 const lv_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Izvēlieties motīvu`)
 };
 
 const lt_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Pasirinkite savo temą`)
 };
 
 const pl_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Wybierz motyw`)
 };
 
 const de_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Wählen Sie Ihr Theme`)
 };
 
 const nl_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Kies je thema`)
 };
 
 const fr_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Choisis ton thème`)
 };
 
 const it_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Scegli il tuo tema`)
 };
 
 const hu_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Válasszon témát`)
 };
 
 const cs_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Vyberte motiv`)
 };
 
 const ro_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Alege tema`)
 };
 
 const el_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Επιλέξτε το θέμα σας`)
 };
 
 const bg_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Изберете тема`)
 };
 
 const hr_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Odaberite svoju temu`)
 };
 
 const sr_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Izaberite svoju temu`)
 };
 
 const sk_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Vyberte motív`)
 };
 
 const sl_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Theme`)
+	return /** @type {LocalizedString} */ (`Izberite svojo temo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_themetitle1 = /** @type {(inputs: Onboarding_Themetitle1Inpu
 * | "Choose Your Theme" |
 *
 * @param {Onboarding_Themetitle1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_themetitle1 = /** @type {((inputs?: Onboarding_Themetitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Themetitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_themetitle1 = /** @type {((inputs?: Onboarding_Themetitle1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Themetitle1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_themetitle1(inputs)
 	if (locale === "sv") return sv_onboarding_themetitle1(inputs)
@@ -174,7 +170,6 @@ const onboarding_themetitle1 = /** @type {((inputs?: Onboarding_Themetitle1Input
 	if (locale === "bn") return bn_onboarding_themetitle1(inputs)
 	if (locale === "ru") return ru_onboarding_themetitle1(inputs)
 	if (locale === "ja") return ja_onboarding_themetitle1(inputs)
-	if (locale === "pa") return pa_onboarding_themetitle1(inputs)
 	if (locale === "vi") return vi_onboarding_themetitle1(inputs)
 	if (locale === "yue") return yue_onboarding_themetitle1(inputs)
 	if (locale === "tr") return tr_onboarding_themetitle1(inputs)

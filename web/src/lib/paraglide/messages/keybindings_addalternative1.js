@@ -10,147 +10,143 @@ const en_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addaltern
 };
 
 const sv_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Lägg till alternativ genväg`)
 };
 
 const uk_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Додати альтернативне скорочення`)
 };
 
 const zh_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`添加备用快捷键`)
 };
 
 const es_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Añadir atajo alternativo`)
 };
 
 const hi_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`वैकल्पिक शॉर्टकट जोड़ें`)
 };
 
 const pt_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Adicionar atalho alternativo`)
 };
 
 const bn_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`বিকল্প শর্টকাট যোগ করুন`)
 };
 
 const ru_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Добавить альтернативное сочетание`)
 };
 
 const ja_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
-};
-
-const pa_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`代替ショートカットを追加`)
 };
 
 const vi_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Thêm phím tắt thay thế`)
 };
 
 const yue_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`新增替代快速鍵`)
 };
 
 const tr_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Alternatif kısayol ekle`)
 };
 
 const ar_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`إضافة اختصار بديل`)
 };
 
 const wuu_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`添加备选快捷键`)
 };
 
 const mr_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`पर्यायी शॉर्टकट जोडा`)
 };
 
 const nb_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Legg til alternativ snarvei`)
 };
 
 const fi_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Lisää vaihtoehtoinen pikanäppäin`)
 };
 
 const da_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Tilføj alternativ genvej`)
 };
 
 const et_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Lisa alternatiivne kiirklahv`)
 };
 
 const lv_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Pievienot alternatīvu saīsni`)
 };
 
 const lt_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Pridėti alternatyvią kombinaciją`)
 };
 
 const pl_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Dodaj alternatywny skrót`)
 };
 
 const de_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Alternatives Kürzel hinzufügen`)
 };
 
 const nl_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Alternatieve sneltoets toevoegen`)
 };
 
 const fr_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Ajouter un raccourci alternatif`)
 };
 
 const it_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Aggiungi scorciatoia alternativa`)
 };
 
 const hu_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Alternatív parancsikon hozzáadása`)
 };
 
 const cs_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Přidat alternativní zkratku`)
 };
 
 const ro_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Adaugă scurtătură alternativă`)
 };
 
 const el_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Προσθήκη εναλλακτικής συντόμευσης`)
 };
 
 const bg_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Добави алтернативна комбинация`)
 };
 
 const hr_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Dodaj alternativni prečac`)
 };
 
 const sr_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Dodaj alternativnu prečicu`)
 };
 
 const sk_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Pridať alternatívnu skratku`)
 };
 
 const sl_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addalternative1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add alternative shortcut`)
+	return /** @type {LocalizedString} */ (`Dodaj alternativno bližnjico`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_keybindings_addalternative1 = /** @type {(inputs: Keybindings_Addaltern
 * | "Add alternative shortcut" |
 *
 * @param {Keybindings_Addalternative1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const keybindings_addalternative1 = /** @type {((inputs?: Keybindings_Addalternative1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Addalternative1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const keybindings_addalternative1 = /** @type {((inputs?: Keybindings_Addalternative1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Addalternative1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_keybindings_addalternative1(inputs)
 	if (locale === "sv") return sv_keybindings_addalternative1(inputs)
@@ -174,7 +170,6 @@ const keybindings_addalternative1 = /** @type {((inputs?: Keybindings_Addalterna
 	if (locale === "bn") return bn_keybindings_addalternative1(inputs)
 	if (locale === "ru") return ru_keybindings_addalternative1(inputs)
 	if (locale === "ja") return ja_keybindings_addalternative1(inputs)
-	if (locale === "pa") return pa_keybindings_addalternative1(inputs)
 	if (locale === "vi") return vi_keybindings_addalternative1(inputs)
 	if (locale === "yue") return yue_keybindings_addalternative1(inputs)
 	if (locale === "tr") return tr_keybindings_addalternative1(inputs)

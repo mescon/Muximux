@@ -10,147 +10,143 @@ const en_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => Loc
 };
 
 const sv_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema sparat`)
 };
 
 const uk_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Тему збережено`)
 };
 
 const zh_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`主题已保存`)
 };
 
 const es_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema guardado`)
 };
 
 const hi_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`थीम सहेजी गई`)
 };
 
 const pt_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema guardado`)
 };
 
 const bn_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`থিম সংরক্ষিত হয়েছে`)
 };
 
 const ru_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Тема сохранена`)
 };
 
 const ja_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
-};
-
-const pa_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`テーマを保存しました`)
 };
 
 const vi_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Đã lưu giao diện`)
 };
 
 const yue_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`主題已儲存`)
 };
 
 const tr_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema kaydedildi`)
 };
 
 const ar_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`تم حفظ السمة`)
 };
 
 const wuu_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`主题保存了`)
 };
 
 const mr_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`थीम जतन झाली`)
 };
 
 const nb_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema lagret`)
 };
 
 const fi_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Teema tallennettu`)
 };
 
 const da_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema gemt`)
 };
 
 const et_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Teema salvestatud`)
 };
 
 const lv_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Motīvs saglabāts`)
 };
 
 const lt_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema išsaugota`)
 };
 
 const pl_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Motyw zapisany`)
 };
 
 const de_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Theme gespeichert`)
 };
 
 const nl_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Thema opgeslagen`)
 };
 
 const fr_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Thème enregistré`)
 };
 
 const it_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema salvato`)
 };
 
 const hu_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Téma mentve`)
 };
 
 const cs_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Motiv uložen`)
 };
 
 const ro_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema a fost salvată`)
 };
 
 const el_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Το θέμα αποθηκεύτηκε`)
 };
 
 const bg_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Темата е запазена`)
 };
 
 const hr_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema spremljena`)
 };
 
 const sr_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema sačuvana`)
 };
 
 const sk_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Motív uložený`)
 };
 
 const sl_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Theme saved`)
+	return /** @type {LocalizedString} */ (`Tema shranjena`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_themesaved1 = /** @type {(inputs: Toast_Themesaved1Inputs) => Loc
 * | "Theme saved" |
 *
 * @param {Toast_Themesaved1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_themesaved1 = /** @type {((inputs?: Toast_Themesaved1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Themesaved1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_themesaved1 = /** @type {((inputs?: Toast_Themesaved1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Themesaved1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_themesaved1(inputs)
 	if (locale === "sv") return sv_toast_themesaved1(inputs)
@@ -174,7 +170,6 @@ const toast_themesaved1 = /** @type {((inputs?: Toast_Themesaved1Inputs, options
 	if (locale === "bn") return bn_toast_themesaved1(inputs)
 	if (locale === "ru") return ru_toast_themesaved1(inputs)
 	if (locale === "ja") return ja_toast_themesaved1(inputs)
-	if (locale === "pa") return pa_toast_themesaved1(inputs)
 	if (locale === "vi") return vi_toast_themesaved1(inputs)
 	if (locale === "yue") return yue_toast_themesaved1(inputs)
 	if (locale === "tr") return tr_toast_themesaved1(inputs)

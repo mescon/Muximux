@@ -10,147 +10,143 @@ const en_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1In
 };
 
 const sv_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Stäng inställningar`)
 };
 
 const uk_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Закрити налаштування`)
 };
 
 const zh_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`关闭设置`)
 };
 
 const es_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Cerrar ajustes`)
 };
 
 const hi_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`सेटिंग्स बंद करें`)
 };
 
 const pt_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Fechar definições`)
 };
 
 const bn_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`সেটিংস বন্ধ করুন`)
 };
 
 const ru_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Закрыть настройки`)
 };
 
 const ja_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
-};
-
-const pa_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`設定を閉じる`)
 };
 
 const vi_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Đóng cài đặt`)
 };
 
 const yue_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`關閉設定`)
 };
 
 const tr_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Ayarları kapat`)
 };
 
 const ar_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`إغلاق الإعدادات`)
 };
 
 const wuu_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`关闭设置`)
 };
 
 const mr_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`सेटिंग्ज बंद करा`)
 };
 
 const nb_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Lukk innstillinger`)
 };
 
 const fi_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Sulje asetukset`)
 };
 
 const da_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Luk indstillinger`)
 };
 
 const et_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Sulge seaded`)
 };
 
 const lv_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Aizvērt iestatījumus`)
 };
 
 const lt_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Uždaryti nustatymus`)
 };
 
 const pl_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Zamknij ustawienia`)
 };
 
 const de_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Einstellungen schließen`)
 };
 
 const nl_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Instellingen sluiten`)
 };
 
 const fr_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Fermer les paramètres`)
 };
 
 const it_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Chiudi impostazioni`)
 };
 
 const hu_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Beállítások bezárása`)
 };
 
 const cs_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Zavřít nastavení`)
 };
 
 const ro_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Închide setările`)
 };
 
 const el_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Κλείσιμο ρυθμίσεων`)
 };
 
 const bg_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Затвори настройките`)
 };
 
 const hr_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Zatvori postavke`)
 };
 
 const sr_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Zatvori podešavanja`)
 };
 
 const sk_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Zavrieť nastavenia`)
 };
 
 const sl_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Close settings`)
+	return /** @type {LocalizedString} */ (`Zapri nastavitve`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_closesettings1 = /** @type {(inputs: Settings_Closesettings1In
 * | "Close settings" |
 *
 * @param {Settings_Closesettings1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_closesettings1 = /** @type {((inputs?: Settings_Closesettings1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Closesettings1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_closesettings1 = /** @type {((inputs?: Settings_Closesettings1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Closesettings1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_closesettings1(inputs)
 	if (locale === "sv") return sv_settings_closesettings1(inputs)
@@ -174,7 +170,6 @@ const settings_closesettings1 = /** @type {((inputs?: Settings_Closesettings1Inp
 	if (locale === "bn") return bn_settings_closesettings1(inputs)
 	if (locale === "ru") return ru_settings_closesettings1(inputs)
 	if (locale === "ja") return ja_settings_closesettings1(inputs)
-	if (locale === "pa") return pa_settings_closesettings1(inputs)
 	if (locale === "vi") return vi_settings_closesettings1(inputs)
 	if (locale === "yue") return yue_settings_closesettings1(inputs)
 	if (locale === "tr") return tr_settings_closesettings1(inputs)

@@ -10,147 +10,143 @@ const en_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestorecon
 };
 
 const sv_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Kunde inte återställa konfigurationen`)
 };
 
 const uk_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Не вдалося відновити конфігурацію`)
 };
 
 const zh_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`恢复配置失败`)
 };
 
 const es_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Error al restaurar la configuración`)
 };
 
 const hi_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`कॉन्फ़िग पुनर्स्थापित करने में विफल`)
 };
 
 const pt_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Erro ao restaurar a configuração`)
 };
 
 const bn_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`কনফিগ পুনরুদ্ধার করতে ব্যর্থ`)
 };
 
 const ru_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Не удалось восстановить конфигурацию`)
 };
 
 const ja_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
-};
-
-const pa_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`設定の復元に失敗しました`)
 };
 
 const vi_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Không thể khôi phục cấu hình`)
 };
 
 const yue_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`還原設定失敗`)
 };
 
 const tr_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Yapılandırma geri yüklenemedi`)
 };
 
 const ar_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`فشل استعادة الإعدادات`)
 };
 
 const wuu_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`配置恢复失败`)
 };
 
 const mr_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`कॉन्फिग पुनर्संचयित करणे अयशस्वी`)
 };
 
 const nb_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Kunne ikke gjenopprette konfigurasjonen`)
 };
 
 const fi_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Konfiguraation palauttaminen epäonnistui`)
 };
 
 const da_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Kunne ikke gendanne konfigurationen`)
 };
 
 const et_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Konfiguratsiooni taastamine ebaõnnestus`)
 };
 
 const lv_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Neizdevās atjaunot konfigurāciju`)
 };
 
 const lt_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Nepavyko atkurti konfigūracijos`)
 };
 
 const pl_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Nie udało się przywrócić konfiguracji`)
 };
 
 const de_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Konfiguration konnte nicht wiederhergestellt werden`)
 };
 
 const nl_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Configuratie herstellen mislukt`)
 };
 
 const fr_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Échec de la restauration de la configuration`)
 };
 
 const it_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Ripristino della configurazione non riuscito`)
 };
 
 const hu_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Nem sikerült visszaállítani a konfigurációt`)
 };
 
 const cs_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se obnovit konfiguraci`)
 };
 
 const ro_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Restaurarea configurației a eșuat`)
 };
 
 const el_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Αποτυχία επαναφοράς διαμόρφωσης`)
 };
 
 const bg_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Възстановяването на конфигурацията е неуспешно`)
 };
 
 const hr_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Vraćanje konfiguracije nije uspjelo`)
 };
 
 const sr_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Vraćanje konfiguracije nije uspelo`)
 };
 
 const sk_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa obnoviť konfiguráciu`)
 };
 
 const sl_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestoreconfig2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to restore config`)
+	return /** @type {LocalizedString} */ (`Obnovitev konfiguracije ni uspela`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_error_failedrestoreconfig2 = /** @type {(inputs: Error_Failedrestorecon
 * | "Failed to restore config" |
 *
 * @param {Error_Failedrestoreconfig2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const error_failedrestoreconfig2 = /** @type {((inputs?: Error_Failedrestoreconfig2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedrestoreconfig2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const error_failedrestoreconfig2 = /** @type {((inputs?: Error_Failedrestoreconfig2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedrestoreconfig2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_error_failedrestoreconfig2(inputs)
 	if (locale === "sv") return sv_error_failedrestoreconfig2(inputs)
@@ -174,7 +170,6 @@ const error_failedrestoreconfig2 = /** @type {((inputs?: Error_Failedrestoreconf
 	if (locale === "bn") return bn_error_failedrestoreconfig2(inputs)
 	if (locale === "ru") return ru_error_failedrestoreconfig2(inputs)
 	if (locale === "ja") return ja_error_failedrestoreconfig2(inputs)
-	if (locale === "pa") return pa_error_failedrestoreconfig2(inputs)
 	if (locale === "vi") return vi_error_failedrestoreconfig2(inputs)
 	if (locale === "yue") return yue_error_failedrestoreconfig2(inputs)
 	if (locale === "tr") return tr_error_failedrestoreconfig2(inputs)

@@ -10,147 +10,143 @@ const en_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => Local
 };
 
 const sv_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Ingen autentisering`)
 };
 
 const uk_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Без автентифікації`)
 };
 
 const zh_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`无认证`)
 };
 
 const es_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Sin autenticación`)
 };
 
 const hi_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`कोई प्रमाणीकरण नहीं`)
 };
 
 const pt_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Sem autenticação`)
 };
 
 const bn_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`কোনো প্রমাণীকরণ নেই`)
 };
 
 const ru_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Без аутентификации`)
 };
 
 const ja_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
-};
-
-const pa_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`認証なし`)
 };
 
 const vi_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Không xác thực`)
 };
 
 const yue_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`無認證`)
 };
 
 const tr_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Kimlik doğrulama yok`)
 };
 
 const ar_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`بدون مصادقة`)
 };
 
 const wuu_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`无认证`)
 };
 
 const mr_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`प्रमाणीकरण नाही`)
 };
 
 const nb_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Ingen autentisering`)
 };
 
 const fi_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Ei todennusta`)
 };
 
 const da_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Ingen godkendelse`)
 };
 
 const et_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Autentimine puudub`)
 };
 
 const lv_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Nav autentifikācijas`)
 };
 
 const lt_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Be autentifikavimo`)
 };
 
 const pl_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Brak uwierzytelniania`)
 };
 
 const de_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Keine Authentifizierung`)
 };
 
 const nl_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Geen authenticatie`)
 };
 
 const fr_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Pas d'authentification`)
 };
 
 const it_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Nessuna autenticazione`)
 };
 
 const hu_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Nincs hitelesítés`)
 };
 
 const cs_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Bez ověřování`)
 };
 
 const ro_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Fără autentificare`)
 };
 
 const el_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Χωρίς έλεγχο ταυτότητας`)
 };
 
 const bg_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Без удостоверяване`)
 };
 
 const hr_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Bez autentifikacije`)
 };
 
 const sr_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Bez autentifikacije`)
 };
 
 const sk_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Bez overovania`)
 };
 
 const sl_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No authentication`)
+	return /** @type {LocalizedString} */ (`Brez avtentikacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_noauth1 = /** @type {(inputs: Security_Noauth1Inputs) => Local
 * | "No authentication" |
 *
 * @param {Security_Noauth1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_noauth1 = /** @type {((inputs?: Security_Noauth1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Noauth1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_noauth1 = /** @type {((inputs?: Security_Noauth1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Noauth1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_noauth1(inputs)
 	if (locale === "sv") return sv_security_noauth1(inputs)
@@ -174,7 +170,6 @@ const security_noauth1 = /** @type {((inputs?: Security_Noauth1Inputs, options?:
 	if (locale === "bn") return bn_security_noauth1(inputs)
 	if (locale === "ru") return ru_security_noauth1(inputs)
 	if (locale === "ja") return ja_security_noauth1(inputs)
-	if (locale === "pa") return pa_security_noauth1(inputs)
 	if (locale === "vi") return vi_security_noauth1(inputs)
 	if (locale === "yue") return yue_security_noauth1(inputs)
 	if (locale === "tr") return tr_security_noauth1(inputs)

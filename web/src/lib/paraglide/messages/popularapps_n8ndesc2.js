@@ -10,147 +10,143 @@ const en_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) 
 };
 
 const sv_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Arbetsflödesautomation`)
 };
 
 const uk_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Автоматизація робочих процесів`)
 };
 
 const zh_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`工作流自动化`)
 };
 
 const es_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatización de flujos de trabajo`)
 };
 
 const hi_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`वर्कफ़्लो ऑटोमेशन`)
 };
 
 const pt_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automação de fluxos de trabalho`)
 };
 
 const bn_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`ওয়ার্কফ্লো অটোমেশন`)
 };
 
 const ru_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Автоматизация рабочих процессов`)
 };
 
 const ja_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
-};
-
-const pa_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`ワークフロー自動化`)
 };
 
 const vi_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Tự động hóa quy trình`)
 };
 
 const yue_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`工作流程自動化`)
 };
 
 const tr_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`İş akışı otomasyonu`)
 };
 
 const ar_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`أتمتة سير العمل`)
 };
 
 const wuu_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`工作流自动化`)
 };
 
 const mr_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`वर्कफ्लो ऑटोमेशन`)
 };
 
 const nb_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Arbeidsflytautomasjon`)
 };
 
 const fi_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Työnkulkujen automaatio`)
 };
 
 const da_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Arbejdsgangsautomatisering`)
 };
 
 const et_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Töövoo automatiseerimine`)
 };
 
 const lv_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Darbplūsmas automatizācija`)
 };
 
 const lt_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Darbo eigų automatizavimas`)
 };
 
 const pl_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatyzacja przepływów pracy`)
 };
 
 const de_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Workflow-Automatisierung`)
 };
 
 const nl_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Workflow-automatisering`)
 };
 
 const fr_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatisation de workflows`)
 };
 
 const it_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automazione workflow`)
 };
 
 const hu_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Munkafolyamat automatizálás`)
 };
 
 const cs_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatizace pracovních postupů`)
 };
 
 const ro_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatizare fluxuri de lucru`)
 };
 
 const el_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Αυτοματισμός ροών εργασίας`)
 };
 
 const bg_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Автоматизация на работни процеси`)
 };
 
 const hr_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatizacija radnih tokova`)
 };
 
 const sr_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatizacija radnih tokova`)
 };
 
 const sk_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Automatizácia pracovných postupov`)
 };
 
 const sl_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Workflow automation`)
+	return /** @type {LocalizedString} */ (`Avtomatizacija delovnih tokov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_n8ndesc2 = /** @type {(inputs: Popularapps_N8ndesc2Inputs) 
 * | "Workflow automation" |
 *
 * @param {Popularapps_N8ndesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_n8ndesc2 = /** @type {((inputs?: Popularapps_N8ndesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_N8ndesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_n8ndesc2 = /** @type {((inputs?: Popularapps_N8ndesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_N8ndesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_n8ndesc2(inputs)
 	if (locale === "sv") return sv_popularapps_n8ndesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_n8ndesc2 = /** @type {((inputs?: Popularapps_N8ndesc2Inputs, o
 	if (locale === "bn") return bn_popularapps_n8ndesc2(inputs)
 	if (locale === "ru") return ru_popularapps_n8ndesc2(inputs)
 	if (locale === "ja") return ja_popularapps_n8ndesc2(inputs)
-	if (locale === "pa") return pa_popularapps_n8ndesc2(inputs)
 	if (locale === "vi") return vi_popularapps_n8ndesc2(inputs)
 	if (locale === "yue") return yue_popularapps_n8ndesc2(inputs)
 	if (locale === "tr") return tr_popularapps_n8ndesc2(inputs)

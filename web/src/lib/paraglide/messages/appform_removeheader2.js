@@ -10,147 +10,143 @@ const en_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs
 };
 
 const sv_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Ta bort rubrik`)
 };
 
 const uk_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Видалити заголовок`)
 };
 
 const zh_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`移除请求头`)
 };
 
 const es_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Eliminar cabecera`)
 };
 
 const hi_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`हेडर हटाएं`)
 };
 
 const pt_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Remover cabeçalho`)
 };
 
 const bn_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`হেডার সরান`)
 };
 
 const ru_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Удалить заголовок`)
 };
 
 const ja_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
-};
-
-const pa_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`ヘッダーを削除`)
 };
 
 const vi_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Xóa header`)
 };
 
 const yue_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`移除標頭`)
 };
 
 const tr_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Başlığı kaldır`)
 };
 
 const ar_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`إزالة الترويسة`)
 };
 
 const wuu_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`移除请求头`)
 };
 
 const mr_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`हेडर काढा`)
 };
 
 const nb_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Fjern header`)
 };
 
 const fi_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Poista otsikko`)
 };
 
 const da_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Fjern header`)
 };
 
 const et_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Eemalda päis`)
 };
 
 const lv_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Noņemt galveni`)
 };
 
 const lt_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Pašalinti antraštę`)
 };
 
 const pl_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Usuń nagłówek`)
 };
 
 const de_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Header entfernen`)
 };
 
 const nl_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Header verwijderen`)
 };
 
 const fr_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Supprimer l'en-tête`)
 };
 
 const it_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Rimuovi header`)
 };
 
 const hu_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Fejléc eltávolítása`)
 };
 
 const cs_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Odebrat hlavičku`)
 };
 
 const ro_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Elimină antetul`)
 };
 
 const el_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Αφαίρεση κεφαλίδας`)
 };
 
 const bg_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Премахни хедър`)
 };
 
 const hr_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Ukloni zaglavlje`)
 };
 
 const sr_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Ukloni zaglavlje`)
 };
 
 const sk_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Odstrániť hlavičku`)
 };
 
 const sl_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remove header`)
+	return /** @type {LocalizedString} */ (`Odstrani glavo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_removeheader2 = /** @type {(inputs: Appform_Removeheader2Inputs
 * | "Remove header" |
 *
 * @param {Appform_Removeheader2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_removeheader2 = /** @type {((inputs?: Appform_Removeheader2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Removeheader2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_removeheader2 = /** @type {((inputs?: Appform_Removeheader2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Removeheader2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_removeheader2(inputs)
 	if (locale === "sv") return sv_appform_removeheader2(inputs)
@@ -174,7 +170,6 @@ const appform_removeheader2 = /** @type {((inputs?: Appform_Removeheader2Inputs,
 	if (locale === "bn") return bn_appform_removeheader2(inputs)
 	if (locale === "ru") return ru_appform_removeheader2(inputs)
 	if (locale === "ja") return ja_appform_removeheader2(inputs)
-	if (locale === "pa") return pa_appform_removeheader2(inputs)
 	if (locale === "vi") return vi_appform_removeheader2(inputs)
 	if (locale === "yue") return yue_appform_removeheader2(inputs)
 	if (locale === "tr") return tr_appform_removeheader2(inputs)

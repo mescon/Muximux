@@ -10,147 +10,143 @@ const en_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbot
 };
 
 const sv_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Nedre fält`)
 };
 
 const uk_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Нижня панель`)
 };
 
 const zh_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`底部栏`)
 };
 
 const es_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Barra inferior`)
 };
 
 const hi_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`निचला बार`)
 };
 
 const pt_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Barra inferior`)
 };
 
 const bn_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`নিচের বার`)
 };
 
 const ru_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Нижняя панель`)
 };
 
 const ja_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
-};
-
-const pa_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`ボトムバー`)
 };
 
 const vi_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Thanh dưới`)
 };
 
 const yue_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`底部列`)
 };
 
 const tr_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Alt Çubuk`)
 };
 
 const ar_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`شريط سفلي`)
 };
 
 const wuu_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`底部栏`)
 };
 
 const mr_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`तळ बार`)
 };
 
 const nb_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Bunnfelt`)
 };
 
 const fi_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Alapalkki`)
 };
 
 const da_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Bundbjælke`)
 };
 
 const et_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Alumine riba`)
 };
 
 const lv_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Apakšējā josla`)
 };
 
 const lt_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Apatinė juosta`)
 };
 
 const pl_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Dolny pasek`)
 };
 
 const de_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Untere Leiste`)
 };
 
 const nl_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Onderbalk`)
 };
 
 const fr_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Barre inférieure`)
 };
 
 const it_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Barra inferiore`)
 };
 
 const hu_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Alsó sáv`)
 };
 
 const cs_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Spodní lišta`)
 };
 
 const ro_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Bară jos`)
 };
 
 const el_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Κάτω μπάρα`)
 };
 
 const bg_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Долна лента`)
 };
 
 const hr_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Donja traka`)
 };
 
 const sr_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Donja traka`)
 };
 
 const sk_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Spodná lišta`)
 };
 
 const sl_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbottom2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Bottom Bar`)
+	return /** @type {LocalizedString} */ (`Spodnja vrstica`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_navpositionbottom2 = /** @type {(inputs: General_Navpositionbot
 * | "Bottom Bar" |
 *
 * @param {General_Navpositionbottom2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_navpositionbottom2 = /** @type {((inputs?: General_Navpositionbottom2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Navpositionbottom2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_navpositionbottom2 = /** @type {((inputs?: General_Navpositionbottom2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Navpositionbottom2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_navpositionbottom2(inputs)
 	if (locale === "sv") return sv_general_navpositionbottom2(inputs)
@@ -174,7 +170,6 @@ const general_navpositionbottom2 = /** @type {((inputs?: General_Navpositionbott
 	if (locale === "bn") return bn_general_navpositionbottom2(inputs)
 	if (locale === "ru") return ru_general_navpositionbottom2(inputs)
 	if (locale === "ja") return ja_general_navpositionbottom2(inputs)
-	if (locale === "pa") return pa_general_navpositionbottom2(inputs)
 	if (locale === "vi") return vi_general_navpositionbottom2(inputs)
 	if (locale === "yue") return yue_general_navpositionbottom2(inputs)
 	if (locale === "tr") return tr_general_navpositionbottom2(inputs)

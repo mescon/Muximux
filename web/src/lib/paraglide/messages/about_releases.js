@@ -10,95 +10,91 @@ const en_about_releases = /** @type {(inputs: About_ReleasesInputs) => Localized
 };
 
 const sv_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Utgåvor`)
 };
 
 const uk_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Випуски`)
 };
 
 const zh_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`发行版`)
 };
 
 const es_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Versiones`)
 };
 
 const hi_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`रिलीज़`)
 };
 
 const pt_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Versões`)
 };
 
 const bn_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`রিলিজ`)
 };
 
 const ru_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Релизы`)
 };
 
 const ja_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
-};
-
-const pa_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`リリース`)
 };
 
 const vi_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Phát hành`)
 };
 
 const yue_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`發佈`)
 };
 
 const tr_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Sürümler`)
 };
 
 const ar_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`الإصدارات`)
 };
 
 const wuu_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`发布`)
 };
 
 const mr_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`आवृत्त्या`)
 };
 
 const nb_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Utgivelser`)
 };
 
 const fi_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Julkaisut`)
 };
 
 const da_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Udgivelser`)
 };
 
 const et_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Versioonid`)
 };
 
 const lv_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Izlaidumi`)
 };
 
 const lt_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Leidimai`)
 };
 
 const pl_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Wydania`)
 };
 
 const de_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_releases = /** @type {(inputs: About_ReleasesInputs) => Localized
 };
 
 const hu_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Kiadások`)
 };
 
 const cs_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Vydání`)
 };
 
 const ro_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Lansări`)
 };
 
 const el_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Εκδόσεις`)
 };
 
 const bg_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Издания`)
 };
 
 const hr_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Izdanja`)
 };
 
 const sr_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Izdanja`)
 };
 
 const sk_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Vydania`)
 };
 
 const sl_about_releases = /** @type {(inputs: About_ReleasesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Releases`)
+	return /** @type {LocalizedString} */ (`Izdaje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_releases = /** @type {(inputs: About_ReleasesInputs) => Localized
 * | "Releases" |
 *
 * @param {About_ReleasesInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_releases = /** @type {((inputs?: About_ReleasesInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_ReleasesInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_releases = /** @type {((inputs?: About_ReleasesInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_ReleasesInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_releases(inputs)
 	if (locale === "sv") return sv_about_releases(inputs)
@@ -174,7 +170,6 @@ export const about_releases = /** @type {((inputs?: About_ReleasesInputs, option
 	if (locale === "bn") return bn_about_releases(inputs)
 	if (locale === "ru") return ru_about_releases(inputs)
 	if (locale === "ja") return ja_about_releases(inputs)
-	if (locale === "pa") return pa_about_releases(inputs)
 	if (locale === "vi") return vi_about_releases(inputs)
 	if (locale === "yue") return yue_about_releases(inputs)
 	if (locale === "tr") return tr_about_releases(inputs)

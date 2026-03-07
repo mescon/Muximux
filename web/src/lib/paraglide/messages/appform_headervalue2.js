@@ -10,147 +10,143 @@ const en_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) 
 };
 
 const sv_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Värde`)
 };
 
 const uk_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Значення`)
 };
 
 const zh_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`值`)
 };
 
 const es_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Valor`)
 };
 
 const hi_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`मान`)
 };
 
 const pt_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Valor`)
 };
 
 const bn_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`মান`)
 };
 
 const ru_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Значение`)
 };
 
 const ja_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
-};
-
-const pa_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`値`)
 };
 
 const vi_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Giá trị`)
 };
 
 const yue_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`值`)
 };
 
 const tr_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Değer`)
 };
 
 const ar_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`القيمة`)
 };
 
 const wuu_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`值`)
 };
 
 const mr_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`मूल्य`)
 };
 
 const nb_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Verdi`)
 };
 
 const fi_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Arvo`)
 };
 
 const da_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Værdi`)
 };
 
 const et_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Väärtus`)
 };
 
 const lv_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Vērtība`)
 };
 
 const lt_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Reikšmė`)
 };
 
 const pl_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Wartość`)
 };
 
 const de_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Wert`)
 };
 
 const nl_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Waarde`)
 };
 
 const fr_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Valeur`)
 };
 
 const it_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Valore`)
 };
 
 const hu_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Érték`)
 };
 
 const cs_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Hodnota`)
 };
 
 const ro_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Valoare`)
 };
 
 const el_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Τιμή`)
 };
 
 const bg_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Стойност`)
 };
 
 const hr_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Vrijednost`)
 };
 
 const sr_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Vrednost`)
 };
 
 const sk_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Hodnota`)
 };
 
 const sl_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Value`)
+	return /** @type {LocalizedString} */ (`Vrednost`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_headervalue2 = /** @type {(inputs: Appform_Headervalue2Inputs) 
 * | "Value" |
 *
 * @param {Appform_Headervalue2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_headervalue2 = /** @type {((inputs?: Appform_Headervalue2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Headervalue2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_headervalue2 = /** @type {((inputs?: Appform_Headervalue2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Headervalue2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_headervalue2(inputs)
 	if (locale === "sv") return sv_appform_headervalue2(inputs)
@@ -174,7 +170,6 @@ const appform_headervalue2 = /** @type {((inputs?: Appform_Headervalue2Inputs, o
 	if (locale === "bn") return bn_appform_headervalue2(inputs)
 	if (locale === "ru") return ru_appform_headervalue2(inputs)
 	if (locale === "ja") return ja_appform_headervalue2(inputs)
-	if (locale === "pa") return pa_appform_headervalue2(inputs)
 	if (locale === "vi") return vi_appform_headervalue2(inputs)
 	if (locale === "yue") return yue_appform_headervalue2(inputs)
 	if (locale === "tr") return tr_appform_headervalue2(inputs)

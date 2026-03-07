@@ -45,10 +45,6 @@ const ja_about_linux = /** @type {(inputs: About_LinuxInputs) => LocalizedString
 	return /** @type {LocalizedString} */ (`Linux`)
 };
 
-const pa_about_linux = /** @type {(inputs: About_LinuxInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Linux`)
-};
-
 const vi_about_linux = /** @type {(inputs: About_LinuxInputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Linux`)
 };
@@ -159,10 +155,10 @@ const sl_about_linux = /** @type {(inputs: About_LinuxInputs) => LocalizedString
 * | "Linux" |
 *
 * @param {About_LinuxInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const about_linux = /** @type {((inputs?: About_LinuxInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_LinuxInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const about_linux = /** @type {((inputs?: About_LinuxInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_LinuxInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_linux(inputs)
 	if (locale === "sv") return sv_about_linux(inputs)
@@ -174,7 +170,6 @@ export const about_linux = /** @type {((inputs?: About_LinuxInputs, options?: { 
 	if (locale === "bn") return bn_about_linux(inputs)
 	if (locale === "ru") return ru_about_linux(inputs)
 	if (locale === "ja") return ja_about_linux(inputs)
-	if (locale === "pa") return pa_about_linux(inputs)
 	if (locale === "vi") return vi_about_linux(inputs)
 	if (locale === "yue") return yue_about_linux(inputs)
 	if (locale === "tr") return tr_about_linux(inputs)

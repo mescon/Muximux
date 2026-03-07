@@ -10,147 +10,143 @@ const en_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) 
 };
 
 const sv_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Upphöjd`)
 };
 
 const uk_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Піднятий`)
 };
 
 const zh_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`浮起`)
 };
 
 const es_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Elevado`)
 };
 
 const hi_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`उभरा हुआ`)
 };
 
 const pt_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Elevado`)
 };
 
 const bn_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`উন্নীত`)
 };
 
 const ru_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Приподнятый`)
 };
 
 const ja_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
-};
-
-const pa_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`エレベーテッド`)
 };
 
 const vi_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Nổi lên`)
 };
 
 const yue_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`浮起`)
 };
 
 const tr_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Yükseltilmiş`)
 };
 
 const ar_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`مرتفع`)
 };
 
 const wuu_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`高亮色`)
 };
 
 const mr_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`उंचावलेले`)
 };
 
 const nb_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Forhøyet`)
 };
 
 const fi_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Korotettu`)
 };
 
 const da_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Forhøjet`)
 };
 
 const et_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Kõrgendatud`)
 };
 
 const lv_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Pacelts`)
 };
 
 const lt_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Pakelta`)
 };
 
 const pl_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Podniesiony`)
 };
 
 const de_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Erhöht`)
 };
 
 const nl_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Verhoogd`)
 };
 
 const fr_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Élevé`)
 };
 
 const it_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Elevato`)
 };
 
 const hu_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Kiemelt`)
 };
 
 const cs_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Zvýšený`)
 };
 
 const ro_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Elevat`)
 };
 
 const el_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Ανυψωμένο`)
 };
 
 const bg_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Издигнат`)
 };
 
 const hr_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Uzdignuto`)
 };
 
 const sr_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Uzdignuto`)
 };
 
 const sk_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Zvýšený`)
 };
 
 const sl_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Elevated`)
+	return /** @type {LocalizedString} */ (`Dvignjeno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_colorelevated1 = /** @type {(inputs: Theme_Colorelevated1Inputs) 
 * | "Elevated" |
 *
 * @param {Theme_Colorelevated1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_colorelevated1 = /** @type {((inputs?: Theme_Colorelevated1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Colorelevated1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_colorelevated1 = /** @type {((inputs?: Theme_Colorelevated1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Colorelevated1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_colorelevated1(inputs)
 	if (locale === "sv") return sv_theme_colorelevated1(inputs)
@@ -174,7 +170,6 @@ const theme_colorelevated1 = /** @type {((inputs?: Theme_Colorelevated1Inputs, o
 	if (locale === "bn") return bn_theme_colorelevated1(inputs)
 	if (locale === "ru") return ru_theme_colorelevated1(inputs)
 	if (locale === "ja") return ja_theme_colorelevated1(inputs)
-	if (locale === "pa") return pa_theme_colorelevated1(inputs)
 	if (locale === "vi") return vi_theme_colorelevated1(inputs)
 	if (locale === "yue") return yue_theme_colorelevated1(inputs)
 	if (locale === "tr") return tr_theme_colorelevated1(inputs)

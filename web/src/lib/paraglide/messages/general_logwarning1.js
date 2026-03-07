@@ -45,10 +45,6 @@ const ja_general_logwarning1 = /** @type {(inputs: General_Logwarning1Inputs) =>
 	return /** @type {LocalizedString} */ (`Warning`)
 };
 
-const pa_general_logwarning1 = /** @type {(inputs: General_Logwarning1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Warning`)
-};
-
 const vi_general_logwarning1 = /** @type {(inputs: General_Logwarning1Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`Warning`)
 };
@@ -159,10 +155,10 @@ const sl_general_logwarning1 = /** @type {(inputs: General_Logwarning1Inputs) =>
 * | "Warning" |
 *
 * @param {General_Logwarning1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_logwarning1 = /** @type {((inputs?: General_Logwarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Logwarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_logwarning1 = /** @type {((inputs?: General_Logwarning1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Logwarning1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_logwarning1(inputs)
 	if (locale === "sv") return sv_general_logwarning1(inputs)
@@ -174,7 +170,6 @@ const general_logwarning1 = /** @type {((inputs?: General_Logwarning1Inputs, opt
 	if (locale === "bn") return bn_general_logwarning1(inputs)
 	if (locale === "ru") return ru_general_logwarning1(inputs)
 	if (locale === "ja") return ja_general_logwarning1(inputs)
-	if (locale === "pa") return pa_general_logwarning1(inputs)
 	if (locale === "vi") return vi_general_logwarning1(inputs)
 	if (locale === "yue") return yue_general_logwarning1(inputs)
 	if (locale === "tr") return tr_general_logwarning1(inputs)

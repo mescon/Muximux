@@ -10,147 +10,143 @@ const en_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs
 };
 
 const sv_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ja, återställ`)
 };
 
 const uk_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Так, скинути`)
 };
 
 const zh_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`是，重置`)
 };
 
 const es_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Sí, restablecer`)
 };
 
 const hi_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`हाँ, रीसेट करें`)
 };
 
 const pt_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Sim, repor`)
 };
 
 const bn_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`হ্যাঁ, রিসেট করুন`)
 };
 
 const ru_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Да, сбросить`)
 };
 
 const ja_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
-};
-
-const pa_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`はい、リセット`)
 };
 
 const vi_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Có, đặt lại`)
 };
 
 const yue_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`係，重設`)
 };
 
 const tr_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Evet, Sıfırla`)
 };
 
 const ar_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`نعم، إعادة تعيين`)
 };
 
 const wuu_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`好，重置`)
 };
 
 const mr_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`होय, रीसेट करा`)
 };
 
 const nb_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ja, tilbakestill`)
 };
 
 const fi_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Kyllä, palauta`)
 };
 
 const da_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ja, nulstil`)
 };
 
 const et_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Jah, lähtesta`)
 };
 
 const lv_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Jā, atiestatīt`)
 };
 
 const lt_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Taip, atstatyti`)
 };
 
 const pl_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Tak, resetuj`)
 };
 
 const de_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ja, zurücksetzen`)
 };
 
 const nl_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ja, herstellen`)
 };
 
 const fr_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Oui, réinitialiser`)
 };
 
 const it_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Sì, ripristina`)
 };
 
 const hu_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Igen, visszaállítás`)
 };
 
 const cs_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ano, resetovat`)
 };
 
 const ro_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Da, resetează`)
 };
 
 const el_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Ναι, Επαναφορά`)
 };
 
 const bg_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Да, нулирай`)
 };
 
 const hr_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Da, poništi`)
 };
 
 const sr_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Da, poništi`)
 };
 
 const sk_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Áno, resetovať`)
 };
 
 const sl_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes, Reset`)
+	return /** @type {LocalizedString} */ (`Da, ponastavi`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_keybindings_yesreset1 = /** @type {(inputs: Keybindings_Yesreset1Inputs
 * | "Yes, Reset" |
 *
 * @param {Keybindings_Yesreset1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const keybindings_yesreset1 = /** @type {((inputs?: Keybindings_Yesreset1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Yesreset1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const keybindings_yesreset1 = /** @type {((inputs?: Keybindings_Yesreset1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Yesreset1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_keybindings_yesreset1(inputs)
 	if (locale === "sv") return sv_keybindings_yesreset1(inputs)
@@ -174,7 +170,6 @@ const keybindings_yesreset1 = /** @type {((inputs?: Keybindings_Yesreset1Inputs,
 	if (locale === "bn") return bn_keybindings_yesreset1(inputs)
 	if (locale === "ru") return ru_keybindings_yesreset1(inputs)
 	if (locale === "ja") return ja_keybindings_yesreset1(inputs)
-	if (locale === "pa") return pa_keybindings_yesreset1(inputs)
 	if (locale === "vi") return vi_keybindings_yesreset1(inputs)
 	if (locale === "yue") return yue_keybindings_yesreset1(inputs)
 	if (locale === "tr") return tr_keybindings_yesreset1(inputs)

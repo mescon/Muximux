@@ -10,147 +10,143 @@ const en_settings_about = /** @type {(inputs: Settings_AboutInputs) => Localized
 };
 
 const sv_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Om`)
 };
 
 const uk_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Про програму`)
 };
 
 const zh_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`关于`)
 };
 
 const es_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Acerca de`)
 };
 
 const hi_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`बारे में`)
 };
 
 const pt_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Sobre`)
 };
 
 const bn_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`সম্পর্কে`)
 };
 
 const ru_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`О программе`)
 };
 
 const ja_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
-};
-
-const pa_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`について`)
 };
 
 const vi_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Giới thiệu`)
 };
 
 const yue_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`關於`)
 };
 
 const tr_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Hakkında`)
 };
 
 const ar_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`حول`)
 };
 
 const wuu_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`关于`)
 };
 
 const mr_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`माहिती`)
 };
 
 const nb_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Om`)
 };
 
 const fi_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Tietoja`)
 };
 
 const da_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Om`)
 };
 
 const et_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Teave`)
 };
 
 const lv_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Par`)
 };
 
 const lt_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Apie`)
 };
 
 const pl_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`O programie`)
 };
 
 const de_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Über`)
 };
 
 const nl_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Over`)
 };
 
 const fr_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`À propos`)
 };
 
 const it_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Informazioni`)
 };
 
 const hu_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Névjegy`)
 };
 
 const cs_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`O aplikaci`)
 };
 
 const ro_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Despre`)
 };
 
 const el_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Σχετικά`)
 };
 
 const bg_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`Относно`)
 };
 
 const hr_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`O programu`)
 };
 
 const sr_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`O programu`)
 };
 
 const sk_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`O aplikácii`)
 };
 
 const sl_settings_about = /** @type {(inputs: Settings_AboutInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`About`)
+	return /** @type {LocalizedString} */ (`O programu`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_about = /** @type {(inputs: Settings_AboutInputs) => Localized
 * | "About" |
 *
 * @param {Settings_AboutInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_about = /** @type {((inputs?: Settings_AboutInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_AboutInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_about = /** @type {((inputs?: Settings_AboutInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_AboutInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_about(inputs)
 	if (locale === "sv") return sv_settings_about(inputs)
@@ -174,7 +170,6 @@ export const settings_about = /** @type {((inputs?: Settings_AboutInputs, option
 	if (locale === "bn") return bn_settings_about(inputs)
 	if (locale === "ru") return ru_settings_about(inputs)
 	if (locale === "ja") return ja_settings_about(inputs)
-	if (locale === "pa") return pa_settings_about(inputs)
 	if (locale === "vi") return vi_settings_about(inputs)
 	if (locale === "yue") return yue_settings_about(inputs)
 	if (locale === "tr") return tr_settings_about(inputs)

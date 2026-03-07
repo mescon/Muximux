@@ -10,103 +10,99 @@ const en_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryacti
 };
 
 const sv_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Åtgärder`)
 };
 
 const uk_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Дії`)
 };
 
 const zh_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`操作`)
 };
 
 const es_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Acciones`)
 };
 
 const hi_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`क्रियाएं`)
 };
 
 const pt_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Ações`)
 };
 
 const bn_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`ক্রিয়া`)
 };
 
 const ru_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Действия`)
 };
 
 const ja_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
-};
-
-const pa_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`アクション`)
 };
 
 const vi_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Hành động`)
 };
 
 const yue_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`操作`)
 };
 
 const tr_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Eylemler`)
 };
 
 const ar_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`الإجراءات`)
 };
 
 const wuu_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`操作`)
 };
 
 const mr_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`क्रिया`)
 };
 
 const nb_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Handlinger`)
 };
 
 const fi_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Toiminnot`)
 };
 
 const da_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Handlinger`)
 };
 
 const et_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Toimingud`)
 };
 
 const lv_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Darbības`)
 };
 
 const lt_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Veiksmai`)
 };
 
 const pl_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Akcje`)
 };
 
 const de_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Aktionen`)
 };
 
 const nl_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Acties`)
 };
 
 const fr_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryacti
 };
 
 const it_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Azioni`)
 };
 
 const hu_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Műveletek`)
 };
 
 const cs_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Akce`)
 };
 
 const ro_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Acțiuni`)
 };
 
 const el_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Ενέργειες`)
 };
 
 const bg_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Действия`)
 };
 
 const hr_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Radnje`)
 };
 
 const sr_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Radnje`)
 };
 
 const sk_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Akcie`)
 };
 
 const sl_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Dejanja`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_shortcuts_categoryactions1 = /** @type {(inputs: Shortcuts_Categoryacti
 * | "Actions" |
 *
 * @param {Shortcuts_Categoryactions1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_categoryactions1 = /** @type {((inputs?: Shortcuts_Categoryactions1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Categoryactions1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_categoryactions1 = /** @type {((inputs?: Shortcuts_Categoryactions1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Categoryactions1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_categoryactions1(inputs)
 	if (locale === "sv") return sv_shortcuts_categoryactions1(inputs)
@@ -174,7 +170,6 @@ const shortcuts_categoryactions1 = /** @type {((inputs?: Shortcuts_Categoryactio
 	if (locale === "bn") return bn_shortcuts_categoryactions1(inputs)
 	if (locale === "ru") return ru_shortcuts_categoryactions1(inputs)
 	if (locale === "ja") return ja_shortcuts_categoryactions1(inputs)
-	if (locale === "pa") return pa_shortcuts_categoryactions1(inputs)
 	if (locale === "vi") return vi_shortcuts_categoryactions1(inputs)
 	if (locale === "yue") return yue_shortcuts_categoryactions1(inputs)
 	if (locale === "tr") return tr_shortcuts_categoryactions1(inputs)

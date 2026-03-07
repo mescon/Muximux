@@ -10,147 +10,143 @@ const en_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedStri
 };
 
 const sv_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Sparar...`)
 };
 
 const uk_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Збереження...`)
 };
 
 const zh_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`保存中...`)
 };
 
 const es_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Guardando...`)
 };
 
 const hi_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`सहेजा जा रहा है...`)
 };
 
 const pt_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`A guardar...`)
 };
 
 const bn_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`সংরক্ষণ হচ্ছে...`)
 };
 
 const ru_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Сохранение...`)
 };
 
 const ja_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
-};
-
-const pa_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`保存中...`)
 };
 
 const vi_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Đang lưu...`)
 };
 
 const yue_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`儲存中...`)
 };
 
 const tr_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Kaydediliyor...`)
 };
 
 const ar_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`جارٍ الحفظ...`)
 };
 
 const wuu_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`保存当中...`)
 };
 
 const mr_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`जतन होत आहे...`)
 };
 
 const nb_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Lagrer...`)
 };
 
 const fi_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Tallennetaan...`)
 };
 
 const da_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Gemmer...`)
 };
 
 const et_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Salvestamine...`)
 };
 
 const lv_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Saglabāšana...`)
 };
 
 const lt_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Saugoma...`)
 };
 
 const pl_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Zapisywanie...`)
 };
 
 const de_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Speichern...`)
 };
 
 const nl_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Opslaan...`)
 };
 
 const fr_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Enregistrement...`)
 };
 
 const it_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Salvataggio...`)
 };
 
 const hu_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Mentés...`)
 };
 
 const cs_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Ukládání...`)
 };
 
 const ro_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Se salvează...`)
 };
 
 const el_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Αποθήκευση...`)
 };
 
 const bg_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Запазване...`)
 };
 
 const hr_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Spremanje...`)
 };
 
 const sr_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Čuvanje...`)
 };
 
 const sk_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Ukladanie...`)
 };
 
 const sl_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Saving...`)
+	return /** @type {LocalizedString} */ (`Shranjevanje...`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_saving = /** @type {(inputs: Theme_SavingInputs) => LocalizedStri
 * | "Saving..." |
 *
 * @param {Theme_SavingInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const theme_saving = /** @type {((inputs?: Theme_SavingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_SavingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const theme_saving = /** @type {((inputs?: Theme_SavingInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_SavingInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_saving(inputs)
 	if (locale === "sv") return sv_theme_saving(inputs)
@@ -174,7 +170,6 @@ export const theme_saving = /** @type {((inputs?: Theme_SavingInputs, options?: 
 	if (locale === "bn") return bn_theme_saving(inputs)
 	if (locale === "ru") return ru_theme_saving(inputs)
 	if (locale === "ja") return ja_theme_saving(inputs)
-	if (locale === "pa") return pa_theme_saving(inputs)
 	if (locale === "vi") return vi_theme_saving(inputs)
 	if (locale === "yue") return yue_theme_saving(inputs)
 	if (locale === "tr") return tr_theme_saving(inputs)

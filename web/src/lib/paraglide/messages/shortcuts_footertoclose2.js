@@ -10,147 +10,143 @@ const en_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2
 };
 
 const sv_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`för att stänga`)
 };
 
 const uk_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`щоб закрити`)
 };
 
 const zh_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`关闭`)
 };
 
 const es_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`para cerrar`)
 };
 
 const hi_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`बंद करने के लिए`)
 };
 
 const pt_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`para fechar`)
 };
 
 const bn_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`বন্ধ করতে`)
 };
 
 const ru_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`чтобы закрыть`)
 };
 
 const ja_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
-};
-
-const pa_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`で閉じる`)
 };
 
 const vi_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`để đóng`)
 };
 
 const yue_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`嚟關閉`)
 };
 
 const tr_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`kapatmak için`)
 };
 
 const ar_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`للإغلاق`)
 };
 
 const wuu_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`关闭`)
 };
 
 const mr_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`बंद करण्यासाठी`)
 };
 
 const nb_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`for å lukke`)
 };
 
 const fi_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`sulkeaksesi`)
 };
 
 const da_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`for at lukke`)
 };
 
 const et_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`sulgemiseks`)
 };
 
 const lv_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`lai aizvērtu`)
 };
 
 const lt_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`kad uždarytumėte`)
 };
 
 const pl_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`aby zamknąć`)
 };
 
 const de_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`zum Schließen`)
 };
 
 const nl_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`om te sluiten`)
 };
 
 const fr_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`pour fermer`)
 };
 
 const it_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`per chiudere`)
 };
 
 const hu_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`a bezáráshoz`)
 };
 
 const cs_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`pro zavření`)
 };
 
 const ro_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`pentru a închide`)
 };
 
 const el_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`για κλείσιμο`)
 };
 
 const bg_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`за затваряне`)
 };
 
 const hr_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`za zatvaranje`)
 };
 
 const sr_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`za zatvaranje`)
 };
 
 const sk_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`pre zatvorenie`)
 };
 
 const sl_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`to close`)
+	return /** @type {LocalizedString} */ (`za zaprtje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_shortcuts_footertoclose2 = /** @type {(inputs: Shortcuts_Footertoclose2
 * | "to close" |
 *
 * @param {Shortcuts_Footertoclose2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_footertoclose2 = /** @type {((inputs?: Shortcuts_Footertoclose2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Footertoclose2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_footertoclose2 = /** @type {((inputs?: Shortcuts_Footertoclose2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Footertoclose2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_footertoclose2(inputs)
 	if (locale === "sv") return sv_shortcuts_footertoclose2(inputs)
@@ -174,7 +170,6 @@ const shortcuts_footertoclose2 = /** @type {((inputs?: Shortcuts_Footertoclose2I
 	if (locale === "bn") return bn_shortcuts_footertoclose2(inputs)
 	if (locale === "ru") return ru_shortcuts_footertoclose2(inputs)
 	if (locale === "ja") return ja_shortcuts_footertoclose2(inputs)
-	if (locale === "pa") return pa_shortcuts_footertoclose2(inputs)
 	if (locale === "vi") return vi_shortcuts_footertoclose2(inputs)
 	if (locale === "yue") return yue_shortcuts_footertoclose2(inputs)
 	if (locale === "tr") return tr_shortcuts_footertoclose2(inputs)

@@ -10,147 +10,143 @@ const en_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) =>
 };
 
 const sv_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Versionskommentarer`)
 };
 
 const uk_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Примітки до випуску`)
 };
 
 const zh_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`发行说明`)
 };
 
 const es_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Notas de la versión`)
 };
 
 const hi_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`रिलीज़ नोट्स`)
 };
 
 const pt_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Notas de lançamento`)
 };
 
 const bn_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`রিলিজ নোট`)
 };
 
 const ru_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Примечания к выпуску`)
 };
 
 const ja_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
-};
-
-const pa_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`リリースノート`)
 };
 
 const vi_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Ghi chú phát hành`)
 };
 
 const yue_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`發佈說明`)
 };
 
 const tr_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Sürüm Notları`)
 };
 
 const ar_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`ملاحظات الإصدار`)
 };
 
 const wuu_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`发布说明`)
 };
 
 const mr_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`प्रकाशन नोट्स`)
 };
 
 const nb_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Versjonsnotater`)
 };
 
 const fi_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Julkaisuhuomautukset`)
 };
 
 const da_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Versionsnoter`)
 };
 
 const et_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Versioonimärkmed`)
 };
 
 const lv_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Izlaiduma piezīmes`)
 };
 
 const lt_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Leidimo pastabos`)
 };
 
 const pl_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Informacje o wydaniu`)
 };
 
 const de_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Versionshinweise`)
 };
 
 const nl_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Release-opmerkingen`)
 };
 
 const fr_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Notes de version`)
 };
 
 const it_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Note di rilascio`)
 };
 
 const hu_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Kiadási megjegyzések`)
 };
 
 const cs_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Poznámky k vydání`)
 };
 
 const ro_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Note de lansare`)
 };
 
 const el_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Σημειώσεις έκδοσης`)
 };
 
 const bg_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Бележки за изданието`)
 };
 
 const hr_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Bilješke o izdanju`)
 };
 
 const sr_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Beleške o izdanju`)
 };
 
 const sk_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Poznámky k vydaniu`)
 };
 
 const sl_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Release Notes`)
+	return /** @type {LocalizedString} */ (`Opombe ob izdaji`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_releasenotes1 = /** @type {(inputs: About_Releasenotes1Inputs) =>
 * | "Release Notes" |
 *
 * @param {About_Releasenotes1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_releasenotes1 = /** @type {((inputs?: About_Releasenotes1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Releasenotes1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_releasenotes1 = /** @type {((inputs?: About_Releasenotes1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Releasenotes1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_releasenotes1(inputs)
 	if (locale === "sv") return sv_about_releasenotes1(inputs)
@@ -174,7 +170,6 @@ const about_releasenotes1 = /** @type {((inputs?: About_Releasenotes1Inputs, opt
 	if (locale === "bn") return bn_about_releasenotes1(inputs)
 	if (locale === "ru") return ru_about_releasenotes1(inputs)
 	if (locale === "ja") return ja_about_releasenotes1(inputs)
-	if (locale === "pa") return pa_about_releasenotes1(inputs)
 	if (locale === "vi") return vi_about_releasenotes1(inputs)
 	if (locale === "yue") return yue_about_releasenotes1(inputs)
 	if (locale === "tr") return tr_about_releasenotes1(inputs)

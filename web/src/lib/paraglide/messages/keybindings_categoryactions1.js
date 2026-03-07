@@ -10,103 +10,99 @@ const en_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Category
 };
 
 const sv_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Åtgärder`)
 };
 
 const uk_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Дії`)
 };
 
 const zh_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`操作`)
 };
 
 const es_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Acciones`)
 };
 
 const hi_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`क्रियाएं`)
 };
 
 const pt_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Ações`)
 };
 
 const bn_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`ক্রিয়া`)
 };
 
 const ru_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Действия`)
 };
 
 const ja_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
-};
-
-const pa_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`アクション`)
 };
 
 const vi_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Hành động`)
 };
 
 const yue_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`操作`)
 };
 
 const tr_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Eylemler`)
 };
 
 const ar_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`الإجراءات`)
 };
 
 const wuu_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`操作`)
 };
 
 const mr_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`क्रिया`)
 };
 
 const nb_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Handlinger`)
 };
 
 const fi_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Toiminnot`)
 };
 
 const da_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Handlinger`)
 };
 
 const et_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Toimingud`)
 };
 
 const lv_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Darbības`)
 };
 
 const lt_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Veiksmai`)
 };
 
 const pl_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Akcje`)
 };
 
 const de_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Aktionen`)
 };
 
 const nl_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Acties`)
 };
 
 const fr_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
@@ -114,43 +110,43 @@ const fr_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Category
 };
 
 const it_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Azioni`)
 };
 
 const hu_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Műveletek`)
 };
 
 const cs_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Akce`)
 };
 
 const ro_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Acțiuni`)
 };
 
 const el_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Ενέργειες`)
 };
 
 const bg_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Действия`)
 };
 
 const hr_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Radnje`)
 };
 
 const sr_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Radnje`)
 };
 
 const sk_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Akcie`)
 };
 
 const sl_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Categoryactions1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Actions`)
+	return /** @type {LocalizedString} */ (`Dejanja`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_keybindings_categoryactions1 = /** @type {(inputs: Keybindings_Category
 * | "Actions" |
 *
 * @param {Keybindings_Categoryactions1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const keybindings_categoryactions1 = /** @type {((inputs?: Keybindings_Categoryactions1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Categoryactions1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const keybindings_categoryactions1 = /** @type {((inputs?: Keybindings_Categoryactions1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_Categoryactions1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_keybindings_categoryactions1(inputs)
 	if (locale === "sv") return sv_keybindings_categoryactions1(inputs)
@@ -174,7 +170,6 @@ const keybindings_categoryactions1 = /** @type {((inputs?: Keybindings_Categorya
 	if (locale === "bn") return bn_keybindings_categoryactions1(inputs)
 	if (locale === "ru") return ru_keybindings_categoryactions1(inputs)
 	if (locale === "ja") return ja_keybindings_categoryactions1(inputs)
-	if (locale === "pa") return pa_keybindings_categoryactions1(inputs)
 	if (locale === "vi") return vi_keybindings_categoryactions1(inputs)
 	if (locale === "yue") return yue_keybindings_categoryactions1(inputs)
 	if (locale === "tr") return tr_keybindings_categoryactions1(inputs)

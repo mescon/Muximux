@@ -10,147 +10,143 @@ const en_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedSt
 };
 
 const sv_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ingen`)
 };
 
 const uk_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Немає`)
 };
 
 const zh_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`无`)
 };
 
 const es_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ninguno`)
 };
 
 const hi_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`कोई नहीं`)
 };
 
 const pt_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Nenhum`)
 };
 
 const bn_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`কোনোটি নয়`)
 };
 
 const ru_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Нет`)
 };
 
 const ja_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
-};
-
-const pa_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`なし`)
 };
 
 const vi_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Không có`)
 };
 
 const yue_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`冇`)
 };
 
 const tr_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Yok`)
 };
 
 const ar_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`لا شيء`)
 };
 
 const wuu_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`无`)
 };
 
 const mr_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`काहीही नाही`)
 };
 
 const nb_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ingen`)
 };
 
 const fi_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ei mitään`)
 };
 
 const da_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ingen`)
 };
 
 const et_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Puudub`)
 };
 
 const lv_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Nav`)
 };
 
 const lt_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Nėra`)
 };
 
 const pl_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Brak`)
 };
 
 const de_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Keine`)
 };
 
 const nl_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Geen`)
 };
 
 const fr_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Aucun`)
 };
 
 const it_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Nessuno`)
 };
 
 const hu_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Nincs`)
 };
 
 const cs_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Žádný`)
 };
 
 const ro_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Niciuna`)
 };
 
 const el_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Κανένα`)
 };
 
 const bg_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Няма`)
 };
 
 const hr_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ništa`)
 };
 
 const sr_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Ništa`)
 };
 
 const sk_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Žiadny`)
 };
 
 const sl_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`None`)
+	return /** @type {LocalizedString} */ (`Brez`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_none1 = /** @type {(inputs: Appform_None1Inputs) => LocalizedSt
 * | "None" |
 *
 * @param {Appform_None1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_none1 = /** @type {((inputs?: Appform_None1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_None1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_none1 = /** @type {((inputs?: Appform_None1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_None1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_none1(inputs)
 	if (locale === "sv") return sv_appform_none1(inputs)
@@ -174,7 +170,6 @@ const appform_none1 = /** @type {((inputs?: Appform_None1Inputs, options?: { loc
 	if (locale === "bn") return bn_appform_none1(inputs)
 	if (locale === "ru") return ru_appform_none1(inputs)
 	if (locale === "ja") return ja_appform_none1(inputs)
-	if (locale === "pa") return pa_appform_none1(inputs)
 	if (locale === "vi") return vi_appform_none1(inputs)
 	if (locale === "yue") return yue_appform_none1(inputs)
 	if (locale === "tr") return tr_appform_none1(inputs)

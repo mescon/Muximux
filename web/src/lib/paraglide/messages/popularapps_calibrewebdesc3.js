@@ -10,147 +10,143 @@ const en_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewe
 };
 
 const sv_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-boksbibliotek och läsare`)
 };
 
 const uk_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Бібліотека та читалка електронних книг`)
 };
 
 const zh_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`电子书库与阅读器`)
 };
 
 const es_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Biblioteca y lector de ebooks`)
 };
 
 const hi_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`ई-बुक लाइब्रेरी और रीडर`)
 };
 
 const pt_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Biblioteca e leitor de ebooks`)
 };
 
 const bn_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`ইবুক লাইব্রেরি ও রিডার`)
 };
 
 const ru_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Библиотека и читалка электронных книг`)
 };
 
 const ja_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
-};
-
-const pa_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`電子書籍ライブラリ・リーダー`)
 };
 
 const vi_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Thư viện & đọc ebook`)
 };
 
 const yue_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`電子書庫同閱讀器`)
 };
 
 const tr_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-kitap kitaplığı ve okuyucu`)
 };
 
 const ar_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`مكتبة وقارئ كتب إلكترونية`)
 };
 
 const wuu_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`电子书库与阅读器`)
 };
 
 const mr_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`ईबुक लायब्ररी आणि वाचक`)
 };
 
 const nb_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-bokbibliotek og -leser`)
 };
 
 const fi_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-kirjakirjasto ja lukija`)
 };
 
 const da_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-bogsbibliotek og -læser`)
 };
 
 const et_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-raamatute kogu ja lugeja`)
 };
 
 const lv_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-grāmatu bibliotēka un lasītājs`)
 };
 
 const lt_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`El. knygų biblioteka ir skaitytuvas`)
 };
 
 const pl_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Biblioteka i czytnik ebooków`)
 };
 
 const de_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-Book-Bibliothek & -Reader`)
 };
 
 const nl_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-bookbibliotheek & -reader`)
 };
 
 const fr_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Bibliothèque & lecteur d'ebooks`)
 };
 
 const it_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Libreria e lettore ebook`)
 };
 
 const hu_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`E-könyv könyvtár és olvasó`)
 };
 
 const cs_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Knihovna a čtečka e-knih`)
 };
 
 const ro_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Bibliotecă și cititor de ebook-uri`)
 };
 
 const el_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Βιβλιοθήκη & αναγνώστης ebook`)
 };
 
 const bg_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Библиотека и четец за електронни книги`)
 };
 
 const hr_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Biblioteka i čitač e-knjiga`)
 };
 
 const sr_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Biblioteka i čitač e-knjiga`)
 };
 
 const sk_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Knižnica a čítačka e-kníh`)
 };
 
 const sl_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewebdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ebook library & reader`)
+	return /** @type {LocalizedString} */ (`Knjižnica in bralnik e-knjig`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_calibrewebdesc3 = /** @type {(inputs: Popularapps_Calibrewe
 * | "Ebook library & reader" |
 *
 * @param {Popularapps_Calibrewebdesc3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_calibrewebdesc3 = /** @type {((inputs?: Popularapps_Calibrewebdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Calibrewebdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_calibrewebdesc3 = /** @type {((inputs?: Popularapps_Calibrewebdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Calibrewebdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_calibrewebdesc3(inputs)
 	if (locale === "sv") return sv_popularapps_calibrewebdesc3(inputs)
@@ -174,7 +170,6 @@ const popularapps_calibrewebdesc3 = /** @type {((inputs?: Popularapps_Calibreweb
 	if (locale === "bn") return bn_popularapps_calibrewebdesc3(inputs)
 	if (locale === "ru") return ru_popularapps_calibrewebdesc3(inputs)
 	if (locale === "ja") return ja_popularapps_calibrewebdesc3(inputs)
-	if (locale === "pa") return pa_popularapps_calibrewebdesc3(inputs)
 	if (locale === "vi") return vi_popularapps_calibrewebdesc3(inputs)
 	if (locale === "yue") return yue_popularapps_calibrewebdesc3(inputs)
 	if (locale === "tr") return tr_popularapps_calibrewebdesc3(inputs)

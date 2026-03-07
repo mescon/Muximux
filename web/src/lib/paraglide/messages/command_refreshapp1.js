@@ -10,147 +10,143 @@ const en_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) =>
 };
 
 const sv_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Uppdatera nuvarande app`)
 };
 
 const uk_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Оновити поточний застосунок`)
 };
 
 const zh_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`刷新当前应用`)
 };
 
 const es_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Actualizar app actual`)
 };
 
 const hi_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`वर्तमान ऐप रीफ़्रेश करें`)
 };
 
 const pt_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Atualizar app atual`)
 };
 
 const bn_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`বর্তমান অ্যাপ রিফ্রেশ করুন`)
 };
 
 const ru_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Обновить текущее приложение`)
 };
 
 const ja_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
-};
-
-const pa_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`現在のアプリを更新`)
 };
 
 const vi_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Làm mới ứng dụng hiện tại`)
 };
 
 const yue_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`重新整理目前應用程式`)
 };
 
 const tr_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Mevcut Uygulamayı Yenile`)
 };
 
 const ar_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`تحديث التطبيق الحالي`)
 };
 
 const wuu_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`刷新当前应用`)
 };
 
 const mr_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`सध्याचे अॅप रिफ्रेश करा`)
 };
 
 const nb_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Oppdater nåværende app`)
 };
 
 const fi_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Päivitä nykyinen sovellus`)
 };
 
 const da_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Opdater nuværende app`)
 };
 
 const et_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Värskenda praegust rakendust`)
 };
 
 const lv_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Atsvaidzināt pašreizējo lietotni`)
 };
 
 const lt_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Atnaujinti dabartinę programą`)
 };
 
 const pl_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Odśwież bieżącą aplikację`)
 };
 
 const de_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Aktuelle App aktualisieren`)
 };
 
 const nl_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Huidige app vernieuwen`)
 };
 
 const fr_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Actualiser l'app actuelle`)
 };
 
 const it_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Aggiorna app attuale`)
 };
 
 const hu_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Jelenlegi alkalmazás frissítése`)
 };
 
 const cs_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Obnovit aktuální aplikaci`)
 };
 
 const ro_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Reîmprospătează aplicația curentă`)
 };
 
 const el_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Ανανέωση τρέχουσας εφαρμογής`)
 };
 
 const bg_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Обнови текущото приложение`)
 };
 
 const hr_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Osvježi trenutnu aplikaciju`)
 };
 
 const sr_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Osveži trenutnu aplikaciju`)
 };
 
 const sk_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Obnoviť aktuálnu aplikáciu`)
 };
 
 const sl_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Refresh Current App`)
+	return /** @type {LocalizedString} */ (`Osveži trenutno aplikacijo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_command_refreshapp1 = /** @type {(inputs: Command_Refreshapp1Inputs) =>
 * | "Refresh Current App" |
 *
 * @param {Command_Refreshapp1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_refreshapp1 = /** @type {((inputs?: Command_Refreshapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Refreshapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_refreshapp1 = /** @type {((inputs?: Command_Refreshapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Refreshapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_refreshapp1(inputs)
 	if (locale === "sv") return sv_command_refreshapp1(inputs)
@@ -174,7 +170,6 @@ const command_refreshapp1 = /** @type {((inputs?: Command_Refreshapp1Inputs, opt
 	if (locale === "bn") return bn_command_refreshapp1(inputs)
 	if (locale === "ru") return ru_command_refreshapp1(inputs)
 	if (locale === "ja") return ja_command_refreshapp1(inputs)
-	if (locale === "pa") return pa_command_refreshapp1(inputs)
 	if (locale === "vi") return vi_command_refreshapp1(inputs)
 	if (locale === "yue") return yue_command_refreshapp1(inputs)
 	if (locale === "tr") return tr_command_refreshapp1(inputs)

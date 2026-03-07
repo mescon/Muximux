@@ -10,147 +10,143 @@ const en_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2
 };
 
 const sv_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Mätvisualisering`)
 };
 
 const uk_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Візуалізація метрик`)
 };
 
 const zh_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`指标可视化`)
 };
 
 const es_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Visualización de métricas`)
 };
 
 const hi_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`मेट्रिक्स विज़ुअलाइज़ेशन`)
 };
 
 const pt_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Visualização de métricas`)
 };
 
 const bn_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`মেট্রিক্স ভিজ্যুয়ালাইজেশন`)
 };
 
 const ru_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Визуализация метрик`)
 };
 
 const ja_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
-};
-
-const pa_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`メトリクス可視化`)
 };
 
 const vi_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Trực quan hóa số liệu`)
 };
 
 const yue_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`指標視覺化`)
 };
 
 const tr_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrik görselleştirme`)
 };
 
 const ar_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`تصور المقاييس`)
 };
 
 const wuu_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`指标可视化`)
 };
 
 const mr_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`मेट्रिक्स व्हिज्युअलायझेशन`)
 };
 
 const nb_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrikk-visualisering`)
 };
 
 const fi_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Mittareiden visualisointi`)
 };
 
 const da_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrikvisualisering`)
 };
 
 const et_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Mõõdikute visualiseerimine`)
 };
 
 const lv_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrikas vizualizācija`)
 };
 
 const lt_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrikų vizualizacija`)
 };
 
 const pl_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Wizualizacja metryk`)
 };
 
 const de_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrik-Visualisierung`)
 };
 
 const nl_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metriekvisualisatie`)
 };
 
 const fr_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Visualisation de métriques`)
 };
 
 const it_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Visualizzazione metriche`)
 };
 
 const hu_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Metrikák vizualizálása`)
 };
 
 const cs_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Vizualizace metrik`)
 };
 
 const ro_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Vizualizare metrici`)
 };
 
 const el_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Οπτικοποίηση μετρικών`)
 };
 
 const bg_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Визуализация на метрики`)
 };
 
 const hr_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Vizualizacija metrika`)
 };
 
 const sr_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Vizualizacija metrika`)
 };
 
 const sk_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Vizualizácia metrík`)
 };
 
 const sl_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Metrics visualization`)
+	return /** @type {LocalizedString} */ (`Vizualizacija metrik`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_grafanadesc2 = /** @type {(inputs: Popularapps_Grafanadesc2
 * | "Metrics visualization" |
 *
 * @param {Popularapps_Grafanadesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_grafanadesc2 = /** @type {((inputs?: Popularapps_Grafanadesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Grafanadesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_grafanadesc2 = /** @type {((inputs?: Popularapps_Grafanadesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Grafanadesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_grafanadesc2(inputs)
 	if (locale === "sv") return sv_popularapps_grafanadesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_grafanadesc2 = /** @type {((inputs?: Popularapps_Grafanadesc2I
 	if (locale === "bn") return bn_popularapps_grafanadesc2(inputs)
 	if (locale === "ru") return ru_popularapps_grafanadesc2(inputs)
 	if (locale === "ja") return ja_popularapps_grafanadesc2(inputs)
-	if (locale === "pa") return pa_popularapps_grafanadesc2(inputs)
 	if (locale === "vi") return vi_popularapps_grafanadesc2(inputs)
 	if (locale === "yue") return yue_popularapps_grafanadesc2(inputs)
 	if (locale === "tr") return tr_popularapps_grafanadesc2(inputs)

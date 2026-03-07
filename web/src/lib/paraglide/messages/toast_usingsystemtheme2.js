@@ -10,147 +10,143 @@ const en_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2In
 };
 
 const sv_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Använder systemtema`)
 };
 
 const uk_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Використовується системна тема`)
 };
 
 const zh_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`使用系统主题`)
 };
 
 const es_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Usando tema del sistema`)
 };
 
 const hi_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`सिस्टम थीम का उपयोग हो रहा है`)
 };
 
 const pt_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`A usar tema do sistema`)
 };
 
 const bn_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`সিস্টেম থিম ব্যবহার হচ্ছে`)
 };
 
 const ru_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Используется системная тема`)
 };
 
 const ja_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
-};
-
-const pa_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`システムテーマを使用中`)
 };
 
 const vi_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Đang sử dụng giao diện hệ thống`)
 };
 
 const yue_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`使用系統主題`)
 };
 
 const tr_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Sistem teması kullanılıyor`)
 };
 
 const ar_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`يتم استخدام سمة النظام`)
 };
 
 const wuu_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`用系统主题了`)
 };
 
 const mr_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`सिस्टम थीम वापरत आहे`)
 };
 
 const nb_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Bruker systemtema`)
 };
 
 const fi_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Käytetään järjestelmän teemaa`)
 };
 
 const da_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Bruger systemtema`)
 };
 
 const et_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Kasutatakse süsteemi teemat`)
 };
 
 const lv_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Tiek izmantots sistēmas motīvs`)
 };
 
 const lt_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Naudojama sistemos tema`)
 };
 
 const pl_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Używanie motywu systemowego`)
 };
 
 const de_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`System-Theme wird verwendet`)
 };
 
 const nl_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Systeemthema wordt gebruikt`)
 };
 
 const fr_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Utilisation du thème système`)
 };
 
 const it_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Utilizzo del tema di sistema`)
 };
 
 const hu_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Rendszer téma használata`)
 };
 
 const cs_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Používá se systémový motiv`)
 };
 
 const ro_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Se utilizează tema de sistem`)
 };
 
 const el_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Χρήση θέματος συστήματος`)
 };
 
 const bg_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Използва се системна тема`)
 };
 
 const hr_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Koristi se sistemska tema`)
 };
 
 const sr_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Koristi se sistemska tema`)
 };
 
 const sk_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Používa sa systémový motív`)
 };
 
 const sl_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Using system theme`)
+	return /** @type {LocalizedString} */ (`Uporablja se sistemska tema`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_usingsystemtheme2 = /** @type {(inputs: Toast_Usingsystemtheme2In
 * | "Using system theme" |
 *
 * @param {Toast_Usingsystemtheme2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_usingsystemtheme2 = /** @type {((inputs?: Toast_Usingsystemtheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Usingsystemtheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_usingsystemtheme2 = /** @type {((inputs?: Toast_Usingsystemtheme2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Usingsystemtheme2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_usingsystemtheme2(inputs)
 	if (locale === "sv") return sv_toast_usingsystemtheme2(inputs)
@@ -174,7 +170,6 @@ const toast_usingsystemtheme2 = /** @type {((inputs?: Toast_Usingsystemtheme2Inp
 	if (locale === "bn") return bn_toast_usingsystemtheme2(inputs)
 	if (locale === "ru") return ru_toast_usingsystemtheme2(inputs)
 	if (locale === "ja") return ja_toast_usingsystemtheme2(inputs)
-	if (locale === "pa") return pa_toast_usingsystemtheme2(inputs)
 	if (locale === "vi") return vi_toast_usingsystemtheme2(inputs)
 	if (locale === "yue") return yue_toast_usingsystemtheme2(inputs)
 	if (locale === "tr") return tr_toast_usingsystemtheme2(inputs)

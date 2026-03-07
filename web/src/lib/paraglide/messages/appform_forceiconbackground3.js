@@ -10,147 +10,143 @@ const en_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbac
 };
 
 const sv_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Tvinga ikonbakgrund`)
 };
 
 const uk_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Примусовий фон іконки`)
 };
 
 const zh_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`强制图标背景`)
 };
 
 const es_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Forzar fondo del icono`)
 };
 
 const hi_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`आइकन पृष्ठभूमि बाध्य करें`)
 };
 
 const pt_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Forçar fundo do ícone`)
 };
 
 const bn_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`আইকন পটভূমি বাধ্য করুন`)
 };
 
 const ru_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Принудительный фон иконки`)
 };
 
 const ja_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
-};
-
-const pa_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`アイコン背景を強制`)
 };
 
 const vi_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Buộc hiển thị nền biểu tượng`)
 };
 
 const yue_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`強制圖示背景`)
 };
 
 const tr_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Simge arka planını zorla`)
 };
 
 const ar_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`فرض خلفية الأيقونة`)
 };
 
 const wuu_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`强制图标背景`)
 };
 
 const mr_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`आयकॉन पार्श्वभूमी सक्ती करा`)
 };
 
 const nb_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Tving ikonbakgrunn`)
 };
 
 const fi_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Pakota kuvakkeen tausta`)
 };
 
 const da_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Tving ikonbaggrund`)
 };
 
 const et_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Sunni ikooni taust`)
 };
 
 const lv_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Piespiest ikonas fonu`)
 };
 
 const lt_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Priverstinis piktogramos fonas`)
 };
 
 const pl_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Wymuś tło ikony`)
 };
 
 const de_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Icon-Hintergrund erzwingen`)
 };
 
 const nl_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Pictogramachtergrond forceren`)
 };
 
 const fr_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Forcer l'arrière-plan de l'icône`)
 };
 
 const it_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Forza sfondo icona`)
 };
 
 const hu_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Ikon háttér kényszerítése`)
 };
 
 const cs_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Vynutit pozadí ikony`)
 };
 
 const ro_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Forțează fundalul pictogramei`)
 };
 
 const el_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Αναγκαστικό φόντο εικονιδίου`)
 };
 
 const bg_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Принуди фон на иконата`)
 };
 
 const hr_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Prisilna pozadina ikone`)
 };
 
 const sr_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Prisilna pozadina ikone`)
 };
 
 const sk_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Vynútiť pozadie ikony`)
 };
 
 const sl_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbackground3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Force icon background`)
+	return /** @type {LocalizedString} */ (`Vsili ozadje ikone`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_forceiconbackground3 = /** @type {(inputs: Appform_Forceiconbac
 * | "Force icon background" |
 *
 * @param {Appform_Forceiconbackground3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_forceiconbackground3 = /** @type {((inputs?: Appform_Forceiconbackground3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Forceiconbackground3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_forceiconbackground3 = /** @type {((inputs?: Appform_Forceiconbackground3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Forceiconbackground3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_forceiconbackground3(inputs)
 	if (locale === "sv") return sv_appform_forceiconbackground3(inputs)
@@ -174,7 +170,6 @@ const appform_forceiconbackground3 = /** @type {((inputs?: Appform_Forceiconback
 	if (locale === "bn") return bn_appform_forceiconbackground3(inputs)
 	if (locale === "ru") return ru_appform_forceiconbackground3(inputs)
 	if (locale === "ja") return ja_appform_forceiconbackground3(inputs)
-	if (locale === "pa") return pa_appform_forceiconbackground3(inputs)
 	if (locale === "vi") return vi_appform_forceiconbackground3(inputs)
 	if (locale === "yue") return yue_appform_forceiconbackground3(inputs)
 	if (locale === "tr") return tr_appform_forceiconbackground3(inputs)

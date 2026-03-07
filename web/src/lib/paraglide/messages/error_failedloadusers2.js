@@ -10,147 +10,143 @@ const en_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inpu
 };
 
 const sv_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Kunde inte ladda användare`)
 };
 
 const uk_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Не вдалося завантажити користувачів`)
 };
 
 const zh_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`加载用户失败`)
 };
 
 const es_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Error al cargar los usuarios`)
 };
 
 const hi_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता लोड करने में विफल`)
 };
 
 const pt_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Erro ao carregar os utilizadores`)
 };
 
 const bn_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী লোড করতে ব্যর্থ`)
 };
 
 const ru_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Не удалось загрузить пользователей`)
 };
 
 const ja_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
-};
-
-const pa_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`ユーザーの読み込みに失敗しました`)
 };
 
 const vi_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Không thể tải người dùng`)
 };
 
 const yue_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`載入使用者失敗`)
 };
 
 const tr_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Kullanıcılar yüklenemedi`)
 };
 
 const ar_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`فشل تحميل المستخدمين`)
 };
 
 const wuu_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`用户加载失败`)
 };
 
 const mr_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`वापरकर्ते लोड अयशस्वी`)
 };
 
 const nb_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Kunne ikke laste brukere`)
 };
 
 const fi_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Käyttäjien lataus epäonnistui`)
 };
 
 const da_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Kunne ikke indlæse brugere`)
 };
 
 const et_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Kasutajate laadimine ebaõnnestus`)
 };
 
 const lv_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Neizdevās ielādēt lietotājus`)
 };
 
 const lt_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Nepavyko įkelti naudotojų`)
 };
 
 const pl_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Nie udało się załadować użytkowników`)
 };
 
 const de_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Benutzer konnten nicht geladen werden`)
 };
 
 const nl_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Gebruikers laden mislukt`)
 };
 
 const fr_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Échec du chargement des utilisateurs`)
 };
 
 const it_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Caricamento degli utenti non riuscito`)
 };
 
 const hu_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Nem sikerült betölteni a felhasználókat`)
 };
 
 const cs_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se načíst uživatele`)
 };
 
 const ro_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Încărcarea utilizatorilor a eșuat`)
 };
 
 const el_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Αποτυχία φόρτωσης χρηστών`)
 };
 
 const bg_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Зареждането на потребителите е неуспешно`)
 };
 
 const hr_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Učitavanje korisnika nije uspjelo`)
 };
 
 const sr_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Učitavanje korisnika nije uspelo`)
 };
 
 const sk_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa načítať používateľov`)
 };
 
 const sl_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load users`)
+	return /** @type {LocalizedString} */ (`Nalaganje uporabnikov ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_error_failedloadusers2 = /** @type {(inputs: Error_Failedloadusers2Inpu
 * | "Failed to load users" |
 *
 * @param {Error_Failedloadusers2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const error_failedloadusers2 = /** @type {((inputs?: Error_Failedloadusers2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedloadusers2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const error_failedloadusers2 = /** @type {((inputs?: Error_Failedloadusers2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedloadusers2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_error_failedloadusers2(inputs)
 	if (locale === "sv") return sv_error_failedloadusers2(inputs)
@@ -174,7 +170,6 @@ const error_failedloadusers2 = /** @type {((inputs?: Error_Failedloadusers2Input
 	if (locale === "bn") return bn_error_failedloadusers2(inputs)
 	if (locale === "ru") return ru_error_failedloadusers2(inputs)
 	if (locale === "ja") return ja_error_failedloadusers2(inputs)
-	if (locale === "pa") return pa_error_failedloadusers2(inputs)
 	if (locale === "vi") return vi_error_failedloadusers2(inputs)
 	if (locale === "yue") return yue_error_failedloadusers2(inputs)
 	if (locale === "tr") return tr_error_failedloadusers2(inputs)

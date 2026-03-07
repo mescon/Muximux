@@ -10,75 +10,71 @@ const en_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindows
 };
 
 const sv_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Ladda ner windows-amd64`)
 };
 
 const uk_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Завантажити windows-amd64`)
 };
 
 const zh_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`下载 windows-amd64`)
 };
 
 const es_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Descargar windows-amd64`)
 };
 
 const hi_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`windows-amd64 डाउनलोड करें`)
 };
 
 const pt_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Transferir windows-amd64`)
 };
 
 const bn_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`windows-amd64 ডাউনলোড করুন`)
 };
 
 const ru_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Скачать windows-amd64`)
 };
 
 const ja_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
-};
-
-const pa_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`windows-amd64 をダウンロード`)
 };
 
 const vi_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Tải windows-amd64`)
 };
 
 const yue_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`下載 windows-amd64`)
 };
 
 const tr_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`windows-amd64 İndir`)
 };
 
 const ar_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`تنزيل windows-amd64`)
 };
 
 const wuu_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`下载 windows-amd64`)
 };
 
 const mr_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`windows-amd64 डाउनलोड करा`)
 };
 
 const nb_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Last ned windows-amd64`)
 };
 
 const fi_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Lataa windows-amd64`)
 };
 
 const da_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindows
 };
 
 const et_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Laadi alla windows-amd64`)
 };
 
 const lv_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Lejupielādēt windows-amd64`)
 };
 
 const lt_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Atsisiųsti windows-amd64`)
 };
 
 const pl_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Pobierz windows-amd64`)
 };
 
 const de_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindows
 };
 
 const hu_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Letöltés windows-amd64`)
 };
 
 const cs_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Stáhnout windows-amd64`)
 };
 
 const ro_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Descarcă windows-amd64`)
 };
 
 const el_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Λήψη windows-amd64`)
 };
 
 const bg_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Изтегли windows-amd64`)
 };
 
 const hr_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Preuzmi windows-amd64`)
 };
 
 const sr_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Preuzmi windows-amd64`)
 };
 
 const sk_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Stiahnuť windows-amd64`)
 };
 
 const sl_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindowsamd642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download windows-amd64`)
+	return /** @type {LocalizedString} */ (`Prenesi windows-amd64`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_downloadwindowsamd642 = /** @type {(inputs: About_Downloadwindows
 * | "Download windows-amd64" |
 *
 * @param {About_Downloadwindowsamd642Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_downloadwindowsamd642 = /** @type {((inputs?: About_Downloadwindowsamd642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloadwindowsamd642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_downloadwindowsamd642 = /** @type {((inputs?: About_Downloadwindowsamd642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloadwindowsamd642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_downloadwindowsamd642(inputs)
 	if (locale === "sv") return sv_about_downloadwindowsamd642(inputs)
@@ -174,7 +170,6 @@ const about_downloadwindowsamd642 = /** @type {((inputs?: About_Downloadwindowsa
 	if (locale === "bn") return bn_about_downloadwindowsamd642(inputs)
 	if (locale === "ru") return ru_about_downloadwindowsamd642(inputs)
 	if (locale === "ja") return ja_about_downloadwindowsamd642(inputs)
-	if (locale === "pa") return pa_about_downloadwindowsamd642(inputs)
 	if (locale === "vi") return vi_about_downloadwindowsamd642(inputs)
 	if (locale === "yue") return yue_about_downloadwindowsamd642(inputs)
 	if (locale === "tr") return tr_about_downloadwindowsamd642(inputs)

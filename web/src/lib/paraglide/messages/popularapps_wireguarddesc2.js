@@ -10,79 +10,75 @@ const en_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguardd
 };
 
 const sv_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-server`)
 };
 
 const uk_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN сервер`)
 };
 
 const zh_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN 服务器`)
 };
 
 const es_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Servidor VPN`)
 };
 
 const hi_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN सर्वर`)
 };
 
 const pt_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Servidor VPN`)
 };
 
 const bn_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN সার্ভার`)
 };
 
 const ru_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-сервер`)
 };
 
 const ja_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
-};
-
-const pa_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN サーバー`)
 };
 
 const vi_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Máy chủ VPN`)
 };
 
 const yue_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN 伺服器`)
 };
 
 const tr_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN sunucusu`)
 };
 
 const ar_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`خادم VPN`)
 };
 
 const wuu_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN 服务器`)
 };
 
 const mr_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN सर्व्हर`)
 };
 
 const nb_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-server`)
 };
 
 const fi_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-palvelin`)
 };
 
 const da_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-server`)
 };
 
 const et_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
@@ -90,35 +86,35 @@ const et_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguardd
 };
 
 const lv_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN serveris`)
 };
 
 const lt_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN serveris`)
 };
 
 const pl_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Serwer VPN`)
 };
 
 const de_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-Server`)
 };
 
 const nl_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN-server`)
 };
 
 const fr_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Serveur VPN`)
 };
 
 const it_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Server VPN`)
 };
 
 const hu_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN szerver`)
 };
 
 const cs_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
@@ -126,19 +122,19 @@ const cs_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguardd
 };
 
 const ro_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Server VPN`)
 };
 
 const el_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`Διακομιστής VPN`)
 };
 
 const bg_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN сървър`)
 };
 
 const hr_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN poslužitelj`)
 };
 
 const sr_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
@@ -150,7 +146,7 @@ const sk_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguardd
 };
 
 const sl_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguarddesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`VPN server`)
+	return /** @type {LocalizedString} */ (`VPN strežnik`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_popularapps_wireguarddesc2 = /** @type {(inputs: Popularapps_Wireguardd
 * | "VPN server" |
 *
 * @param {Popularapps_Wireguarddesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const popularapps_wireguarddesc2 = /** @type {((inputs?: Popularapps_Wireguarddesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Wireguarddesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const popularapps_wireguarddesc2 = /** @type {((inputs?: Popularapps_Wireguarddesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Popularapps_Wireguarddesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_popularapps_wireguarddesc2(inputs)
 	if (locale === "sv") return sv_popularapps_wireguarddesc2(inputs)
@@ -174,7 +170,6 @@ const popularapps_wireguarddesc2 = /** @type {((inputs?: Popularapps_Wireguardde
 	if (locale === "bn") return bn_popularapps_wireguarddesc2(inputs)
 	if (locale === "ru") return ru_popularapps_wireguarddesc2(inputs)
 	if (locale === "ja") return ja_popularapps_wireguarddesc2(inputs)
-	if (locale === "pa") return pa_popularapps_wireguarddesc2(inputs)
 	if (locale === "vi") return vi_popularapps_wireguarddesc2(inputs)
 	if (locale === "yue") return yue_popularapps_wireguarddesc2(inputs)
 	if (locale === "tr") return tr_popularapps_wireguarddesc2(inputs)

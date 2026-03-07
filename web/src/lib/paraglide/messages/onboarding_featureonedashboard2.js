@@ -10,147 +10,143 @@ const en_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featur
 };
 
 const sv_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`En panel`)
 };
 
 const uk_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Одна панель керування`)
 };
 
 const zh_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`一站式仪表盘`)
 };
 
 const es_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Un solo panel`)
 };
 
 const hi_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`एक डैशबोर्ड`)
 };
 
 const pt_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Um só painel`)
 };
 
 const bn_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`একটি ড্যাশবোর্ড`)
 };
 
 const ru_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Единая панель`)
 };
 
 const ja_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
-};
-
-const pa_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`ワンダッシュボード`)
 };
 
 const vi_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Một bảng điều khiển`)
 };
 
 const yue_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`一站式儀表板`)
 };
 
 const tr_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Tek Pano`)
 };
 
 const ar_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`لوحة تحكم واحدة`)
 };
 
 const wuu_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`一个仪表盘`)
 };
 
 const mr_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`एक डॅशबोर्ड`)
 };
 
 const nb_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Ett panel`)
 };
 
 const fi_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Yksi paneeli`)
 };
 
 const da_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Ét panel`)
 };
 
 const et_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Üks töölaud`)
 };
 
 const lv_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Viens panelis`)
 };
 
 const lt_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Vienas valdymo skydas`)
 };
 
 const pl_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Jeden panel`)
 };
 
 const de_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Ein Dashboard`)
 };
 
 const nl_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Eén dashboard`)
 };
 
 const fr_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Un seul tableau de bord`)
 };
 
 const it_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Una sola dashboard`)
 };
 
 const hu_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Egy vezérlőpult`)
 };
 
 const cs_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Jeden panel`)
 };
 
 const ro_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Un singur panou`)
 };
 
 const el_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Ένας πίνακας ελέγχου`)
 };
 
 const bg_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Едно табло`)
 };
 
 const hr_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Jedna nadzorna ploča`)
 };
 
 const sr_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Jedna kontrolna tabla`)
 };
 
 const sk_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Jeden panel`)
 };
 
 const sl_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featureonedashboard2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`One Dashboard`)
+	return /** @type {LocalizedString} */ (`Ena nadzorna plošča`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_featureonedashboard2 = /** @type {(inputs: Onboarding_Featur
 * | "One Dashboard" |
 *
 * @param {Onboarding_Featureonedashboard2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_featureonedashboard2 = /** @type {((inputs?: Onboarding_Featureonedashboard2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Featureonedashboard2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_featureonedashboard2 = /** @type {((inputs?: Onboarding_Featureonedashboard2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Featureonedashboard2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_featureonedashboard2(inputs)
 	if (locale === "sv") return sv_onboarding_featureonedashboard2(inputs)
@@ -174,7 +170,6 @@ const onboarding_featureonedashboard2 = /** @type {((inputs?: Onboarding_Feature
 	if (locale === "bn") return bn_onboarding_featureonedashboard2(inputs)
 	if (locale === "ru") return ru_onboarding_featureonedashboard2(inputs)
 	if (locale === "ja") return ja_onboarding_featureonedashboard2(inputs)
-	if (locale === "pa") return pa_onboarding_featureonedashboard2(inputs)
 	if (locale === "vi") return vi_onboarding_featureonedashboard2(inputs)
 	if (locale === "yue") return yue_onboarding_featureonedashboard2(inputs)
 	if (locale === "tr") return tr_onboarding_featureonedashboard2(inputs)

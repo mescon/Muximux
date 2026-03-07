@@ -10,95 +10,91 @@ const en_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedSt
 };
 
 const sv_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikon`)
 };
 
 const uk_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Іконка`)
 };
 
 const zh_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`图标`)
 };
 
 const es_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Icono`)
 };
 
 const hi_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`आइकन`)
 };
 
 const pt_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ícone`)
 };
 
 const bn_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`আইকন`)
 };
 
 const ru_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Иконка`)
 };
 
 const ja_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
-};
-
-const pa_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`アイコン`)
 };
 
 const vi_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Biểu tượng`)
 };
 
 const yue_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`圖示`)
 };
 
 const tr_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Simge`)
 };
 
 const ar_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`الأيقونة`)
 };
 
 const wuu_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`图标`)
 };
 
 const mr_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`आयकॉन`)
 };
 
 const nb_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikon`)
 };
 
 const fi_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Kuvake`)
 };
 
 const da_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikon`)
 };
 
 const et_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikoon`)
 };
 
 const lv_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 const lt_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Piktograma`)
 };
 
 const pl_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 const de_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
@@ -106,51 +102,51 @@ const de_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedSt
 };
 
 const nl_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Pictogram`)
 };
 
 const fr_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Icône`)
 };
 
 const it_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Icona`)
 };
 
 const hu_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikon`)
 };
 
 const cs_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 const ro_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Pictogramă`)
 };
 
 const el_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Εικονίδιο`)
 };
 
 const bg_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Икона`)
 };
 
 const hr_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 const sr_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 const sk_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 const sl_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icon`)
+	return /** @type {LocalizedString} */ (`Ikona`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_icon = /** @type {(inputs: Settings_IconInputs) => LocalizedSt
 * | "Icon" |
 *
 * @param {Settings_IconInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_icon = /** @type {((inputs?: Settings_IconInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_IconInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_icon = /** @type {((inputs?: Settings_IconInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_IconInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_icon(inputs)
 	if (locale === "sv") return sv_settings_icon(inputs)
@@ -174,7 +170,6 @@ export const settings_icon = /** @type {((inputs?: Settings_IconInputs, options?
 	if (locale === "bn") return bn_settings_icon(inputs)
 	if (locale === "ru") return ru_settings_icon(inputs)
 	if (locale === "ja") return ja_settings_icon(inputs)
-	if (locale === "pa") return pa_settings_icon(inputs)
 	if (locale === "vi") return vi_settings_icon(inputs)
 	if (locale === "yue") return yue_settings_icon(inputs)
 	if (locale === "tr") return tr_settings_icon(inputs)

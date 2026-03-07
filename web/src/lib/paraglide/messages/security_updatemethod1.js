@@ -10,147 +10,143 @@ const en_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inpu
 };
 
 const sv_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Uppdatera metod`)
 };
 
 const uk_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Оновити метод`)
 };
 
 const zh_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`更新方式`)
 };
 
 const es_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Actualizar método`)
 };
 
 const hi_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`विधि अपडेट करें`)
 };
 
 const pt_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Atualizar método`)
 };
 
 const bn_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`পদ্ধতি আপডেট করুন`)
 };
 
 const ru_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Обновить метод`)
 };
 
 const ja_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
-};
-
-const pa_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`更新方法`)
 };
 
 const vi_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Phương thức cập nhật`)
 };
 
 const yue_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`更新方式`)
 };
 
 const tr_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Yöntemi Güncelle`)
 };
 
 const ar_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`تحديث الطريقة`)
 };
 
 const wuu_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`更新方式`)
 };
 
 const mr_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`पद्धत अद्ययावत करा`)
 };
 
 const nb_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Oppdater metode`)
 };
 
 const fi_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Päivitä menetelmä`)
 };
 
 const da_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Opdater metode`)
 };
 
 const et_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Uuenda meetodit`)
 };
 
 const lv_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Atjaunināt metodi`)
 };
 
 const lt_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Atnaujinti metodą`)
 };
 
 const pl_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Aktualizuj metodę`)
 };
 
 const de_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Methode aktualisieren`)
 };
 
 const nl_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Methode bijwerken`)
 };
 
 const fr_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Mettre à jour la méthode`)
 };
 
 const it_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Aggiorna metodo`)
 };
 
 const hu_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Módszer frissítése`)
 };
 
 const cs_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Aktualizovat metodu`)
 };
 
 const ro_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Actualizează metoda`)
 };
 
 const el_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Ενημέρωση μεθόδου`)
 };
 
 const bg_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Обнови метода`)
 };
 
 const hr_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Ažuriraj metodu`)
 };
 
 const sr_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Ažuriraj metodu`)
 };
 
 const sk_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Aktualizovať metódu`)
 };
 
 const sl_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Update Method`)
+	return /** @type {LocalizedString} */ (`Posodobi metodo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_updatemethod1 = /** @type {(inputs: Security_Updatemethod1Inpu
 * | "Update Method" |
 *
 * @param {Security_Updatemethod1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_updatemethod1 = /** @type {((inputs?: Security_Updatemethod1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Updatemethod1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_updatemethod1 = /** @type {((inputs?: Security_Updatemethod1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Updatemethod1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_updatemethod1(inputs)
 	if (locale === "sv") return sv_security_updatemethod1(inputs)
@@ -174,7 +170,6 @@ const security_updatemethod1 = /** @type {((inputs?: Security_Updatemethod1Input
 	if (locale === "bn") return bn_security_updatemethod1(inputs)
 	if (locale === "ru") return ru_security_updatemethod1(inputs)
 	if (locale === "ja") return ja_security_updatemethod1(inputs)
-	if (locale === "pa") return pa_security_updatemethod1(inputs)
 	if (locale === "vi") return vi_security_updatemethod1(inputs)
 	if (locale === "yue") return yue_security_updatemethod1(inputs)
 	if (locale === "tr") return tr_security_updatemethod1(inputs)

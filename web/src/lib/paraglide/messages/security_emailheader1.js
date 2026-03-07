@@ -10,147 +10,143 @@ const en_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs
 };
 
 const sv_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-postrubrik`)
 };
 
 const uk_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Заголовок email`)
 };
 
 const zh_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`邮箱头`)
 };
 
 const es_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Cabecera de email`)
 };
 
 const hi_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`ईमेल हेडर`)
 };
 
 const pt_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Cabeçalho de email`)
 };
 
 const bn_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`ইমেইল হেডার`)
 };
 
 const ru_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Заголовок email`)
 };
 
 const ja_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
-};
-
-const pa_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`メールヘッダー`)
 };
 
 const vi_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Header email`)
 };
 
 const yue_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`電郵標頭`)
 };
 
 const tr_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-posta başlığı`)
 };
 
 const ar_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`ترويسة البريد الإلكتروني`)
 };
 
 const wuu_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`邮箱请求头`)
 };
 
 const mr_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`ईमेल हेडर`)
 };
 
 const nb_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-postheader`)
 };
 
 const fi_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Sähköpostiotsikko`)
 };
 
 const da_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-mailheader`)
 };
 
 const et_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-posti päis`)
 };
 
 const lv_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-pasta galvene`)
 };
 
 const lt_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`El. pašto antraštė`)
 };
 
 const pl_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Nagłówek e-mail`)
 };
 
 const de_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-Mail-Header`)
 };
 
 const nl_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-mail-header`)
 };
 
 const fr_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`En-tête e-mail`)
 };
 
 const it_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Header email`)
 };
 
 const hu_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`E-mail fejléc`)
 };
 
 const cs_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Hlavička e-mailu`)
 };
 
 const ro_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Antet email`)
 };
 
 const el_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Κεφαλίδα email`)
 };
 
 const bg_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Хедър за имейл`)
 };
 
 const hr_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Zaglavlje e-pošte`)
 };
 
 const sr_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Zaglavlje e-pošte`)
 };
 
 const sk_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Hlavička e-mailu`)
 };
 
 const sl_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Email header`)
+	return /** @type {LocalizedString} */ (`Glava e-pošte`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_emailheader1 = /** @type {(inputs: Security_Emailheader1Inputs
 * | "Email header" |
 *
 * @param {Security_Emailheader1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_emailheader1 = /** @type {((inputs?: Security_Emailheader1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Emailheader1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_emailheader1 = /** @type {((inputs?: Security_Emailheader1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Emailheader1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_emailheader1(inputs)
 	if (locale === "sv") return sv_security_emailheader1(inputs)
@@ -174,7 +170,6 @@ const security_emailheader1 = /** @type {((inputs?: Security_Emailheader1Inputs,
 	if (locale === "bn") return bn_security_emailheader1(inputs)
 	if (locale === "ru") return ru_security_emailheader1(inputs)
 	if (locale === "ja") return ja_security_emailheader1(inputs)
-	if (locale === "pa") return pa_security_emailheader1(inputs)
 	if (locale === "vi") return vi_security_emailheader1(inputs)
 	if (locale === "yue") return yue_security_emailheader1(inputs)
 	if (locale === "tr") return tr_security_emailheader1(inputs)

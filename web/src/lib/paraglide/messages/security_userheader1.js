@@ -10,147 +10,143 @@ const en_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) 
 };
 
 const sv_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Användarrubrik`)
 };
 
 const uk_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Заголовок користувача`)
 };
 
 const zh_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`用户头`)
 };
 
 const es_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Cabecera de usuario`)
 };
 
 const hi_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता हेडर`)
 };
 
 const pt_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Cabeçalho de utilizador`)
 };
 
 const bn_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী হেডার`)
 };
 
 const ru_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Заголовок пользователя`)
 };
 
 const ja_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
-};
-
-const pa_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`ユーザーヘッダー`)
 };
 
 const vi_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Header người dùng`)
 };
 
 const yue_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`使用者標頭`)
 };
 
 const tr_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Kullanıcı başlığı`)
 };
 
 const ar_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`ترويسة المستخدم`)
 };
 
 const wuu_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`用户请求头`)
 };
 
 const mr_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`वापरकर्ता हेडर`)
 };
 
 const nb_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Brukerheader`)
 };
 
 const fi_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Käyttäjäotsikko`)
 };
 
 const da_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Brugerheader`)
 };
 
 const et_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Kasutaja päis`)
 };
 
 const lv_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Lietotāja galvene`)
 };
 
 const lt_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Naudotojo antraštė`)
 };
 
 const pl_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Nagłówek użytkownika`)
 };
 
 const de_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Benutzer-Header`)
 };
 
 const nl_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Gebruiker-header`)
 };
 
 const fr_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`En-tête utilisateur`)
 };
 
 const it_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Header utente`)
 };
 
 const hu_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Felhasználó fejléc`)
 };
 
 const cs_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Hlavička uživatele`)
 };
 
 const ro_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Antet utilizator`)
 };
 
 const el_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Κεφαλίδα χρήστη`)
 };
 
 const bg_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Хедър за потребител`)
 };
 
 const hr_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Zaglavlje korisnika`)
 };
 
 const sr_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Zaglavlje korisnika`)
 };
 
 const sk_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Hlavička používateľa`)
 };
 
 const sl_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`User header`)
+	return /** @type {LocalizedString} */ (`Glava uporabnika`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_userheader1 = /** @type {(inputs: Security_Userheader1Inputs) 
 * | "User header" |
 *
 * @param {Security_Userheader1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_userheader1 = /** @type {((inputs?: Security_Userheader1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Userheader1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_userheader1 = /** @type {((inputs?: Security_Userheader1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Userheader1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_userheader1(inputs)
 	if (locale === "sv") return sv_security_userheader1(inputs)
@@ -174,7 +170,6 @@ const security_userheader1 = /** @type {((inputs?: Security_Userheader1Inputs, o
 	if (locale === "bn") return bn_security_userheader1(inputs)
 	if (locale === "ru") return ru_security_userheader1(inputs)
 	if (locale === "ja") return ja_security_userheader1(inputs)
-	if (locale === "pa") return pa_security_userheader1(inputs)
 	if (locale === "vi") return vi_security_userheader1(inputs)
 	if (locale === "yue") return yue_security_userheader1(inputs)
 	if (locale === "tr") return tr_security_userheader1(inputs)

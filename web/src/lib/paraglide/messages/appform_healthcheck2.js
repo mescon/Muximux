@@ -10,147 +10,143 @@ const en_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) 
 };
 
 const sv_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Hälsokontroll`)
 };
 
 const uk_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Перевірка стану`)
 };
 
 const zh_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`健康检查`)
 };
 
 const es_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Comprobación de salud`)
 };
 
 const hi_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`स्वास्थ्य जाँच`)
 };
 
 const pt_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Verificação de saúde`)
 };
 
 const bn_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`স্বাস্থ্য পরীক্ষা`)
 };
 
 const ru_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Проверка состояния`)
 };
 
 const ja_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
-};
-
-const pa_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`ヘルスチェック`)
 };
 
 const vi_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Kiểm tra sức khỏe`)
 };
 
 const yue_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`健康檢查`)
 };
 
 const tr_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Sağlık kontrolü`)
 };
 
 const ar_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`فحص الحالة`)
 };
 
 const wuu_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`健康检查`)
 };
 
 const mr_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`आरोग्य तपासणी`)
 };
 
 const nb_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Helsesjekk`)
 };
 
 const fi_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Terveystarkastus`)
 };
 
 const da_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Sundhedstjek`)
 };
 
 const et_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Tervisekontroll`)
 };
 
 const lv_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Veselības pārbaude`)
 };
 
 const lt_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Sveikatos patikrinimas`)
 };
 
 const pl_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Kontrola stanu`)
 };
 
 const de_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Gesundheitsprüfung`)
 };
 
 const nl_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Gezondheidscontrole`)
 };
 
 const fr_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Vérification de santé`)
 };
 
 const it_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Controllo di salute`)
 };
 
 const hu_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Állapotellenőrzés`)
 };
 
 const cs_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Kontrola stavu`)
 };
 
 const ro_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Verificare sănătate`)
 };
 
 const el_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Έλεγχος υγείας`)
 };
 
 const bg_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Проверка на здравето`)
 };
 
 const hr_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Provjera zdravlja`)
 };
 
 const sr_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Provera zdravlja`)
 };
 
 const sk_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Kontrola stavu`)
 };
 
 const sl_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Health check`)
+	return /** @type {LocalizedString} */ (`Preverjanje zdravja`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_healthcheck2 = /** @type {(inputs: Appform_Healthcheck2Inputs) 
 * | "Health check" |
 *
 * @param {Appform_Healthcheck2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_healthcheck2 = /** @type {((inputs?: Appform_Healthcheck2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Healthcheck2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_healthcheck2 = /** @type {((inputs?: Appform_Healthcheck2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Healthcheck2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_healthcheck2(inputs)
 	if (locale === "sv") return sv_appform_healthcheck2(inputs)
@@ -174,7 +170,6 @@ const appform_healthcheck2 = /** @type {((inputs?: Appform_Healthcheck2Inputs, o
 	if (locale === "bn") return bn_appform_healthcheck2(inputs)
 	if (locale === "ru") return ru_appform_healthcheck2(inputs)
 	if (locale === "ja") return ja_appform_healthcheck2(inputs)
-	if (locale === "pa") return pa_appform_healthcheck2(inputs)
 	if (locale === "vi") return vi_appform_healthcheck2(inputs)
 	if (locale === "yue") return yue_appform_healthcheck2(inputs)
 	if (locale === "tr") return tr_appform_healthcheck2(inputs)

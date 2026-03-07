@@ -45,10 +45,6 @@ const ja_command_hintesc1 = /** @type {(inputs: Command_Hintesc1Inputs) => Local
 	return /** @type {LocalizedString} */ (`esc`)
 };
 
-const pa_command_hintesc1 = /** @type {(inputs: Command_Hintesc1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`esc`)
-};
-
 const vi_command_hintesc1 = /** @type {(inputs: Command_Hintesc1Inputs) => LocalizedString} */ () => {
 	return /** @type {LocalizedString} */ (`esc`)
 };
@@ -159,10 +155,10 @@ const sl_command_hintesc1 = /** @type {(inputs: Command_Hintesc1Inputs) => Local
 * | "esc" |
 *
 * @param {Command_Hintesc1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const command_hintesc1 = /** @type {((inputs?: Command_Hintesc1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Hintesc1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const command_hintesc1 = /** @type {((inputs?: Command_Hintesc1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Command_Hintesc1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_command_hintesc1(inputs)
 	if (locale === "sv") return sv_command_hintesc1(inputs)
@@ -174,7 +170,6 @@ const command_hintesc1 = /** @type {((inputs?: Command_Hintesc1Inputs, options?:
 	if (locale === "bn") return bn_command_hintesc1(inputs)
 	if (locale === "ru") return ru_command_hintesc1(inputs)
 	if (locale === "ja") return ja_command_hintesc1(inputs)
-	if (locale === "pa") return pa_command_hintesc1(inputs)
 	if (locale === "vi") return vi_command_hintesc1(inputs)
 	if (locale === "yue") return yue_command_hintesc1(inputs)
 	if (locale === "tr") return tr_command_hintesc1(inputs)

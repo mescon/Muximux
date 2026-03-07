@@ -10,147 +10,143 @@ const en_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => Local
 };
 
 const sv_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Förkasta`)
 };
 
 const uk_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Відхилити`)
 };
 
 const zh_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`丢弃`)
 };
 
 const es_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Descartar`)
 };
 
 const hi_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`छोड़ दें`)
 };
 
 const pt_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Descartar`)
 };
 
 const bn_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`বাতিল করুন`)
 };
 
 const ru_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Отменить`)
 };
 
 const ja_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
-};
-
-const pa_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`破棄`)
 };
 
 const vi_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Bỏ qua`)
 };
 
 const yue_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`捨棄`)
 };
 
 const tr_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Vazgeç`)
 };
 
 const ar_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`تجاهل`)
 };
 
 const wuu_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`丢弃`)
 };
 
 const mr_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`टाकून द्या`)
 };
 
 const nb_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Forkast`)
 };
 
 const fi_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Hylkää`)
 };
 
 const da_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Kassér`)
 };
 
 const et_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Hülga`)
 };
 
 const lv_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Atmest`)
 };
 
 const lt_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Atmesti`)
 };
 
 const pl_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Odrzuć`)
 };
 
 const de_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Verwerfen`)
 };
 
 const nl_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Verwerpen`)
 };
 
 const fr_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Ignorer`)
 };
 
 const it_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Scarta`)
 };
 
 const hu_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Elvetés`)
 };
 
 const cs_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Zahodit`)
 };
 
 const ro_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Renunță`)
 };
 
 const el_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Απόρριψη`)
 };
 
 const bg_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Отхвърли`)
 };
 
 const hr_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Odbaci`)
 };
 
 const sr_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Odbaci`)
 };
 
 const sk_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Zahodiť`)
 };
 
 const sl_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Discard`)
+	return /** @type {LocalizedString} */ (`Zavrzi`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_discard = /** @type {(inputs: Settings_DiscardInputs) => Local
 * | "Discard" |
 *
 * @param {Settings_DiscardInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const settings_discard = /** @type {((inputs?: Settings_DiscardInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_DiscardInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const settings_discard = /** @type {((inputs?: Settings_DiscardInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_DiscardInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_discard(inputs)
 	if (locale === "sv") return sv_settings_discard(inputs)
@@ -174,7 +170,6 @@ export const settings_discard = /** @type {((inputs?: Settings_DiscardInputs, op
 	if (locale === "bn") return bn_settings_discard(inputs)
 	if (locale === "ru") return ru_settings_discard(inputs)
 	if (locale === "ja") return ja_settings_discard(inputs)
-	if (locale === "pa") return pa_settings_discard(inputs)
 	if (locale === "vi") return vi_settings_discard(inputs)
 	if (locale === "yue") return yue_settings_discard(inputs)
 	if (locale === "tr") return tr_settings_discard(inputs)

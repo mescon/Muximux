@@ -10,147 +10,143 @@ const en_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2
 };
 
 const sv_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Kunde inte ladda om anpassade ikoner`)
 };
 
 const uk_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Не вдалося перезавантажити власні іконки`)
 };
 
 const zh_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`重新加载自定义图标失败`)
 };
 
 const es_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Error al recargar los iconos personalizados`)
 };
 
 const hi_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`कस्टम आइकन पुनः लोड करने में विफल`)
 };
 
 const pt_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Erro ao recarregar os ícones personalizados`)
 };
 
 const bn_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`কাস্টম আইকন পুনরায় লোড করতে ব্যর্থ`)
 };
 
 const ru_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Не удалось перезагрузить пользовательские иконки`)
 };
 
 const ja_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
-};
-
-const pa_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`カスタムアイコンの再読み込みに失敗しました`)
 };
 
 const vi_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Không thể tải lại biểu tượng tùy chỉnh`)
 };
 
 const yue_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`重新載入自訂圖示失敗`)
 };
 
 const tr_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Özel simgeler yeniden yüklenemedi`)
 };
 
 const ar_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`فشل إعادة تحميل الأيقونات المخصصة`)
 };
 
 const wuu_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`自定义图标重新加载失败`)
 };
 
 const mr_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`सानुकूल आयकॉन पुन्हा लोड अयशस्वी`)
 };
 
 const nb_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Kunne ikke laste inn egendefinerte ikoner på nytt`)
 };
 
 const fi_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Mukautettujen kuvakkeiden uudelleenlataus epäonnistui`)
 };
 
 const da_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Kunne ikke genindlæse brugerdefinerede ikoner`)
 };
 
 const et_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Kohandatud ikoonide uuesti laadimine ebaõnnestus`)
 };
 
 const lv_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Neizdevās atkārtoti ielādēt pielāgotās ikonas`)
 };
 
 const lt_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Nepavyko iš naujo įkelti pasirinktinių piktogramų`)
 };
 
 const pl_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Nie udało się przeładować własnych ikon`)
 };
 
 const de_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Benutzerdefinierte Icons konnten nicht neu geladen werden`)
 };
 
 const nl_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Aangepaste pictogrammen herladen mislukt`)
 };
 
 const fr_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Échec du rechargement des icônes personnalisées`)
 };
 
 const it_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Ricaricamento delle icone personalizzate non riuscito`)
 };
 
 const hu_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Nem sikerült újratölteni az egyéni ikonokat`)
 };
 
 const cs_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se znovu načíst vlastní ikony`)
 };
 
 const ro_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Reîncărcarea pictogramelor personalizate a eșuat`)
 };
 
 const el_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Αποτυχία επαναφόρτωσης προσαρμοσμένων εικονιδίων`)
 };
 
 const bg_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Презареждането на персонализираните икони е неуспешно`)
 };
 
 const hr_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Ponovno učitavanje prilagođenih ikona nije uspjelo`)
 };
 
 const sr_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Ponovno učitavanje prilagođenih ikona nije uspelo`)
 };
 
 const sk_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa znovu načítať vlastné ikony`)
 };
 
 const sl_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to reload custom icons`)
+	return /** @type {LocalizedString} */ (`Ponovno nalaganje prilagojenih ikon ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_failedreloadicons2 = /** @type {(inputs: Toast_Failedreloadicons2
 * | "Failed to reload custom icons" |
 *
 * @param {Toast_Failedreloadicons2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_failedreloadicons2 = /** @type {((inputs?: Toast_Failedreloadicons2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Failedreloadicons2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_failedreloadicons2 = /** @type {((inputs?: Toast_Failedreloadicons2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Failedreloadicons2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_failedreloadicons2(inputs)
 	if (locale === "sv") return sv_toast_failedreloadicons2(inputs)
@@ -174,7 +170,6 @@ const toast_failedreloadicons2 = /** @type {((inputs?: Toast_Failedreloadicons2I
 	if (locale === "bn") return bn_toast_failedreloadicons2(inputs)
 	if (locale === "ru") return ru_toast_failedreloadicons2(inputs)
 	if (locale === "ja") return ja_toast_failedreloadicons2(inputs)
-	if (locale === "pa") return pa_toast_failedreloadicons2(inputs)
 	if (locale === "vi") return vi_toast_failedreloadicons2(inputs)
 	if (locale === "yue") return yue_toast_failedreloadicons2(inputs)
 	if (locale === "tr") return tr_toast_failedreloadicons2(inputs)

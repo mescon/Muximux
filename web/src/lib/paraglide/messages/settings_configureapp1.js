@@ -10,147 +10,143 @@ const en_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inpu
 };
 
 const sv_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigurera ${i?.appName}`)
 };
 
 const uk_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Налаштувати ${i?.appName}`)
 };
 
 const zh_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`配置 ${i?.appName}`)
 };
 
 const es_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Configurar ${i?.appName}`)
 };
 
 const hi_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} कॉन्फ़िगर करें`)
 };
 
 const pt_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Configurar ${i?.appName}`)
 };
 
 const bn_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} কনফিগার করুন`)
 };
 
 const ru_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Настроить ${i?.appName}`)
 };
 
 const ja_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
-};
-
-const pa_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} を設定`)
 };
 
 const vi_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Cấu hình ${i?.appName}`)
 };
 
 const yue_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`設定 ${i?.appName}`)
 };
 
 const tr_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} Yapılandır`)
 };
 
 const ar_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`إعداد ${i?.appName}`)
 };
 
 const wuu_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`配置 ${i?.appName}`)
 };
 
 const mr_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} कॉन्फिगर करा`)
 };
 
 const nb_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigurer ${i?.appName}`)
 };
 
 const fi_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Määritä ${i?.appName}`)
 };
 
 const da_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigurer ${i?.appName}`)
 };
 
 const et_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Seadista ${i?.appName}`)
 };
 
 const lv_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigurēt ${i?.appName}`)
 };
 
 const lt_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigūruoti ${i?.appName}`)
 };
 
 const pl_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfiguruj ${i?.appName}`)
 };
 
 const de_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} konfigurieren`)
 };
 
 const nl_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} configureren`)
 };
 
 const fr_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Configurer ${i?.appName}`)
 };
 
 const it_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Configura ${i?.appName}`)
 };
 
 const hu_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`${i?.appName} konfigurálása`)
 };
 
 const cs_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigurovat ${i?.appName}`)
 };
 
 const ro_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Configurează ${i?.appName}`)
 };
 
 const el_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Διαμόρφωση ${i?.appName}`)
 };
 
 const bg_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Конфигурирай ${i?.appName}`)
 };
 
 const hr_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfiguriraj ${i?.appName}`)
 };
 
 const sr_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfiguriši ${i?.appName}`)
 };
 
 const sk_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfigurovať ${i?.appName}`)
 };
 
 const sl_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Configure ${i?.appName}`)
+	return /** @type {LocalizedString} */ (`Konfiguriraj ${i?.appName}`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_configureapp1 = /** @type {(inputs: Settings_Configureapp1Inpu
 * | "Configure {appName}" |
 *
 * @param {Settings_Configureapp1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_configureapp1 = /** @type {((inputs: Settings_Configureapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Configureapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
+const settings_configureapp1 = /** @type {((inputs: Settings_Configureapp1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Configureapp1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_configureapp1(inputs)
 	if (locale === "sv") return sv_settings_configureapp1(inputs)
@@ -174,7 +170,6 @@ const settings_configureapp1 = /** @type {((inputs: Settings_Configureapp1Inputs
 	if (locale === "bn") return bn_settings_configureapp1(inputs)
 	if (locale === "ru") return ru_settings_configureapp1(inputs)
 	if (locale === "ja") return ja_settings_configureapp1(inputs)
-	if (locale === "pa") return pa_settings_configureapp1(inputs)
 	if (locale === "vi") return vi_settings_configureapp1(inputs)
 	if (locale === "yue") return yue_settings_configureapp1(inputs)
 	if (locale === "tr") return tr_settings_configureapp1(inputs)

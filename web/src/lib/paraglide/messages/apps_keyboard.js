@@ -10,147 +10,143 @@ const en_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedSt
 };
 
 const sv_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tangentbord`)
 };
 
 const uk_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Клавіатура`)
 };
 
 const zh_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`快捷键`)
 };
 
 const es_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Teclado`)
 };
 
 const hi_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`कीबोर्ड`)
 };
 
 const pt_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Teclado`)
 };
 
 const bn_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`কীবোর্ড`)
 };
 
 const ru_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Клавиатура`)
 };
 
 const ja_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
-};
-
-const pa_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`キーボード`)
 };
 
 const vi_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Bàn phím`)
 };
 
 const yue_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`快速鍵`)
 };
 
 const tr_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Klavye`)
 };
 
 const ar_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`لوحة المفاتيح`)
 };
 
 const wuu_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`快捷键`)
 };
 
 const mr_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`कीबोर्ड`)
 };
 
 const nb_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastatur`)
 };
 
 const fi_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Näppäimistö`)
 };
 
 const da_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastatur`)
 };
 
 const et_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Klaviatuur`)
 };
 
 const lv_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastatūra`)
 };
 
 const lt_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Klaviatūra`)
 };
 
 const pl_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Klawiatura`)
 };
 
 const de_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastatur`)
 };
 
 const nl_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Toetsenbord`)
 };
 
 const fr_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Clavier`)
 };
 
 const it_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastiera`)
 };
 
 const hu_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Billentyűzet`)
 };
 
 const cs_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Klávesnice`)
 };
 
 const ro_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastatură`)
 };
 
 const el_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Πληκτρολόγιο`)
 };
 
 const bg_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Клавиатура`)
 };
 
 const hr_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tipkovnica`)
 };
 
 const sr_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tastatura`)
 };
 
 const sk_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Klávesnica`)
 };
 
 const sl_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keyboard`)
+	return /** @type {LocalizedString} */ (`Tipkovnica`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_apps_keyboard = /** @type {(inputs: Apps_KeyboardInputs) => LocalizedSt
 * | "Keyboard" |
 *
 * @param {Apps_KeyboardInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const apps_keyboard = /** @type {((inputs?: Apps_KeyboardInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_KeyboardInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const apps_keyboard = /** @type {((inputs?: Apps_KeyboardInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_KeyboardInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_keyboard(inputs)
 	if (locale === "sv") return sv_apps_keyboard(inputs)
@@ -174,7 +170,6 @@ export const apps_keyboard = /** @type {((inputs?: Apps_KeyboardInputs, options?
 	if (locale === "bn") return bn_apps_keyboard(inputs)
 	if (locale === "ru") return ru_apps_keyboard(inputs)
 	if (locale === "ja") return ja_apps_keyboard(inputs)
-	if (locale === "pa") return pa_apps_keyboard(inputs)
 	if (locale === "vi") return vi_apps_keyboard(inputs)
 	if (locale === "yue") return yue_apps_keyboard(inputs)
 	if (locale === "tr") return tr_apps_keyboard(inputs)

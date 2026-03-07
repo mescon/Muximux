@@ -18,7 +18,7 @@ const uk_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => L
 };
 
 const zh_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理员`)
 };
 
 const es_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => L
 };
 
 const hi_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`एडमिन`)
 };
 
 const pt_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
@@ -34,43 +34,39 @@ const pt_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => L
 };
 
 const bn_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`অ্যাডমিন`)
 };
 
 const ru_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Администратор`)
 };
 
 const ja_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
-};
-
-const pa_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理者`)
 };
 
 const vi_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Quản trị viên`)
 };
 
 const yue_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理員`)
 };
 
 const tr_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Yönetici`)
 };
 
 const ar_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`مدير`)
 };
 
 const wuu_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理员`)
 };
 
 const mr_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`प्रशासक`)
 };
 
 const nb_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
@@ -138,11 +134,11 @@ const bg_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => L
 };
 
 const hr_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Administrator`)
 };
 
 const sr_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Administrator`)
 };
 
 const sk_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
@@ -150,7 +146,7 @@ const sk_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => L
 };
 
 const sl_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Skrbnik`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_roleadmin2 = /** @type {(inputs: Appform_Roleadmin2Inputs) => L
 * | "Admin" |
 *
 * @param {Appform_Roleadmin2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_roleadmin2 = /** @type {((inputs?: Appform_Roleadmin2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Roleadmin2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_roleadmin2 = /** @type {((inputs?: Appform_Roleadmin2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Roleadmin2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_roleadmin2(inputs)
 	if (locale === "sv") return sv_appform_roleadmin2(inputs)
@@ -174,7 +170,6 @@ const appform_roleadmin2 = /** @type {((inputs?: Appform_Roleadmin2Inputs, optio
 	if (locale === "bn") return bn_appform_roleadmin2(inputs)
 	if (locale === "ru") return ru_appform_roleadmin2(inputs)
 	if (locale === "ja") return ja_appform_roleadmin2(inputs)
-	if (locale === "pa") return pa_appform_roleadmin2(inputs)
 	if (locale === "vi") return vi_appform_roleadmin2(inputs)
 	if (locale === "yue") return yue_appform_roleadmin2(inputs)
 	if (locale === "tr") return tr_appform_roleadmin2(inputs)

@@ -10,147 +10,143 @@ const en_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => Loc
 };
 
 const sv_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Lägg till användare`)
 };
 
 const uk_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Додати користувача`)
 };
 
 const zh_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`添加用户`)
 };
 
 const es_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Añadir usuario`)
 };
 
 const hi_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`उपयोगकर्ता जोड़ें`)
 };
 
 const pt_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Adicionar utilizador`)
 };
 
 const bn_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`ব্যবহারকারী যোগ করুন`)
 };
 
 const ru_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Добавить пользователя`)
 };
 
 const ja_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
-};
-
-const pa_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`ユーザーを追加`)
 };
 
 const vi_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Thêm người dùng`)
 };
 
 const yue_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`新增使用者`)
 };
 
 const tr_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Kullanıcı Ekle`)
 };
 
 const ar_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`إضافة مستخدم`)
 };
 
 const wuu_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`添加用户`)
 };
 
 const mr_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`वापरकर्ता जोडा`)
 };
 
 const nb_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Legg til bruker`)
 };
 
 const fi_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Lisää käyttäjä`)
 };
 
 const da_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Tilføj bruger`)
 };
 
 const et_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Lisa kasutaja`)
 };
 
 const lv_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Pievienot lietotāju`)
 };
 
 const lt_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Pridėti naudotoją`)
 };
 
 const pl_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Dodaj użytkownika`)
 };
 
 const de_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Benutzer hinzufügen`)
 };
 
 const nl_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Gebruiker toevoegen`)
 };
 
 const fr_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Ajouter un utilisateur`)
 };
 
 const it_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Aggiungi utente`)
 };
 
 const hu_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Felhasználó hozzáadása`)
 };
 
 const cs_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Přidat uživatele`)
 };
 
 const ro_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Adaugă utilizator`)
 };
 
 const el_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Προσθήκη χρήστη`)
 };
 
 const bg_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Добави потребител`)
 };
 
 const hr_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Dodaj korisnika`)
 };
 
 const sr_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Dodaj korisnika`)
 };
 
 const sk_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Pridať používateľa`)
 };
 
 const sl_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Add User`)
+	return /** @type {LocalizedString} */ (`Dodaj uporabnika`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_adduser1 = /** @type {(inputs: Security_Adduser1Inputs) => Loc
 * | "Add User" |
 *
 * @param {Security_Adduser1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_adduser1 = /** @type {((inputs?: Security_Adduser1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Adduser1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_adduser1 = /** @type {((inputs?: Security_Adduser1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Adduser1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_adduser1(inputs)
 	if (locale === "sv") return sv_security_adduser1(inputs)
@@ -174,7 +170,6 @@ const security_adduser1 = /** @type {((inputs?: Security_Adduser1Inputs, options
 	if (locale === "bn") return bn_security_adduser1(inputs)
 	if (locale === "ru") return ru_security_adduser1(inputs)
 	if (locale === "ja") return ja_security_adduser1(inputs)
-	if (locale === "pa") return pa_security_adduser1(inputs)
 	if (locale === "vi") return vi_security_adduser1(inputs)
 	if (locale === "yue") return yue_security_adduser1(inputs)
 	if (locale === "tr") return tr_security_adduser1(inputs)

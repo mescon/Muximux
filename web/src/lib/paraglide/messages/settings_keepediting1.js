@@ -10,147 +10,143 @@ const en_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs
 };
 
 const sv_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Fortsätt redigera`)
 };
 
 const uk_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Продовжити редагування`)
 };
 
 const zh_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`继续编辑`)
 };
 
 const es_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Seguir editando`)
 };
 
 const hi_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`संपादन जारी रखें`)
 };
 
 const pt_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Continuar a editar`)
 };
 
 const bn_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`সম্পাদনা চালিয়ে যান`)
 };
 
 const ru_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Продолжить редактирование`)
 };
 
 const ja_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
-};
-
-const pa_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`編集を続ける`)
 };
 
 const vi_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Tiếp tục chỉnh sửa`)
 };
 
 const yue_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`繼續編輯`)
 };
 
 const tr_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Düzenlemeye Devam Et`)
 };
 
 const ar_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`متابعة التعديل`)
 };
 
 const wuu_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`继续编辑`)
 };
 
 const mr_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`संपादन सुरू ठेवा`)
 };
 
 const nb_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Fortsett å redigere`)
 };
 
 const fi_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Jatka muokkausta`)
 };
 
 const da_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Fortsæt redigering`)
 };
 
 const et_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Jätka muutmist`)
 };
 
 const lv_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Turpināt rediģēšanu`)
 };
 
 const lt_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Tęsti redagavimą`)
 };
 
 const pl_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Kontynuuj edycję`)
 };
 
 const de_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Weiter bearbeiten`)
 };
 
 const nl_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Doorgaan met bewerken`)
 };
 
 const fr_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Continuer la modification`)
 };
 
 const it_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Continua a modificare`)
 };
 
 const hu_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Szerkesztés folytatása`)
 };
 
 const cs_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Pokračovat v úpravách`)
 };
 
 const ro_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Continuă editarea`)
 };
 
 const el_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Συνέχεια επεξεργασίας`)
 };
 
 const bg_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Продължи редакцията`)
 };
 
 const hr_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Nastavi uređivati`)
 };
 
 const sr_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Nastavi uređivanje`)
 };
 
 const sk_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Pokračovať v úpravách`)
 };
 
 const sl_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Keep Editing`)
+	return /** @type {LocalizedString} */ (`Nadaljuj urejanje`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_keepediting1 = /** @type {(inputs: Settings_Keepediting1Inputs
 * | "Keep Editing" |
 *
 * @param {Settings_Keepediting1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_keepediting1 = /** @type {((inputs?: Settings_Keepediting1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Keepediting1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_keepediting1 = /** @type {((inputs?: Settings_Keepediting1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Keepediting1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_keepediting1(inputs)
 	if (locale === "sv") return sv_settings_keepediting1(inputs)
@@ -174,7 +170,6 @@ const settings_keepediting1 = /** @type {((inputs?: Settings_Keepediting1Inputs,
 	if (locale === "bn") return bn_settings_keepediting1(inputs)
 	if (locale === "ru") return ru_settings_keepediting1(inputs)
 	if (locale === "ja") return ja_settings_keepediting1(inputs)
-	if (locale === "pa") return pa_settings_keepediting1(inputs)
 	if (locale === "vi") return vi_settings_keepediting1(inputs)
 	if (locale === "yue") return yue_settings_keepediting1(inputs)
 	if (locale === "tr") return tr_settings_keepediting1(inputs)

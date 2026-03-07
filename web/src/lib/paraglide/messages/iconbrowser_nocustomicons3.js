@@ -10,147 +10,143 @@ const en_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomic
 };
 
 const sv_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Inga anpassade ikoner`)
 };
 
 const uk_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Немає власних іконок`)
 };
 
 const zh_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`没有自定义图标`)
 };
 
 const es_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Sin iconos personalizados`)
 };
 
 const hi_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`कोई कस्टम आइकन नहीं`)
 };
 
 const pt_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Sem ícones personalizados`)
 };
 
 const bn_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`কোনো কাস্টম আইকন নেই`)
 };
 
 const ru_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Нет пользовательских иконок`)
 };
 
 const ja_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
-};
-
-const pa_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`カスタムアイコンがありません`)
 };
 
 const vi_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Không có biểu tượng tùy chỉnh`)
 };
 
 const yue_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`冇自訂圖示`)
 };
 
 const tr_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Özel simge yok`)
 };
 
 const ar_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`لا توجد أيقونات مخصصة`)
 };
 
 const wuu_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`没有自定义图标`)
 };
 
 const mr_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`सानुकूल आयकॉन नाहीत`)
 };
 
 const nb_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Ingen egendefinerte ikoner`)
 };
 
 const fi_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Ei mukautettuja kuvakkeita`)
 };
 
 const da_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Ingen brugerdefinerede ikoner`)
 };
 
 const et_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Kohandatud ikoone pole`)
 };
 
 const lv_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nav pielāgotu ikonu`)
 };
 
 const lt_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nėra pasirinktinių piktogramų`)
 };
 
 const pl_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Brak własnych ikon`)
 };
 
 const de_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Keine benutzerdefinierten Icons`)
 };
 
 const nl_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Geen aangepaste pictogrammen`)
 };
 
 const fr_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Pas d'icônes personnalisées`)
 };
 
 const it_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nessuna icona personalizzata`)
 };
 
 const hu_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nincsenek egyéni ikonok`)
 };
 
 const cs_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Žádné vlastní ikony`)
 };
 
 const ro_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nicio pictogramă personalizată`)
 };
 
 const el_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Δεν υπάρχουν προσαρμοσμένα εικονίδια`)
 };
 
 const bg_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Няма персонализирани икони`)
 };
 
 const hr_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nema prilagođenih ikona`)
 };
 
 const sr_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Nema prilagođenih ikona`)
 };
 
 const sk_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Žiadne vlastné ikony`)
 };
 
 const sl_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomicons3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`No custom icons`)
+	return /** @type {LocalizedString} */ (`Ni prilagojenih ikon`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_iconbrowser_nocustomicons3 = /** @type {(inputs: Iconbrowser_Nocustomic
 * | "No custom icons" |
 *
 * @param {Iconbrowser_Nocustomicons3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const iconbrowser_nocustomicons3 = /** @type {((inputs?: Iconbrowser_Nocustomicons3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Nocustomicons3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const iconbrowser_nocustomicons3 = /** @type {((inputs?: Iconbrowser_Nocustomicons3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Iconbrowser_Nocustomicons3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_iconbrowser_nocustomicons3(inputs)
 	if (locale === "sv") return sv_iconbrowser_nocustomicons3(inputs)
@@ -174,7 +170,6 @@ const iconbrowser_nocustomicons3 = /** @type {((inputs?: Iconbrowser_Nocustomico
 	if (locale === "bn") return bn_iconbrowser_nocustomicons3(inputs)
 	if (locale === "ru") return ru_iconbrowser_nocustomicons3(inputs)
 	if (locale === "ja") return ja_iconbrowser_nocustomicons3(inputs)
-	if (locale === "pa") return pa_iconbrowser_nocustomicons3(inputs)
 	if (locale === "vi") return vi_iconbrowser_nocustomicons3(inputs)
 	if (locale === "yue") return yue_iconbrowser_nocustomicons3(inputs)
 	if (locale === "tr") return tr_iconbrowser_nocustomicons3(inputs)

@@ -10,147 +10,143 @@ const en_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInpu
 };
 
 const sv_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(anpassad)`)
 };
 
 const uk_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(налаштовано)`)
 };
 
 const zh_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`（已自定义）`)
 };
 
 const es_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(personalizado)`)
 };
 
 const hi_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(कस्टमाइज़्ड)`)
 };
 
 const pt_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(personalizado)`)
 };
 
 const bn_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(কাস্টমাইজড)`)
 };
 
 const ru_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(настроено)`)
 };
 
 const ja_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
-};
-
-const pa_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`（カスタマイズ済み）`)
 };
 
 const vi_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(đã tùy chỉnh)`)
 };
 
 const yue_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`（已自訂）`)
 };
 
 const tr_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(özelleştirilmiş)`)
 };
 
 const ar_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(مخصص)`)
 };
 
 const wuu_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`（已自定义）`)
 };
 
 const mr_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(सानुकूलित)`)
 };
 
 const nb_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(tilpasset)`)
 };
 
 const fi_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(mukautettu)`)
 };
 
 const da_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(tilpasset)`)
 };
 
 const et_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(kohandatud)`)
 };
 
 const lv_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(pielāgots)`)
 };
 
 const lt_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(pritaikyta)`)
 };
 
 const pl_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(dostosowano)`)
 };
 
 const de_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(angepasst)`)
 };
 
 const nl_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(aangepast)`)
 };
 
 const fr_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(personnalisé)`)
 };
 
 const it_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(personalizzato)`)
 };
 
 const hu_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(testreszabva)`)
 };
 
 const cs_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(přizpůsobeno)`)
 };
 
 const ro_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(personalizat)`)
 };
 
 const el_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(προσαρμοσμένο)`)
 };
 
 const bg_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(персонализирано)`)
 };
 
 const hr_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(prilagođeno)`)
 };
 
 const sr_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(prilagođeno)`)
 };
 
 const sk_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(prispôsobené)`)
 };
 
 const sl_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`(customized)`)
+	return /** @type {LocalizedString} */ (`(prilagojeno)`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_keybindings_customized = /** @type {(inputs: Keybindings_CustomizedInpu
 * | "(customized)" |
 *
 * @param {Keybindings_CustomizedInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const keybindings_customized = /** @type {((inputs?: Keybindings_CustomizedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_CustomizedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const keybindings_customized = /** @type {((inputs?: Keybindings_CustomizedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Keybindings_CustomizedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_keybindings_customized(inputs)
 	if (locale === "sv") return sv_keybindings_customized(inputs)
@@ -174,7 +170,6 @@ export const keybindings_customized = /** @type {((inputs?: Keybindings_Customiz
 	if (locale === "bn") return bn_keybindings_customized(inputs)
 	if (locale === "ru") return ru_keybindings_customized(inputs)
 	if (locale === "ja") return ja_keybindings_customized(inputs)
-	if (locale === "pa") return pa_keybindings_customized(inputs)
 	if (locale === "vi") return vi_keybindings_customized(inputs)
 	if (locale === "yue") return yue_keybindings_customized(inputs)
 	if (locale === "tr") return tr_keybindings_customized(inputs)

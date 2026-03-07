@@ -10,147 +10,143 @@ const en_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inpu
 };
 
 const sv_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Tryck`)
 };
 
 const uk_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Натисніть`)
 };
 
 const zh_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`按`)
 };
 
 const es_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Pulsa`)
 };
 
 const hi_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`दबाएं`)
 };
 
 const pt_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Prime`)
 };
 
 const bn_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`চাপুন`)
 };
 
 const ru_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Нажмите`)
 };
 
 const ja_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
-};
-
-const pa_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`押す`)
 };
 
 const vi_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Nhấn`)
 };
 
 const yue_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`撳`)
 };
 
 const tr_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Basın`)
 };
 
 const ar_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`اضغط`)
 };
 
 const wuu_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`按`)
 };
 
 const mr_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`दाबा`)
 };
 
 const nb_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Trykk`)
 };
 
 const fi_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Paina`)
 };
 
 const da_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Tryk`)
 };
 
 const et_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Vajutage`)
 };
 
 const lv_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Nospiediet`)
 };
 
 const lt_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Paspauskite`)
 };
 
 const pl_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Naciśnij`)
 };
 
 const de_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Drücken Sie`)
 };
 
 const nl_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Druk op`)
 };
 
 const fr_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Appuie sur`)
 };
 
 const it_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Premi`)
 };
 
 const hu_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Nyomja meg`)
 };
 
 const cs_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Stiskněte`)
 };
 
 const ro_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Apasă`)
 };
 
 const el_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Πατήστε`)
 };
 
 const bg_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Натисни`)
 };
 
 const hr_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Pritisnite`)
 };
 
 const sr_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Pritisnite`)
 };
 
 const sk_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Stlačte`)
 };
 
 const sl_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Press`)
+	return /** @type {LocalizedString} */ (`Pritisnite`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_shortcuts_footerpress1 = /** @type {(inputs: Shortcuts_Footerpress1Inpu
 * | "Press" |
 *
 * @param {Shortcuts_Footerpress1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const shortcuts_footerpress1 = /** @type {((inputs?: Shortcuts_Footerpress1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Footerpress1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const shortcuts_footerpress1 = /** @type {((inputs?: Shortcuts_Footerpress1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Shortcuts_Footerpress1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_shortcuts_footerpress1(inputs)
 	if (locale === "sv") return sv_shortcuts_footerpress1(inputs)
@@ -174,7 +170,6 @@ const shortcuts_footerpress1 = /** @type {((inputs?: Shortcuts_Footerpress1Input
 	if (locale === "bn") return bn_shortcuts_footerpress1(inputs)
 	if (locale === "ru") return ru_shortcuts_footerpress1(inputs)
 	if (locale === "ja") return ja_shortcuts_footerpress1(inputs)
-	if (locale === "pa") return pa_shortcuts_footerpress1(inputs)
 	if (locale === "vi") return vi_shortcuts_footerpress1(inputs)
 	if (locale === "yue") return yue_shortcuts_footerpress1(inputs)
 	if (locale === "tr") return tr_shortcuts_footerpress1(inputs)

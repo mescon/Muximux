@@ -10,147 +10,143 @@ const en_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2In
 };
 
 const sv_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Sök (${i?.shortcut})`)
 };
 
 const uk_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Пошук (${i?.shortcut})`)
 };
 
 const zh_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`搜索（${i?.shortcut}）`)
 };
 
 const es_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Buscar (${i?.shortcut})`)
 };
 
 const hi_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`खोजें (${i?.shortcut})`)
 };
 
 const pt_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Pesquisar (${i?.shortcut})`)
 };
 
 const bn_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`অনুসন্ধান (${i?.shortcut})`)
 };
 
 const ru_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Поиск (${i?.shortcut})`)
 };
 
 const ja_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
-};
-
-const pa_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`検索（${i?.shortcut}）`)
 };
 
 const vi_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Tìm kiếm (${i?.shortcut})`)
 };
 
 const yue_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`搜尋（${i?.shortcut}）`)
 };
 
 const tr_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Ara (${i?.shortcut})`)
 };
 
 const ar_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`بحث (${i?.shortcut})`)
 };
 
 const wuu_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`搜索（${i?.shortcut}）`)
 };
 
 const mr_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`शोधा (${i?.shortcut})`)
 };
 
 const nb_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Søk (${i?.shortcut})`)
 };
 
 const fi_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Hae (${i?.shortcut})`)
 };
 
 const da_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Søg (${i?.shortcut})`)
 };
 
 const et_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Otsi (${i?.shortcut})`)
 };
 
 const lv_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Meklēt (${i?.shortcut})`)
 };
 
 const lt_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Ieškoti (${i?.shortcut})`)
 };
 
 const pl_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Szukaj (${i?.shortcut})`)
 };
 
 const de_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Suchen (${i?.shortcut})`)
 };
 
 const nl_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Zoeken (${i?.shortcut})`)
 };
 
 const fr_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Rechercher (${i?.shortcut})`)
 };
 
 const it_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Cerca (${i?.shortcut})`)
 };
 
 const hu_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Keresés (${i?.shortcut})`)
 };
 
 const cs_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Hledat (${i?.shortcut})`)
 };
 
 const ro_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Caută (${i?.shortcut})`)
 };
 
 const el_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Αναζήτηση (${i?.shortcut})`)
 };
 
 const bg_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Търсене (${i?.shortcut})`)
 };
 
 const hr_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Pretraži (${i?.shortcut})`)
 };
 
 const sr_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Pretraži (${i?.shortcut})`)
 };
 
 const sk_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Hľadať (${i?.shortcut})`)
 };
 
 const sl_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Search (${i?.shortcut})`)
+	return /** @type {LocalizedString} */ (`Išči (${i?.shortcut})`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_nav_searchwithshortcut2 = /** @type {(inputs: Nav_Searchwithshortcut2In
 * | "Search ({shortcut})" |
 *
 * @param {Nav_Searchwithshortcut2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const nav_searchwithshortcut2 = /** @type {((inputs: Nav_Searchwithshortcut2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Searchwithshortcut2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
+const nav_searchwithshortcut2 = /** @type {((inputs: Nav_Searchwithshortcut2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Searchwithshortcut2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_nav_searchwithshortcut2(inputs)
 	if (locale === "sv") return sv_nav_searchwithshortcut2(inputs)
@@ -174,7 +170,6 @@ const nav_searchwithshortcut2 = /** @type {((inputs: Nav_Searchwithshortcut2Inpu
 	if (locale === "bn") return bn_nav_searchwithshortcut2(inputs)
 	if (locale === "ru") return ru_nav_searchwithshortcut2(inputs)
 	if (locale === "ja") return ja_nav_searchwithshortcut2(inputs)
-	if (locale === "pa") return pa_nav_searchwithshortcut2(inputs)
 	if (locale === "vi") return vi_nav_searchwithshortcut2(inputs)
 	if (locale === "yue") return yue_nav_searchwithshortcut2(inputs)
 	if (locale === "tr") return tr_nav_searchwithshortcut2(inputs)

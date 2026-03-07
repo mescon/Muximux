@@ -10,115 +10,111 @@ const en_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString
 };
 
 const sv_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Roll`)
 };
 
 const uk_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Роль`)
 };
 
 const zh_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`角色`)
 };
 
 const es_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rol`)
 };
 
 const hi_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`भूमिका`)
 };
 
 const pt_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Função`)
 };
 
 const bn_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`ভূমিকা`)
 };
 
 const ru_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Роль`)
 };
 
 const ja_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
-};
-
-const pa_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`ロール`)
 };
 
 const vi_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Vai trò`)
 };
 
 const yue_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`角色`)
 };
 
 const tr_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rol`)
 };
 
 const ar_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`الدور`)
 };
 
 const wuu_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`角色`)
 };
 
 const mr_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`भूमिका`)
 };
 
 const nb_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rolle`)
 };
 
 const fi_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rooli`)
 };
 
 const da_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rolle`)
 };
 
 const et_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Roll`)
 };
 
 const lv_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Loma`)
 };
 
 const lt_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Vaidmuo`)
 };
 
 const pl_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rola`)
 };
 
 const de_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rolle`)
 };
 
 const nl_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rol`)
 };
 
 const fr_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rôle`)
 };
 
 const it_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Ruolo`)
 };
 
 const hu_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Szerepkör`)
 };
 
 const cs_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
@@ -126,31 +122,31 @@ const cs_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString
 };
 
 const ro_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rol`)
 };
 
 const el_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Ρόλος`)
 };
 
 const bg_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Роля`)
 };
 
 const hr_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Uloga`)
 };
 
 const sr_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Uloga`)
 };
 
 const sk_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Rola`)
 };
 
 const sl_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Role`)
+	return /** @type {LocalizedString} */ (`Vloga`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_role = /** @type {(inputs: Common_RoleInputs) => LocalizedString
 * | "Role" |
 *
 * @param {Common_RoleInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_role = /** @type {((inputs?: Common_RoleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_RoleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_role = /** @type {((inputs?: Common_RoleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_RoleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_role(inputs)
 	if (locale === "sv") return sv_common_role(inputs)
@@ -174,7 +170,6 @@ export const common_role = /** @type {((inputs?: Common_RoleInputs, options?: { 
 	if (locale === "bn") return bn_common_role(inputs)
 	if (locale === "ru") return ru_common_role(inputs)
 	if (locale === "ja") return ja_common_role(inputs)
-	if (locale === "pa") return pa_common_role(inputs)
 	if (locale === "vi") return vi_common_role(inputs)
 	if (locale === "yue") return yue_common_role(inputs)
 	if (locale === "tr") return tr_common_role(inputs)

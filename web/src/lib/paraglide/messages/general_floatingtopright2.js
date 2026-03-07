@@ -10,147 +10,143 @@ const en_general_floatingtopright2 = /** @type {(inputs: General_Floatingtoprigh
 };
 
 const sv_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Övre höger`)
 };
 
 const uk_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Зверху справа`)
 };
 
 const zh_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`右上`)
 };
 
 const es_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Superior derecha`)
 };
 
 const hi_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`ऊपर दाएँ`)
 };
 
 const pt_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Superior direita`)
 };
 
 const bn_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`উপরে ডানে`)
 };
 
 const ru_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Вверху справа`)
 };
 
 const ja_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
-};
-
-const pa_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`右上`)
 };
 
 const vi_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Trên phải`)
 };
 
 const yue_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`右上`)
 };
 
 const tr_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Sağ Üst`)
 };
 
 const ar_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`أعلى اليمين`)
 };
 
 const wuu_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`右上角`)
 };
 
 const mr_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`शीर्ष उजवे`)
 };
 
 const nb_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Øverst til høyre`)
 };
 
 const fi_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Ylhäällä oikealla`)
 };
 
 const da_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Øverst til højre`)
 };
 
 const et_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Üleval paremal`)
 };
 
 const lv_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Augšā pa labi`)
 };
 
 const lt_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Viršuje dešinėje`)
 };
 
 const pl_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Prawy górny róg`)
 };
 
 const de_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Oben rechts`)
 };
 
 const nl_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Rechtsboven`)
 };
 
 const fr_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`En haut à droite`)
 };
 
 const it_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`In alto a destra`)
 };
 
 const hu_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Jobb felső`)
 };
 
 const cs_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Vpravo nahoře`)
 };
 
 const ro_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Dreapta sus`)
 };
 
 const el_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Πάνω δεξιά`)
 };
 
 const bg_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Горе вдясно`)
 };
 
 const hr_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Gore desno`)
 };
 
 const sr_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Gore desno`)
 };
 
 const sk_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Vpravo hore`)
 };
 
 const sl_general_floatingtopright2 = /** @type {(inputs: General_Floatingtopright2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Top Right`)
+	return /** @type {LocalizedString} */ (`Zgoraj desno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_floatingtopright2 = /** @type {(inputs: General_Floatingtoprigh
 * | "Top Right" |
 *
 * @param {General_Floatingtopright2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_floatingtopright2 = /** @type {((inputs?: General_Floatingtopright2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Floatingtopright2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_floatingtopright2 = /** @type {((inputs?: General_Floatingtopright2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Floatingtopright2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_floatingtopright2(inputs)
 	if (locale === "sv") return sv_general_floatingtopright2(inputs)
@@ -174,7 +170,6 @@ const general_floatingtopright2 = /** @type {((inputs?: General_Floatingtopright
 	if (locale === "bn") return bn_general_floatingtopright2(inputs)
 	if (locale === "ru") return ru_general_floatingtopright2(inputs)
 	if (locale === "ja") return ja_general_floatingtopright2(inputs)
-	if (locale === "pa") return pa_general_floatingtopright2(inputs)
 	if (locale === "vi") return vi_general_floatingtopright2(inputs)
 	if (locale === "yue") return yue_general_floatingtopright2(inputs)
 	if (locale === "tr") return tr_general_floatingtopright2(inputs)

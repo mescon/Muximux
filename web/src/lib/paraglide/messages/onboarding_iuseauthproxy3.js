@@ -10,147 +10,143 @@ const en_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthprox
 };
 
 const sv_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Jag använder en autentiseringsproxy`)
 };
 
 const uk_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Я використовую auth proxy`)
 };
 
 const zh_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`我使用认证代理`)
 };
 
 const es_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Uso un auth proxy`)
 };
 
 const hi_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`मैं auth proxy उपयोग करता/करती हूँ`)
 };
 
 const pt_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Uso um auth proxy`)
 };
 
 const bn_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`আমি auth proxy ব্যবহার করি`)
 };
 
 const ru_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Я использую auth proxy`)
 };
 
 const ja_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
-};
-
-const pa_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`認証プロキシを使用しています`)
 };
 
 const vi_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Tôi sử dụng proxy xác thực`)
 };
 
 const yue_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`我用緊認證代理`)
 };
 
 const tr_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Auth proxy kullanıyorum`)
 };
 
 const ar_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`أستخدم auth proxy`)
 };
 
 const wuu_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`我用认证代理`)
 };
 
 const mr_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`मी ऑथ प्रॉक्सी वापरतो`)
 };
 
 const nb_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Jeg bruker en autentiseringsproxy`)
 };
 
 const fi_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Käytän todennusproxya`)
 };
 
 const da_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Jeg bruger en godkendelsesproxy`)
 };
 
 const et_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Ma kasutan autentimisproxyt`)
 };
 
 const lv_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Es izmantoju autentifikācijas proxy`)
 };
 
 const lt_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Naudoju auth proxy`)
 };
 
 const pl_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Używam auth proxy`)
 };
 
 const de_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Ich verwende einen Auth-Proxy`)
 };
 
 const nl_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Ik gebruik een auth-proxy`)
 };
 
 const fr_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`J'utilise un auth proxy`)
 };
 
 const it_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Uso un auth proxy`)
 };
 
 const hu_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Auth proxy-t használok`)
 };
 
 const cs_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Používám auth proxy`)
 };
 
 const ro_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Folosesc un auth proxy`)
 };
 
 const el_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Χρησιμοποιώ auth proxy`)
 };
 
 const bg_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Използвам auth proxy`)
 };
 
 const hr_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Koristim auth proxy`)
 };
 
 const sr_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Koristim auth proxy`)
 };
 
 const sk_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Používam auth proxy`)
 };
 
 const sl_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthproxy3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`I use an auth proxy`)
+	return /** @type {LocalizedString} */ (`Uporabljam auth proxy`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_iuseauthproxy3 = /** @type {(inputs: Onboarding_Iuseauthprox
 * | "I use an auth proxy" |
 *
 * @param {Onboarding_Iuseauthproxy3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_iuseauthproxy3 = /** @type {((inputs?: Onboarding_Iuseauthproxy3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Iuseauthproxy3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_iuseauthproxy3 = /** @type {((inputs?: Onboarding_Iuseauthproxy3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Iuseauthproxy3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_iuseauthproxy3(inputs)
 	if (locale === "sv") return sv_onboarding_iuseauthproxy3(inputs)
@@ -174,7 +170,6 @@ const onboarding_iuseauthproxy3 = /** @type {((inputs?: Onboarding_Iuseauthproxy
 	if (locale === "bn") return bn_onboarding_iuseauthproxy3(inputs)
 	if (locale === "ru") return ru_onboarding_iuseauthproxy3(inputs)
 	if (locale === "ja") return ja_onboarding_iuseauthproxy3(inputs)
-	if (locale === "pa") return pa_onboarding_iuseauthproxy3(inputs)
 	if (locale === "vi") return vi_onboarding_iuseauthproxy3(inputs)
 	if (locale === "yue") return yue_onboarding_iuseauthproxy3(inputs)
 	if (locale === "tr") return tr_onboarding_iuseauthproxy3(inputs)

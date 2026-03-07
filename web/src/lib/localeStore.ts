@@ -36,7 +36,6 @@ export const localeNames: Record<string, string> = {
   bn: '\u09ac\u09be\u0982\u09b2\u09be',
   ru: '\u0420\u0443\u0441\u0441\u043a\u0438\u0439',
   ja: '\u65e5\u672c\u8a9e',
-  pa: '\u0a2a\u0a70\u0a1c\u0a3e\u0a2c\u0a40',
   vi: 'Ti\u1ebfng Vi\u1ec7t',
   yue: '\u7cb5\u8a9e',
   tr: 'T\u00fcrk\u00e7e',

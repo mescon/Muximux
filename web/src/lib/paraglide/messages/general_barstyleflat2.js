@@ -10,147 +10,143 @@ const en_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs
 };
 
 const sv_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Platt lista`)
 };
 
 const uk_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Плоский список`)
 };
 
 const zh_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`平铺列表`)
 };
 
 const es_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Lista plana`)
 };
 
 const hi_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`सपाट सूची`)
 };
 
 const pt_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Lista plana`)
 };
 
 const bn_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`সমতল তালিকা`)
 };
 
 const ru_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Единый список`)
 };
 
 const ja_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
-};
-
-const pa_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`フラットリスト`)
 };
 
 const vi_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Danh sách phẳng`)
 };
 
 const yue_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`平鋪清單`)
 };
 
 const tr_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Düz Liste`)
 };
 
 const ar_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`قائمة مسطحة`)
 };
 
 const wuu_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`平铺列表`)
 };
 
 const mr_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`सपाट यादी`)
 };
 
 const nb_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Flat liste`)
 };
 
 const fi_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Tasainen lista`)
 };
 
 const da_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Flad liste`)
 };
 
 const et_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Lame loend`)
 };
 
 const lv_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Plakans saraksts`)
 };
 
 const lt_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Plokščias sąrašas`)
 };
 
 const pl_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Płaska lista`)
 };
 
 const de_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Flache Liste`)
 };
 
 const nl_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Platte lijst`)
 };
 
 const fr_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Liste plate`)
 };
 
 const it_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Lista piatta`)
 };
 
 const hu_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Egyszerű lista`)
 };
 
 const cs_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Plochý seznam`)
 };
 
 const ro_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Listă simplă`)
 };
 
 const el_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Επίπεδη λίστα`)
 };
 
 const bg_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Плосък списък`)
 };
 
 const hr_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Ravni popis`)
 };
 
 const sr_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Ravna lista`)
 };
 
 const sk_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Plochý zoznam`)
 };
 
 const sl_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Flat List`)
+	return /** @type {LocalizedString} */ (`Ravni seznam`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_barstyleflat2 = /** @type {(inputs: General_Barstyleflat2Inputs
 * | "Flat List" |
 *
 * @param {General_Barstyleflat2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_barstyleflat2 = /** @type {((inputs?: General_Barstyleflat2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Barstyleflat2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_barstyleflat2 = /** @type {((inputs?: General_Barstyleflat2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Barstyleflat2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_barstyleflat2(inputs)
 	if (locale === "sv") return sv_general_barstyleflat2(inputs)
@@ -174,7 +170,6 @@ const general_barstyleflat2 = /** @type {((inputs?: General_Barstyleflat2Inputs,
 	if (locale === "bn") return bn_general_barstyleflat2(inputs)
 	if (locale === "ru") return ru_general_barstyleflat2(inputs)
 	if (locale === "ja") return ja_general_barstyleflat2(inputs)
-	if (locale === "pa") return pa_general_barstyleflat2(inputs)
 	if (locale === "vi") return vi_general_barstyleflat2(inputs)
 	if (locale === "yue") return yue_general_barstyleflat2(inputs)
 	if (locale === "tr") return tr_general_barstyleflat2(inputs)

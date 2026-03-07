@@ -10,147 +10,143 @@ const en_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) 
 };
 
 const sv_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minsta roll`)
 };
 
 const uk_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Мінімальна роль`)
 };
 
 const zh_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`最低角色`)
 };
 
 const es_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Rol mínimo`)
 };
 
 const hi_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`न्यूनतम भूमिका`)
 };
 
 const pt_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Função mínima`)
 };
 
 const bn_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`সর্বনিম্ন ভূমিকা`)
 };
 
 const ru_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Минимальная роль`)
 };
 
 const ja_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
-};
-
-const pa_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`最小ロール`)
 };
 
 const vi_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Vai trò tối thiểu`)
 };
 
 const yue_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`最低角色`)
 };
 
 const tr_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimum Rol`)
 };
 
 const ar_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`الحد الأدنى للدور`)
 };
 
 const wuu_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`最低角色`)
 };
 
 const mr_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`किमान भूमिका`)
 };
 
 const nb_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimumsrolle`)
 };
 
 const fi_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Vähimmäisrooli`)
 };
 
 const da_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimumsrolle`)
 };
 
 const et_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimaalne roll`)
 };
 
 const lv_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimālā loma`)
 };
 
 const lt_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimalus vaidmuo`)
 };
 
 const pl_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimalna rola`)
 };
 
 const de_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Mindestrolle`)
 };
 
 const nl_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimale rol`)
 };
 
 const fr_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Rôle minimum`)
 };
 
 const it_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Ruolo minimo`)
 };
 
 const hu_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimális szerepkör`)
 };
 
 const cs_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimální role`)
 };
 
 const ro_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Rol minim`)
 };
 
 const el_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Ελάχιστος ρόλος`)
 };
 
 const bg_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Минимална роля`)
 };
 
 const hr_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimalna uloga`)
 };
 
 const sr_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimalna uloga`)
 };
 
 const sk_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Minimálna rola`)
 };
 
 const sl_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimum Role`)
+	return /** @type {LocalizedString} */ (`Najnižja vloga`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_minimumrole2 = /** @type {(inputs: Appform_Minimumrole2Inputs) 
 * | "Minimum Role" |
 *
 * @param {Appform_Minimumrole2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_minimumrole2 = /** @type {((inputs?: Appform_Minimumrole2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Minimumrole2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_minimumrole2 = /** @type {((inputs?: Appform_Minimumrole2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Minimumrole2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_minimumrole2(inputs)
 	if (locale === "sv") return sv_appform_minimumrole2(inputs)
@@ -174,7 +170,6 @@ const appform_minimumrole2 = /** @type {((inputs?: Appform_Minimumrole2Inputs, o
 	if (locale === "bn") return bn_appform_minimumrole2(inputs)
 	if (locale === "ru") return ru_appform_minimumrole2(inputs)
 	if (locale === "ja") return ja_appform_minimumrole2(inputs)
-	if (locale === "pa") return pa_appform_minimumrole2(inputs)
 	if (locale === "vi") return vi_appform_minimumrole2(inputs)
 	if (locale === "yue") return yue_appform_minimumrole2(inputs)
 	if (locale === "tr") return tr_appform_minimumrole2(inputs)

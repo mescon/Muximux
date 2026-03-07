@@ -10,147 +10,143 @@ const en_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restoref
 };
 
 const sv_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Återställ från säkerhetskopia`)
 };
 
 const uk_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Відновити з резервної копії`)
 };
 
 const zh_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`从备份恢复`)
 };
 
 const es_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Restaurar desde copia de seguridad`)
 };
 
 const hi_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`बैकअप से पुनर्स्थापित करें`)
 };
 
 const pt_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Restaurar a partir de cópia de segurança`)
 };
 
 const bn_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`ব্যাকআপ থেকে পুনরুদ্ধার করুন`)
 };
 
 const ru_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Восстановить из резервной копии`)
 };
 
 const ja_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
-};
-
-const pa_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`バックアップから復元`)
 };
 
 const vi_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Khôi phục từ bản sao lưu`)
 };
 
 const yue_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`從備份還原`)
 };
 
 const tr_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Yedekten Geri Yükle`)
 };
 
 const ar_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`استعادة من نسخة احتياطية`)
 };
 
 const wuu_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`从备份恢复`)
 };
 
 const mr_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`बॅकअपमधून पुनर्संचयित करा`)
 };
 
 const nb_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Gjenopprett fra sikkerhetskopi`)
 };
 
 const fi_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Palauta varmuuskopiosta`)
 };
 
 const da_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Gendan fra sikkerhedskopi`)
 };
 
 const et_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Taasta varukoopiast`)
 };
 
 const lv_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Atjaunot no dublējuma`)
 };
 
 const lt_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Atkurti iš atsarginės kopijos`)
 };
 
 const pl_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Przywróć z kopii zapasowej`)
 };
 
 const de_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Aus Backup wiederherstellen`)
 };
 
 const nl_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Herstellen vanuit backup`)
 };
 
 const fr_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Restaurer depuis une sauvegarde`)
 };
 
 const it_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Ripristina da backup`)
 };
 
 const hu_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Visszaállítás biztonsági másolatból`)
 };
 
 const cs_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Obnovit ze zálohy`)
 };
 
 const ro_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Restaurează din copie de siguranță`)
 };
 
 const el_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Επαναφορά από αντίγραφο ασφαλείας`)
 };
 
 const bg_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Възстанови от резервно копие`)
 };
 
 const hr_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Vrati iz sigurnosne kopije`)
 };
 
 const sr_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Vrati iz rezervne kopije`)
 };
 
 const sk_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Obnoviť zo zálohy`)
 };
 
 const sl_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restorefrombackup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Restore from Backup`)
+	return /** @type {LocalizedString} */ (`Obnovi iz varnostne kopije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_restorefrombackup2 = /** @type {(inputs: Onboarding_Restoref
 * | "Restore from Backup" |
 *
 * @param {Onboarding_Restorefrombackup2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_restorefrombackup2 = /** @type {((inputs?: Onboarding_Restorefrombackup2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Restorefrombackup2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_restorefrombackup2 = /** @type {((inputs?: Onboarding_Restorefrombackup2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Restorefrombackup2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_restorefrombackup2(inputs)
 	if (locale === "sv") return sv_onboarding_restorefrombackup2(inputs)
@@ -174,7 +170,6 @@ const onboarding_restorefrombackup2 = /** @type {((inputs?: Onboarding_Restorefr
 	if (locale === "bn") return bn_onboarding_restorefrombackup2(inputs)
 	if (locale === "ru") return ru_onboarding_restorefrombackup2(inputs)
 	if (locale === "ja") return ja_onboarding_restorefrombackup2(inputs)
-	if (locale === "pa") return pa_onboarding_restorefrombackup2(inputs)
 	if (locale === "vi") return vi_onboarding_restorefrombackup2(inputs)
 	if (locale === "yue") return yue_onboarding_restorefrombackup2(inputs)
 	if (locale === "tr") return tr_onboarding_restorefrombackup2(inputs)

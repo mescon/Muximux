@@ -14,11 +14,11 @@ const sv_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 };
 
 const uk_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Застосунок`)
 };
 
 const zh_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`应用`)
 };
 
 const es_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 };
 
 const hi_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`ऐप`)
 };
 
 const pt_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
@@ -34,43 +34,39 @@ const pt_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 };
 
 const bn_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`অ্যাপ`)
 };
 
 const ru_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Приложение`)
 };
 
 const ja_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
-};
-
-const pa_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`アプリ`)
 };
 
 const vi_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Ứng dụng`)
 };
 
 const yue_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`應用程式`)
 };
 
 const tr_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Uygulama`)
 };
 
 const ar_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`تطبيق`)
 };
 
 const wuu_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`应用`)
 };
 
 const mr_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`अॅप`)
 };
 
 const nb_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
@@ -78,7 +74,7 @@ const nb_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 };
 
 const fi_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Sovellus`)
 };
 
 const da_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 };
 
 const et_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Rakendus`)
 };
 
 const lv_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Lietotne`)
 };
 
 const lt_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Programa`)
 };
 
 const pl_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplikacja`)
 };
 
 const de_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 };
 
 const hu_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Alkalmazás`)
 };
 
 const cs_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplikace`)
 };
 
 const ro_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplicație`)
 };
 
 const el_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Εφαρμογή`)
 };
 
 const bg_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Приложение`)
 };
 
 const hr_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplikacija`)
 };
 
 const sr_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplikacija`)
 };
 
 const sk_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplikácia`)
 };
 
 const sl_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbackname2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App`)
+	return /** @type {LocalizedString} */ (`Aplikacija`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_appfallbackname2 = /** @type {(inputs: Settings_Appfallbacknam
 * | "App" |
 *
 * @param {Settings_Appfallbackname2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_appfallbackname2 = /** @type {((inputs?: Settings_Appfallbackname2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Appfallbackname2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_appfallbackname2 = /** @type {((inputs?: Settings_Appfallbackname2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Appfallbackname2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_appfallbackname2(inputs)
 	if (locale === "sv") return sv_settings_appfallbackname2(inputs)
@@ -174,7 +170,6 @@ const settings_appfallbackname2 = /** @type {((inputs?: Settings_Appfallbackname
 	if (locale === "bn") return bn_settings_appfallbackname2(inputs)
 	if (locale === "ru") return ru_settings_appfallbackname2(inputs)
 	if (locale === "ja") return ja_settings_appfallbackname2(inputs)
-	if (locale === "pa") return pa_settings_appfallbackname2(inputs)
 	if (locale === "vi") return vi_settings_appfallbackname2(inputs)
 	if (locale === "yue") return yue_settings_appfallbackname2(inputs)
 	if (locale === "tr") return tr_settings_appfallbackname2(inputs)

@@ -10,147 +10,143 @@ const en_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs
 };
 
 const sv_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfigurationen exporterad`)
 };
 
 const uk_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Конфігурацію експортовано`)
 };
 
 const zh_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`配置已导出`)
 };
 
 const es_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Configuración exportada`)
 };
 
 const hi_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`कॉन्फ़िगरेशन निर्यात किया गया`)
 };
 
 const pt_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Configuração exportada`)
 };
 
 const bn_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`কনফিগারেশন রপ্তানি হয়েছে`)
 };
 
 const ru_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Конфигурация экспортирована`)
 };
 
 const ja_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
-};
-
-const pa_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`設定をエクスポートしました`)
 };
 
 const vi_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Đã xuất cấu hình`)
 };
 
 const yue_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`設定已匯出`)
 };
 
 const tr_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Yapılandırma dışa aktarıldı`)
 };
 
 const ar_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`تم تصدير الإعدادات`)
 };
 
 const wuu_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`配置导出了`)
 };
 
 const mr_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`कॉन्फिगरेशन निर्यात झाले`)
 };
 
 const nb_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfigurasjon eksportert`)
 };
 
 const fi_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguraatio viety`)
 };
 
 const da_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguration eksporteret`)
 };
 
 const et_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguratsioon eksporditud`)
 };
 
 const lv_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfigurācija eksportēta`)
 };
 
 const lt_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfigūracija eksportuota`)
 };
 
 const pl_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguracja wyeksportowana`)
 };
 
 const de_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguration exportiert`)
 };
 
 const nl_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Configuratie geëxporteerd`)
 };
 
 const fr_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Configuration exportée`)
 };
 
 const it_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Configurazione esportata`)
 };
 
 const hu_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguráció exportálva`)
 };
 
 const cs_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfigurace exportována`)
 };
 
 const ro_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Configurația a fost exportată`)
 };
 
 const el_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Η διαμόρφωση εξήχθη`)
 };
 
 const bg_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Конфигурацията е експортирана`)
 };
 
 const hr_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguracija izvezena`)
 };
 
 const sr_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguracija izvezena`)
 };
 
 const sk_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfigurácia exportovaná`)
 };
 
 const sl_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Configuration exported`)
+	return /** @type {LocalizedString} */ (`Konfiguracija izvožena`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_toast_configexported1 = /** @type {(inputs: Toast_Configexported1Inputs
 * | "Configuration exported" |
 *
 * @param {Toast_Configexported1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const toast_configexported1 = /** @type {((inputs?: Toast_Configexported1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Configexported1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const toast_configexported1 = /** @type {((inputs?: Toast_Configexported1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Toast_Configexported1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_toast_configexported1(inputs)
 	if (locale === "sv") return sv_toast_configexported1(inputs)
@@ -174,7 +170,6 @@ const toast_configexported1 = /** @type {((inputs?: Toast_Configexported1Inputs,
 	if (locale === "bn") return bn_toast_configexported1(inputs)
 	if (locale === "ru") return ru_toast_configexported1(inputs)
 	if (locale === "ja") return ja_toast_configexported1(inputs)
-	if (locale === "pa") return pa_toast_configexported1(inputs)
 	if (locale === "vi") return vi_toast_configexported1(inputs)
 	if (locale === "yue") return yue_toast_configexported1(inputs)
 	if (locale === "tr") return tr_toast_configexported1(inputs)

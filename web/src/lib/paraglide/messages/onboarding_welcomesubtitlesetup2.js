@@ -10,147 +10,143 @@ const en_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welco
 };
 
 const sv_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Din samlade hemmalabb-panel. Låt oss säkra och konfigurera dina applikationer.`)
 };
 
 const uk_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Ваша уніфікована панель керування homelab. Давайте захистимо та налаштуємо ваші застосунки.`)
 };
 
 const zh_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`你的统一家庭实验室仪表盘。让我们来保护并设置你的应用。`)
 };
 
 const es_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Tu panel de homelab unificado. Vamos a asegurar y configurar tus aplicaciones.`)
 };
 
 const hi_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`आपका एकीकृत होमलैब डैशबोर्ड। आइए आपके एप्लिकेशन सुरक्षित करें और सेट अप करें।`)
 };
 
 const pt_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`O teu painel de homelab unificado. Vamos proteger e configurar as tuas aplicações.`)
 };
 
 const bn_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`আপনার একীভূত হোমল্যাব ড্যাশবোর্ড। আসুন আপনার অ্যাপ্লিকেশনগুলি সুরক্ষিত এবং সেটআপ করি।`)
 };
 
 const ru_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Ваша единая панель для домашней лаборатории. Давайте настроим безопасность и ваши приложения.`)
 };
 
 const ja_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
-};
-
-const pa_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`統合ホームラボダッシュボード。セキュリティの設定とアプリケーションのセットアップを行いましょう。`)
 };
 
 const vi_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Bảng điều khiển homelab hợp nhất của bạn. Hãy bảo mật và thiết lập các ứng dụng.`)
 };
 
 const yue_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`你嘅統一 homelab 儀表板。一齊嚟保護同設定你嘅應用程式啦。`)
 };
 
 const tr_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Birleşik ev laboratuvarı panonuz. Güvenliği ve uygulamalarınızı ayarlayalım.`)
 };
 
 const ar_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`لوحة التحكم الموحدة لمختبرك المنزلي. دعنا نؤمّن ونعدّ تطبيقاتك.`)
 };
 
 const wuu_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`你的统一家用实验室仪表盘。我们来安全设置并配置你的应用。`)
 };
 
 const mr_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`तुमचे एकत्रित होमलॅब डॅशबोर्ड. चला सुरक्षित करून तुमचे अॅप्लिकेशन्स सेट करूया.`)
 };
 
 const nb_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Ditt samlede hjemmelabb-panel. La oss sikre og sette opp applikasjonene dine.`)
 };
 
 const fi_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Yhtenäinen kotilaboratorion hallintapaneeli. Suojataan ja asetetaan sovelluksesi.`)
 };
 
 const da_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Dit samlede hjemmelabb-panel. Lad os sikre og opsætte dine applikationer.`)
 };
 
 const et_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Teie ühtne koduserveri töölaud. Kaitseme ja seadistame teie rakendused.`)
 };
 
 const lv_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Jūsu vienotais mājas servera panelis. Nodrošināsim un iestatīsim jūsu lietotnes.`)
 };
 
 const lt_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Jūsų suvienodintas homelab valdymo skydas. Apsaugokime ir nustatykime jūsų programas.`)
 };
 
 const pl_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Twój zintegrowany panel homelab. Zabezpieczmy i skonfigurujmy Twoje aplikacje.`)
 };
 
 const de_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Ihr einheitliches Homelab-Dashboard. Sichern und konfigurieren Sie Ihre Anwendungen.`)
 };
 
 const nl_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Je uniforme homelab-dashboard. Laten we je applicaties beveiligen en instellen.`)
 };
 
 const fr_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Ton tableau de bord homelab unifié. Sécurisons et configurons tes applications.`)
 };
 
 const it_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`La tua dashboard homelab unificata. Proteggiamo e configuriamo le tue applicazioni.`)
 };
 
 const hu_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Az Ön egységes homelab vezérlőpultja. Biztosítsuk és állítsuk be az alkalmazásait.`)
 };
 
 const cs_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Váš jednotný panel pro homelab. Pojďme zabezpečit a nastavit vaše aplikace.`)
 };
 
 const ro_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Panoul tău unificat pentru homelab. Hai să securizăm și să configurăm aplicațiile.`)
 };
 
 const el_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Ο ενοποιημένος πίνακας ελέγχου homelab σας. Ας ασφαλίσουμε και ρυθμίσουμε τις εφαρμογές σας.`)
 };
 
 const bg_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Вашето обединено табло за homelab. Нека да го защитим и да настроим приложенията ви.`)
 };
 
 const hr_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Vaša objedinjena nadzorna ploča za kućni laboratorij. Osigurajmo i postavimo vaše aplikacije.`)
 };
 
 const sr_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Vaša objedinjena kontrolna tabla za kućni laboratorij. Osigurajmo i postavimo vaše aplikacije.`)
 };
 
 const sk_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Váš jednotný panel pre homelab. Poďme zabezpečiť a nastaviť vaše aplikácie.`)
 };
 
 const sl_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welcomesubtitlesetup2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Your unified homelab dashboard. Let's secure and set up your applications.`)
+	return /** @type {LocalizedString} */ (`Vaša enotna nadzorna plošča za domači laboratorij. Zavarujmo in nastavimo vaše aplikacije.`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_welcomesubtitlesetup2 = /** @type {(inputs: Onboarding_Welco
 * | "Your unified homelab dashboard. Let's secure and set up your applications." |
 *
 * @param {Onboarding_Welcomesubtitlesetup2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_welcomesubtitlesetup2 = /** @type {((inputs?: Onboarding_Welcomesubtitlesetup2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Welcomesubtitlesetup2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_welcomesubtitlesetup2 = /** @type {((inputs?: Onboarding_Welcomesubtitlesetup2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Welcomesubtitlesetup2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_welcomesubtitlesetup2(inputs)
 	if (locale === "sv") return sv_onboarding_welcomesubtitlesetup2(inputs)
@@ -174,7 +170,6 @@ const onboarding_welcomesubtitlesetup2 = /** @type {((inputs?: Onboarding_Welcom
 	if (locale === "bn") return bn_onboarding_welcomesubtitlesetup2(inputs)
 	if (locale === "ru") return ru_onboarding_welcomesubtitlesetup2(inputs)
 	if (locale === "ja") return ja_onboarding_welcomesubtitlesetup2(inputs)
-	if (locale === "pa") return pa_onboarding_welcomesubtitlesetup2(inputs)
 	if (locale === "vi") return vi_onboarding_welcomesubtitlesetup2(inputs)
 	if (locale === "yue") return yue_onboarding_welcomesubtitlesetup2(inputs)
 	if (locale === "tr") return tr_onboarding_welcomesubtitlesetup2(inputs)

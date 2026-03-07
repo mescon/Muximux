@@ -10,147 +10,143 @@ const en_common_current = /** @type {(inputs: Common_CurrentInputs) => Localized
 };
 
 const sv_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Aktuell`)
 };
 
 const uk_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Поточний`)
 };
 
 const zh_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`当前`)
 };
 
 const es_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Actual`)
 };
 
 const hi_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`वर्तमान`)
 };
 
 const pt_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Atual`)
 };
 
 const bn_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`বর্তমান`)
 };
 
 const ru_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Текущий`)
 };
 
 const ja_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
-};
-
-const pa_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`現在`)
 };
 
 const vi_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Hiện tại`)
 };
 
 const yue_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`目前`)
 };
 
 const tr_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Mevcut`)
 };
 
 const ar_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`الحالي`)
 };
 
 const wuu_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`当前`)
 };
 
 const mr_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`सध्याचे`)
 };
 
 const nb_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Nåværende`)
 };
 
 const fi_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Nykyinen`)
 };
 
 const da_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Aktuel`)
 };
 
 const et_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Praegune`)
 };
 
 const lv_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Pašreizējs`)
 };
 
 const lt_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Dabartinis`)
 };
 
 const pl_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Bieżący`)
 };
 
 const de_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Aktuell`)
 };
 
 const nl_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Huidig`)
 };
 
 const fr_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Actuel`)
 };
 
 const it_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Attuale`)
 };
 
 const hu_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Jelenlegi`)
 };
 
 const cs_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Aktuální`)
 };
 
 const ro_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Curent`)
 };
 
 const el_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Τρέχον`)
 };
 
 const bg_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Текущ`)
 };
 
 const hr_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Trenutno`)
 };
 
 const sr_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Trenutno`)
 };
 
 const sk_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Aktuálny`)
 };
 
 const sl_common_current = /** @type {(inputs: Common_CurrentInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Current`)
+	return /** @type {LocalizedString} */ (`Trenutno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_current = /** @type {(inputs: Common_CurrentInputs) => Localized
 * | "Current" |
 *
 * @param {Common_CurrentInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_current = /** @type {((inputs?: Common_CurrentInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CurrentInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_current = /** @type {((inputs?: Common_CurrentInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_CurrentInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_current(inputs)
 	if (locale === "sv") return sv_common_current(inputs)
@@ -174,7 +170,6 @@ export const common_current = /** @type {((inputs?: Common_CurrentInputs, option
 	if (locale === "bn") return bn_common_current(inputs)
 	if (locale === "ru") return ru_common_current(inputs)
 	if (locale === "ja") return ja_common_current(inputs)
-	if (locale === "pa") return pa_common_current(inputs)
 	if (locale === "vi") return vi_common_current(inputs)
 	if (locale === "yue") return yue_common_current(inputs)
 	if (locale === "tr") return tr_common_current(inputs)

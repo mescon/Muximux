@@ -18,7 +18,7 @@ const uk_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} 
 };
 
 const zh_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`代理`)
 };
 
 const es_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
@@ -42,11 +42,7 @@ const ru_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} 
 };
 
 const ja_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
-};
-
-const pa_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`プロキシ`)
 };
 
 const vi_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
@@ -54,7 +50,7 @@ const vi_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} 
 };
 
 const yue_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`代理`)
 };
 
 const tr_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
@@ -66,11 +62,11 @@ const ar_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} 
 };
 
 const wuu_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`代理`)
 };
 
 const mr_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Proxy`)
+	return /** @type {LocalizedString} */ (`प्रॉक्सी`)
 };
 
 const nb_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} */ () => {
@@ -159,10 +155,10 @@ const sl_apps_proxy = /** @type {(inputs: Apps_ProxyInputs) => LocalizedString} 
 * | "Proxy" |
 *
 * @param {Apps_ProxyInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const apps_proxy = /** @type {((inputs?: Apps_ProxyInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_ProxyInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const apps_proxy = /** @type {((inputs?: Apps_ProxyInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Apps_ProxyInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_apps_proxy(inputs)
 	if (locale === "sv") return sv_apps_proxy(inputs)
@@ -174,7 +170,6 @@ export const apps_proxy = /** @type {((inputs?: Apps_ProxyInputs, options?: { lo
 	if (locale === "bn") return bn_apps_proxy(inputs)
 	if (locale === "ru") return ru_apps_proxy(inputs)
 	if (locale === "ja") return ja_apps_proxy(inputs)
-	if (locale === "pa") return pa_apps_proxy(inputs)
 	if (locale === "vi") return vi_apps_proxy(inputs)
 	if (locale === "yue") return yue_apps_proxy(inputs)
 	if (locale === "tr") return tr_apps_proxy(inputs)

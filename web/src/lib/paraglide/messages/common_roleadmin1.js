@@ -18,7 +18,7 @@ const uk_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => Loc
 };
 
 const zh_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理员`)
 };
 
 const es_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
@@ -26,7 +26,7 @@ const es_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => Loc
 };
 
 const hi_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`एडमिन`)
 };
 
 const pt_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
@@ -34,43 +34,39 @@ const pt_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => Loc
 };
 
 const bn_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`অ্যাডমিন`)
 };
 
 const ru_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Администратор`)
 };
 
 const ja_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
-};
-
-const pa_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理者`)
 };
 
 const vi_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Quản trị viên`)
 };
 
 const yue_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理員`)
 };
 
 const tr_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Yönetici`)
 };
 
 const ar_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`مدير`)
 };
 
 const wuu_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`管理员`)
 };
 
 const mr_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`प्रशासक`)
 };
 
 const nb_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
@@ -138,11 +134,11 @@ const bg_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => Loc
 };
 
 const hr_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Administrator`)
 };
 
 const sr_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Administrator`)
 };
 
 const sk_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
@@ -150,7 +146,7 @@ const sk_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => Loc
 };
 
 const sl_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Admin`)
+	return /** @type {LocalizedString} */ (`Skrbnik`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_roleadmin1 = /** @type {(inputs: Common_Roleadmin1Inputs) => Loc
 * | "Admin" |
 *
 * @param {Common_Roleadmin1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const common_roleadmin1 = /** @type {((inputs?: Common_Roleadmin1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Roleadmin1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const common_roleadmin1 = /** @type {((inputs?: Common_Roleadmin1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_Roleadmin1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_roleadmin1(inputs)
 	if (locale === "sv") return sv_common_roleadmin1(inputs)
@@ -174,7 +170,6 @@ const common_roleadmin1 = /** @type {((inputs?: Common_Roleadmin1Inputs, options
 	if (locale === "bn") return bn_common_roleadmin1(inputs)
 	if (locale === "ru") return ru_common_roleadmin1(inputs)
 	if (locale === "ja") return ja_common_roleadmin1(inputs)
-	if (locale === "pa") return pa_common_roleadmin1(inputs)
 	if (locale === "vi") return vi_common_roleadmin1(inputs)
 	if (locale === "yue") return yue_common_roleadmin1(inputs)
 	if (locale === "tr") return tr_common_roleadmin1(inputs)

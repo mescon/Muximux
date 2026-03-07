@@ -10,75 +10,71 @@ const en_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinar
 };
 
 const sv_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Ladda ner darwin-arm64`)
 };
 
 const uk_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Завантажити darwin-arm64`)
 };
 
 const zh_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`下载 darwin-arm64`)
 };
 
 const es_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Descargar darwin-arm64`)
 };
 
 const hi_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`darwin-arm64 डाउनलोड करें`)
 };
 
 const pt_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Transferir darwin-arm64`)
 };
 
 const bn_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`darwin-arm64 ডাউনলোড করুন`)
 };
 
 const ru_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Скачать darwin-arm64`)
 };
 
 const ja_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
-};
-
-const pa_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`darwin-arm64 をダウンロード`)
 };
 
 const vi_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Tải darwin-arm64`)
 };
 
 const yue_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`下載 darwin-arm64`)
 };
 
 const tr_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`darwin-arm64 İndir`)
 };
 
 const ar_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`تنزيل darwin-arm64`)
 };
 
 const wuu_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`下载 darwin-arm64`)
 };
 
 const mr_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`darwin-arm64 डाउनलोड करा`)
 };
 
 const nb_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Last ned darwin-arm64`)
 };
 
 const fi_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Lataa darwin-arm64`)
 };
 
 const da_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
@@ -86,19 +82,19 @@ const da_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinar
 };
 
 const et_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Laadi alla darwin-arm64`)
 };
 
 const lv_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Lejupielādēt darwin-arm64`)
 };
 
 const lt_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Atsisiųsti darwin-arm64`)
 };
 
 const pl_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Pobierz darwin-arm64`)
 };
 
 const de_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
@@ -118,39 +114,39 @@ const it_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinar
 };
 
 const hu_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Letöltés darwin-arm64`)
 };
 
 const cs_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Stáhnout darwin-arm64`)
 };
 
 const ro_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Descarcă darwin-arm64`)
 };
 
 const el_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Λήψη darwin-arm64`)
 };
 
 const bg_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Изтегли darwin-arm64`)
 };
 
 const hr_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Preuzmi darwin-arm64`)
 };
 
 const sr_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Preuzmi darwin-arm64`)
 };
 
 const sk_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Stiahnuť darwin-arm64`)
 };
 
 const sl_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinarm642Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Download darwin-arm64`)
+	return /** @type {LocalizedString} */ (`Prenesi darwin-arm64`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_about_downloaddarwinarm642 = /** @type {(inputs: About_Downloaddarwinar
 * | "Download darwin-arm64" |
 *
 * @param {About_Downloaddarwinarm642Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const about_downloaddarwinarm642 = /** @type {((inputs?: About_Downloaddarwinarm642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloaddarwinarm642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const about_downloaddarwinarm642 = /** @type {((inputs?: About_Downloaddarwinarm642Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<About_Downloaddarwinarm642Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_about_downloaddarwinarm642(inputs)
 	if (locale === "sv") return sv_about_downloaddarwinarm642(inputs)
@@ -174,7 +170,6 @@ const about_downloaddarwinarm642 = /** @type {((inputs?: About_Downloaddarwinarm
 	if (locale === "bn") return bn_about_downloaddarwinarm642(inputs)
 	if (locale === "ru") return ru_about_downloaddarwinarm642(inputs)
 	if (locale === "ja") return ja_about_downloaddarwinarm642(inputs)
-	if (locale === "pa") return pa_about_downloaddarwinarm642(inputs)
 	if (locale === "vi") return vi_about_downloaddarwinarm642(inputs)
 	if (locale === "yue") return yue_about_downloaddarwinarm642(inputs)
 	if (locale === "tr") return tr_about_downloaddarwinarm642(inputs)

@@ -10,147 +10,143 @@ const en_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navposit
 };
 
 const sv_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimal flytande knapp`)
 };
 
 const uk_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Мінімальна плаваюча кнопка`)
 };
 
 const zh_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`简约悬浮按钮`)
 };
 
 const es_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Botón flotante minimalista`)
 };
 
 const hi_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`न्यूनतम फ़्लोटिंग बटन`)
 };
 
 const pt_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Botão flutuante minimalista`)
 };
 
 const bn_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`সংক্ষিপ্ত ভাসমান বোতাম`)
 };
 
 const ru_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Компактная плавающая кнопка`)
 };
 
 const ja_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
-};
-
-const pa_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`ミニマルなフローティングボタン`)
 };
 
 const vi_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Nút nổi tối giản`)
 };
 
 const yue_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`簡約浮動按鈕`)
 };
 
 const tr_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimal yüzen düğme`)
 };
 
 const ar_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`زر عائم مصغّر`)
 };
 
 const wuu_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`简约悬浮按钮`)
 };
 
 const mr_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`किमान फ्लोटिंग बटण`)
 };
 
 const nb_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimal flytende knapp`)
 };
 
 const fi_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimaalinen kelluva painike`)
 };
 
 const da_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimal svævende knap`)
 };
 
 const et_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimaalne hõljuv nupp`)
 };
 
 const lv_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimāla peldoša poga`)
 };
 
 const lt_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimalus plaukiojantis mygtukas`)
 };
 
 const pl_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimalny pływający przycisk`)
 };
 
 const de_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimaler schwebender Button`)
 };
 
 const nl_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimale zwevende knop`)
 };
 
 const fr_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Bouton flottant minimal`)
 };
 
 const it_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Pulsante flottante minimale`)
 };
 
 const hu_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimális lebegő gomb`)
 };
 
 const cs_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimální plovoucí tlačítko`)
 };
 
 const ro_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Buton plutitor minimal`)
 };
 
 const el_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Μικρό αιωρούμενο κουμπί`)
 };
 
 const bg_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Минимален плаващ бутон`)
 };
 
 const hr_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimalan plutajući gumb`)
 };
 
 const sr_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimalno plutajuće dugme`)
 };
 
 const sk_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimálne plávajúce tlačidlo`)
 };
 
 const sl_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navpositionfloatingdesc3Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Minimal floating button`)
+	return /** @type {LocalizedString} */ (`Minimalen plavajoči gumb`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_navpositionfloatingdesc3 = /** @type {(inputs: General_Navposit
 * | "Minimal floating button" |
 *
 * @param {General_Navpositionfloatingdesc3Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_navpositionfloatingdesc3 = /** @type {((inputs?: General_Navpositionfloatingdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Navpositionfloatingdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_navpositionfloatingdesc3 = /** @type {((inputs?: General_Navpositionfloatingdesc3Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Navpositionfloatingdesc3Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_navpositionfloatingdesc3(inputs)
 	if (locale === "sv") return sv_general_navpositionfloatingdesc3(inputs)
@@ -174,7 +170,6 @@ const general_navpositionfloatingdesc3 = /** @type {((inputs?: General_Navpositi
 	if (locale === "bn") return bn_general_navpositionfloatingdesc3(inputs)
 	if (locale === "ru") return ru_general_navpositionfloatingdesc3(inputs)
 	if (locale === "ja") return ja_general_navpositionfloatingdesc3(inputs)
-	if (locale === "pa") return pa_general_navpositionfloatingdesc3(inputs)
 	if (locale === "vi") return vi_general_navpositionfloatingdesc3(inputs)
 	if (locale === "yue") return yue_general_navpositionfloatingdesc3(inputs)
 	if (locale === "tr") return tr_general_navpositionfloatingdesc3(inputs)

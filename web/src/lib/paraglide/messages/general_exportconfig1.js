@@ -10,147 +10,143 @@ const en_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs
 };
 
 const sv_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exportera konfiguration`)
 };
 
 const uk_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Експорт конфігурації`)
 };
 
 const zh_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`导出配置`)
 };
 
 const es_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exportar configuración`)
 };
 
 const hi_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`कॉन्फ़िग निर्यात करें`)
 };
 
 const pt_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exportar configuração`)
 };
 
 const bn_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`কনফিগ রপ্তানি করুন`)
 };
 
 const ru_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Экспорт конфигурации`)
 };
 
 const ja_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
-};
-
-const pa_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`設定をエクスポート`)
 };
 
 const vi_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Xuất cấu hình`)
 };
 
 const yue_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`匯出設定`)
 };
 
 const tr_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Yapılandırmayı Dışa Aktar`)
 };
 
 const ar_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`تصدير الإعدادات`)
 };
 
 const wuu_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`导出配置`)
 };
 
 const mr_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`कॉन्फिग निर्यात करा`)
 };
 
 const nb_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Eksporter konfigurasjon`)
 };
 
 const fi_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Vie konfiguraatio`)
 };
 
 const da_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Eksporter konfiguration`)
 };
 
 const et_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Ekspordi konfiguratsioon`)
 };
 
 const lv_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Eksportēt konfigurāciju`)
 };
 
 const lt_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Eksportuoti konfigūraciją`)
 };
 
 const pl_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Eksportuj konfigurację`)
 };
 
 const de_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Konfiguration exportieren`)
 };
 
 const nl_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Configuratie exporteren`)
 };
 
 const fr_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exporter la configuration`)
 };
 
 const it_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Esporta configurazione`)
 };
 
 const hu_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Konfiguráció exportálása`)
 };
 
 const cs_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exportovat konfiguraci`)
 };
 
 const ro_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exportă configurația`)
 };
 
 const el_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Εξαγωγή διαμόρφωσης`)
 };
 
 const bg_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Експортирай конфигурация`)
 };
 
 const hr_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Izvezi konfiguraciju`)
 };
 
 const sr_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Izvezi konfiguraciju`)
 };
 
 const sk_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Exportovať konfiguráciu`)
 };
 
 const sl_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Export Config`)
+	return /** @type {LocalizedString} */ (`Izvozi konfiguracijo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_exportconfig1 = /** @type {(inputs: General_Exportconfig1Inputs
 * | "Export Config" |
 *
 * @param {General_Exportconfig1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_exportconfig1 = /** @type {((inputs?: General_Exportconfig1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Exportconfig1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_exportconfig1 = /** @type {((inputs?: General_Exportconfig1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Exportconfig1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_exportconfig1(inputs)
 	if (locale === "sv") return sv_general_exportconfig1(inputs)
@@ -174,7 +170,6 @@ const general_exportconfig1 = /** @type {((inputs?: General_Exportconfig1Inputs,
 	if (locale === "bn") return bn_general_exportconfig1(inputs)
 	if (locale === "ru") return ru_general_exportconfig1(inputs)
 	if (locale === "ja") return ja_general_exportconfig1(inputs)
-	if (locale === "pa") return pa_general_exportconfig1(inputs)
 	if (locale === "vi") return vi_general_exportconfig1(inputs)
 	if (locale === "yue") return yue_general_exportconfig1(inputs)
 	if (locale === "tr") return tr_general_exportconfig1(inputs)

@@ -10,147 +10,143 @@ const en_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs
 };
 
 const sv_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Använder för närvarande:`)
 };
 
 const uk_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Зараз використовується:`)
 };
 
 const zh_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`当前使用：`)
 };
 
 const es_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Usando actualmente:`)
 };
 
 const hi_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`वर्तमान में उपयोग:`)
 };
 
 const pt_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`A usar atualmente:`)
 };
 
 const bn_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`বর্তমানে ব্যবহৃত:`)
 };
 
 const ru_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Текущая тема:`)
 };
 
 const ja_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
-};
-
-const pa_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`現在使用中：`)
 };
 
 const vi_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Đang sử dụng:`)
 };
 
 const yue_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`目前使用緊：`)
 };
 
 const tr_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Şu anda kullanılan:`)
 };
 
 const ar_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`قيد الاستخدام حاليًا:`)
 };
 
 const wuu_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`当前使用：`)
 };
 
 const mr_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`सध्या वापरत आहे:`)
 };
 
 const nb_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Bruker nå:`)
 };
 
 const fi_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Käytössä:`)
 };
 
 const da_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Bruger i øjeblikket:`)
 };
 
 const et_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Praegu kasutusel:`)
 };
 
 const lv_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Pašlaik tiek izmantots:`)
 };
 
 const lt_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Šiuo metu naudojama:`)
 };
 
 const pl_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Obecnie używany:`)
 };
 
 const de_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Aktuell verwendet:`)
 };
 
 const nl_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Momenteel gebruikt:`)
 };
 
 const fr_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Actuellement utilisé :`)
 };
 
 const it_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Attualmente in uso:`)
 };
 
 const hu_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Jelenleg használt:`)
 };
 
 const cs_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Aktuálně používaný:`)
 };
 
 const ro_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Se utilizează în prezent:`)
 };
 
 const el_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Χρησιμοποιείται:`)
 };
 
 const bg_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`В момента се използва:`)
 };
 
 const hr_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Trenutno koristi:`)
 };
 
 const sr_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Trenutno koristi:`)
 };
 
 const sk_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Aktuálne používaný:`)
 };
 
 const sl_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Currently using:`)
+	return /** @type {LocalizedString} */ (`Trenutno uporablja:`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_currentlyusing1 = /** @type {(inputs: Theme_Currentlyusing1Inputs
 * | "Currently using:" |
 *
 * @param {Theme_Currentlyusing1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_currentlyusing1 = /** @type {((inputs?: Theme_Currentlyusing1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Currentlyusing1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_currentlyusing1 = /** @type {((inputs?: Theme_Currentlyusing1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Currentlyusing1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_currentlyusing1(inputs)
 	if (locale === "sv") return sv_theme_currentlyusing1(inputs)
@@ -174,7 +170,6 @@ const theme_currentlyusing1 = /** @type {((inputs?: Theme_Currentlyusing1Inputs,
 	if (locale === "bn") return bn_theme_currentlyusing1(inputs)
 	if (locale === "ru") return ru_theme_currentlyusing1(inputs)
 	if (locale === "ja") return ja_theme_currentlyusing1(inputs)
-	if (locale === "pa") return pa_theme_currentlyusing1(inputs)
 	if (locale === "vi") return vi_theme_currentlyusing1(inputs)
 	if (locale === "yue") return yue_theme_currentlyusing1(inputs)
 	if (locale === "tr") return tr_theme_currentlyusing1(inputs)

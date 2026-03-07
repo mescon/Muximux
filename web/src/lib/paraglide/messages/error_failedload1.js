@@ -10,147 +10,143 @@ const en_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => Loc
 };
 
 const sv_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Kunde inte ladda`)
 };
 
 const uk_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Не вдалося завантажити`)
 };
 
 const zh_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`加载失败`)
 };
 
 const es_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Error al cargar`)
 };
 
 const hi_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`लोड करने में विफल`)
 };
 
 const pt_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Erro ao carregar`)
 };
 
 const bn_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`লোড করতে ব্যর্থ`)
 };
 
 const ru_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Не удалось загрузить`)
 };
 
 const ja_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
-};
-
-const pa_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`読み込みに失敗しました`)
 };
 
 const vi_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Không thể tải`)
 };
 
 const yue_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`載入失敗`)
 };
 
 const tr_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Yüklenemedi`)
 };
 
 const ar_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`فشل التحميل`)
 };
 
 const wuu_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`加载失败`)
 };
 
 const mr_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`लोड अयशस्वी`)
 };
 
 const nb_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Kunne ikke laste`)
 };
 
 const fi_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Lataus epäonnistui`)
 };
 
 const da_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Kunne ikke indlæse`)
 };
 
 const et_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Laadimine ebaõnnestus`)
 };
 
 const lv_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Neizdevās ielādēt`)
 };
 
 const lt_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Nepavyko įkelti`)
 };
 
 const pl_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Nie udało się załadować`)
 };
 
 const de_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Laden fehlgeschlagen`)
 };
 
 const nl_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Laden mislukt`)
 };
 
 const fr_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Échec du chargement`)
 };
 
 const it_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Caricamento non riuscito`)
 };
 
 const hu_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Nem sikerült betölteni`)
 };
 
 const cs_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Nepodařilo se načíst`)
 };
 
 const ro_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Încărcarea a eșuat`)
 };
 
 const el_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Αποτυχία φόρτωσης`)
 };
 
 const bg_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Зареждането е неуспешно`)
 };
 
 const hr_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Učitavanje nije uspjelo`)
 };
 
 const sr_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Učitavanje nije uspelo`)
 };
 
 const sk_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Nepodarilo sa načítať`)
 };
 
 const sl_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Failed to load`)
+	return /** @type {LocalizedString} */ (`Nalaganje ni uspelo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_error_failedload1 = /** @type {(inputs: Error_Failedload1Inputs) => Loc
 * | "Failed to load" |
 *
 * @param {Error_Failedload1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const error_failedload1 = /** @type {((inputs?: Error_Failedload1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedload1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const error_failedload1 = /** @type {((inputs?: Error_Failedload1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Error_Failedload1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_error_failedload1(inputs)
 	if (locale === "sv") return sv_error_failedload1(inputs)
@@ -174,7 +170,6 @@ const error_failedload1 = /** @type {((inputs?: Error_Failedload1Inputs, options
 	if (locale === "bn") return bn_error_failedload1(inputs)
 	if (locale === "ru") return ru_error_failedload1(inputs)
 	if (locale === "ja") return ja_error_failedload1(inputs)
-	if (locale === "pa") return pa_error_failedload1(inputs)
 	if (locale === "vi") return vi_error_failedload1(inputs)
 	if (locale === "yue") return yue_error_failedload1(inputs)
 	if (locale === "tr") return tr_error_failedload1(inputs)

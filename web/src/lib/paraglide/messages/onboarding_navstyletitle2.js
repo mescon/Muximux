@@ -10,147 +10,143 @@ const en_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitl
 };
 
 const sv_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Välj din navigeringsstil`)
 };
 
 const uk_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Оберіть стиль навігації`)
 };
 
 const zh_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`选择你的导航样式`)
 };
 
 const es_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Elige tu estilo de navegación`)
 };
 
 const hi_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`अपनी नेविगेशन शैली चुनें`)
 };
 
 const pt_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Escolhe o teu estilo de navegação`)
 };
 
 const bn_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`আপনার নেভিগেশন শৈলী চয়ন করুন`)
 };
 
 const ru_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Выберите стиль навигации`)
 };
 
 const ja_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
-};
-
-const pa_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`ナビゲーションスタイルを選択`)
 };
 
 const vi_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Chọn kiểu điều hướng`)
 };
 
 const yue_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`揀選你嘅導覽樣式`)
 };
 
 const tr_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Navigasyon Stilinizi Seçin`)
 };
 
 const ar_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`اختر نمط التنقل`)
 };
 
 const wuu_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`选择导航风格`)
 };
 
 const mr_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`तुमची नेव्हिगेशन शैली निवडा`)
 };
 
 const nb_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Velg din navigasjonsstil`)
 };
 
 const fi_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Valitse navigaatiotyyli`)
 };
 
 const da_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Vælg din navigationsstil`)
 };
 
 const et_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Valige oma navigeerimisstiil`)
 };
 
 const lv_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Izvēlieties navigācijas stilu`)
 };
 
 const lt_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Pasirinkite savo navigacijos stilių`)
 };
 
 const pl_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Wybierz styl nawigacji`)
 };
 
 const de_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Wählen Sie Ihren Navigationsstil`)
 };
 
 const nl_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Kies je navigatiestijl`)
 };
 
 const fr_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Choisis ton style de navigation`)
 };
 
 const it_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Scegli il tuo stile di navigazione`)
 };
 
 const hu_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Válassza ki a navigáció stílusát`)
 };
 
 const cs_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Vyberte styl navigace`)
 };
 
 const ro_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Alege stilul de navigare`)
 };
 
 const el_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Επιλέξτε το στυλ πλοήγησής σας`)
 };
 
 const bg_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Изберете стил на навигация`)
 };
 
 const hr_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Odaberite stil navigacije`)
 };
 
 const sr_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Izaberite stil navigacije`)
 };
 
 const sk_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Vyberte štýl navigácie`)
 };
 
 const sl_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitle2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Choose Your Navigation Style`)
+	return /** @type {LocalizedString} */ (`Izberite slog navigacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_navstyletitle2 = /** @type {(inputs: Onboarding_Navstyletitl
 * | "Choose Your Navigation Style" |
 *
 * @param {Onboarding_Navstyletitle2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_navstyletitle2 = /** @type {((inputs?: Onboarding_Navstyletitle2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Navstyletitle2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_navstyletitle2 = /** @type {((inputs?: Onboarding_Navstyletitle2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Navstyletitle2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_navstyletitle2(inputs)
 	if (locale === "sv") return sv_onboarding_navstyletitle2(inputs)
@@ -174,7 +170,6 @@ const onboarding_navstyletitle2 = /** @type {((inputs?: Onboarding_Navstyletitle
 	if (locale === "bn") return bn_onboarding_navstyletitle2(inputs)
 	if (locale === "ru") return ru_onboarding_navstyletitle2(inputs)
 	if (locale === "ja") return ja_onboarding_navstyletitle2(inputs)
-	if (locale === "pa") return pa_onboarding_navstyletitle2(inputs)
 	if (locale === "vi") return vi_onboarding_navstyletitle2(inputs)
 	if (locale === "yue") return yue_onboarding_navstyletitle2(inputs)
 	if (locale === "tr") return tr_onboarding_navstyletitle2(inputs)

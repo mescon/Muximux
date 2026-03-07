@@ -10,147 +10,143 @@ const en_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs
 };
 
 const sv_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skala appikoner i navigeringen`)
 };
 
 const uk_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Масштаб іконок застосунків у навігації`)
 };
 
 const zh_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`调整导航栏中应用图标的缩放`)
 };
 
 const es_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Escalar los iconos de las apps en la navegación`)
 };
 
 const hi_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`नेविगेशन में ऐप आइकन का आकार बदलें`)
 };
 
 const pt_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Escalar os ícones das apps na navegação`)
 };
 
 const bn_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`নেভিগেশনে অ্যাপ আইকন স্কেল করুন`)
 };
 
 const ru_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Масштаб иконок в навигации`)
 };
 
 const ja_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
-};
-
-const pa_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`ナビゲーション内のアプリアイコンの拡縮`)
 };
 
 const vi_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Thu phóng biểu tượng ứng dụng trong thanh điều hướng`)
 };
 
 const yue_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`調整導覽列入面應用程式圖示嘅縮放`)
 };
 
 const tr_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Navigasyondaki uygulama simgelerini ölçeklendir`)
 };
 
 const ar_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`تحجيم أيقونات التطبيقات في التنقل`)
 };
 
 const wuu_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`调整导航里应用图标的缩放`)
 };
 
 const mr_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`नेव्हिगेशनमधील अॅप आयकॉन स्केल करा`)
 };
 
 const nb_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaler appikoner i navigasjonen`)
 };
 
 const fi_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaalaa sovelluskuvakkeita navigaatiossa`)
 };
 
 const da_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skalér appikoner i navigationen`)
 };
 
 const et_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaleeri navigeerimise rakenduse ikoone`)
 };
 
 const lv_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Mērogot lietotņu ikonas navigācijā`)
 };
 
 const lt_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Keisti programų piktogramų mastelį navigacijoje`)
 };
 
 const pl_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaluj ikony aplikacji w nawigacji`)
 };
 
 const de_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`App-Icons in der Navigation skalieren`)
 };
 
 const nl_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`App-pictogrammen in de navigatie schalen`)
 };
 
 const fr_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Redimensionner les icônes des apps dans la navigation`)
 };
 
 const it_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Ridimensiona le icone delle app nella navigazione`)
 };
 
 const hu_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Alkalmazás ikonok méretezése a navigációban`)
 };
 
 const cs_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Měřítko ikon aplikací v navigaci`)
 };
 
 const ro_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Scalează pictogramele aplicațiilor în navigare`)
 };
 
 const el_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Κλιμάκωση εικονιδίων εφαρμογών στην πλοήγηση`)
 };
 
 const bg_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Мащабирай иконите на приложенията в навигацията`)
 };
 
 const hr_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaliraj ikone aplikacija u navigaciji`)
 };
 
 const sr_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaliraj ikone aplikacija u navigaciji`)
 };
 
 const sk_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Mierka ikon aplikácií v navigácii`)
 };
 
 const sl_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Scale app icons in the navigation`)
+	return /** @type {LocalizedString} */ (`Skaliraj ikone aplikacij v navigaciji`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_general_iconsizedesc2 = /** @type {(inputs: General_Iconsizedesc2Inputs
 * | "Scale app icons in the navigation" |
 *
 * @param {General_Iconsizedesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const general_iconsizedesc2 = /** @type {((inputs?: General_Iconsizedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Iconsizedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const general_iconsizedesc2 = /** @type {((inputs?: General_Iconsizedesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<General_Iconsizedesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_general_iconsizedesc2(inputs)
 	if (locale === "sv") return sv_general_iconsizedesc2(inputs)
@@ -174,7 +170,6 @@ const general_iconsizedesc2 = /** @type {((inputs?: General_Iconsizedesc2Inputs,
 	if (locale === "bn") return bn_general_iconsizedesc2(inputs)
 	if (locale === "ru") return ru_general_iconsizedesc2(inputs)
 	if (locale === "ja") return ja_general_iconsizedesc2(inputs)
-	if (locale === "pa") return pa_general_iconsizedesc2(inputs)
 	if (locale === "vi") return vi_general_iconsizedesc2(inputs)
 	if (locale === "yue") return yue_general_iconsizedesc2(inputs)
 	if (locale === "tr") return tr_general_iconsizedesc2(inputs)

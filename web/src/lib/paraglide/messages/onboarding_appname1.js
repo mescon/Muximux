@@ -10,147 +10,143 @@ const en_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) =>
 };
 
 const sv_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Appnamn`)
 };
 
 const uk_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Назва застосунку`)
 };
 
 const zh_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`应用名称`)
 };
 
 const es_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Nombre de la app`)
 };
 
 const hi_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`ऐप नाम`)
 };
 
 const pt_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Nome da app`)
 };
 
 const bn_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`অ্যাপের নাম`)
 };
 
 const ru_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Название приложения`)
 };
 
 const ja_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
-};
-
-const pa_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`アプリ名`)
 };
 
 const vi_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Tên ứng dụng`)
 };
 
 const yue_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`應用程式名稱`)
 };
 
 const tr_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Uygulama adı`)
 };
 
 const ar_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`اسم التطبيق`)
 };
 
 const wuu_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`应用名称`)
 };
 
 const mr_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`अॅप नाव`)
 };
 
 const nb_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Appnavn`)
 };
 
 const fi_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Sovelluksen nimi`)
 };
 
 const da_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Appnavn`)
 };
 
 const et_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Rakenduse nimi`)
 };
 
 const lv_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Lietotnes nosaukums`)
 };
 
 const lt_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Programos pavadinimas`)
 };
 
 const pl_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Nazwa aplikacji`)
 };
 
 const de_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`App-Name`)
 };
 
 const nl_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Appnaam`)
 };
 
 const fr_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Nom de l'app`)
 };
 
 const it_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Nome dell'app`)
 };
 
 const hu_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Alkalmazás neve`)
 };
 
 const cs_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Název aplikace`)
 };
 
 const ro_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Numele aplicației`)
 };
 
 const el_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Όνομα εφαρμογής`)
 };
 
 const bg_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Име на приложението`)
 };
 
 const hr_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Naziv aplikacije`)
 };
 
 const sr_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Naziv aplikacije`)
 };
 
 const sk_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Názov aplikácie`)
 };
 
 const sl_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`App name`)
+	return /** @type {LocalizedString} */ (`Ime aplikacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_onboarding_appname1 = /** @type {(inputs: Onboarding_Appname1Inputs) =>
 * | "App name" |
 *
 * @param {Onboarding_Appname1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const onboarding_appname1 = /** @type {((inputs?: Onboarding_Appname1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Appname1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const onboarding_appname1 = /** @type {((inputs?: Onboarding_Appname1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Onboarding_Appname1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_onboarding_appname1(inputs)
 	if (locale === "sv") return sv_onboarding_appname1(inputs)
@@ -174,7 +170,6 @@ const onboarding_appname1 = /** @type {((inputs?: Onboarding_Appname1Inputs, opt
 	if (locale === "bn") return bn_onboarding_appname1(inputs)
 	if (locale === "ru") return ru_onboarding_appname1(inputs)
 	if (locale === "ja") return ja_onboarding_appname1(inputs)
-	if (locale === "pa") return pa_onboarding_appname1(inputs)
 	if (locale === "vi") return vi_onboarding_appname1(inputs)
 	if (locale === "yue") return yue_onboarding_appname1(inputs)
 	if (locale === "tr") return tr_onboarding_appname1(inputs)

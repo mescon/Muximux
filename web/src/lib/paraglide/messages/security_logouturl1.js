@@ -10,147 +10,143 @@ const en_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) =>
 };
 
 const sv_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Utloggnings-URL`)
 };
 
 const uk_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL виходу`)
 };
 
 const zh_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`登出 URL`)
 };
 
 const es_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL de cierre de sesión`)
 };
 
 const hi_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`लॉगआउट URL`)
 };
 
 const pt_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL de encerramento de sessão`)
 };
 
 const bn_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`লগআউট URL`)
 };
 
 const ru_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL выхода`)
 };
 
 const ja_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
-};
-
-const pa_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`ログアウト URL`)
 };
 
 const vi_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL đăng xuất`)
 };
 
 const yue_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`登出 URL`)
 };
 
 const tr_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Çıkış URL'si`)
 };
 
 const ar_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`عنوان URL لتسجيل الخروج`)
 };
 
 const wuu_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`注销 URL`)
 };
 
 const mr_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`लॉगआउट URL`)
 };
 
 const nb_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Utloggings-URL`)
 };
 
 const fi_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Uloskirjautumis-URL`)
 };
 
 const da_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Logout-URL`)
 };
 
 const et_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Väljalogimise URL`)
 };
 
 const lv_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Izrakstīšanās URL`)
 };
 
 const lt_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Atsijungimo URL`)
 };
 
 const pl_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL wylogowania`)
 };
 
 const de_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Abmelde-URL`)
 };
 
 const nl_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Uitlog-URL`)
 };
 
 const fr_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL de déconnexion`)
 };
 
 const it_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL di disconnessione`)
 };
 
 const hu_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`Kijelentkezési URL`)
 };
 
 const cs_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL odhlášení`)
 };
 
 const ro_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL deconectare`)
 };
 
 const el_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL αποσύνδεσης`)
 };
 
 const bg_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL за изход`)
 };
 
 const hr_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL za odjavu`)
 };
 
 const sr_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL za odjavu`)
 };
 
 const sk_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL odhlásenia`)
 };
 
 const sl_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Logout URL`)
+	return /** @type {LocalizedString} */ (`URL za odjavo`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_logouturl1 = /** @type {(inputs: Security_Logouturl1Inputs) =>
 * | "Logout URL" |
 *
 * @param {Security_Logouturl1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_logouturl1 = /** @type {((inputs?: Security_Logouturl1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Logouturl1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_logouturl1 = /** @type {((inputs?: Security_Logouturl1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Logouturl1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_logouturl1(inputs)
 	if (locale === "sv") return sv_security_logouturl1(inputs)
@@ -174,7 +170,6 @@ const security_logouturl1 = /** @type {((inputs?: Security_Logouturl1Inputs, opt
 	if (locale === "bn") return bn_security_logouturl1(inputs)
 	if (locale === "ru") return ru_security_logouturl1(inputs)
 	if (locale === "ja") return ja_security_logouturl1(inputs)
-	if (locale === "pa") return pa_security_logouturl1(inputs)
 	if (locale === "vi") return vi_security_logouturl1(inputs)
 	if (locale === "yue") return yue_security_logouturl1(inputs)
 	if (locale === "tr") return tr_security_logouturl1(inputs)

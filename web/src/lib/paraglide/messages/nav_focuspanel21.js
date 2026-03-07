@@ -10,147 +10,143 @@ const en_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => Local
 };
 
 const sv_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokusera panel 2`)
 };
 
 const uk_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Фокус на панель 2`)
 };
 
 const zh_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`聚焦面板 2`)
 };
 
 const es_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Enfocar panel 2`)
 };
 
 const hi_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`पैनल 2 पर फ़ोकस`)
 };
 
 const pt_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Focar painel 2`)
 };
 
 const bn_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`প্যানেল 2-এ ফোকাস`)
 };
 
 const ru_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Фокус на панели 2`)
 };
 
 const ja_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
-};
-
-const pa_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`パネル 2 にフォーカス`)
 };
 
 const vi_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Tập trung panel 2`)
 };
 
 const yue_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`聚焦面板 2`)
 };
 
 const tr_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Panel 2'ye odaklan`)
 };
 
 const ar_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`التركيز على اللوحة 2`)
 };
 
 const wuu_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`聚焦面板 2`)
 };
 
 const mr_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`पॅनेल 2 वर लक्ष केंद्रित करा`)
 };
 
 const nb_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokuser panel 2`)
 };
 
 const fi_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Kohdista paneeli 2`)
 };
 
 const da_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokuser panel 2`)
 };
 
 const et_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fookus paneel 2`)
 };
 
 const lv_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokuss panelis 2`)
 };
 
 const lt_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokusuoti skydelį 2`)
 };
 
 const pl_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokus na panelu 2`)
 };
 
 const de_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Bereich 2 fokussieren`)
 };
 
 const nl_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Paneel 2 focussen`)
 };
 
 const fr_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Focus panneau 2`)
 };
 
 const it_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Focus pannello 2`)
 };
 
 const hu_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fókusz a 2. panelen`)
 };
 
 const cs_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokus na panel 2`)
 };
 
 const ro_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Focalizare panou 2`)
 };
 
 const el_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Εστίαση πάνελ 2`)
 };
 
 const bg_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Фокус панел 2`)
 };
 
 const hr_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokusiraj panel 2`)
 };
 
 const sr_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokusiraj panel 2`)
 };
 
 const sk_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokus na panel 2`)
 };
 
 const sl_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Focus panel 2`)
+	return /** @type {LocalizedString} */ (`Fokusiraj panel 2`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_nav_focuspanel21 = /** @type {(inputs: Nav_Focuspanel21Inputs) => Local
 * | "Focus panel 2" |
 *
 * @param {Nav_Focuspanel21Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const nav_focuspanel21 = /** @type {((inputs?: Nav_Focuspanel21Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Focuspanel21Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const nav_focuspanel21 = /** @type {((inputs?: Nav_Focuspanel21Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Nav_Focuspanel21Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_nav_focuspanel21(inputs)
 	if (locale === "sv") return sv_nav_focuspanel21(inputs)
@@ -174,7 +170,6 @@ const nav_focuspanel21 = /** @type {((inputs?: Nav_Focuspanel21Inputs, options?:
 	if (locale === "bn") return bn_nav_focuspanel21(inputs)
 	if (locale === "ru") return ru_nav_focuspanel21(inputs)
 	if (locale === "ja") return ja_nav_focuspanel21(inputs)
-	if (locale === "pa") return pa_nav_focuspanel21(inputs)
 	if (locale === "vi") return vi_nav_focuspanel21(inputs)
 	if (locale === "yue") return yue_nav_focuspanel21(inputs)
 	if (locale === "tr") return tr_nav_focuspanel21(inputs)

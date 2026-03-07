@@ -10,147 +10,143 @@ const en_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4
 };
 
 const sv_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Återställ till appfärg`)
 };
 
 const uk_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Скинути до кольору застосунку`)
 };
 
 const zh_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`重置为应用颜色`)
 };
 
 const es_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Restablecer al color de la app`)
 };
 
 const hi_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`ऐप रंग पर रीसेट करें`)
 };
 
 const pt_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Repor para a cor da app`)
 };
 
 const bn_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`অ্যাপ রঙে রিসেট করুন`)
 };
 
 const ru_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Сбросить к цвету приложения`)
 };
 
 const ja_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
-};
-
-const pa_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`アプリの色にリセット`)
 };
 
 const vi_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Đặt lại về màu ứng dụng`)
 };
 
 const yue_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`重設為應用程式顏色`)
 };
 
 const tr_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Uygulama rengine sıfırla`)
 };
 
 const ar_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`إعادة تعيين إلى لون التطبيق`)
 };
 
 const wuu_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`重置为应用颜色`)
 };
 
 const mr_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`अॅप रंगावर रीसेट करा`)
 };
 
 const nb_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Tilbakestill til appfarge`)
 };
 
 const fi_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Palauta sovelluksen väriin`)
 };
 
 const da_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Nulstil til appfarve`)
 };
 
 const et_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Lähtesta rakenduse värvile`)
 };
 
 const lv_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Atiestatīt uz lietotnes krāsu`)
 };
 
 const lt_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Atstatyti į programos spalvą`)
 };
 
 const pl_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Przywróć kolor aplikacji`)
 };
 
 const de_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Auf App-Farbe zurücksetzen`)
 };
 
 const nl_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Herstellen naar app-kleur`)
 };
 
 const fr_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Réinitialiser à la couleur de l'app`)
 };
 
 const it_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Ripristina al colore dell'app`)
 };
 
 const hu_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Visszaállítás az alkalmazás színére`)
 };
 
 const cs_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Obnovit barvu aplikace`)
 };
 
 const ro_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Resetare la culoarea aplicației`)
 };
 
 const el_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Επαναφορά στο χρώμα εφαρμογής`)
 };
 
 const bg_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Възстанови до цвета на приложението`)
 };
 
 const hr_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Vrati na boju aplikacije`)
 };
 
 const sr_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Vrati na boju aplikacije`)
 };
 
 const sk_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Obnoviť farbu aplikácie`)
 };
 
 const sl_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Reset to app color`)
+	return /** @type {LocalizedString} */ (`Ponastavi na barvo aplikacije`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_resettoappcolor4 = /** @type {(inputs: Appform_Resettoappcolor4
 * | "Reset to app color" |
 *
 * @param {Appform_Resettoappcolor4Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_resettoappcolor4 = /** @type {((inputs?: Appform_Resettoappcolor4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Resettoappcolor4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_resettoappcolor4 = /** @type {((inputs?: Appform_Resettoappcolor4Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Resettoappcolor4Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_resettoappcolor4(inputs)
 	if (locale === "sv") return sv_appform_resettoappcolor4(inputs)
@@ -174,7 +170,6 @@ const appform_resettoappcolor4 = /** @type {((inputs?: Appform_Resettoappcolor4I
 	if (locale === "bn") return bn_appform_resettoappcolor4(inputs)
 	if (locale === "ru") return ru_appform_resettoappcolor4(inputs)
 	if (locale === "ja") return ja_appform_resettoappcolor4(inputs)
-	if (locale === "pa") return pa_appform_resettoappcolor4(inputs)
 	if (locale === "vi") return vi_appform_resettoappcolor4(inputs)
 	if (locale === "yue") return yue_appform_resettoappcolor4(inputs)
 	if (locale === "tr") return tr_appform_resettoappcolor4(inputs)

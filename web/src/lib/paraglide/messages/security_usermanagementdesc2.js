@@ -10,147 +10,143 @@ const en_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagem
 };
 
 const sv_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Hantera panelanvändare och roller`)
 };
 
 const uk_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Керування користувачами та ролями панелі керування`)
 };
 
 const zh_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`管理仪表盘用户和角色`)
 };
 
 const es_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Gestionar los usuarios y roles del panel`)
 };
 
 const hi_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`डैशबोर्ड उपयोगकर्ताओं और भूमिकाओं का प्रबंधन करें`)
 };
 
 const pt_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Gerir os utilizadores e funções do painel`)
 };
 
 const bn_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`ড্যাশবোর্ড ব্যবহারকারী এবং ভূমিকা পরিচালনা করুন`)
 };
 
 const ru_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Управление пользователями и ролями панели`)
 };
 
 const ja_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
-};
-
-const pa_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`ダッシュボードのユーザーとロールを管理`)
 };
 
 const vi_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Quản lý người dùng và vai trò trong bảng điều khiển`)
 };
 
 const yue_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`管理儀表板使用者同角色`)
 };
 
 const tr_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Pano kullanıcılarını ve rollerini yönetin`)
 };
 
 const ar_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`إدارة مستخدمي وأدوار لوحة التحكم`)
 };
 
 const wuu_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`管理仪表盘用户和角色`)
 };
 
 const mr_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`डॅशबोर्ड वापरकर्ते आणि भूमिका व्यवस्थापित करा`)
 };
 
 const nb_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Administrer panelbrukere og roller`)
 };
 
 const fi_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Hallitse paneelin käyttäjiä ja rooleja`)
 };
 
 const da_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Administrer panelbrugere og roller`)
 };
 
 const et_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Halda töölaua kasutajaid ja rolle`)
 };
 
 const lv_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Pārvaldīt paneļa lietotājus un lomas`)
 };
 
 const lt_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Valdyti valdymo skydo naudotojus ir vaidmenis`)
 };
 
 const pl_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Zarządzaj użytkownikami panelu i rolami`)
 };
 
 const de_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Dashboard-Benutzer und Rollen verwalten`)
 };
 
 const nl_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Dashboard-gebruikers en rollen beheren`)
 };
 
 const fr_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Gérer les utilisateurs et les rôles du tableau de bord`)
 };
 
 const it_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Gestisci gli utenti e i ruoli della dashboard`)
 };
 
 const hu_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Vezérlőpult felhasználók és szerepkörök kezelése`)
 };
 
 const cs_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Správa uživatelů a rolí panelu`)
 };
 
 const ro_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Gestionează utilizatorii și rolurile panoului de control`)
 };
 
 const el_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Διαχείριση χρηστών και ρόλων πίνακα ελέγχου`)
 };
 
 const bg_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Управлявай потребителите и ролите на таблото`)
 };
 
 const hr_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Upravljajte korisnicima i ulogama nadzorne ploče`)
 };
 
 const sr_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Upravljajte korisnicima i ulogama kontrolne table`)
 };
 
 const sk_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Správa používateľov a rolí panela`)
 };
 
 const sl_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagementdesc2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Manage dashboard users and roles`)
+	return /** @type {LocalizedString} */ (`Upravljajte uporabnike in vloge nadzorne plošče`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_usermanagementdesc2 = /** @type {(inputs: Security_Usermanagem
 * | "Manage dashboard users and roles" |
 *
 * @param {Security_Usermanagementdesc2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_usermanagementdesc2 = /** @type {((inputs?: Security_Usermanagementdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Usermanagementdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_usermanagementdesc2 = /** @type {((inputs?: Security_Usermanagementdesc2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Usermanagementdesc2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_usermanagementdesc2(inputs)
 	if (locale === "sv") return sv_security_usermanagementdesc2(inputs)
@@ -174,7 +170,6 @@ const security_usermanagementdesc2 = /** @type {((inputs?: Security_Usermanageme
 	if (locale === "bn") return bn_security_usermanagementdesc2(inputs)
 	if (locale === "ru") return ru_security_usermanagementdesc2(inputs)
 	if (locale === "ja") return ja_security_usermanagementdesc2(inputs)
-	if (locale === "pa") return pa_security_usermanagementdesc2(inputs)
 	if (locale === "vi") return vi_security_usermanagementdesc2(inputs)
 	if (locale === "yue") return yue_security_usermanagementdesc2(inputs)
 	if (locale === "tr") return tr_security_usermanagementdesc2(inputs)

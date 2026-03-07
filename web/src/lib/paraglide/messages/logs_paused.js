@@ -10,147 +10,143 @@ const en_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString
 };
 
 const sv_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUSAD`)
 };
 
 const uk_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`ПРИЗУПИНЕНО`)
 };
 
 const zh_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`已暂停`)
 };
 
 const es_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUSADO`)
 };
 
 const hi_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`रुका हुआ`)
 };
 
 const pt_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUSADO`)
 };
 
 const bn_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`বিরতি`)
 };
 
 const ru_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`ПАУЗА`)
 };
 
 const ja_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
-};
-
-const pa_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`一時停止中`)
 };
 
 const vi_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`ĐÃ TẠM DỪNG`)
 };
 
 const yue_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`已暫停`)
 };
 
 const tr_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`DURAKLATILDI`)
 };
 
 const ar_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`متوقف`)
 };
 
 const wuu_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`已暂停`)
 };
 
 const mr_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`थांबवलेले`)
 };
 
 const nb_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUSET`)
 };
 
 const fi_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`TAUOLLA`)
 };
 
 const da_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUSET`)
 };
 
 const et_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PEATATUD`)
 };
 
 const lv_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUZĒTS`)
 };
 
 const lt_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PRISTABDYTA`)
 };
 
 const pl_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`WSTRZYMANO`)
 };
 
 const de_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUSIERT`)
 };
 
 const nl_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`GEPAUZEERD`)
 };
 
 const fr_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`EN PAUSE`)
 };
 
 const it_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`IN PAUSA`)
 };
 
 const hu_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`SZÜNETELTETVE`)
 };
 
 const cs_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`POZASTAVENO`)
 };
 
 const ro_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUZĂ`)
 };
 
 const el_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`ΠΑΥΣΗ`)
 };
 
 const bg_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`ПАУЗА`)
 };
 
 const hr_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUZIRANO`)
 };
 
 const sr_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAUZIRANO`)
 };
 
 const sk_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`POZASTAVENÉ`)
 };
 
 const sl_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`PAUSED`)
+	return /** @type {LocalizedString} */ (`PAVZIRANO`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_logs_paused = /** @type {(inputs: Logs_PausedInputs) => LocalizedString
 * | "PAUSED" |
 *
 * @param {Logs_PausedInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const logs_paused = /** @type {((inputs?: Logs_PausedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_PausedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const logs_paused = /** @type {((inputs?: Logs_PausedInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Logs_PausedInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_logs_paused(inputs)
 	if (locale === "sv") return sv_logs_paused(inputs)
@@ -174,7 +170,6 @@ export const logs_paused = /** @type {((inputs?: Logs_PausedInputs, options?: { 
 	if (locale === "bn") return bn_logs_paused(inputs)
 	if (locale === "ru") return ru_logs_paused(inputs)
 	if (locale === "ja") return ja_logs_paused(inputs)
-	if (locale === "pa") return pa_logs_paused(inputs)
 	if (locale === "vi") return vi_logs_paused(inputs)
 	if (locale === "yue") return yue_logs_paused(inputs)
 	if (locale === "tr") return tr_logs_paused(inputs)

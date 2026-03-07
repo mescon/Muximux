@@ -10,147 +10,143 @@ const en_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionpl
 };
 
 const sv_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Beskrivning (valfritt)`)
 };
 
 const uk_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Опис (необов'язково)`)
 };
 
 const zh_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`描述（可选）`)
 };
 
 const es_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Descripción (opcional)`)
 };
 
 const hi_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`विवरण (वैकल्पिक)`)
 };
 
 const pt_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Descrição (opcional)`)
 };
 
 const bn_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`বিবরণ (ঐচ্ছিক)`)
 };
 
 const ru_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Описание (необязательно)`)
 };
 
 const ja_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
-};
-
-const pa_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`説明（任意）`)
 };
 
 const vi_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Mô tả (tùy chọn)`)
 };
 
 const yue_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`描述（可選）`)
 };
 
 const tr_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Açıklama (isteğe bağlı)`)
 };
 
 const ar_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`الوصف (اختياري)`)
 };
 
 const wuu_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`描述（选填）`)
 };
 
 const mr_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`वर्णन (वैकल्पिक)`)
 };
 
 const nb_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Beskrivelse (valgfritt)`)
 };
 
 const fi_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Kuvaus (valinnainen)`)
 };
 
 const da_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Beskrivelse (valgfrit)`)
 };
 
 const et_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Kirjeldus (valikuline)`)
 };
 
 const lv_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Apraksts (neobligāts)`)
 };
 
 const lt_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Aprašymas (neprivalomas)`)
 };
 
 const pl_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Opis (opcjonalnie)`)
 };
 
 const de_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Beschreibung (optional)`)
 };
 
 const nl_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Beschrijving (optioneel)`)
 };
 
 const fr_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Description (optionnel)`)
 };
 
 const it_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Descrizione (opzionale)`)
 };
 
 const hu_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Leírás (opcionális)`)
 };
 
 const cs_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Popis (volitelný)`)
 };
 
 const ro_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Descriere (opțional)`)
 };
 
 const el_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Περιγραφή (προαιρετικό)`)
 };
 
 const bg_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Описание (по избор)`)
 };
 
 const hr_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Opis (neobavezno)`)
 };
 
 const sr_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Opis (opcionalno)`)
 };
 
 const sk_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Popis (voliteľný)`)
 };
 
 const sl_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionplaceholder1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Description (optional)`)
+	return /** @type {LocalizedString} */ (`Opis (neobvezno)`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_descriptionplaceholder1 = /** @type {(inputs: Theme_Descriptionpl
 * | "Description (optional)" |
 *
 * @param {Theme_Descriptionplaceholder1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const theme_descriptionplaceholder1 = /** @type {((inputs?: Theme_Descriptionplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Descriptionplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const theme_descriptionplaceholder1 = /** @type {((inputs?: Theme_Descriptionplaceholder1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_Descriptionplaceholder1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_descriptionplaceholder1(inputs)
 	if (locale === "sv") return sv_theme_descriptionplaceholder1(inputs)
@@ -174,7 +170,6 @@ const theme_descriptionplaceholder1 = /** @type {((inputs?: Theme_Descriptionpla
 	if (locale === "bn") return bn_theme_descriptionplaceholder1(inputs)
 	if (locale === "ru") return ru_theme_descriptionplaceholder1(inputs)
 	if (locale === "ja") return ja_theme_descriptionplaceholder1(inputs)
-	if (locale === "pa") return pa_theme_descriptionplaceholder1(inputs)
 	if (locale === "vi") return vi_theme_descriptionplaceholder1(inputs)
 	if (locale === "yue") return yue_theme_descriptionplaceholder1(inputs)
 	if (locale === "tr") return tr_theme_descriptionplaceholder1(inputs)

@@ -10,147 +10,143 @@ const en_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) 
 };
 
 const sv_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Välj ikon`)
 };
 
 const uk_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Обрати іконку`)
 };
 
 const zh_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`选择图标`)
 };
 
 const es_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Seleccionar icono`)
 };
 
 const hi_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`आइकन चुनें`)
 };
 
 const pt_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Selecionar ícone`)
 };
 
 const bn_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`আইকন নির্বাচন করুন`)
 };
 
 const ru_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Выбрать иконку`)
 };
 
 const ja_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
-};
-
-const pa_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`アイコンを選択`)
 };
 
 const vi_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Chọn biểu tượng`)
 };
 
 const yue_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`揀選圖示`)
 };
 
 const tr_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Simge Seç`)
 };
 
 const ar_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`اختيار أيقونة`)
 };
 
 const wuu_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`选择图标`)
 };
 
 const mr_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`आयकॉन निवडा`)
 };
 
 const nb_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Velg ikon`)
 };
 
 const fi_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Valitse kuvake`)
 };
 
 const da_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vælg ikon`)
 };
 
 const et_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vali ikoon`)
 };
 
 const lv_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Izvēlēties ikonu`)
 };
 
 const lt_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Pasirinkti piktogramą`)
 };
 
 const pl_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Wybierz ikonę`)
 };
 
 const de_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Icon auswählen`)
 };
 
 const nl_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Pictogram selecteren`)
 };
 
 const fr_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Sélectionner une icône`)
 };
 
 const it_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Seleziona icona`)
 };
 
 const hu_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Ikon kiválasztása`)
 };
 
 const cs_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vybrat ikonu`)
 };
 
 const ro_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Selectează pictogramă`)
 };
 
 const el_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Επιλογή εικονιδίου`)
 };
 
 const bg_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Избери икона`)
 };
 
 const hr_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Odaberi ikonu`)
 };
 
 const sr_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Izaberi ikonu`)
 };
 
 const sk_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Vybrať ikonu`)
 };
 
 const sl_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Select Icon`)
+	return /** @type {LocalizedString} */ (`Izberi ikono`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_selecticon1 = /** @type {(inputs: Settings_Selecticon1Inputs) 
 * | "Select Icon" |
 *
 * @param {Settings_Selecticon1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_selecticon1 = /** @type {((inputs?: Settings_Selecticon1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Selecticon1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const settings_selecticon1 = /** @type {((inputs?: Settings_Selecticon1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Selecticon1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_selecticon1(inputs)
 	if (locale === "sv") return sv_settings_selecticon1(inputs)
@@ -174,7 +170,6 @@ const settings_selecticon1 = /** @type {((inputs?: Settings_Selecticon1Inputs, o
 	if (locale === "bn") return bn_settings_selecticon1(inputs)
 	if (locale === "ru") return ru_settings_selecticon1(inputs)
 	if (locale === "ja") return ja_settings_selecticon1(inputs)
-	if (locale === "pa") return pa_settings_selecticon1(inputs)
 	if (locale === "vi") return vi_settings_selecticon1(inputs)
 	if (locale === "yue") return yue_settings_selecticon1(inputs)
 	if (locale === "tr") return tr_settings_selecticon1(inputs)

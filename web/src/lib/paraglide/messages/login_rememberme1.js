@@ -10,147 +10,143 @@ const en_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => Loc
 };
 
 const sv_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Kom ihåg mig`)
 };
 
 const uk_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Запам'ятати мене`)
 };
 
 const zh_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`记住我`)
 };
 
 const es_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Recordarme`)
 };
 
 const hi_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`मुझे याद रखें`)
 };
 
 const pt_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Lembrar-me`)
 };
 
 const bn_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`আমাকে মনে রাখুন`)
 };
 
 const ru_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Запомнить меня`)
 };
 
 const ja_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
-};
-
-const pa_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`ログイン状態を保持`)
 };
 
 const vi_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Ghi nhớ đăng nhập`)
 };
 
 const yue_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`記住我`)
 };
 
 const tr_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Beni hatırla`)
 };
 
 const ar_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`تذكرني`)
 };
 
 const wuu_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`记住我`)
 };
 
 const mr_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`मला लक्षात ठेवा`)
 };
 
 const nb_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Husk meg`)
 };
 
 const fi_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Muista minut`)
 };
 
 const da_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Husk mig`)
 };
 
 const et_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Jäta mind meelde`)
 };
 
 const lv_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Atcerēties mani`)
 };
 
 const lt_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Prisiminti mane`)
 };
 
 const pl_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Zapamiętaj mnie`)
 };
 
 const de_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Angemeldet bleiben`)
 };
 
 const nl_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Onthoud mij`)
 };
 
 const fr_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Se souvenir de moi`)
 };
 
 const it_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Ricordami`)
 };
 
 const hu_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Emlékezzen rám`)
 };
 
 const cs_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Zapamatovat si mě`)
 };
 
 const ro_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Ține-mă minte`)
 };
 
 const el_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Να με θυμάσαι`)
 };
 
 const bg_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Запомни ме`)
 };
 
 const hr_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Zapamti me`)
 };
 
 const sr_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Zapamti me`)
 };
 
 const sk_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Zapamätať si ma`)
 };
 
 const sl_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Remember me`)
+	return /** @type {LocalizedString} */ (`Zapomni si me`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_login_rememberme1 = /** @type {(inputs: Login_Rememberme1Inputs) => Loc
 * | "Remember me" |
 *
 * @param {Login_Rememberme1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const login_rememberme1 = /** @type {((inputs?: Login_Rememberme1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Rememberme1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const login_rememberme1 = /** @type {((inputs?: Login_Rememberme1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Login_Rememberme1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_login_rememberme1(inputs)
 	if (locale === "sv") return sv_login_rememberme1(inputs)
@@ -174,7 +170,6 @@ const login_rememberme1 = /** @type {((inputs?: Login_Rememberme1Inputs, options
 	if (locale === "bn") return bn_login_rememberme1(inputs)
 	if (locale === "ru") return ru_login_rememberme1(inputs)
 	if (locale === "ja") return ja_login_rememberme1(inputs)
-	if (locale === "pa") return pa_login_rememberme1(inputs)
 	if (locale === "vi") return vi_login_rememberme1(inputs)
 	if (locale === "yue") return yue_login_rememberme1(inputs)
 	if (locale === "tr") return tr_login_rememberme1(inputs)

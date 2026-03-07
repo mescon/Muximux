@@ -10,147 +10,143 @@ const en_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} 
 };
 
 const sv_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Mörkt`)
 };
 
 const uk_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Темна`)
 };
 
 const zh_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`深色`)
 };
 
 const es_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Oscuro`)
 };
 
 const hi_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`गहरी`)
 };
 
 const pt_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Escuro`)
 };
 
 const bn_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`গাঢ়`)
 };
 
 const ru_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Тёмная`)
 };
 
 const ja_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
-};
-
-const pa_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`ダーク`)
 };
 
 const vi_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tối`)
 };
 
 const yue_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`深色`)
 };
 
 const tr_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Koyu`)
 };
 
 const ar_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`داكن`)
 };
 
 const wuu_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`深色`)
 };
 
 const mr_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`गडद`)
 };
 
 const nb_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Mørkt`)
 };
 
 const fi_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tumma`)
 };
 
 const da_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Mørkt`)
 };
 
 const et_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tume`)
 };
 
 const lv_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tumšs`)
 };
 
 const lt_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tamsi`)
 };
 
 const pl_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Ciemny`)
 };
 
 const de_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Dunkel`)
 };
 
 const nl_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Donker`)
 };
 
 const fr_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Sombre`)
 };
 
 const it_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Scuro`)
 };
 
 const hu_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Sötét`)
 };
 
 const cs_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tmavý`)
 };
 
 const ro_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Întunecată`)
 };
 
 const el_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Σκούρο`)
 };
 
 const bg_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Тъмна`)
 };
 
 const hr_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tamno`)
 };
 
 const sr_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tamno`)
 };
 
 const sk_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Tmavý`)
 };
 
 const sl_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dark`)
+	return /** @type {LocalizedString} */ (`Temno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_theme_dark = /** @type {(inputs: Theme_DarkInputs) => LocalizedString} 
 * | "Dark" |
 *
 * @param {Theme_DarkInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const theme_dark = /** @type {((inputs?: Theme_DarkInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_DarkInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const theme_dark = /** @type {((inputs?: Theme_DarkInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Theme_DarkInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_theme_dark(inputs)
 	if (locale === "sv") return sv_theme_dark(inputs)
@@ -174,7 +170,6 @@ export const theme_dark = /** @type {((inputs?: Theme_DarkInputs, options?: { lo
 	if (locale === "bn") return bn_theme_dark(inputs)
 	if (locale === "ru") return ru_theme_dark(inputs)
 	if (locale === "ja") return ja_theme_dark(inputs)
-	if (locale === "pa") return pa_theme_dark(inputs)
 	if (locale === "vi") return vi_theme_dark(inputs)
 	if (locale === "yue") return yue_theme_dark(inputs)
 	if (locale === "tr") return tr_theme_dark(inputs)

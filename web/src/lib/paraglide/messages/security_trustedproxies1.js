@@ -10,147 +10,143 @@ const en_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1
 };
 
 const sv_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Betrodda proxy-IP:n`)
 };
 
 const uk_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Довірені IP proxy`)
 };
 
 const zh_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`受信任的代理 IP`)
 };
 
 const es_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IPs de proxy de confianza`)
 };
 
 const hi_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`विश्वसनीय proxy IP`)
 };
 
 const pt_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IPs de proxy de confiança`)
 };
 
 const bn_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`বিশ্বস্ত proxy IP`)
 };
 
 const ru_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Доверенные IP proxy`)
 };
 
 const ja_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
-};
-
-const pa_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`信頼済みプロキシ IP`)
 };
 
 const vi_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP proxy đáng tin cậy`)
 };
 
 const yue_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`受信任嘅代理 IP`)
 };
 
 const tr_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Güvenilir proxy IP'leri`)
 };
 
 const ar_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`عناوين IP الموثوقة لـ proxy`)
 };
 
 const wuu_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`受信任的代理 IP`)
 };
 
 const mr_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`विश्वसनीय प्रॉक्सी IPs`)
 };
 
 const nb_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Betrodde proxy-IP-er`)
 };
 
 const fi_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Luotetut proxy-IP:t`)
 };
 
 const da_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Betroede proxy-IP'er`)
 };
 
 const et_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Usaldatud proxy IP-d`)
 };
 
 const lv_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Uzticamu proxy IP adreses`)
 };
 
 const lt_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Patikimi proxy IP`)
 };
 
 const pl_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Zaufane adresy IP proxy`)
 };
 
 const de_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Vertrauenswürdige Proxy-IPs`)
 };
 
 const nl_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Vertrouwde proxy-IP's`)
 };
 
 const fr_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP de proxy de confiance`)
 };
 
 const it_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP proxy attendibili`)
 };
 
 const hu_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Megbízható proxy IP-k`)
 };
 
 const cs_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Důvěryhodné IP adresy proxy`)
 };
 
 const ro_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP-uri proxy de încredere`)
 };
 
 const el_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Αξιόπιστες IP proxy`)
 };
 
 const bg_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Доверени proxy IP адреси`)
 };
 
 const hr_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP adrese pouzdanih proxy poslužitelja`)
 };
 
 const sr_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP adrese pouzdanih proxy servera`)
 };
 
 const sk_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`Dôveryhodné IP adresy proxy`)
 };
 
 const sl_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Trusted proxy IPs`)
+	return /** @type {LocalizedString} */ (`IP naslovi zaupanja vrednih proxy strežnikov`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_security_trustedproxies1 = /** @type {(inputs: Security_Trustedproxies1
 * | "Trusted proxy IPs" |
 *
 * @param {Security_Trustedproxies1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const security_trustedproxies1 = /** @type {((inputs?: Security_Trustedproxies1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Trustedproxies1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const security_trustedproxies1 = /** @type {((inputs?: Security_Trustedproxies1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Trustedproxies1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_security_trustedproxies1(inputs)
 	if (locale === "sv") return sv_security_trustedproxies1(inputs)
@@ -174,7 +170,6 @@ const security_trustedproxies1 = /** @type {((inputs?: Security_Trustedproxies1I
 	if (locale === "bn") return bn_security_trustedproxies1(inputs)
 	if (locale === "ru") return ru_security_trustedproxies1(inputs)
 	if (locale === "ja") return ja_security_trustedproxies1(inputs)
-	if (locale === "pa") return pa_security_trustedproxies1(inputs)
 	if (locale === "vi") return vi_security_trustedproxies1(inputs)
 	if (locale === "yue") return yue_security_trustedproxies1(inputs)
 	if (locale === "tr") return tr_security_trustedproxies1(inputs)

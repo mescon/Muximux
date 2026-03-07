@@ -10,147 +10,143 @@ const en_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2In
 };
 
 const sv_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Visning`)
 };
 
 const uk_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Відображення`)
 };
 
 const zh_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`显示`)
 };
 
 const es_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Visualización`)
 };
 
 const hi_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`प्रदर्शन`)
 };
 
 const pt_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Exibição`)
 };
 
 const bn_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`প্রদর্শন`)
 };
 
 const ru_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Отображение`)
 };
 
 const ja_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
-};
-
-const pa_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`表示`)
 };
 
 const vi_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Hiển thị`)
 };
 
 const yue_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`顯示`)
 };
 
 const tr_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Görünüm`)
 };
 
 const ar_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`العرض`)
 };
 
 const wuu_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`显示`)
 };
 
 const mr_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`प्रदर्शन`)
 };
 
 const nb_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Visning`)
 };
 
 const fi_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Näyttö`)
 };
 
 const da_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Visning`)
 };
 
 const et_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Kuva`)
 };
 
 const lv_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Attēlošana`)
 };
 
 const lt_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Rodymas`)
 };
 
 const pl_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Wyświetlanie`)
 };
 
 const de_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Anzeige`)
 };
 
 const nl_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Weergave`)
 };
 
 const fr_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Affichage`)
 };
 
 const it_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Visualizzazione`)
 };
 
 const hu_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Megjelenítés`)
 };
 
 const cs_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Zobrazení`)
 };
 
 const ro_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Afișare`)
 };
 
 const el_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Εμφάνιση`)
 };
 
 const bg_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Показване`)
 };
 
 const hr_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Prikaz`)
 };
 
 const sr_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Prikaz`)
 };
 
 const sk_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Zobrazenie`)
 };
 
 const sl_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Display`)
+	return /** @type {LocalizedString} */ (`Prikaz`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_sectiondisplay2 = /** @type {(inputs: Appform_Sectiondisplay2In
 * | "Display" |
 *
 * @param {Appform_Sectiondisplay2Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_sectiondisplay2 = /** @type {((inputs?: Appform_Sectiondisplay2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Sectiondisplay2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_sectiondisplay2 = /** @type {((inputs?: Appform_Sectiondisplay2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Sectiondisplay2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_sectiondisplay2(inputs)
 	if (locale === "sv") return sv_appform_sectiondisplay2(inputs)
@@ -174,7 +170,6 @@ const appform_sectiondisplay2 = /** @type {((inputs?: Appform_Sectiondisplay2Inp
 	if (locale === "bn") return bn_appform_sectiondisplay2(inputs)
 	if (locale === "ru") return ru_appform_sectiondisplay2(inputs)
 	if (locale === "ja") return ja_appform_sectiondisplay2(inputs)
-	if (locale === "pa") return pa_appform_sectiondisplay2(inputs)
 	if (locale === "vi") return vi_appform_sectiondisplay2(inputs)
 	if (locale === "yue") return yue_appform_sectiondisplay2(inputs)
 	if (locale === "tr") return tr_appform_sectiondisplay2(inputs)

@@ -10,147 +10,143 @@ const en_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) =>
 };
 
 const sv_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Redigera ${i?.groupName}`)
 };
 
 const uk_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Редагувати ${i?.groupName}`)
 };
 
 const zh_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`编辑 ${i?.groupName}`)
 };
 
 const es_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Editar ${i?.groupName}`)
 };
 
 const hi_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} संपादित करें`)
 };
 
 const pt_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Editar ${i?.groupName}`)
 };
 
 const bn_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} সম্পাদনা করুন`)
 };
 
 const ru_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Редактировать ${i?.groupName}`)
 };
 
 const ja_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
-};
-
-const pa_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} を編集`)
 };
 
 const vi_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Sửa ${i?.groupName}`)
 };
 
 const yue_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`編輯 ${i?.groupName}`)
 };
 
 const tr_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} Düzenle`)
 };
 
 const ar_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`تعديل ${i?.groupName}`)
 };
 
 const wuu_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`编辑 ${i?.groupName}`)
 };
 
 const mr_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} संपादित करा`)
 };
 
 const nb_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Rediger ${i?.groupName}`)
 };
 
 const fi_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Muokkaa ${i?.groupName}`)
 };
 
 const da_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Rediger ${i?.groupName}`)
 };
 
 const et_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Muuda gruppi ${i?.groupName}`)
 };
 
 const lv_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Rediģēt ${i?.groupName}`)
 };
 
 const lt_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Redaguoti ${i?.groupName}`)
 };
 
 const pl_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Edytuj ${i?.groupName}`)
 };
 
 const de_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} bearbeiten`)
 };
 
 const nl_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} bewerken`)
 };
 
 const fr_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Modifier ${i?.groupName}`)
 };
 
 const it_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Modifica ${i?.groupName}`)
 };
 
 const hu_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`${i?.groupName} szerkesztése`)
 };
 
 const cs_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Upravit ${i?.groupName}`)
 };
 
 const ro_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Editează ${i?.groupName}`)
 };
 
 const el_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Επεξεργασία ${i?.groupName}`)
 };
 
 const bg_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Редактирай ${i?.groupName}`)
 };
 
 const hr_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Uredi ${i?.groupName}`)
 };
 
 const sr_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Uredi ${i?.groupName}`)
 };
 
 const sk_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Upraviť ${i?.groupName}`)
 };
 
 const sl_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) => LocalizedString} */ (i) => {
-	return /** @type {LocalizedString} */ (`Edit ${i?.groupName}`)
+	return /** @type {LocalizedString} */ (`Uredi ${i?.groupName}`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_settings_editgroup1 = /** @type {(inputs: Settings_Editgroup1Inputs) =>
 * | "Edit {groupName}" |
 *
 * @param {Settings_Editgroup1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const settings_editgroup1 = /** @type {((inputs: Settings_Editgroup1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Editgroup1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
+const settings_editgroup1 = /** @type {((inputs: Settings_Editgroup1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_Editgroup1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_settings_editgroup1(inputs)
 	if (locale === "sv") return sv_settings_editgroup1(inputs)
@@ -174,7 +170,6 @@ const settings_editgroup1 = /** @type {((inputs: Settings_Editgroup1Inputs, opti
 	if (locale === "bn") return bn_settings_editgroup1(inputs)
 	if (locale === "ru") return ru_settings_editgroup1(inputs)
 	if (locale === "ja") return ja_settings_editgroup1(inputs)
-	if (locale === "pa") return pa_settings_editgroup1(inputs)
 	if (locale === "vi") return vi_settings_editgroup1(inputs)
 	if (locale === "yue") return yue_settings_editgroup1(inputs)
 	if (locale === "tr") return tr_settings_editgroup1(inputs)

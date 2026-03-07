@@ -10,147 +10,143 @@ const en_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} 
 };
 
 const sv_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ja`)
 };
 
 const uk_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Так`)
 };
 
 const zh_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`是`)
 };
 
 const es_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Sí`)
 };
 
 const hi_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`हाँ`)
 };
 
 const pt_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Sim`)
 };
 
 const bn_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`হ্যাঁ`)
 };
 
 const ru_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Да`)
 };
 
 const ja_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
-};
-
-const pa_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`はい`)
 };
 
 const vi_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Có`)
 };
 
 const yue_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`係`)
 };
 
 const tr_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Evet`)
 };
 
 const ar_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`نعم`)
 };
 
 const wuu_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`是`)
 };
 
 const mr_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`होय`)
 };
 
 const nb_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ja`)
 };
 
 const fi_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Kyllä`)
 };
 
 const da_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ja`)
 };
 
 const et_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Jah`)
 };
 
 const lv_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Jā`)
 };
 
 const lt_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Taip`)
 };
 
 const pl_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Tak`)
 };
 
 const de_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ja`)
 };
 
 const nl_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ja`)
 };
 
 const fr_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Oui`)
 };
 
 const it_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Sì`)
 };
 
 const hu_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Igen`)
 };
 
 const cs_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ano`)
 };
 
 const ro_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Da`)
 };
 
 const el_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Ναι`)
 };
 
 const bg_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Да`)
 };
 
 const hr_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Da`)
 };
 
 const sr_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Da`)
 };
 
 const sk_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Áno`)
 };
 
 const sl_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Yes`)
+	return /** @type {LocalizedString} */ (`Da`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_common_yes = /** @type {(inputs: Common_YesInputs) => LocalizedString} 
 * | "Yes" |
 *
 * @param {Common_YesInputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-export const common_yes = /** @type {((inputs?: Common_YesInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_YesInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+export const common_yes = /** @type {((inputs?: Common_YesInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Common_YesInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_common_yes(inputs)
 	if (locale === "sv") return sv_common_yes(inputs)
@@ -174,7 +170,6 @@ export const common_yes = /** @type {((inputs?: Common_YesInputs, options?: { lo
 	if (locale === "bn") return bn_common_yes(inputs)
 	if (locale === "ru") return ru_common_yes(inputs)
 	if (locale === "ja") return ja_common_yes(inputs)
-	if (locale === "pa") return pa_common_yes(inputs)
 	if (locale === "vi") return vi_common_yes(inputs)
 	if (locale === "yue") return yue_common_yes(inputs)
 	if (locale === "tr") return tr_common_yes(inputs)

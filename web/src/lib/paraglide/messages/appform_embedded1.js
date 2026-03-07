@@ -10,147 +10,143 @@ const en_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => Loc
 };
 
 const sv_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Inbäddad`)
 };
 
 const uk_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Вбудований`)
 };
 
 const zh_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`嵌入`)
 };
 
 const es_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Integrada`)
 };
 
 const hi_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`एम्बेडेड`)
 };
 
 const pt_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Integrada`)
 };
 
 const bn_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`এম্বেডেড`)
 };
 
 const ru_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Встроенный`)
 };
 
 const ja_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
-};
-
-const pa_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`埋め込み`)
 };
 
 const vi_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Nhúng`)
 };
 
 const yue_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`嵌入`)
 };
 
 const tr_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Gömülü`)
 };
 
 const ar_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`مضمّن`)
 };
 
 const wuu_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`内嵌`)
 };
 
 const mr_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`एम्बेडेड`)
 };
 
 const nb_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Innebygd`)
 };
 
 const fi_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Upotettu`)
 };
 
 const da_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Indlejret`)
 };
 
 const et_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Manustatud`)
 };
 
 const lv_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Iegults`)
 };
 
 const lt_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Įterptinė`)
 };
 
 const pl_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Osadzony`)
 };
 
 const de_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Eingebettet`)
 };
 
 const nl_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Ingebed`)
 };
 
 const fr_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Intégré`)
 };
 
 const it_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Incorporata`)
 };
 
 const hu_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Beágyazott`)
 };
 
 const cs_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Vložený`)
 };
 
 const ro_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Încorporat`)
 };
 
 const el_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Ενσωματωμένο`)
 };
 
 const bg_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Вградено`)
 };
 
 const hr_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Ugrađeno`)
 };
 
 const sr_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Ugrađeno`)
 };
 
 const sk_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Vložený`)
 };
 
 const sl_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Embedded`)
+	return /** @type {LocalizedString} */ (`Vgrajeno`)
 };
 
 /**
@@ -159,10 +155,10 @@ const sl_appform_embedded1 = /** @type {(inputs: Appform_Embedded1Inputs) => Loc
 * | "Embedded" |
 *
 * @param {Appform_Embedded1Inputs} inputs
-* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
 * @returns {LocalizedString}
 */
-const appform_embedded1 = /** @type {((inputs?: Appform_Embedded1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Embedded1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+const appform_embedded1 = /** @type {((inputs?: Appform_Embedded1Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Appform_Embedded1Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
 	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
 	if (locale === "en") return en_appform_embedded1(inputs)
 	if (locale === "sv") return sv_appform_embedded1(inputs)
@@ -174,7 +170,6 @@ const appform_embedded1 = /** @type {((inputs?: Appform_Embedded1Inputs, options
 	if (locale === "bn") return bn_appform_embedded1(inputs)
 	if (locale === "ru") return ru_appform_embedded1(inputs)
 	if (locale === "ja") return ja_appform_embedded1(inputs)
-	if (locale === "pa") return pa_appform_embedded1(inputs)
 	if (locale === "vi") return vi_appform_embedded1(inputs)
 	if (locale === "yue") return yue_appform_embedded1(inputs)
 	if (locale === "tr") return tr_appform_embedded1(inputs)
