@@ -372,6 +372,13 @@ func getDirectIP(r *http.Request) string {
 	return host
 }
 
+// GetClientIP returns the real client IP for the given request,
+// respecting X-Forwarded-For / X-Real-IP when the request arrives
+// from a trusted proxy.
+func (m *Middleware) GetClientIP(r *http.Request) string {
+	return getClientIP(r, m.snapshot())
+}
+
 func getClientIP(r *http.Request, snap *authSnapshot) string {
 	if isFromTrustedProxy(r, snap) {
 		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {

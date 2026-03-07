@@ -1247,8 +1247,10 @@ func TestRegisterAuthRoutes(t *testing.T) {
 	wsHub := websocket.NewHub()
 	go wsHub.Run()
 
+	am := auth.NewMiddleware(&auth.AuthConfig{}, ss, us)
+
 	mux := http.NewServeMux()
-	registerAuthRoutes(mux, authHandler, wsHub)
+	registerAuthRoutes(mux, authHandler, wsHub, am)
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()

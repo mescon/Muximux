@@ -124,9 +124,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		}
 	})
 
-	s.loginLimiter = registerAuthRoutes(mux, authHandler, wsHub)
+	s.loginLimiter = registerAuthRoutes(mux, authHandler, wsHub, authMiddleware)
 
-	s.setupLimiter = newRateLimiter(5, 1*time.Minute)
+	s.setupLimiter = newRateLimiter(5, 1*time.Minute, authMiddleware.GetClientIP)
 	mux.HandleFunc("/api/auth/setup", s.setupLimiter.wrap(s.handleSetup))
 	mux.HandleFunc("/api/config/restore", s.setupLimiter.wrap(s.handleConfigRestore))
 
@@ -340,8 +340,8 @@ func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *a
 }
 
 // registerAuthRoutes registers authentication and WebSocket endpoints.
-func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, wsHub *websocket.Hub) *rateLimiter {
-	loginLimiter := newRateLimiter(5, 1*time.Minute)
+func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, wsHub *websocket.Hub, authMiddleware *auth.Middleware) *rateLimiter {
+	loginLimiter := newRateLimiter(5, 1*time.Minute, authMiddleware.GetClientIP)
 	mux.HandleFunc("/api/auth/login", loginLimiter.wrap(authHandler.Login))
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
 	mux.HandleFunc("/api/auth/status", authHandler.AuthStatus)
@@ -1387,14 +1387,16 @@ type rateLimiter struct {
 	max      int
 	window   time.Duration
 	done     chan struct{}
+	ipFunc   func(*http.Request) string // extracts real client IP
 }
 
-func newRateLimiter(max int, window time.Duration) *rateLimiter {
+func newRateLimiter(max int, window time.Duration, ipFunc func(*http.Request) string) *rateLimiter {
 	rl := &rateLimiter{
 		attempts: make(map[string][]time.Time),
 		max:      max,
 		window:   window,
 		done:     make(chan struct{}),
+		ipFunc:   ipFunc,
 	}
 	go rl.cleanup()
 	return rl
@@ -1473,9 +1475,15 @@ func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {
 			return
 		}
 
-		ip, _, _ := net.SplitHostPort(r.RemoteAddr)
+		var ip string
+		if rl.ipFunc != nil {
+			ip = rl.ipFunc(r)
+		}
 		if ip == "" {
-			ip = r.RemoteAddr
+			ip, _, _ = net.SplitHostPort(r.RemoteAddr)
+			if ip == "" {
+				ip = r.RemoteAddr
+			}
 		}
 		if !rl.allow(ip) {
 			logging.From(r.Context()).Warn("Rate limit exceeded", "source", "server", "ip", ip, "path", r.URL.Path)

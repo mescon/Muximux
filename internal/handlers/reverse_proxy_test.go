@@ -555,7 +555,7 @@ func TestProxyServeHTTP(t *testing.T) {
 		{
 			name:           "invalid proxy path",
 			path:           "/proxy/",
-			expectedStatus: http.StatusNotFound,
+			expectedStatus: http.StatusBadRequest,
 		},
 	}
 

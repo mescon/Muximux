@@ -314,6 +314,7 @@
         const link = document.createElement('link');
         link.rel = 'manifest';
         link.href = './manifest.json';
+        link.crossOrigin = 'use-credentials';
         document.head.appendChild(link);
       }
 

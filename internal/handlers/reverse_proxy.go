@@ -1195,12 +1195,12 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	path := strings.TrimPrefix(r.URL.Path, proxyPathPrefix)
 	parts := strings.SplitN(path, "/", 2)
-	if len(parts) == 0 {
+	slug := parts[0]
+
+	if slug == "" {
 		respondError(w, r, http.StatusBadRequest, "Invalid proxy path")
 		return
 	}
-
-	slug := parts[0]
 
 	h.mu.RLock()
 	route, exists := h.routes[slug]

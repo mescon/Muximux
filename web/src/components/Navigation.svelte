@@ -530,10 +530,13 @@
   function handleResizeMove(e: PointerEvent) {
     if (!isResizing) return;
 
+    const isRTL = document.documentElement.dir === 'rtl';
     if (effectivePosition === 'left') {
-      sidebarWidth = Math.min(maxWidth, Math.max(minWidth, e.clientX));
+      const x = isRTL ? window.innerWidth - e.clientX : e.clientX;
+      sidebarWidth = Math.min(maxWidth, Math.max(minWidth, x));
     } else if (effectivePosition === 'right') {
-      sidebarWidth = Math.min(maxWidth, Math.max(minWidth, window.innerWidth - e.clientX));
+      const x = isRTL ? e.clientX : window.innerWidth - e.clientX;
+      sidebarWidth = Math.min(maxWidth, Math.max(minWidth, x));
     }
   }
 
@@ -582,7 +585,8 @@
     // Don't setup sidebar edge swipe when floating is forced on mobile
     if (effectivePosition === 'floating') return;
 
-    const edge = effectivePosition === 'right' ? 'right' : 'left';
+    const isRTL = document.documentElement.dir === 'rtl';
+    const edge = (effectivePosition === 'right') !== isRTL ? 'right' : 'left';
     edgeSwipeHandlers = createEdgeSwipeHandlers(
       edge,
       () => { mobileMenuOpen = true; },
@@ -1076,7 +1080,7 @@
       style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow && !isMobile ? '4px 0 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide && !isMobile ? 'absolute' : null}
       style:top={config.navigation.auto_hide && !isMobile ? '0' : null}
-      style:left={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:inset-inline-start={config.navigation.auto_hide && !isMobile ? '0' : null}
       style:bottom={config.navigation.auto_hide && !isMobile ? '0' : null}
       style:z-index={config.navigation.auto_hide && !isMobile ? '30' : null}
     >
@@ -1479,7 +1483,7 @@
       style:box-shadow={config.navigation.auto_hide && config.navigation.show_shadow && !isMobile ? '-4px 0 24px rgba(0,0,0,0.25)' : null}
       style:position={config.navigation.auto_hide && !isMobile ? 'absolute' : null}
       style:top={config.navigation.auto_hide && !isMobile ? '0' : null}
-      style:right={config.navigation.auto_hide && !isMobile ? '0' : null}
+      style:inset-inline-end={config.navigation.auto_hide && !isMobile ? '0' : null}
       style:bottom={config.navigation.auto_hide && !isMobile ? '0' : null}
       style:z-index={config.navigation.auto_hide && !isMobile ? '30' : null}
     >

@@ -429,21 +429,11 @@
     if (iconBrowserTarget === 'newApp') {
       newApp = { ...newApp, icon: iconData };
     } else if (iconBrowserTarget === 'editApp' && editingApp) {
-      // Replace in dndGroupedApps and editingApp with the same new object
-      const updated = { ...editingApp, icon: iconData };
-      for (const apps of Object.values(dndGroupedApps)) {
-        const idx = apps.indexOf(editingApp);
-        if (idx !== -1) { apps[idx] = updated; break; }
-      }
-      editingApp = updated;
+      editingApp.icon = iconData;
     } else if (iconBrowserTarget === 'newGroup') {
       newGroup = { ...newGroup, icon: iconData };
     } else if (iconBrowserTarget === 'editGroup' && editingGroup) {
-      // Replace in dndGroups and editingGroup with the same new object
-      const updated = { ...editingGroup, icon: iconData };
-      const idx = dndGroups.indexOf(editingGroup);
-      if (idx !== -1) dndGroups[idx] = updated;
-      editingGroup = updated;
+      editingGroup.icon = iconData;
     }
     showIconBrowser = false;
     iconBrowserTarget = null;
