@@ -1,5 +1,6 @@
 import { writable, derived, get } from 'svelte/store';
 import type { KeyCombo, KeybindingsConfig } from './types';
+import * as m from '$lib/paraglide/messages.js';
 
 // Re-export KeyCombo for convenience
 export { type KeyCombo } from './types';
@@ -46,51 +47,41 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // Navigation
   {
     action: 'search',
-    label: 'Command Palette',
-    description: 'Open the command palette',
-    combos: [
-      { key: 'k', ctrl: true }
-    ],
+    get label() { return m.keybindings_searchLabel(); },
+    get description() { return m.keybindings_searchDesc(); },
+    combos: [{ key: 'k', ctrl: true }],
     category: 'navigation',
     editable: true
   },
   {
     action: 'settings',
-    label: 'Open Settings',
-    description: 'Open the settings panel',
-    combos: [
-      { key: 's' }
-    ],
+    get label() { return m.keybindings_settingsLabel(); },
+    get description() { return m.keybindings_settingsDesc(); },
+    combos: [{ key: 's' }],
     category: 'navigation',
     editable: true
   },
   {
     action: 'shortcuts',
-    label: 'Show Shortcuts',
-    description: 'Show keyboard shortcuts help',
-    combos: [
-      { key: '?' }
-    ],
+    get label() { return m.keybindings_shortcutsLabel(); },
+    get description() { return m.keybindings_shortcutsDesc(); },
+    combos: [{ key: '?' }],
     category: 'navigation',
     editable: true
   },
   {
     action: 'home',
-    label: 'Go Home',
-    description: 'Return to the splash screen',
-    combos: [
-      { key: 'h' }
-    ],
+    get label() { return m.keybindings_homeLabel(); },
+    get description() { return m.keybindings_homeDesc(); },
+    combos: [{ key: 'h' }],
     category: 'navigation',
     editable: true
   },
   {
     action: 'logs',
-    label: 'View Logs',
-    description: 'Open the log viewer',
-    combos: [
-      { key: 'l' }
-    ],
+    get label() { return m.keybindings_logsLabel(); },
+    get description() { return m.keybindings_logsDesc(); },
+    combos: [{ key: 'l' }],
     category: 'navigation',
     editable: true
   },
@@ -98,118 +89,46 @@ export const DEFAULT_KEYBINDINGS: Keybinding[] = [
   // Actions
   {
     action: 'refresh',
-    label: 'Refresh App',
-    description: 'Refresh the current app iframe',
-    combos: [
-      { key: 'r' }
-    ],
+    get label() { return m.keybindings_refreshLabel(); },
+    get description() { return m.keybindings_refreshDesc(); },
+    combos: [{ key: 'r' }],
     category: 'actions',
     editable: true
   },
   {
     action: 'fullscreen',
-    label: 'Toggle Fullscreen',
-    description: 'Hide/show navigation for fullscreen mode',
-    combos: [
-      { key: 'f' }
-    ],
+    get label() { return m.keybindings_fullscreenLabel(); },
+    get description() { return m.keybindings_fullscreenDesc(); },
+    combos: [{ key: 'f' }],
     category: 'actions',
     editable: true
   },
   {
     action: 'nextApp',
-    label: 'Next App',
-    description: 'Switch to the next app in the list',
-    combos: [
-      { key: 'n' }
-    ],
+    get label() { return m.keybindings_nextAppLabel(); },
+    get description() { return m.keybindings_nextAppDesc(); },
+    combos: [{ key: 'n' }],
     category: 'actions',
     editable: true
   },
   {
     action: 'prevApp',
-    label: 'Previous App',
-    description: 'Switch to the previous app in the list',
-    combos: [
-      { key: 'p' }
-    ],
+    get label() { return m.keybindings_prevAppLabel(); },
+    get description() { return m.keybindings_prevAppDesc(); },
+    combos: [{ key: 'p' }],
     category: 'actions',
     editable: true
   },
 
   // App quick access (1-9)
-  {
-    action: 'app1',
-    label: 'App 1',
-    description: 'Switch to app #1',
-    combos: [{ key: '1' }],
-    category: 'apps',
+  ...Array.from({ length: 9 }, (_, i) => ({
+    action: `app${i + 1}` as KeyAction,
+    get label() { return m.keybindings_appLabel({ number: String(i + 1) }); },
+    get description() { return m.keybindings_appDesc({ number: String(i + 1) }); },
+    combos: [{ key: String(i + 1) }],
+    category: 'apps' as const,
     editable: true
-  },
-  {
-    action: 'app2',
-    label: 'App 2',
-    description: 'Switch to app #2',
-    combos: [{ key: '2' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app3',
-    label: 'App 3',
-    description: 'Switch to app #3',
-    combos: [{ key: '3' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app4',
-    label: 'App 4',
-    description: 'Switch to app #4',
-    combos: [{ key: '4' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app5',
-    label: 'App 5',
-    description: 'Switch to app #5',
-    combos: [{ key: '5' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app6',
-    label: 'App 6',
-    description: 'Switch to app #6',
-    combos: [{ key: '6' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app7',
-    label: 'App 7',
-    description: 'Switch to app #7',
-    combos: [{ key: '7' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app8',
-    label: 'App 8',
-    description: 'Switch to app #8',
-    combos: [{ key: '8' }],
-    category: 'apps',
-    editable: true
-  },
-  {
-    action: 'app9',
-    label: 'App 9',
-    description: 'Switch to app #9',
-    combos: [{ key: '9' }],
-    category: 'apps',
-    editable: true
-  }
+  }))
 ];
 
 /**

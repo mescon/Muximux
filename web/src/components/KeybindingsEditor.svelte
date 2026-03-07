@@ -14,6 +14,7 @@
     findConflicts,
     comboEquals
   } from '$lib/keybindingsStore';
+  import * as m from '$lib/paraglide/messages.js';
 
   // Props
   let {
@@ -29,10 +30,10 @@
   let conflicts = $state<Keybinding[]>([]);
 
   // Category labels
-  const categoryLabels: Record<string, string> = {
-    navigation: 'Navigation',
-    actions: 'Actions',
-    apps: 'App Quick Access'
+  const categoryLabels: Record<string, () => string> = {
+    navigation: () => m.keybindings_categoryNavigation(),
+    actions: () => m.keybindings_categoryActions(),
+    apps: () => m.keybindings_categoryApps()
   };
 
   // Group bindings by category
@@ -140,21 +141,21 @@
   <!-- Header with reset button -->
   <div class="flex items-center justify-between">
     <p class="text-sm text-text-muted">
-      Click a keybinding to change it. Press Escape to cancel.
+      {m.keybindings_hint()}
     </p>
     {#if confirmResetAll}
       <div class="flex items-center gap-2">
-        <span class="text-sm text-red-400">Reset all keybindings?</span>
+        <span class="text-sm text-red-400">{m.keybindings_resetAllConfirm()}</span>
         <button
           type="button"
           class="px-2 py-1 text-xs rounded bg-red-600 hover:bg-red-500 text-white"
           onclick={confirmResetAllAction}
-        >Yes, Reset</button>
+        >{m.keybindings_yesReset()}</button>
         <button
           type="button"
           class="px-2 py-1 text-xs rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
           onclick={() => confirmResetAll = false}
-        >Cancel</button>
+        >{m.common_cancel()}</button>
       </div>
     {:else}
       <button
@@ -162,7 +163,7 @@
         class="text-sm text-text-muted hover:text-text-primary transition-colors"
         onclick={handleResetAll}
       >
-        Reset All to Defaults
+        {m.keybindings_resetAllDefaults()}
       </button>
     {/if}
   </div>
@@ -171,7 +172,7 @@
   {#each Object.entries(groupedBindings) as [category, bindings] (category)}
     <div>
       <h4 class="text-sm font-semibold text-text-muted uppercase tracking-wider mb-3">
-        {categoryLabels[category] || category}
+        {categoryLabels[category]?.() || category}
       </h4>
 
       <div class="space-y-2">
@@ -184,13 +185,13 @@
               <div class="flex items-center gap-2">
                 <span class="text-text-primary">{binding.label}</span>
                 {#if isCustomized(binding.action)}
-                  <span class="text-xs text-brand-400">(customized)</span>
+                  <span class="text-xs text-brand-400">{m.keybindings_customized()}</span>
                 {/if}
               </div>
               <p class="text-xs text-text-disabled mt-0.5">{binding.description}</p>
             </div>
 
-            <div class="flex items-center gap-2 ml-4">
+            <div class="flex items-center gap-2 ms-4">
               <!-- Key combos -->
               <div class="flex flex-wrap gap-1.5 justify-end">
                 {#each binding.combos as combo, i (i)}
@@ -204,7 +205,7 @@
                           </kbd>
                         {:else}
                           <kbd class="px-2 py-1 text-xs bg-bg-overlay border border-border-strong rounded text-text-secondary font-mono animate-pulse">
-                            Press keys...
+                            {m.keybindings_pressKeys()}
                           </kbd>
                         {/if}
                       </div>
@@ -229,7 +230,7 @@
                             onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
                             tabindex="0"
-                            title="Remove this shortcut"
+                            title={m.keybindings_removeShortcut()}
                           >
                             <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -239,7 +240,7 @@
                       </div>
                     {/if}
                     {#if i < binding.combos.length - 1}
-                      <span class="text-text-disabled text-xs mx-1">or</span>
+                      <span class="text-text-disabled text-xs mx-1">{m.common_or()}</span>
                     {/if}
                   </div>
                 {/each}
@@ -250,7 +251,7 @@
                     type="button"
                     class="p-1 text-text-disabled hover:text-text-secondary transition-colors"
                     onclick={() => startCapture(binding.action, null)}
-                    title="Add alternative shortcut"
+                    title={m.keybindings_addAlternative()}
                   >
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -261,7 +262,7 @@
                 <!-- Adding new combo -->
                 {#if capturingAction === binding.action && capturingIndex === null}
                   <div class="flex items-center gap-1">
-                    <span class="text-text-disabled text-xs mx-1">or</span>
+                    <span class="text-text-disabled text-xs mx-1">{m.common_or()}</span>
                     {#if capturedCombo}
                       <kbd class="px-2 py-1 text-xs bg-brand-600 border border-brand-500 rounded text-white font-mono">
                         {formatKeyCombo(capturedCombo)}
@@ -281,7 +282,7 @@
                   type="button"
                   class="p-1 text-text-disabled hover:text-yellow-400 transition-colors"
                   onclick={() => handleResetBinding(binding.action)}
-                  title="Reset to default"
+                  title={m.keybindings_resetToDefault()}
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -303,7 +304,7 @@
     <div class="keybinding-modal rounded-xl shadow-2xl w-full max-w-md mx-4 overflow-hidden">
       <div class="p-6">
         <h3 class="text-lg font-semibold mb-4" style="color: var(--text-primary);">
-          Set Keybinding
+          {m.keybindings_setKeybinding()}
         </h3>
 
         <div class="text-center mb-6">
@@ -315,10 +316,10 @@
         {#if conflicts.length > 0}
           <div class="keybinding-conflict rounded-lg p-3 mb-4">
             <p class="text-sm font-medium mb-1" style="color: var(--status-warning);">
-              Conflict detected
+              {m.keybindings_conflictDetected()}
             </p>
             <p class="text-xs" style="color: var(--text-secondary);">
-              This shortcut is already used by:
+              {m.keybindings_conflictDesc()}
               {conflicts.map(c => c.label).join(', ')}
             </p>
           </div>
@@ -330,14 +331,14 @@
             class="keybinding-btn-cancel flex-1 px-4 py-2 rounded-lg transition-colors"
             onclick={cancelCapture}
           >
-            Cancel
+            {m.common_cancel()}
           </button>
           <button
             type="button"
             class="keybinding-btn-confirm flex-1 px-4 py-2 rounded-lg transition-colors"
             onclick={confirmCapture}
           >
-            {conflicts.length > 0 ? 'Use Anyway' : 'Confirm'}
+            {conflicts.length > 0 ? m.keybindings_useAnyway() : m.common_confirm()}
           </button>
         </div>
       </div>

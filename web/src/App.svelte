@@ -22,6 +22,9 @@
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { initDebug, debug } from './lib/debug';
   import { syncFaviconsWithTheme } from './lib/favicon';
+  import { syncLocaleFromConfig } from './lib/localeStore';
+  import { getLocale } from '$lib/paraglide/runtime.js';
+  import * as m from '$lib/paraglide/messages.js';
   import { splitState, enableSplit, disableSplit, setActivePanel, setPanelApp, updateDividerPosition, resetSplit } from './lib/splitStore.svelte';
   import SplitDivider from './components/SplitDivider.svelte';
 
@@ -122,13 +125,13 @@
 
     let appTitle: string;
     if (splitState.enabled) {
-      const left = splitState.panels[0]?.name || 'Select';
-      const right = splitState.panels[1]?.name || 'Select';
+      const left = splitState.panels[0]?.name || m.common_select();
+      const right = splitState.panels[1]?.name || m.common_select();
       appTitle = `${left} :: ${right}`;
     } else if (currentApp) {
       appTitle = currentApp.name;
     } else {
-      appTitle = showSplash ? 'Overview' : '';
+      appTitle = showSplash ? m.common_overview() : '';
     }
 
     // Replace other variables first (may be empty), then clean up separators
@@ -299,6 +302,12 @@
         syncFromConfig(config.theme);
       }
 
+      // Sync locale from server config (may trigger reload if different from localStorage)
+      if (config.language && config.language !== getLocale()) {
+        syncLocaleFromConfig(config.language);
+        return; // reload will re-run onMount
+      }
+
       // Inject PWA manifest now that auth has passed — deferred from index.html
       // so forward-auth proxies don't redirect the manifest fetch to a login page.
       if (!document.querySelector('link[rel="manifest"]')) {
@@ -342,11 +351,11 @@
       unsubWs = connectionState.subscribe((state) => {
         if (state === 'connected') {
           if (wasConnected) {
-            toasts.success('Connection restored');
+            toasts.success(m.toast_connectionRestored());
           }
           wasConnected = true;
         } else if (state === 'disconnected' && wasConnected) {
-          toasts.warning('Connection lost - reconnecting...');
+          toasts.warning(m.toast_connectionLost());
         }
       });
 
@@ -385,7 +394,7 @@
         authRequired = true;
         loading = false;
       } else {
-        error = e instanceof Error ? e.message : 'Failed to load configuration';
+        error = e instanceof Error ? e.message : m.error_failedLoadConfig();
         loading = false;
       }
     }
@@ -436,7 +445,7 @@
       showDefaultApp();
       startServices();
     } catch (e) {
-      error = e instanceof Error ? e.message : 'Failed to load configuration';
+      error = e instanceof Error ? e.message : m.error_failedLoadConfig();
     }
   }
 
@@ -463,7 +472,7 @@
       if (setup) {
         const resp = await submitSetup(setup);
         if (!resp.success) {
-          toasts.error(resp.error || 'Security setup failed');
+          toasts.error(resp.error || m.toast_securitySetupFailed());
           return;
         }
         // Re-check auth status and load config now that guard is down
@@ -478,6 +487,7 @@
       // Update config with onboarding selections
       const newConfig: Config = {
         ...config,
+        language: getLocale(),
         navigation: {
           ...config.navigation,
           ...navigation
@@ -499,10 +509,10 @@
 
       // Hide onboarding
       showOnboarding = false;
-      toasts.success('Dashboard setup complete!');
+      toasts.success(m.toast_dashboardSetupComplete());
     } catch (e) {
       console.error('Failed to save onboarding config:', e);
-      toasts.error('Failed to save configuration');
+      toasts.error(m.toast_failedSaveConfig());
     }
   }
 
@@ -637,10 +647,16 @@
       for (const name of visitedAppNames) {
         if (!validNames.has(name)) visitedAppNames.delete(name);
       }
-      toasts.success('Settings saved successfully');
+      toasts.success(m.toast_settingsSaved());
+
+      // If language changed, sync locale and reload
+      if (saved.language && saved.language !== getLocale()) {
+        syncLocaleFromConfig(saved.language);
+        return; // reload will happen
+      }
     } catch (e) {
       console.error('Failed to save config:', e);
-      toasts.error('Failed to save configuration');
+      toasts.error(m.toast_failedSaveConfig());
     }
   }
 
@@ -690,15 +706,15 @@
         break;
       case 'theme-dark':
         setTheme('dark');
-        toasts.success('Switched to dark theme');
+        toasts.success(m.toast_switchedToDark());
         break;
       case 'theme-light':
         setTheme('light');
-        toasts.success('Switched to light theme');
+        toasts.success(m.toast_switchedToLight());
         break;
       case 'theme-system':
         setTheme('system');
-        toasts.success('Using system theme');
+        toasts.success(m.toast_usingSystemTheme());
         break;
     }
   }
@@ -709,8 +725,9 @@
       return;
     }
 
-    // Don't trigger shortcuts when typing in inputs (except Escape)
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+    // Don't trigger shortcuts when typing in inputs or custom dropdowns (except Escape)
+    const target = event.target as HTMLElement;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.role === 'combobox') {
       if (event.key === 'Escape') {
         if (showCommandPalette) showCommandPalette = false;
         else if (showSettings) {
@@ -813,7 +830,7 @@
   <div class="flex items-center justify-center h-full" style="background: var(--bg-base);">
     <div class="text-center">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 mx-auto" style="border-color: var(--accent-primary);"></div>
-      <p class="mt-4" style="color: var(--text-muted);">Loading Muximux...</p>
+      <p class="mt-4" style="color: var(--text-muted);">{m.common_loadingApp()}</p>
     </div>
   </div>
 {:else if ($setupRequired || showOnboarding) && OnboardingWizardComponent}
@@ -826,7 +843,7 @@
 {:else if error}
   <div class="flex items-center justify-center h-full" style="background: var(--bg-base);">
     <ErrorState
-      title="Failed to load dashboard"
+      title={m.error_failedLoadDashboard()}
       message={error}
       icon="network"
       onretry={() => window.location.reload()}
@@ -914,7 +931,7 @@
                 <svg class="w-10 h-10" style="color: var(--text-muted); opacity: 0.4;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-4.5-4.5L21 3m0 0h-5.25M21 3v5.25" />
                 </svg>
-                <p class="text-sm" style="color: var(--text-muted);">Select an app from the navigation</p>
+                <p class="text-sm" style="color: var(--text-muted);">{m.common_selectApp()}</p>
               </div>
             {/if}
           </div>
@@ -948,7 +965,7 @@
                 <svg class="w-10 h-10" style="color: var(--text-muted); opacity: 0.4;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 6H5.25A2.25 2.25 0 003 8.25v10.5A2.25 2.25 0 005.25 21h10.5A2.25 2.25 0 0018 18.75V10.5m-4.5-4.5L21 3m0 0h-5.25M21 3v5.25" />
                 </svg>
-                <p class="text-sm" style="color: var(--text-muted);">Select an app from the navigation</p>
+                <p class="text-sm" style="color: var(--text-muted);">{m.common_selectApp()}</p>
               </div>
             {/if}
           </div>
@@ -968,11 +985,11 @@
 
     <!-- Fullscreen exit button -->
     {#if $isFullscreen}
-      <div class="fixed top-4 right-4 z-50 flex items-center gap-2">
+      <div class="fixed top-4 end-4 z-50 flex items-center gap-2">
         <button
           class="fullscreen-exit-btn p-2 rounded-lg backdrop-blur-sm shadow-lg transition-all opacity-30 hover:opacity-100"
           onclick={exitFullscreen}
-          title="Exit fullscreen (F)"
+          title={m.nav_exitFullscreen()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />

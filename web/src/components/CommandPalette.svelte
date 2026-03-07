@@ -6,6 +6,7 @@
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, formatKeybinding, type KeyAction } from '$lib/keybindingsStore';
   import { isAdmin, isAuthenticated } from '$lib/authStore';
+  import * as m from '$lib/paraglide/messages.js';
 
   // Props with callbacks instead of dispatchers
   let {
@@ -64,16 +65,16 @@
 
   // All available actions (no "Open Search" — we're already in the palette)
   const actions = $derived([
-    ...($isAdmin ? [{ id: 'settings', type: 'action' as const, label: 'Open Settings', shortcut: getShortcut('settings'), icon: 'settings' }] : []),
-    { id: 'shortcuts', type: 'action' as const, label: 'Show Keyboard Shortcuts', shortcut: getShortcut('shortcuts'), icon: 'help' },
-    { id: 'fullscreen', type: 'action' as const, label: 'Toggle Fullscreen', shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
-    { id: 'refresh', type: 'action' as const, label: 'Refresh Current App', shortcut: getShortcut('refresh'), icon: 'refresh' },
-    { id: 'home', type: 'action' as const, label: 'Go to Splash Screen', shortcut: getShortcut('home'), icon: 'home' },
-    { id: 'logs', type: 'action' as const, label: 'View Logs', shortcut: getShortcut('logs'), icon: 'logs' },
-    ...($isAuthenticated ? [{ id: 'logout', type: 'action' as const, label: 'Log Out', icon: 'logout' }] : []),
-    { id: 'theme-dark', type: 'setting' as const, label: 'Set Dark Theme', icon: 'moon' },
-    { id: 'theme-light', type: 'setting' as const, label: 'Set Light Theme', icon: 'sun' },
-    { id: 'theme-system', type: 'setting' as const, label: 'Use System Theme', icon: 'system' },
+    ...($isAdmin ? [{ id: 'settings', type: 'action' as const, get label() { return m.command_openSettings(); }, shortcut: getShortcut('settings'), icon: 'settings' }] : []),
+    { id: 'shortcuts', type: 'action' as const, get label() { return m.command_showShortcuts(); }, shortcut: getShortcut('shortcuts'), icon: 'help' },
+    { id: 'fullscreen', type: 'action' as const, get label() { return m.command_toggleFullscreen(); }, shortcut: getShortcut('fullscreen'), icon: 'fullscreen' },
+    { id: 'refresh', type: 'action' as const, get label() { return m.command_refreshApp(); }, shortcut: getShortcut('refresh'), icon: 'refresh' },
+    { id: 'home', type: 'action' as const, get label() { return m.command_goToSplash(); }, shortcut: getShortcut('home'), icon: 'home' },
+    { id: 'logs', type: 'action' as const, get label() { return m.command_viewLogs(); }, shortcut: getShortcut('logs'), icon: 'logs' },
+    ...($isAuthenticated ? [{ id: 'logout', type: 'action' as const, get label() { return m.command_logOut(); }, icon: 'logout' }] : []),
+    { id: 'theme-dark', type: 'setting' as const, get label() { return m.command_setDarkTheme(); }, icon: 'moon' },
+    { id: 'theme-light', type: 'setting' as const, get label() { return m.command_setLightTheme(); }, icon: 'sun' },
+    { id: 'theme-system', type: 'setting' as const, get label() { return m.command_useSystemTheme(); }, icon: 'system' },
   ] as Command[]);
 
   // Create app commands
@@ -81,7 +82,7 @@
     id: `app-${app.name}`,
     type: 'app' as const,
     label: app.name,
-    description: app.group || 'Switch to app',
+    description: app.group || m.command_switchToApp(),
     shortcut: i < 9 ? `${i + 1}` : undefined,
     app,
   })));
@@ -357,7 +358,7 @@
   }}
   role="dialog"
   aria-modal="true"
-  aria-label="Command palette"
+  aria-label={m.command_commandPalette()}
   tabindex="-1"
   transition:fade={{ duration: 150 }}
 >
@@ -389,10 +390,10 @@
           bind:this={inputElement}
           bind:value={query}
           type="text"
-          placeholder="Search apps and commands..."
+          placeholder={m.command_searchPlaceholder()}
           class="command-palette-input flex-1 bg-transparent outline-none text-lg min-w-0"
         />
-        <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">esc</kbd>
+        <kbd class="command-palette-kbd hidden sm:inline-block px-2 py-1 text-xs rounded flex-shrink-0">{m.command_hintEsc()}</kbd>
       </div>
     </div>
 
@@ -400,20 +401,20 @@
     <div bind:this={resultsElement} class="{isMobile ? 'max-h-[60vh]' : 'max-h-80'} overflow-auto">
       {#if flatCommands.length === 0}
         <div class="p-4 text-center" style="color: var(--text-disabled);">
-          No results found for "{query}"
+          {m.command_noResults({ query })}
         </div>
       {:else}
         <!-- Recent section (only when no query) -->
         {#if hasRecent}
           <div class="px-4 pt-3 pb-1">
-            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Recent</span>
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">{m.command_sectionRecent()}</span>
           </div>
           <ul class="pb-2">
             {#each commandGroups.recent as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3.5' : 'py-3'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -427,7 +428,7 @@
                     <div class="font-medium truncate" style="color: var(--text-primary);">
                       {cmd.label}
                       {#if cmd.app && cmd.app.open_mode !== 'iframe'}
-                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
+                        <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
                       {/if}
                     </div>
                     {#if cmd.description}
@@ -448,14 +449,14 @@
         <!-- Apps section -->
         {#if hasApps}
           <div class="px-4 pt-2 pb-1 {hasRecent ? 'border-t' : 'pt-3'}" style="{hasRecent ? 'border-color: var(--border-subtle);' : ''}">
-            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Apps</span>
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">{m.command_sectionApps()}</span>
           </div>
           <ul class="pb-2">
             {#each commandGroups.apps as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[52px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3.5' : 'py-3'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -469,7 +470,7 @@
                     <div class="font-medium truncate" style="color: var(--text-primary);">
                       {cmd.label}
                       {#if cmd.app && cmd.app.open_mode !== 'iframe'}
-                        <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
+                        <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(cmd.app.open_mode)}</span>
                       {/if}
                     </div>
                     {#if cmd.description}
@@ -490,14 +491,14 @@
         <!-- Actions section -->
         {#if hasActions}
           <div class="px-4 pt-2 pb-1 {hasRecent || hasApps ? 'border-t' : ''}" style="{hasRecent || hasApps ? 'border-color: var(--border-subtle);' : ''}">
-            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Actions</span>
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">{m.command_sectionActions()}</span>
           </div>
           <ul class="pb-2">
             {#each commandGroups.actions as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3' : 'py-2.5'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -526,14 +527,14 @@
         <!-- Settings section -->
         {#if hasSettings}
           <div class="px-4 pt-2 pb-1 {hasRecent || hasApps || hasActions ? 'border-t' : ''}" style="{hasRecent || hasApps || hasActions ? 'border-color: var(--border-subtle);' : ''}">
-            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">Settings</span>
+            <span class="text-xs font-semibold uppercase tracking-wider" style="color: var(--text-disabled);">{m.command_sectionSettings()}</span>
           </div>
           <ul class="pb-2">
             {#each commandGroups.settings as cmd (cmd.id)}
               {@const globalIndex = flatCommands.indexOf(cmd)}
               <li>
                 <button
-                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-left
+                  class="command-palette-item w-full px-4 min-h-[48px] flex items-center space-x-3 text-start
                          {isMobile ? 'py-3' : 'py-2.5'}"
                   style="background: {globalIndex === selectedIndex ? 'var(--bg-hover)' : 'transparent'};"
                   data-selected={globalIndex === selectedIndex}
@@ -559,14 +560,14 @@
     <!-- Footer hints -->
     {#if !isMobile}
       <div class="px-4 py-2 border-t text-xs flex items-center space-x-4" style="border-color: var(--border-subtle); color: var(--text-disabled);">
-        <span>↑↓ Navigate</span>
-        <span>⏎ Execute</span>
-        <span>⌘1-9 Quick select</span>
-        <span>esc Close</span>
+        <span>{m.command_hintNavigate()}</span>
+        <span>{m.command_hintExecute()}</span>
+        <span>{m.command_hintQuickSelect()}</span>
+        <span>{m.command_hintClose()}</span>
       </div>
     {:else}
       <div class="px-4 py-3 pb-safe border-t text-center" style="border-color: var(--border-subtle);">
-        <span class="text-xs" style="color: var(--text-disabled);">Tap outside to close</span>
+        <span class="text-xs" style="color: var(--text-disabled);">{m.command_hintTapClose()}</span>
       </div>
     {/if}
   </div>

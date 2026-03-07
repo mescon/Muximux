@@ -323,7 +323,7 @@ describe('AppsTab', () => {
       },
     });
 
-    const indicator = screen.getByTitle('Opens in new tab');
+    const indicator = screen.getByTitle('Opens in New tab');
     expect(indicator).toBeInTheDocument();
   });
 
@@ -341,7 +341,7 @@ describe('AppsTab', () => {
       },
     });
 
-    const indicator = screen.getByTitle('Opens in new window');
+    const indicator = screen.getByTitle('Opens in New window');
     expect(indicator).toBeInTheDocument();
   });
 
@@ -740,7 +740,7 @@ describe('AppsTab', () => {
     expect(defaultBadges.length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText('Disabled')).toBeInTheDocument();
     expect(screen.getByTitle('Proxied through server')).toBeInTheDocument();
-    expect(screen.getByTitle('Opens in new tab')).toBeInTheDocument();
+    expect(screen.getByTitle('Opens in New tab')).toBeInTheDocument();
     // Scale badge - the legend row also has "50%" so use getAllByText
     const scaleBadges = screen.getAllByText('50%');
     expect(scaleBadges.length).toBeGreaterThanOrEqual(1);

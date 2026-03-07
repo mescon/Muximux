@@ -5,6 +5,7 @@
   import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod } from '$lib/api';
   import { changePassword, isAdmin, currentUser } from '$lib/authStore';
   import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
+  import * as m from '$lib/paraglide/messages.js';
 
   let { localConfig }: { localConfig: Config } = $props();
 
@@ -66,7 +67,7 @@
     try {
       securityUsers = (await listUsers()) ?? [];
     } catch (e) {
-      securityError = e instanceof Error ? e.message : 'Failed to load users';
+      securityError = e instanceof Error ? e.message : m.error_failedLoadUsers();
     } finally {
       securityLoading = false;
     }
@@ -79,12 +80,12 @@
     const result = await changePassword(cpCurrent, cpNew);
     cpLoading = false;
     if (result.success) {
-      cpMessage = { type: 'success', text: 'Password changed successfully' };
+      cpMessage = { type: 'success', text: m.toast_passwordChanged() };
       cpCurrent = '';
       cpNew = '';
       cpConfirm = '';
     } else {
-      cpMessage = { type: 'error', text: result.message || 'Failed to change password' };
+      cpMessage = { type: 'error', text: result.message || m.error_failedChangePassword() };
     }
   }
 
@@ -105,10 +106,10 @@
         showAddUser = false;
         await loadSecurityUsers();
       } else {
-        addUserError = result.message || 'Failed to create user';
+        addUserError = result.message || m.error_failedCreateUser();
       }
     } catch (e) {
-      addUserError = e instanceof Error ? e.message : 'Failed to create user';
+      addUserError = e instanceof Error ? e.message : m.error_failedCreateUser();
     } finally {
       addUserLoading = false;
     }
@@ -119,7 +120,7 @@
       await updateUser(username, { role });
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : 'Failed to update user';
+      securityError = e instanceof Error ? e.message : m.error_failedUpdateUser();
     }
   }
 
@@ -129,7 +130,7 @@
       confirmDeleteUser = null;
       await loadSecurityUsers();
     } catch (e) {
-      securityError = e instanceof Error ? e.message : 'Failed to delete user';
+      securityError = e instanceof Error ? e.message : m.error_failedDeleteUser();
     }
   }
 
@@ -160,7 +161,7 @@
           if (selectedAuthMethod === 'forward_auth') {
             // Don't reload — the user is accessing directly (not through their proxy),
             // so a reload would lock them out. Show a persistent message instead.
-            securitySuccess = 'Forward auth enabled. Please access this app through your reverse proxy URL to continue.';
+            securitySuccess = m.common_forwardAuthEnabled();
           } else {
             // For builtin auth, reload so the user can log in with credentials.
             sessionStorage.setItem('muximux_return_to', 'security');
@@ -168,14 +169,14 @@
             return;
           }
         } else {
-          securitySuccess = `Authentication method changed to ${selectedAuthMethod}`;
+          securitySuccess = m.toast_authMethodChanged({ method: selectedAuthMethod });
           setTimeout(() => securitySuccess = null, 3000);
         }
       } else {
-        methodError = result.message || 'Failed to change method';
+        methodError = result.message || m.error_failedChangeMethod();
       }
     } catch (e) {
-      methodError = e instanceof Error ? e.message : 'Failed to change method';
+      methodError = e instanceof Error ? e.message : m.error_failedChangeMethod();
     } finally {
       methodLoading = false;
     }
@@ -225,13 +226,13 @@
 
   <!-- Authentication Method -->
   <div>
-    <h3 class="text-lg font-semibold text-text-primary mb-1">Authentication Method</h3>
-    <p class="text-sm text-text-muted mb-4">Choose how users authenticate with Muximux</p>
+    <h3 class="text-lg font-semibold text-text-primary mb-1">{m.security_authMethod()}</h3>
+    <p class="text-sm text-text-muted mb-4">{m.security_authMethodDesc()}</p>
 
     <div class="space-y-3">
       <!-- Password card -->
       <div
-        class="rounded-xl border text-left transition-all overflow-hidden
+        class="rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'builtin'; }}>
@@ -241,27 +242,27 @@
               <path d="M7 11V7a5 5 0 0110 0v4" />
             </svg>
           </div>
-          <div class="flex-1 text-left">
+          <div class="flex-1 text-start">
             <div class="flex items-center gap-2">
-              <h3 class="font-semibold text-text-primary">Password authentication</h3>
+              <h3 class="font-semibold text-text-primary">{m.security_passwordAuth()}</h3>
               {#if currentMethod === 'builtin'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">Current</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
-            <p class="text-sm text-text-muted mt-1">Set up a username and password to protect your dashboard</p>
+            <p class="text-sm text-text-muted mt-1">{m.security_passwordAuthDesc()}</p>
           </div>
         </button>
         {#if selectedAuthMethod === 'builtin'}
-          <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
               {#if currentMethod === 'builtin'}
-                <p class="text-sm text-text-muted mb-4">Password authentication is active.</p>
+                <p class="text-sm text-text-muted mb-4">{m.security_passwordAuthActive()}</p>
 
                 <!-- Change Password (inline) -->
-                <h4 class="text-sm font-semibold text-text-primary mb-2">Change Password</h4>
+                <h4 class="text-sm font-semibold text-text-primary mb-2">{m.security_changePassword()}</h4>
                 <div class="max-w-sm space-y-3">
                   <div>
-                    <label for="cp-current" class="block text-xs text-text-muted mb-1">Current password</label>
+                    <label for="cp-current" class="block text-xs text-text-muted mb-1">{m.security_currentPassword()}</label>
                     <input
                       id="cp-current"
                       type="password"
@@ -272,22 +273,22 @@
                     />
                   </div>
                   <div>
-                    <label for="cp-new" class="block text-xs text-text-muted mb-1">New password</label>
+                    <label for="cp-new" class="block text-xs text-text-muted mb-1">{m.security_newPassword()}</label>
                     <input
                       id="cp-new"
                       type="password"
                       bind:value={cpNew}
                       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                              focus:outline-none focus:ring-2 focus:ring-brand-500"
-                      placeholder="Minimum 8 characters"
+                      placeholder={m.security_minEightChars()}
                       autocomplete="new-password"
                     />
                     {#if cpNew.length > 0 && cpNew.length < 8}
-                      <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
+                      <p class="text-red-400 text-xs mt-1">{m.error_passwordTooShort()}</p>
                     {/if}
                   </div>
                   <div>
-                    <label for="cp-confirm" class="block text-xs text-text-muted mb-1">Confirm new password</label>
+                    <label for="cp-confirm" class="block text-xs text-text-muted mb-1">{m.security_confirmNewPassword()}</label>
                     <input
                       id="cp-confirm"
                       type="password"
@@ -297,7 +298,7 @@
                       autocomplete="new-password"
                     />
                     {#if cpConfirm.length > 0 && cpNew !== cpConfirm}
-                      <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
+                      <p class="text-red-400 text-xs mt-1">{m.error_passwordsMismatch()}</p>
                     {/if}
                   </div>
 
@@ -315,16 +316,16 @@
                     {#if cpLoading}
                       <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     {/if}
-                    Change Password
+                    {m.security_changePassword()}
                   </button>
                 </div>
               {:else if securityUsers.length > 0}
-                <p class="text-sm text-text-muted">Switch to password authentication using existing users.</p>
+                <p class="text-sm text-text-muted">{m.security_switchToPasswordAuth()}</p>
               {:else}
-                <p class="text-sm text-text-muted mb-3">Create your first user to enable password authentication.</p>
+                <p class="text-sm text-text-muted mb-3">{m.security_createFirstUser()}</p>
                 <div class="space-y-3 max-w-sm">
                   <div>
-                    <label for="setup-username" class="block text-xs text-text-muted mb-1">Username</label>
+                    <label for="setup-username" class="block text-xs text-text-muted mb-1">{m.common_username()}</label>
                     <input
                       id="setup-username"
                       type="text"
@@ -335,7 +336,7 @@
                     />
                   </div>
                   <div>
-                    <label for="setup-password" class="block text-xs text-text-muted mb-1">Password <span class="text-text-disabled">(min 8 characters)</span></label>
+                    <label for="setup-password" class="block text-xs text-text-muted mb-1">{m.security_passwordMinChars()}</label>
                     <input
                       id="setup-password"
                       type="password"
@@ -349,9 +350,9 @@
                     <p class="text-red-400 text-xs">{addUserError}</p>
                   {/if}
                   {#if !setupUsername.trim() && setupPassword.length > 0}
-                    <p class="text-amber-400 text-xs">Username is required</p>
+                    <p class="text-amber-400 text-xs">{m.error_usernameRequired()}</p>
                   {:else if setupUsername.trim() && setupPassword.length > 0 && setupPassword.length < 8}
-                    <p class="text-amber-400 text-xs">Password must be at least 8 characters ({setupPassword.length}/8)</p>
+                    <p class="text-amber-400 text-xs">{m.error_passwordTooShortCount({ count: `${setupPassword.length}` })}</p>
                   {/if}
                   <button
                     class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
@@ -370,11 +371,11 @@
                         try {
                           const result = await changeAuthMethod({ method: 'builtin' });
                           if (!result.success) {
-                            methodError = result.message || 'Failed to enable auth';
+                            methodError = result.message || m.error_failedEnableAuth();
                             return;
                           }
                         } catch (e) {
-                          methodError = e instanceof Error ? e.message : 'Failed to enable auth';
+                          methodError = e instanceof Error ? e.message : m.error_failedEnableAuth();
                           return;
                         } finally {
                           methodLoading = false;
@@ -389,7 +390,7 @@
                     {#if addUserLoading || methodLoading}
                       <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
                     {/if}
-                    Create User & Enable
+                    {m.security_createUserEnable()}
                   </button>
                 </div>
               {/if}
@@ -400,7 +401,7 @@
 
       <!-- Auth Proxy card -->
       <div
-        class="rounded-xl border text-left transition-all overflow-hidden
+        class="rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={async () => { selectedAuthMethod = 'forward_auth'; await tick(); document.getElementById('settings-proxies')?.focus(); }}>
@@ -409,20 +410,20 @@
               <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
             </svg>
           </div>
-          <div class="flex-1 text-left">
+          <div class="flex-1 text-start">
             <div class="flex items-center gap-2">
-              <h3 class="font-semibold text-text-primary">Auth proxy</h3>
+              <h3 class="font-semibold text-text-primary">{m.security_authProxy()}</h3>
               {#if currentMethod === 'forward_auth'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">Current</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
-            <p class="text-sm text-text-muted mt-1">Authelia, Authentik, or another reverse proxy handles authentication</p>
+            <p class="text-sm text-text-muted mt-1">{m.security_authProxyDesc()}</p>
           </div>
         </button>
         {#if selectedAuthMethod === 'forward_auth'}
-          <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
-              <span class="block text-sm text-text-muted mb-2">Proxy type</span>
+              <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
               <div class="flex gap-2">
                 {#each ['authelia', 'authentik', 'custom'] as p (p)}
                   <button
@@ -437,7 +438,7 @@
             </div>
 
             <div>
-              <label for="settings-proxies" class="block text-sm text-text-muted mb-1">Trusted proxy IPs</label>
+              <label for="settings-proxies" class="block text-sm text-text-muted mb-1">{m.security_trustedProxies()}</label>
               <textarea
                 id="settings-proxies"
                 bind:value={methodTrustedProxies}
@@ -446,11 +447,11 @@
                 placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                 rows="3"
               ></textarea>
-              <p class="text-xs text-text-disabled mt-1">IP addresses or CIDR ranges, one per line</p>
+              <p class="text-xs text-text-disabled mt-1">{m.security_proxyRangesHelp()}</p>
             </div>
 
             <div>
-              <label for="settings-logout-url" class="block text-sm text-text-muted mb-1">Logout URL</label>
+              <label for="settings-logout-url" class="block text-sm text-text-muted mb-1">{m.security_logoutUrl()}</label>
               <input
                 id="settings-logout-url"
                 type="url"
@@ -459,7 +460,7 @@
                        focus:outline-none focus:ring-2 focus:ring-brand-500"
                 placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
               />
-              <p class="text-xs text-text-disabled mt-1">Your auth provider's logout endpoint — clears the external session on sign-out</p>
+              <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
             </div>
 
             <button
@@ -469,28 +470,28 @@
               <svg class="w-4 h-4 transition-transform {faShowAdvanced ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
               </svg>
-              Advanced: Header names
+              {m.security_advancedHeaders()}
             </button>
 
             {#if faShowAdvanced}
               <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: 150 }}>
                 <div>
-                  <label for="settings-header-user" class="block text-xs text-text-muted mb-1">User header</label>
+                  <label for="settings-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                   <input id="settings-header-user" type="text" bind:value={faHeaderUser}
                     class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label for="settings-header-email" class="block text-xs text-text-muted mb-1">Email header</label>
+                  <label for="settings-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                   <input id="settings-header-email" type="text" bind:value={faHeaderEmail}
                     class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label for="settings-header-groups" class="block text-xs text-text-muted mb-1">Groups header</label>
+                  <label for="settings-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                   <input id="settings-header-groups" type="text" bind:value={faHeaderGroups}
                     class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                 </div>
                 <div>
-                  <label for="settings-header-name" class="block text-xs text-text-muted mb-1">Name header</label>
+                  <label for="settings-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                   <input id="settings-header-name" type="text" bind:value={faHeaderName}
                     class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                 </div>
@@ -502,7 +503,7 @@
 
       <!-- No authentication card -->
       <div
-        class="rounded-xl border text-left transition-all overflow-hidden
+        class="rounded-xl border text-start transition-all overflow-hidden
                {selectedAuthMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
       >
         <button class="w-full p-4 flex items-start gap-4" onclick={() => { selectedAuthMethod = 'none'; }}>
@@ -512,18 +513,18 @@
               <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
             </svg>
           </div>
-          <div class="flex-1 text-left">
+          <div class="flex-1 text-start">
             <div class="flex items-center gap-2">
-              <h3 class="font-semibold text-text-primary">No authentication</h3>
+              <h3 class="font-semibold text-text-primary">{m.security_noAuth()}</h3>
               {#if currentMethod === 'none'}
-                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">Current</span>
+                <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-green-500/20 text-green-400 uppercase tracking-wider">{m.common_current()}</span>
               {/if}
             </div>
-            <p class="text-sm text-text-muted mt-1">Anyone with network access gets full control</p>
+            <p class="text-sm text-text-muted mt-1">{m.security_noAuthDesc()}</p>
           </div>
         </button>
         {#if selectedAuthMethod === 'none'}
-          <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+          <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
             <div class="border-t border-border pt-4">
               <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
                 <div class="flex gap-3">
@@ -533,8 +534,8 @@
                     <line x1="12" y1="17" x2="12.01" y2="17" />
                   </svg>
                   <div>
-                    <h4 class="font-semibold text-amber-400 text-sm mb-1">Security warning</h4>
-                    <p class="text-sm text-text-muted">Without authentication, anyone who can reach this port has full access to your dashboard and all configured services.</p>
+                    <h4 class="font-semibold text-amber-400 text-sm mb-1">{m.security_warningLabel()}</h4>
+                    <p class="text-sm text-text-muted">{m.security_noAuthWarning()}</p>
                   </div>
                 </div>
               </div>
@@ -559,7 +560,7 @@
         {#if methodLoading}
           <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
         {/if}
-        Update Method
+        {m.security_updateMethod()}
       </button>
     {/if}
   </div>
@@ -570,8 +571,8 @@
     <div>
       <div class="flex items-center justify-between mb-4">
         <div>
-          <h3 class="text-lg font-semibold text-text-primary mb-1">User Management</h3>
-          <p class="text-sm text-text-muted">Manage dashboard users and roles</p>
+          <h3 class="text-lg font-semibold text-text-primary mb-1">{m.security_userManagement()}</h3>
+          <p class="text-sm text-text-muted">{m.security_userManagementDesc()}</p>
         </div>
         <button
           class="btn btn-primary btn-sm flex items-center gap-1.5"
@@ -580,7 +581,7 @@
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
           </svg>
-          Add User
+          {m.security_addUser()}
         </button>
       </div>
 
@@ -595,7 +596,7 @@
         <div class="p-4 rounded-lg bg-bg-surface border border-border mb-4 space-y-3" in:fly={{ y: -10, duration: 150 }}>
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label for="new-user-name" class="block text-sm text-text-muted mb-1">Username</label>
+              <label for="new-user-name" class="block text-sm text-text-muted mb-1">{m.common_username()}</label>
               <input
                 id="new-user-name"
                 type="text"
@@ -606,28 +607,28 @@
               />
             </div>
             <div>
-              <label for="new-user-password" class="block text-sm text-text-muted mb-1">Password</label>
+              <label for="new-user-password" class="block text-sm text-text-muted mb-1">{m.common_password()}</label>
               <input
                 id="new-user-password"
                 type="password"
                 bind:value={newUserPassword}
                 class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                        focus:outline-none focus:ring-2 focus:ring-brand-500"
-                placeholder="Min 8 characters"
+                placeholder={m.security_minEightCharsShort()}
               />
             </div>
           </div>
           <div>
-            <label for="new-user-role" class="block text-sm text-text-muted mb-1">Role</label>
+            <label for="new-user-role" class="block text-sm text-text-muted mb-1">{m.common_role()}</label>
             <select
               id="new-user-role"
               bind:value={newUserRole}
               class="px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                      focus:outline-none focus:ring-2 focus:ring-brand-500"
             >
-              <option value="admin">Admin</option>
-              <option value="power-user">Power User</option>
-              <option value="user">User</option>
+              <option value="admin">{m.common_roleAdmin()}</option>
+              <option value="power-user">{m.common_rolePowerUser()}</option>
+              <option value="user">{m.common_roleUser()}</option>
             </select>
           </div>
 
@@ -644,13 +645,13 @@
               {#if addUserLoading}
                 <span class="inline-block w-3 h-3 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
               {/if}
-              Add
+              {m.common_add()}
             </button>
             <button
               class="px-3 py-1.5 text-sm text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover transition-colors"
               onclick={() => showAddUser = false}
             >
-              Cancel
+              {m.common_cancel()}
             </button>
           </div>
         </div>
@@ -658,7 +659,7 @@
 
       <!-- User list -->
       {#if securityLoading}
-        <div class="text-center py-4 text-text-muted">Loading users...</div>
+        <div class="text-center py-4 text-text-muted">{m.security_loadingUsers()}</div>
       {:else}
         <div class="space-y-2">
           {#each securityUsers as user (user.username)}
@@ -678,27 +679,27 @@
                 class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
                        focus:outline-none focus:ring-1 focus:ring-brand-500"
               >
-                <option value="admin">Admin</option>
-                <option value="power-user">Power User</option>
-                <option value="user">User</option>
+                <option value="admin">{m.common_roleAdmin()}</option>
+                <option value="power-user">{m.common_rolePowerUser()}</option>
+                <option value="user">{m.common_roleUser()}</option>
               </select>
               {#if confirmDeleteUser === user.username}
                 <div class="flex items-center gap-1.5">
                   <button
                     class="btn btn-danger btn-sm"
                     onclick={() => handleDeleteUser(user.username)}
-                  >Delete</button>
+                  >{m.common_delete()}</button>
                   <button
                     class="btn btn-secondary btn-sm"
                     onclick={() => confirmDeleteUser = null}
-                  >Cancel</button>
+                  >{m.common_cancel()}</button>
                 </div>
               {:else}
                 <button
                   class="p-1.5 text-text-disabled hover:text-red-400 rounded transition-colors"
                   onclick={() => confirmDeleteUser = user.username}
                   disabled={user.username === $currentUser?.username}
-                  title={user.username === $currentUser?.username ? "Can't delete yourself" : 'Delete user'}
+                  title={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.security_deleteUser()}
                 >
                   <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

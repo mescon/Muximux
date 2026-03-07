@@ -6,6 +6,7 @@
   import HealthIndicator from './HealthIndicator.svelte';
   import MuximuxLogo from './MuximuxLogo.svelte';
   import { keybindings, formatKeybinding } from '$lib/keybindingsStore';
+  import * as m from '$lib/paraglide/messages.js';
 
   let { apps, config, showHealth = true, onselect, onsettings, onabout }: {
     apps: App[];
@@ -104,24 +105,24 @@
         <MuximuxLogo height="80" class="text-[var(--accent-primary)]" />
       </div>
       <p class="text-sm md:text-base" style="color: var(--text-muted);">
-        Select an application to get started
+        {m.splash_selectApp()}
       </p>
 
       <!-- Quick keyboard hints -->
       <div class="mt-4 flex items-center justify-center gap-4 text-xs" style="color: var(--text-muted);">
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">{searchLabel}</kbd>
-          <span class="ml-1">Search</span>
+          <span class="ms-1">{m.common_search()}</span>
         </span>
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">1</kbd>
           <span>-</span>
           <kbd class="kbd">9</kbd>
-          <span class="ml-1">Quick access</span>
+          <span class="ms-1">{m.splash_quickAccess()}</span>
         </span>
         <span class="flex items-center gap-1.5">
           <kbd class="kbd">{shortcutsLabel}</kbd>
-          <span class="ml-1">All shortcuts</span>
+          <span class="ms-1">{m.splash_allShortcuts()}</span>
         </span>
       </div>
     </header>
@@ -148,7 +149,7 @@
             </h2>
             <div class="flex-1 h-px" style="background: var(--border-subtle);"></div>
             <span class="text-xs tabular-nums" style="color: var(--text-disabled);">
-              {sortedGroupedApps[group].length} {sortedGroupedApps[group].length === 1 ? 'app' : 'apps'}
+              {sortedGroupedApps[group].length} {sortedGroupedApps[group].length === 1 ? m.splash_appSingular() : m.splash_appPlural()}
             </span>
           </button>
         {/if}
@@ -166,14 +167,14 @@
               >
                 <!-- Health indicator — per-app control -->
                 {#if showHealth && app.health_check === true}
-                  <div class="absolute top-2.5 right-2.5 z-10">
+                  <div class="absolute top-2.5 end-2.5 z-10">
                     <HealthIndicator appName={app.name} size="sm" />
                   </div>
                 {/if}
 
                 <!-- Keyboard shortcut badge (1-9) -->
                 {#if displayKey !== undefined}
-                  <div class="absolute top-2.5 left-2.5 z-10">
+                  <div class="absolute top-2.5 start-2.5 z-10">
                     <span class="kbd">
                       {displayKey}
                     </span>
@@ -197,7 +198,7 @@
                       style="color: var(--text-secondary);">
                   <span class="group-hover:text-[var(--text-primary)]">{app.name}</span>
                   {#if app.open_mode !== 'iframe'}
-                    <span class="ml-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
+                    <span class="ms-1 text-xs opacity-60">{getOpenModeIcon(app.open_mode)}</span>
                   {/if}
                 </span>
 
@@ -224,10 +225,10 @@
           </svg>
         </div>
         <h3 class="font-display text-lg font-medium mb-2" style="color: var(--text-primary);">
-          No applications yet
+          {m.splash_noAppsTitle()}
         </h3>
         <p class="text-sm mb-6 max-w-xs" style="color: var(--text-muted);">
-          Add your first application to get started with your dashboard.
+          {m.splash_noAppsDesc()}
         </p>
         {#if onsettings}
           <button
@@ -237,7 +238,7 @@
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
-            Add Application
+            {m.splash_addApplication()}
           </button>
         {/if}
       </div>
@@ -249,10 +250,10 @@
         <div class="flex items-center justify-center gap-6 text-xs" style="color: var(--text-muted);">
           <span class="flex items-center gap-1.5">
             <span class="w-2 h-2 rounded-full" style="background: var(--status-success);"></span>
-            <span class="tabular-nums">{apps.filter(a => a.enabled).length}</span> active
+            <span class="tabular-nums">{apps.filter(a => a.enabled).length}</span> {m.splash_active()}
           </span>
           <span class="flex items-center gap-1.5">
-            <span class="tabular-nums">{groups.length}</span> {groups.length === 1 ? 'group' : 'groups'}
+            <span class="tabular-nums">{groups.length}</span> {groups.length === 1 ? m.splash_groupSingular() : m.splash_groupPlural()}
           </span>
           {#if onsettings}
             <button
@@ -264,7 +265,7 @@
                       d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
               </svg>
-              Settings
+              {m.nav_settings()}
             </button>
           {/if}
           <button
@@ -275,7 +276,7 @@
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
-            About
+            {m.settings_about()}
           </button>
         </div>
       </footer>

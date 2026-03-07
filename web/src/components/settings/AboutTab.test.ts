@@ -125,7 +125,7 @@ describe('AboutTab', () => {
       expect(screen.getByText('Connection refused')).toBeInTheDocument();
     });
 
-    expect(screen.getByText('Retry')).toBeInTheDocument();
+    expect(screen.getByText('Try again')).toBeInTheDocument();
   });
 
   it('shows "up to date" when no update is available', async () => {

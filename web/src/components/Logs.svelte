@@ -2,6 +2,7 @@
   import { tick } from 'svelte';
   import type { LogEntry } from '$lib/types';
   import { logEntries, clearLogs } from '$lib/logStore';
+  import * as m from '$lib/paraglide/messages.js';
 
   let { onclose }: { onclose?: () => void } = $props();
 
@@ -174,54 +175,54 @@
       <button
         class="log-back-btn"
         onclick={() => onclose?.()}
-        title="Back to dashboard"
+        title={m.logs_backToDashboard()}
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
         </svg>
-        <span>Back</span>
+        <span>{m.common_back()}</span>
       </button>
-      <h1 class="log-title">Logs</h1>
+      <h1 class="log-title">{m.logs_title()}</h1>
     </div>
     <div class="log-header-right">
       <button
         class="log-action-btn"
         class:log-action-btn-active={paused}
         onclick={togglePause}
-        title={paused ? 'Resume log streaming' : 'Pause log streaming'}
+        title={paused ? m.logs_resumeStreaming() : m.logs_pauseStreaming()}
       >
         {#if paused}
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
           </svg>
-          Resume
+          {m.logs_resume()}
         {:else}
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6" />
           </svg>
-          Pause
+          {m.logs_pause()}
         {/if}
       </button>
       <button
         class="log-action-btn"
         onclick={handleDownload}
-        title="Download filtered logs as .log file"
+        title={m.logs_downloadTitle()}
         disabled={filteredEntries.length === 0}
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
         </svg>
-        Download
+        {m.logs_download()}
       </button>
       <button
         class="log-action-btn"
         onclick={handleClear}
-        title="Clear all log entries"
+        title={m.logs_clearTitle()}
       >
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
-        Clear
+        {m.logs_clear()}
       </button>
     </div>
   </div>
@@ -235,7 +236,7 @@
         </svg>
         <input
           type="text"
-          placeholder="Filter logs..."
+          placeholder={m.logs_filterPlaceholder()}
           bind:value={searchQuery}
           class="log-search-input"
         />
@@ -252,7 +253,7 @@
           <button
             class="log-level-btn {levelBtnClass(level)}"
             onclick={() => toggleLevel(level)}
-            title="{enabledLevels[level] ? 'Hide' : 'Show'} {level} messages"
+            title={enabledLevels[level] ? m.logs_hideLevel({ level }) : m.logs_showLevel({ level })}
           >
             {level.toUpperCase()}
           </button>
@@ -260,13 +261,13 @@
       </div>
     </div>
     <div class="log-filters-row">
-      <span class="log-source-label">Source:</span>
+      <span class="log-source-label">{m.logs_sourceLabel()}</span>
       <button
         class="log-source-pill"
         class:log-source-pill-active={allSourcesEnabled}
         onclick={toggleAllSources}
       >
-        All
+        {m.logs_sourceAll()}
       </button>
       {#each discoveredSources.length > 0 ? discoveredSources : ALL_SOURCES as source (source)}
         <button
@@ -289,9 +290,9 @@
     {#if filteredEntries.length === 0}
       <div class="log-empty">
         {#if currentEntries.length === 0}
-          No log entries yet. Logs will appear here in real-time.
+          {m.logs_emptyNoEntries()}
         {:else}
-          No entries match the current filters.
+          {m.logs_emptyNoMatch()}
         {/if}
       </div>
     {:else}
@@ -315,17 +316,17 @@
 
   <!-- Footer -->
   <div class="log-footer">
-    <span>{currentEntries.length} entries</span>
+    <span>{m.logs_entries({ count: currentEntries.length })}</span>
     <span class="log-footer-sep">|</span>
-    <span>showing {filteredEntries.length} filtered</span>
+    <span>{m.logs_showingFiltered({ count: filteredEntries.length })}</span>
     {#if paused}
       <span class="log-footer-sep">|</span>
-      <span class="log-paused-badge">PAUSED</span>
+      <span class="log-paused-badge">{m.logs_paused()}</span>
     {/if}
     {#if !autoScroll && !paused}
       <span class="log-footer-sep">|</span>
       <button class="log-scroll-btn" onclick={scrollToBottom}>
-        Scroll to bottom
+        {m.logs_scrollToBottom()}
       </button>
     {/if}
   </div>
@@ -446,7 +447,7 @@
 
   .log-search-icon {
     position: absolute;
-    left: 0.5rem;
+    inset-inline-start: 0.5rem;
     top: 50%;
     transform: translateY(-50%);
     width: 1rem;
@@ -477,7 +478,7 @@
 
   .log-search-clear {
     position: absolute;
-    right: 0.375rem;
+    inset-inline-end: 0.375rem;
     top: 50%;
     transform: translateY(-50%);
     padding: 0.125rem;
@@ -661,7 +662,7 @@
   .log-attrs {
     display: inline-flex;
     gap: 0.5rem;
-    margin-left: 0.5rem;
+    margin-inline-start: 0.5rem;
     flex-shrink: 0;
   }
 

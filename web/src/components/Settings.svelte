@@ -19,6 +19,7 @@
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
   import { popularApps, templateToApp, type PopularAppTemplate } from '$lib/popularApps';
+  import * as m from '$lib/paraglide/messages.js';
 
   let {
     config,
@@ -365,7 +366,7 @@
   // Export config as YAML file
   function handleExport() {
     exportConfig();
-    toasts.success('Configuration exported');
+    toasts.success(m.toast_configExported());
   }
 
   // Handle import file selection
@@ -379,7 +380,7 @@
       pendingImport = await parseImportedConfig(content);
       showImportConfirm = true;
     } catch (err) {
-      toasts.error(err instanceof Error ? err.message : 'Failed to parse config file');
+      toasts.error(err instanceof Error ? err.message : m.toast_failedParseConfig());
     }
 
     // Reset input so same file can be selected again
@@ -405,7 +406,7 @@
 
     showImportConfirm = false;
     pendingImport = null;
-    toasts.success('Configuration imported - save to apply changes');
+    toasts.success(m.toast_configImported());
   }
 
   function cancelImport() {
@@ -471,22 +472,22 @@
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
-      <h2 class="text-lg font-semibold text-text-primary">Settings</h2>
+      <h2 class="text-lg font-semibold text-text-primary">{m.settings_title()}</h2>
       <div class="flex items-center gap-2">
         {#if hasChanges}
-          <span class="text-xs text-yellow-400">Unsaved changes</span>
+          <span class="text-xs text-yellow-400">{m.settings_unsavedChanges()}</span>
         {/if}
         <button
           class="btn btn-primary btn-sm disabled:opacity-50"
           disabled={!hasChanges}
           onclick={handleSave}
         >
-          Save Changes
+          {m.settings_saveChanges()}
         </button>
         <button
           class="btn btn-ghost btn-icon btn-sm"
           onclick={handleClose}
-          aria-label="Close settings"
+          aria-label={m.settings_closeSettings()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -498,16 +499,16 @@
     <!-- Unsaved changes confirmation banner -->
     {#if confirmClose}
       <div class="flex items-center justify-between px-4 py-2 bg-yellow-600/20 border-b border-yellow-600/40">
-        <span class="text-sm text-yellow-200">You have unsaved changes. Discard?</span>
+        <span class="text-sm text-yellow-200">{m.settings_discardPrompt()}</span>
         <div class="flex gap-2">
           <button
             class="btn btn-secondary btn-sm"
             onclick={() => confirmClose = false}
-          >Keep Editing</button>
+          >{m.settings_keepEditing()}</button>
           <button
             class="btn btn-danger btn-sm"
             onclick={confirmCloseDiscard}
-          >Discard</button>
+          >{m.settings_discard()}</button>
         </div>
       </div>
     {/if}
@@ -515,12 +516,12 @@
     <!-- Tabs - scrollable on mobile -->
     <div class="flex border-b border-border flex-shrink-0 overflow-x-auto scrollbar-hide">
       {#each [
-        { id: 'general', label: 'General' },
-        { id: 'apps', label: 'Apps & Groups' },
-        { id: 'theme', label: 'Theme' },
-        { id: 'keybindings', label: 'Keybindings' },
-        { id: 'security', label: 'Security' },
-        { id: 'about', label: 'About' }
+        { id: 'general', get label() { return m.settings_general(); } },
+        { id: 'apps', get label() { return m.settings_appsAndGroups(); } },
+        { id: 'theme', get label() { return m.settings_theme(); } },
+        { id: 'keybindings', get label() { return m.settings_keybindings(); } },
+        { id: 'security', get label() { return m.settings_security(); } },
+        { id: 'about', get label() { return m.settings_about(); } }
       ] as tab (tab.id)}
         <button
           class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
@@ -593,19 +594,19 @@
             <button
               class="btn btn-ghost btn-icon"
               onclick={() => { addAppStep = 'choose'; addAppSearch = ''; }}
-              aria-label="Back"
+              aria-label={m.common_back()}
             >
               <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
               </svg>
             </button>
           {/if}
-          <h3 class="text-lg font-semibold text-text-primary">{addAppStep === 'choose' ? 'Add Application' : 'Configure ' + (newApp.name || 'App')}</h3>
+          <h3 class="text-lg font-semibold text-text-primary">{addAppStep === 'choose' ? m.settings_addApplication() : m.settings_configureApp({ appName: newApp.name || m.settings_appFallbackName() })}</h3>
         </div>
         <button
           class="btn btn-ghost btn-icon"
           onclick={() => showAddApp = false}
-          aria-label="Close"
+          aria-label={m.common_close()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -622,14 +623,14 @@
               type="text"
               bind:value={addAppSearch}
               class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
-              placeholder="Search apps..."
+              placeholder={m.settings_searchApps()}
             />
           </div>
 
           <!-- Custom App card -->
           {#if !addAppSearch}
             <button
-              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-left"
+              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-start"
               onclick={startCustomApp}
             >
               <div class="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center flex-shrink-0">
@@ -638,8 +639,8 @@
                 </svg>
               </div>
               <div>
-                <div class="text-sm font-medium text-text-primary">Custom App</div>
-                <div class="text-xs text-text-muted">Add any app with a custom URL and icon</div>
+                <div class="text-sm font-medium text-text-primary">{m.settings_customApp()}</div>
+                <div class="text-xs text-text-muted">{m.settings_customAppDesc()}</div>
               </div>
             </button>
           {/if}
@@ -654,7 +655,7 @@
                   {#each filtered as template (template.name)}
                     {@const alreadyAdded = localApps.some(a => a.name === template.name)}
                     <button
-                      class="flex items-center gap-3 p-2.5 rounded-lg text-left transition-colors hover:bg-bg-hover {alreadyAdded ? 'bg-bg-elevated/30' : 'bg-bg-surface'}"
+                      class="flex items-center gap-3 p-2.5 rounded-lg text-start transition-colors hover:bg-bg-hover {alreadyAdded ? 'bg-bg-elevated/30' : 'bg-bg-surface'}"
                       onclick={() => selectPopularApp(template)}
                       title={template.description}
                     >
@@ -665,7 +666,7 @@
                         <div class="text-sm font-medium text-text-primary truncate flex items-center gap-1.5">
                           {template.name}
                           {#if alreadyAdded}
-                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-bg-overlay text-text-muted font-normal flex-shrink-0">added</span>
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-bg-overlay text-text-muted font-normal flex-shrink-0">{m.settings_added()}</span>
                           {/if}
                         </div>
                         <div class="text-xs text-text-disabled truncate">{template.description}</div>
@@ -679,12 +680,12 @@
 
           {#if addAppSearch && Object.values(popularApps).every(templates => templates.every(t => !t.name.toLowerCase().includes(addAppSearchLower) && !t.description.toLowerCase().includes(addAppSearchLower)))}
             <div class="text-center py-6">
-              <p class="text-text-muted text-sm mb-3">No matching apps found</p>
+              <p class="text-text-muted text-sm mb-3">{m.settings_noMatchingApps()}</p>
               <button
                 class="btn btn-primary btn-sm"
                 onclick={startCustomApp}
               >
-                Add as Custom App
+                {m.settings_addAsCustomApp()}
               </button>
             </div>
           {/if}
@@ -713,13 +714,13 @@
             class="btn btn-secondary btn-sm"
             onclick={() => showAddApp = false}
           >
-            Cancel
+            {m.common_cancel()}
           </button>
           <button
             class="btn btn-primary btn-sm"
             onclick={addApp}
           >
-            Add App
+            {m.settings_addApp()}
           </button>
         </div>
       {/if}
@@ -739,11 +740,11 @@
       out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">Add Group</h3>
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_addGroup()}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={() => showAddGroup = false}
-          aria-label="Close"
+          aria-label={m.common_close()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -752,33 +753,33 @@
       </div>
       <div class="p-4 space-y-4">
         <div>
-          <label for="group-name" class="block text-sm font-medium text-text-secondary mb-1">Name</label>
+          <label for="group-name" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_name()}</label>
           <input
             id="group-name"
             type="text"
             bind:value={newGroup.name}
             oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
             class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
-            placeholder="Media"
+            placeholder={m.settings_groupNamePlaceholder()}
           />
           {#if groupErrors.name}<p class="text-red-400 text-xs mt-1">{groupErrors.name}</p>{/if}
         </div>
         <div>
-          <span class="block text-sm font-medium text-text-secondary mb-1">Icon</span>
+          <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
             <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newGroup')}>
               <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
             </button>
             <button
-              class="btn btn-secondary btn-sm flex-1 text-left"
+              class="btn btn-secondary btn-sm flex-1 text-start"
               onclick={() => openIconBrowser('newGroup')}
             >
-              {newGroup.icon?.name || 'Choose icon...'}
+              {newGroup.icon?.name || m.settings_chooseIcon()}
             </button>
           </div>
         </div>
         <div>
-          <label for="group-color" class="block text-sm font-medium text-text-secondary mb-1">Color</label>
+          <label for="group-color" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_color()}</label>
           <div class="flex items-center gap-2">
             <input
               id="group-color"
@@ -799,13 +800,13 @@
           class="px-4 py-2 text-sm text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
           onclick={() => showAddGroup = false}
         >
-          Cancel
+          {m.common_cancel()}
         </button>
         <button
           class="btn btn-primary btn-sm"
           onclick={addGroup}
         >
-          Add Group
+          {m.settings_addGroup()}
         </button>
       </div>
     </div>
@@ -824,11 +825,11 @@
       out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">Edit {editingApp.name}</h3>
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={cancelEditApp}
-          aria-label="Close"
+          aria-label={m.common_close()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -861,13 +862,13 @@
           class="btn btn-secondary btn-sm"
           onclick={cancelEditApp}
         >
-          Cancel
+          {m.common_cancel()}
         </button>
         <button
           class="btn btn-primary btn-sm"
           onclick={closeEditApp}
         >
-          Done
+          {m.common_done()}
         </button>
       </div>
     </div>
@@ -886,11 +887,11 @@
       out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">Edit {editingGroup.name}</h3>
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={cancelEditGroup}
-          aria-label="Close"
+          aria-label={m.common_close()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -899,7 +900,7 @@
       </div>
       <div class="p-4 space-y-4">
         <div>
-          <label for="edit-group-name" class="block text-sm font-medium text-text-secondary mb-1">Name</label>
+          <label for="edit-group-name" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_name()}</label>
           <input
             id="edit-group-name"
             type="text"
@@ -910,45 +911,45 @@
           {#if editGroupErrors.name}<p class="text-red-400 text-xs mt-1">{editGroupErrors.name}</p>{/if}
         </div>
         <div>
-          <span class="block text-sm font-medium text-text-secondary mb-1">Icon</span>
+          <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
           <div class="flex items-center gap-3">
             <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editGroup')}>
               <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
             </button>
             <div class="flex-1">
               <button
-                class="btn btn-secondary btn-sm w-full text-left"
+                class="btn btn-secondary btn-sm w-full text-start"
                 onclick={() => openIconBrowser('editGroup')}
               >
-                {editingGroup.icon?.name || 'Choose icon...'}
+                {editingGroup.icon?.name || m.settings_chooseIcon()}
               </button>
               <p class="text-xs text-text-muted mt-1">
-                {editingGroup.icon?.type === 'dashboard' ? 'Dashboard Icon' : editingGroup.icon?.type || 'No icon set'}
+                {editingGroup.icon?.type === 'dashboard' ? m.settings_dashboardIcon() : editingGroup.icon?.type || m.settings_noIconSet()}
               </p>
             </div>
           </div>
           {#if editingGroup?.icon?.type === 'lucide'}
             <div class="flex items-center gap-4 mt-2">
               <label class="flex items-center gap-2 text-xs text-text-muted">
-                Icon color
+                {m.settings_iconColor()}
                 <input type="color" value={editingGroup!.icon.color || '#ffffff'} oninput={(e) => editingGroup!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
                 {#if editingGroup!.icon.color}
-                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.color = ''} title="Reset to theme default">&times;</button>
+                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.color = ''} title={m.settings_resetToDefault()}>&times;</button>
                 {/if}
               </label>
               <label class="flex items-center gap-2 text-xs text-text-muted">
-                Background
+                {m.settings_background()}
                 <input type="color" value={editingGroup!.icon.background || editingGroup!.color || '#374151'} oninput={(e) => editingGroup!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
-                <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title="Transparent">none</button>
+                <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title={m.settings_transparent()}>{m.settings_none()}</button>
                 {#if editingGroup!.icon.background}
-                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.background = ''} title="Reset to group color">&times;</button>
+                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.background = ''} title={m.settings_resetToGroupColor()}>&times;</button>
                 {/if}
               </label>
             </div>
           {/if}
         </div>
         <div>
-          <label for="edit-group-color" class="block text-sm font-medium text-text-secondary mb-1">Color</label>
+          <label for="edit-group-color" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_color()}</label>
           <div class="flex items-center gap-2">
             <input
               id="edit-group-color"
@@ -969,13 +970,13 @@
           class="btn btn-secondary btn-sm"
           onclick={cancelEditGroup}
         >
-          Cancel
+          {m.common_cancel()}
         </button>
         <button
           class="btn btn-primary btn-sm"
           onclick={closeEditGroup}
         >
-          Done
+          {m.common_done()}
         </button>
       </div>
     </div>
@@ -995,11 +996,11 @@
       out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">Select Icon</h3>
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_selectIcon()}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={() => { showIconBrowser = false; iconBrowserTarget = null; }}
-          aria-label="Close"
+          aria-label={m.common_close()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1029,11 +1030,11 @@
       out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
-        <h3 class="text-lg font-semibold text-text-primary">Import Configuration</h3>
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>
         <button
           class="btn btn-ghost btn-icon"
           onclick={cancelImport}
-          aria-label="Close"
+          aria-label={m.common_close()}
         >
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1042,20 +1043,20 @@
       </div>
       <div class="p-4 space-y-4">
         <p class="text-text-secondary">
-          This will replace your current configuration with the imported settings.
+          {m.settings_importDesc()}
         </p>
         <div class="bg-bg-hover rounded-lg p-3 text-sm">
-          <div class="text-text-muted">Preview:</div>
+          <div class="text-text-muted">{m.settings_importPreview()}</div>
           <div class="text-text-primary font-medium">{pendingImport.title}</div>
           <div class="text-text-muted text-xs mt-1">
-            {pendingImport.apps.length} apps, {pendingImport.groups.length} groups
+            {m.settings_importSummary({ appCount: pendingImport.apps.length, groupCount: pendingImport.groups.length })}
           </div>
         </div>
         <p class="text-yellow-400 text-sm flex items-center gap-2">
           <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
           </svg>
-          Unsaved changes will be overwritten
+          {m.settings_importWarning()}
         </p>
       </div>
       <div class="flex justify-end gap-2 p-4 border-t border-border">
@@ -1063,13 +1064,13 @@
           class="btn btn-secondary btn-sm"
           onclick={cancelImport}
         >
-          Cancel
+          {m.common_cancel()}
         </button>
         <button
           class="btn btn-primary btn-sm"
           onclick={applyImport}
         >
-          Import
+          {m.settings_import()}
         </button>
       </div>
     </div>

@@ -3,6 +3,7 @@
   import { fade, fly } from 'svelte/transition';
   import { isMobileViewport } from '$lib/useSwipe';
   import { keybindings, type Keybinding } from '$lib/keybindingsStore';
+  import * as m from '$lib/paraglide/messages.js';
 
   interface Props {
     onclose?: () => void;
@@ -20,10 +21,10 @@
   });
 
   // Category labels for display
-  const categoryLabels: Record<string, string> = {
-    navigation: 'Navigation',
-    actions: 'Actions',
-    apps: 'App Quick Access'
+  const categoryLabels: Record<string, () => string> = {
+    navigation: () => m.shortcuts_categoryNavigation(),
+    actions: () => m.shortcuts_categoryActions(),
+    apps: () => m.shortcuts_categoryApps()
   };
 
   // Group keybindings by category
@@ -36,16 +37,16 @@
   }, {} as Record<string, Keybinding[]>));
 
   // Additional non-customizable shortcuts
-  const additionalShortcuts = [
+  const additionalShortcuts = $derived([
     {
-      category: 'Modal Navigation',
+      get category() { return m.shortcuts_categoryModal(); },
       items: [
-        { keys: ['Escape'], description: 'Close modals / Go to home' },
-        { keys: ['↑/↓'], description: 'Navigate results (in search/palette)' },
-        { keys: ['Enter'], description: 'Select highlighted item' }
+        { get keys() { return [m.shortcuts_keyEscape()]; }, get description() { return m.shortcuts_descCloseModals(); } },
+        { get keys() { return [m.shortcuts_keyUpDown()]; }, get description() { return m.shortcuts_descNavigateResults(); } },
+        { get keys() { return [m.shortcuts_keyEnter()]; }, get description() { return m.shortcuts_descSelectItem(); } }
       ]
     }
-  ];
+  ]);
 
   function handleKeydown(event: KeyboardEvent) {
     if (event.key === 'Escape' || event.key === '?') {
@@ -68,7 +69,7 @@
   onkeydown={handleKeydown}
   role="dialog"
   aria-modal="true"
-  aria-label="Keyboard shortcuts"
+  aria-label={m.shortcuts_title()}
   tabindex="-1"
   transition:fade={{ duration: 150 }}
 >
@@ -82,11 +83,11 @@
   >
     <!-- Header -->
     <div class="flex items-center justify-between p-4 border-b" style="border-color: var(--border-subtle);">
-      <h2 class="text-lg font-semibold" style="color: var(--text-primary);">Keyboard Shortcuts</h2>
+      <h2 class="text-lg font-semibold" style="color: var(--text-primary);">{m.shortcuts_title()}</h2>
       <button
         class="shortcuts-close-btn p-1.5 rounded-md"
         onclick={() => onclose?.()}
-        aria-label="Close"
+        aria-label={m.shortcuts_closeAriaLabel()}
       >
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -102,7 +103,7 @@
           {#if category !== 'apps'}
             <div>
               <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
-                {categoryLabels[category] || category}
+                {categoryLabels[category]?.() || category}
               </h3>
               <div class="space-y-2">
                 {#each bindings as binding (binding.action)}
@@ -111,7 +112,7 @@
                     <div class="flex items-center gap-1">
                       {#each binding.combos as combo, i (i)}
                         {#if i > 0}
-                          <span class="text-xs" style="color: var(--text-disabled);">or</span>
+                          <span class="text-xs" style="color: var(--text-disabled);">{m.common_or()}</span>
                         {/if}
                         <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
                           {#if combo.ctrl}Ctrl+{/if}{#if combo.alt}Alt+{/if}{#if combo.shift}Shift+{/if}{#if combo.meta}⌘{/if}{combo.key.length === 1 ? combo.key.toUpperCase() : combo.key}
@@ -129,13 +130,13 @@
         {#if groupedBindings.apps}
           <div>
             <h3 class="text-sm font-semibold uppercase tracking-wider mb-3" style="color: var(--text-muted);">
-              App Quick Access
+              {m.shortcuts_categoryApps()}
             </h3>
             <div class="space-y-2">
               <div class="flex items-center justify-between py-1">
-                <span style="color: var(--text-secondary);">Switch to app by number</span>
+                <span style="color: var(--text-secondary);">{m.shortcuts_descSwitchByNumber()}</span>
                 <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
-                  1-9
+                  {m.shortcuts_keyNumbers()}
                 </kbd>
               </div>
             </div>
@@ -155,7 +156,7 @@
                   <div class="flex items-center gap-1">
                     {#each shortcut.keys as key, i (i)}
                       {#if i > 0}
-                        <span class="text-xs" style="color: var(--text-disabled);">or</span>
+                        <span class="text-xs" style="color: var(--text-disabled);">{m.common_or()}</span>
                       {/if}
                       <kbd class="shortcuts-kbd px-2 py-1 text-xs rounded font-mono">
                         {key}
@@ -172,7 +173,7 @@
       <!-- Customization hint -->
       <div class="mt-6 p-3 rounded-lg" style="background: var(--bg-hover);">
         <p class="text-sm text-center" style="color: var(--text-muted);">
-          Customize shortcuts in <span style="color: var(--accent-primary);">Settings → Keybindings</span>
+          {m.shortcuts_customizeHint()} <span style="color: var(--accent-primary);">{m.shortcuts_settingsKeybindings()}</span>
         </p>
       </div>
     </div>
@@ -180,8 +181,8 @@
     <!-- Footer -->
     <div class="p-4 border-t text-center" style="border-color: var(--border-subtle);">
       <p class="text-sm" style="color: var(--text-muted);">
-        Press <kbd class="shortcuts-kbd px-1.5 py-0.5 text-xs rounded">?</kbd> or
-        <kbd class="shortcuts-kbd px-1.5 py-0.5 text-xs rounded">Escape</kbd> to close
+        {m.shortcuts_footerPress()} <kbd class="shortcuts-kbd px-1.5 py-0.5 text-xs rounded">{m.shortcuts_keyQuestion()}</kbd> {m.common_or()}
+        <kbd class="shortcuts-kbd px-1.5 py-0.5 text-xs rounded">{m.shortcuts_keyEscape()}</kbd> {m.shortcuts_footerToClose()}
       </p>
     </div>
   </div>

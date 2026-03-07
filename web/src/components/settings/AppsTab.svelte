@@ -3,6 +3,7 @@
   import type { App, Group } from '$lib/types';
   import AppIcon from '../AppIcon.svelte';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
+  import * as m from '$lib/paraglide/messages.js';
 
   let {
     dndGroups = $bindable(),
@@ -111,18 +112,18 @@
     <div class="flex items-center gap-2 flex-wrap">
       <span class="font-medium text-text-primary text-sm truncate">{app.name}</span>
       {#if app.default}
-        <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">Default</span>
+        <span class="text-xs bg-brand-500/20 text-brand-400 px-1.5 py-0.5 rounded">{m.common_default()}</span>
       {/if}
       {#if !app.enabled}
-        <span class="text-xs bg-bg-overlay text-text-muted px-1.5 py-0.5 rounded">Disabled</span>
+        <span class="text-xs bg-bg-overlay text-text-muted px-1.5 py-0.5 rounded">{m.common_disabled()}</span>
       {/if}
       {#if app.proxy}
-        <span class="app-indicator" title="Proxied through server">
+        <span class="app-indicator" title={m.apps_proxyTitle()}>
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
         </span>
       {/if}
       {#if app.open_mode && app.open_mode !== 'iframe'}
-        <span class="app-indicator" title="Opens in {app.open_mode.replace('_', ' ')}">
+        <span class="app-indicator" title={m.apps_opensIn({ mode: app.open_mode === 'new_tab' ? m.apps_newTab() : app.open_mode === 'new_window' ? m.apps_newWindow() : app.open_mode.replace('_', ' ') })}>
           {#if app.open_mode === 'new_tab'}
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
           {:else if app.open_mode === 'new_window'}
@@ -143,24 +144,24 @@
   <!-- App actions -->
   {#if confirmDeleteApp?.name === app.name}
     <div class="flex items-center gap-1">
-      <span class="text-xs text-red-400 mr-1">Delete?</span>
+      <span class="text-xs text-red-400 me-1">{m.common_deleteConfirm()}</span>
       <button class="btn btn-danger btn-sm"
-              onclick={confirmDeleteAppAction}>Yes</button>
+              onclick={confirmDeleteAppAction}>{m.common_yes()}</button>
       <button class="btn btn-secondary btn-sm"
-              onclick={() => confirmDeleteApp = null}>No</button>
+              onclick={() => confirmDeleteApp = null}>{m.common_no()}</button>
     </div>
   {:else}
     <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
       <button class="btn btn-ghost btn-icon btn-sm"
               tabindex="-1"
-              onclick={() => onstartEditApp(app)} title="Edit">
+              onclick={() => onstartEditApp(app)} title={m.common_edit()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
       </button>
       <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
               tabindex="-1"
-              onclick={() => handleDeleteApp(app)} title="Delete">
+              onclick={() => handleDeleteApp(app)} title={m.common_delete()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
         </svg>
@@ -172,7 +173,7 @@
 <div class="space-y-4">
   <!-- Action buttons -->
   <div class="flex justify-between items-center">
-    <h3 class="text-sm font-medium text-text-secondary">Apps & Groups</h3>
+    <h3 class="text-sm font-medium text-text-secondary">{m.apps_heading()}</h3>
     <div class="flex gap-2">
       <button
         class="btn btn-secondary btn-sm flex items-center gap-1"
@@ -181,7 +182,7 @@
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
         </svg>
-        Add Group
+        {m.apps_addGroup()}
       </button>
       <button
         class="btn btn-primary btn-sm flex items-center gap-1"
@@ -190,19 +191,19 @@
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
         </svg>
-        Add App
+        {m.apps_addApp()}
       </button>
     </div>
   </div>
 
   <div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-text-disabled">
-    <span>Drag apps to reorder or move between groups. Drag group headers to reorder groups.</span>
+    <span>{m.apps_dragHelp()}</span>
     <span class="flex items-center gap-3 text-text-disabled">
-      <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></span> Proxy</span>
-      <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></span> New tab</span>
-      <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span> New window</span>
-      <span class="flex items-center gap-1"><span class="app-indicator">50%</span> Scale</span>
-      <span class="flex items-center gap-1"><span class="app-indicator">&#x2328;</span> Keyboard</span>
+      <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg></span> {m.apps_proxy()}</span>
+      <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg></span> {m.apps_newTab()}</span>
+      <span class="flex items-center gap-1"><span class="app-indicator"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><rect x="2" y="3" width="20" height="14" rx="2" ry="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></span> {m.apps_newWindow()}</span>
+      <span class="flex items-center gap-1"><span class="app-indicator">50%</span> {m.apps_scale()}</span>
+      <span class="flex items-center gap-1"><span class="app-indicator">&#x2328;</span> {m.apps_keyboard()}</span>
     </span>
   </div>
 
@@ -232,28 +233,28 @@
           <!-- Group info -->
           <div class="flex-1 min-w-0">
             <span class="font-medium text-text-primary text-sm">{group.name}</span>
-            <span class="text-xs text-text-disabled ml-2">{appsInGroup.length} apps</span>
+            <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${appsInGroup.length}` })}</span>
           </div>
 
           <!-- Group actions -->
           {#if confirmDeleteGroup?.name === group.name}
             <div class="flex items-center gap-1">
-              <span class="text-xs text-red-400 mr-1">Delete?</span>
+              <span class="text-xs text-red-400 me-1">{m.common_deleteConfirm()}</span>
               <button class="btn btn-danger btn-sm"
-                      onclick={confirmDeleteGroupAction}>Yes</button>
+                      onclick={confirmDeleteGroupAction}>{m.common_yes()}</button>
               <button class="btn btn-secondary btn-sm"
-                      onclick={() => confirmDeleteGroup = null}>No</button>
+                      onclick={() => confirmDeleteGroup = null}>{m.common_no()}</button>
             </div>
           {:else}
             <div class="flex items-center gap-1 app-actions">
               <button class="btn btn-ghost btn-icon btn-sm"
-                      onclick={() => onstartEditGroup(group)} title="Edit group">
+                      onclick={() => onstartEditGroup(group)} title={m.apps_editGroup()}>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
               <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
-                      onclick={() => handleDeleteGroup(group)} title="Delete group">
+                      onclick={() => handleDeleteGroup(group)} title={m.apps_deleteGroup()}>
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
@@ -265,7 +266,7 @@
         <!-- Apps in this group (dnd-zone for app reordering + cross-group) -->
         <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: appsInGroup, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, group.name)} onfinalize={(e) => handleAppDndFinalize(e, group.name)}>
           {#if appsInGroup.length === 0}
-            <div class="text-center py-3 text-text-disabled text-sm italic">No apps in this group</div>
+            <div class="text-center py-3 text-text-disabled text-sm italic">{m.apps_noAppsInGroup()}</div>
           {/if}
           {#each appsInGroup as app ((app as App & Record<string, unknown>).id)}
             <div
@@ -285,11 +286,11 @@
     {@const ungroupedApps = dndGroupedApps[''] || []}
     <div class="rounded-lg border border-border border-dashed" class:hidden={ungroupedApps.length === 0 && localGroupsCount === 0}>
       <div class="p-3 bg-bg-elevated/20 rounded-t-lg">
-        <span class="text-sm font-medium text-text-muted">Ungrouped</span>
+        <span class="text-sm font-medium text-text-muted">{m.apps_ungrouped()}</span>
         {#if ungroupedApps.length > 0}
-          <span class="text-xs text-text-disabled ml-2">{ungroupedApps.length} apps</span>
+          <span class="text-xs text-text-disabled ms-2">{m.apps_appCount({ count: `${ungroupedApps.length}` })}</span>
         {:else}
-          <span class="text-xs text-text-disabled ml-2">Drag apps here to ungroup them</span>
+          <span class="text-xs text-text-disabled ms-2">{m.apps_dragToUngroup()}</span>
         {/if}
       </div>
       <div class="p-2 space-y-1 min-h-[36px]" use:dndzone={{items: ungroupedApps, flipDurationMs, type: 'apps', dropTargetStyle: {}}} onconsider={(e) => handleAppDndConsider(e, '')} onfinalize={(e) => handleAppDndFinalize(e, '')}>
@@ -307,7 +308,7 @@
 
   {#if localAppsCount === 0 && localGroupsCount === 0}
     <div class="text-center py-8 text-text-muted">
-      No applications or groups configured. Click "Add App" to get started.
+      {m.apps_noAppsConfigured()}
     </div>
   {/if}
 </div>

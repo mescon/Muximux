@@ -37,6 +37,10 @@
   } from '$lib/themeStore';
   import { forwardAuthPresets, applyPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
   import { API_BASE } from '$lib/api';
+  import * as m from '$lib/paraglide/messages.js';
+  import { applyLocaleToDocument } from '$lib/localeStore';
+  import { setLocale, getLocale, locales } from '$lib/paraglide/runtime.js';
+  import LocaleSelect from './LocaleSelect.svelte';
 
   // Config restore state
   let restoreFileInput = $state<HTMLInputElement | undefined>(undefined);
@@ -324,12 +328,12 @@
   });
 
   // Navigation position options
-  const navPositions: { value: NavigationConfig['position']; label: string; description: string; icon: string }[] = [
-    { value: 'top', label: 'Top Bar', description: 'Horizontal navigation at the top', icon: 'top' },
-    { value: 'left', label: 'Left Sidebar', description: 'Vertical sidebar on the left', icon: 'left' },
-    { value: 'right', label: 'Right Sidebar', description: 'Vertical sidebar on the right', icon: 'right' },
-    { value: 'bottom', label: 'Bottom Bar', description: 'Horizontal bar at the bottom', icon: 'bottom' },
-    { value: 'floating', label: 'Floating', description: 'Minimal floating button', icon: 'floating' }
+  const navPositions: { value: NavigationConfig['position']; get label(): string; get description(): string; icon: string }[] = [
+    { value: 'top', get label() { return m.general_navPositionTop(); }, get description() { return m.general_navPositionTopDesc(); }, icon: 'top' },
+    { value: 'left', get label() { return m.general_navPositionLeft(); }, get description() { return m.general_navPositionLeftDesc(); }, icon: 'left' },
+    { value: 'right', get label() { return m.general_navPositionRight(); }, get description() { return m.general_navPositionRightDesc(); }, icon: 'right' },
+    { value: 'bottom', get label() { return m.general_navPositionBottom(); }, get description() { return m.general_navPositionBottomDesc(); }, icon: 'bottom' },
+    { value: 'floating', get label() { return m.general_navPositionFloating(); }, get description() { return m.general_navPositionFloatingDesc(); }, icon: 'floating' }
   ];
 
   // Build the full preview app list — mirrors completeOnboarding() so the preview
@@ -418,10 +422,10 @@
   let previewCurrentAppOverride = $state<App | null>(null);
 
   // Variant options
-  const variantOptions: { value: VariantMode; label: string }[] = [
-    { value: 'dark', label: 'Dark' },
-    { value: 'system', label: 'System' },
-    { value: 'light', label: 'Light' }
+  const variantOptions: { value: VariantMode; get label(): string }[] = [
+    { value: 'dark', get label() { return m.theme_dark(); } },
+    { value: 'system', get label() { return m.theme_system(); } },
+    { value: 'light', get label() { return m.theme_light(); } }
   ];
 
   // Add custom app
@@ -815,15 +819,15 @@
   }
 
   // Step indicators — dynamic based on configured steps
-  const stepLabelMap: Record<OnboardingStep, string> = {
-    welcome: 'Welcome',
-    security: 'Security',
-    apps: 'Apps',
-    navigation: 'Style',
-    theme: 'Theme',
-    complete: 'Done'
+  const stepLabelFns: Record<OnboardingStep, () => string> = {
+    welcome: () => m.onboarding_stepWelcome(),
+    security: () => m.onboarding_stepSecurity(),
+    apps: () => m.onboarding_stepApps(),
+    navigation: () => m.onboarding_stepStyle(),
+    theme: () => m.onboarding_stepTheme(),
+    complete: () => m.onboarding_stepDone()
   };
-  const steps = $derived($activeStepOrder.map(s => stepLabelMap[s]));
+  const steps = $derived($activeStepOrder.map(s => stepLabelFns[s]()));
 
   function handleGlobalKeydown(e: KeyboardEvent) {
     if (e.key !== 'Enter') return;
@@ -929,12 +933,12 @@
           />
         {/if}
 
-        <div class="flex-1 overflow-y-auto px-8 py-6 relative" style="background: var(--bg-base); {$selectedNavigation === 'left' ? 'margin-left: 220px;' : $selectedNavigation === 'right' ? 'margin-right: 220px;' : ''}">
+        <div class="flex-1 overflow-y-auto px-8 py-6 relative" style="background: var(--bg-base); {$selectedNavigation === 'left' ? 'margin-inline-start: 220px;' : $selectedNavigation === 'right' ? 'margin-inline-end: 220px;' : ''}">
           <div class="max-w-3xl mx-auto">
             {#if $currentStep === 'navigation'}
             <div class="text-center mb-6">
-              <h2 class="text-2xl font-bold text-text-primary mb-2">Choose Your Navigation Style</h2>
-              <p class="text-text-muted">Select how you want to navigate between your apps</p>
+              <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_navStyleTitle()}</h2>
+              <p class="text-text-muted">{m.onboarding_navStyleSubtitle()}</p>
             </div>
 
             <!-- Position selector buttons -->
@@ -956,8 +960,8 @@
             {#if $selectedNavigation === 'top' || $selectedNavigation === 'bottom'}
               <div class="flex justify-center gap-2 mb-4">
                 {#each [
-                  { value: 'grouped', label: 'Group Dropdowns' },
-                  { value: 'flat', label: 'Flat List' }
+                  { value: 'grouped', label: m.general_barStyleGrouped() },
+                  { value: 'flat', label: m.general_barStyleFlat() }
                 ] as style (style.value)}
                   <button
                     class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
@@ -976,10 +980,10 @@
             {#if $selectedNavigation === 'floating'}
               <div class="flex flex-wrap justify-center gap-2 mb-4">
                 {#each [
-                  { value: 'bottom-right', label: 'Bottom Right' },
-                  { value: 'bottom-left', label: 'Bottom Left' },
-                  { value: 'top-right', label: 'Top Right' },
-                  { value: 'top-left', label: 'Top Left' }
+                  { value: 'bottom-right', label: m.general_floatingBottomRight() },
+                  { value: 'bottom-left', label: m.general_floatingBottomLeft() },
+                  { value: 'top-right', label: m.general_floatingTopRight() },
+                  { value: 'top-left', label: m.general_floatingTopLeft() }
                 ] as fp (fp.value)}
                   <button
                     class="px-3 py-1.5 rounded-lg border text-xs font-medium transition-all
@@ -1000,8 +1004,8 @@
                 <input type="checkbox" bind:checked={$showLabels}
                   class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-text-primary">Show Labels</div>
-                  <div class="text-xs text-text-muted">Display app names next to icons</div>
+                  <div class="text-sm text-text-primary">{m.general_showLabels()}</div>
+                  <div class="text-xs text-text-muted">{m.general_showLabelsDesc()}</div>
                 </div>
               </label>
 
@@ -1009,8 +1013,8 @@
                 <input type="checkbox" bind:checked={navShowLogo}
                   class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-text-primary">Show Logo</div>
-                  <div class="text-xs text-text-muted">Display the Muximux logo in the menu</div>
+                  <div class="text-sm text-text-primary">{m.general_showLogo()}</div>
+                  <div class="text-xs text-text-muted">{m.general_showLogoDesc()}</div>
                 </div>
               </label>
 
@@ -1018,8 +1022,8 @@
                 <input type="checkbox" bind:checked={navShowAppColors}
                   class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-text-primary">App Color Accents</div>
-                  <div class="text-xs text-text-muted">Highlight the active app with its color</div>
+                  <div class="text-sm text-text-primary">{m.general_appColorAccents()}</div>
+                  <div class="text-xs text-text-muted">{m.general_appColorAccentsDesc()}</div>
                 </div>
               </label>
 
@@ -1027,16 +1031,16 @@
                 <input type="checkbox" bind:checked={navShowIconBg}
                   class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-text-primary">Icon Background</div>
-                  <div class="text-xs text-text-muted">Show colored circle behind app icons</div>
+                  <div class="text-sm text-text-primary">{m.general_iconBackground()}</div>
+                  <div class="text-xs text-text-muted">{m.general_iconBackgroundDesc()}</div>
                 </div>
               </label>
 
               <div class="p-3 bg-bg-surface rounded-lg border border-border sm:col-span-2">
                 <div class="flex items-center justify-between mb-2">
                   <div>
-                    <div class="text-sm text-text-primary">Icon Size</div>
-                    <div class="text-xs text-text-muted">Scale app icons in the navigation</div>
+                    <div class="text-sm text-text-primary">{m.general_iconSize()}</div>
+                    <div class="text-xs text-text-muted">{m.general_iconSizeDesc()}</div>
                   </div>
                   <span class="text-sm text-text-secondary tabular-nums">{navIconScale}×</span>
                 </div>
@@ -1049,8 +1053,8 @@
                 <input type="checkbox" bind:checked={navShowSplash}
                   class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                 <div>
-                  <div class="text-sm text-text-primary">Start on Overview</div>
-                  <div class="text-xs text-text-muted">Show the dashboard overview when Muximux opens</div>
+                  <div class="text-sm text-text-primary">{m.general_startOnOverview()}</div>
+                  <div class="text-xs text-text-muted">{m.general_startOnOverviewDesc()}</div>
                 </div>
               </label>
 
@@ -1059,13 +1063,13 @@
                   <input type="checkbox" bind:checked={navAutoHide}
                     class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                   <div class="flex-1">
-                    <div class="text-sm text-text-primary">Auto-hide Menu</div>
-                    <div class="text-xs text-text-muted">Automatically collapse the menu after inactivity</div>
+                    <div class="text-sm text-text-primary">{m.general_autoHideMenu()}</div>
+                    <div class="text-xs text-text-muted">{m.general_autoHideMenuDesc()}</div>
                   </div>
                 </label>
                 {#if navAutoHide}
                   <div class="flex items-center gap-3 mt-3 pt-3 border-t border-border">
-                    <div class="flex-1 text-xs text-text-muted pl-7">Hide after</div>
+                    <div class="flex-1 text-xs text-text-muted ps-7">{m.general_hideAfter()}</div>
                     <select bind:value={navAutoHideDelay}
                       class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500">
                       <option value="0.25s">0.25s</option>
@@ -1075,10 +1079,10 @@
                       <option value="3s">3s</option>
                     </select>
                   </div>
-                  <label class="flex items-center gap-3 mt-2 pl-7 cursor-pointer">
+                  <label class="flex items-center gap-3 mt-2 ps-7 cursor-pointer">
                     <input type="checkbox" bind:checked={navShowShadow}
                       class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
-                    <div class="text-xs text-text-muted">Shadow — show a drop shadow on the expanded menu</div>
+                    <div class="text-xs text-text-muted">{m.general_shadow()}</div>
                   </label>
                 {/if}
               </div>
@@ -1089,8 +1093,8 @@
                     <input type="checkbox" bind:checked={navHideSidebarFooter}
                       class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
                     <div class="flex-1">
-                      <div class="text-sm text-text-primary">Collapsible Footer</div>
-                      <div class="text-xs text-text-muted">Hide utility buttons in a drawer that reveals on hover</div>
+                      <div class="text-sm text-text-primary">{m.general_collapsibleFooter()}</div>
+                      <div class="text-xs text-text-muted">{m.general_collapsibleFooterDesc()}</div>
                     </div>
                   </label>
                 </div>
@@ -1100,8 +1104,8 @@
             {:else}
             <!-- Theme step content -->
             <div class="text-center mb-8">
-              <h2 class="text-2xl font-bold text-text-primary mb-2">Choose Your Theme</h2>
-              <p class="text-text-muted">Pick a visual style for your dashboard</p>
+              <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_themeTitle()}</h2>
+              <p class="text-text-muted">{m.onboarding_themeSubtitle()}</p>
             </div>
 
             <!-- Variant mode selector (segmented control) -->
@@ -1129,7 +1133,7 @@
                 {@const preferred = wantDark ? family.darkTheme?.preview : family.lightTheme?.preview}
                 {@const preview = preferred || family.darkTheme?.preview || family.lightTheme?.preview}
                 <button
-                  class="relative p-4 rounded-xl border text-left transition-all
+                  class="relative p-4 rounded-xl border text-start transition-all
                          {isSelected
                            ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/30'
                            : 'border-border hover:border-border-strong bg-bg-surface'}"
@@ -1157,7 +1161,7 @@
 
                   <!-- Selection checkmark -->
                   {#if isSelected}
-                    <div class="absolute top-2 right-2 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
+                    <div class="absolute top-2 end-2 w-5 h-5 rounded-full bg-brand-500 flex items-center justify-center">
                       <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
                       </svg>
@@ -1168,7 +1172,7 @@
             </div>
 
             <p class="text-center text-text-disabled text-sm mt-6 max-w-md mx-auto">
-              Changes apply live — you can create custom themes later in Settings
+              {m.onboarding_themeCustomizeHint()}
             </p>
             {/if}
           </div>
@@ -1193,23 +1197,34 @@
             </svg>
           </div>
 
-          <h1 class="text-4xl font-bold text-text-primary mb-4">Welcome to Muximux</h1>
+          <h1 class="text-4xl font-bold text-text-primary mb-4">{m.onboarding_welcomeTitle()}</h1>
           <p class="text-xl text-text-muted mb-8 max-w-3xl mx-auto">
             {needsSetup
-              ? "Your unified homelab dashboard. Let's secure and set up your applications."
-              : "Your unified homelab dashboard. Let's set up your applications in a few quick steps."}
+              ? m.onboarding_welcomeSubtitleSetup()
+              : m.onboarding_welcomeSubtitle()}
           </p>
 
+          <!-- Language selector -->
+          <div class="mb-8 flex items-center justify-center gap-3">
+            <label for="onboarding-language" class="text-sm text-text-muted">{m.onboarding_selectLanguage()}</label>
+            <LocaleSelect
+              id="onboarding-language"
+              value={getLocale()}
+              class="w-64"
+              onchange={(tag: string) => setLocale(tag as typeof locales[number])}
+            />
+          </div>
+
           <!-- Feature highlights -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-left">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-start">
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
               <div class="w-10 h-10 rounded-lg bg-brand-500/20 flex items-center justify-center mb-3">
                 <svg class="w-5 h-5 text-brand-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-text-primary mb-1 text-base">One Dashboard</h2>
-              <p class="text-sm text-text-muted">All your homelab services in a single tab — no more juggling bookmarks</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">{m.onboarding_featureOneDashboard()}</h2>
+              <p class="text-sm text-text-muted">{m.onboarding_featureOneDashboardDesc()}</p>
             </div>
 
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
@@ -1218,8 +1233,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-text-primary mb-1 text-base">Built-in Proxy</h2>
-              <p class="text-sm text-text-muted">Apps that block iframes just work — headers are stripped automatically</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">{m.onboarding_featureBuiltInProxy()}</h2>
+              <p class="text-sm text-text-muted">{m.onboarding_featureBuiltInProxyDesc()}</p>
             </div>
 
             <div class="p-4 bg-bg-surface rounded-lg border border-border">
@@ -1228,8 +1243,8 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
                 </svg>
               </div>
-              <h2 class="font-semibold text-text-primary mb-1 text-base">Quick Access</h2>
-              <p class="text-sm text-text-muted">Ctrl+K to search, 1–9 shortcuts, instant switching between apps</p>
+              <h2 class="font-semibold text-text-primary mb-1 text-base">{m.onboarding_featureQuickAccess()}</h2>
+              <p class="text-sm text-text-muted">{m.onboarding_featureQuickAccessDesc()}</p>
             </div>
           </div>
 
@@ -1237,17 +1252,17 @@
             class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
             onclick={nextStep}
           >
-            Let's Get Started
+            {m.onboarding_letsGetStarted()}
           </button>
 
           <div class="mt-6">
-            <p class="text-sm text-text-muted mb-2">Have an existing configuration?</p>
+            <p class="text-sm text-text-muted mb-2">{m.onboarding_existingConfig()}</p>
             <button
               class="text-sm text-brand-400 hover:text-brand-300 transition-colors"
               onclick={() => restoreFileInput?.click()}
               disabled={restoring}
             >
-              {restoring ? 'Restoring...' : 'Restore from Backup'}
+              {restoring ? m.onboarding_restoring() : m.onboarding_restoreFromBackup()}
             </button>
             <input
               bind:this={restoreFileInput}
@@ -1266,15 +1281,15 @@
       {:else if $currentStep === 'security'}
         <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-text-primary mb-2">Secure Your Dashboard</h2>
-            <p class="text-text-muted">Choose how you want to protect access to Muximux</p>
+            <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_secureTitle()}</h2>
+            <p class="text-text-muted">{m.onboarding_secureSubtitle()}</p>
           </div>
 
           <!-- Method selection cards (accordion — form expands inline) -->
             <div class="max-w-2xl mx-auto space-y-3">
               <!-- Builtin password -->
               <div
-                class="rounded-xl border text-left transition-all overflow-hidden
+                class="rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'builtin' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'builtin' ? null : 'builtin'; if (authMethod === 'builtin') { await tick(); document.getElementById('setup-username')?.focus(); } }}>
@@ -1284,18 +1299,18 @@
                       <path d="M7 11V7a5 5 0 0110 0v4" />
                     </svg>
                   </div>
-                  <div class="flex-1 text-left">
+                  <div class="flex-1 text-start">
                     <div class="flex items-center gap-2">
-                      <h3 class="font-semibold text-text-primary">Create a password</h3>
-                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">Recommended</span>
+                      <h3 class="font-semibold text-text-primary">{m.onboarding_createPassword()}</h3>
+                      <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500 text-white uppercase tracking-wider">{m.onboarding_recommended()}</span>
                     </div>
-                    <p class="text-sm text-text-muted mt-1">Set up a username and password to protect your dashboard</p>
+                    <p class="text-sm text-text-muted mt-1">{m.security_passwordAuthDesc()}</p>
                   </div>
                 </button>
                 {#if authMethod === 'builtin'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-border pt-4">
-                      <label for="setup-username" class="block text-sm text-text-muted mb-1">Username</label>
+                      <label for="setup-username" class="block text-sm text-text-muted mb-1">{m.common_username()}</label>
                       <input
                         id="setup-username"
                         type="text"
@@ -1307,33 +1322,33 @@
                       />
                     </div>
                     <div>
-                      <label for="setup-password" class="block text-sm text-text-muted mb-1">Password</label>
+                      <label for="setup-password" class="block text-sm text-text-muted mb-1">{m.common_password()}</label>
                       <input
                         id="setup-password"
                         type="password"
                         bind:value={setupPassword}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
-                        placeholder="Minimum 8 characters"
+                        placeholder={m.security_minEightChars()}
                         autocomplete="new-password"
                       />
                       {#if setupPassword.length > 0 && setupPassword.length < 8}
-                        <p class="text-red-400 text-xs mt-1">Password must be at least 8 characters</p>
+                        <p class="text-red-400 text-xs mt-1">{m.error_passwordTooShort()}</p>
                       {/if}
                     </div>
                     <div>
-                      <label for="setup-confirm" class="block text-sm text-text-muted mb-1">Confirm password</label>
+                      <label for="setup-confirm" class="block text-sm text-text-muted mb-1">{m.onboarding_confirmPassword()}</label>
                       <input
                         id="setup-confirm"
                         type="password"
                         bind:value={setupConfirmPassword}
                         class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
-                        placeholder="Re-enter password"
+                        placeholder={m.onboarding_reenterPassword()}
                         autocomplete="new-password"
                       />
                       {#if setupConfirmPassword.length > 0 && setupPassword !== setupConfirmPassword}
-                        <p class="text-red-400 text-xs mt-1">Passwords do not match</p>
+                        <p class="text-red-400 text-xs mt-1">{m.error_passwordsMismatch()}</p>
                       {/if}
                     </div>
                   </div>
@@ -1342,7 +1357,7 @@
 
               <!-- Forward auth -->
               <div
-                class="rounded-xl border text-left transition-all overflow-hidden
+                class="rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'forward_auth' ? 'border-brand-500 bg-brand-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'forward_auth' ? null : 'forward_auth'; if (authMethod === 'forward_auth') { await tick(); document.getElementById('setup-proxies')?.focus(); } }}>
@@ -1351,15 +1366,15 @@
                       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                     </svg>
                   </div>
-                  <div class="text-left">
-                    <h3 class="font-semibold text-text-primary">I use an auth proxy</h3>
-                    <p class="text-sm text-text-muted mt-1">Authelia, Authentik, or another reverse proxy handles authentication</p>
+                  <div class="text-start">
+                    <h3 class="font-semibold text-text-primary">{m.onboarding_iUseAuthProxy()}</h3>
+                    <p class="text-sm text-text-muted mt-1">{m.security_authProxyDesc()}</p>
                   </div>
                 </button>
                 {#if authMethod === 'forward_auth'}
-                  <div class="px-4 pb-4 pt-0 space-y-4 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 space-y-4 ms-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-border pt-4">
-                      <span class="block text-sm text-text-muted mb-2">Proxy type</span>
+                      <span class="block text-sm text-text-muted mb-2">{m.security_proxyType()}</span>
                       <div class="flex gap-2">
                         {#each ['authelia', 'authentik', 'custom'] as p (p)}
                           <button
@@ -1374,7 +1389,7 @@
                     </div>
 
                     <div>
-                      <label for="setup-proxies" class="block text-sm text-text-muted mb-1">Trusted proxy IPs</label>
+                      <label for="setup-proxies" class="block text-sm text-text-muted mb-1">{m.security_trustedProxies()}</label>
                       <textarea
                         id="setup-proxies"
                         bind:value={faTrustedProxies}
@@ -1383,11 +1398,11 @@
                         placeholder="10.0.0.1/32&#10;172.16.0.0/12"
                         rows="3"
                       ></textarea>
-                      <p class="text-xs text-text-disabled mt-1">IP addresses or CIDR ranges, one per line</p>
+                      <p class="text-xs text-text-disabled mt-1">{m.security_proxyRangesHelp()}</p>
                     </div>
 
                     <div>
-                      <label for="setup-logout-url" class="block text-sm text-text-muted mb-1">Logout URL</label>
+                      <label for="setup-logout-url" class="block text-sm text-text-muted mb-1">{m.security_logoutUrl()}</label>
                       <input
                         id="setup-logout-url"
                         type="url"
@@ -1396,7 +1411,7 @@
                                focus:outline-none focus:ring-2 focus:ring-brand-500"
                         placeholder={forwardAuthPresets[faPreset]?.logoutUrl || 'https://auth.example.com/logout'}
                       />
-                      <p class="text-xs text-text-disabled mt-1">Your auth provider's logout endpoint — clears the external session on sign-out</p>
+                      <p class="text-xs text-text-disabled mt-1">{m.security_logoutUrlHelp()}</p>
                     </div>
 
                     <button
@@ -1406,28 +1421,28 @@
                       <svg class="w-4 h-4 transition-transform {faShowAdvanced ? 'rotate-90' : ''}" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                       </svg>
-                      Advanced: Header names
+                      {m.security_advancedHeaders()}
                     </button>
 
                     {#if faShowAdvanced}
                       <div class="grid grid-cols-2 gap-3 p-3 rounded-lg bg-bg-surface border border-border" in:fly={{ y: -10, duration: 150 }}>
                         <div>
-                          <label for="fa-header-user" class="block text-xs text-text-muted mb-1">User header</label>
+                          <label for="fa-header-user" class="block text-xs text-text-muted mb-1">{m.security_userHeader()}</label>
                           <input id="fa-header-user" type="text" bind:value={faHeaderUser}
                             class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                         <div>
-                          <label for="fa-header-email" class="block text-xs text-text-muted mb-1">Email header</label>
+                          <label for="fa-header-email" class="block text-xs text-text-muted mb-1">{m.security_emailHeader()}</label>
                           <input id="fa-header-email" type="text" bind:value={faHeaderEmail}
                             class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                         <div>
-                          <label for="fa-header-groups" class="block text-xs text-text-muted mb-1">Groups header</label>
+                          <label for="fa-header-groups" class="block text-xs text-text-muted mb-1">{m.security_groupsHeader()}</label>
                           <input id="fa-header-groups" type="text" bind:value={faHeaderGroups}
                             class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
                         <div>
-                          <label for="fa-header-name" class="block text-xs text-text-muted mb-1">Name header</label>
+                          <label for="fa-header-name" class="block text-xs text-text-muted mb-1">{m.security_nameHeader()}</label>
                           <input id="fa-header-name" type="text" bind:value={faHeaderName}
                             class="w-full px-2 py-1.5 bg-bg-elevated border border-border-subtle rounded text-text-primary text-sm focus:outline-none focus:ring-1 focus:ring-brand-500" />
                         </div>
@@ -1439,7 +1454,7 @@
 
               <!-- None -->
               <div
-                class="rounded-xl border text-left transition-all overflow-hidden
+                class="rounded-xl border text-start transition-all overflow-hidden
                        {authMethod === 'none' ? 'border-amber-500 bg-amber-500/10' : 'border-border bg-bg-surface hover:border-border'}"
               >
                 <button class="w-full p-4 flex items-start gap-4" onclick={async () => { authMethod = authMethod === 'none' ? null : 'none'; if (authMethod === 'none') { await tick(); (document.querySelector('#setup-none-ack') as HTMLElement)?.focus(); } }}>
@@ -1449,13 +1464,13 @@
                       <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
                     </svg>
                   </div>
-                  <div class="text-left">
-                    <h3 class="font-semibold text-text-primary">No authentication</h3>
-                    <p class="text-sm text-text-muted mt-1">Anyone with network access gets full control</p>
+                  <div class="text-start">
+                    <h3 class="font-semibold text-text-primary">{m.security_noAuth()}</h3>
+                    <p class="text-sm text-text-muted mt-1">{m.security_noAuthDesc()}</p>
                   </div>
                 </button>
                 {#if authMethod === 'none'}
-                  <div class="px-4 pb-4 pt-0 ml-14" in:fly={{ y: -8, duration: 200 }}>
+                  <div class="px-4 pb-4 pt-0 ms-14" in:fly={{ y: -8, duration: 200 }}>
                     <div class="border-t border-border pt-4">
                       <div class="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20 mb-4">
                         <div class="flex gap-3">
@@ -1465,15 +1480,15 @@
                             <line x1="12" y1="17" x2="12.01" y2="17" />
                           </svg>
                           <div>
-                            <h4 class="font-semibold text-amber-400 text-sm mb-1">Security warning</h4>
-                            <p class="text-sm text-text-muted">Without authentication, anyone who can reach this port has full access to your dashboard and all configured services.</p>
+                            <h4 class="font-semibold text-amber-400 text-sm mb-1">{m.security_warningLabel()}</h4>
+                            <p class="text-sm text-text-muted">{m.security_noAuthWarning()}</p>
                           </div>
                         </div>
                       </div>
                       <label class="flex items-start gap-3 cursor-pointer">
                         <input id="setup-none-ack" type="checkbox" bind:checked={acknowledgeRisk}
                           class="mt-1 w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500" />
-                        <span class="text-sm text-text-muted">I understand the risks and want to proceed without authentication</span>
+                        <span class="text-sm text-text-muted">{m.onboarding_acknowledgeRisk()}</span>
                       </label>
                     </div>
                   </div>
@@ -1487,8 +1502,8 @@
       {:else if $currentStep === 'apps'}
         <div class="py-6" style="grid-area: 1/1;" in:fly={{ x: 30, duration: 300 }} out:fade={{ duration: 150 }}>
           <div class="text-center mb-8">
-            <h2 class="text-2xl font-bold text-text-primary mb-2">What apps do you have?</h2>
-            <p class="text-text-muted">Select the services you're already running</p>
+            <h2 class="text-2xl font-bold text-text-primary mb-2">{m.onboarding_appsTitle()}</h2>
+            <p class="text-text-muted">{m.onboarding_appsSubtitle()}</p>
           </div>
 
           <div class="apps-two-col gap-6">
@@ -1499,21 +1514,21 @@
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                 </svg>
                 <div>
-                  <h3 class="text-sm font-semibold text-text-secondary">App Catalog</h3>
-                  <p class="text-xs text-text-disabled">Click to add apps to your menu</p>
+                  <h3 class="text-sm font-semibold text-text-secondary">{m.onboarding_appCatalog()}</h3>
+                  <p class="text-xs text-text-disabled">{m.onboarding_appCatalogHint()}</p>
                 </div>
               </div>
               <!-- Custom App Quick Add -->
               <div class="flex gap-2 items-end">
                 <div class="flex-1">
-                  <label for="custom-name" class="block text-xs text-text-muted mb-1">Custom app</label>
+                  <label for="custom-name" class="block text-xs text-text-muted mb-1">{m.onboarding_customApp()}</label>
                   <input
                     id="custom-name"
                     type="text"
                     bind:value={customApp.name}
                     class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm
                            focus:outline-none focus:ring-2 focus:ring-brand-500"
-                    placeholder="App name"
+                    placeholder={m.onboarding_appName()}
                   />
                 </div>
                 <div class="flex-1">
@@ -1531,7 +1546,7 @@
                   disabled={!customApp.name || !customApp.url}
                   onclick={addCustomApp}
                 >
-                  Add
+                  {m.common_add()}
                 </button>
               </div>
 
@@ -1558,13 +1573,13 @@
                         tabindex="0"
                       >
                         <!-- Checkbox + Add Instance -->
-                        <div class="absolute top-2.5 right-2.5 flex items-center gap-1">
+                        <div class="absolute top-2.5 end-2.5 flex items-center gap-1">
                           {#if selection?.selected}
                             <button
                               class="w-5 h-5 rounded border border-brand-500 bg-brand-500/20 flex items-center justify-center
                                      hover:bg-brand-500/40 transition-colors"
                               onclick={(e) => { e.stopPropagation(); addInstanceOf(app); }}
-                              title="Add another {app.name}"
+                              title={m.onboarding_addAnotherInstance({ appName: app.name })}
                             >
                               <svg class="w-3 h-3 text-brand-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4" />
@@ -1588,7 +1603,7 @@
                             color={app.color}
                             size="lg"
                           />
-                          <div class="flex-1 min-w-0 pr-6">
+                          <div class="flex-1 min-w-0 pe-6">
                             <h4 class="font-medium text-text-primary text-sm">{app.name}</h4>
                             <p class="text-xs text-text-disabled">{app.description}</p>
                           </div>
@@ -1608,17 +1623,17 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                   </svg>
                   <div>
-                    <h3 class="text-sm font-semibold text-text-secondary">Your Menu</h3>
-                    <p class="text-xs text-text-disabled">Drag apps between groups to organize</p>
+                    <h3 class="text-sm font-semibold text-text-secondary">{m.onboarding_yourMenu()}</h3>
+                    <p class="text-xs text-text-disabled">{m.onboarding_dragToOrganize()}</p>
                   </div>
                 </div>
 
                 {#if selectedCount + $selectedApps.length === 0}
-                  <p class="text-sm text-text-disabled italic">Select apps from the left to get started</p>
+                  <p class="text-sm text-text-disabled italic">{m.onboarding_selectAppsHint()}</p>
                 {:else}
                 <div>
                   <h3 class="text-sm font-semibold text-text-secondary mb-3">
-                    Groups ({wizardGroups.length})
+                    {m.onboarding_groupsCount({ count: wizardGroups.length })}
                   </h3>
                   {#if wizardGroups.length > 0}
                     <div class="space-y-2"
@@ -1643,7 +1658,7 @@
                             <button
                               class="flex-shrink-0 w-7 h-7 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                               onclick={() => iconBrowserContext = i}
-                              title="Change icon"
+                              title={m.onboarding_changeIcon()}
                             >
                               {#if group.icon.name}
                                 <AppIcon icon={group.icon} name={group.name} color={group.color} size="sm" />
@@ -1667,7 +1682,7 @@
                             <button
                               class="flex-shrink-0 p-1 text-text-disabled hover:text-red-400 rounded transition-colors"
                               onclick={() => deleteGroup(i)}
-                              aria-label="Remove group"
+                              aria-label={m.onboarding_removeGroup()}
                             >
                               <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -1698,7 +1713,7 @@
                                     <button
                                       class="flex-shrink-0 w-5 h-5 rounded bg-bg-elevated flex items-center justify-center hover:bg-bg-active transition-colors"
                                       onclick={() => openAppIconBrowser(item.name)}
-                                      title="Change icon"
+                                      title={m.onboarding_changeIcon()}
                                     >
                                       {#if appIcon.name}
                                         <AppIcon icon={appIcon} name={item.name} color={appColor} size="sm" />
@@ -1746,14 +1761,12 @@
                                         <option value={mode.value}>{mode.label}</option>
                                       {/each}
                                     </select>
-                                    <span class="help-trigger relative ml-0.5" use:positionTooltip>
+                                    <span class="help-trigger relative ms-0.5" use:positionTooltip>
                                       <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                         <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                       </svg>
                                       <span class="help-tooltip">
-                                        <b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/>
-                                        <b>New Tab</b> — opens in a separate browser tab.<br/>
-                                        <b>New Window</b> — opens in a popup window.
+                                        {@html m.appForm_helpOpenMode()}
                                       </span>
                                     </span>
                                     <label class="flex items-center gap-1 cursor-pointer">
@@ -1764,13 +1777,13 @@
                                         onchange={(e) => updateAppSetting(item.name, 'proxy', e.currentTarget.checked)}
                                         class="w-3 h-3 rounded border-border-subtle text-brand-500"
                                       />
-                                      <span class="text-[11px] text-text-muted">Proxy</span>
-                                      <span class="help-trigger relative ml-0.5" use:positionTooltip>
+                                      <span class="text-[11px] text-text-muted">{m.apps_proxy()}</span>
+                                      <span class="help-trigger relative ms-0.5" use:positionTooltip>
                                         <svg class="w-3 h-3 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                           <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
                                         </svg>
                                         <span class="help-tooltip">
-                                          Routes traffic through Muximux so the app doesn't need to be directly reachable from your browser. Enable this if the app is on an internal network or a different host that your browser can't access directly.
+                                          {m.onboarding_proxyTooltip()}
                                         </span>
                                       </span>
                                     </label>
@@ -1779,14 +1792,14 @@
                               {/each}
                             </div>
                             {#if groupApps.length === 0}
-                              <p class="text-xs text-text-disabled text-center py-1 mt-1">Drop apps here</p>
+                              <p class="text-xs text-text-disabled text-center py-1 mt-1">{m.onboarding_dropAppsHere()}</p>
                             {/if}
                           </div>
                         </div>
                       {/each}
                     </div>
                   {:else}
-                    <p class="text-sm text-text-disabled italic">Groups auto-appear when you select apps</p>
+                    <p class="text-sm text-text-disabled italic">{m.onboarding_groupsAutoAppear()}</p>
                   {/if}
 
                   <button
@@ -1797,7 +1810,7 @@
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                     </svg>
-                    Add Group
+                    {m.settings_addGroup()}
                   </button>
                 </div>
                 {/if}
@@ -1815,34 +1828,34 @@
             </svg>
           </div>
 
-          <h2 class="text-3xl font-bold text-text-primary mb-4">You're All Set!</h2>
+          <h2 class="text-3xl font-bold text-text-primary mb-4">{m.onboarding_completeTitle()}</h2>
           <p class="text-xl text-text-muted mb-8 max-w-lg mx-auto">
-            Your dashboard is ready with {selectedCount + $selectedApps.length} app{selectedCount + $selectedApps.length !== 1 ? 's' : ''}.
+            {m.onboarding_completeSubtitle({ count: selectedCount + $selectedApps.length, noun: (selectedCount + $selectedApps.length) === 1 ? m.splash_appSingular() : m.splash_appPlural() })}
           </p>
 
           <!-- Summary -->
-          <div class="max-w-md mx-auto mb-8 p-4 bg-bg-surface rounded-lg border border-border text-left">
-            <h4 class="font-medium text-text-secondary mb-3">Setup Summary</h4>
+          <div class="max-w-md mx-auto mb-8 p-4 bg-bg-surface rounded-lg border border-border text-start">
+            <h4 class="font-medium text-text-secondary mb-3">{m.onboarding_setupSummary()}</h4>
             <dl class="space-y-2 text-sm">
               <div class="flex justify-between">
-                <dt class="text-text-muted">Applications</dt>
+                <dt class="text-text-muted">{m.onboarding_summaryApplications()}</dt>
                 <dd class="text-text-primary">{selectedCount + $selectedApps.length}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-text-muted">Navigation</dt>
+                <dt class="text-text-muted">{m.onboarding_summaryNavigation()}</dt>
                 <dd class="text-text-primary capitalize">{$selectedNavigation}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-text-muted">Theme</dt>
+                <dt class="text-text-muted">{m.onboarding_summaryTheme()}</dt>
                 <dd class="text-text-primary capitalize">{$themeFamilies.find(f => f.id === $selectedFamily)?.name || $selectedFamily}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-text-muted">Groups</dt>
+                <dt class="text-text-muted">{m.onboarding_summaryGroups()}</dt>
                 <dd class="text-text-primary">{wizardGroups.length}</dd>
               </div>
               <div class="flex justify-between">
-                <dt class="text-text-muted">Show Labels</dt>
-                <dd class="text-text-primary">{$showLabels ? 'Yes' : 'No'}</dd>
+                <dt class="text-text-muted">{m.onboarding_summaryShowLabels()}</dt>
+                <dd class="text-text-primary">{$showLabels ? m.common_yes() : m.common_no()}</dd>
               </div>
             </dl>
           </div>
@@ -1851,7 +1864,7 @@
             class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
             onclick={handleComplete}
           >
-            Launch Dashboard
+            {m.onboarding_launchDashboard()}
           </button>
         </div>
       {/if}
@@ -1869,16 +1882,16 @@
             class="px-4 py-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-surface transition-colors"
             onclick={prevStep}
           >
-            Back
+            {m.common_back()}
           </button>
         {/if}
       </div>
 
       <div class="text-sm text-text-disabled">
         {#if $currentStep === 'apps'}
-          {selectedCount + $selectedApps.length} app{selectedCount + $selectedApps.length !== 1 ? 's' : ''} selected
+          {m.onboarding_appsSelected({ count: selectedCount + $selectedApps.length, noun: (selectedCount + $selectedApps.length) === 1 ? m.splash_appSingular() : m.splash_appPlural() })}
         {:else if $currentStep === 'security' && authMethod}
-          {authMethod === 'builtin' ? 'Password' : authMethod === 'forward_auth' ? 'Auth proxy' : 'No auth'}
+          {authMethod === 'builtin' ? m.onboarding_authPassword() : authMethod === 'forward_auth' ? m.onboarding_authProxy() : m.onboarding_authNone()}
         {/if}
       </div>
 
@@ -1890,7 +1903,7 @@
               disabled={!securityStepValid}
               onclick={handleSecuritySubmit}
             >
-              Continue
+              {m.common_continue()}
             </button>
           {:else}
             <button
@@ -1898,7 +1911,7 @@
               disabled={$currentStep === 'apps' && selectedCount + $selectedApps.length === 0}
               onclick={nextStep}
             >
-              {$currentStep === 'theme' ? 'Finish' : 'Continue'}
+              {$currentStep === 'theme' ? m.common_finish() : m.common_continue()}
             </button>
           {/if}
         {/if}
@@ -1951,8 +1964,7 @@
   .stepper-rail-fill {
     position: absolute;
     top: 14px; /* vertically center on the 28px circles */
-    left: 14px;
-    right: 14px;
+    inset-inline: 14px;
     height: 2px;
     border-radius: 1px;
   }

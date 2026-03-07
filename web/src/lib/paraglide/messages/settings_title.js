@@ -1,0 +1,199 @@
+/* eslint-disable */
+import { getLocale, experimentalStaticLocale } from '../runtime.js';
+
+/** @typedef {import('../runtime.js').LocalizedString} LocalizedString */
+
+/** @typedef {{}} Settings_TitleInputs */
+
+const en_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Settings`)
+};
+
+const sv_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Inställningar`)
+};
+
+const uk_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Налаштування`)
+};
+
+const zh_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`设置`)
+};
+
+const es_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ajustes`)
+};
+
+const hi_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`सेटिंग्स`)
+};
+
+const pt_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Definições`)
+};
+
+const bn_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`সেটিংস`)
+};
+
+const ru_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Настройки`)
+};
+
+const ja_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`設定`)
+};
+
+const vi_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Cài đặt`)
+};
+
+const yue_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`設定`)
+};
+
+const tr_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ayarlar`)
+};
+
+const ar_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`الإعدادات`)
+};
+
+const wuu_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`设置`)
+};
+
+const mr_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`सेटिंग्ज`)
+};
+
+const nb_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Innstillinger`)
+};
+
+const fi_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Asetukset`)
+};
+
+const da_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Indstillinger`)
+};
+
+const et_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Seaded`)
+};
+
+const lv_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Iestatījumi`)
+};
+
+const lt_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nustatymai`)
+};
+
+const pl_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ustawienia`)
+};
+
+const de_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Einstellungen`)
+};
+
+const nl_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Instellingen`)
+};
+
+const fr_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Paramètres`)
+};
+
+const it_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Impostazioni`)
+};
+
+const hu_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Beállítások`)
+};
+
+const cs_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nastavení`)
+};
+
+const ro_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Setări`)
+};
+
+const el_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Ρυθμίσεις`)
+};
+
+const bg_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Настройки`)
+};
+
+const hr_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Postavke`)
+};
+
+const sr_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Podešavanja`)
+};
+
+const sk_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nastavenia`)
+};
+
+const sl_settings_title = /** @type {(inputs: Settings_TitleInputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Nastavitve`)
+};
+
+/**
+* | output |
+* | --- |
+* | "Settings" |
+*
+* @param {Settings_TitleInputs} inputs
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @returns {LocalizedString}
+*/
+export const settings_title = /** @type {((inputs?: Settings_TitleInputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Settings_TitleInputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
+	if (locale === "en") return en_settings_title(inputs)
+	if (locale === "sv") return sv_settings_title(inputs)
+	if (locale === "uk") return uk_settings_title(inputs)
+	if (locale === "zh") return zh_settings_title(inputs)
+	if (locale === "es") return es_settings_title(inputs)
+	if (locale === "hi") return hi_settings_title(inputs)
+	if (locale === "pt") return pt_settings_title(inputs)
+	if (locale === "bn") return bn_settings_title(inputs)
+	if (locale === "ru") return ru_settings_title(inputs)
+	if (locale === "ja") return ja_settings_title(inputs)
+	if (locale === "vi") return vi_settings_title(inputs)
+	if (locale === "yue") return yue_settings_title(inputs)
+	if (locale === "tr") return tr_settings_title(inputs)
+	if (locale === "ar") return ar_settings_title(inputs)
+	if (locale === "wuu") return wuu_settings_title(inputs)
+	if (locale === "mr") return mr_settings_title(inputs)
+	if (locale === "nb") return nb_settings_title(inputs)
+	if (locale === "fi") return fi_settings_title(inputs)
+	if (locale === "da") return da_settings_title(inputs)
+	if (locale === "et") return et_settings_title(inputs)
+	if (locale === "lv") return lv_settings_title(inputs)
+	if (locale === "lt") return lt_settings_title(inputs)
+	if (locale === "pl") return pl_settings_title(inputs)
+	if (locale === "de") return de_settings_title(inputs)
+	if (locale === "nl") return nl_settings_title(inputs)
+	if (locale === "fr") return fr_settings_title(inputs)
+	if (locale === "it") return it_settings_title(inputs)
+	if (locale === "hu") return hu_settings_title(inputs)
+	if (locale === "cs") return cs_settings_title(inputs)
+	if (locale === "ro") return ro_settings_title(inputs)
+	if (locale === "el") return el_settings_title(inputs)
+	if (locale === "bg") return bg_settings_title(inputs)
+	if (locale === "hr") return hr_settings_title(inputs)
+	if (locale === "sr") return sr_settings_title(inputs)
+	if (locale === "sk") return sk_settings_title(inputs)
+	return sl_settings_title(inputs)
+});

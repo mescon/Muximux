@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { login } from '$lib/authStore';
   import { getBase } from '$lib/api';
+  import * as m from '$lib/paraglide/messages.js';
 
   let { onsuccess }: { onsuccess?: () => void } = $props();
 
@@ -29,7 +30,7 @@
   async function handleSubmit(e: SubmitEvent) {
     e.preventDefault();
     if (!username || !password) {
-      error = 'Username and password are required';
+      error = m.login_usernameRequired();
       return;
     }
 
@@ -43,7 +44,7 @@
     if (result.success) {
       onsuccess?.();
     } else {
-      error = result.message || 'Login failed';
+      error = result.message || m.login_failed();
     }
   }
 
@@ -72,7 +73,7 @@
         <path d="M 133.45 108.00 C 137.63 108.00 141.82 107.99 146.01 108.01 C 149.84 119.09 153.76 130.15 157.56 141.24 C 161.30 130.16 165.14 119.10 168.85 108.01 C 173.04 107.99 177.24 108.00 181.43 108.00 C 182.39 125.67 183.50 143.33 184.49 161.00 C 180.44 161.00 176.40 161.01 172.36 160.99 C 171.89 153.75 171.48 146.51 171.07 139.27 C 168.64 146.51 166.15 153.74 163.71 160.99 C 159.62 160.97 155.52 161.11 151.44 160.88 C 148.91 153.40 146.38 145.91 143.69 138.48 C 143.44 146.00 142.61 153.48 142.37 161.00 C 138.28 161.00 134.19 161.00 130.10 161.00 C 131.17 143.33 132.36 125.67 133.45 108.00 Z" />
         <path d="M 234.50 108.03 C 239.29 107.97 244.08 108.01 248.87 108.00 C 251.78 112.67 254.73 117.32 257.60 122.02 C 260.41 117.35 263.25 112.69 266.03 107.99 C 270.82 108.01 275.61 107.99 280.39 108.01 C 275.04 116.48 269.93 125.09 264.78 133.68 C 270.48 142.77 275.93 152.02 281.79 161.01 C 276.97 160.97 272.15 161.05 267.33 160.96 C 264.09 155.80 260.93 150.58 257.70 145.42 C 254.45 150.60 251.37 155.88 248.08 161.04 C 243.37 160.96 238.67 161.02 233.96 161.00 C 239.55 151.91 245.00 142.74 250.53 133.62 C 245.00 125.21 240.10 116.40 234.50 108.03 Z" />
       </svg>
-      <p class="login-subtitle">Sign in to your dashboard</p>
+      <p class="login-subtitle">{m.login_subtitle()}</p>
     </div>
 
     <!-- Login form -->
@@ -83,13 +84,12 @@
           <svg class="w-12 h-12 mx-auto mb-4" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
-          <h2 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">External Authentication</h2>
+          <h2 class="text-lg font-semibold mb-2" style="color: var(--text-primary);">{m.login_externalAuth()}</h2>
           <p class="text-sm mb-4" style="color: var(--text-secondary);">
-            This instance is protected by an external authentication provider.
-            Access it through the URL configured in your reverse proxy to sign in.
+            {m.login_externalAuthDesc()}
           </p>
           <p class="text-xs" style="color: var(--text-muted);">
-            If you reached this page directly, your auth proxy may not be routing to this address.
+            {m.login_externalAuthHint()}
           </p>
         </div>
       {:else}
@@ -105,7 +105,7 @@
             <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
             </svg>
-            Sign in with SSO
+            {m.login_sso()}
           </button>
 
           <!-- Divider -->
@@ -114,7 +114,7 @@
               <div class="login-divider w-full border-t"></div>
             </div>
             <div class="relative flex justify-center text-sm">
-              <span class="login-divider-text px-2">or continue with username</span>
+              <span class="login-divider-text px-2">{m.login_orContinueWith()}</span>
             </div>
           </div>
         {/if}
@@ -128,7 +128,7 @@
 
         <div class="mb-4">
           <label for="username" class="login-label block text-sm font-medium mb-1">
-            Username
+            {m.login_username()}
           </label>
           <input
             id="username"
@@ -137,7 +137,7 @@
             onkeydown={handleKeydown}
             class="login-input w-full px-4 py-2 rounded-md
                    focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
-            placeholder="Enter your username"
+            placeholder={m.login_usernamePlaceholder()}
             autocomplete="username"
             disabled={loading}
           />
@@ -145,7 +145,7 @@
 
         <div class="mb-4">
           <label for="password" class="login-label block text-sm font-medium mb-1">
-            Password
+            {m.login_password()}
           </label>
           <input
             id="password"
@@ -154,7 +154,7 @@
             onkeydown={handleKeydown}
             class="login-input w-full px-4 py-2 rounded-md
                    focus:outline-none focus:ring-2 focus:ring-[var(--accent-primary)]"
-            placeholder="Enter your password"
+            placeholder={m.login_passwordPlaceholder()}
             autocomplete="current-password"
             disabled={loading}
           />
@@ -168,7 +168,7 @@
               class="w-4 h-4 rounded border-[var(--border-default)] text-[var(--accent-primary)] focus:ring-[var(--accent-primary)]"
               disabled={loading}
             />
-            <span class="ml-2">Remember me</span>
+            <span class="ms-2">{m.login_rememberMe()}</span>
           </label>
         </div>
 
@@ -181,14 +181,14 @@
         >
           {#if loading}
             <span class="inline-flex items-center">
-              <svg class="animate-spin -ml-1 mr-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin -ms-1 me-2 h-4 w-4" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
               </svg>
-              Signing in...
+              {m.login_signingIn()}
             </span>
           {:else}
-            Sign in
+            {m.login_signIn()}
           {/if}
         </button>
       </form>

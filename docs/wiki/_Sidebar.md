@@ -16,6 +16,7 @@
 - [Keyboard Shortcuts](keyboard-shortcuts)
 - [Health Monitoring](health-monitoring)
 - [Icons](icons)
+- [Translations](translations)
 
 **Security**
 - [Security Overview](security)

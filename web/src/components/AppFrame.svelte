@@ -2,6 +2,7 @@
   import { onMount } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
+  import * as m from '$lib/paraglide/messages.js';
 
   let { app }: { app: App } = $props();
 
@@ -152,7 +153,7 @@
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
             <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
           </svg>
-          <span class="text-sm font-medium">Refreshing...</span>
+          <span class="text-sm font-medium">{m.appFrame_refreshing()}</span>
         {:else}
           <svg
             class="w-5 h-5 transition-transform"
@@ -164,7 +165,7 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
           </svg>
           <span class="text-sm font-medium">
-            {pullProgress >= 1 ? 'Release to refresh' : 'Pull to refresh'}
+            {pullProgress >= 1 ? m.appFrame_releaseToRefresh() : m.appFrame_pullToRefresh()}
           </span>
         {/if}
       </div>
@@ -193,14 +194,14 @@
       <svg class="w-10 h-10" style="color: var(--text-muted); opacity: 0.4;" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
         <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
       </svg>
-      <p class="text-sm font-medium" style="color: var(--text-secondary);">Failed to load {app.name}</p>
+      <p class="text-sm font-medium" style="color: var(--text-secondary);">{m.error_appLoadFailed({ appName: app.name })}</p>
       <p class="text-xs" style="color: var(--text-muted);">{effectiveUrl}</p>
       <button
         class="mt-2 px-4 py-1.5 text-sm rounded-lg transition-colors"
         style="background: var(--bg-surface); color: var(--text-primary); border: 1px solid var(--border-default);"
         onclick={retryLoad}
       >
-        Retry
+        {m.common_retry()}
       </button>
     </div>
   {/if}
