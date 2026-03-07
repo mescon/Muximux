@@ -18,6 +18,7 @@ coverage.txt
 
 # Config (user-specific)
 config.yaml
+.config-*.yaml
 
 # Data directory (runtime + test artifacts)
 /data/
