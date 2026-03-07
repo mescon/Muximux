@@ -2,6 +2,7 @@
   import type { App, Group } from '$lib/types';
   import { openModes } from '$lib/constants';
   import AppIcon from './AppIcon.svelte';
+  import * as m from '$lib/paraglide/messages.js';
 
   let {
     app = $bindable(),
@@ -44,8 +45,8 @@
   <!-- Identity -->
   <div>
     <label for="{prefix}-app-name" class="block text-sm font-medium text-text-secondary mb-1">
-      Name
-      {@render helpTip('Displayed in the navigation bar and page title. Also used as a unique identifier — renaming an app creates a new proxy route.')}
+      {m.appForm_name()}
+      {@render helpTip(m.appForm_helpName())}
     </label>
     <input
       id="{prefix}-app-name"
@@ -53,15 +54,15 @@
       bind:value={app.name}
       oninput={() => clearError('name')}
       class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {errors.name ? 'border-red-500' : 'border-border-subtle'}"
-      placeholder="My App"
+      placeholder={m.appForm_placeholderName()}
     />
     {#if errors.name}<p class="text-red-400 text-xs mt-1">{errors.name}</p>{/if}
   </div>
 
   <div>
     <label for="{prefix}-app-url" class="block text-sm font-medium text-text-secondary mb-1">
-      URL
-      {@render helpTip('The full address of the application. Used to load the app in an iframe, or as the link when opened in a new tab/window.')}
+      {m.appForm_url()}
+      {@render helpTip(m.appForm_helpUrl())}
     </label>
     <input
       id="{prefix}-app-url"
@@ -69,13 +70,13 @@
       bind:value={app.url}
       oninput={() => clearError('url')}
       class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {errors.url ? 'border-red-500' : 'border-border-subtle'}"
-      placeholder="http://localhost:8080"
+      placeholder={m.appForm_placeholderUrl()}
     />
     {#if errors.url}<p class="text-red-400 text-xs mt-1">{errors.url}</p>{/if}
   </div>
 
   <div>
-    <span class="block text-sm font-medium text-text-secondary mb-1">Icon</span>
+    <span class="block text-sm font-medium text-text-secondary mb-1">{m.appForm_icon()}</span>
     <div class="flex items-center gap-3">
       <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => onopenicon?.()}>
         <AppIcon icon={app.icon} name={app.name || 'App'} color={app.color} size="lg" />
@@ -85,29 +86,29 @@
           class="btn btn-secondary btn-sm w-full text-left"
           onclick={() => onopenicon?.()}
         >
-          {app.icon?.name || 'Choose icon...'}
+          {app.icon?.name || m.appForm_chooseIcon()}
         </button>
         <p class="text-xs text-text-muted mt-1">
-          {app.icon?.type === 'dashboard' ? 'Dashboard Icon' : app.icon?.type === 'lucide' ? 'Lucide Icon' : app.icon?.type === 'custom' ? 'Custom Icon' : app.icon?.type === 'url' ? 'URL Icon' : 'No icon set'}
+          {app.icon?.type === 'dashboard' ? m.appForm_iconTypeDashboard() : app.icon?.type === 'lucide' ? m.appForm_iconTypeLucide() : app.icon?.type === 'custom' ? m.appForm_iconTypeCustom() : app.icon?.type === 'url' ? m.appForm_iconTypeUrl() : m.appForm_iconTypeNone()}
         </p>
       </div>
     </div>
     <div class="flex items-center gap-4 mt-2">
       {#if app.icon?.type === 'lucide'}
         <label class="flex items-center gap-2 text-xs text-text-muted">
-          Icon color
+          {m.appForm_iconColor()}
           <input type="color" value={app.icon.color || '#ffffff'} oninput={(e) => app.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
           {#if app.icon.color}
-            <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.icon.color = ''} title="Reset to theme default">&times;</button>
+            <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.icon.color = ''} title={m.appForm_resetToThemeDefault()}>&times;</button>
           {/if}
         </label>
       {/if}
       <label class="flex items-center gap-2 text-xs text-text-muted">
-        Icon background
+        {m.appForm_iconBackground()}
         <input type="color" value={app.icon.background || app.color || '#374151'} oninput={(e) => app.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
-        <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => app.icon.background = 'transparent'} title="Transparent">none</button>
+        <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => app.icon.background = 'transparent'} title={m.appForm_transparent()}>{m.appForm_noneLabel()}</button>
         {#if app.icon.background}
-          <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.icon.background = ''} title="Reset to app color">&times;</button>
+          <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.icon.background = ''} title={m.appForm_resetToAppColor()}>&times;</button>
         {/if}
       </label>
     </div>
@@ -115,8 +116,8 @@
 
   <div>
     <label for="{prefix}-app-color" class="block text-sm font-medium text-text-secondary mb-1">
-      App color
-      {@render helpTip("The app's accent color — used for the active tab indicator and sidebar highlight when \"Show App Colors\" is enabled. Also used as the default icon background unless overridden above.")}
+      {m.appForm_appColor()}
+      {@render helpTip(m.appForm_helpAppColor())}
     </label>
     <div class="flex items-center gap-2">
       <input
@@ -135,15 +136,15 @@
 
   <div>
     <label for="{prefix}-app-group" class="block text-sm font-medium text-text-secondary mb-1">
-      Group
-      {@render helpTip('Groups organize apps into collapsible sections in the sidebar. Apps with no group appear under "Ungrouped."')}
+      {m.appForm_group()}
+      {@render helpTip(m.appForm_helpGroup())}
     </label>
     <select
       id="{prefix}-app-group"
       bind:value={app.group}
       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
     >
-      <option value="">No group</option>
+      <option value="">{m.appForm_noGroup()}</option>
       {#each groups as group (group.name)}
         <option value={group.name}>{group.name}</option>
       {/each}
@@ -152,7 +153,7 @@
 
   <!-- Display -->
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">Display</h4>
+    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionDisplay()}</h4>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
         <input
@@ -161,10 +162,10 @@
           class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
         />
         <div>
-          <span class="text-sm text-text-primary">Enabled
-            {@render helpTip('Disabled apps are hidden from non-admin users and excluded from the navigation entirely.')}
+          <span class="text-sm text-text-primary">{m.appForm_enabled()}
+            {@render helpTip(m.appForm_helpEnabled())}
           </span>
-          <p class="text-xs text-text-muted">Show this app in the navigation</p>
+          <p class="text-xs text-text-muted">{m.appForm_enabledDesc()}</p>
         </div>
       </label>
       <label class="flex items-center gap-3 cursor-pointer">
@@ -178,16 +179,16 @@
           class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
         />
         <div>
-          <span class="text-sm text-text-primary">Default app
-            {@render helpTip('Only one app can be the default. Setting this will clear the default flag on any other app.')}
+          <span class="text-sm text-text-primary">{m.appForm_defaultApp()}
+            {@render helpTip(m.appForm_helpDefaultApp())}
           </span>
-          <p class="text-xs text-text-muted">Load this app on startup (disables the overview screen)</p>
+          <p class="text-xs text-text-muted">{m.appForm_defaultAppDesc()}</p>
         </div>
       </label>
       <div>
         <label for="{prefix}-app-mode" class="block text-sm font-medium text-text-secondary mb-1">
-          Open Mode
-          {@render helpTip('<b>Embedded</b> — loads inside Muximux in an iframe. Best for most apps.<br/><b>New Tab</b> — opens in a separate browser tab.<br/><b>New Window</b> — opens in a popup window.')}
+          {m.appForm_openMode()}
+          {@render helpTip(m.appForm_helpOpenMode())}
         </label>
         <select
           id="{prefix}-app-mode"
@@ -201,8 +202,8 @@
       </div>
       <div>
         <label for="{prefix}-app-scale" class="block text-sm font-medium text-text-secondary mb-1">
-          Scale: {Math.round(app.scale * 100)}%
-          {@render helpTip('Zoom level for the embedded iframe. Useful for apps with small or large UIs. Only applies to iframe open mode.')}
+          {m.appForm_scale({ percent: Math.round(app.scale * 100).toString() })}
+          {@render helpTip(m.appForm_helpScale())}
         </label>
         <input
           id="{prefix}-app-scale"
@@ -219,7 +220,7 @@
 
   <!-- Proxy -->
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">Proxy</h4>
+    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionProxy()}</h4>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
         <input
@@ -228,10 +229,10 @@
           class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
         />
         <div>
-          <span class="text-sm text-text-primary">Use reverse proxy
-            {@render helpTip('Routes all traffic through the built-in Caddy reverse proxy. The app URL is rewritten to a local <code>/proxy/app-name/</code> path, avoiding CORS, mixed-content, and cookie-domain issues.')}
+          <span class="text-sm text-text-primary">{m.appForm_useReverseProxy()}
+            {@render helpTip(m.appForm_helpProxy())}
           </span>
-          <p class="text-xs text-text-muted">Route traffic through the built-in proxy to avoid CORS and mixed-content issues</p>
+          <p class="text-xs text-text-muted">{m.appForm_proxyDesc()}</p>
         </div>
       </label>
       {#if app.proxy}
@@ -244,18 +245,18 @@
               class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
             />
             <div>
-              <span class="text-sm text-text-primary">Skip TLS verification
-                {@render helpTip('Enabled by default. Disable this only if the backend has a valid, trusted TLS certificate and you want strict verification.')}
+              <span class="text-sm text-text-primary">{m.appForm_skipTls()}
+                {@render helpTip(m.appForm_helpSkipTls())}
               </span>
-              <p class="text-xs text-text-muted">Disable for backends with valid certificates</p>
+              <p class="text-xs text-text-muted">{m.appForm_skipTlsDesc()}</p>
             </div>
           </label>
           <div>
-            <span class="block text-sm text-text-muted mb-1">Custom headers</span>
-            <p class="text-xs text-text-disabled mb-2">Sent to the backend on every proxied request (e.g. Authorization, X-Api-Key)</p>
+            <span class="block text-sm text-text-muted mb-1">{m.appForm_customHeaders()}</span>
+            <p class="text-xs text-text-disabled mb-2">{m.appForm_customHeadersDesc()}</p>
             {#each Object.entries(app.proxy_headers ?? {}) as [key, value] (key)}
               <div class="flex gap-2 mb-2">
-                <input type="text" value={key} placeholder="Header name"
+                <input type="text" value={key} placeholder={m.appForm_headerName()}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -268,7 +269,7 @@
                     }
                   }}
                 />
-                <input type="text" value={value} placeholder="Value"
+                <input type="text" value={value} placeholder={m.appForm_headerValue()}
                   class="flex-1 min-w-0 px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary placeholder-text-disabled"
                   onchange={(e) => {
                     const headers = { ...(app.proxy_headers ?? {}) };
@@ -276,7 +277,7 @@
                     app.proxy_headers = headers;
                   }}
                 />
-                <button class="px-2 py-1 text-text-muted hover:text-red-400" title="Remove header"
+                <button class="px-2 py-1 text-text-muted hover:text-red-400" title={m.appForm_removeHeader()}
                   onclick={() => {
                     const headers = { ...(app.proxy_headers ?? {}) };
                     delete headers[key];
@@ -291,7 +292,7 @@
               onclick={() => {
                 app.proxy_headers = { ...(app.proxy_headers ?? {}), '': '' };
               }}
-            >+ Add header</button>
+            >{m.appForm_addHeader()}</button>
           </div>
         </div>
       {/if}
@@ -300,7 +301,7 @@
 
   <!-- Advanced -->
   <div class="border-t border-border pt-3">
-    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">Advanced</h4>
+    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-3">{m.appForm_sectionAdvanced()}</h4>
     <div class="space-y-3">
       <label class="flex items-center gap-3 cursor-pointer">
         <input
@@ -312,31 +313,31 @@
           class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
         />
         <div>
-          <span class="text-sm text-text-primary">Health check
-            {@render helpTip('Periodically pings the app URL (or health URL if set) and shows a status indicator in the navigation.')}
+          <span class="text-sm text-text-primary">{m.appForm_healthCheck()}
+            {@render helpTip(m.appForm_helpHealthCheck())}
           </span>
-          <p class="text-xs text-text-muted">Monitor availability of this app</p>
+          <p class="text-xs text-text-muted">{m.appForm_healthCheckDesc()}</p>
         </div>
       </label>
       {#if app.health_check === true}
         <div class="ml-7 pl-4 border-l-2 border-border">
-          <label for="{prefix}-app-health-url" class="block text-sm text-text-muted mb-1">Health check URL</label>
+          <label for="{prefix}-app-health-url" class="block text-sm text-text-muted mb-1">{m.appForm_healthCheckUrl()}</label>
           <input
             id="{prefix}-app-health-url"
             type="url"
             bind:value={app.health_url}
-            placeholder={app.url || 'Uses app URL if empty'}
+            placeholder={app.url || m.appForm_healthCheckUrlPlaceholder()}
             class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
-          <p class="text-xs text-text-disabled mt-1">Leave blank to use the app URL</p>
+          <p class="text-xs text-text-disabled mt-1">{m.appForm_healthCheckUrlHint()}</p>
         </div>
       {/if}
       <div class="flex items-center gap-3">
         <div class="flex-1">
-          <span class="text-sm text-text-primary">Keyboard Shortcut
-            {@render helpTip('Assigns a number key (1–9) to quickly switch to this app. Each number can only be assigned to one app.')}
+          <span class="text-sm text-text-primary">{m.appForm_keyboardShortcut()}
+            {@render helpTip(m.appForm_helpKeyboardShortcut())}
           </span>
-          <p class="text-xs text-text-muted">Press this number key to switch to this app</p>
+          <p class="text-xs text-text-muted">{m.appForm_keyboardShortcutDesc()}</p>
         </div>
         <select
           value={app.shortcut ?? ''}
@@ -346,7 +347,7 @@
           }}
           class="px-2 py-1 text-sm bg-bg-elevated border border-border-subtle rounded text-text-primary focus:ring-brand-500 focus:border-brand-500"
         >
-          <option value="">None</option>
+          <option value="">{m.appForm_none()}</option>
           {#each [1,2,3,4,5,6,7,8,9] as n (n)}
             {@const taken = allApps.find(a => a.shortcut === n && a.name !== app.name)}
             <option value={n} disabled={!!taken}>{n}{taken ? ` (${taken.name})` : ''}</option>
@@ -360,10 +361,10 @@
           class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
         />
         <div>
-          <span class="text-sm text-text-primary">Force icon background
-            {@render helpTip('Always show a colored background circle behind this app\'s icon, even when the global "Show Icon Backgrounds" setting is off.')}
+          <span class="text-sm text-text-primary">{m.appForm_forceIconBackground()}
+            {@render helpTip(m.appForm_helpForceIconBackground())}
           </span>
-          <p class="text-xs text-text-muted">Show background even when global icon backgrounds are off</p>
+          <p class="text-xs text-text-muted">{m.appForm_forceIconBackgroundDesc()}</p>
         </div>
       </label>
       <label class="flex items-center gap-3 cursor-pointer">
@@ -373,27 +374,27 @@
           class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
         />
         <div>
-          <span class="text-sm text-text-primary">Invert icon colors
-            {@render helpTip('Inverts the icon\'s colors (black becomes white, white becomes black). Useful for dark icons that are hard to see on dark backgrounds.')}
+          <span class="text-sm text-text-primary">{m.appForm_invertIconColors()}
+            {@render helpTip(m.appForm_helpInvertIconColors())}
           </span>
-          <p class="text-xs text-text-muted">Flip dark icons to light and vice versa</p>
+          <p class="text-xs text-text-muted">{m.appForm_invertIconColorsDesc()}</p>
         </div>
       </label>
       <div>
         <label for="{prefix}-app-min-role" class="block text-sm font-medium text-text-secondary mb-1">
-          Minimum Role
-          {@render helpTip('Restricts visibility based on user role. Users below the selected role won\'t see this app in the navigation or API responses.')}
+          {m.appForm_minimumRole()}
+          {@render helpTip(m.appForm_helpMinimumRole())}
         </label>
         <select
           id="{prefix}-app-min-role"
           bind:value={app.min_role}
           class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
         >
-          <option value="">Everyone (default)</option>
-          <option value="power-user">Power User</option>
-          <option value="admin">Admin</option>
+          <option value="">{m.appForm_roleEveryone()}</option>
+          <option value="power-user">{m.appForm_rolePowerUser()}</option>
+          <option value="admin">{m.appForm_roleAdmin()}</option>
         </select>
-        <p class="text-xs text-text-muted mt-1">Users below this role won't see this app</p>
+        <p class="text-xs text-text-muted mt-1">{m.appForm_roleBelowHidden()}</p>
       </div>
     </div>
   </div>
