@@ -23,7 +23,6 @@
   "common_selectApp": "从导航栏中选择一个应用",
   "common_continue": "继续",
   "common_finish": "完成",
-
   "toast_connectionRestored": "连接已恢复",
   "toast_connectionLost": "连接已断开 - 正在重连...",
   "toast_settingsSaved": "设置保存成功",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "已切换到深色主题",
   "toast_switchedToLight": "已切换到浅色主题",
   "toast_usingSystemTheme": "使用系统主题",
-
   "toast_failedSaveConfig": "保存配置失败",
   "toast_failedSaveTheme": "保存主题失败",
   "toast_failedDeleteTheme": "删除主题失败",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "删除失败",
   "toast_securitySetupFailed": "安全设置失败",
   "toast_iconSourcesPartialFail": "部分图标源加载失败：{sources}",
-
   "error_somethingWentWrong": "出了点问题",
   "error_failedLoadDashboard": "加载仪表盘失败",
   "error_failedLoadConfig": "加载配置失败",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "多次尝试后连接失败",
   "error_failedFetchHealth": "获取健康数据失败",
   "error_deleteFailed": "删除失败",
-
   "nav_exitFullscreen": "退出全屏 (F)",
-
   "settings_title": "设置",
   "settings_general": "常规",
   "settings_theme": "主题",
@@ -113,7 +108,6 @@
   "settings_icon": "图标",
   "settings_groupNamePlaceholder": "媒体",
   "settings_appFallbackName": "应用",
-
   "general_language": "语言",
   "general_languageAfterSave": "选择界面显示语言。保存后生效。",
   "general_dashboardTitle": "仪表盘标题",
@@ -176,7 +170,6 @@
   "general_exportConfig": "导出配置",
   "general_importConfig": "导入配置",
   "general_configHint": "导出当前配置或导入之前保存的配置。",
-
   "login_subtitle": "登录到你的仪表盘",
   "login_externalAuth": "外部认证",
   "login_externalAuthDesc": "此实例受外部认证提供者保护。请通过反向代理中配置的 URL 登录。",
@@ -192,7 +185,6 @@
   "login_rememberMe": "记住我",
   "login_signingIn": "正在登录...",
   "login_signIn": "登录",
-
   "common_current": "当前",
   "common_username": "用户名",
   "common_password": "密码",
@@ -204,15 +196,12 @@
   "common_default": "默认",
   "common_disabled": "已禁用",
   "common_forwardAuthEnabled": "已启用 Forward auth。请通过反向代理 URL 访问此应用以继续。",
-
   "error_usernameRequired": "用户名为必填项",
   "error_passwordTooShort": "密码至少需要 8 个字符",
   "error_passwordTooShortCount": "密码至少需要 8 个字符（{count}/8）",
   "error_passwordsMismatch": "两次密码不一致",
-
   "toast_passwordChanged": "密码更改成功",
   "toast_authMethodChanged": "认证方式已更改为 {method}",
-
   "security_authMethod": "认证方式",
   "security_authMethodDesc": "选择用户如何向 Muximux 进行身份验证",
   "security_passwordAuth": "密码认证",
@@ -251,7 +240,6 @@
   "security_deleteUser": "删除用户",
   "security_cantDeleteSelf": "无法删除自己",
   "security_minEightCharsShort": "至少 8 个字符",
-
   "theme_appearance": "外观",
   "theme_appearanceDesc": "选择深色、浅色或跟随系统",
   "theme_dark": "深色",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "警告",
   "theme_statusError": "错误",
   "theme_statusInfo": "信息",
-
   "apps_heading": "应用和分组",
   "apps_addGroup": "添加分组",
   "apps_addApp": "添加应用",
@@ -304,7 +291,6 @@
   "apps_editGroup": "编辑分组",
   "apps_deleteGroup": "删除分组",
   "apps_noAppsConfigured": "尚未配置应用或分组。点击「添加应用」开始。",
-
   "about_loadingSystemInfo": "正在加载系统信息...",
   "about_updateAvailable": "有可用更新",
   "about_upToDate": "已是最新版本",
@@ -337,9 +323,7 @@
   "about_issues": "问题",
   "about_releases": "发行版",
   "about_wiki": "维基",
-
   "common_or": "或",
-
   "appForm_name": "名称",
   "appForm_helpName": "显示在导航栏和页面标题中。也用作唯一标识符 — 重命名应用会创建新的代理路由。",
   "appForm_placeholderName": "我的应用",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "在弹出窗口中打开",
   "appForm_redirect": "重定向",
   "appForm_redirectDesc": "跳转到应用 URL",
-
   "command_searchPlaceholder": "搜索应用和命令...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ 导航",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "使用系统主题",
   "command_switchToApp": "切换到应用",
   "command_commandPalette": "命令面板",
-
   "nav_closeNavMenu": "关闭导航菜单",
   "nav_openNavMenu": "打开导航菜单",
   "nav_closeMenu": "关闭菜单",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "调整侧边栏大小",
   "nav_closeNavigation": "关闭导航",
   "nav_openNavigation": "打开导航",
-
   "keybindings_hint": "点击快捷键进行更改。按 Escape 取消。",
   "keybindings_resetAllConfirm": "重置所有快捷键？",
   "keybindings_yesReset": "是，重置",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "检测到冲突",
   "keybindings_conflictDesc": "此快捷键已被以下功能使用：",
   "keybindings_useAnyway": "仍然使用",
-
   "shortcuts_title": "键盘快捷键",
   "shortcuts_closeAriaLabel": "关闭",
   "shortcuts_categoryNavigation": "导航",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "设置 → 快捷键",
   "shortcuts_footerPress": "按",
   "shortcuts_footerToClose": "关闭",
-
   "onboarding_stepWelcome": "欢迎",
   "onboarding_stepSecurity": "安全",
   "onboarding_stepApps": "应用",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "重新输入密码",
   "onboarding_proxyTooltip": "通过 Muximux 路由流量，使应用不需要直接从浏览器访问。如果应用在内部网络或浏览器无法直接访问的其他主机上，请启用此选项。",
   "onboarding_addAnotherInstance": "添加另一个 {appName}",
-
+  "onboarding_selectLanguage": "选择你的语言",
   "splash_selectApp": "选择一个应用以开始",
   "splash_quickAccess": "快速访问",
   "splash_allShortcuts": "所有快捷键",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "尚无应用",
   "splash_noAppsDesc": "添加你的第一个应用以开始使用仪表盘。",
   "splash_addApplication": "添加应用",
-
   "logs_title": "日志",
   "logs_backToDashboard": "返回仪表盘",
   "logs_resume": "恢复",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "显示 {count} 条过滤结果",
   "logs_paused": "已暂停",
   "logs_scrollToBottom": "滚动到底部",
-
   "appFrame_refreshing": "刷新中...",
   "appFrame_releaseToRefresh": "松开以刷新",
   "appFrame_pullToRefresh": "下拉刷新",
-
-  "iconBrowser_dashboardIcons": "仪表盘图标",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "自定义",
   "iconBrowser_searchPlaceholder": "搜索图标...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} 个图标",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} 个图标",
   "iconBrowser_selectIcon": "选择图标",
-
   "popularApps_groupMedia": "媒体",
   "popularApps_groupDownloads": "下载",
   "popularApps_groupSystem": "系统",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS 聚合器",
   "popularApps_linkdingDesc": "书签管理",
   "popularApps_ollamaDesc": "本地 LLM 推理服务器",
-  "popularApps_openWebuiDesc": "本地 LLM 聊天界面"
+  "popularApps_openWebuiDesc": "本地 LLM 聊天界面",
+  "keybindings_searchLabel": "命令面板",
+  "keybindings_searchDesc": "打开命令面板",
+  "keybindings_settingsLabel": "打开设置",
+  "keybindings_settingsDesc": "打开设置面板",
+  "keybindings_shortcutsLabel": "显示快捷键",
+  "keybindings_shortcutsDesc": "显示键盘快捷键帮助",
+  "keybindings_homeLabel": "回到首页",
+  "keybindings_homeDesc": "返回启动画面",
+  "keybindings_logsLabel": "查看日志",
+  "keybindings_logsDesc": "打开日志查看器",
+  "keybindings_refreshLabel": "刷新应用",
+  "keybindings_refreshDesc": "刷新当前应用的 iframe",
+  "keybindings_fullscreenLabel": "切换全屏",
+  "keybindings_fullscreenDesc": "隐藏/显示导航栏以使用全屏模式",
+  "keybindings_nextAppLabel": "下一个应用",
+  "keybindings_nextAppDesc": "切换到列表中的下一个应用",
+  "keybindings_prevAppLabel": "上一个应用",
+  "keybindings_prevAppDesc": "切换到列表中的上一个应用",
+  "keybindings_appLabel": "应用 {number}",
+  "keybindings_appDesc": "切换到应用 #{number}"
 }

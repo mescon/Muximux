@@ -23,7 +23,6 @@
   "common_selectApp": "Vali rakendus navigeerimisribalt",
   "common_continue": "Jätka",
   "common_finish": "Lõpeta",
-
   "toast_connectionRestored": "Ühendus taastatud",
   "toast_connectionLost": "Ühendus katkes – taasühendamine...",
   "toast_settingsSaved": "Seaded salvestatud",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Lülitatud tumedale teemale",
   "toast_switchedToLight": "Lülitatud helediale teemale",
   "toast_usingSystemTheme": "Kasutatakse süsteemi teemat",
-
   "toast_failedSaveConfig": "Konfiguratsiooni salvestamine ebaõnnestus",
   "toast_failedSaveTheme": "Teema salvestamine ebaõnnestus",
   "toast_failedDeleteTheme": "Teema kustutamine ebaõnnestus",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Kustutamine ebaõnnestus",
   "toast_securitySetupFailed": "Turbeseadistus ebaõnnestus",
   "toast_iconSourcesPartialFail": "Mõnede ikooniallikate laadimine ebaõnnestus: {sources}",
-
   "error_somethingWentWrong": "Midagi läks valesti",
   "error_failedLoadDashboard": "Töölaua laadimine ebaõnnestus",
   "error_failedLoadConfig": "Konfiguratsiooni laadimine ebaõnnestus",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Ühendamine ebaõnnestus pärast mitut katset",
   "error_failedFetchHealth": "Terviseandmete pärimine ebaõnnestus",
   "error_deleteFailed": "Kustutamine ebaõnnestus",
-
   "nav_exitFullscreen": "Välju täisekraanist (F)",
-
   "settings_title": "Seaded",
   "settings_general": "Üldine",
   "settings_theme": "Teema",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikoon",
   "settings_groupNamePlaceholder": "Meedia",
   "settings_appFallbackName": "Rakendus",
-
   "general_language": "Keel",
   "general_languageAfterSave": "Valige liidese kuvamiskeel. Muudatused jõustuvad pärast salvestamist.",
   "general_dashboardTitle": "Töölaua pealkiri",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Ekspordi konfiguratsioon",
   "general_importConfig": "Impordi konfiguratsioon",
   "general_configHint": "Ekspordi praegune konfiguratsioon või impordi varem salvestatud.",
-
   "login_subtitle": "Logi oma töölauale sisse",
   "login_externalAuth": "Väline autentimine",
   "login_externalAuthDesc": "See eksemplar on kaitstud välise autentimisteenusega. Sisselogimiseks minge oma pöördproxy-s seadistatud URL-ile.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Jäta mind meelde",
   "login_signingIn": "Sisselogimine...",
   "login_signIn": "Logi sisse",
-
   "common_current": "Praegune",
   "common_username": "Kasutajanimi",
   "common_password": "Parool",
@@ -204,15 +196,12 @@
   "common_default": "Vaikimisi",
   "common_disabled": "Keelatud",
   "common_forwardAuthEnabled": "Forward auth on lubatud. Jätkamiseks avage see rakendus oma pöördproxy URL-i kaudu.",
-
   "error_usernameRequired": "Kasutajanimi on nõutud",
   "error_passwordTooShort": "Parool peab olema vähemalt 8 tähemärki",
   "error_passwordTooShortCount": "Parool peab olema vähemalt 8 tähemärki ({count}/8)",
   "error_passwordsMismatch": "Paroolid ei ühti",
-
   "toast_passwordChanged": "Parool edukalt muudetud",
   "toast_authMethodChanged": "Autentimismeetod muudetud: {method}",
-
   "security_authMethod": "Autentimismeetod",
   "security_authMethodDesc": "Valige, kuidas kasutajad Muximux-iga autentivad",
   "security_passwordAuth": "Paroolautentimine",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Kustuta kasutaja",
   "security_cantDeleteSelf": "Ei saa iseennast kustutada",
   "security_minEightCharsShort": "Min 8 tähemärki",
-
   "theme_appearance": "Välimus",
   "theme_appearanceDesc": "Valige tume, hele või järgige süsteemi eelistust",
   "theme_dark": "Tume",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Hoiatus",
   "theme_statusError": "Viga",
   "theme_statusInfo": "Teave",
-
   "apps_heading": "Rakendused ja grupid",
   "apps_addGroup": "Lisa grupp",
   "apps_addApp": "Lisa rakendus",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Muuda gruppi",
   "apps_deleteGroup": "Kustuta grupp",
   "apps_noAppsConfigured": "Rakendusi ega gruppe pole seadistatud. Alustamiseks klõpsake \"Lisa rakendus\".",
-
   "about_loadingSystemInfo": "Süsteemiteabe laadimine...",
   "about_updateAvailable": "Uuendus saadaval",
   "about_upToDate": "Kõik on ajakohane",
@@ -337,9 +323,7 @@
   "about_issues": "Probleemid",
   "about_releases": "Versioonid",
   "about_wiki": "Wiki",
-
   "common_or": "või",
-
   "appForm_name": "Nimi",
   "appForm_helpName": "Kuvatakse navigeerimisribal ja lehe pealkirjas. Kasutatakse ka unikaalse identifikaatorina — rakenduse ümbernimetamine loob uue proxy marsruudi.",
   "appForm_placeholderName": "Minu rakendus",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Ava hüpikaknas",
   "appForm_redirect": "Ümbersuunamine",
   "appForm_redirectDesc": "Navigeeri rakenduse URL-ile",
-
   "command_searchPlaceholder": "Otsi rakendusi ja käske...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigeeri",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Kasuta süsteemi teemat",
   "command_switchToApp": "Lülitu rakendusele",
   "command_commandPalette": "Käsupalett",
-
   "nav_closeNavMenu": "Sulge navigeerimismenüü",
   "nav_openNavMenu": "Ava navigeerimismenüü",
   "nav_closeMenu": "Sulge menüü",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Muuda külgriba suurust",
   "nav_closeNavigation": "Sulge navigeerimine",
   "nav_openNavigation": "Ava navigeerimine",
-
   "keybindings_hint": "Klõpsake kiirklahvil selle muutmiseks. Tühistamiseks vajutage Escape.",
   "keybindings_resetAllConfirm": "Lähtestada kõik kiirklahvid?",
   "keybindings_yesReset": "Jah, lähtesta",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Konflikt tuvastatud",
   "keybindings_conflictDesc": "Seda kiirklahvi kasutab juba:",
   "keybindings_useAnyway": "Kasuta siiski",
-
   "shortcuts_title": "Kiirklahvid",
   "shortcuts_closeAriaLabel": "Sulge",
   "shortcuts_categoryNavigation": "Navigeerimine",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Seaded → Kiirklahvid",
   "shortcuts_footerPress": "Vajutage",
   "shortcuts_footerToClose": "sulgemiseks",
-
   "onboarding_stepWelcome": "Tere tulemast",
   "onboarding_stepSecurity": "Turvalisus",
   "onboarding_stepApps": "Rakendused",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Sisestage parool uuesti",
   "onboarding_proxyTooltip": "Suunab liikluse läbi Muximux, nii et rakendus ei pea olema otse brauserist kättesaadav. Lubage see, kui rakendus on sisevõrgus või teisel hostil, millele teie brauser otse ligi ei pääse.",
   "onboarding_addAnotherInstance": "Lisa teine {appName}",
-
+  "onboarding_selectLanguage": "Vali oma keel",
   "splash_selectApp": "Alustamiseks valige rakendus",
   "splash_quickAccess": "Kiirjuurdepääs",
   "splash_allShortcuts": "Kõik kiirklahvid",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Rakendusi pole veel",
   "splash_noAppsDesc": "Lisage oma esimene rakendus, et alustada töölaua kasutamist.",
   "splash_addApplication": "Lisa rakendus",
-
   "logs_title": "Logid",
   "logs_backToDashboard": "Tagasi töölauale",
   "logs_resume": "Jätka",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "kuvatakse {count} filtreeritud",
   "logs_paused": "PEATATUD",
   "logs_scrollToBottom": "Keri alla",
-
   "appFrame_refreshing": "Värskendamine...",
   "appFrame_releaseToRefresh": "Vabastage värskendamiseks",
   "appFrame_pullToRefresh": "Tõmmake värskendamiseks",
-
-  "iconBrowser_dashboardIcons": "Töölaua ikoonid",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Kohandatud",
   "iconBrowser_searchPlaceholder": "Otsi ikoone...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikooni",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} ikooni",
   "iconBrowser_selectIcon": "Vali ikoon",
-
   "popularApps_groupMedia": "Meedia",
   "popularApps_groupDownloads": "Allalaadimised",
   "popularApps_groupSystem": "Süsteem",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS voo koguja",
   "popularApps_linkdingDesc": "Järjehoidjate haldur",
   "popularApps_ollamaDesc": "Kohalik LLM järeldusserver",
-  "popularApps_openWebuiDesc": "Vestlusliides kohalike LLM-ide jaoks"
+  "popularApps_openWebuiDesc": "Vestlusliides kohalike LLM-ide jaoks",
+  "keybindings_searchLabel": "Käsupalett",
+  "keybindings_searchDesc": "Ava käsupalett",
+  "keybindings_settingsLabel": "Ava seaded",
+  "keybindings_settingsDesc": "Ava seadete paneel",
+  "keybindings_shortcutsLabel": "Näita otseteid",
+  "keybindings_shortcutsDesc": "Näita kiirklahvide abi",
+  "keybindings_homeLabel": "Avalehele",
+  "keybindings_homeDesc": "Tagasi avakuvale",
+  "keybindings_logsLabel": "Vaata logisid",
+  "keybindings_logsDesc": "Ava logivaatur",
+  "keybindings_refreshLabel": "Värskenda rakendust",
+  "keybindings_refreshDesc": "Värskenda praeguse rakenduse iframe'i",
+  "keybindings_fullscreenLabel": "Lülita täisekraan",
+  "keybindings_fullscreenDesc": "Peida/näita navigeerimist täisekraanirežiimis",
+  "keybindings_nextAppLabel": "Järgmine rakendus",
+  "keybindings_nextAppDesc": "Lülitu järgmisele rakendusele",
+  "keybindings_prevAppLabel": "Eelmine rakendus",
+  "keybindings_prevAppDesc": "Lülitu eelmisele rakendusele",
+  "keybindings_appLabel": "Rakendus {number}",
+  "keybindings_appDesc": "Lülitu rakendusele #{number}"
 }

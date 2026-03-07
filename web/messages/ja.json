@@ -23,7 +23,6 @@
   "common_selectApp": "ナビゲーションからアプリを選択してください",
   "common_continue": "続行",
   "common_finish": "完了",
-
   "toast_connectionRestored": "接続が復旧しました",
   "toast_connectionLost": "接続が切断されました - 再接続中...",
   "toast_settingsSaved": "設定を保存しました",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "ダークテーマに切り替えました",
   "toast_switchedToLight": "ライトテーマに切り替えました",
   "toast_usingSystemTheme": "システムテーマを使用中",
-
   "toast_failedSaveConfig": "設定の保存に失敗しました",
   "toast_failedSaveTheme": "テーマの保存に失敗しました",
   "toast_failedDeleteTheme": "テーマの削除に失敗しました",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "削除に失敗しました",
   "toast_securitySetupFailed": "セキュリティ設定に失敗しました",
   "toast_iconSourcesPartialFail": "一部のアイコンソースの読み込みに失敗しました: {sources}",
-
   "error_somethingWentWrong": "エラーが発生しました",
   "error_failedLoadDashboard": "ダッシュボードの読み込みに失敗しました",
   "error_failedLoadConfig": "設定の読み込みに失敗しました",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "複数回の試行後も接続に失敗しました",
   "error_failedFetchHealth": "ヘルスデータの取得に失敗しました",
   "error_deleteFailed": "削除に失敗しました",
-
   "nav_exitFullscreen": "フルスクリーン解除 (F)",
-
   "settings_title": "設定",
   "settings_general": "一般",
   "settings_theme": "テーマ",
@@ -113,7 +108,6 @@
   "settings_icon": "アイコン",
   "settings_groupNamePlaceholder": "メディア",
   "settings_appFallbackName": "アプリ",
-
   "general_language": "言語",
   "general_languageAfterSave": "インターフェースの表示言語を選択します。保存後に反映されます。",
   "general_dashboardTitle": "ダッシュボードタイトル",
@@ -176,7 +170,6 @@
   "general_exportConfig": "設定をエクスポート",
   "general_importConfig": "設定をインポート",
   "general_configHint": "現在の設定をエクスポートするか、以前保存した設定をインポートします。",
-
   "login_subtitle": "ダッシュボードにサインイン",
   "login_externalAuth": "外部認証",
   "login_externalAuthDesc": "このインスタンスは外部認証プロバイダーで保護されています。リバースプロキシで設定された URL からアクセスしてサインインしてください。",
@@ -192,7 +185,6 @@
   "login_rememberMe": "ログイン状態を保持",
   "login_signingIn": "サインイン中...",
   "login_signIn": "サインイン",
-
   "common_current": "現在",
   "common_username": "ユーザー名",
   "common_password": "パスワード",
@@ -204,15 +196,12 @@
   "common_default": "デフォルト",
   "common_disabled": "無効",
   "common_forwardAuthEnabled": "Forward auth が有効です。続行するにはリバースプロキシ URL からこのアプリにアクセスしてください。",
-
   "error_usernameRequired": "ユーザー名は必須です",
   "error_passwordTooShort": "パスワードは8文字以上必要です",
   "error_passwordTooShortCount": "パスワードは8文字以上必要です（{count}/8）",
   "error_passwordsMismatch": "パスワードが一致しません",
-
   "toast_passwordChanged": "パスワードを変更しました",
   "toast_authMethodChanged": "認証方式を {method} に変更しました",
-
   "security_authMethod": "認証方式",
   "security_authMethodDesc": "Muximux でのユーザー認証方法を選択",
   "security_passwordAuth": "パスワード認証",
@@ -251,7 +240,6 @@
   "security_deleteUser": "ユーザーを削除",
   "security_cantDeleteSelf": "自分自身は削除できません",
   "security_minEightCharsShort": "8文字以上",
-
   "theme_appearance": "外観",
   "theme_appearanceDesc": "ダーク、ライト、またはシステムに従う",
   "theme_dark": "ダーク",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "警告",
   "theme_statusError": "エラー",
   "theme_statusInfo": "情報",
-
   "apps_heading": "アプリとグループ",
   "apps_addGroup": "グループを追加",
   "apps_addApp": "アプリを追加",
@@ -304,7 +291,6 @@
   "apps_editGroup": "グループを編集",
   "apps_deleteGroup": "グループを削除",
   "apps_noAppsConfigured": "アプリやグループが設定されていません。「アプリを追加」をクリックして始めましょう。",
-
   "about_loadingSystemInfo": "システム情報を読み込み中...",
   "about_updateAvailable": "アップデートあり",
   "about_upToDate": "最新の状態です",
@@ -337,9 +323,7 @@
   "about_issues": "Issues",
   "about_releases": "リリース",
   "about_wiki": "Wiki",
-
   "common_or": "または",
-
   "appForm_name": "名前",
   "appForm_helpName": "ナビゲーションバーとページタイトルに表示されます。一意の識別子としても使用され、アプリ名を変更すると新しいプロキシルートが作成されます。",
   "appForm_placeholderName": "マイアプリ",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "ポップアップウィンドウで開く",
   "appForm_redirect": "リダイレクト",
   "appForm_redirectDesc": "アプリの URL に移動",
-
   "command_searchPlaceholder": "アプリとコマンドを検索...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ ナビゲート",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "システムテーマを使用",
   "command_switchToApp": "アプリに切り替え",
   "command_commandPalette": "コマンドパレット",
-
   "nav_closeNavMenu": "ナビゲーションメニューを閉じる",
   "nav_openNavMenu": "ナビゲーションメニューを開く",
   "nav_closeMenu": "メニューを閉じる",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "サイドバーのサイズ変更",
   "nav_closeNavigation": "ナビゲーションを閉じる",
   "nav_openNavigation": "ナビゲーションを開く",
-
   "keybindings_hint": "キーバインドをクリックして変更します。Escape でキャンセル。",
   "keybindings_resetAllConfirm": "すべてのキーバインドをリセットしますか？",
   "keybindings_yesReset": "はい、リセット",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "競合を検出",
   "keybindings_conflictDesc": "このショートカットは既に使用されています：",
   "keybindings_useAnyway": "そのまま使用",
-
   "shortcuts_title": "キーボードショートカット",
   "shortcuts_closeAriaLabel": "閉じる",
   "shortcuts_categoryNavigation": "ナビゲーション",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "設定 → キーバインド",
   "shortcuts_footerPress": "押す",
   "shortcuts_footerToClose": "で閉じる",
-
   "onboarding_stepWelcome": "ようこそ",
   "onboarding_stepSecurity": "セキュリティ",
   "onboarding_stepApps": "アプリ",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "パスワードを再入力",
   "onboarding_proxyTooltip": "Muximux 経由でトラフィックをルーティングし、ブラウザからアプリに直接アクセスする必要をなくします。アプリが内部ネットワークやブラウザから直接アクセスできないホストにある場合は有効にしてください。",
   "onboarding_addAnotherInstance": "別の {appName} を追加",
-
+  "onboarding_selectLanguage": "言語を選択",
   "splash_selectApp": "アプリを選択して開始",
   "splash_quickAccess": "クイックアクセス",
   "splash_allShortcuts": "すべてのショートカット",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "アプリがありません",
   "splash_noAppsDesc": "最初のアプリを追加してダッシュボードを始めましょう。",
   "splash_addApplication": "アプリを追加",
-
   "logs_title": "ログ",
   "logs_backToDashboard": "ダッシュボードに戻る",
   "logs_resume": "再開",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} 件のフィルタ結果を表示",
   "logs_paused": "一時停止中",
   "logs_scrollToBottom": "下部にスクロール",
-
   "appFrame_refreshing": "更新中...",
   "appFrame_releaseToRefresh": "離して更新",
   "appFrame_pullToRefresh": "引き下げて更新",
-
-  "iconBrowser_dashboardIcons": "ダッシュボードアイコン",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "カスタム",
   "iconBrowser_searchPlaceholder": "アイコンを検索...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} 個のアイコン",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} 個のアイコン",
   "iconBrowser_selectIcon": "アイコンを選択",
-
   "popularApps_groupMedia": "メディア",
   "popularApps_groupDownloads": "ダウンロード",
   "popularApps_groupSystem": "システム",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS フィードアグリゲーター",
   "popularApps_linkdingDesc": "ブックマークマネージャー",
   "popularApps_ollamaDesc": "ローカル LLM 推論サーバー",
-  "popularApps_openWebuiDesc": "ローカル LLM チャットインターフェース"
+  "popularApps_openWebuiDesc": "ローカル LLM チャットインターフェース",
+  "keybindings_searchLabel": "コマンドパレット",
+  "keybindings_searchDesc": "コマンドパレットを開く",
+  "keybindings_settingsLabel": "設定を開く",
+  "keybindings_settingsDesc": "設定パネルを開く",
+  "keybindings_shortcutsLabel": "ショートカットを表示",
+  "keybindings_shortcutsDesc": "キーボードショートカットのヘルプを表示",
+  "keybindings_homeLabel": "ホームに戻る",
+  "keybindings_homeDesc": "スプラッシュ画面に戻る",
+  "keybindings_logsLabel": "ログを表示",
+  "keybindings_logsDesc": "ログビューアーを開く",
+  "keybindings_refreshLabel": "アプリを更新",
+  "keybindings_refreshDesc": "現在のアプリの iframe を更新",
+  "keybindings_fullscreenLabel": "フルスクリーン切替",
+  "keybindings_fullscreenDesc": "フルスクリーンモード用にナビゲーションを表示/非表示",
+  "keybindings_nextAppLabel": "次のアプリ",
+  "keybindings_nextAppDesc": "リストの次のアプリに切り替え",
+  "keybindings_prevAppLabel": "前のアプリ",
+  "keybindings_prevAppDesc": "リストの前のアプリに切り替え",
+  "keybindings_appLabel": "アプリ {number}",
+  "keybindings_appDesc": "アプリ #{number} に切り替え"
 }

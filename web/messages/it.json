@@ -23,7 +23,6 @@
   "common_selectApp": "Seleziona un'app dalla navigazione",
   "common_continue": "Continua",
   "common_finish": "Termina",
-
   "toast_connectionRestored": "Connessione ripristinata",
   "toast_connectionLost": "Connessione persa – riconnessione...",
   "toast_settingsSaved": "Impostazioni salvate con successo",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Passato al tema scuro",
   "toast_switchedToLight": "Passato al tema chiaro",
   "toast_usingSystemTheme": "Utilizzo del tema di sistema",
-
   "toast_failedSaveConfig": "Salvataggio della configurazione non riuscito",
   "toast_failedSaveTheme": "Salvataggio del tema non riuscito",
   "toast_failedDeleteTheme": "Eliminazione del tema non riuscita",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Eliminazione non riuscita",
   "toast_securitySetupFailed": "Configurazione della sicurezza non riuscita",
   "toast_iconSourcesPartialFail": "Alcune fonti di icone non sono state caricate: {sources}",
-
   "error_somethingWentWrong": "Qualcosa è andato storto",
   "error_failedLoadDashboard": "Caricamento della dashboard non riuscito",
   "error_failedLoadConfig": "Caricamento della configurazione non riuscito",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Connessione non riuscita dopo più tentativi",
   "error_failedFetchHealth": "Recupero dei dati di salute non riuscito",
   "error_deleteFailed": "Eliminazione non riuscita",
-
   "nav_exitFullscreen": "Esci dallo schermo intero (F)",
-
   "settings_title": "Impostazioni",
   "settings_general": "Generale",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Icona",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "App",
-
   "general_language": "Lingua",
   "general_languageAfterSave": "Seleziona la lingua di visualizzazione per l'interfaccia. Le modifiche hanno effetto dopo il salvataggio.",
   "general_dashboardTitle": "Titolo della dashboard",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Esporta configurazione",
   "general_importConfig": "Importa configurazione",
   "general_configHint": "Esporta la tua configurazione attuale o importa una salvata in precedenza.",
-
   "login_subtitle": "Accedi alla tua dashboard",
   "login_externalAuth": "Autenticazione esterna",
   "login_externalAuthDesc": "Questa istanza è protetta da un provider di autenticazione esterno. Accedi tramite l'URL configurato nel tuo reverse proxy.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Ricordami",
   "login_signingIn": "Accesso in corso...",
   "login_signIn": "Accedi",
-
   "common_current": "Attuale",
   "common_username": "Nome utente",
   "common_password": "Password",
@@ -204,15 +196,12 @@
   "common_default": "Predefinito",
   "common_disabled": "Disattivato",
   "common_forwardAuthEnabled": "Forward auth attivato. Accedi a questa app tramite l'URL del tuo reverse proxy per continuare.",
-
   "error_usernameRequired": "Il nome utente è obbligatorio",
   "error_passwordTooShort": "La password deve contenere almeno 8 caratteri",
   "error_passwordTooShortCount": "La password deve contenere almeno 8 caratteri ({count}/8)",
   "error_passwordsMismatch": "Le password non corrispondono",
-
   "toast_passwordChanged": "Password cambiata con successo",
   "toast_authMethodChanged": "Metodo di autenticazione cambiato in {method}",
-
   "security_authMethod": "Metodo di autenticazione",
   "security_authMethodDesc": "Scegli come gli utenti si autenticano con Muximux",
   "security_passwordAuth": "Autenticazione con password",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Elimina utente",
   "security_cantDeleteSelf": "Non puoi eliminare te stesso",
   "security_minEightCharsShort": "Min. 8 caratteri",
-
   "theme_appearance": "Aspetto",
   "theme_appearanceDesc": "Scegli scuro, chiaro o segui il tuo sistema",
   "theme_dark": "Scuro",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Avviso",
   "theme_statusError": "Errore",
   "theme_statusInfo": "Info",
-
   "apps_heading": "App e Gruppi",
   "apps_addGroup": "Aggiungi gruppo",
   "apps_addApp": "Aggiungi app",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Modifica gruppo",
   "apps_deleteGroup": "Elimina gruppo",
   "apps_noAppsConfigured": "Nessuna applicazione o gruppo configurato. Clicca su \"Aggiungi app\" per iniziare.",
-
   "about_loadingSystemInfo": "Caricamento informazioni di sistema...",
   "about_updateAvailable": "Aggiornamento disponibile",
   "about_upToDate": "Sei aggiornato",
@@ -337,9 +323,7 @@
   "about_issues": "Issues",
   "about_releases": "Releases",
   "about_wiki": "Wiki",
-
   "common_or": "o",
-
   "appForm_name": "Nome",
   "appForm_helpName": "Mostrato nella barra di navigazione e nel titolo della pagina. Usato anche come identificatore univoco — rinominare un'app crea una nuova route proxy.",
   "appForm_placeholderName": "La mia app",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Apri in una finestra popup",
   "appForm_redirect": "Reindirizzamento",
   "appForm_redirectDesc": "Naviga verso l'URL dell'app",
-
   "command_searchPlaceholder": "Cerca app e comandi...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Naviga",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Usa tema di sistema",
   "command_switchToApp": "Passa all'app",
   "command_commandPalette": "Palette dei comandi",
-
   "nav_closeNavMenu": "Chiudi menu di navigazione",
   "nav_openNavMenu": "Apri menu di navigazione",
   "nav_closeMenu": "Chiudi menu",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Ridimensiona barra laterale",
   "nav_closeNavigation": "Chiudi navigazione",
   "nav_openNavigation": "Apri navigazione",
-
   "keybindings_hint": "Clicca su una scorciatoia per cambiarla. Premi Escape per annullare.",
   "keybindings_resetAllConfirm": "Ripristinare tutte le scorciatoie?",
   "keybindings_yesReset": "Sì, ripristina",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Conflitto rilevato",
   "keybindings_conflictDesc": "Questa scorciatoia è già usata da:",
   "keybindings_useAnyway": "Usa comunque",
-
   "shortcuts_title": "Scorciatoie da tastiera",
   "shortcuts_closeAriaLabel": "Chiudi",
   "shortcuts_categoryNavigation": "Navigazione",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Impostazioni → Scorciatoie da tastiera",
   "shortcuts_footerPress": "Premi",
   "shortcuts_footerToClose": "per chiudere",
-
   "onboarding_stepWelcome": "Benvenuto",
   "onboarding_stepSecurity": "Sicurezza",
   "onboarding_stepApps": "App",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Reinserisci la password",
   "onboarding_proxyTooltip": "Instrada il traffico attraverso Muximux in modo che l'app non debba essere direttamente raggiungibile dal tuo browser. Attiva questo se l'app è su una rete interna o un host diverso che il tuo browser non può raggiungere direttamente.",
   "onboarding_addAnotherInstance": "Aggiungi un'altra istanza di {appName}",
-
+  "onboarding_selectLanguage": "Seleziona la tua lingua",
   "splash_selectApp": "Seleziona un'applicazione per iniziare",
   "splash_quickAccess": "Accesso rapido",
   "splash_allShortcuts": "Tutte le scorciatoie",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Nessuna applicazione ancora",
   "splash_noAppsDesc": "Aggiungi la tua prima applicazione per iniziare con la tua dashboard.",
   "splash_addApplication": "Aggiungi applicazione",
-
   "logs_title": "Log",
   "logs_backToDashboard": "Torna alla dashboard",
   "logs_resume": "Riprendi",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} filtrate visualizzate",
   "logs_paused": "IN PAUSA",
   "logs_scrollToBottom": "Scorri in basso",
-
   "appFrame_refreshing": "Aggiornamento...",
   "appFrame_releaseToRefresh": "Rilascia per aggiornare",
   "appFrame_pullToRefresh": "Tira per aggiornare",
-
-  "iconBrowser_dashboardIcons": "Icone della dashboard",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Personalizzato",
   "iconBrowser_searchPlaceholder": "Cerca icone...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} icone",
   "iconBrowser_iconCountFiltered": "{filtered} di {total} icone",
   "iconBrowser_selectIcon": "Seleziona icona",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Download",
   "popularApps_groupSystem": "Sistema",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Aggregatore feed RSS",
   "popularApps_linkdingDesc": "Gestore segnalibri",
   "popularApps_ollamaDesc": "Server di inferenza LLM locale",
-  "popularApps_openWebuiDesc": "Interfaccia chat per LLM locali"
+  "popularApps_openWebuiDesc": "Interfaccia chat per LLM locali",
+  "keybindings_searchLabel": "Tavolozza comandi",
+  "keybindings_searchDesc": "Apri la tavolozza comandi",
+  "keybindings_settingsLabel": "Apri impostazioni",
+  "keybindings_settingsDesc": "Apri il pannello impostazioni",
+  "keybindings_shortcutsLabel": "Mostra scorciatoie",
+  "keybindings_shortcutsDesc": "Mostra guida scorciatoie da tastiera",
+  "keybindings_homeLabel": "Home",
+  "keybindings_homeDesc": "Torna alla schermata iniziale",
+  "keybindings_logsLabel": "Visualizza log",
+  "keybindings_logsDesc": "Apri il visualizzatore log",
+  "keybindings_refreshLabel": "Aggiorna app",
+  "keybindings_refreshDesc": "Aggiorna l'iframe dell'app corrente",
+  "keybindings_fullscreenLabel": "Attiva/disattiva schermo intero",
+  "keybindings_fullscreenDesc": "Nascondi/mostra la navigazione in modalità schermo intero",
+  "keybindings_nextAppLabel": "App successiva",
+  "keybindings_nextAppDesc": "Passa all'app successiva nella lista",
+  "keybindings_prevAppLabel": "App precedente",
+  "keybindings_prevAppDesc": "Passa all'app precedente nella lista",
+  "keybindings_appLabel": "App {number}",
+  "keybindings_appDesc": "Passa all'app #{number}"
 }

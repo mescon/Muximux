@@ -23,7 +23,6 @@
   "common_selectApp": "Επιλέξτε μια εφαρμογή από την πλοήγηση",
   "common_continue": "Συνέχεια",
   "common_finish": "Τέλος",
-
   "toast_connectionRestored": "Η σύνδεση αποκαταστάθηκε",
   "toast_connectionLost": "Η σύνδεση χάθηκε - επανασύνδεση...",
   "toast_settingsSaved": "Οι ρυθμίσεις αποθηκεύτηκαν επιτυχώς",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Εναλλαγή σε σκούρο θέμα",
   "toast_switchedToLight": "Εναλλαγή σε ανοιχτό θέμα",
   "toast_usingSystemTheme": "Χρήση θέματος συστήματος",
-
   "toast_failedSaveConfig": "Αποτυχία αποθήκευσης διαμόρφωσης",
   "toast_failedSaveTheme": "Αποτυχία αποθήκευσης θέματος",
   "toast_failedDeleteTheme": "Αποτυχία διαγραφής θέματος",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Η διαγραφή απέτυχε",
   "toast_securitySetupFailed": "Η ρύθμιση ασφαλείας απέτυχε",
   "toast_iconSourcesPartialFail": "Κάποιες πηγές εικονιδίων απέτυχαν να φορτωθούν: {sources}",
-
   "error_somethingWentWrong": "Κάτι πήγε στραβά",
   "error_failedLoadDashboard": "Αποτυχία φόρτωσης πίνακα ελέγχου",
   "error_failedLoadConfig": "Αποτυχία φόρτωσης διαμόρφωσης",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Αποτυχία σύνδεσης μετά από πολλαπλές προσπάθειες",
   "error_failedFetchHealth": "Αποτυχία ανάκτησης δεδομένων υγείας",
   "error_deleteFailed": "Η διαγραφή απέτυχε",
-
   "nav_exitFullscreen": "Έξοδος από πλήρη οθόνη (F)",
-
   "settings_title": "Ρυθμίσεις",
   "settings_general": "Γενικά",
   "settings_theme": "Θέμα",
@@ -113,7 +108,6 @@
   "settings_icon": "Εικονίδιο",
   "settings_groupNamePlaceholder": "Πολυμέσα",
   "settings_appFallbackName": "Εφαρμογή",
-
   "general_language": "Γλώσσα",
   "general_languageAfterSave": "Επιλέξτε τη γλώσσα εμφάνισης του περιβάλλοντος. Οι αλλαγές εφαρμόζονται μετά την αποθήκευση.",
   "general_dashboardTitle": "Τίτλος πίνακα ελέγχου",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Εξαγωγή διαμόρφωσης",
   "general_importConfig": "Εισαγωγή διαμόρφωσης",
   "general_configHint": "Εξάγετε την τρέχουσα διαμόρφωσή σας ή εισάγετε μια προηγουμένως αποθηκευμένη.",
-
   "login_subtitle": "Συνδεθείτε στον πίνακα ελέγχου σας",
   "login_externalAuth": "Εξωτερικός έλεγχος ταυτότητας",
   "login_externalAuthDesc": "Αυτή η εγκατάσταση προστατεύεται από εξωτερικό πάροχο ελέγχου ταυτότητας. Αποκτήστε πρόσβαση μέσω του URL που έχει ρυθμιστεί στον reverse proxy σας.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Να με θυμάσαι",
   "login_signingIn": "Σύνδεση...",
   "login_signIn": "Σύνδεση",
-
   "common_current": "Τρέχον",
   "common_username": "Όνομα χρήστη",
   "common_password": "Κωδικός πρόσβασης",
@@ -204,15 +196,12 @@
   "common_default": "Προεπιλογή",
   "common_disabled": "Απενεργοποιημένο",
   "common_forwardAuthEnabled": "Ο forward auth είναι ενεργοποιημένος. Αποκτήστε πρόσβαση σε αυτήν την εφαρμογή μέσω του URL του reverse proxy σας για να συνεχίσετε.",
-
   "error_usernameRequired": "Το όνομα χρήστη είναι υποχρεωτικό",
   "error_passwordTooShort": "Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες",
   "error_passwordTooShortCount": "Ο κωδικός πρέπει να έχει τουλάχιστον 8 χαρακτήρες ({count}/8)",
   "error_passwordsMismatch": "Οι κωδικοί δεν ταιριάζουν",
-
   "toast_passwordChanged": "Ο κωδικός πρόσβασης άλλαξε επιτυχώς",
   "toast_authMethodChanged": "Η μέθοδος ελέγχου ταυτότητας άλλαξε σε {method}",
-
   "security_authMethod": "Μέθοδος ελέγχου ταυτότητας",
   "security_authMethodDesc": "Επιλέξτε πώς οι χρήστες θα ελέγχουν την ταυτότητά τους στο Muximux",
   "security_passwordAuth": "Έλεγχος ταυτότητας με κωδικό",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Διαγραφή χρήστη",
   "security_cantDeleteSelf": "Δεν μπορείτε να διαγράψετε τον εαυτό σας",
   "security_minEightCharsShort": "Τουλάχιστον 8 χαρακτήρες",
-
   "theme_appearance": "Εμφάνιση",
   "theme_appearanceDesc": "Επιλέξτε σκούρο, ανοιχτό ή ακολουθήστε το σύστημα",
   "theme_dark": "Σκούρο",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Προειδοποίηση",
   "theme_statusError": "Σφάλμα",
   "theme_statusInfo": "Πληροφορία",
-
   "apps_heading": "Εφαρμογές & Ομάδες",
   "apps_addGroup": "Προσθήκη ομάδας",
   "apps_addApp": "Προσθήκη εφαρμογής",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Επεξεργασία ομάδας",
   "apps_deleteGroup": "Διαγραφή ομάδας",
   "apps_noAppsConfigured": "Δεν έχουν ρυθμιστεί εφαρμογές ή ομάδες. Κάντε κλικ στο \"Προσθήκη εφαρμογής\" για να ξεκινήσετε.",
-
   "about_loadingSystemInfo": "Φόρτωση πληροφοριών συστήματος...",
   "about_updateAvailable": "Διαθέσιμη ενημέρωση",
   "about_upToDate": "Είστε ενημερωμένοι",
@@ -337,9 +323,7 @@
   "about_issues": "Ζητήματα",
   "about_releases": "Εκδόσεις",
   "about_wiki": "Wiki",
-
   "common_or": "ή",
-
   "appForm_name": "Όνομα",
   "appForm_helpName": "Εμφανίζεται στη μπάρα πλοήγησης και στον τίτλο σελίδας. Χρησιμοποιείται επίσης ως μοναδικό αναγνωριστικό — η μετονομασία μιας εφαρμογής δημιουργεί νέα διαδρομή proxy.",
   "appForm_placeholderName": "Η εφαρμογή μου",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Άνοιγμα σε αναδυόμενο παράθυρο",
   "appForm_redirect": "Ανακατεύθυνση",
   "appForm_redirectDesc": "Μετάβαση στο URL της εφαρμογής",
-
   "command_searchPlaceholder": "Αναζήτηση εφαρμογών και εντολών...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Πλοήγηση",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Χρήση θέματος συστήματος",
   "command_switchToApp": "Εναλλαγή σε εφαρμογή",
   "command_commandPalette": "Παλέτα εντολών",
-
   "nav_closeNavMenu": "Κλείσιμο μενού πλοήγησης",
   "nav_openNavMenu": "Άνοιγμα μενού πλοήγησης",
   "nav_closeMenu": "Κλείσιμο μενού",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Αλλαγή μεγέθους πλαϊνής μπάρας",
   "nav_closeNavigation": "Κλείσιμο πλοήγησης",
   "nav_openNavigation": "Άνοιγμα πλοήγησης",
-
   "keybindings_hint": "Κάντε κλικ σε μια συντόμευση για αλλαγή. Πατήστε Escape για ακύρωση.",
   "keybindings_resetAllConfirm": "Επαναφορά όλων των συντομεύσεων;",
   "keybindings_yesReset": "Ναι, Επαναφορά",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Εντοπίστηκε σύγκρουση",
   "keybindings_conflictDesc": "Αυτή η συντόμευση χρησιμοποιείται ήδη από:",
   "keybindings_useAnyway": "Χρήση παρόλα αυτά",
-
   "shortcuts_title": "Συντομεύσεις πληκτρολογίου",
   "shortcuts_closeAriaLabel": "Κλείσιμο",
   "shortcuts_categoryNavigation": "Πλοήγηση",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Ρυθμίσεις → Συντομεύσεις πλήκτρων",
   "shortcuts_footerPress": "Πατήστε",
   "shortcuts_footerToClose": "για κλείσιμο",
-
   "onboarding_stepWelcome": "Καλωσόρισμα",
   "onboarding_stepSecurity": "Ασφάλεια",
   "onboarding_stepApps": "Εφαρμογές",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Εισάγετε ξανά τον κωδικό",
   "onboarding_proxyTooltip": "Δρομολογεί την κίνηση μέσω του Muximux ώστε η εφαρμογή να μη χρειάζεται να είναι απευθείας προσβάσιμη από τον browser σας. Ενεργοποιήστε αυτό αν η εφαρμογή βρίσκεται σε εσωτερικό δίκτυο ή σε διαφορετικό host που ο browser σας δεν μπορεί να προσεγγίσει απευθείας.",
   "onboarding_addAnotherInstance": "Προσθήκη ακόμα ενός {appName}",
-
+  "onboarding_selectLanguage": "Επιλέξτε τη γλώσσα σας",
   "splash_selectApp": "Επιλέξτε μια εφαρμογή για να ξεκινήσετε",
   "splash_quickAccess": "Γρήγορη πρόσβαση",
   "splash_allShortcuts": "Όλες οι συντομεύσεις",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Δεν υπάρχουν εφαρμογές ακόμα",
   "splash_noAppsDesc": "Προσθέστε την πρώτη σας εφαρμογή για να ξεκινήσετε με τον πίνακα ελέγχου σας.",
   "splash_addApplication": "Προσθήκη εφαρμογής",
-
   "logs_title": "Αρχεία καταγραφής",
   "logs_backToDashboard": "Επιστροφή στον πίνακα ελέγχου",
   "logs_resume": "Συνέχεια",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "εμφάνιση {count} φιλτραρισμένων",
   "logs_paused": "ΠΑΥΣΗ",
   "logs_scrollToBottom": "Κύλιση στο κάτω μέρος",
-
   "appFrame_refreshing": "Ανανέωση...",
   "appFrame_releaseToRefresh": "Αφήστε για ανανέωση",
   "appFrame_pullToRefresh": "Τραβήξτε για ανανέωση",
-
-  "iconBrowser_dashboardIcons": "Εικονίδια πίνακα ελέγχου",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Προσαρμοσμένα",
   "iconBrowser_searchPlaceholder": "Αναζήτηση εικονιδίων...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} εικονίδια",
   "iconBrowser_iconCountFiltered": "{filtered} από {total} εικονίδια",
   "iconBrowser_selectIcon": "Επιλογή εικονιδίου",
-
   "popularApps_groupMedia": "Πολυμέσα",
   "popularApps_groupDownloads": "Λήψεις",
   "popularApps_groupSystem": "Σύστημα",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Συγκεντρωτής RSS",
   "popularApps_linkdingDesc": "Διαχειριστής σελιδοδεικτών",
   "popularApps_ollamaDesc": "Τοπικός διακομιστής εξαγωγής LLM",
-  "popularApps_openWebuiDesc": "Διεπαφή συνομιλίας για τοπικά LLM"
+  "popularApps_openWebuiDesc": "Διεπαφή συνομιλίας για τοπικά LLM",
+  "keybindings_searchLabel": "Παλέτα εντολών",
+  "keybindings_searchDesc": "Άνοιγμα παλέτας εντολών",
+  "keybindings_settingsLabel": "Άνοιγμα ρυθμίσεων",
+  "keybindings_settingsDesc": "Άνοιγμα πίνακα ρυθμίσεων",
+  "keybindings_shortcutsLabel": "Εμφάνιση συντομεύσεων",
+  "keybindings_shortcutsDesc": "Εμφάνιση βοήθειας συντομεύσεων",
+  "keybindings_homeLabel": "Αρχική",
+  "keybindings_homeDesc": "Επιστροφή στην αρχική οθόνη",
+  "keybindings_logsLabel": "Προβολή αρχείων",
+  "keybindings_logsDesc": "Άνοιγμα προβολής αρχείων",
+  "keybindings_refreshLabel": "Ανανέωση εφαρμογής",
+  "keybindings_refreshDesc": "Ανανέωση iframe εφαρμογής",
+  "keybindings_fullscreenLabel": "Εναλλαγή πλήρους οθόνης",
+  "keybindings_fullscreenDesc": "Απόκρυψη/εμφάνιση πλοήγησης σε πλήρη οθόνη",
+  "keybindings_nextAppLabel": "Επόμενη εφαρμογή",
+  "keybindings_nextAppDesc": "Μετάβαση στην επόμενη εφαρμογή",
+  "keybindings_prevAppLabel": "Προηγούμενη εφαρμογή",
+  "keybindings_prevAppDesc": "Μετάβαση στην προηγούμενη εφαρμογή",
+  "keybindings_appLabel": "Εφαρμογή {number}",
+  "keybindings_appDesc": "Μετάβαση στην εφαρμογή #{number}"
 }

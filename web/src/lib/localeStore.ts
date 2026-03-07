@@ -19,10 +19,27 @@ export function syncLocaleFromConfig(configLocale: string): void {
     applyLocaleToDocument(configLocale);
     return;
   }
-  localStorage.setItem(localStorageKey, configLocale);
-  applyLocaleToDocument(configLocale);
+  // setLocale writes to localStorage and triggers window.location.reload()
+  // Do NOT write localStorage before setLocale — it checks getLocale() internally
+  // and would see the new value, think nothing changed, and skip the reload.
   setLocale(configLocale as typeof locales[number]);
 }
+
+/** Flag emoji for each supported locale. */
+export const localeFlags: Record<string, string> = {
+  en: '\u{1F1EC}\u{1F1E7}', sv: '\u{1F1F8}\u{1F1EA}', uk: '\u{1F1FA}\u{1F1E6}',
+  zh: '\u{1F1E8}\u{1F1F3}', es: '\u{1F1EA}\u{1F1F8}', hi: '\u{1F1EE}\u{1F1F3}',
+  pt: '\u{1F1F5}\u{1F1F9}', bn: '\u{1F1E7}\u{1F1E9}', ru: '\u{1F1F7}\u{1F1FA}',
+  ja: '\u{1F1EF}\u{1F1F5}', vi: '\u{1F1FB}\u{1F1F3}', yue: '\u{1F1ED}\u{1F1F0}',
+  tr: '\u{1F1F9}\u{1F1F7}', ar: '\u{1F1F8}\u{1F1E6}', wuu: '\u{1F1E8}\u{1F1F3}',
+  mr: '\u{1F1EE}\u{1F1F3}', nb: '\u{1F1F3}\u{1F1F4}', fi: '\u{1F1EB}\u{1F1EE}',
+  da: '\u{1F1E9}\u{1F1F0}', et: '\u{1F1EA}\u{1F1EA}', lv: '\u{1F1F1}\u{1F1FB}',
+  lt: '\u{1F1F1}\u{1F1F9}', pl: '\u{1F1F5}\u{1F1F1}', de: '\u{1F1E9}\u{1F1EA}',
+  nl: '\u{1F1F3}\u{1F1F1}', fr: '\u{1F1EB}\u{1F1F7}', it: '\u{1F1EE}\u{1F1F9}',
+  hu: '\u{1F1ED}\u{1F1FA}', cs: '\u{1F1E8}\u{1F1FF}', ro: '\u{1F1F7}\u{1F1F4}',
+  el: '\u{1F1EC}\u{1F1F7}', bg: '\u{1F1E7}\u{1F1EC}', hr: '\u{1F1ED}\u{1F1F7}',
+  sr: '\u{1F1F7}\u{1F1F8}', sk: '\u{1F1F8}\u{1F1F0}', sl: '\u{1F1F8}\u{1F1EE}',
+};
 
 /** Native display names for each supported locale. */
 export const localeNames: Record<string, string> = {
@@ -64,9 +81,9 @@ export const localeNames: Record<string, string> = {
   sl: 'Sloven\u0161\u010dina',
 };
 
-/** Returns the list of available locales with their display names, sorted alphabetically by name. */
-export function getAvailableLocales(): Array<{ tag: string; name: string }> {
+/** Returns the list of available locales with their display names and flags, sorted alphabetically by name. */
+export function getAvailableLocales(): Array<{ tag: string; name: string; flag: string }> {
   return locales
-    .map(tag => ({ tag, name: localeNames[tag] || tag }))
+    .map(tag => ({ tag, name: localeNames[tag] || tag, flag: localeFlags[tag] || '' }))
     .sort((a, b) => a.name.localeCompare(b.name));
 }

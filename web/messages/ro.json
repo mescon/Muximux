@@ -23,7 +23,6 @@
   "common_selectApp": "Selectează o aplicație din navigare",
   "common_continue": "Continuă",
   "common_finish": "Finalizare",
-
   "toast_connectionRestored": "Conexiune restabilită",
   "toast_connectionLost": "Conexiune pierdută - se reconectează...",
   "toast_settingsSaved": "Setări salvate cu succes",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "S-a comutat la tema întunecată",
   "toast_switchedToLight": "S-a comutat la tema luminoasă",
   "toast_usingSystemTheme": "Se utilizează tema de sistem",
-
   "toast_failedSaveConfig": "Salvarea configurației a eșuat",
   "toast_failedSaveTheme": "Salvarea temei a eșuat",
   "toast_failedDeleteTheme": "Ștergerea temei a eșuat",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Ștergerea a eșuat",
   "toast_securitySetupFailed": "Configurarea securității a eșuat",
   "toast_iconSourcesPartialFail": "Unele surse de pictograme nu s-au putut încărca: {sources}",
-
   "error_somethingWentWrong": "Ceva nu a funcționat corect",
   "error_failedLoadDashboard": "Încărcarea panoului de control a eșuat",
   "error_failedLoadConfig": "Încărcarea configurației a eșuat",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Conectarea a eșuat după mai multe încercări",
   "error_failedFetchHealth": "Obținerea datelor de sănătate a eșuat",
   "error_deleteFailed": "Ștergerea a eșuat",
-
   "nav_exitFullscreen": "Ieși din ecranul complet (F)",
-
   "settings_title": "Setări",
   "settings_general": "General",
   "settings_theme": "Temă",
@@ -113,7 +108,6 @@
   "settings_icon": "Pictogramă",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "Aplicație",
-
   "general_language": "Limbă",
   "general_languageAfterSave": "Selectează limba de afișare a interfeței. Modificările se aplică după salvare.",
   "general_dashboardTitle": "Titlul panoului de control",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Exportă configurația",
   "general_importConfig": "Importă configurația",
   "general_configHint": "Exportă configurația curentă sau importă una salvată anterior.",
-
   "login_subtitle": "Conectează-te la panoul de control",
   "login_externalAuth": "Autentificare externă",
   "login_externalAuthDesc": "Această instanță este protejată de un furnizor de autentificare extern. Accesează-o prin URL-ul configurat în reverse proxy pentru a te conecta.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Ține-mă minte",
   "login_signingIn": "Se conectează...",
   "login_signIn": "Conectare",
-
   "common_current": "Curent",
   "common_username": "Nume utilizator",
   "common_password": "Parolă",
@@ -204,15 +196,12 @@
   "common_default": "Implicit",
   "common_disabled": "Dezactivat",
   "common_forwardAuthEnabled": "Autentificarea forward este activată. Te rugăm să accesezi această aplicație prin URL-ul reverse proxy pentru a continua.",
-
   "error_usernameRequired": "Numele de utilizator este obligatoriu",
   "error_passwordTooShort": "Parola trebuie să aibă cel puțin 8 caractere",
   "error_passwordTooShortCount": "Parola trebuie să aibă cel puțin 8 caractere ({count}/8)",
   "error_passwordsMismatch": "Parolele nu se potrivesc",
-
   "toast_passwordChanged": "Parola a fost schimbată cu succes",
   "toast_authMethodChanged": "Metoda de autentificare a fost schimbată la {method}",
-
   "security_authMethod": "Metodă de autentificare",
   "security_authMethodDesc": "Alege cum se autentifică utilizatorii în Muximux",
   "security_passwordAuth": "Autentificare cu parolă",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Șterge utilizator",
   "security_cantDeleteSelf": "Nu te poți șterge pe tine",
   "security_minEightCharsShort": "Min. 8 caractere",
-
   "theme_appearance": "Aspect",
   "theme_appearanceDesc": "Alege tema întunecată, luminoasă sau urmează sistemul",
   "theme_dark": "Întunecată",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Warning",
   "theme_statusError": "Error",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Aplicații și grupuri",
   "apps_addGroup": "Adaugă grup",
   "apps_addApp": "Adaugă aplicație",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Editează grupul",
   "apps_deleteGroup": "Șterge grupul",
   "apps_noAppsConfigured": "Nicio aplicație sau grup configurat. Apasă pe \"Adaugă aplicație\" pentru a începe.",
-
   "about_loadingSystemInfo": "Se încarcă informațiile de sistem...",
   "about_updateAvailable": "Actualizare disponibilă",
   "about_upToDate": "Ești la zi",
@@ -337,9 +323,7 @@
   "about_issues": "Probleme",
   "about_releases": "Lansări",
   "about_wiki": "Wiki",
-
   "common_or": "sau",
-
   "appForm_name": "Nume",
   "appForm_helpName": "Afișat în bara de navigare și titlul paginii. Folosit și ca identificator unic — redenumirea unei aplicații creează o rută proxy nouă.",
   "appForm_placeholderName": "Aplicația mea",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Deschide într-o fereastră popup",
   "appForm_redirect": "Redirecționare",
   "appForm_redirectDesc": "Navighează la URL-ul aplicației",
-
   "command_searchPlaceholder": "Caută aplicații și comenzi...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigare",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Folosește tema de sistem",
   "command_switchToApp": "Comută la aplicație",
   "command_commandPalette": "Paletă de comenzi",
-
   "nav_closeNavMenu": "Închide meniul de navigare",
   "nav_openNavMenu": "Deschide meniul de navigare",
   "nav_closeMenu": "Închide meniul",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Redimensionează bara laterală",
   "nav_closeNavigation": "Închide navigarea",
   "nav_openNavigation": "Deschide navigarea",
-
   "keybindings_hint": "Apasă pe o tastă rapidă pentru a o schimba. Apasă Escape pentru a anula.",
   "keybindings_resetAllConfirm": "Resetezi toate tastele rapide?",
   "keybindings_yesReset": "Da, resetează",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Conflict detectat",
   "keybindings_conflictDesc": "Această scurtătură este deja folosită de:",
   "keybindings_useAnyway": "Folosește oricum",
-
   "shortcuts_title": "Scurtături de tastatură",
   "shortcuts_closeAriaLabel": "Închide",
   "shortcuts_categoryNavigation": "Navigare",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Setări → Taste rapide",
   "shortcuts_footerPress": "Apasă",
   "shortcuts_footerToClose": "pentru a închide",
-
   "onboarding_stepWelcome": "Bun venit",
   "onboarding_stepSecurity": "Securitate",
   "onboarding_stepApps": "Aplicații",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Reintroduceți parola",
   "onboarding_proxyTooltip": "Direcționează traficul prin Muximux pentru ca aplicația să nu fie accesibilă direct din browser. Activează dacă aplicația este pe o rețea internă sau pe un alt server pe care browserul nu îl poate accesa direct.",
   "onboarding_addAnotherInstance": "Adaugă o altă instanță {appName}",
-
+  "onboarding_selectLanguage": "Selectează limba ta",
   "splash_selectApp": "Selectează o aplicație pentru a începe",
   "splash_quickAccess": "Acces rapid",
   "splash_allShortcuts": "Toate scurtăturile",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Nicio aplicație încă",
   "splash_noAppsDesc": "Adaugă prima aplicație pentru a începe cu panoul de control.",
   "splash_addApplication": "Adaugă aplicație",
-
   "logs_title": "Jurnale",
   "logs_backToDashboard": "Înapoi la panou",
   "logs_resume": "Reia",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "se afișează {count} filtrate",
   "logs_paused": "PAUZĂ",
   "logs_scrollToBottom": "Derulează în jos",
-
   "appFrame_refreshing": "Se reîmprospătează...",
   "appFrame_releaseToRefresh": "Eliberează pentru reîmprospătare",
   "appFrame_pullToRefresh": "Trage pentru reîmprospătare",
-
-  "iconBrowser_dashboardIcons": "Pictograme panou de control",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Personalizate",
   "iconBrowser_searchPlaceholder": "Caută pictograme...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} pictograme",
   "iconBrowser_iconCountFiltered": "{filtered} din {total} pictograme",
   "iconBrowser_selectIcon": "Selectează pictogramă",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Descărcări",
   "popularApps_groupSystem": "Sistem",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Agregator de fluxuri RSS",
   "popularApps_linkdingDesc": "Manager de marcaje",
   "popularApps_ollamaDesc": "Server de inferență LLM local",
-  "popularApps_openWebuiDesc": "Interfață de chat pentru LLM-uri locale"
+  "popularApps_openWebuiDesc": "Interfață de chat pentru LLM-uri locale",
+  "keybindings_searchLabel": "Paletă de comenzi",
+  "keybindings_searchDesc": "Deschide paleta de comenzi",
+  "keybindings_settingsLabel": "Deschide setările",
+  "keybindings_settingsDesc": "Deschide panoul de setări",
+  "keybindings_shortcutsLabel": "Afișează scurtăturile",
+  "keybindings_shortcutsDesc": "Afișează ajutorul pentru scurtături",
+  "keybindings_homeLabel": "Acasă",
+  "keybindings_homeDesc": "Înapoi la ecranul de start",
+  "keybindings_logsLabel": "Vezi jurnalele",
+  "keybindings_logsDesc": "Deschide vizualizatorul de jurnale",
+  "keybindings_refreshLabel": "Reîmprospătează aplicația",
+  "keybindings_refreshDesc": "Reîmprospătează iframe-ul aplicației",
+  "keybindings_fullscreenLabel": "Comută ecran complet",
+  "keybindings_fullscreenDesc": "Ascunde/afișează navigarea în modul ecran complet",
+  "keybindings_nextAppLabel": "Aplicația următoare",
+  "keybindings_nextAppDesc": "Comută la următoarea aplicație",
+  "keybindings_prevAppLabel": "Aplicația anterioară",
+  "keybindings_prevAppDesc": "Comută la aplicația anterioară",
+  "keybindings_appLabel": "Aplicația {number}",
+  "keybindings_appDesc": "Comută la aplicația #{number}"
 }

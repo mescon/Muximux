@@ -23,7 +23,6 @@
   "common_selectApp": "Odaberite aplikaciju iz navigacije",
   "common_continue": "Nastavi",
   "common_finish": "Završi",
-
   "toast_connectionRestored": "Veza uspostavljena",
   "toast_connectionLost": "Veza prekinuta — ponovno povezivanje...",
   "toast_settingsSaved": "Postavke uspješno spremljene",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Prebačeno na tamnu temu",
   "toast_switchedToLight": "Prebačeno na svijetlu temu",
   "toast_usingSystemTheme": "Koristi se sistemska tema",
-
   "toast_failedSaveConfig": "Spremanje konfiguracije nije uspjelo",
   "toast_failedSaveTheme": "Spremanje teme nije uspjelo",
   "toast_failedDeleteTheme": "Brisanje teme nije uspjelo",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Brisanje nije uspjelo",
   "toast_securitySetupFailed": "Postavljanje sigurnosti nije uspjelo",
   "toast_iconSourcesPartialFail": "Neke izvore ikona nije moguće učitati: {sources}",
-
   "error_somethingWentWrong": "Nešto je pošlo po krivu",
   "error_failedLoadDashboard": "Učitavanje nadzorne ploče nije uspjelo",
   "error_failedLoadConfig": "Učitavanje konfiguracije nije uspjelo",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Povezivanje nakon više pokušaja nije uspjelo",
   "error_failedFetchHealth": "Dohvaćanje zdravstvenih podataka nije uspjelo",
   "error_deleteFailed": "Brisanje nije uspjelo",
-
   "nav_exitFullscreen": "Izlaz iz cijelog zaslona (F)",
-
   "settings_title": "Postavke",
   "settings_general": "Općenito",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikona",
   "settings_groupNamePlaceholder": "Mediji",
   "settings_appFallbackName": "Aplikacija",
-
   "general_language": "Jezik",
   "general_languageAfterSave": "Odaberite jezik sučelja. Promjene stupaju na snagu nakon spremanja.",
   "general_dashboardTitle": "Naslov nadzorne ploče",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Izvezi konfiguraciju",
   "general_importConfig": "Uvezi konfiguraciju",
   "general_configHint": "Izvezite trenutnu konfiguraciju ili uvezite prethodno spremljenu.",
-
   "login_subtitle": "Prijavite se na svoju nadzornu ploču",
   "login_externalAuth": "Vanjska autentifikacija",
   "login_externalAuthDesc": "Ova instanca je zaštićena vanjskim pružateljem autentifikacije. Pristupite joj putem URL-a konfiguriranog u vašem obrnutom proxy poslužitelju za prijavu.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Zapamti me",
   "login_signingIn": "Prijava u tijeku...",
   "login_signIn": "Prijava",
-
   "common_current": "Trenutno",
   "common_username": "Korisničko ime",
   "common_password": "Lozinka",
@@ -204,15 +196,12 @@
   "common_default": "Zadano",
   "common_disabled": "Onemogućeno",
   "common_forwardAuthEnabled": "Proslijeđena autentifikacija omogućena. Pristupite ovoj aplikaciji putem URL-a vašeg obrnutog proxy poslužitelja za nastavak.",
-
   "error_usernameRequired": "Korisničko ime je obavezno",
   "error_passwordTooShort": "Lozinka mora imati najmanje 8 znakova",
   "error_passwordTooShortCount": "Lozinka mora imati najmanje 8 znakova ({count}/8)",
   "error_passwordsMismatch": "Lozinke se ne podudaraju",
-
   "toast_passwordChanged": "Lozinka uspješno promijenjena",
   "toast_authMethodChanged": "Metoda autentifikacije promijenjena na {method}",
-
   "security_authMethod": "Metoda autentifikacije",
   "security_authMethodDesc": "Odaberite kako se korisnici autentificiraju u Muximux",
   "security_passwordAuth": "Autentifikacija lozinkom",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Obriši korisnika",
   "security_cantDeleteSelf": "Ne možete obrisati sami sebe",
   "security_minEightCharsShort": "Najmanje 8 znakova",
-
   "theme_appearance": "Izgled",
   "theme_appearanceDesc": "Odaberite tamno, svijetlo ili pratite sustav",
   "theme_dark": "Tamno",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Upozorenje",
   "theme_statusError": "Greška",
   "theme_statusInfo": "Informacija",
-
   "apps_heading": "Aplikacije i grupe",
   "apps_addGroup": "Dodaj grupu",
   "apps_addApp": "Dodaj aplikaciju",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Uredi grupu",
   "apps_deleteGroup": "Obriši grupu",
   "apps_noAppsConfigured": "Nema konfiguriranih aplikacija ili grupa. Kliknite \"Dodaj aplikaciju\" za početak.",
-
   "about_loadingSystemInfo": "Učitavanje informacija o sustavu...",
   "about_updateAvailable": "Dostupno ažuriranje",
   "about_upToDate": "Imate najnoviju verziju",
@@ -337,9 +323,7 @@
   "about_issues": "Problemi",
   "about_releases": "Izdanja",
   "about_wiki": "Wiki",
-
   "common_or": "ili",
-
   "appForm_name": "Naziv",
   "appForm_helpName": "Prikazuje se u navigacijskoj traci i naslovu stranice. Također se koristi kao jedinstveni identifikator — preimenovanje aplikacije stvara novu proxy rutu.",
   "appForm_placeholderName": "Moja aplikacija",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Otvori u skočnom prozoru",
   "appForm_redirect": "Preusmjeravanje",
   "appForm_redirectDesc": "Navigiraj na URL aplikacije",
-
   "command_searchPlaceholder": "Pretraži aplikacije i naredbe...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigacija",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Koristi sistemsku temu",
   "command_switchToApp": "Prebaci na aplikaciju",
   "command_commandPalette": "Paleta naredbi",
-
   "nav_closeNavMenu": "Zatvori navigacijski izbornik",
   "nav_openNavMenu": "Otvori navigacijski izbornik",
   "nav_closeMenu": "Zatvori izbornik",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Promijeni veličinu bočne trake",
   "nav_closeNavigation": "Zatvori navigaciju",
   "nav_openNavigation": "Otvori navigaciju",
-
   "keybindings_hint": "Kliknite na tipkovni prečac da ga promijenite. Pritisnite Escape za odustajanje.",
   "keybindings_resetAllConfirm": "Poništiti sve tipkovne prečace?",
   "keybindings_yesReset": "Da, poništi",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Otkriven sukob",
   "keybindings_conflictDesc": "Ovaj prečac već koristi:",
   "keybindings_useAnyway": "Koristi svejedno",
-
   "shortcuts_title": "Tipkovni prečaci",
   "shortcuts_closeAriaLabel": "Zatvori",
   "shortcuts_categoryNavigation": "Navigacija",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Postavke → Tipkovni prečaci",
   "shortcuts_footerPress": "Pritisnite",
   "shortcuts_footerToClose": "za zatvaranje",
-
   "onboarding_stepWelcome": "Dobrodošlica",
   "onboarding_stepSecurity": "Sigurnost",
   "onboarding_stepApps": "Aplikacije",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Ponovo unesite lozinku",
   "onboarding_proxyTooltip": "Usmjerava promet kroz Muximux kako aplikacija ne bi morala biti izravno dostupna iz vašeg preglednika. Omogućite ovo ako je aplikacija na internoj mreži ili drugom poslužitelju kojem vaš preglednik ne može izravno pristupiti.",
   "onboarding_addAnotherInstance": "Dodaj još jednu instancu {appName}",
-
+  "onboarding_selectLanguage": "Odaberite svoj jezik",
   "splash_selectApp": "Odaberite aplikaciju za početak",
   "splash_quickAccess": "Brzi pristup",
   "splash_allShortcuts": "Svi prečaci",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Još nema aplikacija",
   "splash_noAppsDesc": "Dodajte svoju prvu aplikaciju da započnete s nadzornom pločom.",
   "splash_addApplication": "Dodaj aplikaciju",
-
   "logs_title": "Zapisi",
   "logs_backToDashboard": "Natrag na nadzornu ploču",
   "logs_resume": "Nastavi",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "prikazano {count} filtriranih",
   "logs_paused": "PAUZIRANO",
   "logs_scrollToBottom": "Pomakni se na dno",
-
   "appFrame_refreshing": "Osvježavanje...",
   "appFrame_releaseToRefresh": "Otpustite za osvježavanje",
   "appFrame_pullToRefresh": "Povucite za osvježavanje",
-
-  "iconBrowser_dashboardIcons": "Ikone nadzorne ploče",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Prilagođeno",
   "iconBrowser_searchPlaceholder": "Pretraži ikone...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikona",
   "iconBrowser_iconCountFiltered": "{filtered} od {total} ikona",
   "iconBrowser_selectIcon": "Odaberi ikonu",
-
   "popularApps_groupMedia": "Mediji",
   "popularApps_groupDownloads": "Preuzimanja",
   "popularApps_groupSystem": "Sustav",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS agregator",
   "popularApps_linkdingDesc": "Upravitelj oznaka",
   "popularApps_ollamaDesc": "Lokalni LLM poslužitelj za zaključivanje",
-  "popularApps_openWebuiDesc": "Sučelje za razgovor s lokalnim LLM modelima"
+  "popularApps_openWebuiDesc": "Sučelje za razgovor s lokalnim LLM modelima",
+  "keybindings_searchLabel": "Paleta naredbi",
+  "keybindings_searchDesc": "Otvori paletu naredbi",
+  "keybindings_settingsLabel": "Otvori postavke",
+  "keybindings_settingsDesc": "Otvori panel postavki",
+  "keybindings_shortcutsLabel": "Prikaži prečace",
+  "keybindings_shortcutsDesc": "Prikaži pomoć za tipkovničke prečace",
+  "keybindings_homeLabel": "Početna",
+  "keybindings_homeDesc": "Vrati se na početni zaslon",
+  "keybindings_logsLabel": "Pogledaj zapise",
+  "keybindings_logsDesc": "Otvori preglednik zapisa",
+  "keybindings_refreshLabel": "Osvježi aplikaciju",
+  "keybindings_refreshDesc": "Osvježi iframe trenutne aplikacije",
+  "keybindings_fullscreenLabel": "Prebaci puni zaslon",
+  "keybindings_fullscreenDesc": "Sakrij/prikaži navigaciju za puni zaslon",
+  "keybindings_nextAppLabel": "Sljedeća aplikacija",
+  "keybindings_nextAppDesc": "Prebaci na sljedeću aplikaciju",
+  "keybindings_prevAppLabel": "Prethodna aplikacija",
+  "keybindings_prevAppDesc": "Prebaci na prethodnu aplikaciju",
+  "keybindings_appLabel": "Aplikacija {number}",
+  "keybindings_appDesc": "Prebaci na aplikaciju #{number}"
 }

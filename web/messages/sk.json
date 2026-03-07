@@ -23,7 +23,6 @@
   "common_selectApp": "Vyberte aplikáciu z navigácie",
   "common_continue": "Pokračovať",
   "common_finish": "Dokončiť",
-
   "toast_connectionRestored": "Pripojenie obnovené",
   "toast_connectionLost": "Pripojenie stratené — opätovné pripájanie...",
   "toast_settingsSaved": "Nastavenia úspešne uložené",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Prepnuté na tmavý motív",
   "toast_switchedToLight": "Prepnuté na svetlý motív",
   "toast_usingSystemTheme": "Používa sa systémový motív",
-
   "toast_failedSaveConfig": "Nepodarilo sa uložiť konfiguráciu",
   "toast_failedSaveTheme": "Nepodarilo sa uložiť motív",
   "toast_failedDeleteTheme": "Nepodarilo sa vymazať motív",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Vymazanie zlyhalo",
   "toast_securitySetupFailed": "Nastavenie zabezpečenia zlyhalo",
   "toast_iconSourcesPartialFail": "Niektoré zdroje ikon sa nepodarilo načítať: {sources}",
-
   "error_somethingWentWrong": "Niečo sa pokazilo",
   "error_failedLoadDashboard": "Nepodarilo sa načítať panel",
   "error_failedLoadConfig": "Nepodarilo sa načítať konfiguráciu",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Nepodarilo sa pripojiť po viacerých pokusoch",
   "error_failedFetchHealth": "Nepodarilo sa načítať údaje o stave",
   "error_deleteFailed": "Vymazanie zlyhalo",
-
   "nav_exitFullscreen": "Ukončiť režim celej obrazovky (F)",
-
   "settings_title": "Nastavenia",
   "settings_general": "Všeobecné",
   "settings_theme": "Motív",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikona",
   "settings_groupNamePlaceholder": "Médiá",
   "settings_appFallbackName": "Aplikácia",
-
   "general_language": "Jazyk",
   "general_languageAfterSave": "Vyberte jazyk rozhrania. Zmeny sa prejavia po uložení.",
   "general_dashboardTitle": "Názov panela",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Exportovať konfiguráciu",
   "general_importConfig": "Importovať konfiguráciu",
   "general_configHint": "Exportujte svoju aktuálnu konfiguráciu alebo importujte predtým uloženú.",
-
   "login_subtitle": "Prihláste sa do svojho panela",
   "login_externalAuth": "Externé overovanie",
   "login_externalAuthDesc": "Táto inštancia je chránená externým poskytovateľom overovania. Pre prihlásenie k nej pristúpte cez URL nakonfigurovanú vo vašom reverse proxy.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Zapamätať si ma",
   "login_signingIn": "Prihlasovanie...",
   "login_signIn": "Prihlásiť sa",
-
   "common_current": "Aktuálny",
   "common_username": "Používateľské meno",
   "common_password": "Heslo",
@@ -204,15 +196,12 @@
   "common_default": "Predvolený",
   "common_disabled": "Zakázané",
   "common_forwardAuthEnabled": "Forward auth je povolené. Pre pokračovanie prosím pristúpte k tejto aplikácii cez URL vášho reverse proxy.",
-
   "error_usernameRequired": "Používateľské meno je povinné",
   "error_passwordTooShort": "Heslo musí mať aspoň 8 znakov",
   "error_passwordTooShortCount": "Heslo musí mať aspoň 8 znakov ({count}/8)",
   "error_passwordsMismatch": "Heslá sa nezhodujú",
-
   "toast_passwordChanged": "Heslo úspešne zmenené",
   "toast_authMethodChanged": "Metóda overovania zmenená na {method}",
-
   "security_authMethod": "Metóda overovania",
   "security_authMethodDesc": "Zvoľte spôsob overovania používateľov v Muximux",
   "security_passwordAuth": "Overovanie heslom",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Vymazať používateľa",
   "security_cantDeleteSelf": "Nemôžete vymazať seba",
   "security_minEightCharsShort": "Min. 8 znakov",
-
   "theme_appearance": "Vzhľad",
   "theme_appearanceDesc": "Zvoľte tmavý, svetlý alebo systémový",
   "theme_dark": "Tmavý",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Varovanie",
   "theme_statusError": "Chyba",
   "theme_statusInfo": "Informácia",
-
   "apps_heading": "Aplikácie a skupiny",
   "apps_addGroup": "Pridať skupinu",
   "apps_addApp": "Pridať aplikáciu",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Upraviť skupinu",
   "apps_deleteGroup": "Vymazať skupinu",
   "apps_noAppsConfigured": "Žiadne aplikácie ani skupiny nie sú nakonfigurované. Kliknite na \"Pridať aplikáciu\" pre začiatok.",
-
   "about_loadingSystemInfo": "Načítanie systémových informácií...",
   "about_updateAvailable": "Dostupná aktualizácia",
   "about_upToDate": "Máte aktuálnu verziu",
@@ -337,9 +323,7 @@
   "about_issues": "Problémy",
   "about_releases": "Vydania",
   "about_wiki": "Wiki",
-
   "common_or": "alebo",
-
   "appForm_name": "Názov",
   "appForm_helpName": "Zobrazuje sa v navigačnej lište a titulku stránky. Slúži aj ako unikátny identifikátor — premenovanie aplikácie vytvorí novú proxy trasu.",
   "appForm_placeholderName": "Moja aplikácia",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Otvoriť vo vyskakovacom okne",
   "appForm_redirect": "Presmerovanie",
   "appForm_redirectDesc": "Prejsť na URL aplikácie",
-
   "command_searchPlaceholder": "Hľadať aplikácie a príkazy...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigovať",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Použiť systémový motív",
   "command_switchToApp": "Prepnúť na aplikáciu",
   "command_commandPalette": "Paleta príkazov",
-
   "nav_closeNavMenu": "Zavrieť navigačnú ponuku",
   "nav_openNavMenu": "Otvoriť navigačnú ponuku",
   "nav_closeMenu": "Zavrieť ponuku",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Zmeniť veľkosť bočného panela",
   "nav_closeNavigation": "Zavrieť navigáciu",
   "nav_openNavigation": "Otvoriť navigáciu",
-
   "keybindings_hint": "Kliknite na skratku na jej zmenu. Stlačte Escape na zrušenie.",
   "keybindings_resetAllConfirm": "Resetovať všetky klávesové skratky?",
   "keybindings_yesReset": "Áno, resetovať",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Zistený konflikt",
   "keybindings_conflictDesc": "Táto skratka sa už používa:",
   "keybindings_useAnyway": "Napriek tomu použiť",
-
   "shortcuts_title": "Klávesové skratky",
   "shortcuts_closeAriaLabel": "Zavrieť",
   "shortcuts_categoryNavigation": "Navigácia",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Nastavenia → Klávesové skratky",
   "shortcuts_footerPress": "Stlačte",
   "shortcuts_footerToClose": "pre zatvorenie",
-
   "onboarding_stepWelcome": "Vitajte",
   "onboarding_stepSecurity": "Zabezpečenie",
   "onboarding_stepApps": "Aplikácie",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Zadajte heslo znova",
   "onboarding_proxyTooltip": "Smeruje komunikáciu cez Muximux, takže aplikácia nemusí byť priamo dostupná z vášho prehliadača. Povoľte, ak je aplikácia vo vnútornej sieti alebo na inom hostovi, ku ktorému sa váš prehliadač nemôže priamo pripojiť.",
   "onboarding_addAnotherInstance": "Pridať ďalšiu inštanciu {appName}",
-
+  "onboarding_selectLanguage": "Vyberte si jazyk",
   "splash_selectApp": "Vyberte aplikáciu pre začiatok",
   "splash_quickAccess": "Rýchly prístup",
   "splash_allShortcuts": "Všetky skratky",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Zatiaľ žiadne aplikácie",
   "splash_noAppsDesc": "Pridajte svoju prvú aplikáciu pre začiatok s panelom.",
   "splash_addApplication": "Pridať aplikáciu",
-
   "logs_title": "Logy",
   "logs_backToDashboard": "Späť na panel",
   "logs_resume": "Pokračovať",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "zobrazených {count} filtrovaných",
   "logs_paused": "POZASTAVENÉ",
   "logs_scrollToBottom": "Posunúť nadol",
-
   "appFrame_refreshing": "Obnovovanie...",
   "appFrame_releaseToRefresh": "Uvoľnite pre obnovenie",
   "appFrame_pullToRefresh": "Potiahnite pre obnovenie",
-
-  "iconBrowser_dashboardIcons": "Ikony panela",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Vlastné",
   "iconBrowser_searchPlaceholder": "Hľadať ikony...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} z {total} ikon",
   "iconBrowser_selectIcon": "Vybrať ikonu",
-
   "popularApps_groupMedia": "Médiá",
   "popularApps_groupDownloads": "Sťahovanie",
   "popularApps_groupSystem": "Systém",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Agregátor RSS kanálov",
   "popularApps_linkdingDesc": "Správca záložiek",
   "popularApps_ollamaDesc": "Lokálny LLM server",
-  "popularApps_openWebuiDesc": "Chatové rozhranie pre lokálne LLM"
+  "popularApps_openWebuiDesc": "Chatové rozhranie pre lokálne LLM",
+  "keybindings_searchLabel": "Paleta príkazov",
+  "keybindings_searchDesc": "Otvoriť paletu príkazov",
+  "keybindings_settingsLabel": "Otvoriť nastavenia",
+  "keybindings_settingsDesc": "Otvoriť panel nastavení",
+  "keybindings_shortcutsLabel": "Zobraziť skratky",
+  "keybindings_shortcutsDesc": "Zobraziť pomoc klávesových skratiek",
+  "keybindings_homeLabel": "Domov",
+  "keybindings_homeDesc": "Späť na úvodnú obrazovku",
+  "keybindings_logsLabel": "Zobraziť logy",
+  "keybindings_logsDesc": "Otvoriť prehliadač logov",
+  "keybindings_refreshLabel": "Obnoviť aplikáciu",
+  "keybindings_refreshDesc": "Obnoviť iframe aktuálnej aplikácie",
+  "keybindings_fullscreenLabel": "Prepnúť celú obrazovku",
+  "keybindings_fullscreenDesc": "Skryť/zobraziť navigáciu v režime celej obrazovky",
+  "keybindings_nextAppLabel": "Ďalšia aplikácia",
+  "keybindings_nextAppDesc": "Prepnúť na ďalšiu aplikáciu",
+  "keybindings_prevAppLabel": "Predchádzajúca aplikácia",
+  "keybindings_prevAppDesc": "Prepnúť na predchádzajúcu aplikáciu",
+  "keybindings_appLabel": "Aplikácia {number}",
+  "keybindings_appDesc": "Prepnúť na aplikáciu #{number}"
 }

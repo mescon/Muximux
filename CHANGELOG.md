@@ -2,6 +2,14 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.11] - 2026-03-07
+
+### Added
+- Multi-language support -- 36 languages with native translations for every UI string, selectable in Settings > General > Language
+- Language selector on the onboarding welcome screen -- new installations can choose their language before setup
+- RTL layout support for Arabic
+- Translation contributor guide in the wiki
+
 ## [3.0.10] - 2026-03-06
 
 ### Fixed

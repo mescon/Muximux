@@ -23,7 +23,6 @@
   "common_selectApp": "Selecteer een app uit de navigatie",
   "common_continue": "Doorgaan",
   "common_finish": "Voltooien",
-
   "toast_connectionRestored": "Verbinding hersteld",
   "toast_connectionLost": "Verbinding verloren – opnieuw verbinden...",
   "toast_settingsSaved": "Instellingen succesvol opgeslagen",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Overgeschakeld naar donker thema",
   "toast_switchedToLight": "Overgeschakeld naar licht thema",
   "toast_usingSystemTheme": "Systeemthema wordt gebruikt",
-
   "toast_failedSaveConfig": "Configuratie opslaan mislukt",
   "toast_failedSaveTheme": "Thema opslaan mislukt",
   "toast_failedDeleteTheme": "Thema verwijderen mislukt",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Verwijderen mislukt",
   "toast_securitySetupFailed": "Beveiligingsinstelling mislukt",
   "toast_iconSourcesPartialFail": "Sommige pictogrambronnen konden niet geladen worden: {sources}",
-
   "error_somethingWentWrong": "Er is iets misgegaan",
   "error_failedLoadDashboard": "Dashboard laden mislukt",
   "error_failedLoadConfig": "Configuratie laden mislukt",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Verbinden mislukt na meerdere pogingen",
   "error_failedFetchHealth": "Gezondheidsgegevens ophalen mislukt",
   "error_deleteFailed": "Verwijderen mislukt",
-
   "nav_exitFullscreen": "Volledig scherm verlaten (F)",
-
   "settings_title": "Instellingen",
   "settings_general": "Algemeen",
   "settings_theme": "Thema",
@@ -113,7 +108,6 @@
   "settings_icon": "Pictogram",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "App",
-
   "general_language": "Taal",
   "general_languageAfterSave": "Selecteer de weergavetaal voor de interface. Wijzigingen worden van kracht na opslaan.",
   "general_dashboardTitle": "Dashboard-titel",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Configuratie exporteren",
   "general_importConfig": "Configuratie importeren",
   "general_configHint": "Exporteer je huidige configuratie of importeer een eerder opgeslagen versie.",
-
   "login_subtitle": "Meld je aan bij je dashboard",
   "login_externalAuth": "Externe authenticatie",
   "login_externalAuthDesc": "Deze instantie wordt beschermd door een externe authenticatieprovider. Ga via de URL in je reverse proxy naar deze app.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Onthoud mij",
   "login_signingIn": "Aanmelden...",
   "login_signIn": "Aanmelden",
-
   "common_current": "Huidig",
   "common_username": "Gebruikersnaam",
   "common_password": "Wachtwoord",
@@ -204,15 +196,12 @@
   "common_default": "Standaard",
   "common_disabled": "Uitgeschakeld",
   "common_forwardAuthEnabled": "Forward auth ingeschakeld. Ga via je reverse proxy-URL naar deze app om door te gaan.",
-
   "error_usernameRequired": "Gebruikersnaam is vereist",
   "error_passwordTooShort": "Wachtwoord moet minimaal 8 tekens bevatten",
   "error_passwordTooShortCount": "Wachtwoord moet minimaal 8 tekens bevatten ({count}/8)",
   "error_passwordsMismatch": "Wachtwoorden komen niet overeen",
-
   "toast_passwordChanged": "Wachtwoord succesvol gewijzigd",
   "toast_authMethodChanged": "Authenticatiemethode gewijzigd naar {method}",
-
   "security_authMethod": "Authenticatiemethode",
   "security_authMethodDesc": "Kies hoe gebruikers zich authenticeren bij Muximux",
   "security_passwordAuth": "Wachtwoordauthenticatie",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Gebruiker verwijderen",
   "security_cantDeleteSelf": "Je kunt jezelf niet verwijderen",
   "security_minEightCharsShort": "Min. 8 tekens",
-
   "theme_appearance": "Uiterlijk",
   "theme_appearanceDesc": "Kies donker, licht of volg je systeem",
   "theme_dark": "Donker",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Waarschuwing",
   "theme_statusError": "Fout",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Apps & Groepen",
   "apps_addGroup": "Groep toevoegen",
   "apps_addApp": "App toevoegen",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Groep bewerken",
   "apps_deleteGroup": "Groep verwijderen",
   "apps_noAppsConfigured": "Geen applicaties of groepen geconfigureerd. Klik op \"App toevoegen\" om te beginnen.",
-
   "about_loadingSystemInfo": "Systeeminformatie laden...",
   "about_updateAvailable": "Update beschikbaar",
   "about_upToDate": "Je bent up-to-date",
@@ -337,9 +323,7 @@
   "about_issues": "Issues",
   "about_releases": "Releases",
   "about_wiki": "Wiki",
-
   "common_or": "of",
-
   "appForm_name": "Naam",
   "appForm_helpName": "Weergegeven in de navigatiebalk en paginatitel. Wordt ook gebruikt als unieke identificatie — hernoemen van een app maakt een nieuwe proxy-route.",
   "appForm_placeholderName": "Mijn app",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Openen in een popup-venster",
   "appForm_redirect": "Doorverwijzen",
   "appForm_redirectDesc": "Navigeren naar de app-URL",
-
   "command_searchPlaceholder": "Apps en opdrachten zoeken...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigeren",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Systeemthema gebruiken",
   "command_switchToApp": "Naar app schakelen",
   "command_commandPalette": "Opdrachtenpalet",
-
   "nav_closeNavMenu": "Navigatiemenu sluiten",
   "nav_openNavMenu": "Navigatiemenu openen",
   "nav_closeMenu": "Menu sluiten",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Zijbalk formaat wijzigen",
   "nav_closeNavigation": "Navigatie sluiten",
   "nav_openNavigation": "Navigatie openen",
-
   "keybindings_hint": "Klik op een sneltoets om deze te wijzigen. Druk op Escape om te annuleren.",
   "keybindings_resetAllConfirm": "Alle sneltoetsen herstellen?",
   "keybindings_yesReset": "Ja, herstellen",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Conflict gedetecteerd",
   "keybindings_conflictDesc": "Deze sneltoets wordt al gebruikt door:",
   "keybindings_useAnyway": "Toch gebruiken",
-
   "shortcuts_title": "Sneltoetsen",
   "shortcuts_closeAriaLabel": "Sluiten",
   "shortcuts_categoryNavigation": "Navigatie",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Instellingen → Sneltoetsen",
   "shortcuts_footerPress": "Druk op",
   "shortcuts_footerToClose": "om te sluiten",
-
   "onboarding_stepWelcome": "Welkom",
   "onboarding_stepSecurity": "Beveiliging",
   "onboarding_stepApps": "Apps",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Wachtwoord opnieuw invoeren",
   "onboarding_proxyTooltip": "Leidt verkeer door Muximux zodat de app niet direct bereikbaar hoeft te zijn vanuit je browser. Schakel dit in als de app zich op een intern netwerk of een andere host bevindt die je browser niet direct kan bereiken.",
   "onboarding_addAnotherInstance": "Nog een {appName} toevoegen",
-
+  "onboarding_selectLanguage": "Kies je taal",
   "splash_selectApp": "Selecteer een applicatie om te beginnen",
   "splash_quickAccess": "Snelle toegang",
   "splash_allShortcuts": "Alle sneltoetsen",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Nog geen applicaties",
   "splash_noAppsDesc": "Voeg je eerste applicatie toe om aan de slag te gaan met je dashboard.",
   "splash_addApplication": "Applicatie toevoegen",
-
   "logs_title": "Logs",
   "logs_backToDashboard": "Terug naar dashboard",
   "logs_resume": "Hervatten",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} gefilterd weergegeven",
   "logs_paused": "GEPAUZEERD",
   "logs_scrollToBottom": "Naar beneden scrollen",
-
   "appFrame_refreshing": "Vernieuwen...",
   "appFrame_releaseToRefresh": "Loslaten om te vernieuwen",
   "appFrame_pullToRefresh": "Trek om te vernieuwen",
-
-  "iconBrowser_dashboardIcons": "Dashboard-pictogrammen",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Aangepast",
   "iconBrowser_searchPlaceholder": "Pictogrammen zoeken...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} pictogrammen",
   "iconBrowser_iconCountFiltered": "{filtered} van {total} pictogrammen",
   "iconBrowser_selectIcon": "Pictogram selecteren",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Downloads",
   "popularApps_groupSystem": "Systeem",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS-feedaggregator",
   "popularApps_linkdingDesc": "Bladwijzerbeheer",
   "popularApps_ollamaDesc": "Lokale LLM-inferentieserver",
-  "popularApps_openWebuiDesc": "Chatinterface voor lokale LLMs"
+  "popularApps_openWebuiDesc": "Chatinterface voor lokale LLMs",
+  "keybindings_searchLabel": "Commandopalet",
+  "keybindings_searchDesc": "Commandopalet openen",
+  "keybindings_settingsLabel": "Instellingen openen",
+  "keybindings_settingsDesc": "Instellingenpaneel openen",
+  "keybindings_shortcutsLabel": "Sneltoetsen tonen",
+  "keybindings_shortcutsDesc": "Sneltoetshulp tonen",
+  "keybindings_homeLabel": "Startpagina",
+  "keybindings_homeDesc": "Terug naar startscherm",
+  "keybindings_logsLabel": "Logboeken bekijken",
+  "keybindings_logsDesc": "Logboekviewer openen",
+  "keybindings_refreshLabel": "App vernieuwen",
+  "keybindings_refreshDesc": "Iframe van huidige app vernieuwen",
+  "keybindings_fullscreenLabel": "Volledig scherm schakelen",
+  "keybindings_fullscreenDesc": "Navigatie verbergen/tonen voor volledig scherm",
+  "keybindings_nextAppLabel": "Volgende app",
+  "keybindings_nextAppDesc": "Schakel naar de volgende app",
+  "keybindings_prevAppLabel": "Vorige app",
+  "keybindings_prevAppDesc": "Schakel naar de vorige app",
+  "keybindings_appLabel": "App {number}",
+  "keybindings_appDesc": "Schakel naar app #{number}"
 }

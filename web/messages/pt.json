@@ -23,7 +23,6 @@
   "common_selectApp": "Seleciona uma app da navegação",
   "common_continue": "Continuar",
   "common_finish": "Terminar",
-
   "toast_connectionRestored": "Ligação restabelecida",
   "toast_connectionLost": "Ligação perdida — a reconectar...",
   "toast_settingsSaved": "Definições guardadas com sucesso",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Mudado para tema escuro",
   "toast_switchedToLight": "Mudado para tema claro",
   "toast_usingSystemTheme": "A usar tema do sistema",
-
   "toast_failedSaveConfig": "Erro ao guardar a configuração",
   "toast_failedSaveTheme": "Erro ao guardar o tema",
   "toast_failedDeleteTheme": "Erro ao eliminar o tema",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Erro ao eliminar",
   "toast_securitySetupFailed": "Erro na configuração de segurança",
   "toast_iconSourcesPartialFail": "Algumas fontes de ícones falharam ao carregar: {sources}",
-
   "error_somethingWentWrong": "Algo correu mal",
   "error_failedLoadDashboard": "Erro ao carregar o painel",
   "error_failedLoadConfig": "Erro ao carregar a configuração",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Erro de ligação após várias tentativas",
   "error_failedFetchHealth": "Erro ao obter dados de saúde",
   "error_deleteFailed": "Erro ao eliminar",
-
   "nav_exitFullscreen": "Sair do ecrã inteiro (F)",
-
   "settings_title": "Definições",
   "settings_general": "Geral",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Ícone",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "App",
-
   "general_language": "Idioma",
   "general_languageAfterSave": "Seleciona o idioma de exibição da interface. As alterações são aplicadas após guardar.",
   "general_dashboardTitle": "Título do painel",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Exportar configuração",
   "general_importConfig": "Importar configuração",
   "general_configHint": "Exporta a tua configuração atual ou importa uma guardada anteriormente.",
-
   "login_subtitle": "Inicia sessão no teu painel",
   "login_externalAuth": "Autenticação externa",
   "login_externalAuthDesc": "Esta instância está protegida por um fornecedor de autenticação externo. Acede através do URL configurado no teu reverse proxy para iniciar sessão.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Lembrar-me",
   "login_signingIn": "A iniciar sessão...",
   "login_signIn": "Iniciar sessão",
-
   "common_current": "Atual",
   "common_username": "Nome de utilizador",
   "common_password": "Palavra-passe",
@@ -204,15 +196,12 @@
   "common_default": "Predefinido",
   "common_disabled": "Desativado",
   "common_forwardAuthEnabled": "Forward auth ativado. Acede a esta app através do URL do teu reverse proxy para continuar.",
-
   "error_usernameRequired": "O nome de utilizador é obrigatório",
   "error_passwordTooShort": "A palavra-passe deve ter pelo menos 8 caracteres",
   "error_passwordTooShortCount": "A palavra-passe deve ter pelo menos 8 caracteres ({count}/8)",
   "error_passwordsMismatch": "As palavras-passe não coincidem",
-
   "toast_passwordChanged": "Palavra-passe alterada com sucesso",
   "toast_authMethodChanged": "Método de autenticação alterado para {method}",
-
   "security_authMethod": "Método de autenticação",
   "security_authMethodDesc": "Escolhe como os utilizadores se autenticam no Muximux",
   "security_passwordAuth": "Autenticação por palavra-passe",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Eliminar utilizador",
   "security_cantDeleteSelf": "Não podes eliminar-te a ti próprio",
   "security_minEightCharsShort": "Mín. 8 caracteres",
-
   "theme_appearance": "Aparência",
   "theme_appearanceDesc": "Escolhe escuro, claro ou seguir o sistema",
   "theme_dark": "Escuro",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Aviso",
   "theme_statusError": "Erro",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Apps e grupos",
   "apps_addGroup": "Adicionar grupo",
   "apps_addApp": "Adicionar app",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Editar grupo",
   "apps_deleteGroup": "Eliminar grupo",
   "apps_noAppsConfigured": "Sem aplicações ou grupos configurados. Clica em \"Adicionar app\" para começar.",
-
   "about_loadingSystemInfo": "A carregar informações do sistema...",
   "about_updateAvailable": "Atualização disponível",
   "about_upToDate": "Estás atualizado",
@@ -337,9 +323,7 @@
   "about_issues": "Problemas",
   "about_releases": "Versões",
   "about_wiki": "Wiki",
-
   "common_or": "ou",
-
   "appForm_name": "Nome",
   "appForm_helpName": "Exibido na barra de navegação e título da página. Também usado como identificador único — renomear uma app cria uma nova rota de proxy.",
   "appForm_placeholderName": "A minha app",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Abrir numa janela popup",
   "appForm_redirect": "Redirecionar",
   "appForm_redirectDesc": "Navegar para o URL da app",
-
   "command_searchPlaceholder": "Pesquisar apps e comandos...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navegar",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Usar tema do sistema",
   "command_switchToApp": "Mudar para app",
   "command_commandPalette": "Paleta de comandos",
-
   "nav_closeNavMenu": "Fechar menu de navegação",
   "nav_openNavMenu": "Abrir menu de navegação",
   "nav_closeMenu": "Fechar menu",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Redimensionar barra lateral",
   "nav_closeNavigation": "Fechar navegação",
   "nav_openNavigation": "Abrir navegação",
-
   "keybindings_hint": "Clica num atalho para o alterar. Prime Escape para cancelar.",
   "keybindings_resetAllConfirm": "Repor todos os atalhos?",
   "keybindings_yesReset": "Sim, repor",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Conflito detetado",
   "keybindings_conflictDesc": "Este atalho já é usado por:",
   "keybindings_useAnyway": "Usar mesmo assim",
-
   "shortcuts_title": "Atalhos de teclado",
   "shortcuts_closeAriaLabel": "Fechar",
   "shortcuts_categoryNavigation": "Navegação",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Definições → Atalhos de teclado",
   "shortcuts_footerPress": "Prime",
   "shortcuts_footerToClose": "para fechar",
-
   "onboarding_stepWelcome": "Boas-vindas",
   "onboarding_stepSecurity": "Segurança",
   "onboarding_stepApps": "Apps",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Reintroduz a palavra-passe",
   "onboarding_proxyTooltip": "Encaminha o tráfego pelo Muximux para que a app não precise de ser diretamente acessível do teu navegador. Ativa esta opção se a app estiver numa rede interna ou num host diferente que o teu navegador não consegue alcançar diretamente.",
   "onboarding_addAnotherInstance": "Adicionar outra instância de {appName}",
-
+  "onboarding_selectLanguage": "Selecione o seu idioma",
   "splash_selectApp": "Seleciona uma aplicação para começar",
   "splash_quickAccess": "Acesso rápido",
   "splash_allShortcuts": "Todos os atalhos",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Ainda sem aplicações",
   "splash_noAppsDesc": "Adiciona a tua primeira aplicação para começar a usar o teu painel.",
   "splash_addApplication": "Adicionar aplicação",
-
   "logs_title": "Logs",
   "logs_backToDashboard": "Voltar ao painel",
   "logs_resume": "Retomar",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "a mostrar {count} filtrados",
   "logs_paused": "PAUSADO",
   "logs_scrollToBottom": "Deslocar para o fundo",
-
   "appFrame_refreshing": "A atualizar...",
   "appFrame_releaseToRefresh": "Larga para atualizar",
   "appFrame_pullToRefresh": "Puxa para atualizar",
-
-  "iconBrowser_dashboardIcons": "Ícones do painel",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Personalizados",
   "iconBrowser_searchPlaceholder": "Pesquisar ícones...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ícones",
   "iconBrowser_iconCountFiltered": "{filtered} de {total} ícones",
   "iconBrowser_selectIcon": "Selecionar ícone",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Transferências",
   "popularApps_groupSystem": "Sistema",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Agregador de feeds RSS",
   "popularApps_linkdingDesc": "Gestor de marcadores",
   "popularApps_ollamaDesc": "Servidor de inferência LLM local",
-  "popularApps_openWebuiDesc": "Interface de chat para LLMs locais"
+  "popularApps_openWebuiDesc": "Interface de chat para LLMs locais",
+  "keybindings_searchLabel": "Paleta de comandos",
+  "keybindings_searchDesc": "Abrir a paleta de comandos",
+  "keybindings_settingsLabel": "Abrir definições",
+  "keybindings_settingsDesc": "Abrir o painel de definições",
+  "keybindings_shortcutsLabel": "Mostrar atalhos",
+  "keybindings_shortcutsDesc": "Mostrar ajuda de atalhos de teclado",
+  "keybindings_homeLabel": "Ir para o início",
+  "keybindings_homeDesc": "Voltar ao ecrã inicial",
+  "keybindings_logsLabel": "Ver registos",
+  "keybindings_logsDesc": "Abrir o visualizador de registos",
+  "keybindings_refreshLabel": "Atualizar app",
+  "keybindings_refreshDesc": "Atualizar o iframe da app atual",
+  "keybindings_fullscreenLabel": "Alternar ecrã inteiro",
+  "keybindings_fullscreenDesc": "Ocultar/mostrar navegação em ecrã inteiro",
+  "keybindings_nextAppLabel": "Próxima app",
+  "keybindings_nextAppDesc": "Mudar para a próxima app na lista",
+  "keybindings_prevAppLabel": "App anterior",
+  "keybindings_prevAppDesc": "Mudar para a app anterior na lista",
+  "keybindings_appLabel": "App {number}",
+  "keybindings_appDesc": "Mudar para a app #{number}"
 }

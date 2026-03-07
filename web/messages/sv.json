@@ -23,7 +23,6 @@
   "common_selectApp": "Välj en app från navigeringen",
   "common_continue": "Fortsätt",
   "common_finish": "Slutför",
-
   "toast_connectionRestored": "Anslutningen återställd",
   "toast_connectionLost": "Anslutningen förlorad – återansluter...",
   "toast_settingsSaved": "Inställningar sparade",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Bytte till mörkt tema",
   "toast_switchedToLight": "Bytte till ljust tema",
   "toast_usingSystemTheme": "Använder systemtema",
-
   "toast_failedSaveConfig": "Kunde inte spara konfigurationen",
   "toast_failedSaveTheme": "Kunde inte spara temat",
   "toast_failedDeleteTheme": "Kunde inte ta bort temat",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Borttagning misslyckades",
   "toast_securitySetupFailed": "Säkerhetskonfigurationen misslyckades",
   "toast_iconSourcesPartialFail": "Vissa ikonkällor kunde inte laddas: {sources}",
-
   "error_somethingWentWrong": "Något gick fel",
   "error_failedLoadDashboard": "Kunde inte ladda panelen",
   "error_failedLoadConfig": "Kunde inte ladda konfigurationen",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Kunde inte ansluta efter flera försök",
   "error_failedFetchHealth": "Kunde inte hämta hälsodata",
   "error_deleteFailed": "Borttagning misslyckades",
-
   "nav_exitFullscreen": "Avsluta helskärm (F)",
-
   "settings_title": "Inställningar",
   "settings_general": "Allmänt",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikon",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "App",
-
   "general_language": "Språk",
   "general_languageAfterSave": "Välj visningsspråk för gränssnittet. Ändringar träder i kraft efter att du sparar.",
   "general_dashboardTitle": "Paneltitel",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Exportera konfiguration",
   "general_importConfig": "Importera konfiguration",
   "general_configHint": "Exportera din nuvarande konfiguration eller importera en tidigare sparad.",
-
   "login_subtitle": "Logga in på din panel",
   "login_externalAuth": "Extern autentisering",
   "login_externalAuthDesc": "Denna instans skyddas av en extern autentiseringsleverantör. Gå till URL:en som konfigurerats i din omvända proxy för att logga in.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Kom ihåg mig",
   "login_signingIn": "Loggar in...",
   "login_signIn": "Logga in",
-
   "common_current": "Aktuell",
   "common_username": "Användarnamn",
   "common_password": "Lösenord",
@@ -204,15 +196,12 @@
   "common_default": "Standard",
   "common_disabled": "Inaktiverad",
   "common_forwardAuthEnabled": "Vidarebefordrad autentisering aktiverad. Gå till denna app via din omvända proxy-URL för att fortsätta.",
-
   "error_usernameRequired": "Användarnamn krävs",
   "error_passwordTooShort": "Lösenordet måste vara minst 8 tecken",
   "error_passwordTooShortCount": "Lösenordet måste vara minst 8 tecken ({count}/8)",
   "error_passwordsMismatch": "Lösenorden matchar inte",
-
   "toast_passwordChanged": "Lösenordet har ändrats",
   "toast_authMethodChanged": "Autentiseringsmetoden ändrad till {method}",
-
   "security_authMethod": "Autentiseringsmetod",
   "security_authMethodDesc": "Välj hur användare autentiserar sig med Muximux",
   "security_passwordAuth": "Lösenordsautentisering",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Ta bort användare",
   "security_cantDeleteSelf": "Kan inte ta bort dig själv",
   "security_minEightCharsShort": "Minst 8 tecken",
-
   "theme_appearance": "Utseende",
   "theme_appearanceDesc": "Välj mörkt, ljust eller följ systemet",
   "theme_dark": "Mörkt",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Varning",
   "theme_statusError": "Fel",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Appar och grupper",
   "apps_addGroup": "Lägg till grupp",
   "apps_addApp": "Lägg till app",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Redigera grupp",
   "apps_deleteGroup": "Ta bort grupp",
   "apps_noAppsConfigured": "Inga applikationer eller grupper konfigurerade. Klicka på \"Lägg till app\" för att komma igång.",
-
   "about_loadingSystemInfo": "Laddar systeminformation...",
   "about_updateAvailable": "Uppdatering tillgänglig",
   "about_upToDate": "Du har den senaste versionen",
@@ -337,9 +323,7 @@
   "about_issues": "Ärenden",
   "about_releases": "Utgåvor",
   "about_wiki": "Wiki",
-
   "common_or": "eller",
-
   "appForm_name": "Namn",
   "appForm_helpName": "Visas i navigeringsfältet och sidtiteln. Används även som unik identifierare — att byta namn på en app skapar en ny proxyväg.",
   "appForm_placeholderName": "Min app",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Öppna i ett popup-fönster",
   "appForm_redirect": "Omdirigera",
   "appForm_redirectDesc": "Navigera bort till appens URL",
-
   "command_searchPlaceholder": "Sök appar och kommandon...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigera",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Använd systemtema",
   "command_switchToApp": "Byt till app",
   "command_commandPalette": "Kommandopalett",
-
   "nav_closeNavMenu": "Stäng navigeringsmeny",
   "nav_openNavMenu": "Öppna navigeringsmeny",
   "nav_closeMenu": "Stäng meny",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Ändra storlek på sidofältet",
   "nav_closeNavigation": "Stäng navigering",
   "nav_openNavigation": "Öppna navigering",
-
   "keybindings_hint": "Klicka på en tangentbindning för att ändra den. Tryck Escape för att avbryta.",
   "keybindings_resetAllConfirm": "Återställ alla tangentbindningar?",
   "keybindings_yesReset": "Ja, återställ",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Konflikt upptäckt",
   "keybindings_conflictDesc": "Denna genväg används redan av:",
   "keybindings_useAnyway": "Använd ändå",
-
   "shortcuts_title": "Tangentbordsgenvägar",
   "shortcuts_closeAriaLabel": "Stäng",
   "shortcuts_categoryNavigation": "Navigering",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Inställningar → Tangentbindningar",
   "shortcuts_footerPress": "Tryck",
   "shortcuts_footerToClose": "för att stänga",
-
   "onboarding_stepWelcome": "Välkommen",
   "onboarding_stepSecurity": "Säkerhet",
   "onboarding_stepApps": "Appar",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Ange lösenordet igen",
   "onboarding_proxyTooltip": "Dirigerar trafik genom Muximux så att appen inte behöver vara direkt nåbar från din webbläsare. Aktivera detta om appen finns på ett internt nätverk eller en annan värd som din webbläsare inte kan nå direkt.",
   "onboarding_addAnotherInstance": "Lägg till ytterligare {appName}",
-
+  "onboarding_selectLanguage": "Välj ditt språk",
   "splash_selectApp": "Välj en applikation för att komma igång",
   "splash_quickAccess": "Snabbåtkomst",
   "splash_allShortcuts": "Alla genvägar",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Inga applikationer ännu",
   "splash_noAppsDesc": "Lägg till din första applikation för att komma igång med din panel.",
   "splash_addApplication": "Lägg till applikation",
-
   "logs_title": "Loggar",
   "logs_backToDashboard": "Tillbaka till panelen",
   "logs_resume": "Återuppta",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "visar {count} filtrerade",
   "logs_paused": "PAUSAD",
   "logs_scrollToBottom": "Scrolla till botten",
-
   "appFrame_refreshing": "Uppdaterar...",
   "appFrame_releaseToRefresh": "Släpp för att uppdatera",
   "appFrame_pullToRefresh": "Dra för att uppdatera",
-
-  "iconBrowser_dashboardIcons": "Panelikoner",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Anpassade",
   "iconBrowser_searchPlaceholder": "Sök ikoner...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikoner",
   "iconBrowser_iconCountFiltered": "{filtered} av {total} ikoner",
   "iconBrowser_selectIcon": "Välj ikon",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Nedladdningar",
   "popularApps_groupSystem": "System",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS-flödessamlare",
   "popularApps_linkdingDesc": "Bokmärkeshanterare",
   "popularApps_ollamaDesc": "Lokal LLM-inferensserver",
-  "popularApps_openWebuiDesc": "Chattgränssnitt för lokala LLM:er"
+  "popularApps_openWebuiDesc": "Chattgränssnitt för lokala LLM:er",
+  "keybindings_searchLabel": "Kommandopalett",
+  "keybindings_searchDesc": "Öppna kommandopaletten",
+  "keybindings_settingsLabel": "Öppna inställningar",
+  "keybindings_settingsDesc": "Öppna inställningspanelen",
+  "keybindings_shortcutsLabel": "Visa genvägar",
+  "keybindings_shortcutsDesc": "Visa hjälp för tangentbordsgenvägar",
+  "keybindings_homeLabel": "Gå hem",
+  "keybindings_homeDesc": "Gå tillbaka till startskärmen",
+  "keybindings_logsLabel": "Visa loggar",
+  "keybindings_logsDesc": "Öppna loggvisaren",
+  "keybindings_refreshLabel": "Uppdatera app",
+  "keybindings_refreshDesc": "Uppdatera den aktuella appens iframe",
+  "keybindings_fullscreenLabel": "Växla helskärm",
+  "keybindings_fullscreenDesc": "Dölj/visa navigering för helskärmsläge",
+  "keybindings_nextAppLabel": "Nästa app",
+  "keybindings_nextAppDesc": "Byt till nästa app i listan",
+  "keybindings_prevAppLabel": "Föregående app",
+  "keybindings_prevAppDesc": "Byt till föregående app i listan",
+  "keybindings_appLabel": "App {number}",
+  "keybindings_appDesc": "Byt till app #{number}"
 }

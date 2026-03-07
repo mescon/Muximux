@@ -23,7 +23,6 @@
   "common_selectApp": "Izvēlieties lietotni no navigācijas",
   "common_continue": "Turpināt",
   "common_finish": "Pabeigt",
-
   "toast_connectionRestored": "Savienojums atjaunots",
   "toast_connectionLost": "Savienojums zaudēts – atkārtota savienošana...",
   "toast_settingsSaved": "Iestatījumi veiksmīgi saglabāti",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Pārslēgts uz tumšo motīvu",
   "toast_switchedToLight": "Pārslēgts uz gaišo motīvu",
   "toast_usingSystemTheme": "Tiek izmantots sistēmas motīvs",
-
   "toast_failedSaveConfig": "Neizdevās saglabāt konfigurāciju",
   "toast_failedSaveTheme": "Neizdevās saglabāt motīvu",
   "toast_failedDeleteTheme": "Neizdevās dzēst motīvu",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Dzēšana neizdevās",
   "toast_securitySetupFailed": "Drošības iestatīšana neizdevās",
   "toast_iconSourcesPartialFail": "Dažu ikonu avotu ielāde neizdevās: {sources}",
-
   "error_somethingWentWrong": "Kaut kas nogāja greizi",
   "error_failedLoadDashboard": "Neizdevās ielādēt paneli",
   "error_failedLoadConfig": "Neizdevās ielādēt konfigurāciju",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Neizdevās savienoties pēc vairākiem mēģinājumiem",
   "error_failedFetchHealth": "Neizdevās iegūt veselības datus",
   "error_deleteFailed": "Dzēšana neizdevās",
-
   "nav_exitFullscreen": "Iziet no pilnekrāna (F)",
-
   "settings_title": "Iestatījumi",
   "settings_general": "Vispārīgi",
   "settings_theme": "Motīvs",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikona",
   "settings_groupNamePlaceholder": "Multivide",
   "settings_appFallbackName": "Lietotne",
-
   "general_language": "Valoda",
   "general_languageAfterSave": "Izvēlieties saskarnes valodu. Izmaiņas stājas spēkā pēc saglabāšanas.",
   "general_dashboardTitle": "Paneļa virsraksts",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Eksportēt konfigurāciju",
   "general_importConfig": "Importēt konfigurāciju",
   "general_configHint": "Eksportējiet pašreizējo konfigurāciju vai importējiet iepriekš saglabātu.",
-
   "login_subtitle": "Pierakstieties savā panelī",
   "login_externalAuth": "Ārējā autentifikācija",
   "login_externalAuthDesc": "Šo instanci aizsargā ārējs autentifikācijas nodrošinātājs. Lai pierakstītos, piekļūstiet tai caur reversā proxy konfigurēto URL.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Atcerēties mani",
   "login_signingIn": "Pierakstīšanās...",
   "login_signIn": "Pierakstīties",
-
   "common_current": "Pašreizējs",
   "common_username": "Lietotājvārds",
   "common_password": "Parole",
@@ -204,15 +196,12 @@
   "common_default": "Noklusējums",
   "common_disabled": "Atspējots",
   "common_forwardAuthEnabled": "Forward auth ir iespējots. Lai turpinātu, piekļūstiet šai lietotnei caur reversā proxy URL.",
-
   "error_usernameRequired": "Lietotājvārds ir obligāts",
   "error_passwordTooShort": "Parolei jābūt vismaz 8 rakstzīmēm",
   "error_passwordTooShortCount": "Parolei jābūt vismaz 8 rakstzīmēm ({count}/8)",
   "error_passwordsMismatch": "Paroles nesakrīt",
-
   "toast_passwordChanged": "Parole veiksmīgi nomainīta",
   "toast_authMethodChanged": "Autentifikācijas metode nomainīta uz {method}",
-
   "security_authMethod": "Autentifikācijas metode",
   "security_authMethodDesc": "Izvēlieties, kā lietotāji autentificējas ar Muximux",
   "security_passwordAuth": "Paroles autentifikācija",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Dzēst lietotāju",
   "security_cantDeleteSelf": "Nevar dzēst sevi",
   "security_minEightCharsShort": "Min 8 rakstzīmes",
-
   "theme_appearance": "Izskats",
   "theme_appearanceDesc": "Izvēlieties tumšo, gaišo vai sekojiet sistēmas iestatījumam",
   "theme_dark": "Tumšs",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Brīdinājums",
   "theme_statusError": "Kļūda",
   "theme_statusInfo": "Informācija",
-
   "apps_heading": "Lietotnes un grupas",
   "apps_addGroup": "Pievienot grupu",
   "apps_addApp": "Pievienot lietotni",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Rediģēt grupu",
   "apps_deleteGroup": "Dzēst grupu",
   "apps_noAppsConfigured": "Nav konfigurētu lietotņu vai grupu. Lai sāktu, noklikšķiniet \"Pievienot lietotni\".",
-
   "about_loadingSystemInfo": "Sistēmas informācijas ielāde...",
   "about_updateAvailable": "Pieejams atjauninājums",
   "about_upToDate": "Jums ir jaunākā versija",
@@ -337,9 +323,7 @@
   "about_issues": "Problēmas",
   "about_releases": "Izlaidumi",
   "about_wiki": "Wiki",
-
   "common_or": "vai",
-
   "appForm_name": "Nosaukums",
   "appForm_helpName": "Rādīts navigācijas joslā un lapas virsrakstā. Tiek izmantots arī kā unikāls identifikators — lietotnes pārdēvēšana izveido jaunu proxy maršrutu.",
   "appForm_placeholderName": "Mana lietotne",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Atvērt uznirstošā logā",
   "appForm_redirect": "Pāradresācija",
   "appForm_redirectDesc": "Pāriet uz lietotnes URL",
-
   "command_searchPlaceholder": "Meklēt lietotnes un komandas...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigēt",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Izmantot sistēmas motīvu",
   "command_switchToApp": "Pārslēgties uz lietotni",
   "command_commandPalette": "Komandu palete",
-
   "nav_closeNavMenu": "Aizvērt navigācijas izvēlni",
   "nav_openNavMenu": "Atvērt navigācijas izvēlni",
   "nav_closeMenu": "Aizvērt izvēlni",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Mainīt sānjoslas izmēru",
   "nav_closeNavigation": "Aizvērt navigāciju",
   "nav_openNavigation": "Atvērt navigāciju",
-
   "keybindings_hint": "Noklikšķiniet uz taustiņu piesaistes, lai to mainītu. Nospiediet Escape, lai atceltu.",
   "keybindings_resetAllConfirm": "Atiestatīt visas taustiņu piesaistes?",
   "keybindings_yesReset": "Jā, atiestatīt",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Konstatēts konflikts",
   "keybindings_conflictDesc": "Šo saīsni jau izmanto:",
   "keybindings_useAnyway": "Izmantot tik un tā",
-
   "shortcuts_title": "Tastatūras saīsnes",
   "shortcuts_closeAriaLabel": "Aizvērt",
   "shortcuts_categoryNavigation": "Navigācija",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Iestatījumi → Taustiņu piesaistes",
   "shortcuts_footerPress": "Nospiediet",
   "shortcuts_footerToClose": "lai aizvērtu",
-
   "onboarding_stepWelcome": "Sveicināti",
   "onboarding_stepSecurity": "Drošība",
   "onboarding_stepApps": "Lietotnes",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Ievadiet paroli vēlreiz",
   "onboarding_proxyTooltip": "Maršrutē datplūsmu caur Muximux, lai lietotnei nav jābūt tieši sasniedzamai no jūsu pārlūka. Iespējojiet šo, ja lietotne atrodas iekšējā tīklā vai citā resursdatorā, kuram jūsu pārlūks nevar tieši piekļūt.",
   "onboarding_addAnotherInstance": "Pievienot vēl vienu {appName}",
-
+  "onboarding_selectLanguage": "Izvēlieties savu valodu",
   "splash_selectApp": "Lai sāktu, atlasiet lietotni",
   "splash_quickAccess": "Ātrā piekļuve",
   "splash_allShortcuts": "Visas saīsnes",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Vēl nav lietotņu",
   "splash_noAppsDesc": "Pievienojiet savu pirmo lietotni, lai sāktu darbu ar paneli.",
   "splash_addApplication": "Pievienot lietotni",
-
   "logs_title": "Žurnāli",
   "logs_backToDashboard": "Atpakaļ uz paneli",
   "logs_resume": "Atsākt",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "rāda {count} filtrētus",
   "logs_paused": "PAUZĒTS",
   "logs_scrollToBottom": "Ritināt uz leju",
-
   "appFrame_refreshing": "Atsvaidzināšana...",
   "appFrame_releaseToRefresh": "Atlaidiet, lai atsvaidzinātu",
   "appFrame_pullToRefresh": "Velciet, lai atsvaidzinātu",
-
-  "iconBrowser_dashboardIcons": "Paneļa ikonas",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Pielāgotas",
   "iconBrowser_searchPlaceholder": "Meklēt ikonas...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikonas",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} ikonas",
   "iconBrowser_selectIcon": "Izvēlēties ikonu",
-
   "popularApps_groupMedia": "Multivide",
   "popularApps_groupDownloads": "Lejupielādes",
   "popularApps_groupSystem": "Sistēma",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS plūsmu apkopotājs",
   "popularApps_linkdingDesc": "Grāmatzīmju pārvaldnieks",
   "popularApps_ollamaDesc": "Lokāls LLM secinājumu serveris",
-  "popularApps_openWebuiDesc": "Tērzēšanas saskarne lokālajiem LLM"
+  "popularApps_openWebuiDesc": "Tērzēšanas saskarne lokālajiem LLM",
+  "keybindings_searchLabel": "Komandu palete",
+  "keybindings_searchDesc": "Atvērt komandu paleti",
+  "keybindings_settingsLabel": "Atvērt iestatījumus",
+  "keybindings_settingsDesc": "Atvērt iestatījumu paneli",
+  "keybindings_shortcutsLabel": "Rādīt saīsnes",
+  "keybindings_shortcutsDesc": "Rādīt tastatūras saīšņu palīdzību",
+  "keybindings_homeLabel": "Uz sākumu",
+  "keybindings_homeDesc": "Atgriezties sākumekrānā",
+  "keybindings_logsLabel": "Skatīt žurnālus",
+  "keybindings_logsDesc": "Atvērt žurnālu skatītāju",
+  "keybindings_refreshLabel": "Atsvaidzināt lietotni",
+  "keybindings_refreshDesc": "Atsvaidzināt pašreizējās lietotnes iframe",
+  "keybindings_fullscreenLabel": "Pārslēgt pilnekrānu",
+  "keybindings_fullscreenDesc": "Slēpt/rādīt navigāciju pilnekrāna režīmā",
+  "keybindings_nextAppLabel": "Nākamā lietotne",
+  "keybindings_nextAppDesc": "Pārslēgties uz nākamo lietotni sarakstā",
+  "keybindings_prevAppLabel": "Iepriekšējā lietotne",
+  "keybindings_prevAppDesc": "Pārslēgties uz iepriekšējo lietotni",
+  "keybindings_appLabel": "Lietotne {number}",
+  "keybindings_appDesc": "Pārslēgties uz lietotni #{number}"
 }

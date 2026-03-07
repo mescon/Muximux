@@ -23,7 +23,6 @@
   "common_selectApp": "Vyberte aplikaci z navigace",
   "common_continue": "Pokračovat",
   "common_finish": "Dokončit",
-
   "toast_connectionRestored": "Připojení obnoveno",
   "toast_connectionLost": "Připojení ztraceno — opětovné připojování...",
   "toast_settingsSaved": "Nastavení úspěšně uložena",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Přepnuto na tmavý motiv",
   "toast_switchedToLight": "Přepnuto na světlý motiv",
   "toast_usingSystemTheme": "Používá se systémový motiv",
-
   "toast_failedSaveConfig": "Nepodařilo se uložit konfiguraci",
   "toast_failedSaveTheme": "Nepodařilo se uložit motiv",
   "toast_failedDeleteTheme": "Nepodařilo se smazat motiv",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Smazání se nezdařilo",
   "toast_securitySetupFailed": "Nastavení zabezpečení selhalo",
   "toast_iconSourcesPartialFail": "Některé zdroje ikon se nepodařilo načíst: {sources}",
-
   "error_somethingWentWrong": "Něco se pokazilo",
   "error_failedLoadDashboard": "Nepodařilo se načíst panel",
   "error_failedLoadConfig": "Nepodařilo se načíst konfiguraci",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Nepodařilo se připojit po několika pokusech",
   "error_failedFetchHealth": "Nepodařilo se načíst data o stavu",
   "error_deleteFailed": "Smazání se nezdařilo",
-
   "nav_exitFullscreen": "Ukončit režim celé obrazovky (F)",
-
   "settings_title": "Nastavení",
   "settings_general": "Obecné",
   "settings_theme": "Motiv",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikona",
   "settings_groupNamePlaceholder": "Média",
   "settings_appFallbackName": "Aplikace",
-
   "general_language": "Jazyk",
   "general_languageAfterSave": "Vyberte jazyk rozhraní. Změny se projeví po uložení.",
   "general_dashboardTitle": "Název panelu",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Exportovat konfiguraci",
   "general_importConfig": "Importovat konfiguraci",
   "general_configHint": "Exportujte svou aktuální konfiguraci nebo importujte dříve uloženou.",
-
   "login_subtitle": "Přihlaste se do svého panelu",
   "login_externalAuth": "Externí ověřování",
   "login_externalAuthDesc": "Tato instance je chráněna externím poskytovatelem ověřování. Pro přihlášení k ní přistupte přes URL nakonfigurovanou ve vašem reverse proxy.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Zapamatovat si mě",
   "login_signingIn": "Přihlašování...",
   "login_signIn": "Přihlásit se",
-
   "common_current": "Aktuální",
   "common_username": "Uživatelské jméno",
   "common_password": "Heslo",
@@ -204,15 +196,12 @@
   "common_default": "Výchozí",
   "common_disabled": "Zakázáno",
   "common_forwardAuthEnabled": "Forward auth je povoleno. Pro pokračování prosím přistupte k této aplikaci přes URL vašeho reverse proxy.",
-
   "error_usernameRequired": "Uživatelské jméno je povinné",
   "error_passwordTooShort": "Heslo musí mít alespoň 8 znaků",
   "error_passwordTooShortCount": "Heslo musí mít alespoň 8 znaků ({count}/8)",
   "error_passwordsMismatch": "Hesla se neshodují",
-
   "toast_passwordChanged": "Heslo úspěšně změněno",
   "toast_authMethodChanged": "Metoda ověřování změněna na {method}",
-
   "security_authMethod": "Metoda ověřování",
   "security_authMethodDesc": "Zvolte způsob ověřování uživatelů v Muximux",
   "security_passwordAuth": "Ověřování heslem",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Smazat uživatele",
   "security_cantDeleteSelf": "Nemůžete smazat sami sebe",
   "security_minEightCharsShort": "Min. 8 znaků",
-
   "theme_appearance": "Vzhled",
   "theme_appearanceDesc": "Zvolte tmavý, světlý nebo systémový",
   "theme_dark": "Tmavý",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Varování",
   "theme_statusError": "Chyba",
   "theme_statusInfo": "Informace",
-
   "apps_heading": "Aplikace a skupiny",
   "apps_addGroup": "Přidat skupinu",
   "apps_addApp": "Přidat aplikaci",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Upravit skupinu",
   "apps_deleteGroup": "Smazat skupinu",
   "apps_noAppsConfigured": "Žádné aplikace ani skupiny nejsou nakonfigurovány. Klikněte na \"Přidat aplikaci\" pro začátek.",
-
   "about_loadingSystemInfo": "Načítání systémových informací...",
   "about_updateAvailable": "Dostupná aktualizace",
   "about_upToDate": "Máte aktuální verzi",
@@ -337,9 +323,7 @@
   "about_issues": "Problémy",
   "about_releases": "Vydání",
   "about_wiki": "Wiki",
-
   "common_or": "nebo",
-
   "appForm_name": "Název",
   "appForm_helpName": "Zobrazuje se v navigační liště a titulku stránky. Slouží také jako unikátní identifikátor — přejmenování aplikace vytvoří novou proxy trasu.",
   "appForm_placeholderName": "Moje aplikace",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Otevřít ve vyskakovacím okně",
   "appForm_redirect": "Přesměrování",
   "appForm_redirectDesc": "Přejít na URL aplikace",
-
   "command_searchPlaceholder": "Hledat aplikace a příkazy...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigovat",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Použít systémový motiv",
   "command_switchToApp": "Přepnout na aplikaci",
   "command_commandPalette": "Paleta příkazů",
-
   "nav_closeNavMenu": "Zavřít navigační nabídku",
   "nav_openNavMenu": "Otevřít navigační nabídku",
   "nav_closeMenu": "Zavřít nabídku",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Změnit velikost postranního panelu",
   "nav_closeNavigation": "Zavřít navigaci",
   "nav_openNavigation": "Otevřít navigaci",
-
   "keybindings_hint": "Klikněte na zkratku pro její změnu. Stiskněte Escape pro zrušení.",
   "keybindings_resetAllConfirm": "Resetovat všechny klávesové zkratky?",
   "keybindings_yesReset": "Ano, resetovat",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Zjištěn konflikt",
   "keybindings_conflictDesc": "Tato zkratka je již používána:",
   "keybindings_useAnyway": "Přesto použít",
-
   "shortcuts_title": "Klávesové zkratky",
   "shortcuts_closeAriaLabel": "Zavřít",
   "shortcuts_categoryNavigation": "Navigace",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Nastavení → Klávesové zkratky",
   "shortcuts_footerPress": "Stiskněte",
   "shortcuts_footerToClose": "pro zavření",
-
   "onboarding_stepWelcome": "Vítejte",
   "onboarding_stepSecurity": "Zabezpečení",
   "onboarding_stepApps": "Aplikace",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Zadejte heslo znovu",
   "onboarding_proxyTooltip": "Směruje provoz přes Muximux, takže aplikace nemusí být přímo dostupná z vašeho prohlížeče. Povolte, pokud je aplikace ve vnitřní síti nebo na jiném hostu, ke kterému se váš prohlížeč nemůže přímo připojit.",
   "onboarding_addAnotherInstance": "Přidat další instanci {appName}",
-
+  "onboarding_selectLanguage": "Vyberte svůj jazyk",
   "splash_selectApp": "Vyberte aplikaci pro začátek",
   "splash_quickAccess": "Rychlý přístup",
   "splash_allShortcuts": "Všechny zkratky",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Zatím žádné aplikace",
   "splash_noAppsDesc": "Přidejte svou první aplikaci pro začátek s panelem.",
   "splash_addApplication": "Přidat aplikaci",
-
   "logs_title": "Logy",
   "logs_backToDashboard": "Zpět na panel",
   "logs_resume": "Pokračovat",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "zobrazeno {count} filtrovaných",
   "logs_paused": "POZASTAVENO",
   "logs_scrollToBottom": "Posunout dolů",
-
   "appFrame_refreshing": "Obnovování...",
   "appFrame_releaseToRefresh": "Uvolněte pro obnovení",
   "appFrame_pullToRefresh": "Táhněte pro obnovení",
-
-  "iconBrowser_dashboardIcons": "Ikony panelu",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Vlastní",
   "iconBrowser_searchPlaceholder": "Hledat ikony...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} z {total} ikon",
   "iconBrowser_selectIcon": "Vybrat ikonu",
-
   "popularApps_groupMedia": "Média",
   "popularApps_groupDownloads": "Stahování",
   "popularApps_groupSystem": "Systém",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Agregátor RSS kanálů",
   "popularApps_linkdingDesc": "Správce záložek",
   "popularApps_ollamaDesc": "Lokální LLM server",
-  "popularApps_openWebuiDesc": "Chatovací rozhraní pro lokální LLM"
+  "popularApps_openWebuiDesc": "Chatovací rozhraní pro lokální LLM",
+  "keybindings_searchLabel": "Paleta příkazů",
+  "keybindings_searchDesc": "Otevřít paletu příkazů",
+  "keybindings_settingsLabel": "Otevřít nastavení",
+  "keybindings_settingsDesc": "Otevřít panel nastavení",
+  "keybindings_shortcutsLabel": "Zobrazit zkratky",
+  "keybindings_shortcutsDesc": "Zobrazit nápovědu klávesových zkratek",
+  "keybindings_homeLabel": "Domů",
+  "keybindings_homeDesc": "Zpět na úvodní obrazovku",
+  "keybindings_logsLabel": "Zobrazit logy",
+  "keybindings_logsDesc": "Otevřít prohlížeč logů",
+  "keybindings_refreshLabel": "Obnovit aplikaci",
+  "keybindings_refreshDesc": "Obnovit iframe aktuální aplikace",
+  "keybindings_fullscreenLabel": "Přepnout celou obrazovku",
+  "keybindings_fullscreenDesc": "Skrýt/zobrazit navigaci v režimu celé obrazovky",
+  "keybindings_nextAppLabel": "Další aplikace",
+  "keybindings_nextAppDesc": "Přepnout na další aplikaci v seznamu",
+  "keybindings_prevAppLabel": "Předchozí aplikace",
+  "keybindings_prevAppDesc": "Přepnout na předchozí aplikaci",
+  "keybindings_appLabel": "Aplikace {number}",
+  "keybindings_appDesc": "Přepnout na aplikaci #{number}"
 }

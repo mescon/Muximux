@@ -487,6 +487,7 @@
       // Update config with onboarding selections
       const newConfig: Config = {
         ...config,
+        language: getLocale(),
         navigation: {
           ...config.navigation,
           ...navigation
@@ -647,6 +648,12 @@
         if (!validNames.has(name)) visitedAppNames.delete(name);
       }
       toasts.success(m.toast_settingsSaved());
+
+      // If language changed, sync locale and reload
+      if (saved.language && saved.language !== getLocale()) {
+        syncLocaleFromConfig(saved.language);
+        return; // reload will happen
+      }
     } catch (e) {
       console.error('Failed to save config:', e);
       toasts.error(m.toast_failedSaveConfig());
@@ -718,8 +725,9 @@
       return;
     }
 
-    // Don't trigger shortcuts when typing in inputs (except Escape)
-    if (event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement) {
+    // Don't trigger shortcuts when typing in inputs or custom dropdowns (except Escape)
+    const target = event.target as HTMLElement;
+    if (target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.role === 'combobox') {
       if (event.key === 'Escape') {
         if (showCommandPalette) showCommandPalette = false;
         else if (showSettings) {

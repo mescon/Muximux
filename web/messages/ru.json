@@ -23,7 +23,6 @@
   "common_selectApp": "Выберите приложение в навигации",
   "common_continue": "Продолжить",
   "common_finish": "Завершить",
-
   "toast_connectionRestored": "Соединение восстановлено",
   "toast_connectionLost": "Соединение потеряно — переподключение...",
   "toast_settingsSaved": "Настройки сохранены",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Переключено на тёмную тему",
   "toast_switchedToLight": "Переключено на светлую тему",
   "toast_usingSystemTheme": "Используется системная тема",
-
   "toast_failedSaveConfig": "Не удалось сохранить конфигурацию",
   "toast_failedSaveTheme": "Не удалось сохранить тему",
   "toast_failedDeleteTheme": "Не удалось удалить тему",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Не удалось удалить",
   "toast_securitySetupFailed": "Ошибка настройки безопасности",
   "toast_iconSourcesPartialFail": "Некоторые источники иконок не загрузились: {sources}",
-
   "error_somethingWentWrong": "Что-то пошло не так",
   "error_failedLoadDashboard": "Не удалось загрузить панель",
   "error_failedLoadConfig": "Не удалось загрузить конфигурацию",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Не удалось подключиться после нескольких попыток",
   "error_failedFetchHealth": "Не удалось получить данные о состоянии",
   "error_deleteFailed": "Не удалось удалить",
-
   "nav_exitFullscreen": "Выйти из полноэкранного режима (F)",
-
   "settings_title": "Настройки",
   "settings_general": "Общие",
   "settings_theme": "Тема",
@@ -113,7 +108,6 @@
   "settings_icon": "Иконка",
   "settings_groupNamePlaceholder": "Медиа",
   "settings_appFallbackName": "Приложение",
-
   "general_language": "Язык",
   "general_languageAfterSave": "Выберите язык интерфейса. Изменения вступят в силу после сохранения.",
   "general_dashboardTitle": "Заголовок панели",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Экспорт конфигурации",
   "general_importConfig": "Импорт конфигурации",
   "general_configHint": "Экспортируйте текущую конфигурацию или импортируйте ранее сохранённую.",
-
   "login_subtitle": "Войдите в свою панель",
   "login_externalAuth": "Внешняя аутентификация",
   "login_externalAuthDesc": "Этот экземпляр защищён внешним провайдером аутентификации. Откройте его через URL, настроенный в вашем reverse proxy, чтобы войти.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Запомнить меня",
   "login_signingIn": "Вход...",
   "login_signIn": "Войти",
-
   "common_current": "Текущий",
   "common_username": "Имя пользователя",
   "common_password": "Пароль",
@@ -204,15 +196,12 @@
   "common_default": "По умолчанию",
   "common_disabled": "Отключено",
   "common_forwardAuthEnabled": "Forward auth включён. Пожалуйста, откройте это приложение через URL вашего reverse proxy для продолжения.",
-
   "error_usernameRequired": "Имя пользователя обязательно",
   "error_passwordTooShort": "Пароль должен содержать не менее 8 символов",
   "error_passwordTooShortCount": "Пароль должен содержать не менее 8 символов ({count}/8)",
   "error_passwordsMismatch": "Пароли не совпадают",
-
   "toast_passwordChanged": "Пароль успешно изменён",
   "toast_authMethodChanged": "Метод аутентификации изменён на {method}",
-
   "security_authMethod": "Метод аутентификации",
   "security_authMethodDesc": "Выберите способ аутентификации пользователей в Muximux",
   "security_passwordAuth": "Аутентификация паролем",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Удалить пользователя",
   "security_cantDeleteSelf": "Нельзя удалить самого себя",
   "security_minEightCharsShort": "Минимум 8 символов",
-
   "theme_appearance": "Внешний вид",
   "theme_appearanceDesc": "Выберите тёмную, светлую тему или следуйте системным настройкам",
   "theme_dark": "Тёмная",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Предупреждение",
   "theme_statusError": "Ошибка",
   "theme_statusInfo": "Информация",
-
   "apps_heading": "Приложения и группы",
   "apps_addGroup": "Добавить группу",
   "apps_addApp": "Добавить приложение",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Редактировать группу",
   "apps_deleteGroup": "Удалить группу",
   "apps_noAppsConfigured": "Приложения и группы не настроены. Нажмите «Добавить приложение», чтобы начать.",
-
   "about_loadingSystemInfo": "Загрузка системной информации...",
   "about_updateAvailable": "Доступно обновление",
   "about_upToDate": "У вас последняя версия",
@@ -337,9 +323,7 @@
   "about_issues": "Проблемы",
   "about_releases": "Релизы",
   "about_wiki": "Вики",
-
   "common_or": "или",
-
   "appForm_name": "Название",
   "appForm_helpName": "Отображается в панели навигации и заголовке страницы. Также используется как уникальный идентификатор — переименование приложения создаёт новый маршрут proxy.",
   "appForm_placeholderName": "Моё приложение",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Открыть во всплывающем окне",
   "appForm_redirect": "Перенаправление",
   "appForm_redirectDesc": "Перейти по URL приложения",
-
   "command_searchPlaceholder": "Поиск приложений и команд...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Навигация",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Использовать системную тему",
   "command_switchToApp": "Переключиться на приложение",
   "command_commandPalette": "Палитра команд",
-
   "nav_closeNavMenu": "Закрыть меню навигации",
   "nav_openNavMenu": "Открыть меню навигации",
   "nav_closeMenu": "Закрыть меню",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Изменить размер боковой панели",
   "nav_closeNavigation": "Закрыть навигацию",
   "nav_openNavigation": "Открыть навигацию",
-
   "keybindings_hint": "Нажмите на сочетание клавиш, чтобы изменить его. Нажмите Escape для отмены.",
   "keybindings_resetAllConfirm": "Сбросить все сочетания клавиш?",
   "keybindings_yesReset": "Да, сбросить",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Обнаружен конфликт",
   "keybindings_conflictDesc": "Это сочетание уже используется:",
   "keybindings_useAnyway": "Использовать всё равно",
-
   "shortcuts_title": "Сочетания клавиш",
   "shortcuts_closeAriaLabel": "Закрыть",
   "shortcuts_categoryNavigation": "Навигация",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Настройки → Сочетания клавиш",
   "shortcuts_footerPress": "Нажмите",
   "shortcuts_footerToClose": "чтобы закрыть",
-
   "onboarding_stepWelcome": "Приветствие",
   "onboarding_stepSecurity": "Безопасность",
   "onboarding_stepApps": "Приложения",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Повторите пароль",
   "onboarding_proxyTooltip": "Маршрутизирует трафик через Muximux, поэтому приложению не нужно быть напрямую доступным из браузера. Включите, если приложение находится во внутренней сети или на другом хосте, недоступном напрямую из вашего браузера.",
   "onboarding_addAnotherInstance": "Добавить ещё один {appName}",
-
+  "onboarding_selectLanguage": "Выберите ваш язык",
   "splash_selectApp": "Выберите приложение для начала",
   "splash_quickAccess": "Быстрый доступ",
   "splash_allShortcuts": "Все сочетания",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Пока нет приложений",
   "splash_noAppsDesc": "Добавьте первое приложение, чтобы начать работу с панелью.",
   "splash_addApplication": "Добавить приложение",
-
   "logs_title": "Журнал",
   "logs_backToDashboard": "Назад к панели",
   "logs_resume": "Возобновить",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "показано {count} отфильтрованных",
   "logs_paused": "ПАУЗА",
   "logs_scrollToBottom": "Прокрутить вниз",
-
   "appFrame_refreshing": "Обновление...",
   "appFrame_releaseToRefresh": "Отпустите для обновления",
   "appFrame_pullToRefresh": "Потяните для обновления",
-
-  "iconBrowser_dashboardIcons": "Иконки панели",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Пользовательские",
   "iconBrowser_searchPlaceholder": "Поиск иконок...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} иконок",
   "iconBrowser_iconCountFiltered": "{filtered} из {total} иконок",
   "iconBrowser_selectIcon": "Выбрать иконку",
-
   "popularApps_groupMedia": "Медиа",
   "popularApps_groupDownloads": "Загрузки",
   "popularApps_groupSystem": "Система",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Агрегатор RSS-лент",
   "popularApps_linkdingDesc": "Менеджер закладок",
   "popularApps_ollamaDesc": "Локальный сервер LLM-инференса",
-  "popularApps_openWebuiDesc": "Чат-интерфейс для локальных LLM"
+  "popularApps_openWebuiDesc": "Чат-интерфейс для локальных LLM",
+  "keybindings_searchLabel": "Палитра команд",
+  "keybindings_searchDesc": "Открыть палитру команд",
+  "keybindings_settingsLabel": "Открыть настройки",
+  "keybindings_settingsDesc": "Открыть панель настроек",
+  "keybindings_shortcutsLabel": "Показать горячие клавиши",
+  "keybindings_shortcutsDesc": "Показать справку горячих клавиш",
+  "keybindings_homeLabel": "На главную",
+  "keybindings_homeDesc": "Вернуться на начальный экран",
+  "keybindings_logsLabel": "Просмотр журналов",
+  "keybindings_logsDesc": "Открыть просмотр журналов",
+  "keybindings_refreshLabel": "Обновить приложение",
+  "keybindings_refreshDesc": "Обновить iframe текущего приложения",
+  "keybindings_fullscreenLabel": "Переключить полный экран",
+  "keybindings_fullscreenDesc": "Скрыть/показать навигацию для полноэкранного режима",
+  "keybindings_nextAppLabel": "Следующее приложение",
+  "keybindings_nextAppDesc": "Переключиться на следующее приложение",
+  "keybindings_prevAppLabel": "Предыдущее приложение",
+  "keybindings_prevAppDesc": "Переключиться на предыдущее приложение",
+  "keybindings_appLabel": "Приложение {number}",
+  "keybindings_appDesc": "Переключиться на приложение #{number}"
 }

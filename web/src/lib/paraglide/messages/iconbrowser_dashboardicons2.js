@@ -10,143 +10,143 @@ const en_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboard
 };
 
 const sv_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Panelikoner`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const uk_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Іконки панелі керування`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const zh_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`仪表盘图标`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const es_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Iconos del panel`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const hi_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`डैशबोर्ड आइकन`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const pt_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ícones do painel`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const bn_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`ড্যাশবোর্ড আইকন`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const ru_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Иконки панели`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const ja_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`ダッシュボードアイコン`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const vi_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Biểu tượng bảng điều khiển`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const yue_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`儀表板圖示`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const tr_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pano Simgeleri`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const ar_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`أيقونات لوحة التحكم`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const wuu_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`仪表盘图标`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const mr_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`डॅशबोर्ड आयकॉन`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const nb_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Panelikoner`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const fi_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Paneelin kuvakkeet`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const da_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Panelikoner`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const et_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Töölaua ikoonid`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const lv_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Paneļa ikonas`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const lt_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Valdymo skydo piktogramos`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const pl_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ikony panelu`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const de_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard-Icons`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const nl_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Dashboard-pictogrammen`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const fr_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icônes du tableau de bord`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const it_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Icone della dashboard`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const hu_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Vezérlőpult ikonok`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const cs_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ikony panelu`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const ro_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Pictograme panou de control`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const el_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Εικονίδια πίνακα ελέγχου`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const bg_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Икони на таблото`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const hr_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ikone nadzorne ploče`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const sr_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ikone kontrolne table`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const sk_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ikony panela`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 const sl_iconbrowser_dashboardicons2 = /** @type {(inputs: Iconbrowser_Dashboardicons2Inputs) => LocalizedString} */ () => {
-	return /** @type {LocalizedString} */ (`Ikone nadzorne plošče`)
+	return /** @type {LocalizedString} */ (`Dashboard Icons`)
 };
 
 /**

@@ -23,7 +23,6 @@
   "common_selectApp": "Navigasyondan bir uygulama seçin",
   "common_continue": "Devam",
   "common_finish": "Bitir",
-
   "toast_connectionRestored": "Bağlantı yeniden kuruldu",
   "toast_connectionLost": "Bağlantı kesildi — yeniden bağlanılıyor...",
   "toast_settingsSaved": "Ayarlar başarıyla kaydedildi",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Koyu temaya geçildi",
   "toast_switchedToLight": "Açık temaya geçildi",
   "toast_usingSystemTheme": "Sistem teması kullanılıyor",
-
   "toast_failedSaveConfig": "Yapılandırma kaydedilemedi",
   "toast_failedSaveTheme": "Tema kaydedilemedi",
   "toast_failedDeleteTheme": "Tema silinemedi",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Silme başarısız",
   "toast_securitySetupFailed": "Güvenlik kurulumu başarısız",
   "toast_iconSourcesPartialFail": "Bazı simge kaynakları yüklenemedi: {sources}",
-
   "error_somethingWentWrong": "Bir hata oluştu",
   "error_failedLoadDashboard": "Pano yüklenemedi",
   "error_failedLoadConfig": "Yapılandırma yüklenemedi",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Birden fazla denemeden sonra bağlanılamadı",
   "error_failedFetchHealth": "Sağlık durumu verileri alınamadı",
   "error_deleteFailed": "Silme başarısız",
-
   "nav_exitFullscreen": "Tam ekrandan çık (F)",
-
   "settings_title": "Ayarlar",
   "settings_general": "Genel",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Simge",
   "settings_groupNamePlaceholder": "Medya",
   "settings_appFallbackName": "Uygulama",
-
   "general_language": "Dil",
   "general_languageAfterSave": "Arayüz dilini seçin. Değişiklikler kaydettikten sonra uygulanır.",
   "general_dashboardTitle": "Pano Başlığı",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Yapılandırmayı Dışa Aktar",
   "general_importConfig": "Yapılandırmayı İçe Aktar",
   "general_configHint": "Mevcut yapılandırmanızı dışa aktarın veya daha önce kaydedilmiş birini içe aktarın.",
-
   "login_subtitle": "Panonuza giriş yapın",
   "login_externalAuth": "Harici Kimlik Doğrulama",
   "login_externalAuthDesc": "Bu örnek harici bir kimlik doğrulama sağlayıcısı tarafından korunmaktadır. Giriş yapmak için reverse proxy'nizde yapılandırılmış URL üzerinden erişin.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Beni hatırla",
   "login_signingIn": "Giriş yapılıyor...",
   "login_signIn": "Giriş yap",
-
   "common_current": "Mevcut",
   "common_username": "Kullanıcı Adı",
   "common_password": "Şifre",
@@ -204,15 +196,12 @@
   "common_default": "Varsayılan",
   "common_disabled": "Devre dışı",
   "common_forwardAuthEnabled": "Forward auth etkin. Devam etmek için lütfen bu uygulamaya reverse proxy URL'niz üzerinden erişin.",
-
   "error_usernameRequired": "Kullanıcı adı gereklidir",
   "error_passwordTooShort": "Şifre en az 8 karakter olmalıdır",
   "error_passwordTooShortCount": "Şifre en az 8 karakter olmalıdır ({count}/8)",
   "error_passwordsMismatch": "Şifreler eşleşmiyor",
-
   "toast_passwordChanged": "Şifre başarıyla değiştirildi",
   "toast_authMethodChanged": "Kimlik doğrulama yöntemi {method} olarak değiştirildi",
-
   "security_authMethod": "Kimlik Doğrulama Yöntemi",
   "security_authMethodDesc": "Kullanıcıların Muximux ile nasıl kimlik doğrulaması yapacağını seçin",
   "security_passwordAuth": "Şifre kimlik doğrulaması",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Kullanıcıyı sil",
   "security_cantDeleteSelf": "Kendinizi silemezsiniz",
   "security_minEightCharsShort": "En az 8 karakter",
-
   "theme_appearance": "Görünüm",
   "theme_appearanceDesc": "Koyu, açık tema seçin veya sisteminizi takip edin",
   "theme_dark": "Koyu",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Uyarı",
   "theme_statusError": "Hata",
   "theme_statusInfo": "Bilgi",
-
   "apps_heading": "Uygulamalar ve Gruplar",
   "apps_addGroup": "Grup Ekle",
   "apps_addApp": "Uygulama Ekle",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Grubu düzenle",
   "apps_deleteGroup": "Grubu sil",
   "apps_noAppsConfigured": "Yapılandırılmış uygulama veya grup yok. Başlamak için \"Uygulama Ekle\"ye tıklayın.",
-
   "about_loadingSystemInfo": "Sistem bilgisi yükleniyor...",
   "about_updateAvailable": "Güncelleme Mevcut",
   "about_upToDate": "Güncelsiniz",
@@ -337,9 +323,7 @@
   "about_issues": "Sorunlar",
   "about_releases": "Sürümler",
   "about_wiki": "Wiki",
-
   "common_or": "veya",
-
   "appForm_name": "Ad",
   "appForm_helpName": "Navigasyon çubuğunda ve sayfa başlığında görüntülenir. Ayrıca benzersiz tanımlayıcı olarak kullanılır — uygulamayı yeniden adlandırmak yeni bir proxy rotası oluşturur.",
   "appForm_placeholderName": "Uygulamam",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Açılır pencerede aç",
   "appForm_redirect": "Yönlendir",
   "appForm_redirectDesc": "Uygulama URL'sine git",
-
   "command_searchPlaceholder": "Uygulama ve komut ara...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Gezin",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Sistem Temasını Kullan",
   "command_switchToApp": "Uygulamaya geç",
   "command_commandPalette": "Komut paleti",
-
   "nav_closeNavMenu": "Navigasyon menüsünü kapat",
   "nav_openNavMenu": "Navigasyon menüsünü aç",
   "nav_closeMenu": "Menüyü kapat",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Kenar çubuğunu yeniden boyutlandır",
   "nav_closeNavigation": "Navigasyonu kapat",
   "nav_openNavigation": "Navigasyonu aç",
-
   "keybindings_hint": "Değiştirmek için bir tuş atamasına tıklayın. İptal etmek için Escape basın.",
   "keybindings_resetAllConfirm": "Tüm tuş atamaları sıfırlansın mı?",
   "keybindings_yesReset": "Evet, Sıfırla",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Çakışma tespit edildi",
   "keybindings_conflictDesc": "Bu kısayol zaten şu tarafından kullanılıyor:",
   "keybindings_useAnyway": "Yine de Kullan",
-
   "shortcuts_title": "Klavye Kısayolları",
   "shortcuts_closeAriaLabel": "Kapat",
   "shortcuts_categoryNavigation": "Navigasyon",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Ayarlar → Tuş Atamaları",
   "shortcuts_footerPress": "Basın",
   "shortcuts_footerToClose": "kapatmak için",
-
   "onboarding_stepWelcome": "Hoş Geldiniz",
   "onboarding_stepSecurity": "Güvenlik",
   "onboarding_stepApps": "Uygulamalar",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Şifreyi tekrar girin",
   "onboarding_proxyTooltip": "Trafiği Muximux üzerinden yönlendirir, böylece uygulamanın tarayıcınızdan doğrudan erişilebilir olması gerekmez. Uygulama dahili bir ağda veya tarayıcınızın doğrudan erişemeyeceği farklı bir ana bilgisayardaysa etkinleştirin.",
   "onboarding_addAnotherInstance": "Başka bir {appName} ekle",
-
+  "onboarding_selectLanguage": "Dilinizi seçin",
   "splash_selectApp": "Başlamak için bir uygulama seçin",
   "splash_quickAccess": "Hızlı erişim",
   "splash_allShortcuts": "Tüm kısayollar",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Henüz uygulama yok",
   "splash_noAppsDesc": "Panonuzla çalışmaya başlamak için ilk uygulamanızı ekleyin.",
   "splash_addApplication": "Uygulama Ekle",
-
   "logs_title": "Günlükler",
   "logs_backToDashboard": "Panoya dön",
   "logs_resume": "Devam et",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} filtrelenmiş gösteriliyor",
   "logs_paused": "DURAKLATILDI",
   "logs_scrollToBottom": "Alta kaydır",
-
   "appFrame_refreshing": "Yenileniyor...",
   "appFrame_releaseToRefresh": "Yenilemek için bırakın",
   "appFrame_pullToRefresh": "Yenilemek için çekin",
-
-  "iconBrowser_dashboardIcons": "Pano Simgeleri",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Özel",
   "iconBrowser_searchPlaceholder": "Simge ara...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} simge",
   "iconBrowser_iconCountFiltered": "{total} simgeden {filtered}",
   "iconBrowser_selectIcon": "Simge Seç",
-
   "popularApps_groupMedia": "Medya",
   "popularApps_groupDownloads": "İndirmeler",
   "popularApps_groupSystem": "Sistem",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS akışı toplayıcı",
   "popularApps_linkdingDesc": "Yer imi yöneticisi",
   "popularApps_ollamaDesc": "Yerel LLM çıkarım sunucusu",
-  "popularApps_openWebuiDesc": "Yerel LLM'ler için sohbet arayüzü"
+  "popularApps_openWebuiDesc": "Yerel LLM'ler için sohbet arayüzü",
+  "keybindings_searchLabel": "Komut paleti",
+  "keybindings_searchDesc": "Komut paletini aç",
+  "keybindings_settingsLabel": "Ayarları aç",
+  "keybindings_settingsDesc": "Ayarlar panelini aç",
+  "keybindings_shortcutsLabel": "Kısayolları göster",
+  "keybindings_shortcutsDesc": "Klavye kısayolları yardımını göster",
+  "keybindings_homeLabel": "Ana sayfa",
+  "keybindings_homeDesc": "Başlangıç ekranına dön",
+  "keybindings_logsLabel": "Günlükleri görüntüle",
+  "keybindings_logsDesc": "Günlük görüntüleyiciyi aç",
+  "keybindings_refreshLabel": "Uygulamayı yenile",
+  "keybindings_refreshDesc": "Mevcut uygulamanın iframe'ini yenile",
+  "keybindings_fullscreenLabel": "Tam ekranı değiştir",
+  "keybindings_fullscreenDesc": "Tam ekran modu için gezinmeyi gizle/göster",
+  "keybindings_nextAppLabel": "Sonraki uygulama",
+  "keybindings_nextAppDesc": "Listedeki sonraki uygulamaya geç",
+  "keybindings_prevAppLabel": "Önceki uygulama",
+  "keybindings_prevAppDesc": "Listedeki önceki uygulamaya geç",
+  "keybindings_appLabel": "Uygulama {number}",
+  "keybindings_appDesc": "#{number} uygulamasına geç"
 }

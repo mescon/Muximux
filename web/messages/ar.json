@@ -23,7 +23,6 @@
   "common_selectApp": "اختر تطبيقًا من شريط التنقل",
   "common_continue": "متابعة",
   "common_finish": "إنهاء",
-
   "toast_connectionRestored": "تمت استعادة الاتصال",
   "toast_connectionLost": "انقطع الاتصال — جارٍ إعادة الاتصال...",
   "toast_settingsSaved": "تم حفظ الإعدادات بنجاح",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "تم التبديل إلى السمة الداكنة",
   "toast_switchedToLight": "تم التبديل إلى السمة الفاتحة",
   "toast_usingSystemTheme": "يتم استخدام سمة النظام",
-
   "toast_failedSaveConfig": "فشل حفظ الإعدادات",
   "toast_failedSaveTheme": "فشل حفظ السمة",
   "toast_failedDeleteTheme": "فشل حذف السمة",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "فشل الحذف",
   "toast_securitySetupFailed": "فشل إعداد الأمان",
   "toast_iconSourcesPartialFail": "فشل تحميل بعض مصادر الأيقونات: {sources}",
-
   "error_somethingWentWrong": "حدث خطأ ما",
   "error_failedLoadDashboard": "فشل تحميل لوحة التحكم",
   "error_failedLoadConfig": "فشل تحميل الإعدادات",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "فشل الاتصال بعد عدة محاولات",
   "error_failedFetchHealth": "فشل جلب بيانات الحالة الصحية",
   "error_deleteFailed": "فشل الحذف",
-
   "nav_exitFullscreen": "الخروج من وضع ملء الشاشة (F)",
-
   "settings_title": "الإعدادات",
   "settings_general": "عام",
   "settings_theme": "السمة",
@@ -113,7 +108,6 @@
   "settings_icon": "الأيقونة",
   "settings_groupNamePlaceholder": "وسائط",
   "settings_appFallbackName": "تطبيق",
-
   "general_language": "اللغة",
   "general_languageAfterSave": "اختر لغة العرض للواجهة. تسري التغييرات بعد الحفظ.",
   "general_dashboardTitle": "عنوان لوحة التحكم",
@@ -176,7 +170,6 @@
   "general_exportConfig": "تصدير الإعدادات",
   "general_importConfig": "استيراد الإعدادات",
   "general_configHint": "قم بتصدير إعداداتك الحالية أو استيراد إعدادات محفوظة مسبقًا.",
-
   "login_subtitle": "تسجيل الدخول إلى لوحة التحكم",
   "login_externalAuth": "مصادقة خارجية",
   "login_externalAuthDesc": "هذا المثيل محمي بمزوّد مصادقة خارجي. قم بالوصول إليه عبر عنوان URL المُعدّ في reverse proxy لتسجيل الدخول.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "تذكرني",
   "login_signingIn": "جارٍ تسجيل الدخول...",
   "login_signIn": "تسجيل الدخول",
-
   "common_current": "الحالي",
   "common_username": "اسم المستخدم",
   "common_password": "كلمة المرور",
@@ -204,15 +196,12 @@
   "common_default": "افتراضي",
   "common_disabled": "معطّل",
   "common_forwardAuthEnabled": "تم تفعيل Forward auth. يرجى الوصول إلى هذا التطبيق عبر عنوان URL الخاص بـ reverse proxy للمتابعة.",
-
   "error_usernameRequired": "اسم المستخدم مطلوب",
   "error_passwordTooShort": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل",
   "error_passwordTooShortCount": "يجب أن تتكون كلمة المرور من 8 أحرف على الأقل ({count}/8)",
   "error_passwordsMismatch": "كلمات المرور غير متطابقة",
-
   "toast_passwordChanged": "تم تغيير كلمة المرور بنجاح",
   "toast_authMethodChanged": "تم تغيير طريقة المصادقة إلى {method}",
-
   "security_authMethod": "طريقة المصادقة",
   "security_authMethodDesc": "اختر كيفية مصادقة المستخدمين مع Muximux",
   "security_passwordAuth": "المصادقة بكلمة المرور",
@@ -251,7 +240,6 @@
   "security_deleteUser": "حذف المستخدم",
   "security_cantDeleteSelf": "لا يمكنك حذف نفسك",
   "security_minEightCharsShort": "8 أحرف كحد أدنى",
-
   "theme_appearance": "المظهر",
   "theme_appearanceDesc": "اختر السمة الداكنة أو الفاتحة أو اتبع نظامك",
   "theme_dark": "داكن",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "تحذير",
   "theme_statusError": "خطأ",
   "theme_statusInfo": "معلومات",
-
   "apps_heading": "التطبيقات والمجموعات",
   "apps_addGroup": "إضافة مجموعة",
   "apps_addApp": "إضافة تطبيق",
@@ -304,7 +291,6 @@
   "apps_editGroup": "تعديل المجموعة",
   "apps_deleteGroup": "حذف المجموعة",
   "apps_noAppsConfigured": "لا توجد تطبيقات أو مجموعات مُعدّة. انقر على \"إضافة تطبيق\" للبدء.",
-
   "about_loadingSystemInfo": "جارٍ تحميل معلومات النظام...",
   "about_updateAvailable": "تحديث متاح",
   "about_upToDate": "لديك أحدث إصدار",
@@ -337,9 +323,7 @@
   "about_issues": "المشكلات",
   "about_releases": "الإصدارات",
   "about_wiki": "ويكي",
-
   "common_or": "أو",
-
   "appForm_name": "الاسم",
   "appForm_helpName": "يُعرض في شريط التنقل وعنوان الصفحة. يُستخدم أيضًا كمعرّف فريد — إعادة تسمية التطبيق تنشئ مسار proxy جديدًا.",
   "appForm_placeholderName": "تطبيقي",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "فتح في نافذة منبثقة",
   "appForm_redirect": "إعادة توجيه",
   "appForm_redirectDesc": "الانتقال إلى عنوان URL للتطبيق",
-
   "command_searchPlaceholder": "البحث عن التطبيقات والأوامر...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ تنقل",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "استخدام سمة النظام",
   "command_switchToApp": "التبديل إلى تطبيق",
   "command_commandPalette": "لوحة الأوامر",
-
   "nav_closeNavMenu": "إغلاق قائمة التنقل",
   "nav_openNavMenu": "فتح قائمة التنقل",
   "nav_closeMenu": "إغلاق القائمة",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "تغيير حجم الشريط الجانبي",
   "nav_closeNavigation": "إغلاق التنقل",
   "nav_openNavigation": "فتح التنقل",
-
   "keybindings_hint": "انقر على اختصار لتغييره. اضغط Escape للإلغاء.",
   "keybindings_resetAllConfirm": "إعادة تعيين جميع الاختصارات؟",
   "keybindings_yesReset": "نعم، إعادة تعيين",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "تم اكتشاف تعارض",
   "keybindings_conflictDesc": "هذا الاختصار مستخدم بالفعل بواسطة:",
   "keybindings_useAnyway": "استخدم على أي حال",
-
   "shortcuts_title": "اختصارات لوحة المفاتيح",
   "shortcuts_closeAriaLabel": "إغلاق",
   "shortcuts_categoryNavigation": "التنقل",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "الإعدادات → اختصارات لوحة المفاتيح",
   "shortcuts_footerPress": "اضغط",
   "shortcuts_footerToClose": "للإغلاق",
-
   "onboarding_stepWelcome": "مرحبًا",
   "onboarding_stepSecurity": "الأمان",
   "onboarding_stepApps": "التطبيقات",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "أعد إدخال كلمة المرور",
   "onboarding_proxyTooltip": "يوجّه حركة المرور عبر Muximux حتى لا يحتاج التطبيق أن يكون قابلاً للوصول مباشرة من متصفحك. فعّل هذا إذا كان التطبيق على شبكة داخلية أو مضيف مختلف لا يمكن لمتصفحك الوصول إليه مباشرة.",
   "onboarding_addAnotherInstance": "إضافة {appName} آخر",
-
+  "onboarding_selectLanguage": "اختر لغتك",
   "splash_selectApp": "اختر تطبيقًا للبدء",
   "splash_quickAccess": "وصول سريع",
   "splash_allShortcuts": "جميع الاختصارات",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "لا توجد تطبيقات بعد",
   "splash_noAppsDesc": "أضف أول تطبيق للبدء مع لوحة التحكم.",
   "splash_addApplication": "إضافة تطبيق",
-
   "logs_title": "السجلات",
   "logs_backToDashboard": "العودة إلى لوحة التحكم",
   "logs_resume": "استئناف",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "يعرض {count} مُصفّاة",
   "logs_paused": "متوقف",
   "logs_scrollToBottom": "التمرير إلى الأسفل",
-
   "appFrame_refreshing": "جارٍ التحديث...",
   "appFrame_releaseToRefresh": "أفلت للتحديث",
   "appFrame_pullToRefresh": "اسحب للتحديث",
-
-  "iconBrowser_dashboardIcons": "أيقونات لوحة التحكم",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "مخصصة",
   "iconBrowser_searchPlaceholder": "البحث عن أيقونات...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} أيقونات",
   "iconBrowser_iconCountFiltered": "{filtered} من {total} أيقونات",
   "iconBrowser_selectIcon": "اختيار أيقونة",
-
   "popularApps_groupMedia": "وسائط",
   "popularApps_groupDownloads": "تنزيلات",
   "popularApps_groupSystem": "النظام",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "مُجمّع خلاصات RSS",
   "popularApps_linkdingDesc": "مدير المفضلات",
   "popularApps_ollamaDesc": "خادم استدلال LLM محلي",
-  "popularApps_openWebuiDesc": "واجهة محادثة لنماذج LLM المحلية"
+  "popularApps_openWebuiDesc": "واجهة محادثة لنماذج LLM المحلية",
+  "keybindings_searchLabel": "لوحة الأوامر",
+  "keybindings_searchDesc": "فتح لوحة الأوامر",
+  "keybindings_settingsLabel": "فتح الإعدادات",
+  "keybindings_settingsDesc": "فتح لوحة الإعدادات",
+  "keybindings_shortcutsLabel": "عرض الاختصارات",
+  "keybindings_shortcutsDesc": "عرض مساعدة اختصارات لوحة المفاتيح",
+  "keybindings_homeLabel": "الرئيسية",
+  "keybindings_homeDesc": "العودة إلى شاشة البداية",
+  "keybindings_logsLabel": "عرض السجلات",
+  "keybindings_logsDesc": "فتح عارض السجلات",
+  "keybindings_refreshLabel": "تحديث التطبيق",
+  "keybindings_refreshDesc": "تحديث إطار التطبيق الحالي",
+  "keybindings_fullscreenLabel": "تبديل ملء الشاشة",
+  "keybindings_fullscreenDesc": "إخفاء/إظهار التنقل لوضع ملء الشاشة",
+  "keybindings_nextAppLabel": "التطبيق التالي",
+  "keybindings_nextAppDesc": "التبديل إلى التطبيق التالي في القائمة",
+  "keybindings_prevAppLabel": "التطبيق السابق",
+  "keybindings_prevAppDesc": "التبديل إلى التطبيق السابق في القائمة",
+  "keybindings_appLabel": "التطبيق {number}",
+  "keybindings_appDesc": "التبديل إلى التطبيق #{number}"
 }

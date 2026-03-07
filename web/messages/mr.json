@@ -23,7 +23,6 @@
   "common_selectApp": "नेव्हिगेशनमधून एक अॅप निवडा",
   "common_continue": "सुरू ठेवा",
   "common_finish": "समाप्त",
-
   "toast_connectionRestored": "कनेक्शन पुनर्स्थापित झाले",
   "toast_connectionLost": "कनेक्शन तुटले — पुन्हा जोडत आहे...",
   "toast_settingsSaved": "सेटिंग्ज यशस्वीरीत्या जतन झाल्या",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "गडद थीमवर स्विच केले",
   "toast_switchedToLight": "हलक्या थीमवर स्विच केले",
   "toast_usingSystemTheme": "सिस्टम थीम वापरत आहे",
-
   "toast_failedSaveConfig": "कॉन्फिगरेशन जतन अयशस्वी",
   "toast_failedSaveTheme": "थीम जतन अयशस्वी",
   "toast_failedDeleteTheme": "थीम हटवणे अयशस्वी",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "हटवणे अयशस्वी",
   "toast_securitySetupFailed": "सुरक्षा सेटअप अयशस्वी",
   "toast_iconSourcesPartialFail": "काही आयकॉन स्रोत लोड अयशस्वी: {sources}",
-
   "error_somethingWentWrong": "काहीतरी चूक झाली",
   "error_failedLoadDashboard": "डॅशबोर्ड लोड अयशस्वी",
   "error_failedLoadConfig": "कॉन्फिगरेशन लोड अयशस्वी",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "अनेक प्रयत्नांनंतरही कनेक्ट अयशस्वी",
   "error_failedFetchHealth": "आरोग्य डेटा मिळवणे अयशस्वी",
   "error_deleteFailed": "हटवणे अयशस्वी",
-
   "nav_exitFullscreen": "पूर्ण स्क्रीनमधून बाहेर पडा (F)",
-
   "settings_title": "सेटिंग्ज",
   "settings_general": "सामान्य",
   "settings_theme": "थीम",
@@ -113,7 +108,6 @@
   "settings_icon": "आयकॉन",
   "settings_groupNamePlaceholder": "मीडिया",
   "settings_appFallbackName": "अॅप",
-
   "general_language": "भाषा",
   "general_languageAfterSave": "इंटरफेससाठी प्रदर्शन भाषा निवडा. जतन केल्यानंतर बदल लागू होतात.",
   "general_dashboardTitle": "डॅशबोर्ड शीर्षक",
@@ -176,7 +170,6 @@
   "general_exportConfig": "कॉन्फिग निर्यात करा",
   "general_importConfig": "कॉन्फिग आयात करा",
   "general_configHint": "तुमचे सध्याचे कॉन्फिगरेशन निर्यात करा किंवा आधी जतन केलेले आयात करा.",
-
   "login_subtitle": "तुमच्या डॅशबोर्डमध्ये साइन इन करा",
   "login_externalAuth": "बाह्य प्रमाणीकरण",
   "login_externalAuthDesc": "हे इन्स्टन्स बाह्य प्रमाणीकरण प्रदात्याद्वारे संरक्षित आहे. साइन इन करण्यासाठी तुमच्या रिव्हर्स प्रॉक्सीमध्ये कॉन्फिगर केलेल्या URL द्वारे ऍक्सेस करा.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "मला लक्षात ठेवा",
   "login_signingIn": "साइन इन होत आहे...",
   "login_signIn": "साइन इन",
-
   "common_current": "सध्याचे",
   "common_username": "वापरकर्तानाव",
   "common_password": "पासवर्ड",
@@ -204,15 +196,12 @@
   "common_default": "डीफॉल्ट",
   "common_disabled": "अक्षम",
   "common_forwardAuthEnabled": "फॉरवर्ड ऑथ सक्षम आहे. कृपया सुरू ठेवण्यासाठी तुमच्या रिव्हर्स प्रॉक्सी URL द्वारे हे अॅप ऍक्सेस करा.",
-
   "error_usernameRequired": "वापरकर्तानाव आवश्यक आहे",
   "error_passwordTooShort": "पासवर्ड किमान ८ अक्षरांचा असावा",
   "error_passwordTooShortCount": "पासवर्ड किमान ८ अक्षरांचा असावा ({count}/8)",
   "error_passwordsMismatch": "पासवर्ड जुळत नाहीत",
-
   "toast_passwordChanged": "पासवर्ड यशस्वीरीत्या बदलला",
   "toast_authMethodChanged": "प्रमाणीकरण पद्धत {method} वर बदलली",
-
   "security_authMethod": "प्रमाणीकरण पद्धत",
   "security_authMethodDesc": "वापरकर्ते Muximux मध्ये कसे प्रमाणीकृत होतात ते निवडा",
   "security_passwordAuth": "पासवर्ड प्रमाणीकरण",
@@ -251,7 +240,6 @@
   "security_deleteUser": "वापरकर्ता हटवा",
   "security_cantDeleteSelf": "स्वतःला हटवता येत नाही",
   "security_minEightCharsShort": "किमान ८ अक्षरे",
-
   "theme_appearance": "दिसावट",
   "theme_appearanceDesc": "गडद, हलके, किंवा सिस्टम अनुसरण निवडा",
   "theme_dark": "गडद",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "चेतावणी",
   "theme_statusError": "त्रुटी",
   "theme_statusInfo": "माहिती",
-
   "apps_heading": "अॅप्स आणि गट",
   "apps_addGroup": "गट जोडा",
   "apps_addApp": "अॅप जोडा",
@@ -304,7 +291,6 @@
   "apps_editGroup": "गट संपादित करा",
   "apps_deleteGroup": "गट हटवा",
   "apps_noAppsConfigured": "कोणतेही अॅप्लिकेशन किंवा गट कॉन्फिगर केलेले नाहीत. सुरू करण्यासाठी \"अॅप जोडा\" वर क्लिक करा.",
-
   "about_loadingSystemInfo": "सिस्टम माहिती लोड होत आहे...",
   "about_updateAvailable": "अपडेट उपलब्ध",
   "about_upToDate": "तुम्ही अद्ययावत आहात",
@@ -337,9 +323,7 @@
   "about_issues": "समस्या",
   "about_releases": "आवृत्त्या",
   "about_wiki": "Wiki",
-
   "common_or": "किंवा",
-
   "appForm_name": "नाव",
   "appForm_helpName": "नेव्हिगेशन बार आणि पेज शीर्षकात प्रदर्शित होते. अद्वितीय ओळखकर्ता म्हणूनही वापरले जाते — नाव बदलल्यास नवीन प्रॉक्सी रूट तयार होतो.",
   "appForm_placeholderName": "माझे अॅप",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "पॉपअप विंडोमध्ये उघडा",
   "appForm_redirect": "रिडायरेक्ट",
   "appForm_redirectDesc": "अॅप URL वर नेव्हिगेट करा",
-
   "command_searchPlaceholder": "अॅप्स आणि कमांड शोधा...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ नेव्हिगेट",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "सिस्टम थीम वापरा",
   "command_switchToApp": "अॅपवर स्विच करा",
   "command_commandPalette": "कमांड पॅलेट",
-
   "nav_closeNavMenu": "नेव्हिगेशन मेनू बंद करा",
   "nav_openNavMenu": "नेव्हिगेशन मेनू उघडा",
   "nav_closeMenu": "मेनू बंद करा",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "साइडबार आकार बदला",
   "nav_closeNavigation": "नेव्हिगेशन बंद करा",
   "nav_openNavigation": "नेव्हिगेशन उघडा",
-
   "keybindings_hint": "बदलण्यासाठी कीबाइंडिंगवर क्लिक करा. रद्द करण्यासाठी Escape दाबा.",
   "keybindings_resetAllConfirm": "सर्व कीबाइंडिंग्ज रीसेट करायचे?",
   "keybindings_yesReset": "होय, रीसेट करा",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "विरोध आढळला",
   "keybindings_conflictDesc": "हा शॉर्टकट आधीपासून यावर वापरला जात आहे:",
   "keybindings_useAnyway": "तरीही वापरा",
-
   "shortcuts_title": "कीबोर्ड शॉर्टकट",
   "shortcuts_closeAriaLabel": "बंद करा",
   "shortcuts_categoryNavigation": "नेव्हिगेशन",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "सेटिंग्ज → कीबाइंडिंग्ज",
   "shortcuts_footerPress": "दाबा",
   "shortcuts_footerToClose": "बंद करण्यासाठी",
-
   "onboarding_stepWelcome": "स्वागत",
   "onboarding_stepSecurity": "सुरक्षा",
   "onboarding_stepApps": "अॅप्स",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "पासवर्ड पुन्हा टाका",
   "onboarding_proxyTooltip": "Muximux द्वारे ट्रॅफिक रूट करतो जेणेकरून अॅपला तुमच्या ब्राउझरवरून थेट पोहोचता येणे आवश्यक नाही. अॅप अंतर्गत नेटवर्कवर किंवा ब्राउझरला थेट ऍक्सेस नसलेल्या वेगळ्या होस्टवर असल्यास हे सक्षम करा.",
   "onboarding_addAnotherInstance": "आणखी एक {appName} जोडा",
-
+  "onboarding_selectLanguage": "आपली भाषा निवडा",
   "splash_selectApp": "सुरू करण्यासाठी एक अॅप्लिकेशन निवडा",
   "splash_quickAccess": "द्रुत प्रवेश",
   "splash_allShortcuts": "सर्व शॉर्टकट",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "अद्याप अॅप्लिकेशन्स नाहीत",
   "splash_noAppsDesc": "तुमच्या डॅशबोर्डसह सुरू करण्यासाठी पहिले अॅप्लिकेशन जोडा.",
   "splash_addApplication": "अॅप्लिकेशन जोडा",
-
   "logs_title": "लॉग",
   "logs_backToDashboard": "डॅशबोर्डवर परत",
   "logs_resume": "पुन्हा सुरू करा",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} फिल्टर केलेले दाखवत आहे",
   "logs_paused": "थांबवलेले",
   "logs_scrollToBottom": "तळाशी स्क्रोल करा",
-
   "appFrame_refreshing": "रिफ्रेश होत आहे...",
   "appFrame_releaseToRefresh": "रिफ्रेश करण्यासाठी सोडा",
   "appFrame_pullToRefresh": "रिफ्रेश करण्यासाठी खाली ओढा",
-
-  "iconBrowser_dashboardIcons": "डॅशबोर्ड आयकॉन",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "सानुकूल",
   "iconBrowser_searchPlaceholder": "आयकॉन शोधा...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} आयकॉन",
   "iconBrowser_iconCountFiltered": "{total} पैकी {filtered} आयकॉन",
   "iconBrowser_selectIcon": "आयकॉन निवडा",
-
   "popularApps_groupMedia": "मीडिया",
   "popularApps_groupDownloads": "डाउनलोड्स",
   "popularApps_groupSystem": "सिस्टम",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS फीड ॲग्रिगेटर",
   "popularApps_linkdingDesc": "बुकमार्क व्यवस्थापक",
   "popularApps_ollamaDesc": "स्थानिक LLM इन्फरन्स सर्व्हर",
-  "popularApps_openWebuiDesc": "स्थानिक LLMs साठी चॅट इंटरफेस"
+  "popularApps_openWebuiDesc": "स्थानिक LLMs साठी चॅट इंटरफेस",
+  "keybindings_searchLabel": "कमांड पॅलेट",
+  "keybindings_searchDesc": "कमांड पॅलेट उघडा",
+  "keybindings_settingsLabel": "सेटिंग्ज उघडा",
+  "keybindings_settingsDesc": "सेटिंग्ज पॅनेल उघडा",
+  "keybindings_shortcutsLabel": "शॉर्टकट दाखवा",
+  "keybindings_shortcutsDesc": "कीबोर्ड शॉर्टकट मदत दाखवा",
+  "keybindings_homeLabel": "मुख्यपृष्ठ",
+  "keybindings_homeDesc": "सुरुवातीच्या स्क्रीनवर परत जा",
+  "keybindings_logsLabel": "लॉग पहा",
+  "keybindings_logsDesc": "लॉग व्ह्यूअर उघडा",
+  "keybindings_refreshLabel": "अ‍ॅप रिफ्रेश करा",
+  "keybindings_refreshDesc": "सध्याच्या अ‍ॅपचे iframe रिफ्रेश करा",
+  "keybindings_fullscreenLabel": "पूर्ण स्क्रीन टॉगल करा",
+  "keybindings_fullscreenDesc": "पूर्ण स्क्रीन मोडसाठी नेव्हिगेशन लपवा/दाखवा",
+  "keybindings_nextAppLabel": "पुढील अ‍ॅप",
+  "keybindings_nextAppDesc": "यादीतील पुढील अ‍ॅपवर जा",
+  "keybindings_prevAppLabel": "मागील अ‍ॅप",
+  "keybindings_prevAppDesc": "यादीतील मागील अ‍ॅपवर जा",
+  "keybindings_appLabel": "अ‍ॅप {number}",
+  "keybindings_appDesc": "अ‍ॅप #{number} वर जा"
 }

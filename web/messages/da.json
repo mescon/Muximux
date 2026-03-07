@@ -23,7 +23,6 @@
   "common_selectApp": "Vælg en app fra navigationen",
   "common_continue": "Fortsæt",
   "common_finish": "Afslut",
-
   "toast_connectionRestored": "Forbindelsen genoprettet",
   "toast_connectionLost": "Forbindelsen mistet – genopretter...",
   "toast_settingsSaved": "Indstillinger gemt",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Skiftet til mørkt tema",
   "toast_switchedToLight": "Skiftet til lyst tema",
   "toast_usingSystemTheme": "Bruger systemtema",
-
   "toast_failedSaveConfig": "Kunne ikke gemme konfigurationen",
   "toast_failedSaveTheme": "Kunne ikke gemme temaet",
   "toast_failedDeleteTheme": "Kunne ikke slette temaet",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Sletning mislykkedes",
   "toast_securitySetupFailed": "Sikkerhedsopsætning mislykkedes",
   "toast_iconSourcesPartialFail": "Nogle ikonkilder kunne ikke indlæses: {sources}",
-
   "error_somethingWentWrong": "Noget gik galt",
   "error_failedLoadDashboard": "Kunne ikke indlæse panelet",
   "error_failedLoadConfig": "Kunne ikke indlæse konfigurationen",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Kunne ikke oprette forbindelse efter flere forsøg",
   "error_failedFetchHealth": "Kunne ikke hente sundhedsdata",
   "error_deleteFailed": "Sletning mislykkedes",
-
   "nav_exitFullscreen": "Forlad fuldskærm (F)",
-
   "settings_title": "Indstillinger",
   "settings_general": "Generelt",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikon",
   "settings_groupNamePlaceholder": "Medier",
   "settings_appFallbackName": "App",
-
   "general_language": "Sprog",
   "general_languageAfterSave": "Vælg visningssprog for grænsefladen. Ændringer træder i kraft efter at du gemmer.",
   "general_dashboardTitle": "Paneltitel",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Eksporter konfiguration",
   "general_importConfig": "Importer konfiguration",
   "general_configHint": "Eksporter din nuværende konfiguration eller importer en tidligere gemt.",
-
   "login_subtitle": "Log ind på dit panel",
   "login_externalAuth": "Ekstern godkendelse",
   "login_externalAuthDesc": "Denne instans er beskyttet af en ekstern godkendelsesudbyder. Tilgå den via den URL der er konfigureret i din omvendte proxy for at logge ind.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Husk mig",
   "login_signingIn": "Logger ind...",
   "login_signIn": "Log ind",
-
   "common_current": "Aktuel",
   "common_username": "Brugernavn",
   "common_password": "Adgangskode",
@@ -204,15 +196,12 @@
   "common_default": "Standard",
   "common_disabled": "Deaktiveret",
   "common_forwardAuthEnabled": "Videresend-godkendelse aktiveret. Tilgå venligst denne app via din omvendte proxy-URL for at fortsætte.",
-
   "error_usernameRequired": "Brugernavn er påkrævet",
   "error_passwordTooShort": "Adgangskoden skal være mindst 8 tegn",
   "error_passwordTooShortCount": "Adgangskoden skal være mindst 8 tegn ({count}/8)",
   "error_passwordsMismatch": "Adgangskoderne stemmer ikke overens",
-
   "toast_passwordChanged": "Adgangskode ændret",
   "toast_authMethodChanged": "Godkendelsesmetode ændret til {method}",
-
   "security_authMethod": "Godkendelsesmetode",
   "security_authMethodDesc": "Vælg hvordan brugere godkender sig med Muximux",
   "security_passwordAuth": "Adgangskodegodkendelse",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Slet bruger",
   "security_cantDeleteSelf": "Kan ikke slette dig selv",
   "security_minEightCharsShort": "Min 8 tegn",
-
   "theme_appearance": "Udseende",
   "theme_appearanceDesc": "Vælg mørkt, lyst eller følg systemet",
   "theme_dark": "Mørkt",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Advarsel",
   "theme_statusError": "Fejl",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Apps og grupper",
   "apps_addGroup": "Tilføj gruppe",
   "apps_addApp": "Tilføj app",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Rediger gruppe",
   "apps_deleteGroup": "Slet gruppe",
   "apps_noAppsConfigured": "Ingen applikationer eller grupper konfigureret. Klik \"Tilføj app\" for at komme i gang.",
-
   "about_loadingSystemInfo": "Indlæser systeminformation...",
   "about_updateAvailable": "Opdatering tilgængelig",
   "about_upToDate": "Du er opdateret",
@@ -337,9 +323,7 @@
   "about_issues": "Problemer",
   "about_releases": "Udgivelser",
   "about_wiki": "Wiki",
-
   "common_or": "eller",
-
   "appForm_name": "Navn",
   "appForm_helpName": "Vises i navigationsbjælken og sidetitlen. Bruges også som unik identifikator — at omdøbe en app opretter en ny proxyrute.",
   "appForm_placeholderName": "Min app",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Åbn i et popup-vindue",
   "appForm_redirect": "Omdiriger",
   "appForm_redirectDesc": "Naviger væk til appens URL",
-
   "command_searchPlaceholder": "Søg apps og kommandoer...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Naviger",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Brug systemtema",
   "command_switchToApp": "Skift til app",
   "command_commandPalette": "Kommandopalette",
-
   "nav_closeNavMenu": "Luk navigationsmenu",
   "nav_openNavMenu": "Åbn navigationsmenu",
   "nav_closeMenu": "Luk menu",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Ændr størrelse på sidepanel",
   "nav_closeNavigation": "Luk navigation",
   "nav_openNavigation": "Åbn navigation",
-
   "keybindings_hint": "Klik på en tastaturbinding for at ændre den. Tryk Escape for at annullere.",
   "keybindings_resetAllConfirm": "Nulstil alle tastaturbindinger?",
   "keybindings_yesReset": "Ja, nulstil",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Konflikt fundet",
   "keybindings_conflictDesc": "Denne genvej bruges allerede af:",
   "keybindings_useAnyway": "Brug alligevel",
-
   "shortcuts_title": "Tastaturgenveje",
   "shortcuts_closeAriaLabel": "Luk",
   "shortcuts_categoryNavigation": "Navigation",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Indstillinger → Tastaturbindinger",
   "shortcuts_footerPress": "Tryk",
   "shortcuts_footerToClose": "for at lukke",
-
   "onboarding_stepWelcome": "Velkommen",
   "onboarding_stepSecurity": "Sikkerhed",
   "onboarding_stepApps": "Apps",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Indtast adgangskoden igen",
   "onboarding_proxyTooltip": "Ruter trafik gennem Muximux så appen ikke behøver at være direkte tilgængelig fra din browser. Aktivér dette hvis appen er på et internt netværk eller en anden vært som din browser ikke kan nå direkte.",
   "onboarding_addAnotherInstance": "Tilføj endnu en {appName}",
-
+  "onboarding_selectLanguage": "Vælg dit sprog",
   "splash_selectApp": "Vælg en applikation for at komme i gang",
   "splash_quickAccess": "Hurtigadgang",
   "splash_allShortcuts": "Alle genveje",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Ingen applikationer endnu",
   "splash_noAppsDesc": "Tilføj din første applikation for at komme i gang med dit panel.",
   "splash_addApplication": "Tilføj applikation",
-
   "logs_title": "Logfiler",
   "logs_backToDashboard": "Tilbage til panelet",
   "logs_resume": "Genoptag",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "viser {count} filtrerede",
   "logs_paused": "PAUSET",
   "logs_scrollToBottom": "Rul til bunden",
-
   "appFrame_refreshing": "Opdaterer...",
   "appFrame_releaseToRefresh": "Slip for at opdatere",
   "appFrame_pullToRefresh": "Træk for at opdatere",
-
-  "iconBrowser_dashboardIcons": "Panelikoner",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Brugerdefinerede",
   "iconBrowser_searchPlaceholder": "Søg ikoner...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikoner",
   "iconBrowser_iconCountFiltered": "{filtered} af {total} ikoner",
   "iconBrowser_selectIcon": "Vælg ikon",
-
   "popularApps_groupMedia": "Medier",
   "popularApps_groupDownloads": "Downloads",
   "popularApps_groupSystem": "System",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS-feedaggregator",
   "popularApps_linkdingDesc": "Bogmærkehåndterer",
   "popularApps_ollamaDesc": "Lokal LLM-inferensserver",
-  "popularApps_openWebuiDesc": "Chatgrænseflade til lokale LLM'er"
+  "popularApps_openWebuiDesc": "Chatgrænseflade til lokale LLM'er",
+  "keybindings_searchLabel": "Kommandopalet",
+  "keybindings_searchDesc": "Åbn kommandopaletten",
+  "keybindings_settingsLabel": "Åbn indstillinger",
+  "keybindings_settingsDesc": "Åbn indstillingspanelet",
+  "keybindings_shortcutsLabel": "Vis genveje",
+  "keybindings_shortcutsDesc": "Vis hjælp til tastaturgenveje",
+  "keybindings_homeLabel": "Gå hjem",
+  "keybindings_homeDesc": "Gå tilbage til startskærmen",
+  "keybindings_logsLabel": "Vis logfiler",
+  "keybindings_logsDesc": "Åbn logviseren",
+  "keybindings_refreshLabel": "Opdater app",
+  "keybindings_refreshDesc": "Opdater den aktuelle apps iframe",
+  "keybindings_fullscreenLabel": "Skift fuldskærm",
+  "keybindings_fullscreenDesc": "Skjul/vis navigation for fuldskærmstilstand",
+  "keybindings_nextAppLabel": "Næste app",
+  "keybindings_nextAppDesc": "Skift til næste app på listen",
+  "keybindings_prevAppLabel": "Forrige app",
+  "keybindings_prevAppDesc": "Skift til forrige app på listen",
+  "keybindings_appLabel": "App {number}",
+  "keybindings_appDesc": "Skift til app #{number}"
 }

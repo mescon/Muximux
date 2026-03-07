@@ -23,7 +23,6 @@
   "common_selectApp": "Избери приложение от навигацията",
   "common_continue": "Продължи",
   "common_finish": "Завърши",
-
   "toast_connectionRestored": "Връзката е възстановена",
   "toast_connectionLost": "Връзката е загубена - свързване отново...",
   "toast_settingsSaved": "Настройките са запазени успешно",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Превключено към тъмна тема",
   "toast_switchedToLight": "Превключено към светла тема",
   "toast_usingSystemTheme": "Използва се системна тема",
-
   "toast_failedSaveConfig": "Запазването на конфигурацията е неуспешно",
   "toast_failedSaveTheme": "Запазването на темата е неуспешно",
   "toast_failedDeleteTheme": "Изтриването на темата е неуспешно",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Изтриването е неуспешно",
   "toast_securitySetupFailed": "Настройката на сигурността е неуспешна",
   "toast_iconSourcesPartialFail": "Някои източници на икони не успяха да се заредят: {sources}",
-
   "error_somethingWentWrong": "Нещо се обърка",
   "error_failedLoadDashboard": "Зареждането на таблото е неуспешно",
   "error_failedLoadConfig": "Зареждането на конфигурацията е неуспешно",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Свързването е неуспешно след множество опити",
   "error_failedFetchHealth": "Получаването на данни за здравето е неуспешно",
   "error_deleteFailed": "Изтриването е неуспешно",
-
   "nav_exitFullscreen": "Излез от цял екран (F)",
-
   "settings_title": "Настройки",
   "settings_general": "Общи",
   "settings_theme": "Тема",
@@ -113,7 +108,6 @@
   "settings_icon": "Икона",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "Приложение",
-
   "general_language": "Език",
   "general_languageAfterSave": "Изберете езика за показване на интерфейса. Промените влизат в сила след запазване.",
   "general_dashboardTitle": "Заглавие на таблото",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Експортирай конфигурация",
   "general_importConfig": "Импортирай конфигурация",
   "general_configHint": "Експортирай текущата конфигурация или импортирай предишно запазена.",
-
   "login_subtitle": "Влезте в таблото си",
   "login_externalAuth": "Външно удостоверяване",
   "login_externalAuthDesc": "Тази инстанция е защитена от външен доставчик за удостоверяване. Достъпете я чрез URL адреса, конфигуриран в reverse proxy, за да влезете.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Запомни ме",
   "login_signingIn": "Влизане...",
   "login_signIn": "Влез",
-
   "common_current": "Текущ",
   "common_username": "Потребителско име",
   "common_password": "Парола",
@@ -204,15 +196,12 @@
   "common_default": "По подразбиране",
   "common_disabled": "Изключено",
   "common_forwardAuthEnabled": "Forward auth е активиран. Моля, достъпете приложението чрез URL адреса на reverse proxy, за да продължите.",
-
   "error_usernameRequired": "Потребителското име е задължително",
   "error_passwordTooShort": "Паролата трябва да е поне 8 символа",
   "error_passwordTooShortCount": "Паролата трябва да е поне 8 символа ({count}/8)",
   "error_passwordsMismatch": "Паролите не съвпадат",
-
   "toast_passwordChanged": "Паролата е променена успешно",
   "toast_authMethodChanged": "Методът за удостоверяване е променен на {method}",
-
   "security_authMethod": "Метод за удостоверяване",
   "security_authMethodDesc": "Изберете как потребителите се удостоверяват в Muximux",
   "security_passwordAuth": "Удостоверяване с парола",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Изтрий потребител",
   "security_cantDeleteSelf": "Не можеш да изтриеш себе си",
   "security_minEightCharsShort": "Мин. 8 символа",
-
   "theme_appearance": "Външен вид",
   "theme_appearanceDesc": "Изберете тъмна, светла тема или следвайте системата",
   "theme_dark": "Тъмна",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Warning",
   "theme_statusError": "Error",
   "theme_statusInfo": "Info",
-
   "apps_heading": "Приложения и групи",
   "apps_addGroup": "Добави група",
   "apps_addApp": "Добави приложение",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Редактирай група",
   "apps_deleteGroup": "Изтрий група",
   "apps_noAppsConfigured": "Няма конфигурирани приложения или групи. Кликнете на \"Добави приложение\", за да започнете.",
-
   "about_loadingSystemInfo": "Зареждане на системна информация...",
   "about_updateAvailable": "Налична е актуализация",
   "about_upToDate": "Актуални сте",
@@ -337,9 +323,7 @@
   "about_issues": "Проблеми",
   "about_releases": "Издания",
   "about_wiki": "Wiki",
-
   "common_or": "или",
-
   "appForm_name": "Име",
   "appForm_helpName": "Показва се в лентата за навигация и заглавието на страницата. Използва се и като уникален идентификатор — преименуването на приложение създава нов proxy маршрут.",
   "appForm_placeholderName": "Моето приложение",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Отвори в изскачащ прозорец",
   "appForm_redirect": "Пренасочване",
   "appForm_redirectDesc": "Навигирай до URL адреса на приложението",
-
   "command_searchPlaceholder": "Търсене на приложения и команди...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Навигация",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Използвай системна тема",
   "command_switchToApp": "Превключи към приложение",
   "command_commandPalette": "Палитра от команди",
-
   "nav_closeNavMenu": "Затвори менюто за навигация",
   "nav_openNavMenu": "Отвори менюто за навигация",
   "nav_closeMenu": "Затвори менюто",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Преоразмери страничната лента",
   "nav_closeNavigation": "Затвори навигацията",
   "nav_openNavigation": "Отвори навигацията",
-
   "keybindings_hint": "Кликнете на клавишна комбинация, за да я промените. Натиснете Escape за отказ.",
   "keybindings_resetAllConfirm": "Нулиране на всички клавишни комбинации?",
   "keybindings_yesReset": "Да, нулирай",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Открит е конфликт",
   "keybindings_conflictDesc": "Тази комбинация вече се използва от:",
   "keybindings_useAnyway": "Използвай въпреки това",
-
   "shortcuts_title": "Клавишни комбинации",
   "shortcuts_closeAriaLabel": "Затвори",
   "shortcuts_categoryNavigation": "Навигация",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Настройки → Клавишни комбинации",
   "shortcuts_footerPress": "Натисни",
   "shortcuts_footerToClose": "за затваряне",
-
   "onboarding_stepWelcome": "Добре дошли",
   "onboarding_stepSecurity": "Сигурност",
   "onboarding_stepApps": "Приложения",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Въведете паролата отново",
   "onboarding_proxyTooltip": "Насочва трафика през Muximux, така че приложението не трябва да е директно достъпно от браузъра ви. Активирайте, ако приложението е на вътрешна мрежа или друг хост, до който браузърът ви не може да достигне директно.",
   "onboarding_addAnotherInstance": "Добави друг екземпляр на {appName}",
-
+  "onboarding_selectLanguage": "Изберете вашия език",
   "splash_selectApp": "Изберете приложение, за да започнете",
   "splash_quickAccess": "Бърз достъп",
   "splash_allShortcuts": "Всички комбинации",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Все още няма приложения",
   "splash_noAppsDesc": "Добавете първото си приложение, за да започнете с таблото.",
   "splash_addApplication": "Добави приложение",
-
   "logs_title": "Журнали",
   "logs_backToDashboard": "Обратно към таблото",
   "logs_resume": "Продължи",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "показани {count} филтрирани",
   "logs_paused": "ПАУЗА",
   "logs_scrollToBottom": "Превърти надолу",
-
   "appFrame_refreshing": "Обновяване...",
   "appFrame_releaseToRefresh": "Пуснете за обновяване",
   "appFrame_pullToRefresh": "Плъзнете за обновяване",
-
-  "iconBrowser_dashboardIcons": "Икони на таблото",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Персонализирани",
   "iconBrowser_searchPlaceholder": "Търси икони...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} икони",
   "iconBrowser_iconCountFiltered": "{filtered} от {total} икони",
   "iconBrowser_selectIcon": "Избери икона",
-
   "popularApps_groupMedia": "Медия",
   "popularApps_groupDownloads": "Изтегляния",
   "popularApps_groupSystem": "Система",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Агрегатор на RSS емисии",
   "popularApps_linkdingDesc": "Мениджър на отметки",
   "popularApps_ollamaDesc": "Локален LLM сървър за извод",
-  "popularApps_openWebuiDesc": "Чат интерфейс за локални LLM-ове"
+  "popularApps_openWebuiDesc": "Чат интерфейс за локални LLM-ове",
+  "keybindings_searchLabel": "Палитра с команди",
+  "keybindings_searchDesc": "Отваряне на палитрата с команди",
+  "keybindings_settingsLabel": "Отвори настройки",
+  "keybindings_settingsDesc": "Отваряне на панела с настройки",
+  "keybindings_shortcutsLabel": "Покажи клавишни комбинации",
+  "keybindings_shortcutsDesc": "Покажи помощ за клавишни комбинации",
+  "keybindings_homeLabel": "Начало",
+  "keybindings_homeDesc": "Обратно към началния екран",
+  "keybindings_logsLabel": "Виж логовете",
+  "keybindings_logsDesc": "Отвори преглед на логовете",
+  "keybindings_refreshLabel": "Опресни приложението",
+  "keybindings_refreshDesc": "Опресни iframe на текущото приложение",
+  "keybindings_fullscreenLabel": "Превключи цял екран",
+  "keybindings_fullscreenDesc": "Скрий/покажи навигацията за цял екран",
+  "keybindings_nextAppLabel": "Следващо приложение",
+  "keybindings_nextAppDesc": "Превключи към следващото приложение",
+  "keybindings_prevAppLabel": "Предишно приложение",
+  "keybindings_prevAppDesc": "Превключи към предишното приложение",
+  "keybindings_appLabel": "Приложение {number}",
+  "keybindings_appDesc": "Превключи към приложение #{number}"
 }

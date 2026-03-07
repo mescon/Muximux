@@ -23,7 +23,6 @@
   "common_selectApp": "Оберіть застосунок з навігації",
   "common_continue": "Продовжити",
   "common_finish": "Завершити",
-
   "toast_connectionRestored": "З'єднання відновлено",
   "toast_connectionLost": "З'єднання втрачено – повторне підключення...",
   "toast_settingsSaved": "Налаштування успішно збережено",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Переключено на темну тему",
   "toast_switchedToLight": "Переключено на світлу тему",
   "toast_usingSystemTheme": "Використовується системна тема",
-
   "toast_failedSaveConfig": "Не вдалося зберегти конфігурацію",
   "toast_failedSaveTheme": "Не вдалося зберегти тему",
   "toast_failedDeleteTheme": "Не вдалося видалити тему",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Видалення не вдалося",
   "toast_securitySetupFailed": "Налаштування безпеки не вдалося",
   "toast_iconSourcesPartialFail": "Деякі джерела іконок не вдалося завантажити: {sources}",
-
   "error_somethingWentWrong": "Щось пішло не так",
   "error_failedLoadDashboard": "Не вдалося завантажити панель керування",
   "error_failedLoadConfig": "Не вдалося завантажити конфігурацію",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Не вдалося підключитися після кількох спроб",
   "error_failedFetchHealth": "Не вдалося отримати дані про стан",
   "error_deleteFailed": "Видалення не вдалося",
-
   "nav_exitFullscreen": "Вийти з повноекранного режиму (F)",
-
   "settings_title": "Налаштування",
   "settings_general": "Загальні",
   "settings_theme": "Тема",
@@ -113,7 +108,6 @@
   "settings_icon": "Іконка",
   "settings_groupNamePlaceholder": "Медіа",
   "settings_appFallbackName": "Застосунок",
-
   "general_language": "Мова",
   "general_languageAfterSave": "Оберіть мову відображення інтерфейсу. Зміни набувають чинності після збереження.",
   "general_dashboardTitle": "Заголовок панелі керування",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Експорт конфігурації",
   "general_importConfig": "Імпорт конфігурації",
   "general_configHint": "Експортуйте поточну конфігурацію або імпортуйте раніше збережену.",
-
   "login_subtitle": "Увійдіть до панелі керування",
   "login_externalAuth": "Зовнішня автентифікація",
   "login_externalAuthDesc": "Цей екземпляр захищено зовнішнім провайдером автентифікації. Отримайте доступ через URL, налаштований у вашому reverse proxy.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Запам'ятати мене",
   "login_signingIn": "Вхід...",
   "login_signIn": "Увійти",
-
   "common_current": "Поточний",
   "common_username": "Ім'я користувача",
   "common_password": "Пароль",
@@ -204,15 +196,12 @@
   "common_default": "Стандартний",
   "common_disabled": "Вимкнено",
   "common_forwardAuthEnabled": "Forward auth увімкнено. Отримайте доступ до цього застосунку через URL вашого reverse proxy, щоб продовжити.",
-
   "error_usernameRequired": "Ім'я користувача обов'язкове",
   "error_passwordTooShort": "Пароль повинен містити щонайменше 8 символів",
   "error_passwordTooShortCount": "Пароль повинен містити щонайменше 8 символів ({count}/8)",
   "error_passwordsMismatch": "Паролі не збігаються",
-
   "toast_passwordChanged": "Пароль успішно змінено",
   "toast_authMethodChanged": "Метод автентифікації змінено на {method}",
-
   "security_authMethod": "Метод автентифікації",
   "security_authMethodDesc": "Оберіть, як користувачі автентифікуватимуться в Muximux",
   "security_passwordAuth": "Автентифікація паролем",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Видалити користувача",
   "security_cantDeleteSelf": "Не можна видалити себе",
   "security_minEightCharsShort": "Мін. 8 символів",
-
   "theme_appearance": "Зовнішній вигляд",
   "theme_appearanceDesc": "Оберіть темний, світлий або слідувати за системою",
   "theme_dark": "Темна",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Попередження",
   "theme_statusError": "Помилка",
   "theme_statusInfo": "Інформація",
-
   "apps_heading": "Застосунки та групи",
   "apps_addGroup": "Додати групу",
   "apps_addApp": "Додати застосунок",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Редагувати групу",
   "apps_deleteGroup": "Видалити групу",
   "apps_noAppsConfigured": "Застосунки або групи не налаштовані. Натисніть \"Додати застосунок\", щоб почати.",
-
   "about_loadingSystemInfo": "Завантаження інформації про систему...",
   "about_updateAvailable": "Доступне оновлення",
   "about_upToDate": "У вас найновіша версія",
@@ -337,9 +323,7 @@
   "about_issues": "Проблеми",
   "about_releases": "Випуски",
   "about_wiki": "Wiki",
-
   "common_or": "або",
-
   "appForm_name": "Назва",
   "appForm_helpName": "Відображається на панелі навігації та в заголовку сторінки. Також використовується як унікальний ідентифікатор — перейменування застосунку створює новий маршрут proxy.",
   "appForm_placeholderName": "Мій застосунок",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Відкрити у спливаючому вікні",
   "appForm_redirect": "Перенаправлення",
   "appForm_redirectDesc": "Перейти на URL застосунку",
-
   "command_searchPlaceholder": "Пошук застосунків та команд...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Навігація",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Використовувати системну тему",
   "command_switchToApp": "Перемкнути на застосунок",
   "command_commandPalette": "Палітра команд",
-
   "nav_closeNavMenu": "Закрити меню навігації",
   "nav_openNavMenu": "Відкрити меню навігації",
   "nav_closeMenu": "Закрити меню",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Змінити розмір бічної панелі",
   "nav_closeNavigation": "Закрити навігацію",
   "nav_openNavigation": "Відкрити навігацію",
-
   "keybindings_hint": "Натисніть на комбінацію клавіш, щоб змінити. Натисніть Escape для скасування.",
   "keybindings_resetAllConfirm": "Скинути всі комбінації клавіш?",
   "keybindings_yesReset": "Так, скинути",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Виявлено конфлікт",
   "keybindings_conflictDesc": "Це скорочення вже використовується:",
   "keybindings_useAnyway": "Використати все одно",
-
   "shortcuts_title": "Клавіатурні скорочення",
   "shortcuts_closeAriaLabel": "Закрити",
   "shortcuts_categoryNavigation": "Навігація",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Налаштування → Комбінації клавіш",
   "shortcuts_footerPress": "Натисніть",
   "shortcuts_footerToClose": "щоб закрити",
-
   "onboarding_stepWelcome": "Вітання",
   "onboarding_stepSecurity": "Безпека",
   "onboarding_stepApps": "Застосунки",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Введіть пароль повторно",
   "onboarding_proxyTooltip": "Маршрутизує трафік через Muximux, щоб застосунок не потребував прямого доступу з вашого браузера. Увімкніть, якщо застосунок знаходиться у внутрішній мережі або на іншому хості, до якого ваш браузер не може звернутися напряму.",
   "onboarding_addAnotherInstance": "Додати ще один {appName}",
-
+  "onboarding_selectLanguage": "Оберіть вашу мову",
   "splash_selectApp": "Оберіть застосунок, щоб почати",
   "splash_quickAccess": "Швидкий доступ",
   "splash_allShortcuts": "Усі скорочення",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Ще немає застосунків",
   "splash_noAppsDesc": "Додайте перший застосунок, щоб почати роботу з панеллю керування.",
   "splash_addApplication": "Додати застосунок",
-
   "logs_title": "Журнали",
   "logs_backToDashboard": "Назад до панелі керування",
   "logs_resume": "Відновити",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "показано {count} відфільтрованих",
   "logs_paused": "ПРИЗУПИНЕНО",
   "logs_scrollToBottom": "Прокрутити вниз",
-
   "appFrame_refreshing": "Оновлення...",
   "appFrame_releaseToRefresh": "Відпустіть для оновлення",
   "appFrame_pullToRefresh": "Потягніть для оновлення",
-
-  "iconBrowser_dashboardIcons": "Іконки панелі керування",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Власні",
   "iconBrowser_searchPlaceholder": "Пошук іконок...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} іконок",
   "iconBrowser_iconCountFiltered": "{filtered} з {total} іконок",
   "iconBrowser_selectIcon": "Обрати іконку",
-
   "popularApps_groupMedia": "Медіа",
   "popularApps_groupDownloads": "Завантаження",
   "popularApps_groupSystem": "Система",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Агрегатор RSS каналів",
   "popularApps_linkdingDesc": "Менеджер закладок",
   "popularApps_ollamaDesc": "Локальний сервер виводу LLM",
-  "popularApps_openWebuiDesc": "Чат-інтерфейс для локальних LLM"
+  "popularApps_openWebuiDesc": "Чат-інтерфейс для локальних LLM",
+  "keybindings_searchLabel": "Палітра команд",
+  "keybindings_searchDesc": "Відкрити палітру команд",
+  "keybindings_settingsLabel": "Відкрити налаштування",
+  "keybindings_settingsDesc": "Відкрити панель налаштувань",
+  "keybindings_shortcutsLabel": "Показати гарячі клавіші",
+  "keybindings_shortcutsDesc": "Показати довідку гарячих клавіш",
+  "keybindings_homeLabel": "На головну",
+  "keybindings_homeDesc": "Повернутися на початковий екран",
+  "keybindings_logsLabel": "Переглянути журнали",
+  "keybindings_logsDesc": "Відкрити переглядач журналів",
+  "keybindings_refreshLabel": "Оновити додаток",
+  "keybindings_refreshDesc": "Оновити iframe поточного додатка",
+  "keybindings_fullscreenLabel": "Перемкнути повноекранний режим",
+  "keybindings_fullscreenDesc": "Сховати/показати навігацію для повноекранного режиму",
+  "keybindings_nextAppLabel": "Наступний додаток",
+  "keybindings_nextAppDesc": "Перейти до наступного додатка",
+  "keybindings_prevAppLabel": "Попередній додаток",
+  "keybindings_prevAppDesc": "Перейти до попереднього додатка",
+  "keybindings_appLabel": "Додаток {number}",
+  "keybindings_appDesc": "Перейти до додатка #{number}"
 }

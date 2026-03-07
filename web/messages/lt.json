@@ -23,7 +23,6 @@
   "common_selectApp": "Pasirinkite programą iš navigacijos",
   "common_continue": "Tęsti",
   "common_finish": "Baigti",
-
   "toast_connectionRestored": "Ryšys atkurtas",
   "toast_connectionLost": "Ryšys prarastas – jungiamasi iš naujo...",
   "toast_settingsSaved": "Nustatymai sėkmingai išsaugoti",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Perjungta į tamsią temą",
   "toast_switchedToLight": "Perjungta į šviesią temą",
   "toast_usingSystemTheme": "Naudojama sistemos tema",
-
   "toast_failedSaveConfig": "Nepavyko išsaugoti konfigūracijos",
   "toast_failedSaveTheme": "Nepavyko išsaugoti temos",
   "toast_failedDeleteTheme": "Nepavyko ištrinti temos",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Ištrynimas nepavyko",
   "toast_securitySetupFailed": "Saugumo sąranka nepavyko",
   "toast_iconSourcesPartialFail": "Kai kurių piktogramų šaltinių nepavyko įkelti: {sources}",
-
   "error_somethingWentWrong": "Kažkas nutiko ne taip",
   "error_failedLoadDashboard": "Nepavyko įkelti valdymo skydo",
   "error_failedLoadConfig": "Nepavyko įkelti konfigūracijos",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Nepavyko prisijungti po kelių bandymų",
   "error_failedFetchHealth": "Nepavyko gauti sveikatos duomenų",
   "error_deleteFailed": "Ištrynimas nepavyko",
-
   "nav_exitFullscreen": "Išeiti iš viso ekrano (F)",
-
   "settings_title": "Nustatymai",
   "settings_general": "Bendrieji",
   "settings_theme": "Tema",
@@ -113,7 +108,6 @@
   "settings_icon": "Piktograma",
   "settings_groupNamePlaceholder": "Medija",
   "settings_appFallbackName": "Programa",
-
   "general_language": "Kalba",
   "general_languageAfterSave": "Pasirinkite sąsajos rodymo kalbą. Pakeitimai įsigalioja po išsaugojimo.",
   "general_dashboardTitle": "Valdymo skydo pavadinimas",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Eksportuoti konfigūraciją",
   "general_importConfig": "Importuoti konfigūraciją",
   "general_configHint": "Eksportuokite esamą konfigūraciją arba importuokite anksčiau išsaugotą.",
-
   "login_subtitle": "Prisijunkite prie savo valdymo skydo",
   "login_externalAuth": "Išorinis autentifikavimas",
   "login_externalAuthDesc": "Šis egzempliorius yra apsaugotas išoriniu autentifikavimo teikėju. Pasiekite jį per URL, sukonfigūruotą jūsų reverse proxy.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Prisiminti mane",
   "login_signingIn": "Jungiamasi...",
   "login_signIn": "Prisijungti",
-
   "common_current": "Dabartinis",
   "common_username": "Naudotojo vardas",
   "common_password": "Slaptažodis",
@@ -204,15 +196,12 @@
   "common_default": "Numatytasis",
   "common_disabled": "Išjungta",
   "common_forwardAuthEnabled": "Forward auth įjungtas. Pasiekite šią programą per savo reverse proxy URL, kad tęstumėte.",
-
   "error_usernameRequired": "Naudotojo vardas yra privalomas",
   "error_passwordTooShort": "Slaptažodis turi būti bent 8 simbolių",
   "error_passwordTooShortCount": "Slaptažodis turi būti bent 8 simbolių ({count}/8)",
   "error_passwordsMismatch": "Slaptažodžiai nesutampa",
-
   "toast_passwordChanged": "Slaptažodis sėkmingai pakeistas",
   "toast_authMethodChanged": "Autentifikavimo metodas pakeistas į {method}",
-
   "security_authMethod": "Autentifikavimo metodas",
   "security_authMethodDesc": "Pasirinkite, kaip naudotojai autentifikuosis Muximux",
   "security_passwordAuth": "Slaptažodžio autentifikavimas",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Ištrinti naudotoją",
   "security_cantDeleteSelf": "Negalima ištrinti savęs",
   "security_minEightCharsShort": "Min. 8 simboliai",
-
   "theme_appearance": "Išvaizda",
   "theme_appearanceDesc": "Pasirinkite tamsią, šviesią arba sekti sistemą",
   "theme_dark": "Tamsi",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Įspėjimas",
   "theme_statusError": "Klaida",
   "theme_statusInfo": "Informacija",
-
   "apps_heading": "Programos ir grupės",
   "apps_addGroup": "Pridėti grupę",
   "apps_addApp": "Pridėti programą",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Redaguoti grupę",
   "apps_deleteGroup": "Ištrinti grupę",
   "apps_noAppsConfigured": "Nesukonfigūruota jokių programų ar grupių. Paspauskite \"Pridėti programą\", kad pradėtumėte.",
-
   "about_loadingSystemInfo": "Kraunama sistemos informacija...",
   "about_updateAvailable": "Pasiekiamas atnaujinimas",
   "about_upToDate": "Jūsų versija naujausia",
@@ -337,9 +323,7 @@
   "about_issues": "Problemos",
   "about_releases": "Leidimai",
   "about_wiki": "Wiki",
-
   "common_or": "arba",
-
   "appForm_name": "Pavadinimas",
   "appForm_helpName": "Rodomas navigacijos juostoje ir puslapio pavadinime. Taip pat naudojamas kaip unikalus identifikatorius — programos pervadinimas sukuria naują proxy maršrutą.",
   "appForm_placeholderName": "Mano programa",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Atidaryti iššokančiajame lange",
   "appForm_redirect": "Peradresavimas",
   "appForm_redirectDesc": "Pereiti į programos URL",
-
   "command_searchPlaceholder": "Ieškoti programų ir komandų...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Naršyti",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Naudoti sistemos temą",
   "command_switchToApp": "Perjungti į programą",
   "command_commandPalette": "Komandų paletė",
-
   "nav_closeNavMenu": "Uždaryti navigacijos meniu",
   "nav_openNavMenu": "Atidaryti navigacijos meniu",
   "nav_closeMenu": "Uždaryti meniu",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Keisti šoninės juostos dydį",
   "nav_closeNavigation": "Uždaryti navigaciją",
   "nav_openNavigation": "Atidaryti navigaciją",
-
   "keybindings_hint": "Spustelėkite klavišų kombinaciją, kad ją pakeistumėte. Paspauskite Escape, kad atšauktumėte.",
   "keybindings_resetAllConfirm": "Atstatyti visas klavišų kombinacijas?",
   "keybindings_yesReset": "Taip, atstatyti",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Aptiktas konfliktas",
   "keybindings_conflictDesc": "Ši kombinacija jau naudojama:",
   "keybindings_useAnyway": "Naudoti vis tiek",
-
   "shortcuts_title": "Klaviatūros spartieji klavišai",
   "shortcuts_closeAriaLabel": "Uždaryti",
   "shortcuts_categoryNavigation": "Navigacija",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Nustatymai → Klavišų kombinacijos",
   "shortcuts_footerPress": "Paspauskite",
   "shortcuts_footerToClose": "kad uždarytumėte",
-
   "onboarding_stepWelcome": "Sveiki",
   "onboarding_stepSecurity": "Saugumas",
   "onboarding_stepApps": "Programos",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Pakartokite slaptažodį",
   "onboarding_proxyTooltip": "Nukreipia srautą per Muximux, kad programa neturėtų būti tiesiogiai pasiekiama iš jūsų naršyklės. Įjunkite, jei programa yra vidiniame tinkle arba kitame serveryje, kurio jūsų naršyklė negali tiesiogiai pasiekti.",
   "onboarding_addAnotherInstance": "Pridėti dar vieną {appName}",
-
+  "onboarding_selectLanguage": "Pasirinkite savo kalbą",
   "splash_selectApp": "Pasirinkite programą, kad pradėtumėte",
   "splash_quickAccess": "Greita prieiga",
   "splash_allShortcuts": "Visi spartieji klavišai",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Dar nėra programų",
   "splash_noAppsDesc": "Pridėkite pirmąją programą, kad pradėtumėte naudoti savo valdymo skydą.",
   "splash_addApplication": "Pridėti programą",
-
   "logs_title": "Žurnalai",
   "logs_backToDashboard": "Grįžti į valdymo skydą",
   "logs_resume": "Tęsti",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "rodoma {count} filtruotų",
   "logs_paused": "PRISTABDYTA",
   "logs_scrollToBottom": "Slinkti į apačią",
-
   "appFrame_refreshing": "Atnaujinama...",
   "appFrame_releaseToRefresh": "Atleiskite, kad atnaujintumėte",
   "appFrame_pullToRefresh": "Patraukite, kad atnaujintumėte",
-
-  "iconBrowser_dashboardIcons": "Valdymo skydo piktogramos",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Pasirinktinės",
   "iconBrowser_searchPlaceholder": "Ieškoti piktogramų...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} piktogramų",
   "iconBrowser_iconCountFiltered": "{filtered} iš {total} piktogramų",
   "iconBrowser_selectIcon": "Pasirinkti piktogramą",
-
   "popularApps_groupMedia": "Medija",
   "popularApps_groupDownloads": "Atsisiuntimai",
   "popularApps_groupSystem": "Sistema",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS srautų kaupiklis",
   "popularApps_linkdingDesc": "Žymių tvarkyklė",
   "popularApps_ollamaDesc": "Vietinis LLM išvadų serveris",
-  "popularApps_openWebuiDesc": "Pokalbių sąsaja vietiniams LLM"
+  "popularApps_openWebuiDesc": "Pokalbių sąsaja vietiniams LLM",
+  "keybindings_searchLabel": "Komandų paletė",
+  "keybindings_searchDesc": "Atidaryti komandų paletę",
+  "keybindings_settingsLabel": "Atidaryti nustatymus",
+  "keybindings_settingsDesc": "Atidaryti nustatymų skydelį",
+  "keybindings_shortcutsLabel": "Rodyti sparčiuosius klavišus",
+  "keybindings_shortcutsDesc": "Rodyti sparčiųjų klavišų pagalbą",
+  "keybindings_homeLabel": "Pradžia",
+  "keybindings_homeDesc": "Grįžti į pradžios ekraną",
+  "keybindings_logsLabel": "Peržiūrėti žurnalus",
+  "keybindings_logsDesc": "Atidaryti žurnalų peržiūrą",
+  "keybindings_refreshLabel": "Atnaujinti programą",
+  "keybindings_refreshDesc": "Atnaujinti programos iframe",
+  "keybindings_fullscreenLabel": "Perjungti visą ekraną",
+  "keybindings_fullscreenDesc": "Slėpti/rodyti navigaciją viso ekrano režime",
+  "keybindings_nextAppLabel": "Kita programa",
+  "keybindings_nextAppDesc": "Perjungti į kitą programą",
+  "keybindings_prevAppLabel": "Ankstesnė programa",
+  "keybindings_prevAppDesc": "Perjungti į ankstesnę programą",
+  "keybindings_appLabel": "Programa {number}",
+  "keybindings_appDesc": "Perjungti į programą #{number}"
 }

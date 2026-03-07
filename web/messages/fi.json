@@ -23,7 +23,6 @@
   "common_selectApp": "Valitse sovellus navigaatiosta",
   "common_continue": "Jatka",
   "common_finish": "Viimeistele",
-
   "toast_connectionRestored": "Yhteys palautettu",
   "toast_connectionLost": "Yhteys katkennut – yhdistetään uudelleen...",
   "toast_settingsSaved": "Asetukset tallennettu",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Vaihdettu tummaan teemaan",
   "toast_switchedToLight": "Vaihdettu vaaleaan teemaan",
   "toast_usingSystemTheme": "Käytetään järjestelmän teemaa",
-
   "toast_failedSaveConfig": "Konfiguraation tallennus epäonnistui",
   "toast_failedSaveTheme": "Teeman tallennus epäonnistui",
   "toast_failedDeleteTheme": "Teeman poisto epäonnistui",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Poisto epäonnistui",
   "toast_securitySetupFailed": "Tietoturva-asennus epäonnistui",
   "toast_iconSourcesPartialFail": "Joidenkin kuvakelähteiden lataus epäonnistui: {sources}",
-
   "error_somethingWentWrong": "Jokin meni pieleen",
   "error_failedLoadDashboard": "Hallintapaneelin lataus epäonnistui",
   "error_failedLoadConfig": "Konfiguraation lataus epäonnistui",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Yhdistäminen epäonnistui useiden yritysten jälkeen",
   "error_failedFetchHealth": "Terveystietojen haku epäonnistui",
   "error_deleteFailed": "Poisto epäonnistui",
-
   "nav_exitFullscreen": "Poistu koko näytöstä (F)",
-
   "settings_title": "Asetukset",
   "settings_general": "Yleiset",
   "settings_theme": "Teema",
@@ -113,7 +108,6 @@
   "settings_icon": "Kuvake",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "Sovellus",
-
   "general_language": "Kieli",
   "general_languageAfterSave": "Valitse käyttöliittymän näyttökieli. Muutokset tulevat voimaan tallennuksen jälkeen.",
   "general_dashboardTitle": "Paneelin otsikko",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Vie konfiguraatio",
   "general_importConfig": "Tuo konfiguraatio",
   "general_configHint": "Vie nykyinen konfiguraatiosi tai tuo aiemmin tallennettu.",
-
   "login_subtitle": "Kirjaudu hallintapaneeliin",
   "login_externalAuth": "Ulkoinen todennus",
   "login_externalAuthDesc": "Tämä instanssi on suojattu ulkoisella todennuspalveluntarjoajalla. Kirjaudu sisään käyttämällä käänteisproxyssasi määritettyä URL:ää.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Muista minut",
   "login_signingIn": "Kirjaudutaan...",
   "login_signIn": "Kirjaudu sisään",
-
   "common_current": "Nykyinen",
   "common_username": "Käyttäjänimi",
   "common_password": "Salasana",
@@ -204,15 +196,12 @@
   "common_default": "Oletus",
   "common_disabled": "Pois käytöstä",
   "common_forwardAuthEnabled": "Eteenpäin välitetty todennus käytössä. Siirry tähän sovellukseen käänteisproxy-URL:si kautta jatkaaksesi.",
-
   "error_usernameRequired": "Käyttäjänimi vaaditaan",
   "error_passwordTooShort": "Salasanan on oltava vähintään 8 merkkiä",
   "error_passwordTooShortCount": "Salasanan on oltava vähintään 8 merkkiä ({count}/8)",
   "error_passwordsMismatch": "Salasanat eivät täsmää",
-
   "toast_passwordChanged": "Salasana vaihdettu",
   "toast_authMethodChanged": "Todennusmenetelmä vaihdettu: {method}",
-
   "security_authMethod": "Todennusmenetelmä",
   "security_authMethodDesc": "Valitse miten käyttäjät todentautuvat Muximuxissa",
   "security_passwordAuth": "Salasanatodennus",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Poista käyttäjä",
   "security_cantDeleteSelf": "Et voi poistaa itseäsi",
   "security_minEightCharsShort": "Väh. 8 merkkiä",
-
   "theme_appearance": "Ulkoasu",
   "theme_appearanceDesc": "Valitse tumma, vaalea tai seuraa järjestelmää",
   "theme_dark": "Tumma",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Varoitus",
   "theme_statusError": "Virhe",
   "theme_statusInfo": "Tiedot",
-
   "apps_heading": "Sovellukset ja ryhmät",
   "apps_addGroup": "Lisää ryhmä",
   "apps_addApp": "Lisää sovellus",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Muokkaa ryhmää",
   "apps_deleteGroup": "Poista ryhmä",
   "apps_noAppsConfigured": "Ei sovelluksia tai ryhmiä määritetty. Napsauta \"Lisää sovellus\" aloittaaksesi.",
-
   "about_loadingSystemInfo": "Ladataan järjestelmätietoja...",
   "about_updateAvailable": "Päivitys saatavilla",
   "about_upToDate": "Sinulla on uusin versio",
@@ -337,9 +323,7 @@
   "about_issues": "Ongelmat",
   "about_releases": "Julkaisut",
   "about_wiki": "Wiki",
-
   "common_or": "tai",
-
   "appForm_name": "Nimi",
   "appForm_helpName": "Näytetään navigaatiopalkissa ja sivun otsikossa. Käytetään myös yksilöivänä tunnisteena — sovelluksen uudelleennimeäminen luo uuden proxy-reitin.",
   "appForm_placeholderName": "Oma sovellus",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Avaa ponnahdusikkunassa",
   "appForm_redirect": "Uudelleenohjaa",
   "appForm_redirectDesc": "Siirry pois sovelluksen URL:ään",
-
   "command_searchPlaceholder": "Hae sovelluksia ja komentoja...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigoi",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Käytä järjestelmän teemaa",
   "command_switchToApp": "Vaihda sovellukseen",
   "command_commandPalette": "Komentovalikko",
-
   "nav_closeNavMenu": "Sulje navigaatiovalikko",
   "nav_openNavMenu": "Avaa navigaatiovalikko",
   "nav_closeMenu": "Sulje valikko",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Muuta sivupalkin kokoa",
   "nav_closeNavigation": "Sulje navigaatio",
   "nav_openNavigation": "Avaa navigaatio",
-
   "keybindings_hint": "Napsauta näppäinsidosta muuttaaksesi sitä. Paina Escape peruuttaaksesi.",
   "keybindings_resetAllConfirm": "Palauta kaikki näppäinsidokset?",
   "keybindings_yesReset": "Kyllä, palauta",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Ristiriita havaittu",
   "keybindings_conflictDesc": "Tämä pikanäppäin on jo käytössä:",
   "keybindings_useAnyway": "Käytä silti",
-
   "shortcuts_title": "Pikanäppäimet",
   "shortcuts_closeAriaLabel": "Sulje",
   "shortcuts_categoryNavigation": "Navigaatio",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Asetukset → Näppäinsidokset",
   "shortcuts_footerPress": "Paina",
   "shortcuts_footerToClose": "sulkeaksesi",
-
   "onboarding_stepWelcome": "Tervetuloa",
   "onboarding_stepSecurity": "Tietoturva",
   "onboarding_stepApps": "Sovellukset",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Syötä salasana uudelleen",
   "onboarding_proxyTooltip": "Reitittää liikenteen Muximuxin kautta, joten sovelluksen ei tarvitse olla suoraan tavoitettavissa selaimestasi. Ota käyttöön, jos sovellus on sisäisessä verkossa tai eri palvelimella, johon selaimesi ei pääse suoraan.",
   "onboarding_addAnotherInstance": "Lisää toinen {appName}",
-
+  "onboarding_selectLanguage": "Valitse kieli",
   "splash_selectApp": "Valitse sovellus aloittaaksesi",
   "splash_quickAccess": "Pikapääsy",
   "splash_allShortcuts": "Kaikki pikanäppäimet",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Ei sovelluksia vielä",
   "splash_noAppsDesc": "Lisää ensimmäinen sovelluksesi aloittaaksesi hallintapaneelisi käytön.",
   "splash_addApplication": "Lisää sovellus",
-
   "logs_title": "Lokit",
   "logs_backToDashboard": "Takaisin paneeliin",
   "logs_resume": "Jatka",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "näytetään {count} suodatettua",
   "logs_paused": "TAUOLLA",
   "logs_scrollToBottom": "Vieritä alas",
-
   "appFrame_refreshing": "Päivitetään...",
   "appFrame_releaseToRefresh": "Vapauta päivittääksesi",
   "appFrame_pullToRefresh": "Vedä päivittääksesi",
-
-  "iconBrowser_dashboardIcons": "Paneelin kuvakkeet",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Mukautetut",
   "iconBrowser_searchPlaceholder": "Hae kuvakkeita...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} kuvaketta",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} kuvaketta",
   "iconBrowser_selectIcon": "Valitse kuvake",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Lataukset",
   "popularApps_groupSystem": "Järjestelmä",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS-syötteiden kokoaja",
   "popularApps_linkdingDesc": "Kirjanmerkkien hallinta",
   "popularApps_ollamaDesc": "Paikallinen LLM-inferenssipalvelin",
-  "popularApps_openWebuiDesc": "Chat-käyttöliittymä paikallisille LLM:ille"
+  "popularApps_openWebuiDesc": "Chat-käyttöliittymä paikallisille LLM:ille",
+  "keybindings_searchLabel": "Komentovalikko",
+  "keybindings_searchDesc": "Avaa komentovalikko",
+  "keybindings_settingsLabel": "Avaa asetukset",
+  "keybindings_settingsDesc": "Avaa asetuspaneeli",
+  "keybindings_shortcutsLabel": "Näytä pikanäppäimet",
+  "keybindings_shortcutsDesc": "Näytä pikanäppäinten ohje",
+  "keybindings_homeLabel": "Etusivulle",
+  "keybindings_homeDesc": "Palaa aloitusnäyttöön",
+  "keybindings_logsLabel": "Näytä lokit",
+  "keybindings_logsDesc": "Avaa lokien katseluohjelma",
+  "keybindings_refreshLabel": "Päivitä sovellus",
+  "keybindings_refreshDesc": "Päivitä nykyisen sovelluksen iframe",
+  "keybindings_fullscreenLabel": "Vaihda koko näyttö",
+  "keybindings_fullscreenDesc": "Piilota/näytä navigointi koko näytön tilaa varten",
+  "keybindings_nextAppLabel": "Seuraava sovellus",
+  "keybindings_nextAppDesc": "Vaihda seuraavaan sovellukseen",
+  "keybindings_prevAppLabel": "Edellinen sovellus",
+  "keybindings_prevAppDesc": "Vaihda edelliseen sovellukseen",
+  "keybindings_appLabel": "Sovellus {number}",
+  "keybindings_appDesc": "Vaihda sovellukseen #{number}"
 }

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { applyLocaleToDocument, getAvailableLocales, localeNames } from './localeStore';
+import { applyLocaleToDocument, getAvailableLocales, localeNames, localeFlags } from './localeStore';
 
 describe('localeStore', () => {
   beforeEach(() => {
@@ -32,14 +32,16 @@ describe('localeStore', () => {
   });
 
   describe('getAvailableLocales', () => {
-    it('returns an array of locale objects with tag and name', () => {
+    it('returns an array of locale objects with tag, name, and flag', () => {
       const locales = getAvailableLocales();
       expect(locales.length).toBeGreaterThan(0);
       for (const locale of locales) {
         expect(locale).toHaveProperty('tag');
         expect(locale).toHaveProperty('name');
+        expect(locale).toHaveProperty('flag');
         expect(typeof locale.tag).toBe('string');
         expect(typeof locale.name).toBe('string');
+        expect(typeof locale.flag).toBe('string');
       }
     });
 
@@ -62,6 +64,16 @@ describe('localeStore', () => {
       for (const locale of locales) {
         expect(localeNames[locale.tag]).toBeDefined();
         expect(localeNames[locale.tag].length).toBeGreaterThan(0);
+      }
+    });
+  });
+
+  describe('localeFlags', () => {
+    it('has a flag emoji for every supported locale', () => {
+      const locales = getAvailableLocales();
+      for (const locale of locales) {
+        expect(localeFlags[locale.tag]).toBeDefined();
+        expect(localeFlags[locale.tag].length).toBeGreaterThan(0);
       }
     });
   });

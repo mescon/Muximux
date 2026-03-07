@@ -38,6 +38,9 @@
   import { forwardAuthPresets, applyPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
   import { API_BASE } from '$lib/api';
   import * as m from '$lib/paraglide/messages.js';
+  import { applyLocaleToDocument } from '$lib/localeStore';
+  import { setLocale, getLocale, locales } from '$lib/paraglide/runtime.js';
+  import LocaleSelect from './LocaleSelect.svelte';
 
   // Config restore state
   let restoreFileInput = $state<HTMLInputElement | undefined>(undefined);
@@ -1200,6 +1203,17 @@
               ? m.onboarding_welcomeSubtitleSetup()
               : m.onboarding_welcomeSubtitle()}
           </p>
+
+          <!-- Language selector -->
+          <div class="mb-8 flex items-center justify-center gap-3">
+            <label for="onboarding-language" class="text-sm text-text-muted">{m.onboarding_selectLanguage()}</label>
+            <LocaleSelect
+              id="onboarding-language"
+              value={getLocale()}
+              class="w-64"
+              onchange={(tag: string) => setLocale(tag as typeof locales[number])}
+            />
+          </div>
 
           <!-- Feature highlights -->
           <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-3xl mx-auto text-start">

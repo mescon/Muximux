@@ -23,7 +23,6 @@
   "common_selectApp": "নেভিগেশন থেকে একটি অ্যাপ নির্বাচন করুন",
   "common_continue": "চালিয়ে যান",
   "common_finish": "শেষ করুন",
-
   "toast_connectionRestored": "সংযোগ পুনরুদ্ধার হয়েছে",
   "toast_connectionLost": "সংযোগ বিচ্ছিন্ন হয়েছে — পুনরায় সংযোগ হচ্ছে...",
   "toast_settingsSaved": "সেটিংস সফলভাবে সংরক্ষিত হয়েছে",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "গাঢ় থিমে পরিবর্তিত হয়েছে",
   "toast_switchedToLight": "হালকা থিমে পরিবর্তিত হয়েছে",
   "toast_usingSystemTheme": "সিস্টেম থিম ব্যবহার হচ্ছে",
-
   "toast_failedSaveConfig": "কনফিগারেশন সংরক্ষণ করতে ব্যর্থ",
   "toast_failedSaveTheme": "থিম সংরক্ষণ করতে ব্যর্থ",
   "toast_failedDeleteTheme": "থিম মুছতে ব্যর্থ",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "মুছতে ব্যর্থ",
   "toast_securitySetupFailed": "নিরাপত্তা সেটআপ ব্যর্থ",
   "toast_iconSourcesPartialFail": "কিছু আইকন উৎস লোড করতে ব্যর্থ: {sources}",
-
   "error_somethingWentWrong": "কিছু ভুল হয়েছে",
   "error_failedLoadDashboard": "ড্যাশবোর্ড লোড করতে ব্যর্থ",
   "error_failedLoadConfig": "কনফিগারেশন লোড করতে ব্যর্থ",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "একাধিক প্রচেষ্টার পর সংযোগ করতে ব্যর্থ",
   "error_failedFetchHealth": "স্বাস্থ্য ডেটা আনতে ব্যর্থ",
   "error_deleteFailed": "মুছতে ব্যর্থ",
-
   "nav_exitFullscreen": "পূর্ণ স্ক্রীন থেকে প্রস্থান করুন (F)",
-
   "settings_title": "সেটিংস",
   "settings_general": "সাধারণ",
   "settings_theme": "থিম",
@@ -113,7 +108,6 @@
   "settings_icon": "আইকন",
   "settings_groupNamePlaceholder": "মিডিয়া",
   "settings_appFallbackName": "অ্যাপ",
-
   "general_language": "ভাষা",
   "general_languageAfterSave": "ইন্টারফেসের প্রদর্শন ভাষা নির্বাচন করুন। পরিবর্তনগুলি সংরক্ষণের পর কার্যকর হবে।",
   "general_dashboardTitle": "ড্যাশবোর্ড শিরোনাম",
@@ -176,7 +170,6 @@
   "general_exportConfig": "কনফিগ রপ্তানি করুন",
   "general_importConfig": "কনফিগ আমদানি করুন",
   "general_configHint": "আপনার বর্তমান কনফিগারেশন রপ্তানি করুন বা পূর্বে সংরক্ষিত একটি আমদানি করুন।",
-
   "login_subtitle": "আপনার ড্যাশবোর্ডে সাইন ইন করুন",
   "login_externalAuth": "বাহ্যিক প্রমাণীকরণ",
   "login_externalAuthDesc": "এই ইন্সট্যান্সটি একটি বাহ্যিক প্রমাণীকরণ প্রদানকারী দ্বারা সুরক্ষিত। সাইন ইন করতে আপনার reverse proxy-তে কনফিগার করা URL দিয়ে অ্যাক্সেস করুন।",
@@ -192,7 +185,6 @@
   "login_rememberMe": "আমাকে মনে রাখুন",
   "login_signingIn": "সাইন ইন হচ্ছে...",
   "login_signIn": "সাইন ইন করুন",
-
   "common_current": "বর্তমান",
   "common_username": "ব্যবহারকারীর নাম",
   "common_password": "পাসওয়ার্ড",
@@ -204,15 +196,12 @@
   "common_default": "ডিফল্ট",
   "common_disabled": "নিষ্ক্রিয়",
   "common_forwardAuthEnabled": "Forward auth সক্রিয়। চালিয়ে যেতে অনুগ্রহ করে আপনার reverse proxy URL দিয়ে এই অ্যাপটি অ্যাক্সেস করুন।",
-
   "error_usernameRequired": "ব্যবহারকারীর নাম প্রয়োজন",
   "error_passwordTooShort": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে",
   "error_passwordTooShortCount": "পাসওয়ার্ড কমপক্ষে ৮ অক্ষরের হতে হবে ({count}/8)",
   "error_passwordsMismatch": "পাসওয়ার্ড মিলছে না",
-
   "toast_passwordChanged": "পাসওয়ার্ড সফলভাবে পরিবর্তিত হয়েছে",
   "toast_authMethodChanged": "প্রমাণীকরণ পদ্ধতি {method}-এ পরিবর্তিত হয়েছে",
-
   "security_authMethod": "প্রমাণীকরণ পদ্ধতি",
   "security_authMethodDesc": "ব্যবহারকারীরা Muximux-এ কীভাবে প্রমাণীকরণ করবে তা চয়ন করুন",
   "security_passwordAuth": "পাসওয়ার্ড প্রমাণীকরণ",
@@ -251,7 +240,6 @@
   "security_deleteUser": "ব্যবহারকারী মুছুন",
   "security_cantDeleteSelf": "নিজেকে মুছতে পারবেন না",
   "security_minEightCharsShort": "সর্বনিম্ন ৮ অক্ষর",
-
   "theme_appearance": "চেহারা",
   "theme_appearanceDesc": "গাঢ়, হালকা থিম চয়ন করুন বা আপনার সিস্টেম অনুসরণ করুন",
   "theme_dark": "গাঢ়",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "সতর্কতা",
   "theme_statusError": "ত্রুটি",
   "theme_statusInfo": "তথ্য",
-
   "apps_heading": "অ্যাপ ও গ্রুপ",
   "apps_addGroup": "গ্রুপ যোগ করুন",
   "apps_addApp": "অ্যাপ যোগ করুন",
@@ -304,7 +291,6 @@
   "apps_editGroup": "গ্রুপ সম্পাদনা করুন",
   "apps_deleteGroup": "গ্রুপ মুছুন",
   "apps_noAppsConfigured": "কোনো অ্যাপ্লিকেশন বা গ্রুপ কনফিগার করা হয়নি। শুরু করতে \"অ্যাপ যোগ করুন\"-এ ক্লিক করুন।",
-
   "about_loadingSystemInfo": "সিস্টেম তথ্য লোড হচ্ছে...",
   "about_updateAvailable": "আপডেট পাওয়া গেছে",
   "about_upToDate": "আপনি আপ টু ডেট",
@@ -337,9 +323,7 @@
   "about_issues": "সমস্যা",
   "about_releases": "রিলিজ",
   "about_wiki": "উইকি",
-
   "common_or": "অথবা",
-
   "appForm_name": "নাম",
   "appForm_helpName": "নেভিগেশন বার এবং পৃষ্ঠার শিরোনামে প্রদর্শিত হয়। একটি অনন্য শনাক্তকারী হিসেবেও ব্যবহৃত — অ্যাপের নাম পরিবর্তন একটি নতুন proxy রুট তৈরি করে।",
   "appForm_placeholderName": "আমার অ্যাপ",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "পপআপ উইন্ডোতে খুলুন",
   "appForm_redirect": "রিডাইরেক্ট",
   "appForm_redirectDesc": "অ্যাপ URL-এ নেভিগেট করুন",
-
   "command_searchPlaceholder": "অ্যাপ এবং কমান্ড অনুসন্ধান করুন...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ নেভিগেট",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "সিস্টেম থিম ব্যবহার করুন",
   "command_switchToApp": "অ্যাপে পরিবর্তন করুন",
   "command_commandPalette": "কমান্ড প্যালেট",
-
   "nav_closeNavMenu": "নেভিগেশন মেনু বন্ধ করুন",
   "nav_openNavMenu": "নেভিগেশন মেনু খুলুন",
   "nav_closeMenu": "মেনু বন্ধ করুন",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "সাইডবারের আকার পরিবর্তন করুন",
   "nav_closeNavigation": "নেভিগেশন বন্ধ করুন",
   "nav_openNavigation": "নেভিগেশন খুলুন",
-
   "keybindings_hint": "পরিবর্তন করতে একটি কী-বাইন্ডিং-এ ক্লিক করুন। বাতিল করতে Escape চাপুন।",
   "keybindings_resetAllConfirm": "সমস্ত কী-বাইন্ডিং রিসেট করবেন?",
   "keybindings_yesReset": "হ্যাঁ, রিসেট করুন",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "দ্বন্দ্ব সনাক্ত হয়েছে",
   "keybindings_conflictDesc": "এই শর্টকাটটি ইতিমধ্যে ব্যবহৃত:",
   "keybindings_useAnyway": "তবুও ব্যবহার করুন",
-
   "shortcuts_title": "কীবোর্ড শর্টকাট",
   "shortcuts_closeAriaLabel": "বন্ধ করুন",
   "shortcuts_categoryNavigation": "নেভিগেশন",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "সেটিংস → কী-বাইন্ডিং",
   "shortcuts_footerPress": "চাপুন",
   "shortcuts_footerToClose": "বন্ধ করতে",
-
   "onboarding_stepWelcome": "স্বাগতম",
   "onboarding_stepSecurity": "নিরাপত্তা",
   "onboarding_stepApps": "অ্যাপ",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "পাসওয়ার্ড পুনরায় দিন",
   "onboarding_proxyTooltip": "Muximux-এর মাধ্যমে ট্র্যাফিক রুট করে যাতে অ্যাপটি আপনার ব্রাউজার থেকে সরাসরি অ্যাক্সেসযোগ্য হতে হয় না। অ্যাপটি অভ্যন্তরীণ নেটওয়ার্কে বা ভিন্ন হোস্টে থাকলে সক্রিয় করুন যা আপনার ব্রাউজার সরাসরি অ্যাক্সেস করতে পারে না।",
   "onboarding_addAnotherInstance": "আরেকটি {appName} যোগ করুন",
-
+  "onboarding_selectLanguage": "আপনার ভাষা নির্বাচন করুন",
   "splash_selectApp": "শুরু করতে একটি অ্যাপ্লিকেশন নির্বাচন করুন",
   "splash_quickAccess": "দ্রুত অ্যাক্সেস",
   "splash_allShortcuts": "সমস্ত শর্টকাট",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "এখনো কোনো অ্যাপ্লিকেশন নেই",
   "splash_noAppsDesc": "আপনার ড্যাশবোর্ড শুরু করতে আপনার প্রথম অ্যাপ্লিকেশন যোগ করুন।",
   "splash_addApplication": "অ্যাপ্লিকেশন যোগ করুন",
-
   "logs_title": "লগ",
   "logs_backToDashboard": "ড্যাশবোর্ডে ফিরে যান",
   "logs_resume": "পুনরায় শুরু",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} ফিল্টার করা দেখাচ্ছে",
   "logs_paused": "বিরতি",
   "logs_scrollToBottom": "নিচে স্ক্রল করুন",
-
   "appFrame_refreshing": "রিফ্রেশ হচ্ছে...",
   "appFrame_releaseToRefresh": "রিফ্রেশ করতে ছেড়ে দিন",
   "appFrame_pullToRefresh": "রিফ্রেশ করতে টানুন",
-
-  "iconBrowser_dashboardIcons": "ড্যাশবোর্ড আইকন",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "কাস্টম",
   "iconBrowser_searchPlaceholder": "আইকন অনুসন্ধান করুন...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} আইকন",
   "iconBrowser_iconCountFiltered": "{total} আইকনের মধ্যে {filtered}",
   "iconBrowser_selectIcon": "আইকন নির্বাচন করুন",
-
   "popularApps_groupMedia": "মিডিয়া",
   "popularApps_groupDownloads": "ডাউনলোড",
   "popularApps_groupSystem": "সিস্টেম",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS ফিড এগ্রিগেটর",
   "popularApps_linkdingDesc": "বুকমার্ক ম্যানেজার",
   "popularApps_ollamaDesc": "স্থানীয় LLM ইনফারেন্স সার্ভার",
-  "popularApps_openWebuiDesc": "স্থানীয় LLM-এর জন্য চ্যাট ইন্টারফেস"
+  "popularApps_openWebuiDesc": "স্থানীয় LLM-এর জন্য চ্যাট ইন্টারফেস",
+  "keybindings_searchLabel": "কমান্ড প্যালেট",
+  "keybindings_searchDesc": "কমান্ড প্যালেট খুলুন",
+  "keybindings_settingsLabel": "সেটিংস খুলুন",
+  "keybindings_settingsDesc": "সেটিংস প্যানেল খুলুন",
+  "keybindings_shortcutsLabel": "শর্টকাট দেখান",
+  "keybindings_shortcutsDesc": "কীবোর্ড শর্টকাট সাহায্য দেখান",
+  "keybindings_homeLabel": "হোমে যান",
+  "keybindings_homeDesc": "স্প্ল্যাশ স্ক্রিনে ফিরে যান",
+  "keybindings_logsLabel": "লগ দেখুন",
+  "keybindings_logsDesc": "লগ ভিউয়ার খুলুন",
+  "keybindings_refreshLabel": "অ্যাপ রিফ্রেশ করুন",
+  "keybindings_refreshDesc": "বর্তমান অ্যাপের iframe রিফ্রেশ করুন",
+  "keybindings_fullscreenLabel": "পূর্ণ স্ক্রিন টগল করুন",
+  "keybindings_fullscreenDesc": "পূর্ণ স্ক্রিন মোডে নেভিগেশন লুকান/দেখান",
+  "keybindings_nextAppLabel": "পরবর্তী অ্যাপ",
+  "keybindings_nextAppDesc": "তালিকায় পরবর্তী অ্যাপে যান",
+  "keybindings_prevAppLabel": "আগের অ্যাপ",
+  "keybindings_prevAppDesc": "তালিকায় আগের অ্যাপে যান",
+  "keybindings_appLabel": "অ্যাপ {number}",
+  "keybindings_appDesc": "অ্যাপ #{number}-এ যান"
 }

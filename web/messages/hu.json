@@ -23,7 +23,6 @@
   "common_selectApp": "Válasszon egy alkalmazást a navigációból",
   "common_continue": "Folytatás",
   "common_finish": "Befejezés",
-
   "toast_connectionRestored": "Kapcsolat helyreállítva",
   "toast_connectionLost": "Kapcsolat megszakadt — újracsatlakozás...",
   "toast_settingsSaved": "Beállítások sikeresen mentve",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Átváltva sötét témára",
   "toast_switchedToLight": "Átváltva világos témára",
   "toast_usingSystemTheme": "Rendszer téma használata",
-
   "toast_failedSaveConfig": "Nem sikerült menteni a konfigurációt",
   "toast_failedSaveTheme": "Nem sikerült menteni a témát",
   "toast_failedDeleteTheme": "Nem sikerült törölni a témát",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Törlés sikertelen",
   "toast_securitySetupFailed": "Biztonsági beállítás sikertelen",
   "toast_iconSourcesPartialFail": "Néhány ikonforrást nem sikerült betölteni: {sources}",
-
   "error_somethingWentWrong": "Valami hiba történt",
   "error_failedLoadDashboard": "Nem sikerült betölteni a vezérlőpultot",
   "error_failedLoadConfig": "Nem sikerült betölteni a konfigurációt",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Nem sikerült csatlakozni több próbálkozás után",
   "error_failedFetchHealth": "Nem sikerült lekérni az állapotadatokat",
   "error_deleteFailed": "Törlés sikertelen",
-
   "nav_exitFullscreen": "Teljes képernyő bezárása (F)",
-
   "settings_title": "Beállítások",
   "settings_general": "Általános",
   "settings_theme": "Téma",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikon",
   "settings_groupNamePlaceholder": "Média",
   "settings_appFallbackName": "Alkalmazás",
-
   "general_language": "Nyelv",
   "general_languageAfterSave": "Válassza ki a felület megjelenítési nyelvét. A változtatások mentés után lépnek érvénybe.",
   "general_dashboardTitle": "Vezérlőpult címe",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Konfiguráció exportálása",
   "general_importConfig": "Konfiguráció importálása",
   "general_configHint": "Exportálja a jelenlegi konfigurációt vagy importáljon egy korábban mentettet.",
-
   "login_subtitle": "Jelentkezzen be a vezérlőpultjába",
   "login_externalAuth": "Külső hitelesítés",
   "login_externalAuthDesc": "Ezt a példányt külső hitelesítési szolgáltató védi. A bejelentkezéshez a reverse proxy-ban beállított URL-en keresztül érheti el.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Emlékezzen rám",
   "login_signingIn": "Bejelentkezés...",
   "login_signIn": "Bejelentkezés",
-
   "common_current": "Jelenlegi",
   "common_username": "Felhasználónév",
   "common_password": "Jelszó",
@@ -204,15 +196,12 @@
   "common_default": "Alapértelmezett",
   "common_disabled": "Letiltva",
   "common_forwardAuthEnabled": "Forward auth engedélyezve. Kérjük, a reverse proxy URL-en keresztül érje el ezt az alkalmazást a folytatáshoz.",
-
   "error_usernameRequired": "A felhasználónév megadása kötelező",
   "error_passwordTooShort": "A jelszónak legalább 8 karakter hosszúnak kell lennie",
   "error_passwordTooShortCount": "A jelszónak legalább 8 karakter hosszúnak kell lennie ({count}/8)",
   "error_passwordsMismatch": "A jelszavak nem egyeznek",
-
   "toast_passwordChanged": "Jelszó sikeresen megváltoztatva",
   "toast_authMethodChanged": "Hitelesítési módszer megváltoztatva: {method}",
-
   "security_authMethod": "Hitelesítési módszer",
   "security_authMethodDesc": "Válassza ki, hogyan hitelesítik magukat a felhasználók a Muximux-ban",
   "security_passwordAuth": "Jelszavas hitelesítés",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Felhasználó törlése",
   "security_cantDeleteSelf": "Saját magát nem törölheti",
   "security_minEightCharsShort": "Min. 8 karakter",
-
   "theme_appearance": "Megjelenés",
   "theme_appearanceDesc": "Válasszon sötét, világos vagy rendszer témát",
   "theme_dark": "Sötét",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Figyelmeztetés",
   "theme_statusError": "Hiba",
   "theme_statusInfo": "Információ",
-
   "apps_heading": "Alkalmazások és csoportok",
   "apps_addGroup": "Csoport hozzáadása",
   "apps_addApp": "Alkalmazás hozzáadása",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Csoport szerkesztése",
   "apps_deleteGroup": "Csoport törlése",
   "apps_noAppsConfigured": "Nincsenek konfigurált alkalmazások vagy csoportok. Kattintson az \"Alkalmazás hozzáadása\" gombra a kezdéshez.",
-
   "about_loadingSystemInfo": "Rendszerinformációk betöltése...",
   "about_updateAvailable": "Frissítés elérhető",
   "about_upToDate": "Naprakész verzió",
@@ -337,9 +323,7 @@
   "about_issues": "Hibajegyek",
   "about_releases": "Kiadások",
   "about_wiki": "Wiki",
-
   "common_or": "vagy",
-
   "appForm_name": "Név",
   "appForm_helpName": "A navigációs sávban és az oldal címében jelenik meg. Egyedi azonosítóként is szolgál — az alkalmazás átnevezése új proxy útvonalat hoz létre.",
   "appForm_placeholderName": "Az alkalmazásom",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Megnyitás felugró ablakban",
   "appForm_redirect": "Átirányítás",
   "appForm_redirectDesc": "Navigálás az alkalmazás URL-jére",
-
   "command_searchPlaceholder": "Alkalmazások és parancsok keresése...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Navigálás",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Rendszer téma használata",
   "command_switchToApp": "Váltás alkalmazásra",
   "command_commandPalette": "Parancspaletta",
-
   "nav_closeNavMenu": "Navigációs menü bezárása",
   "nav_openNavMenu": "Navigációs menü megnyitása",
   "nav_closeMenu": "Menü bezárása",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Oldalsáv átméretezése",
   "nav_closeNavigation": "Navigáció bezárása",
   "nav_openNavigation": "Navigáció megnyitása",
-
   "keybindings_hint": "Kattintson egy billentyűparancsra a módosításához. Nyomjon Escape-et a visszavonáshoz.",
   "keybindings_resetAllConfirm": "Összes billentyűparancs visszaállítása?",
   "keybindings_yesReset": "Igen, visszaállítás",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Ütközés észlelve",
   "keybindings_conflictDesc": "Ezt a parancsikont már használja:",
   "keybindings_useAnyway": "Használat mindenképp",
-
   "shortcuts_title": "Billentyűparancsok",
   "shortcuts_closeAriaLabel": "Bezárás",
   "shortcuts_categoryNavigation": "Navigáció",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Beállítások → Billentyűparancsok",
   "shortcuts_footerPress": "Nyomja meg",
   "shortcuts_footerToClose": "a bezáráshoz",
-
   "onboarding_stepWelcome": "Üdvözöljük",
   "onboarding_stepSecurity": "Biztonság",
   "onboarding_stepApps": "Alkalmazások",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Jelszó újra megadása",
   "onboarding_proxyTooltip": "A forgalmat a Muximux-on keresztül irányítja, így az alkalmazásnak nem kell közvetlenül elérhetőnek lennie a böngészőből. Engedélyezze, ha az alkalmazás belső hálózaton van vagy olyan hoston, amelyet a böngészője nem érhet el közvetlenül.",
   "onboarding_addAnotherInstance": "Még egy {appName} példány hozzáadása",
-
+  "onboarding_selectLanguage": "Válaszd ki a nyelved",
   "splash_selectApp": "Válasszon egy alkalmazást a kezdéshez",
   "splash_quickAccess": "Gyors elérés",
   "splash_allShortcuts": "Összes parancs",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Még nincsenek alkalmazások",
   "splash_noAppsDesc": "Adja hozzá az első alkalmazását a vezérlőpult használatának megkezdéséhez.",
   "splash_addApplication": "Alkalmazás hozzáadása",
-
   "logs_title": "Naplók",
   "logs_backToDashboard": "Vissza a vezérlőpulthoz",
   "logs_resume": "Folytatás",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "{count} szűrt megjelenítve",
   "logs_paused": "SZÜNETELTETVE",
   "logs_scrollToBottom": "Görgetés az aljára",
-
   "appFrame_refreshing": "Frissítés...",
   "appFrame_releaseToRefresh": "Engedje el a frissítéshez",
   "appFrame_pullToRefresh": "Húzza le a frissítéshez",
-
-  "iconBrowser_dashboardIcons": "Vezérlőpult ikonok",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Egyéni",
   "iconBrowser_searchPlaceholder": "Ikonok keresése...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} / {total} ikon",
   "iconBrowser_selectIcon": "Ikon kiválasztása",
-
   "popularApps_groupMedia": "Média",
   "popularApps_groupDownloads": "Letöltések",
   "popularApps_groupSystem": "Rendszer",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS hírfolyam gyűjtő",
   "popularApps_linkdingDesc": "Könyvjelző kezelő",
   "popularApps_ollamaDesc": "Helyi LLM szerver",
-  "popularApps_openWebuiDesc": "Chat felület helyi LLM-ekhez"
+  "popularApps_openWebuiDesc": "Chat felület helyi LLM-ekhez",
+  "keybindings_searchLabel": "Parancspaletta",
+  "keybindings_searchDesc": "Parancspaletta megnyitása",
+  "keybindings_settingsLabel": "Beállítások megnyitása",
+  "keybindings_settingsDesc": "Beállítások panel megnyitása",
+  "keybindings_shortcutsLabel": "Billentyűparancsok",
+  "keybindings_shortcutsDesc": "Billentyűparancsok súgója",
+  "keybindings_homeLabel": "Kezdőlap",
+  "keybindings_homeDesc": "Vissza a kezdőképernyőre",
+  "keybindings_logsLabel": "Naplók megtekintése",
+  "keybindings_logsDesc": "Naplóböngésző megnyitása",
+  "keybindings_refreshLabel": "Alkalmazás frissítése",
+  "keybindings_refreshDesc": "Aktuális alkalmazás iframe frissítése",
+  "keybindings_fullscreenLabel": "Teljes képernyő váltás",
+  "keybindings_fullscreenDesc": "Navigáció elrejtése/megjelenítése teljes képernyős módban",
+  "keybindings_nextAppLabel": "Következő alkalmazás",
+  "keybindings_nextAppDesc": "Váltás a következő alkalmazásra",
+  "keybindings_prevAppLabel": "Előző alkalmazás",
+  "keybindings_prevAppDesc": "Váltás az előző alkalmazásra",
+  "keybindings_appLabel": "Alkalmazás {number}",
+  "keybindings_appDesc": "Váltás a(z) #{number}. alkalmazásra"
 }

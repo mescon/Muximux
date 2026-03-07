@@ -23,7 +23,6 @@
   "common_selectApp": "Wybierz aplikację z nawigacji",
   "common_continue": "Kontynuuj",
   "common_finish": "Zakończ",
-
   "toast_connectionRestored": "Połączenie przywrócone",
   "toast_connectionLost": "Utracono połączenie — ponowne łączenie...",
   "toast_settingsSaved": "Ustawienia zapisane pomyślnie",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Przełączono na ciemny motyw",
   "toast_switchedToLight": "Przełączono na jasny motyw",
   "toast_usingSystemTheme": "Używanie motywu systemowego",
-
   "toast_failedSaveConfig": "Nie udało się zapisać konfiguracji",
   "toast_failedSaveTheme": "Nie udało się zapisać motywu",
   "toast_failedDeleteTheme": "Nie udało się usunąć motywu",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Usuwanie nie powiodło się",
   "toast_securitySetupFailed": "Konfiguracja zabezpieczeń nie powiodła się",
   "toast_iconSourcesPartialFail": "Nie udało się załadować niektórych źródeł ikon: {sources}",
-
   "error_somethingWentWrong": "Coś poszło nie tak",
   "error_failedLoadDashboard": "Nie udało się załadować panelu",
   "error_failedLoadConfig": "Nie udało się załadować konfiguracji",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Nie udało się połączyć po wielu próbach",
   "error_failedFetchHealth": "Nie udało się pobrać danych o stanie",
   "error_deleteFailed": "Usuwanie nie powiodło się",
-
   "nav_exitFullscreen": "Zamknij pełny ekran (F)",
-
   "settings_title": "Ustawienia",
   "settings_general": "Ogólne",
   "settings_theme": "Motyw",
@@ -113,7 +108,6 @@
   "settings_icon": "Ikona",
   "settings_groupNamePlaceholder": "Media",
   "settings_appFallbackName": "Aplikacja",
-
   "general_language": "Język",
   "general_languageAfterSave": "Wybierz język interfejsu. Zmiany wchodzą w życie po zapisaniu.",
   "general_dashboardTitle": "Tytuł panelu",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Eksportuj konfigurację",
   "general_importConfig": "Importuj konfigurację",
   "general_configHint": "Eksportuj bieżącą konfigurację lub zaimportuj wcześniej zapisaną.",
-
   "login_subtitle": "Zaloguj się do panelu",
   "login_externalAuth": "Zewnętrzne uwierzytelnianie",
   "login_externalAuthDesc": "Ta instancja jest chroniona przez zewnętrznego dostawcę uwierzytelniania. Uzyskaj dostęp przez URL skonfigurowany w reverse proxy, aby się zalogować.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Zapamiętaj mnie",
   "login_signingIn": "Logowanie...",
   "login_signIn": "Zaloguj się",
-
   "common_current": "Bieżący",
   "common_username": "Nazwa użytkownika",
   "common_password": "Hasło",
@@ -204,15 +196,12 @@
   "common_default": "Domyślny",
   "common_disabled": "Wyłączony",
   "common_forwardAuthEnabled": "Włączono forward auth. Proszę uzyskać dostęp do tej aplikacji przez URL reverse proxy.",
-
   "error_usernameRequired": "Nazwa użytkownika jest wymagana",
   "error_passwordTooShort": "Hasło musi mieć co najmniej 8 znaków",
   "error_passwordTooShortCount": "Hasło musi mieć co najmniej 8 znaków ({count}/8)",
   "error_passwordsMismatch": "Hasła nie są zgodne",
-
   "toast_passwordChanged": "Hasło zmienione pomyślnie",
   "toast_authMethodChanged": "Metoda uwierzytelniania zmieniona na {method}",
-
   "security_authMethod": "Metoda uwierzytelniania",
   "security_authMethodDesc": "Wybierz sposób uwierzytelniania użytkowników w Muximux",
   "security_passwordAuth": "Uwierzytelnianie hasłem",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Usuń użytkownika",
   "security_cantDeleteSelf": "Nie można usunąć samego siebie",
   "security_minEightCharsShort": "Min. 8 znaków",
-
   "theme_appearance": "Wygląd",
   "theme_appearanceDesc": "Wybierz ciemny, jasny lub zgodny z systemem",
   "theme_dark": "Ciemny",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Ostrzeżenie",
   "theme_statusError": "Błąd",
   "theme_statusInfo": "Informacja",
-
   "apps_heading": "Aplikacje i grupy",
   "apps_addGroup": "Dodaj grupę",
   "apps_addApp": "Dodaj aplikację",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Edytuj grupę",
   "apps_deleteGroup": "Usuń grupę",
   "apps_noAppsConfigured": "Nie skonfigurowano żadnych aplikacji ani grup. Kliknij \"Dodaj aplikację\", aby rozpocząć.",
-
   "about_loadingSystemInfo": "Ładowanie informacji systemowych...",
   "about_updateAvailable": "Dostępna aktualizacja",
   "about_upToDate": "Wersja jest aktualna",
@@ -337,9 +323,7 @@
   "about_issues": "Zgłoszenia",
   "about_releases": "Wydania",
   "about_wiki": "Wiki",
-
   "common_or": "lub",
-
   "appForm_name": "Nazwa",
   "appForm_helpName": "Wyświetlana w pasku nawigacji i tytule strony. Używana również jako unikalny identyfikator — zmiana nazwy tworzy nową trasę proxy.",
   "appForm_placeholderName": "Moja aplikacja",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Otwórz w oknie popup",
   "appForm_redirect": "Przekierowanie",
   "appForm_redirectDesc": "Przejdź do URL aplikacji",
-
   "command_searchPlaceholder": "Szukaj aplikacji i poleceń...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Nawiguj",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Użyj motywu systemowego",
   "command_switchToApp": "Przełącz na aplikację",
   "command_commandPalette": "Paleta poleceń",
-
   "nav_closeNavMenu": "Zamknij menu nawigacji",
   "nav_openNavMenu": "Otwórz menu nawigacji",
   "nav_closeMenu": "Zamknij menu",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Zmień rozmiar paska bocznego",
   "nav_closeNavigation": "Zamknij nawigację",
   "nav_openNavigation": "Otwórz nawigację",
-
   "keybindings_hint": "Kliknij skrót, aby go zmienić. Naciśnij Escape, aby anulować.",
   "keybindings_resetAllConfirm": "Zresetować wszystkie skróty klawiszowe?",
   "keybindings_yesReset": "Tak, resetuj",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Wykryto konflikt",
   "keybindings_conflictDesc": "Ten skrót jest już używany przez:",
   "keybindings_useAnyway": "Użyj mimo to",
-
   "shortcuts_title": "Skróty klawiszowe",
   "shortcuts_closeAriaLabel": "Zamknij",
   "shortcuts_categoryNavigation": "Nawigacja",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Ustawienia → Skróty klawiszowe",
   "shortcuts_footerPress": "Naciśnij",
   "shortcuts_footerToClose": "aby zamknąć",
-
   "onboarding_stepWelcome": "Powitanie",
   "onboarding_stepSecurity": "Bezpieczeństwo",
   "onboarding_stepApps": "Aplikacje",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Wprowadź hasło ponownie",
   "onboarding_proxyTooltip": "Kieruje ruch przez Muximux, dzięki czemu aplikacja nie musi być bezpośrednio dostępna z przeglądarki. Włącz, jeśli aplikacja jest w sieci wewnętrznej lub na innym hoście niedostępnym bezpośrednio z przeglądarki.",
   "onboarding_addAnotherInstance": "Dodaj kolejną instancję {appName}",
-
+  "onboarding_selectLanguage": "Wybierz swój język",
   "splash_selectApp": "Wybierz aplikację, aby rozpocząć",
   "splash_quickAccess": "Szybki dostęp",
   "splash_allShortcuts": "Wszystkie skróty",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Brak aplikacji",
   "splash_noAppsDesc": "Dodaj pierwszą aplikację, aby rozpocząć pracę z panelem.",
   "splash_addApplication": "Dodaj aplikację",
-
   "logs_title": "Logi",
   "logs_backToDashboard": "Powrót do panelu",
   "logs_resume": "Wznów",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "wyświetlanie {count} przefiltrowanych",
   "logs_paused": "WSTRZYMANO",
   "logs_scrollToBottom": "Przewiń na dół",
-
   "appFrame_refreshing": "Odświeżanie...",
   "appFrame_releaseToRefresh": "Zwolnij, aby odświeżyć",
   "appFrame_pullToRefresh": "Pociągnij, aby odświeżyć",
-
-  "iconBrowser_dashboardIcons": "Ikony panelu",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Własne",
   "iconBrowser_searchPlaceholder": "Szukaj ikon...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} ikon",
   "iconBrowser_iconCountFiltered": "{filtered} z {total} ikon",
   "iconBrowser_selectIcon": "Wybierz ikonę",
-
   "popularApps_groupMedia": "Media",
   "popularApps_groupDownloads": "Pobieranie",
   "popularApps_groupSystem": "System",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Agregator kanałów RSS",
   "popularApps_linkdingDesc": "Menedżer zakładek",
   "popularApps_ollamaDesc": "Lokalny serwer LLM",
-  "popularApps_openWebuiDesc": "Interfejs czatu dla lokalnych LLM"
+  "popularApps_openWebuiDesc": "Interfejs czatu dla lokalnych LLM",
+  "keybindings_searchLabel": "Paleta poleceń",
+  "keybindings_searchDesc": "Otwórz paletę poleceń",
+  "keybindings_settingsLabel": "Otwórz ustawienia",
+  "keybindings_settingsDesc": "Otwórz panel ustawień",
+  "keybindings_shortcutsLabel": "Pokaż skróty",
+  "keybindings_shortcutsDesc": "Pokaż pomoc skrótów klawiszowych",
+  "keybindings_homeLabel": "Strona główna",
+  "keybindings_homeDesc": "Wróć do ekranu startowego",
+  "keybindings_logsLabel": "Zobacz logi",
+  "keybindings_logsDesc": "Otwórz przeglądarkę logów",
+  "keybindings_refreshLabel": "Odśwież aplikację",
+  "keybindings_refreshDesc": "Odśwież iframe bieżącej aplikacji",
+  "keybindings_fullscreenLabel": "Przełącz pełny ekran",
+  "keybindings_fullscreenDesc": "Ukryj/pokaż nawigację w trybie pełnoekranowym",
+  "keybindings_nextAppLabel": "Następna aplikacja",
+  "keybindings_nextAppDesc": "Przełącz na następną aplikację",
+  "keybindings_prevAppLabel": "Poprzednia aplikacja",
+  "keybindings_prevAppDesc": "Przełącz na poprzednią aplikację",
+  "keybindings_appLabel": "Aplikacja {number}",
+  "keybindings_appDesc": "Przełącz na aplikację #{number}"
 }

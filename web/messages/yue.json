@@ -23,7 +23,6 @@
   "common_selectApp": "喺導覽列揀一個應用程式",
   "common_continue": "繼續",
   "common_finish": "完成",
-
   "toast_connectionRestored": "連線已恢復",
   "toast_connectionLost": "連線中斷 - 正在重新連線...",
   "toast_settingsSaved": "設定儲存成功",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "已切換到深色主題",
   "toast_switchedToLight": "已切換到淺色主題",
   "toast_usingSystemTheme": "使用系統主題",
-
   "toast_failedSaveConfig": "儲存設定失敗",
   "toast_failedSaveTheme": "儲存主題失敗",
   "toast_failedDeleteTheme": "刪除主題失敗",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "刪除失敗",
   "toast_securitySetupFailed": "安全設定失敗",
   "toast_iconSourcesPartialFail": "部分圖示來源載入失敗：{sources}",
-
   "error_somethingWentWrong": "出咗啲問題",
   "error_failedLoadDashboard": "載入儀表板失敗",
   "error_failedLoadConfig": "載入設定失敗",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "多次嘗試後連線失敗",
   "error_failedFetchHealth": "取得健康資料失敗",
   "error_deleteFailed": "刪除失敗",
-
   "nav_exitFullscreen": "退出全螢幕 (F)",
-
   "settings_title": "設定",
   "settings_general": "一般",
   "settings_theme": "主題",
@@ -113,7 +108,6 @@
   "settings_icon": "圖示",
   "settings_groupNamePlaceholder": "媒體",
   "settings_appFallbackName": "應用程式",
-
   "general_language": "語言",
   "general_languageAfterSave": "揀選介面顯示語言。儲存後生效。",
   "general_dashboardTitle": "儀表板標題",
@@ -176,7 +170,6 @@
   "general_exportConfig": "匯出設定",
   "general_importConfig": "匯入設定",
   "general_configHint": "匯出現有設定或匯入之前儲存嘅設定。",
-
   "login_subtitle": "登入你嘅儀表板",
   "login_externalAuth": "外部認證",
   "login_externalAuthDesc": "呢個實例受外部認證供應商保護。請透過反向代理入面設定嘅 URL 嚟登入。",
@@ -192,7 +185,6 @@
   "login_rememberMe": "記住我",
   "login_signingIn": "登入緊...",
   "login_signIn": "登入",
-
   "common_current": "目前",
   "common_username": "使用者名稱",
   "common_password": "密碼",
@@ -204,15 +196,12 @@
   "common_default": "預設",
   "common_disabled": "已停用",
   "common_forwardAuthEnabled": "Forward auth 已啟用。請透過反向代理 URL 訪問呢個應用程式先可以繼續。",
-
   "error_usernameRequired": "使用者名稱係必填嘅",
   "error_passwordTooShort": "密碼至少要 8 個字元",
   "error_passwordTooShortCount": "密碼至少要 8 個字元（{count}/8）",
   "error_passwordsMismatch": "兩次密碼唔一致",
-
   "toast_passwordChanged": "密碼更改成功",
   "toast_authMethodChanged": "認證方式已更改為 {method}",
-
   "security_authMethod": "認證方式",
   "security_authMethodDesc": "揀選使用者點樣向 Muximux 進行身份驗證",
   "security_passwordAuth": "密碼認證",
@@ -251,7 +240,6 @@
   "security_deleteUser": "刪除使用者",
   "security_cantDeleteSelf": "唔可以刪除自己",
   "security_minEightCharsShort": "至少 8 個字元",
-
   "theme_appearance": "外觀",
   "theme_appearanceDesc": "揀選深色、淺色或跟隨系統",
   "theme_dark": "深色",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "警告",
   "theme_statusError": "錯誤",
   "theme_statusInfo": "資訊",
-
   "apps_heading": "應用程式同群組",
   "apps_addGroup": "新增群組",
   "apps_addApp": "新增應用程式",
@@ -304,7 +291,6 @@
   "apps_editGroup": "編輯群組",
   "apps_deleteGroup": "刪除群組",
   "apps_noAppsConfigured": "仲未設定任何應用程式或群組。撳「新增應用程式」開始啦。",
-
   "about_loadingSystemInfo": "正在載入系統資訊...",
   "about_updateAvailable": "有可用更新",
   "about_upToDate": "已經係最新版本",
@@ -337,9 +323,7 @@
   "about_issues": "問題",
   "about_releases": "發佈",
   "about_wiki": "維基",
-
   "common_or": "或",
-
   "appForm_name": "名稱",
   "appForm_helpName": "顯示喺導覽列同頁面標題入面。亦會用作唯一識別碼 — 改名會建立新嘅代理路由。",
   "appForm_placeholderName": "我嘅應用程式",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "喺彈出視窗入面開啟",
   "appForm_redirect": "重新導向",
   "appForm_redirectDesc": "跳轉到應用程式 URL",
-
   "command_searchPlaceholder": "搜尋應用程式同命令...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ 導覽",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "使用系統主題",
   "command_switchToApp": "切換到應用程式",
   "command_commandPalette": "命令面板",
-
   "nav_closeNavMenu": "關閉導覽選單",
   "nav_openNavMenu": "開啟導覽選單",
   "nav_closeMenu": "關閉選單",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "調整側欄大小",
   "nav_closeNavigation": "關閉導覽",
   "nav_openNavigation": "開啟導覽",
-
   "keybindings_hint": "撳快速鍵嚟更改。撳 Escape 取消。",
   "keybindings_resetAllConfirm": "重設所有快速鍵？",
   "keybindings_yesReset": "係，重設",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "偵測到衝突",
   "keybindings_conflictDesc": "呢個快速鍵已經被以下功能使用：",
   "keybindings_useAnyway": "照用",
-
   "shortcuts_title": "快速鍵",
   "shortcuts_closeAriaLabel": "關閉",
   "shortcuts_categoryNavigation": "導覽",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "設定 → 快速鍵",
   "shortcuts_footerPress": "撳",
   "shortcuts_footerToClose": "嚟關閉",
-
   "onboarding_stepWelcome": "歡迎",
   "onboarding_stepSecurity": "安全",
   "onboarding_stepApps": "應用程式",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "重新輸入密碼",
   "onboarding_proxyTooltip": "透過 Muximux 路由流量，令應用程式唔使直接從瀏覽器存取得到。如果應用程式喺內部網絡或瀏覽器直接存取唔到嘅其他主機上面，請啟用呢個選項。",
   "onboarding_addAnotherInstance": "新增另一個 {appName}",
-
+  "onboarding_selectLanguage": "揀你嘅語言",
   "splash_selectApp": "揀選一個應用程式開始啦",
   "splash_quickAccess": "快速存取",
   "splash_allShortcuts": "所有快速鍵",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "仲未有應用程式",
   "splash_noAppsDesc": "新增你嘅第一個應用程式嚟開始使用儀表板。",
   "splash_addApplication": "新增應用程式",
-
   "logs_title": "日誌",
   "logs_backToDashboard": "返回儀表板",
   "logs_resume": "繼續",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "顯示 {count} 個已過濾結果",
   "logs_paused": "已暫停",
   "logs_scrollToBottom": "捲動到底部",
-
   "appFrame_refreshing": "重新整理中...",
   "appFrame_releaseToRefresh": "放開嚟重新整理",
   "appFrame_pullToRefresh": "向下拉嚟重新整理",
-
-  "iconBrowser_dashboardIcons": "儀表板圖示",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "自訂",
   "iconBrowser_searchPlaceholder": "搜尋圖示...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} 個圖示",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} 個圖示",
   "iconBrowser_selectIcon": "揀選圖示",
-
   "popularApps_groupMedia": "媒體",
   "popularApps_groupDownloads": "下載",
   "popularApps_groupSystem": "系統",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "RSS 聚合器",
   "popularApps_linkdingDesc": "書籤管理",
   "popularApps_ollamaDesc": "本機 LLM 推理伺服器",
-  "popularApps_openWebuiDesc": "本機 LLM 對話介面"
+  "popularApps_openWebuiDesc": "本機 LLM 對話介面",
+  "keybindings_searchLabel": "命令面板",
+  "keybindings_searchDesc": "打開命令面板",
+  "keybindings_settingsLabel": "打開設定",
+  "keybindings_settingsDesc": "打開設定面板",
+  "keybindings_shortcutsLabel": "顯示快捷鍵",
+  "keybindings_shortcutsDesc": "顯示鍵盤快捷鍵幫助",
+  "keybindings_homeLabel": "返回首頁",
+  "keybindings_homeDesc": "返回啟動畫面",
+  "keybindings_logsLabel": "睇日誌",
+  "keybindings_logsDesc": "打開日誌查看器",
+  "keybindings_refreshLabel": "重新載入應用",
+  "keybindings_refreshDesc": "重新載入當前應用嘅 iframe",
+  "keybindings_fullscreenLabel": "切換全屏",
+  "keybindings_fullscreenDesc": "隱藏/顯示導航以使用全屏模式",
+  "keybindings_nextAppLabel": "下一個應用",
+  "keybindings_nextAppDesc": "切換到列表中嘅下一個應用",
+  "keybindings_prevAppLabel": "上一個應用",
+  "keybindings_prevAppDesc": "切換到列表中嘅上一個應用",
+  "keybindings_appLabel": "應用 {number}",
+  "keybindings_appDesc": "切換到應用 #{number}"
 }

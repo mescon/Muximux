@@ -23,7 +23,6 @@
   "common_selectApp": "Chọn một ứng dụng từ thanh điều hướng",
   "common_continue": "Tiếp tục",
   "common_finish": "Hoàn tất",
-
   "toast_connectionRestored": "Đã khôi phục kết nối",
   "toast_connectionLost": "Mất kết nối - đang kết nối lại...",
   "toast_settingsSaved": "Đã lưu cài đặt thành công",
@@ -35,7 +34,6 @@
   "toast_switchedToDark": "Đã chuyển sang giao diện tối",
   "toast_switchedToLight": "Đã chuyển sang giao diện sáng",
   "toast_usingSystemTheme": "Đang sử dụng giao diện hệ thống",
-
   "toast_failedSaveConfig": "Không thể lưu cấu hình",
   "toast_failedSaveTheme": "Không thể lưu giao diện",
   "toast_failedDeleteTheme": "Không thể xóa giao diện",
@@ -44,7 +42,6 @@
   "toast_failedDeleteIcon": "Xóa thất bại",
   "toast_securitySetupFailed": "Thiết lập bảo mật thất bại",
   "toast_iconSourcesPartialFail": "Một số nguồn biểu tượng không tải được: {sources}",
-
   "error_somethingWentWrong": "Đã xảy ra lỗi",
   "error_failedLoadDashboard": "Không thể tải bảng điều khiển",
   "error_failedLoadConfig": "Không thể tải cấu hình",
@@ -64,9 +61,7 @@
   "error_failedConnectWsRetry": "Kết nối thất bại sau nhiều lần thử",
   "error_failedFetchHealth": "Không thể lấy dữ liệu sức khỏe",
   "error_deleteFailed": "Xóa thất bại",
-
   "nav_exitFullscreen": "Thoát toàn màn hình (F)",
-
   "settings_title": "Cài đặt",
   "settings_general": "Chung",
   "settings_theme": "Giao diện",
@@ -113,7 +108,6 @@
   "settings_icon": "Biểu tượng",
   "settings_groupNamePlaceholder": "Đa phương tiện",
   "settings_appFallbackName": "Ứng dụng",
-
   "general_language": "Ngôn ngữ",
   "general_languageAfterSave": "Chọn ngôn ngữ hiển thị cho giao diện. Thay đổi có hiệu lực sau khi lưu.",
   "general_dashboardTitle": "Tiêu đề bảng điều khiển",
@@ -176,7 +170,6 @@
   "general_exportConfig": "Xuất cấu hình",
   "general_importConfig": "Nhập cấu hình",
   "general_configHint": "Xuất cấu hình hiện tại hoặc nhập cấu hình đã lưu trước đó.",
-
   "login_subtitle": "Đăng nhập vào bảng điều khiển",
   "login_externalAuth": "Xác thực bên ngoài",
   "login_externalAuthDesc": "Phiên bản này được bảo vệ bởi nhà cung cấp xác thực bên ngoài. Truy cập qua URL đã cấu hình trong reverse proxy để đăng nhập.",
@@ -192,7 +185,6 @@
   "login_rememberMe": "Ghi nhớ đăng nhập",
   "login_signingIn": "Đang đăng nhập...",
   "login_signIn": "Đăng nhập",
-
   "common_current": "Hiện tại",
   "common_username": "Tên người dùng",
   "common_password": "Mật khẩu",
@@ -204,15 +196,12 @@
   "common_default": "Mặc định",
   "common_disabled": "Đã tắt",
   "common_forwardAuthEnabled": "Forward auth đã bật. Vui lòng truy cập ứng dụng này qua URL reverse proxy để tiếp tục.",
-
   "error_usernameRequired": "Tên người dùng là bắt buộc",
   "error_passwordTooShort": "Mật khẩu phải có ít nhất 8 ký tự",
   "error_passwordTooShortCount": "Mật khẩu phải có ít nhất 8 ký tự ({count}/8)",
   "error_passwordsMismatch": "Mật khẩu không khớp",
-
   "toast_passwordChanged": "Đã đổi mật khẩu thành công",
   "toast_authMethodChanged": "Đã thay đổi phương thức xác thực thành {method}",
-
   "security_authMethod": "Phương thức xác thực",
   "security_authMethodDesc": "Chọn cách người dùng xác thực với Muximux",
   "security_passwordAuth": "Xác thực bằng mật khẩu",
@@ -251,7 +240,6 @@
   "security_deleteUser": "Xóa người dùng",
   "security_cantDeleteSelf": "Không thể xóa chính mình",
   "security_minEightCharsShort": "Tối thiểu 8 ký tự",
-
   "theme_appearance": "Giao diện",
   "theme_appearanceDesc": "Chọn tối, sáng hoặc theo hệ thống",
   "theme_dark": "Tối",
@@ -285,7 +273,6 @@
   "theme_statusWarning": "Cảnh báo",
   "theme_statusError": "Lỗi",
   "theme_statusInfo": "Thông tin",
-
   "apps_heading": "Ứng dụng & Nhóm",
   "apps_addGroup": "Thêm nhóm",
   "apps_addApp": "Thêm ứng dụng",
@@ -304,7 +291,6 @@
   "apps_editGroup": "Sửa nhóm",
   "apps_deleteGroup": "Xóa nhóm",
   "apps_noAppsConfigured": "Chưa cấu hình ứng dụng hoặc nhóm nào. Nhấn \"Thêm ứng dụng\" để bắt đầu.",
-
   "about_loadingSystemInfo": "Đang tải thông tin hệ thống...",
   "about_updateAvailable": "Có bản cập nhật",
   "about_upToDate": "Bạn đang dùng phiên bản mới nhất",
@@ -337,9 +323,7 @@
   "about_issues": "Vấn đề",
   "about_releases": "Phát hành",
   "about_wiki": "Wiki",
-
   "common_or": "hoặc",
-
   "appForm_name": "Tên",
   "appForm_helpName": "Hiển thị trong thanh điều hướng và tiêu đề trang. Cũng được dùng làm định danh duy nhất — đổi tên ứng dụng sẽ tạo tuyến proxy mới.",
   "appForm_placeholderName": "Ứng dụng của tôi",
@@ -419,7 +403,6 @@
   "appForm_newWindowDesc": "Mở trong cửa sổ bật lên",
   "appForm_redirect": "Chuyển hướng",
   "appForm_redirectDesc": "Chuyển đến URL ứng dụng",
-
   "command_searchPlaceholder": "Tìm ứng dụng và lệnh...",
   "command_hintEsc": "esc",
   "command_hintNavigate": "↑↓ Điều hướng",
@@ -444,7 +427,6 @@
   "command_useSystemTheme": "Sử dụng giao diện hệ thống",
   "command_switchToApp": "Chuyển đến ứng dụng",
   "command_commandPalette": "Bảng lệnh",
-
   "nav_closeNavMenu": "Đóng menu điều hướng",
   "nav_openNavMenu": "Mở menu điều hướng",
   "nav_closeMenu": "Đóng menu",
@@ -475,7 +457,6 @@
   "nav_resizeSidebar": "Thay đổi kích thước thanh bên",
   "nav_closeNavigation": "Đóng điều hướng",
   "nav_openNavigation": "Mở điều hướng",
-
   "keybindings_hint": "Nhấp vào phím tắt để thay đổi. Nhấn Escape để hủy.",
   "keybindings_resetAllConfirm": "Đặt lại tất cả phím tắt?",
   "keybindings_yesReset": "Có, đặt lại",
@@ -492,7 +473,6 @@
   "keybindings_conflictDetected": "Phát hiện xung đột",
   "keybindings_conflictDesc": "Phím tắt này đã được sử dụng bởi:",
   "keybindings_useAnyway": "Vẫn sử dụng",
-
   "shortcuts_title": "Phím tắt",
   "shortcuts_closeAriaLabel": "Đóng",
   "shortcuts_categoryNavigation": "Điều hướng",
@@ -512,7 +492,6 @@
   "shortcuts_settingsKeybindings": "Cài đặt → Phím tắt",
   "shortcuts_footerPress": "Nhấn",
   "shortcuts_footerToClose": "để đóng",
-
   "onboarding_stepWelcome": "Chào mừng",
   "onboarding_stepSecurity": "Bảo mật",
   "onboarding_stepApps": "Ứng dụng",
@@ -574,7 +553,7 @@
   "onboarding_reenterPassword": "Nhập lại mật khẩu",
   "onboarding_proxyTooltip": "Định tuyến lưu lượng qua Muximux để ứng dụng không cần truy cập trực tiếp từ trình duyệt. Bật tùy chọn này nếu ứng dụng nằm trên mạng nội bộ hoặc máy chủ khác mà trình duyệt không thể truy cập trực tiếp.",
   "onboarding_addAnotherInstance": "Thêm {appName} khác",
-
+  "onboarding_selectLanguage": "Chọn ngôn ngữ của bạn",
   "splash_selectApp": "Chọn một ứng dụng để bắt đầu",
   "splash_quickAccess": "Truy cập nhanh",
   "splash_allShortcuts": "Tất cả phím tắt",
@@ -586,7 +565,6 @@
   "splash_noAppsTitle": "Chưa có ứng dụng",
   "splash_noAppsDesc": "Thêm ứng dụng đầu tiên để bắt đầu sử dụng bảng điều khiển.",
   "splash_addApplication": "Thêm ứng dụng",
-
   "logs_title": "Nhật ký",
   "logs_backToDashboard": "Quay lại bảng điều khiển",
   "logs_resume": "Tiếp tục",
@@ -608,12 +586,10 @@
   "logs_showingFiltered": "hiển thị {count} kết quả đã lọc",
   "logs_paused": "ĐÃ TẠM DỪNG",
   "logs_scrollToBottom": "Cuộn xuống cuối",
-
   "appFrame_refreshing": "Đang làm mới...",
   "appFrame_releaseToRefresh": "Thả để làm mới",
   "appFrame_pullToRefresh": "Kéo xuống để làm mới",
-
-  "iconBrowser_dashboardIcons": "Biểu tượng bảng điều khiển",
+  "iconBrowser_dashboardIcons": "Dashboard Icons",
   "iconBrowser_lucide": "Lucide",
   "iconBrowser_custom": "Tùy chỉnh",
   "iconBrowser_searchPlaceholder": "Tìm biểu tượng...",
@@ -631,7 +607,6 @@
   "iconBrowser_iconCount": "{count} biểu tượng",
   "iconBrowser_iconCountFiltered": "{filtered}/{total} biểu tượng",
   "iconBrowser_selectIcon": "Chọn biểu tượng",
-
   "popularApps_groupMedia": "Đa phương tiện",
   "popularApps_groupDownloads": "Tải xuống",
   "popularApps_groupSystem": "Hệ thống",
@@ -711,5 +686,25 @@
   "popularApps_freshrssDesc": "Trình tổng hợp RSS",
   "popularApps_linkdingDesc": "Trình quản lý bookmark",
   "popularApps_ollamaDesc": "Máy chủ suy luận LLM cục bộ",
-  "popularApps_openWebuiDesc": "Giao diện trò chuyện cho LLM cục bộ"
+  "popularApps_openWebuiDesc": "Giao diện trò chuyện cho LLM cục bộ",
+  "keybindings_searchLabel": "Bảng lệnh",
+  "keybindings_searchDesc": "Mở bảng lệnh",
+  "keybindings_settingsLabel": "Mở cài đặt",
+  "keybindings_settingsDesc": "Mở bảng cài đặt",
+  "keybindings_shortcutsLabel": "Hiện phím tắt",
+  "keybindings_shortcutsDesc": "Hiện trợ giúp phím tắt",
+  "keybindings_homeLabel": "Về trang chủ",
+  "keybindings_homeDesc": "Quay về màn hình chính",
+  "keybindings_logsLabel": "Xem nhật ký",
+  "keybindings_logsDesc": "Mở trình xem nhật ký",
+  "keybindings_refreshLabel": "Làm mới ứng dụng",
+  "keybindings_refreshDesc": "Làm mới iframe ứng dụng hiện tại",
+  "keybindings_fullscreenLabel": "Chuyển đổi toàn màn hình",
+  "keybindings_fullscreenDesc": "Ẩn/hiện thanh điều hướng cho chế độ toàn màn hình",
+  "keybindings_nextAppLabel": "Ứng dụng tiếp",
+  "keybindings_nextAppDesc": "Chuyển sang ứng dụng tiếp theo",
+  "keybindings_prevAppLabel": "Ứng dụng trước",
+  "keybindings_prevAppDesc": "Chuyển sang ứng dụng trước",
+  "keybindings_appLabel": "Ứng dụng {number}",
+  "keybindings_appDesc": "Chuyển sang ứng dụng #{number}"
 }

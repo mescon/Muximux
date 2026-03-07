@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { App, Config } from '$lib/types';
-  import { getAvailableLocales } from '$lib/localeStore';
+  import LocaleSelect from '../LocaleSelect.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
   let {
@@ -50,16 +50,7 @@
     <label for="language" class="block text-sm font-medium text-text-secondary mb-2">
       {m.general_language()}
     </label>
-    <select
-      id="language"
-      bind:value={localConfig.language}
-      class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
-             focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
-    >
-      {#each getAvailableLocales() as locale (locale.tag)}
-        <option value={locale.tag}>{locale.name}</option>
-      {/each}
-    </select>
+    <LocaleSelect id="language" bind:value={localConfig.language} />
     <p class="text-xs text-text-disabled mt-1.5">
       {m.general_languageAfterSave()}
     </p>
