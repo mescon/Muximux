@@ -1,0 +1,205 @@
+/* eslint-disable */
+import { getLocale, experimentalStaticLocale } from '../runtime.js';
+
+/** @typedef {import('../runtime.js').LocalizedString} LocalizedString */
+
+/** @typedef {{}} Security_Logouturlhelp2Inputs */
+
+const en_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const sv_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const uk_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const zh_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const es_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const hi_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const pt_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const bn_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const ru_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const ja_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const pa_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const vi_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const yue_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const tr_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const ar_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const wuu_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const mr_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const nb_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const fi_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const da_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const et_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const lv_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const lt_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const pl_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const de_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const nl_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const fr_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const it_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const hu_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const cs_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const ro_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const el_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const bg_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const hr_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const sr_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const sk_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+const sl_security_logouturlhelp2 = /** @type {(inputs: Security_Logouturlhelp2Inputs) => LocalizedString} */ () => {
+	return /** @type {LocalizedString} */ (`Your auth provider's logout endpoint — clears the external session on sign-out`)
+};
+
+/**
+* | output |
+* | --- |
+* | "Your auth provider's logout endpoint — clears the external session on sign-out" |
+*
+* @param {Security_Logouturlhelp2Inputs} inputs
+* @param {{ locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }} options
+* @returns {LocalizedString}
+*/
+const security_logouturlhelp2 = /** @type {((inputs?: Security_Logouturlhelp2Inputs, options?: { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }) => LocalizedString) & import('../runtime.js').MessageMetadata<Security_Logouturlhelp2Inputs, { locale?: "en" | "sv" | "uk" | "zh" | "es" | "hi" | "pt" | "bn" | "ru" | "ja" | "pa" | "vi" | "yue" | "tr" | "ar" | "wuu" | "mr" | "nb" | "fi" | "da" | "et" | "lv" | "lt" | "pl" | "de" | "nl" | "fr" | "it" | "hu" | "cs" | "ro" | "el" | "bg" | "hr" | "sr" | "sk" | "sl" }, {}>} */ ((inputs = {}, options = {}) => {
+	const locale = experimentalStaticLocale ?? options.locale ?? getLocale()
+	if (locale === "en") return en_security_logouturlhelp2(inputs)
+	if (locale === "sv") return sv_security_logouturlhelp2(inputs)
+	if (locale === "uk") return uk_security_logouturlhelp2(inputs)
+	if (locale === "zh") return zh_security_logouturlhelp2(inputs)
+	if (locale === "es") return es_security_logouturlhelp2(inputs)
+	if (locale === "hi") return hi_security_logouturlhelp2(inputs)
+	if (locale === "pt") return pt_security_logouturlhelp2(inputs)
+	if (locale === "bn") return bn_security_logouturlhelp2(inputs)
+	if (locale === "ru") return ru_security_logouturlhelp2(inputs)
+	if (locale === "ja") return ja_security_logouturlhelp2(inputs)
+	if (locale === "pa") return pa_security_logouturlhelp2(inputs)
+	if (locale === "vi") return vi_security_logouturlhelp2(inputs)
+	if (locale === "yue") return yue_security_logouturlhelp2(inputs)
+	if (locale === "tr") return tr_security_logouturlhelp2(inputs)
+	if (locale === "ar") return ar_security_logouturlhelp2(inputs)
+	if (locale === "wuu") return wuu_security_logouturlhelp2(inputs)
+	if (locale === "mr") return mr_security_logouturlhelp2(inputs)
+	if (locale === "nb") return nb_security_logouturlhelp2(inputs)
+	if (locale === "fi") return fi_security_logouturlhelp2(inputs)
+	if (locale === "da") return da_security_logouturlhelp2(inputs)
+	if (locale === "et") return et_security_logouturlhelp2(inputs)
+	if (locale === "lv") return lv_security_logouturlhelp2(inputs)
+	if (locale === "lt") return lt_security_logouturlhelp2(inputs)
+	if (locale === "pl") return pl_security_logouturlhelp2(inputs)
+	if (locale === "de") return de_security_logouturlhelp2(inputs)
+	if (locale === "nl") return nl_security_logouturlhelp2(inputs)
+	if (locale === "fr") return fr_security_logouturlhelp2(inputs)
+	if (locale === "it") return it_security_logouturlhelp2(inputs)
+	if (locale === "hu") return hu_security_logouturlhelp2(inputs)
+	if (locale === "cs") return cs_security_logouturlhelp2(inputs)
+	if (locale === "ro") return ro_security_logouturlhelp2(inputs)
+	if (locale === "el") return el_security_logouturlhelp2(inputs)
+	if (locale === "bg") return bg_security_logouturlhelp2(inputs)
+	if (locale === "hr") return hr_security_logouturlhelp2(inputs)
+	if (locale === "sr") return sr_security_logouturlhelp2(inputs)
+	if (locale === "sk") return sk_security_logouturlhelp2(inputs)
+	return sl_security_logouturlhelp2(inputs)
+});
+export { security_logouturlhelp2 as "security_logoutUrlHelp" }
