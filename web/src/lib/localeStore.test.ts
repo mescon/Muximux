@@ -1,10 +1,26 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { applyLocaleToDocument, getAvailableLocales, localeNames, localeFlags } from './localeStore';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+
+const { mockSetLocale, mockGetLocale, mockLocales } = vi.hoisted(() => ({
+  mockSetLocale: vi.fn(),
+  mockGetLocale: vi.fn().mockReturnValue('en'),
+  mockLocales: ['en', 'sv', 'ar', 'de', 'fr'],
+}));
+
+vi.mock('$lib/paraglide/runtime.js', () => ({
+  setLocale: mockSetLocale,
+  getLocale: mockGetLocale,
+  locales: mockLocales,
+  localStorageKey: 'PARAGLIDE_LOCALE',
+}));
+
+import { applyLocaleToDocument, syncLocaleFromConfig, getAvailableLocales, localeNames, localeFlags } from './localeStore';
 
 describe('localeStore', () => {
   beforeEach(() => {
     document.documentElement.lang = '';
     document.documentElement.dir = '';
+    vi.clearAllMocks();
+    mockGetLocale.mockReturnValue('en');
   });
 
   describe('applyLocaleToDocument', () => {
@@ -75,6 +91,50 @@ describe('localeStore', () => {
         expect(localeFlags[locale.tag]).toBeDefined();
         expect(localeFlags[locale.tag].length).toBeGreaterThan(0);
       }
+    });
+  });
+
+  describe('syncLocaleFromConfig', () => {
+    it('returns early for empty locale string', () => {
+      syncLocaleFromConfig('');
+      expect(mockSetLocale).not.toHaveBeenCalled();
+      expect(document.documentElement.lang).toBe('');
+    });
+
+    it('returns early for invalid/unsupported locale', () => {
+      syncLocaleFromConfig('xx');
+      expect(mockSetLocale).not.toHaveBeenCalled();
+      expect(document.documentElement.lang).toBe('');
+    });
+
+    it('calls applyLocaleToDocument when config locale matches current locale', () => {
+      mockGetLocale.mockReturnValue('sv');
+      syncLocaleFromConfig('sv');
+      expect(document.documentElement.lang).toBe('sv');
+      expect(document.documentElement.dir).toBe('ltr');
+      expect(mockSetLocale).not.toHaveBeenCalled();
+    });
+
+    it('sets RTL direction when config locale matches current RTL locale', () => {
+      mockGetLocale.mockReturnValue('ar');
+      syncLocaleFromConfig('ar');
+      expect(document.documentElement.lang).toBe('ar');
+      expect(document.documentElement.dir).toBe('rtl');
+      expect(mockSetLocale).not.toHaveBeenCalled();
+    });
+
+    it('calls setLocale when config locale differs from current locale', () => {
+      mockGetLocale.mockReturnValue('en');
+      syncLocaleFromConfig('de');
+      expect(mockSetLocale).toHaveBeenCalledWith('de');
+    });
+
+    it('does not call applyLocaleToDocument when locale differs', () => {
+      mockGetLocale.mockReturnValue('en');
+      syncLocaleFromConfig('fr');
+      // setLocale should be called, but document should not be updated directly
+      expect(mockSetLocale).toHaveBeenCalledWith('fr');
+      expect(document.documentElement.lang).toBe('');
     });
   });
 });
