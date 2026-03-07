@@ -1,12 +1,13 @@
 <script lang="ts">
   import type { Snippet } from 'svelte';
+  import * as m from '$lib/paraglide/messages.js';
 
   let {
-    title = 'Something went wrong',
+    title = m.error_somethingWentWrong(),
     message = '',
     icon = 'error',
     showRetry = true,
-    retryLabel = 'Try again',
+    retryLabel = m.common_retry(),
     compact = false,
     onretry,
     children,

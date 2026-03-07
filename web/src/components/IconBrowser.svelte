@@ -17,6 +17,7 @@
   import { toasts } from '$lib/toastStore';
   import SkeletonIconGrid from './SkeletonIconGrid.svelte';
   import ErrorState from './ErrorState.svelte';
+  import * as m from '$lib/paraglide/messages.js';
 
   let {
     selectedIcon = '',
@@ -254,7 +255,7 @@
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'dashboard'}
     >
-      Dashboard Icons
+      {m.iconBrowser_dashboardIcons()}
       <span class="text-xs text-text-disabled ml-1">({dashboardIcons.length})</span>
     </button>
     <button
@@ -264,7 +265,7 @@
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'lucide'}
     >
-      Lucide
+      {m.iconBrowser_lucide()}
       <span class="text-xs text-text-disabled ml-1">({lucideIcons.length})</span>
     </button>
     <button
@@ -274,7 +275,7 @@
                : 'text-text-muted border-transparent hover:text-text-secondary'}"
       onclick={() => activeTab = 'custom'}
     >
-      Custom
+      {m.iconBrowser_custom()}
       <span class="text-xs text-text-disabled ml-1">({customIcons.length})</span>
     </button>
   </div>
@@ -285,7 +286,7 @@
       type="text"
       bind:value={searchQuery}
       oninput={handleSearch}
-      placeholder="Search icons..."
+      placeholder={m.iconBrowser_searchPlaceholder()}
       class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary
              focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
     />
@@ -327,12 +328,12 @@
       >
         {#if uploading}
           <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-          Uploading...
+          {m.iconBrowser_uploading()}
         {:else}
           <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12" />
           </svg>
-          Upload Custom Icon
+          {m.iconBrowser_uploadCustomIcon()}
         {/if}
       </button>
       {#if uploadError}
@@ -356,9 +357,9 @@
         >
           {#if fetching}
             <div class="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-            Fetching...
+            {m.iconBrowser_fetching()}
           {:else}
-            Fetch
+            {m.iconBrowser_fetch()}
           {/if}
         </button>
       </div>
@@ -374,7 +375,7 @@
       <SkeletonIconGrid count={40} />
     {:else if error}
       <ErrorState
-        title="Failed to load icons"
+        title={m.iconBrowser_failedToLoadIcons()}
         message={error}
         icon="network"
         compact
@@ -382,8 +383,8 @@
       />
     {:else if currentIcons.length === 0}
       <ErrorState
-        title={searchQuery ? 'No matches found' : activeTab === 'custom' ? 'No custom icons' : 'No icons available'}
-        message={searchQuery ? `No icons found matching "${searchQuery}"` : activeTab === 'custom' ? 'Upload your own icons to use them here' : ''}
+        title={searchQuery ? m.iconBrowser_noMatchesFound() : activeTab === 'custom' ? m.iconBrowser_noCustomIcons() : m.iconBrowser_noIconsAvailable()}
+        message={searchQuery ? m.iconBrowser_noIconsMatchingQuery({ query: searchQuery }) : activeTab === 'custom' ? m.iconBrowser_uploadHint() : ''}
         icon="empty"
         showRetry={false}
         compact
@@ -420,16 +421,16 @@
               {#if confirmDeleteIcon === icon.name}
                 <!-- Inline confirmation overlay -->
                 <div class="absolute inset-0 rounded-lg bg-bg-base/90 flex flex-col items-center justify-center gap-1 z-10">
-                  <span class="text-[10px] text-red-400">Delete?</span>
+                  <span class="text-[10px] text-red-400">{m.common_deleteConfirm()}</span>
                   <div class="flex gap-1">
                     <button
                       class="px-1.5 py-0.5 text-[10px] rounded bg-red-600 hover:bg-red-500 text-white"
                       onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIconAction(); }}
-                    >Yes</button>
+                    >{m.common_yes()}</button>
                     <button
                       class="px-1.5 py-0.5 text-[10px] rounded bg-bg-overlay hover:bg-bg-active text-text-primary"
                       onclick={(e: MouseEvent) => { e.stopPropagation(); confirmDeleteIcon = null; }}
-                    >No</button>
+                    >{m.common_no()}</button>
                   </div>
                 </div>
               {:else}
@@ -438,7 +439,7 @@
                          text-text-primary flex items-center justify-center opacity-0 group-hover:opacity-100
                          transition-opacity text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}
-                  title="Delete"
+                  title={m.common_delete()}
                 >
                   <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -453,7 +454,7 @@
       <div use:observeSentinel class="h-1"></div>
       {#if hasMore}
         <div class="text-center py-3 text-xs text-text-muted">
-          Loading more... ({currentIcons.length} of {allCurrentIcons.length})
+          {m.iconBrowser_loadingMore({ current: currentIcons.length, total: allCurrentIcons.length })}
         </div>
       {/if}
     {/if}
@@ -462,21 +463,21 @@
   <!-- Footer -->
   <div class="p-3 border-t border-border flex justify-between items-center">
     <span class="text-xs text-text-muted">
-      {allCurrentIcons.length}{allCurrentIcons.length !== totalCount ? ` of ${totalCount}` : ''} icons
+      {allCurrentIcons.length !== totalCount ? m.iconBrowser_iconCountFiltered({ filtered: allCurrentIcons.length, total: totalCount }) : m.iconBrowser_iconCount({ count: allCurrentIcons.length })}
     </span>
     <div class="flex gap-2">
       <button
         class="px-3 py-1.5 text-sm text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
         onclick={() => onclose?.()}
       >
-        Cancel
+        {m.common_cancel()}
       </button>
       <button
         class="px-3 py-1.5 text-sm bg-brand-600 hover:bg-brand-700 text-white rounded-md disabled:opacity-50"
         disabled={!selectedIcon}
         onclick={() => onselect?.({ name: selectedIcon, variant: selectedType === 'dashboard' ? selectedVariant : 'svg', type: selectedType })}
       >
-        Select Icon
+        {m.iconBrowser_selectIcon()}
       </button>
     </div>
   </div>

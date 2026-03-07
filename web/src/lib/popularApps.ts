@@ -1,4 +1,5 @@
 import type { App } from './types';
+import * as m from '$lib/paraglide/messages.js';
 
 export interface PopularAppTemplate {
   name: string;
@@ -8,21 +9,21 @@ export interface PopularAppTemplate {
   color: string;
   iconBackground: string;  // Dark contrasting background for icon square
   group: string;
-  description: string;
+  get description(): string;
 }
 
 // Pre-defined homelab app templates with icons from dashboard-icons
 // Icons are sourced from: https://github.com/homarr-labs/dashboard-icons
 export const popularApps: Record<string, PopularAppTemplate[]> = {
-  'Media': [
+  [m.popularApps_groupMedia()]: [
     {
       name: 'Plex',
       defaultUrl: 'http://localhost:32400/web',
       icon: 'plex',
       color: '#E5A00D',
       iconBackground: '#2D2200',
-      group: 'Media',
-      description: 'Stream your media library'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_plexDesc(); }
     },
     {
       name: 'Jellyfin',
@@ -30,8 +31,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'jellyfin',
       color: '#00A4DC',
       iconBackground: '#0D1F3D',
-      group: 'Media',
-      description: 'Free media server'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_jellyfinDesc(); }
     },
     {
       name: 'Emby',
@@ -39,8 +40,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'emby',
       color: '#52B54B',
       iconBackground: '#0D2E1A',
-      group: 'Media',
-      description: 'Media streaming server'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_embyDesc(); }
     },
     {
       name: 'Tautulli',
@@ -48,8 +49,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'tautulli',
       color: '#E5A00D',
       iconBackground: '#2D2200',
-      group: 'Media',
-      description: 'Plex monitoring & statistics'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_tautulliDesc(); }
     },
     {
       name: 'Stash',
@@ -57,8 +58,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'stash',
       color: '#1A1A2E',
       iconBackground: '#0D0D1A',
-      group: 'Media',
-      description: 'Media organizer & manager'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_stashDesc(); }
     },
     {
       name: 'Overseerr',
@@ -66,8 +67,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'overseerr',
       color: '#7B2BF9',
       iconBackground: '#150D2E',
-      group: 'Media',
-      description: 'Media request management'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_overseerrDesc(); }
     },
     {
       name: 'Navidrome',
@@ -75,8 +76,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'navidrome',
       color: '#0091EA',
       iconBackground: '#0D1F3D',
-      group: 'Media',
-      description: 'Personal music streaming'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_navidromeDesc(); }
     },
     {
       name: 'Jellyseerr',
@@ -84,8 +85,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'jellyseerr',
       color: '#763DCD',
       iconBackground: '#150D2E',
-      group: 'Media',
-      description: 'Media requests for Jellyfin'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_jellyseerrDesc(); }
     },
     {
       name: 'Audiobookshelf',
@@ -93,8 +94,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'audiobookshelf',
       color: '#875D27',
       iconBackground: '#2D1800',
-      group: 'Media',
-      description: 'Audiobook & podcast server'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_audiobookshelfDesc(); }
     },
     {
       name: 'Kavita',
@@ -102,8 +103,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'kavita',
       color: '#4AC694',
       iconBackground: '#0D2E1A',
-      group: 'Media',
-      description: 'Comics, manga & ebook reader'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_kavitaDesc(); }
     },
     {
       name: 'Komga',
@@ -111,8 +112,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'komga',
       color: '#005ED3',
       iconBackground: '#0D1F3D',
-      group: 'Media',
-      description: 'Comics & manga media server'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_komgaDesc(); }
     },
     {
       name: 'Calibre-Web',
@@ -120,20 +121,20 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'calibre-web',
       color: '#45B29D',
       iconBackground: '#0D2E1A',
-      group: 'Media',
-      description: 'Ebook library & reader'
+      get group() { return m.popularApps_groupMedia(); },
+      get description() { return m.popularApps_calibreWebDesc(); }
     }
   ],
 
-  'Downloads': [
+  [m.popularApps_groupDownloads()]: [
     {
       name: 'Sonarr',
       defaultUrl: 'http://localhost:8989',
       icon: 'sonarr',
       color: '#00CCFF',
       iconBackground: '#0D2633',
-      group: 'Downloads',
-      description: 'TV show management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_sonarrDesc(); }
     },
     {
       name: 'Radarr',
@@ -141,8 +142,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'radarr',
       color: '#FFC230',
       iconBackground: '#2D2200',
-      group: 'Downloads',
-      description: 'Movie management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_radarrDesc(); }
     },
     {
       name: 'Lidarr',
@@ -150,8 +151,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'lidarr',
       color: '#00E087',
       iconBackground: '#0D2E1A',
-      group: 'Downloads',
-      description: 'Music management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_lidarrDesc(); }
     },
     {
       name: 'Whisparr',
@@ -159,8 +160,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'whisparr',
       color: '#E0528B',
       iconBackground: '#2D0C1A',
-      group: 'Downloads',
-      description: 'Adult content management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_whisparrDesc(); }
     },
     {
       name: 'Bazarr',
@@ -168,8 +169,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'bazarr',
       color: '#4FC3F7',
       iconBackground: '#0D2633',
-      group: 'Downloads',
-      description: 'Subtitle management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_bazarrDesc(); }
     },
     {
       name: 'Prowlarr',
@@ -177,8 +178,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'prowlarr',
       color: '#FFC230',
       iconBackground: '#2D2200',
-      group: 'Downloads',
-      description: 'Indexer management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_prowlarrDesc(); }
     },
     {
       name: 'qBittorrent',
@@ -186,8 +187,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'qbittorrent',
       color: '#2F67BA',
       iconBackground: '#0D1F3D',
-      group: 'Downloads',
-      description: 'Torrent client'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_qbittorrentDesc(); }
     },
     {
       name: 'SABnzbd',
@@ -195,8 +196,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'sabnzbd',
       color: '#FDC624',
       iconBackground: '#2D2200',
-      group: 'Downloads',
-      description: 'Usenet downloader'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_sabnzbdDesc(); }
     },
     {
       name: 'NZBGet',
@@ -204,8 +205,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'nzbget',
       color: '#333333',
       iconBackground: '#1A1A1A',
-      group: 'Downloads',
-      description: 'Usenet downloader'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_nzbgetDesc(); }
     },
     {
       name: 'Transmission',
@@ -213,8 +214,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'transmission',
       color: '#B50D0D',
       iconBackground: '#2D0C07',
-      group: 'Downloads',
-      description: 'Torrent client'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_transmissionDesc(); }
     },
     {
       name: 'Deluge',
@@ -222,8 +223,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'deluge',
       color: '#2B5B9E',
       iconBackground: '#0D1F3D',
-      group: 'Downloads',
-      description: 'Torrent client'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_delugeDesc(); }
     },
     {
       name: 'RDTClient',
@@ -231,8 +232,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'rdt-client',
       color: '#5C6BC0',
       iconBackground: '#150D2E',
-      group: 'Downloads',
-      description: 'Real-Debrid torrent client'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_rdtclientDesc(); }
     },
     {
       name: 'Huntarr',
@@ -240,8 +241,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'huntarr',
       color: '#FF6B35',
       iconBackground: '#2D1800',
-      group: 'Downloads',
-      description: 'Missing media hunter'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_huntarrDesc(); }
     },
     {
       name: 'Readarr',
@@ -249,20 +250,20 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'readarr',
       color: '#8E2222',
       iconBackground: '#2D0C07',
-      group: 'Downloads',
-      description: 'Book management'
+      get group() { return m.popularApps_groupDownloads(); },
+      get description() { return m.popularApps_readarrDesc(); }
     }
   ],
 
-  'System': [
+  [m.popularApps_groupSystem()]: [
     {
       name: 'Portainer',
       defaultUrl: 'http://localhost:9000',
       icon: 'portainer',
       color: '#13BEF9',
       iconBackground: '#0D2633',
-      group: 'System',
-      description: 'Docker management'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_portainerDesc(); }
     },
     {
       name: 'Proxmox',
@@ -270,8 +271,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'proxmox',
       color: '#E57000',
       iconBackground: '#2D1800',
-      group: 'System',
-      description: 'Virtualization platform'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_proxmoxDesc(); }
     },
     {
       name: 'Unraid',
@@ -279,8 +280,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'unraid',
       color: '#F15A2B',
       iconBackground: '#2D0C07',
-      group: 'System',
-      description: 'NAS & server OS'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_unraidDesc(); }
     },
     {
       name: 'TrueNAS',
@@ -288,8 +289,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'truenas',
       color: '#0095D5',
       iconBackground: '#0D1F3D',
-      group: 'System',
-      description: 'Storage management'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_truenasDesc(); }
     },
     {
       name: 'Home Assistant',
@@ -297,8 +298,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'home-assistant',
       color: '#41BDF5',
       iconBackground: '#0D1F3D',
-      group: 'System',
-      description: 'Home automation'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_homeAssistantDesc(); }
     },
     {
       name: 'Pi-hole',
@@ -306,8 +307,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'pi-hole',
       color: '#96060C',
       iconBackground: '#2D0C07',
-      group: 'System',
-      description: 'Network-wide ad blocker'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_piholeDesc(); }
     },
     {
       name: 'AdGuard Home',
@@ -315,8 +316,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'adguard-home',
       color: '#67B279',
       iconBackground: '#0D2E1A',
-      group: 'System',
-      description: 'DNS-based ad blocker'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_adguardHomeDesc(); }
     },
     {
       name: 'Nginx Proxy Manager',
@@ -324,8 +325,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'nginx-proxy-manager',
       color: '#F15833',
       iconBackground: '#2D1800',
-      group: 'System',
-      description: 'Reverse proxy management'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_nginxProxyManagerDesc(); }
     },
     {
       name: 'Traefik',
@@ -333,8 +334,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'traefik',
       color: '#24A1C1',
       iconBackground: '#0D2633',
-      group: 'System',
-      description: 'Edge router & proxy'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_traefikDesc(); }
     },
     {
       name: 'Grafana',
@@ -342,8 +343,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'grafana',
       color: '#F46800',
       iconBackground: '#2D1800',
-      group: 'System',
-      description: 'Metrics visualization'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_grafanaDesc(); }
     },
     {
       name: 'Prometheus',
@@ -351,8 +352,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'prometheus',
       color: '#E6522C',
       iconBackground: '#2D0C07',
-      group: 'System',
-      description: 'Metrics collection'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_prometheusDesc(); }
     },
     {
       name: 'Uptime Kuma',
@@ -360,8 +361,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'uptime-kuma',
       color: '#5CDD8B',
       iconBackground: '#0D2E1A',
-      group: 'System',
-      description: 'Status monitoring'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_uptimeKumaDesc(); }
     },
     {
       name: 'Frigate',
@@ -369,8 +370,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'frigate',
       color: '#2196F3',
       iconBackground: '#0D1F3D',
-      group: 'System',
-      description: 'NVR & camera system'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_frigateDesc(); }
     },
     {
       name: 'n8n',
@@ -378,8 +379,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'n8n',
       color: '#EA4B71',
       iconBackground: '#2D0C1A',
-      group: 'System',
-      description: 'Workflow automation'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_n8nDesc(); }
     },
     {
       name: 'Tdarr',
@@ -387,8 +388,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'tdarr',
       color: '#6EC6FF',
       iconBackground: '#0D2633',
-      group: 'System',
-      description: 'Media transcoding'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_tdarrDesc(); }
     },
     {
       name: 'Guacamole',
@@ -396,8 +397,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'guacamole',
       color: '#3F8E4F',
       iconBackground: '#0D2E1A',
-      group: 'System',
-      description: 'Remote desktop gateway'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_guacamoleDesc(); }
     },
     {
       name: 'Headplane',
@@ -405,8 +406,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'headscale',
       color: '#4A90D9',
       iconBackground: '#0D1F3D',
-      group: 'System',
-      description: 'Headscale web UI'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_headplaneDesc(); }
     },
     {
       name: 'Arcane',
@@ -414,8 +415,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'arcane',
       color: '#7C4DFF',
       iconBackground: '#150D2E',
-      group: 'System',
-      description: 'Docker management'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_arcaneDesc(); }
     },
     {
       name: 'Healarr',
@@ -424,8 +425,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       iconType: 'custom',
       color: '#4CAF50',
       iconBackground: '#0D2E1A',
-      group: 'System',
-      description: 'Health monitor for *arr'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_healarrDesc(); }
     },
     {
       name: 'Profilarr',
@@ -433,8 +434,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'profilarr',
       color: '#FF7043',
       iconBackground: '#2D1800',
-      group: 'System',
-      description: 'Profile sync for *arr'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_profilarrDesc(); }
     },
     {
       name: 'Agregarr',
@@ -442,8 +443,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'agregarr',
       color: '#AB47BC',
       iconBackground: '#150D2E',
-      group: 'System',
-      description: 'Plex collections manager'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_agregarrDesc(); }
     },
     {
       name: 'Authentik',
@@ -451,8 +452,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'authentik',
       color: '#FD4B2D',
       iconBackground: '#2D0C07',
-      group: 'System',
-      description: 'Identity provider & SSO'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_authentikDesc(); }
     },
     {
       name: 'Authelia',
@@ -460,8 +461,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'authelia',
       color: '#3F51B4',
       iconBackground: '#0D1F3D',
-      group: 'System',
-      description: 'Authentication & 2FA portal'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_autheliaDesc(); }
     },
     {
       name: 'Tailscale',
@@ -469,8 +470,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'tailscale',
       color: '#242424',
       iconBackground: '#1A1A1A',
-      group: 'System',
-      description: 'Mesh VPN'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_tailscaleDesc(); }
     },
     {
       name: 'WireGuard',
@@ -478,8 +479,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'wireguard',
       color: '#88171A',
       iconBackground: '#2D0C07',
-      group: 'System',
-      description: 'VPN server'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_wireguardDesc(); }
     },
     {
       name: 'Watchtower',
@@ -487,8 +488,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'watchtower',
       color: '#003343',
       iconBackground: '#0D2633',
-      group: 'System',
-      description: 'Automatic Docker updates'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_watchtowerDesc(); }
     },
     {
       name: 'CrowdSec',
@@ -496,8 +497,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'crowdsec',
       color: '#4E4A99',
       iconBackground: '#150D2E',
-      group: 'System',
-      description: 'Collaborative intrusion prevention'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_crowdsecDesc(); }
     },
     {
       name: 'Dozzle',
@@ -505,8 +506,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'dozzle',
       color: '#F5A623',
       iconBackground: '#2D2200',
-      group: 'System',
-      description: 'Real-time Docker log viewer'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_dozzleDesc(); }
     },
     {
       name: 'Glances',
@@ -514,8 +515,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'glances',
       color: '#57CB6A',
       iconBackground: '#0D2E1A',
-      group: 'System',
-      description: 'System monitoring dashboard'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_glancesDesc(); }
     },
     {
       name: 'Netdata',
@@ -523,20 +524,20 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'netdata',
       color: '#00AB44',
       iconBackground: '#0D2E1A',
-      group: 'System',
-      description: 'Real-time performance monitoring'
+      get group() { return m.popularApps_groupSystem(); },
+      get description() { return m.popularApps_netdataDesc(); }
     }
   ],
 
-  'Utilities': [
+  [m.popularApps_groupUtilities()]: [
     {
       name: 'Vaultwarden',
       defaultUrl: 'http://localhost:8080',
       icon: 'vaultwarden',
       color: '#175DDC',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'Password manager'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_vaultwardenDesc(); }
     },
     {
       name: 'Nextcloud',
@@ -544,8 +545,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'nextcloud',
       color: '#0082C9',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'Cloud storage & productivity'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_nextcloudDesc(); }
     },
     {
       name: 'Photoprism',
@@ -553,8 +554,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'photoprism',
       color: '#9C27B0',
       iconBackground: '#150D2E',
-      group: 'Utilities',
-      description: 'Photo management'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_photoprismDesc(); }
     },
     {
       name: 'Immich',
@@ -562,8 +563,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'immich',
       color: '#4250AF',
       iconBackground: '#150D2E',
-      group: 'Utilities',
-      description: 'Photo & video backup'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_immichDesc(); }
     },
     {
       name: 'Paperless-ngx',
@@ -571,8 +572,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'paperless-ngx',
       color: '#17541F',
       iconBackground: '#8BC34A',
-      group: 'Utilities',
-      description: 'Document management'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_paperlessNgxDesc(); }
     },
     {
       name: 'Gitea',
@@ -580,8 +581,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'gitea',
       color: '#609926',
       iconBackground: '#0D2E1A',
-      group: 'Utilities',
-      description: 'Git server'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_giteaDesc(); }
     },
     {
       name: 'Code Server',
@@ -589,8 +590,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'vscode',
       color: '#007ACC',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'VS Code in the browser'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_codeServerDesc(); }
     },
     {
       name: 'Syncthing',
@@ -598,8 +599,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'syncthing',
       color: '#0891D1',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'File synchronization'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_syncthingDesc(); }
     },
     {
       name: 'Mealie',
@@ -607,8 +608,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'mealie',
       color: '#E58325',
       iconBackground: '#2D1800',
-      group: 'Utilities',
-      description: 'Recipe manager'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_mealieDesc(); }
     },
     {
       name: 'Bookstack',
@@ -616,8 +617,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'bookstack',
       color: '#0288D1',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'Documentation wiki'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_bookstackDesc(); }
     },
     {
       name: 'Wiki.js',
@@ -625,8 +626,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'wikijs',
       color: '#02BEF3',
       iconBackground: '#0D2633',
-      group: 'Utilities',
-      description: 'Modern documentation wiki'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_wikijsDesc(); }
     },
     {
       name: 'Stirling-PDF',
@@ -634,8 +635,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'stirling-pdf',
       color: '#8E3131',
       iconBackground: '#2D0C07',
-      group: 'Utilities',
-      description: 'PDF tools & manipulation'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_stirlingPdfDesc(); }
     },
     {
       name: 'IT-Tools',
@@ -643,8 +644,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'it-tools',
       color: '#18A058',
       iconBackground: '#0D2E1A',
-      group: 'Utilities',
-      description: 'Developer & sysadmin toolkit'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_itToolsDesc(); }
     },
     {
       name: 'Excalidraw',
@@ -652,8 +653,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'excalidraw',
       color: '#6965DB',
       iconBackground: '#150D2E',
-      group: 'Utilities',
-      description: 'Collaborative whiteboard'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_excalidrawDesc(); }
     },
     {
       name: 'Changedetection.io',
@@ -661,8 +662,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'changedetection',
       color: '#3056D3',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'Website change monitoring'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_changedetectionDesc(); }
     },
     {
       name: 'FreshRSS',
@@ -670,8 +671,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'freshrss',
       color: '#0062BE',
       iconBackground: '#0D1F3D',
-      group: 'Utilities',
-      description: 'RSS feed aggregator'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_freshrssDesc(); }
     },
     {
       name: 'Linkding',
@@ -679,20 +680,20 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'linkding',
       color: '#5856E0',
       iconBackground: '#150D2E',
-      group: 'Utilities',
-      description: 'Bookmark manager'
+      get group() { return m.popularApps_groupUtilities(); },
+      get description() { return m.popularApps_linkdingDesc(); }
     }
   ],
 
-  'AI': [
+  [m.popularApps_groupAI()]: [
     {
       name: 'Ollama',
       defaultUrl: 'http://localhost:11434',
       icon: 'ollama',
       color: '#000000',
       iconBackground: '#1A1A1A',
-      group: 'AI',
-      description: 'Local LLM inference server'
+      get group() { return m.popularApps_groupAI(); },
+      get description() { return m.popularApps_ollamaDesc(); }
     },
     {
       name: 'Open WebUI',
@@ -700,8 +701,8 @@ export const popularApps: Record<string, PopularAppTemplate[]> = {
       icon: 'open-webui',
       color: '#000000',
       iconBackground: '#1A1A1A',
-      group: 'AI',
-      description: 'Chat interface for local LLMs'
+      get group() { return m.popularApps_groupAI(); },
+      get description() { return m.popularApps_openWebuiDesc(); }
     }
   ]
 };
