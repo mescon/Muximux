@@ -5,7 +5,7 @@
   import { fly, fade } from 'svelte/transition';
   import { flip } from 'svelte/animate';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
-  import type { App, AppIcon as AppIconConfig, Config, Group, NavigationConfig, ThemeConfig, SetupRequest } from '$lib/types';
+  import { type App, type AppIcon as AppIconConfig, type Config, type Group, type NavigationConfig, type ThemeConfig, type SetupRequest, makeApp } from '$lib/types';
   import { openModes } from '$lib/constants';
   import {
     currentStep,
@@ -231,19 +231,14 @@
     while (allNames.has(`${app.name} ${num}`)) num++;
 
     const targetGroup = app.group;
-    const newApp: App = {
+    const newApp = makeApp({
       name: `${app.name} ${num}`,
       url: app.defaultUrl,
-      icon: { type: 'dashboard', name: app.icon, file: '', url: '', variant: 'svg' },
+      icon: { type: 'dashboard', name: app.icon, file: '', url: '', variant: '' },
       color: app.color,
       group: targetGroup,
       order: selectedCount + get(selectedApps).length,
-      enabled: true,
-      default: false,
-      open_mode: 'iframe',
-      proxy: false,
-      scale: 1
-    };
+    });
 
     selectedApps.update(apps => [...apps, newApp]);
     rebuildDndFromSelections();
@@ -380,10 +375,10 @@
     // Fallback when nothing is selected yet
     if (apps.length === 0) {
       return [
-        { name: 'Plex', color: '#E5A00D', icon: { type: 'dashboard' as const, name: 'plex', file: '', url: '', variant: 'svg' }, group: '', order: 0, url: '#', enabled: true, default: true, open_mode: 'iframe' as const, proxy: false, scale: 1 },
-        { name: 'Sonarr', color: '#00CCFF', icon: { type: 'dashboard' as const, name: 'sonarr', file: '', url: '', variant: 'svg' }, group: '', order: 1, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1 },
-        { name: 'Portainer', color: '#13BEF9', icon: { type: 'dashboard' as const, name: 'portainer', file: '', url: '', variant: 'svg' }, group: '', order: 2, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1 },
-        { name: 'Grafana', color: '#F46800', icon: { type: 'dashboard' as const, name: 'grafana', file: '', url: '', variant: 'svg' }, group: '', order: 3, url: '#', enabled: true, default: false, open_mode: 'iframe' as const, proxy: false, scale: 1 },
+        makeApp({ name: 'Plex', color: '#E5A00D', icon: { type: 'dashboard', name: 'plex', file: '', url: '', variant: '' }, order: 0, url: '#', default: true }),
+        makeApp({ name: 'Sonarr', color: '#00CCFF', icon: { type: 'dashboard', name: 'sonarr', file: '', url: '', variant: '' }, order: 1, url: '#' }),
+        makeApp({ name: 'Portainer', color: '#13BEF9', icon: { type: 'dashboard', name: 'portainer', file: '', url: '', variant: '' }, order: 2, url: '#' }),
+        makeApp({ name: 'Grafana', color: '#F46800', icon: { type: 'dashboard', name: 'grafana', file: '', url: '', variant: '' }, order: 3, url: '#' }),
       ];
     }
 
@@ -431,19 +426,11 @@
   function addCustomApp() {
     if (!customApp.name || !customApp.url) return;
 
-    const newApp: App = {
+    const newApp = makeApp({
       name: customApp.name,
       url: customApp.url,
-      icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
-      color: '#22c55e',
-      group: '',
       order: selectedCount,
-      enabled: true,
-      default: false,
-      open_mode: 'iframe',
-      proxy: false,
-      scale: 1
-    };
+    });
 
     selectedApps.update(apps => [...apps, newApp]);
     customApp = { name: '', url: '' };

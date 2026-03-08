@@ -101,14 +101,11 @@ describe('popularApps', () => {
       expect(app.url).toBe('http://localhost:32400/web');
     });
 
-    it('sets first app as default', () => {
-      const app = templateToApp(template, 'http://test', 0);
-      expect(app.default).toBe(true);
-    });
-
-    it('sets non-first apps as not default', () => {
-      const app = templateToApp(template, 'http://test', 1);
-      expect(app.default).toBe(false);
+    it('does not auto-set default flag', () => {
+      const first = templateToApp(template, 'http://test', 0);
+      const second = templateToApp(template, 'http://test', 1);
+      expect(first.default).toBe(false);
+      expect(second.default).toBe(false);
     });
 
     it('creates correct icon structure', () => {
@@ -117,7 +114,7 @@ describe('popularApps', () => {
       expect(app.icon.name).toBe('plex');
       expect(app.icon.file).toBe('');
       expect(app.icon.url).toBe('');
-      expect(app.icon.variant).toBe('svg');
+      expect(app.icon.variant).toBe('');
       expect(app.icon.background).toBe('#2D2200');
     });
   });

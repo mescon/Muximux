@@ -2,6 +2,16 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.13] - 2026-03-08
+
+### Fixed
+- Adding an app from the gallery that has a preset group no longer crashes with "missing 'id' property" -- the auto-created group now gets the DnD identifier that Svelte's keyed `{#each}` requires
+- Adding the first app from the gallery no longer silently marks it as the default homepage app -- `default` is only set explicitly during onboarding
+- Edit/delete buttons on app rows, keybinding combos, custom themes, and custom icons are now always visible -- previously hidden behind hover, making them inaccessible on touch devices
+
+### Changed
+- App and Group object construction consolidated into shared `makeApp()`/`makeGroup()` factory functions and `stampAppId()`/`stampGroupId()` helpers -- eliminates duplicated defaults across 4 creation paths and prevents field-omission bugs
+
 ## [3.0.12] - 2026-03-08
 
 ### Fixed
@@ -281,6 +291,10 @@ Muximux v3 is a complete rewrite. The original PHP bookmark portal has been repl
 
 Muximux v3 is not backwards-compatible with v2. The PHP application has been replaced entirely. Start fresh with the onboarding wizard or create a new `config.yaml` from `config.example.yaml`.
 
+[3.0.13]: https://github.com/mescon/Muximux/releases/tag/v3.0.13
+[3.0.12]: https://github.com/mescon/Muximux/releases/tag/v3.0.12
+[3.0.11]: https://github.com/mescon/Muximux/releases/tag/v3.0.11
+[3.0.10]: https://github.com/mescon/Muximux/releases/tag/v3.0.10
 [3.0.9]: https://github.com/mescon/Muximux/releases/tag/v3.0.9
 [3.0.8]: https://github.com/mescon/Muximux/releases/tag/v3.0.8
 [3.0.7]: https://github.com/mescon/Muximux/releases/tag/v3.0.7

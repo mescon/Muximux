@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, untrack } from 'svelte';
   import { fade, fly } from 'svelte/transition';
-  import type { App, Config, Group } from '$lib/types';
+  import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
   import IconBrowser from './IconBrowser.svelte';
   import AppForm from './AppForm.svelte';
   import AppIcon from './AppIcon.svelte';
@@ -89,32 +89,8 @@
   let pendingImport = $state<ImportedConfig | null>(null);
 
   // New app/group templates
-  const newAppTemplate: App = {
-    name: '',
-    url: '',
-    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
-    color: '#22c55e',
-    group: '',
-    order: 0,
-    enabled: true,
-    default: false,
-    open_mode: 'iframe',
-    proxy: false,
-    scale: 1,
-    health_check: undefined,
-    health_url: undefined,
-    shortcut: undefined,
-    force_icon_background: undefined,
-    min_role: undefined,
-  };
-
-  const newGroupTemplate: Group = {
-    name: '',
-    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
-    color: '#3498db',
-    order: 0,
-    expanded: true
-  };
+  const newAppTemplate: App = makeApp();
+  const newGroupTemplate: Group = makeGroup();
 
   let newApp = $state({ ...newAppTemplate });
   let newGroup = $state({ ...newGroupTemplate });
@@ -132,8 +108,8 @@
   let groupErrors = $state<Record<string, string>>({});
 
   // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
-  untrack(() => localApps).forEach(a => { (a as App & Record<string, unknown>).id = a.name; });
-  untrack(() => localConfig).groups.forEach(g => { (g as Group & Record<string, unknown>).id = g.name; });
+  untrack(() => localApps).forEach(stampAppId);
+  untrack(() => localConfig).groups.forEach(stampGroupId);
 
   // Snapshot taken AFTER id fields are added, so hasChanges starts as false
   const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig));
@@ -182,7 +158,7 @@
       for (const apps of Object.values(dndGroupedApps)) {
         allApps.push(...apps);
       }
-      allApps.forEach(a => { (a as App & Record<string, unknown>).id = a.name; });
+      allApps.forEach(stampAppId);
       localApps = allApps;
       if (groupName === '__rebuild__') {
         localConfig.groups = [...dndGroups];
@@ -255,17 +231,19 @@
     }
     appErrors = {};
     newApp.order = localApps.length;
-    const app: App & Record<string, unknown> = { ...newApp };
-    app.id = app.name;
+    const app = { ...newApp };
+    stampAppId(app);
     // Auto-create the group if it doesn't exist yet (e.g. gallery apps with preset groups)
     if (app.group && !localConfig.groups.some(g => g.name === app.group)) {
-      localConfig.groups = [...localConfig.groups, {
-        name: app.group as string,
-        icon: { type: 'lucide', name: 'folder', file: '', url: '', variant: 'svg', background: '' },
+      const groupName = app.group as string;
+      const autoGroup = makeGroup({
+        name: groupName,
+        icon: { type: 'lucide', name: 'folder', file: '', url: '', variant: '' },
         color: '',
         order: localConfig.groups.length,
-        expanded: true,
-      }];
+      });
+      stampGroupId(autoGroup);
+      localConfig.groups = [...localConfig.groups, autoGroup];
     }
     localApps = [...localApps, app];
     newApp = { ...newAppTemplate };
@@ -281,8 +259,8 @@
     }
     groupErrors = {};
     newGroup.order = localConfig.groups.length;
-    const group: Group & Record<string, unknown> = { ...newGroup };
-    group.id = group.name;
+    const group = { ...newGroup };
+    stampGroupId(group);
     localConfig.groups = [...localConfig.groups, group];
     newGroup = { ...newGroupTemplate };
     showAddGroup = false;
@@ -307,7 +285,7 @@
         return;
       }
       editAppErrors = {};
-      (editingApp as App & Record<string, unknown>).id = editingApp.name;
+      stampAppId(editingApp);
       // Sync DnD app changes back to localApps before rebuilding
       const allApps: App[] = [];
       for (const apps of Object.values(dndGroupedApps)) {
@@ -342,7 +320,7 @@
         return;
       }
       editGroupErrors = {};
-      (editingGroup as Group & Record<string, unknown>).id = editingGroup.name;
+      stampGroupId(editingGroup);
       // Sync DnD group changes back to localConfig before rebuilding
       localConfig.groups = [...dndGroups];
     }
@@ -400,8 +378,8 @@
     localApps = pendingImport.apps;
 
     // Assign stable ids for svelte-dnd-action
-    localApps.forEach(a => { (a as App & Record<string, unknown>).id = a.name; });
-    localConfig.groups.forEach(g => { (g as Group & Record<string, unknown>).id = g.name; });
+    localApps.forEach(stampAppId);
+    localConfig.groups.forEach(stampGroupId);
     rebuildDndArrays();
 
     showImportConfirm = false;

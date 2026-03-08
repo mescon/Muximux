@@ -436,8 +436,7 @@
               {:else}
                 <button
                   class="absolute -top-1 -end-1 w-5 h-5 bg-red-500 hover:bg-red-600 rounded-full
-                         text-text-primary flex items-center justify-center opacity-0 group-hover:opacity-100
-                         transition-opacity text-xs"
+                         text-text-primary flex items-center justify-center text-xs"
                   onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteIcon(icon.name); }}
                   title={m.common_delete()}
                 >

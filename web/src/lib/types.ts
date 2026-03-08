@@ -47,6 +47,42 @@ export interface Group {
   expanded: boolean;
 }
 
+// Factory functions for consistent object construction. Use these instead of
+// inline object literals to avoid field omissions and inconsistent defaults.
+export function makeApp(overrides: Partial<App> = {}): App {
+  return {
+    name: '',
+    url: '',
+    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
+    color: '#22c55e',
+    group: '',
+    order: 0,
+    enabled: true,
+    default: false,
+    open_mode: 'iframe',
+    proxy: false,
+    scale: 1,
+    ...overrides,
+  };
+}
+
+export function makeGroup(overrides: Partial<Group> = {}): Group {
+  return {
+    name: '',
+    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
+    color: '#3498db',
+    order: 0,
+    expanded: true,
+    ...overrides,
+  };
+}
+
+// svelte-dnd-action requires a stable `id` on every item. App/Group types don't
+// include it (it's not persisted), so we stamp it via a cast. Use these helpers
+// instead of hand-rolling the cast everywhere.
+export function stampAppId(app: App) { (app as App & Record<string, unknown>).id = app.name; }
+export function stampGroupId(group: Group) { (group as Group & Record<string, unknown>).id = group.name; }
+
 export interface NavigationConfig {
   position: 'top' | 'left' | 'right' | 'bottom' | 'floating';
   width: string;

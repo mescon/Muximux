@@ -1,6 +1,6 @@
 <script lang="ts">
   import { flip } from 'svelte/animate';
-  import type { App, Group } from '$lib/types';
+  import { type App, type Group, stampAppId } from '$lib/types';
   import AppIcon from '../AppIcon.svelte';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import * as m from '$lib/paraglide/messages.js';
@@ -92,7 +92,7 @@
   }
   function handleAppDndFinalize(e: CustomEvent<DndEvent<App>>, groupName: string) {
     const newItems = e.detail.items;
-    newItems.forEach((a, i) => { a.group = groupName; a.order = i; (a as App & Record<string, unknown>).id = a.name; });
+    newItems.forEach((a, i) => { a.group = groupName; a.order = i; stampAppId(a); });
     dndGroupedApps[groupName] = newItems;
     onsyncAppOrder(groupName, newItems);
   }
@@ -151,16 +151,14 @@
               onclick={() => confirmDeleteApp = null}>{m.common_no()}</button>
     </div>
   {:else}
-    <div class="flex items-center gap-1 opacity-0 group-hover/app:opacity-100 focus-within:opacity-100 transition-opacity app-actions">
+    <div class="flex items-center gap-1 app-actions">
       <button class="btn btn-ghost btn-icon btn-sm"
-              tabindex="-1"
               onclick={() => onstartEditApp(app)} title={m.common_edit()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
         </svg>
       </button>
       <button class="btn btn-ghost btn-icon btn-sm hover:!text-red-400"
-              tabindex="-1"
               onclick={() => handleDeleteApp(app)} title={m.common_delete()}>
         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />

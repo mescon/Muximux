@@ -1,4 +1,4 @@
-import type { App } from './types';
+import { type App, makeApp } from './types';
 import * as m from '$lib/paraglide/messages.js';
 
 export interface PopularAppTemplate {
@@ -719,7 +719,7 @@ export function getAllGroups(): string[] {
 
 // Convert a template to an App object
 export function templateToApp(template: PopularAppTemplate, url: string, order: number): App {
-  return {
+  return makeApp({
     name: template.name,
     url: url || template.defaultUrl,
     icon: {
@@ -727,16 +727,11 @@ export function templateToApp(template: PopularAppTemplate, url: string, order: 
       name: template.icon,
       file: '',
       url: '',
-      variant: 'svg',
+      variant: '',
       background: template.iconBackground
     },
     color: template.color,
     group: template.group,
     order,
-    enabled: true,
-    default: order === 0,  // First app is default
-    open_mode: 'iframe',
-    proxy: false,
-    scale: 1
-  };
+  });
 }

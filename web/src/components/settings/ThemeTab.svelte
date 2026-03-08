@@ -214,9 +214,8 @@
           <div class="absolute top-3 end-3 flex items-center gap-1">
             {#if isCustom}
               <button
-                class="w-5 h-5 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 focus:opacity-100 transition-opacity"
+                class="w-5 h-5 rounded-full flex items-center justify-center"
                 style="background: var(--status-error); color: white;"
-                tabindex="-1"
                 onclick={(e: MouseEvent) => { e.stopPropagation(); handleDeleteTheme(family.darkTheme?.id || family.lightTheme?.id || ''); }}
                 title={m.theme_deleteTheme()}
                 aria-label={m.theme_deleteTheme()}

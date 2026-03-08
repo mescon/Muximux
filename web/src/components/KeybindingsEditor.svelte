@@ -226,7 +226,7 @@
                         {#if binding.editable && binding.combos.length > 1}
                           <span
                             role="button"
-                            class="p-0.5 text-text-disabled hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                            class="p-0.5 text-text-disabled hover:text-red-400 cursor-pointer"
                             onclick={(e) => { e.stopPropagation(); handleRemoveCombo(binding.action, i); }}
                             onkeydown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.stopPropagation(); handleRemoveCombo(binding.action, i); } }}
                             tabindex="0"
