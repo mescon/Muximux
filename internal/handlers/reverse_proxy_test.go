@@ -2030,10 +2030,67 @@ func TestInterceptorScriptURLCoverage(t *testing.T) {
 	if !strings.Contains(script, `"href":1`) {
 		t.Error("MutationObserver urlAttrs should include href")
 	}
-	if !strings.Contains(script, `attributeFilter:["src","poster","href","srcset"]`) {
-		t.Error("MutationObserver should filter on src, poster, href, and srcset")
+	if !strings.Contains(script, `attributeFilter:["src","poster","href","srcset","action"]`) {
+		t.Error("MutationObserver should filter on src, poster, href, srcset, and action")
 	}
 	if !strings.Contains(script, `fixSrcset`) {
 		t.Error("interceptor should include fixSrcset for dynamic srcset rewriting")
+	}
+
+	// Anchor href and form action setters should be intercepted so SPAs
+	// setting a.href = "/page" or form.action = "/submit" get rewritten.
+	if !strings.Contains(script, `W(HTMLAnchorElement,"href")`) {
+		t.Error("interceptor should override HTMLAnchorElement.href setter")
+	}
+	if !strings.Contains(script, `W(HTMLFormElement,"action")`) {
+		t.Error("interceptor should override HTMLFormElement.action setter")
+	}
+	if !strings.Contains(script, `"action":1`) {
+		t.Error("MutationObserver urlAttrs should include action")
+	}
+}
+
+func TestInterceptorScriptHistoryAPI(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	script := string(rewriter.interceptorScript())
+
+	// The interceptor must strip the proxy prefix from location.pathname on
+	// initial load, before SPA routers read it and fail to match their routes.
+	if !strings.Contains(script, `var _il=location.pathname`) {
+		t.Error("interceptor should strip proxy prefix from initial URL")
+	}
+
+	// history.pushState/replaceState must be patched to add the proxy prefix,
+	// so "Reload frame" requests hit the correct /proxy/slug/... path.
+	if !strings.Contains(script, `history.pushState=function`) {
+		t.Error("interceptor should patch history.pushState")
+	}
+	if !strings.Contains(script, `history.replaceState=function`) {
+		t.Error("interceptor should patch history.replaceState")
+	}
+
+	// A popstate listener (capture phase) must strip the prefix before the
+	// SPA's own popstate handler reads location.pathname on back/forward.
+	if !strings.Contains(script, `addEventListener("popstate"`) {
+		t.Error("interceptor should add popstate listener to strip prefix on back/forward")
+	}
+
+	// location.assign and location.replace should be patched so programmatic
+	// navigation goes through the proxy.
+	if !strings.Contains(script, `Location.prototype.assign=function`) {
+		t.Error("interceptor should patch Location.prototype.assign")
+	}
+	if !strings.Contains(script, `Location.prototype.replace=function`) {
+		t.Error("interceptor should patch Location.prototype.replace")
+	}
+
+	// window.open should be patched so popups navigate through the proxy.
+	if !strings.Contains(script, `window.open=function`) {
+		t.Error("interceptor should patch window.open")
+	}
+
+	// navigator.sendBeacon should be patched for analytics/logging requests.
+	if !strings.Contains(script, `navigator.sendBeacon=function`) {
+		t.Error("interceptor should patch navigator.sendBeacon")
 	}
 }

@@ -57,7 +57,7 @@
     (showBackground || forceBackground)
       ? (icon?.background && icon.background !== 'transparent'
           ? icon.background
-          : `color-mix(in srgb, ${color} 50%, black)`)
+          : `color-mix(in srgb, ${color || '#374151'} 50%, black)`)
       : 'transparent'
   );
   // Icon tint color for Lucide (CSS mask); falls back to theme text color

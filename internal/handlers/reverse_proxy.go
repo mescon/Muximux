@@ -725,6 +725,15 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`Object.defineProperty(window,"parent",{value:window,configurable:true});` +
 		`Object.defineProperty(window,"top",{value:window,configurable:true})}` +
 		`}}catch(e){}` +
+		// Save history API originals before any patching — used for initial strip,
+		// pushState/replaceState overrides, and the popstate listener.
+		`var _hps=history.pushState,_hrs=history.replaceState;` +
+		// Strip the proxy prefix from the initial URL before SPA frameworks read
+		// location.pathname for routing. Without this, SPAs see "/proxy/slug/"
+		// as the route and show a 404 because their router doesn't recognise it.
+		`var _il=location.pathname;` +
+		`if(_il===P||_il.indexOf(P+"/")===0){` +
+		`_hrs.call(history,history.state,"",(_il.slice(P.length)||"/")+location.search+location.hash)}` +
 		// R(u) rewrites root-relative and same-origin absolute URLs to go through the proxy
 		`function R(u){` +
 		`if(u instanceof URL)u=u.href;` +
@@ -732,6 +741,28 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(u[0]==="/"&&!u.startsWith(P+"/")&&u!==P)return P+u;` +
 		`try{var p=new URL(u);if(p.host===location.host&&!p.pathname.startsWith(P+"/")&&p.pathname!==P){p.pathname=P+p.pathname;return p.href}}catch(e){}` +
 		`return u}` +
+		// Patch history.pushState/replaceState to add the proxy prefix so that
+		// "Reload frame" requests the correct /proxy/slug/... URL from the server.
+		`history.pushState=function(s,t,u){if(u!=null)u=R(""+u);return _hps.call(this,s,t,u)};` +
+		`history.replaceState=function(s,t,u){if(u!=null)u=R(""+u);return _hrs.call(this,s,t,u)};` +
+		// On back/forward, strip the prefix before the SPA's popstate handler
+		// reads location.pathname. Capture phase ensures we fire first.
+		`window.addEventListener("popstate",function(){` +
+		`var p=location.pathname;` +
+		`if(p===P||p.indexOf(P+"/")===0){` +
+		`_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash)}` +
+		`},true);` +
+		// Patch location.assign/replace so programmatic navigation goes through proxy
+		`var _la=Location.prototype.assign;` +
+		`Location.prototype.assign=function(u){return _la.call(this,R(u))};` +
+		`var _lr=Location.prototype.replace;` +
+		`Location.prototype.replace=function(u){return _lr.call(this,R(u))};` +
+		// Patch window.open so popups/new-tab navigations go through the proxy
+		`var _wo=window.open;` +
+		`window.open=function(u){var a=[].slice.call(arguments);if(typeof a[0]==="string")a[0]=R(a[0]);return _wo.apply(this,a)};` +
+		// Patch navigator.sendBeacon so analytics/logging requests are proxied
+		`var _sb=navigator.sendBeacon;` +
+		`if(_sb){navigator.sendBeacon=function(u,d){return _sb.call(this,R(u),d)}}` +
 		// Patch fetch() — handle string URLs, Request objects, and URL objects
 		`var _F=window.fetch;` +
 		`window.fetch=function(i,o){` +
@@ -768,10 +799,10 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(!d||!d.set)return;` +
 		`Object.defineProperty(C.prototype,a,{get:d.get,set:function(v){d.set.call(this,R(v))},enumerable:d.enumerable,configurable:d.configurable})}` +
 		`W(HTMLImageElement,"src");W(HTMLScriptElement,"src");W(HTMLSourceElement,"src");W(HTMLMediaElement,"src");W(HTMLVideoElement,"poster");` +
-		`W(HTMLIFrameElement,"src");W(HTMLLinkElement,"href");` +
+		`W(HTMLIFrameElement,"src");W(HTMLLinkElement,"href");W(HTMLAnchorElement,"href");W(HTMLFormElement,"action");` +
 		// MutationObserver as fallback for elements created via innerHTML/parser
 		// where property setters don't fire. Only rewrites if URL isn't already prefixed.
-		`var urlAttrs={"src":1,"poster":1,"href":1};` +
+		`var urlAttrs={"src":1,"poster":1,"href":1,"action":1};` +
 		`function fixAttr(el,a){var v=el.getAttribute(a);if(v){var n=R(v);if(n!==v)el.setAttribute(a,n)}}` +
 		// fixSrcset rewrites each URL in a srcset attribute (comma-separated "url descriptor" pairs)
 		`function fixSrcset(el){` +
@@ -785,7 +816,7 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(el.nodeType!==1)return;` +
 		`for(var a in urlAttrs){if(el.hasAttribute&&el.hasAttribute(a))fixAttr(el,a)}` +
 		`if(el.hasAttribute&&el.hasAttribute("srcset"))fixSrcset(el);` +
-		`var ch=el.querySelectorAll("[src],[poster],[href],[srcset]");` +
+		`var ch=el.querySelectorAll("[src],[poster],[href],[srcset],[action]");` +
 		`for(var i=0;i<ch.length;i++){for(var a in urlAttrs){if(ch[i].hasAttribute(a))fixAttr(ch[i],a)}` +
 		`if(ch[i].hasAttribute("srcset"))fixSrcset(ch[i])}}` +
 		`new MutationObserver(function(muts){` +
@@ -793,7 +824,7 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(m.type==="childList"){for(var j=0;j<m.addedNodes.length;j++)fixEl(m.addedNodes[j])}` +
 		`else if(m.type==="attributes"){if(urlAttrs[m.attributeName])fixAttr(m.target,m.attributeName);` +
 		`else if(m.attributeName==="srcset")fixSrcset(m.target)}}` +
-		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster","href","srcset"]});` +
+		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster","href","srcset","action"]});` +
 		// Chrome may freeze document.timeline in iframes, leaving Web Animations
 		// (like Plex's opacity fade-in) stuck indefinitely. Periodic scan detects
 		// loaded images with opacity stuck at 0, cancels their frozen animations,

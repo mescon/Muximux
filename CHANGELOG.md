@@ -2,6 +2,17 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.14] - 2026-03-08
+
+### Fixed
+- Proxied SPAs (Mealie, Immich, etc.) no longer show a 404 on page refresh -- the proxy interceptor now strips the `/proxy/slug/` prefix from `location.pathname` before the SPA router reads it, and patches `history.pushState`/`replaceState` to maintain correct proxy URLs in the browser history
+- Back/forward navigation within proxied SPAs now works correctly -- a `popstate` capture-phase listener strips the proxy prefix before the app's router handler fires
+- `location.assign()`, `location.replace()`, and `window.open()` inside proxied apps are now rewritten to go through the proxy
+- `navigator.sendBeacon()` inside proxied apps is now rewritten to go through the proxy
+- Anchor `href` and form `action` property setters are now intercepted by the proxy rewriter -- previously only the MutationObserver fallback caught these, missing programmatic `a.href = "/page"` assignments
+- Empty app color no longer produces invalid `color-mix()` CSS in icon backgrounds -- falls back to default grey when color is blank
+- App color field now shows a reset button and placeholder, matching the icon background field pattern
+
 ## [3.0.13] - 2026-03-08
 
 ### Fixed

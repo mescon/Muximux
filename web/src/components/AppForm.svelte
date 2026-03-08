@@ -123,14 +123,19 @@
       <input
         id="{prefix}-app-color"
         type="color"
-        bind:value={app.color}
+        value={app.color || '#22c55e'}
+        oninput={(e) => app.color = (e.target as HTMLInputElement).value}
         class="w-10 h-10 rounded cursor-pointer"
       />
       <input
         type="text"
         bind:value={app.color}
         class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+        placeholder="#22c55e"
       />
+      {#if app.color && app.color !== '#22c55e'}
+        <button class="text-text-disabled hover:text-text-secondary" onclick={() => app.color = '#22c55e'} title={m.common_reset()}>&times;</button>
+      {/if}
     </div>
   </div>
 
