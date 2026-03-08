@@ -444,3 +444,12 @@ func TestGenerateSessionID(t *testing.T) {
 		t.Error("expected unique session IDs")
 	}
 }
+
+// --- Close ---
+
+func TestSessionStore_Close(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+
+	// Close should not panic
+	store.Close()
+}

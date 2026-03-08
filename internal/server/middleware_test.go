@@ -286,6 +286,14 @@ func TestStatusRecorder_BytesWrittenAccumulates(t *testing.T) {
 	}
 }
 
+func TestStatusRecorderUnwrap(t *testing.T) {
+	inner := httptest.NewRecorder()
+	sr := &statusRecorder{ResponseWriter: inner}
+	if sr.Unwrap() != inner {
+		t.Error("Unwrap should return the inner ResponseWriter")
+	}
+}
+
 // --- isStaticAsset ---
 
 func TestIsStaticAsset(t *testing.T) {

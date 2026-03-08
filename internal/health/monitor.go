@@ -317,6 +317,8 @@ func (m *Monitor) CheckNow(name string) *AppHealth {
 		return nil
 	}
 
-	m.checkApp(context.Background(), app)
+	ctx, cancel := context.WithTimeout(context.Background(), m.timeout)
+	defer cancel()
+	m.checkApp(ctx, app)
 	return m.GetHealth(name)
 }

@@ -1253,6 +1253,12 @@ func (sr *statusRecorder) Flush() {
 	}
 }
 
+// Unwrap returns the underlying ResponseWriter so http.ResponseController
+// can reach the real connection (e.g. to extend write deadlines for proxied streams).
+func (sr *statusRecorder) Unwrap() http.ResponseWriter {
+	return sr.ResponseWriter
+}
+
 // isStaticAsset returns true for paths that serve static files.
 func isStaticAsset(path string) bool {
 	if strings.HasPrefix(path, "/assets/") {

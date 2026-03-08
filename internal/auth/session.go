@@ -33,6 +33,7 @@ type SessionStore struct {
 	cookieName string
 	maxAge     time.Duration
 	secure     bool
+	done       chan struct{}
 }
 
 // NewSessionStore creates a new session store
@@ -42,6 +43,7 @@ func NewSessionStore(cookieName string, maxAge time.Duration, secure bool) *Sess
 		cookieName: cookieName,
 		maxAge:     maxAge,
 		secure:     secure,
+		done:       make(chan struct{}),
 	}
 
 	// Start cleanup goroutine
@@ -160,23 +162,33 @@ func (s *SessionStore) ClearCookie(w http.ResponseWriter) {
 	})
 }
 
+// Close stops the cleanup goroutine
+func (s *SessionStore) Close() {
+	close(s.done)
+}
+
 // cleanup periodically removes expired sessions
 func (s *SessionStore) cleanup() {
 	ticker := time.NewTicker(5 * time.Minute)
 	defer ticker.Stop()
 
-	for range ticker.C {
-		s.mu.Lock()
-		count := 0
-		for id, session := range s.sessions {
-			if session.IsExpired() {
-				delete(s.sessions, id)
-				count++
+	for {
+		select {
+		case <-ticker.C:
+			s.mu.Lock()
+			count := 0
+			for id, session := range s.sessions {
+				if session.IsExpired() {
+					delete(s.sessions, id)
+					count++
+				}
 			}
-		}
-		s.mu.Unlock()
-		if count > 0 {
-			logging.Debug("Session cleanup", "source", "auth", "expired", count)
+			s.mu.Unlock()
+			if count > 0 {
+				logging.Debug("Session cleanup", "source", "auth", "expired", count)
+			}
+		case <-s.done:
+			return
 		}
 	}
 }

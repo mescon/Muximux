@@ -1220,6 +1220,11 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Extend the server's WriteTimeout for proxied responses — proxied apps
+	// may stream large files or have slow backends that exceed the default 15s.
+	rc := http.NewResponseController(w)
+	_ = rc.SetWriteDeadline(time.Now().Add(h.timeout))
+
 	route.proxy.ServeHTTP(w, r)
 }
 
