@@ -2,6 +2,26 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.12] - 2026-03-08
+
+### Fixed
+- Changing an app icon in Settings no longer silently breaks the Save button -- the icon property is now mutated in-place instead of replacing the object, preserving Svelte 5 reactivity references
+- `manifest.json` no longer triggers a CORS error behind forward-auth proxies (Authelia, Authentik) -- the manifest link now sends credentials with the request
+- Proxied apps that stream large responses or have slow backends no longer get killed after 15 seconds -- the reverse proxy now extends the server's write deadline per request
+- RTL sidebar auto-hide positioning uses CSS logical properties (`inset-inline-start`/`inset-inline-end`) instead of physical `left`/`right`
+- RTL sidebar resize drag and edge-swipe gesture direction are now correct in right-to-left layouts
+- Rate limiter now extracts the real client IP via `X-Forwarded-For` / `X-Real-IP` from trusted proxies instead of using the raw upstream address
+- Health check `CheckNow()` now uses a proper timeout context instead of an unbounded `context.Background()`
+- Empty proxy path (`/proxy/`) now returns 400 Bad Request instead of silently falling through
+
+### Changed
+- Config saves use atomic write-to-temp + rename to prevent corruption on crash or power loss
+- Session store cleanup goroutine can now be stopped cleanly on shutdown
+- Paraglide generated files excluded from ESLint and SonarCloud analysis
+
+### Security
+- Bump svelte-check 4.4.4 → 4.4.5
+
 ## [3.0.11] - 2026-03-07
 
 ### Added
