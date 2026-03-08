@@ -807,12 +807,11 @@
 {#if editingApp}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    in:fade={{ duration: 100 }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-lg border border-border"
       in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
@@ -869,12 +868,11 @@
 {#if editingGroup}
   <div
     class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    in:fade={{ duration: 100 }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
       in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
@@ -1012,12 +1010,11 @@
 {#if showImportConfirm && pendingImport}
   <div
     class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
-    transition:fade={{ duration: 100 }}
+    in:fade={{ duration: 100 }}
   >
     <div
       class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
       in:fly={{ y: 10, duration: 150 }}
-      out:fade={{ duration: 75 }}
     >
       <div class="flex items-center justify-between p-4 border-b border-border">
         <h3 class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>

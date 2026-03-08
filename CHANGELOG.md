@@ -13,6 +13,7 @@ All notable changes to Muximux are documented in this file.
 - Rate limiter now extracts the real client IP via `X-Forwarded-For` / `X-Real-IP` from trusted proxies instead of using the raw upstream address
 - Health check `CheckNow()` now uses a proper timeout context instead of an unbounded `context.Background()`
 - Empty proxy path (`/proxy/`) now returns 400 Bad Request instead of silently falling through
+- Closing the Edit App, Edit Group, or Import Config modal no longer crashes with "Cannot read properties of null (reading 'icon')" -- out-transitions were keeping the DOM alive while the backing variable was already null
 
 ### Changed
 - Config saves use atomic write-to-temp + rename to prevent corruption on crash or power loss
