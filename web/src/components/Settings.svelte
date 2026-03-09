@@ -58,9 +58,15 @@
   // Active tab
   let activeTab = $state(untrack(() => initialTab ?? 'general'));
 
-  // Local copy of config for editing
-  let localConfig = $state(untrack(() => JSON.parse(JSON.stringify(config)) as Config));
-  let localApps = $state(untrack(() => JSON.parse(JSON.stringify(apps)) as App[]));
+  // Local copy of config for editing — normalise through factories so every
+  // optional field (omitempty in Go) is present, preventing bind:value from
+  // adding new properties and triggering false "unsaved changes" detection.
+  let localConfig = $state(untrack(() => {
+    const c = JSON.parse(JSON.stringify(config)) as Config;
+    c.groups = c.groups.map((g: Group) => makeGroup(g));
+    return c;
+  }));
+  let localApps = $state(untrack(() => (apps as App[]).map(a => makeApp(JSON.parse(JSON.stringify(a))))));
 
   // Icon browser state
   let showIconBrowser = $state(false);

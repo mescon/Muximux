@@ -2,6 +2,25 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.15] - 2026-03-09
+
+### Fixed
+- Proxied SPA frameworks (Nuxt 3, Next.js, SvelteKit) no longer show 404 on page refresh -- inline SSR payload paths (`"fullPath":"/recipe/123"`) are no longer rewritten by the proxy, preventing hydration route mismatches that caused client-side routers to navigate to non-existent prefixed paths
+- Code-split chunks in proxied apps (lazy routes, dynamic imports) now load correctly -- the proxy rewrites ES module `import()`, `import...from`, and `export...from` specifiers in JS/HTML responses since the browser's module loader bypasses the runtime fetch/XHR interceptor
+- `Worker` and `SharedWorker` constructors in proxied apps are now intercepted -- worker scripts load through the proxy instead of from the Muximux origin
+- `location.pathname`, `location.href`, and `location.toString()` in proxied apps now transparently strip the proxy prefix -- SPA code reading these properties always sees clean paths (e.g. `/recipe/123` instead of `/proxy/mealie/recipe/123`), even between pushState calls
+- `document.URL` and `document.documentURI` in proxied apps are overridden to match the patched `location.href`, so frameworks reading these see clean URLs too
+- `location.href = "/path"` assignments in proxied apps now go through the proxy (best-effort, depends on browser support for overriding `Location.prototype.href`)
+- Initial URL strip and popstate handler are now conditionally skipped when `Location.prototype` getter patches succeed -- the actual browser URL keeps the proxy prefix (correct for F5 refresh) while getters transparently strip it
+- Proxied apps using relative URLs (e.g. `href="css/style.css"` instead of `href="/css/style.css"`) now load correctly -- the runtime interceptor rewrites relative paths through the proxy prefix, fixing CSS/JS/image loading in apps like qBittorrent whose WebUI uses relative paths throughout
+- Protocol-relative URLs (`//cdn.example.com/lib.js`) in proxied apps are no longer incorrectly prefixed with the proxy path
+- `<meta http-equiv="refresh" content="5;url=/path">` URLs are now rewritten through the proxy -- previously only the `Refresh` response header was handled, not the equivalent `<meta>` tag
+- `<object data="/path">` and `<button formaction="/path">` attributes are now intercepted by the MutationObserver and property setters for complete dynamic URL rewriting coverage
+- `localStorage` and `sessionStorage` in proxied apps are now isolated per app -- keys are transparently prefixed with the proxy path so apps sharing the same origin no longer collide with each other or with Muximux itself
+- Opening an app's settings no longer shows "unsaved changes" without making changes -- optional fields omitted by the server (`icon.invert`, `icon.background`, `min_role`, `force_icon_background`, etc.) are now normalised with defaults on load so `bind:value` doesn't silently add properties
+- Icon background colour picker now works on existing apps -- factory functions deep-merge icon fields so `background` is always present and reactive
+- App and Group factories (`makeApp`/`makeGroup`) now include all icon sub-fields (`color`, `background`, `invert`) with defaults, preventing missing-property bugs across the UI
+
 ## [3.0.14] - 2026-03-08
 
 ### Fixed

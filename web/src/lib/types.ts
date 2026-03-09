@@ -50,10 +50,11 @@ export interface Group {
 // Factory functions for consistent object construction. Use these instead of
 // inline object literals to avoid field omissions and inconsistent defaults.
 export function makeApp(overrides: Partial<App> = {}): App {
+  const { icon: iconOverrides, ...rest } = overrides;
   return {
     name: '',
     url: '',
-    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
+    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '', color: '', background: '', invert: false, ...iconOverrides },
     color: '#22c55e',
     group: '',
     order: 0,
@@ -62,18 +63,21 @@ export function makeApp(overrides: Partial<App> = {}): App {
     open_mode: 'iframe',
     proxy: false,
     scale: 1,
-    ...overrides,
+    force_icon_background: false,
+    min_role: '',
+    ...rest,
   };
 }
 
 export function makeGroup(overrides: Partial<Group> = {}): Group {
+  const { icon: iconOverrides, ...rest } = overrides;
   return {
     name: '',
-    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '' },
+    icon: { type: 'dashboard', name: '', file: '', url: '', variant: '', color: '', background: '', invert: false, ...iconOverrides },
     color: '#3498db',
     order: 0,
     expanded: true,
-    ...overrides,
+    ...rest,
   };
 }
 

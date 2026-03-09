@@ -134,28 +134,20 @@ func TestContentRewriter(t *testing.T) {
 			expected:    `{"urlBase": "/proxy/sonarr", "version": "1.0"}`,
 		},
 		{
-			name:        "rewrite JSON apiRoot path",
+			name:        "preserve JSON apiRoot path (interceptor handles API calls)",
 			proxyPrefix: "/proxy/sonarr",
 			targetPath:  "",
 			targetHost:  "",
 			input:       `{"apiRoot": "/api/v3", "urlBase": ""}`,
-			expected:    `{"apiRoot": "/proxy/sonarr/api/v3", "urlBase": "/proxy/sonarr"}`,
+			expected:    `{"apiRoot": "/api/v3", "urlBase": "/proxy/sonarr"}`,
 		},
 		{
-			name:        "rewrite JSON generic path keys",
+			name:        "preserve JSON generic path keys (interceptor handles API calls)",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
 			targetHost:  "",
 			input:       `{"redirectUrl": "/login", "assetsPath": "/static/assets"}`,
-			expected:    `{"redirectUrl": "/proxy/app/login", "assetsPath": "/proxy/app/static/assets"}`,
-		},
-		{
-			name:        "don't double-rewrite JSON paths",
-			proxyPrefix: "/proxy/app",
-			targetPath:  "",
-			targetHost:  "",
-			input:       `{"apiRoot": "/proxy/app/api"}`,
-			expected:    `{"apiRoot": "/proxy/app/api"}`,
+			expected:    `{"redirectUrl": "/login", "assetsPath": "/static/assets"}`,
 		},
 		{
 			name:        "rewrite JS urlBase assignment",
@@ -166,12 +158,12 @@ func TestContentRewriter(t *testing.T) {
 			expected:    `window.Sonarr = { urlBase: "/proxy/sonarr" };`,
 		},
 		{
-			name:        "rewrite JSON array of paths",
+			name:        "preserve JSON array paths (interceptor handles API calls)",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
 			targetHost:  "",
 			input:       `{"images": ["/img1.jpg", "/img2.jpg"]}`,
-			expected:    `{"images": ["/proxy/app/img1.jpg", "/proxy/app/img2.jpg"]}`,
+			expected:    `{"images": ["/img1.jpg", "/img2.jpg"]}`,
 		},
 		{
 			name:        "rewrite CSS @import",
@@ -220,6 +212,46 @@ func TestContentRewriter(t *testing.T) {
 			targetHost:  "",
 			input:       `background: image-set("/1x.png" 1x, "/2x.png" 2x)`,
 			expected:    `background: image-set("/proxy/app/1x.png" 1x, "/proxy/app/2x.png" 2x)`,
+		},
+		{
+			name:        "rewrite dynamic import in HTML",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `<script>const p=()=>import("/_nuxt/page.mjs")</script>`,
+			expected:    `<script>const p=()=>import("/proxy/app/_nuxt/page.mjs")</script>`,
+		},
+		{
+			name:        "rewrite static import in HTML module script",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `<script type="module">import{createApp}from"/_nuxt/vue.mjs"</script>`,
+			expected:    `<script type="module">import{createApp}from"/proxy/app/_nuxt/vue.mjs"</script>`,
+		},
+		{
+			name:        "rewrite meta refresh URL",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `<meta http-equiv="refresh" content="5;url=/login">`,
+			expected:    `<meta http-equiv="refresh" content="5;url=/proxy/app/login">`,
+		},
+		{
+			name:        "rewrite meta refresh URL with quotes",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `<meta http-equiv="refresh" content="0; URL='/dashboard'">`,
+			expected:    `<meta http-equiv="refresh" content="0; URL='/proxy/app/dashboard'">`,
+		},
+		{
+			name:        "skip already-proxied meta refresh URL",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			targetHost:  "",
+			input:       `<meta http-equiv="refresh" content="5;url=/proxy/app/login">`,
+			expected:    `<meta http-equiv="refresh" content="5;url=/proxy/app/login">`,
 		},
 	}
 
@@ -1259,6 +1291,92 @@ func TestRewriteResponseBody(t *testing.T) {
 		}
 	})
 
+	t.Run("HTML preserves SSR payload paths for SPA hydration", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/mealie", "", "")
+
+		// Simulate Nuxt 3-style SSR HTML with inline JSON payload
+		body := `<html><head></head><body>` +
+			`<script type="application/json" data-nuxt-data="default">` +
+			`{"fullPath":"/recipe/123","path":"/recipe/123","redirectUrl":"/login"}` +
+			`</script></body></html>`
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}
+		resp.Header.Set("Content-Type", "text/html; charset=utf-8")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		rewritten, _ := io.ReadAll(resp.Body)
+		result := string(rewritten)
+		// The SSR payload paths must NOT be rewritten — the runtime interceptor
+		// handles API calls, and rewriting route paths in the payload would
+		// corrupt client-side hydration (SPA router sees /proxy/mealie/recipe/123
+		// instead of /recipe/123 → route mismatch → 404).
+		if strings.Contains(result, `"/proxy/mealie/recipe/123"`) {
+			t.Errorf("SSR payload route path should NOT be rewritten, got: %s", result)
+		}
+		if strings.Contains(result, `"/proxy/mealie/login"`) {
+			t.Errorf("SSR payload redirect path should NOT be rewritten, got: %s", result)
+		}
+		// But the interceptor script SHOULD be injected
+		if !strings.Contains(result, "data-muximux-proxy") {
+			t.Error("interceptor script should be injected in HTML response")
+		}
+	})
+
+	t.Run("HTML rewrites module imports in inline scripts", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/app", "", "")
+
+		body := `<html><head></head><body>` +
+			`<script type="module">import { createApp } from '/_nuxt/entry.mjs'</script>` +
+			`</body></html>`
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}
+		resp.Header.Set("Content-Type", "text/html")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		rewritten, _ := io.ReadAll(resp.Body)
+		result := string(rewritten)
+		if !strings.Contains(result, `from '/proxy/app/_nuxt/entry.mjs'`) {
+			t.Errorf("inline module import should be rewritten, got: %s", result)
+		}
+	})
+
+	t.Run("JS body rewrites dynamic imports", func(t *testing.T) {
+		rewriter := newContentRewriter("/proxy/app", "", "")
+
+		body := `const page=()=>import("/_nuxt/pages/recipe.mjs");`
+		resp := &http.Response{
+			Header:        make(http.Header),
+			Body:          io.NopCloser(strings.NewReader(body)),
+			ContentLength: int64(len(body)),
+		}
+		resp.Header.Set("Content-Type", "application/javascript")
+
+		err := rewriteResponseBody(resp, rewriter)
+		if err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+
+		rewritten, _ := io.ReadAll(resp.Body)
+		result := string(rewritten)
+		if !strings.Contains(result, `import("/proxy/app/_nuxt/pages/recipe.mjs")`) {
+			t.Errorf("dynamic import should be rewritten in JS, got: %s", result)
+		}
+	})
+
 	t.Run("skips rewriting when Content-Length exceeds limit", func(t *testing.T) {
 		rewriter := newContentRewriter("/proxy/app", "", "")
 
@@ -1833,8 +1951,8 @@ func TestRewriteImageSet(t *testing.T) {
 	}
 }
 
-// TestRewriteJSONArrayPaths tests JSON array path rewriting.
-func TestRewriteJSONArrayPaths(t *testing.T) {
+// TestRewriteModuleImports tests ES module import/export rewriting.
+func TestRewriteModuleImports(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "")
 
 	tests := []struct {
@@ -1843,22 +1961,77 @@ func TestRewriteJSONArrayPaths(t *testing.T) {
 		expected string
 	}{
 		{
-			name:     "array of paths",
-			input:    `["/css/style.css", "/js/app.js"]`,
-			expected: `["/proxy/app/css/style.css", "/proxy/app/js/app.js"]`,
+			name:     "dynamic import",
+			input:    `import('/chunk.js')`,
+			expected: `import('/proxy/app/chunk.js')`,
 		},
 		{
-			name:     "already rewritten",
-			input:    `["/proxy/app/css/style.css"]`,
-			expected: `["/proxy/app/css/style.css"]`,
+			name:     "dynamic import double quotes",
+			input:    `import("/_nuxt/pages/recipe.mjs")`,
+			expected: `import("/proxy/app/_nuxt/pages/recipe.mjs")`,
+		},
+		{
+			name:     "static import named",
+			input:    `import { createApp } from '/_nuxt/vue.mjs'`,
+			expected: `import { createApp } from '/proxy/app/_nuxt/vue.mjs'`,
+		},
+		{
+			name:     "static import default",
+			input:    `import App from '/components/App.js'`,
+			expected: `import App from '/proxy/app/components/App.js'`,
+		},
+		{
+			name:     "static import namespace",
+			input:    `import * as utils from "/lib/utils.mjs"`,
+			expected: `import * as utils from "/proxy/app/lib/utils.mjs"`,
+		},
+		{
+			name:     "export from",
+			input:    `export { default } from '/modules/foo.js'`,
+			expected: `export { default } from '/proxy/app/modules/foo.js'`,
+		},
+		{
+			name:     "export all",
+			input:    `export * from '/modules/bar.js'`,
+			expected: `export * from '/proxy/app/modules/bar.js'`,
+		},
+		{
+			name:     "side-effect import",
+			input:    `import '/polyfill.js'`,
+			expected: `import '/proxy/app/polyfill.js'`,
+		},
+		{
+			name:     "already proxied dynamic import",
+			input:    `import('/proxy/app/chunk.js')`,
+			expected: `import('/proxy/app/chunk.js')`,
+		},
+		{
+			name:     "relative import unchanged",
+			input:    `import './relative.js'`,
+			expected: `import './relative.js'`,
+		},
+		{
+			name:     "bare specifier unchanged",
+			input:    `import 'lodash'`,
+			expected: `import 'lodash'`,
+		},
+		{
+			name:     "multiple dynamic imports in minified code",
+			input:    `import("/a.js");import("/b.js")`,
+			expected: `import("/proxy/app/a.js");import("/proxy/app/b.js")`,
+		},
+		{
+			name:     "minified static imports",
+			input:    `import{foo}from"/path1.js";import{bar}from"/path2.js"`,
+			expected: `import{foo}from"/proxy/app/path1.js";import{bar}from"/proxy/app/path2.js"`,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := string(rewriter.rewriteJSONArrayPaths([]byte(tt.input)))
+			result := string(rewriter.rewriteModuleImports([]byte(tt.input)))
 			if result != tt.expected {
-				t.Errorf("rewriteJSONArrayPaths() =\n  got:  %q\n  want: %q", result, tt.expected)
+				t.Errorf("rewriteModuleImports() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
 		})
 	}
@@ -2015,6 +2188,19 @@ func TestInterceptorScriptURLCoverage(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "")
 	script := string(rewriter.interceptorScript())
 
+	// R() should exclude protocol-relative URLs (//host/path) from rewriting.
+	// The u[1]!=="/" check prevents //cdn.example.com from being prefixed.
+	if !strings.Contains(script, `u[1]!=="/"`) {
+		t.Error("R() should exclude protocol-relative URLs (//host/path)")
+	}
+
+	// R() should handle relative URLs (css/style.css, api/data) by prepending
+	// the proxy prefix, so they resolve correctly even after replaceState
+	// strips the prefix from the document URL.
+	if !strings.Contains(script, `u.indexOf(":")===-1)return P+"/"+u`) {
+		t.Error("R() should rewrite relative URLs by prepending proxy prefix")
+	}
+
 	// Property setters should cover iframe.src and link.href for dynamically
 	// created elements (e.g. SPAs injecting stylesheets or sub-iframes).
 	if !strings.Contains(script, `W(HTMLIFrameElement,"src")`) {
@@ -2030,8 +2216,8 @@ func TestInterceptorScriptURLCoverage(t *testing.T) {
 	if !strings.Contains(script, `"href":1`) {
 		t.Error("MutationObserver urlAttrs should include href")
 	}
-	if !strings.Contains(script, `attributeFilter:["src","poster","href","srcset","action"]`) {
-		t.Error("MutationObserver should filter on src, poster, href, srcset, and action")
+	if !strings.Contains(script, `attributeFilter:["src","poster","href","srcset","action","data","formaction"]`) {
+		t.Error("MutationObserver should filter on src, poster, href, srcset, action, data, and formaction")
 	}
 	if !strings.Contains(script, `fixSrcset`) {
 		t.Error("interceptor should include fixSrcset for dynamic srcset rewriting")
@@ -2048,6 +2234,59 @@ func TestInterceptorScriptURLCoverage(t *testing.T) {
 	if !strings.Contains(script, `"action":1`) {
 		t.Error("MutationObserver urlAttrs should include action")
 	}
+
+	// Object data and formaction setters should be intercepted for <object>
+	// embeds and submit button overrides.
+	if !strings.Contains(script, `W(HTMLObjectElement,"data")`) {
+		t.Error("interceptor should override HTMLObjectElement.data setter")
+	}
+	if !strings.Contains(script, `W(HTMLButtonElement,"formAction")`) {
+		t.Error("interceptor should override HTMLButtonElement.formAction setter")
+	}
+	if !strings.Contains(script, `W(HTMLInputElement,"formAction")`) {
+		t.Error("interceptor should override HTMLInputElement.formAction setter")
+	}
+	if !strings.Contains(script, `"data":1`) {
+		t.Error("MutationObserver urlAttrs should include data")
+	}
+	if !strings.Contains(script, `"formaction":1`) {
+		t.Error("MutationObserver urlAttrs should include formaction")
+	}
+
+	// Worker/SharedWorker constructors should be patched so worker scripts
+	// load through the proxy instead of from the Muximux origin.
+	if !strings.Contains(script, `window.Worker=function`) {
+		t.Error("interceptor should patch Worker constructor")
+	}
+	if !strings.Contains(script, `window.SharedWorker=function`) {
+		t.Error("interceptor should patch SharedWorker constructor")
+	}
+
+	// Location.prototype.pathname getter should be overridden to strip
+	// the proxy prefix, so SPA code always sees clean paths.
+	if !strings.Contains(script, `Location.prototype,"pathname"`) {
+		t.Error("interceptor should attempt to patch Location.prototype.pathname getter")
+	}
+
+	// Location.prototype.href getter+setter should be overridden to strip
+	// the proxy prefix from reads and add it on writes.
+	if !strings.Contains(script, `Location.prototype,"href"`) {
+		t.Error("interceptor should attempt to patch Location.prototype.href getter+setter")
+	}
+
+	// Location.prototype.toString should return the patched href.
+	if !strings.Contains(script, `Location.prototype.toString=function`) {
+		t.Error("interceptor should override Location.prototype.toString")
+	}
+
+	// document.URL and document.documentURI should be overridden to match
+	// the patched href, so frameworks reading these see clean URLs.
+	if !strings.Contains(script, `Document.prototype,"URL"`) {
+		t.Error("interceptor should attempt to patch Document.prototype.URL getter")
+	}
+	if !strings.Contains(script, `Document.prototype,"documentURI"`) {
+		t.Error("interceptor should attempt to patch Document.prototype.documentURI getter")
+	}
 }
 
 func TestInterceptorScriptHistoryAPI(t *testing.T) {
@@ -2055,9 +2294,13 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 	script := string(rewriter.interceptorScript())
 
 	// The interceptor must strip the proxy prefix from location.pathname on
-	// initial load, before SPA routers read it and fail to match their routes.
-	if !strings.Contains(script, `var _il=location.pathname`) {
-		t.Error("interceptor should strip proxy prefix from initial URL")
+	// initial load (fallback when getter patches fail), and use the _pG flag
+	// to conditionally skip the strip when getter patches succeeded.
+	if !strings.Contains(script, `var _pG=false`) {
+		t.Error("interceptor should declare _pG flag for getter patch detection")
+	}
+	if !strings.Contains(script, `if(!_pG){var _il=location.pathname`) {
+		t.Error("interceptor should conditionally strip proxy prefix from initial URL")
 	}
 
 	// history.pushState/replaceState must be patched to add the proxy prefix,
@@ -2071,8 +2314,9 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 
 	// A popstate listener (capture phase) must strip the prefix before the
 	// SPA's own popstate handler reads location.pathname on back/forward.
-	if !strings.Contains(script, `addEventListener("popstate"`) {
-		t.Error("interceptor should add popstate listener to strip prefix on back/forward")
+	// Wrapped in if(!_pG) since getter patches make it unnecessary.
+	if !strings.Contains(script, `if(!_pG){window.addEventListener("popstate"`) {
+		t.Error("interceptor should conditionally add popstate listener to strip prefix on back/forward")
 	}
 
 	// location.assign and location.replace should be patched so programmatic
@@ -2092,5 +2336,63 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 	// navigator.sendBeacon should be patched for analytics/logging requests.
 	if !strings.Contains(script, `navigator.sendBeacon=function`) {
 		t.Error("interceptor should patch navigator.sendBeacon")
+	}
+}
+
+func TestInterceptorScriptStorageIsolation(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	script := string(rewriter.interceptorScript())
+
+	// The interceptor should save references to the real storage objects
+	// before overriding them.
+	if !strings.Contains(script, `var _ls=window.localStorage,_ss=window.sessionStorage`) {
+		t.Error("interceptor should save references to real localStorage and sessionStorage")
+	}
+
+	// The NS (namespace) function should create a storage wrapper that
+	// prefixes keys with the proxy path to isolate each app's storage.
+	if !strings.Contains(script, `function NS(s)`) {
+		t.Error("interceptor should define NS function for storage namespacing")
+	}
+
+	// Keys should be prefixed with the proxy path and "::" separator.
+	if !strings.Contains(script, `var px=P+"::"`) {
+		t.Error("interceptor storage should use proxy path + '::' as key prefix")
+	}
+
+	// The wrapper must implement the full Storage API: getItem, setItem,
+	// removeItem, clear, key, and length.
+	for _, method := range []string{"getItem", "setItem", "removeItem", "clear", "key"} {
+		if !strings.Contains(script, method+":function") {
+			t.Errorf("interceptor storage wrapper should implement %s", method)
+		}
+	}
+
+	// ES6 Proxy should be used (when available) so property access syntax
+	// like localStorage["key"] = val also goes through the namespace.
+	if !strings.Contains(script, `new Proxy(m,{`) {
+		t.Error("interceptor should use ES6 Proxy for storage property access")
+	}
+
+	// The Proxy should handle ownKeys so Object.keys(localStorage) only
+	// returns this app's keys (un-prefixed).
+	if !strings.Contains(script, `ownKeys:function`) {
+		t.Error("interceptor storage Proxy should implement ownKeys trap")
+	}
+
+	// window.localStorage and window.sessionStorage should be overridden
+	// with the namespaced wrappers.
+	if !strings.Contains(script, `"localStorage",{value:NS(_ls)`) {
+		t.Error("interceptor should override window.localStorage with namespaced wrapper")
+	}
+	if !strings.Contains(script, `"sessionStorage",{value:NS(_ss)`) {
+		t.Error("interceptor should override window.sessionStorage with namespaced wrapper")
+	}
+
+	// Verify the prefix uses the actual proxy path.
+	rewriter2 := newContentRewriter("/proxy/mealie", "/mealie", "mealie.local")
+	script2 := string(rewriter2.interceptorScript())
+	if !strings.Contains(script2, `"/proxy/mealie"`) {
+		t.Error("interceptor storage prefix should use the actual proxy path")
 	}
 }

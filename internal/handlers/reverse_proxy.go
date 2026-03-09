@@ -32,13 +32,21 @@ var (
 	rootPathUrlPattern  = regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
 	baseHrefPattern     = regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
 	urlBaseEmptyPattern = regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
-	jsonPathPattern     = regexp.MustCompile(`("[\w]+"\s*:\s*")(/[^"/][^"]*)(")`)
 	imageSetPattern     = regexp.MustCompile(`(image-set\s*\()([^)]+)(\))`)
 	imageSetPathPattern = regexp.MustCompile(`(["'])/([a-zA-Z0-9_-][^"']*)(["'])`)
-	jsonArrayPathPat    = regexp.MustCompile(`(\[|,)\s*"(/[^"]+)"`)
 	cssImportPattern    = regexp.MustCompile(`(@import\s+["'])(/[^"']+)(["'])`)
 	cssImportUrlPattern = regexp.MustCompile(`(@import\s+url\s*\(\s*["']?)(/[^"')]+)(["']?\s*\))`)
 	svgHrefPattern      = regexp.MustCompile(`(<(?:use|image)[^>]*(?:href|xlink:href)\s*=\s*["'])(/[^"'#]+)(#[^"']*)?(['"])`)
+	// Meta refresh: <meta http-equiv="refresh" content="5;url=/path">
+	metaRefreshPattern = regexp.MustCompile(`(?i)(content\s*=\s*["'][^"']*;\s*url\s*=\s*['"]?)(/[^"'\s>]+)`)
+
+	// ES module import/export patterns for rewriting module specifiers.
+	// Dynamic import(): import('/path') — browser module loader, not interceptable by fetch patches.
+	esDynImportPattern = regexp.MustCompile(`(import\s*\(\s*['"])(/[^"']+)(['"])`)
+	// Static import/export with from: import { x } from '/path' or export * from '/path'
+	esStaticImportPattern = regexp.MustCompile(`((?:import|export)\b[^;]*?\bfrom\s*['"])(/[^"']+)(['"])`)
+	// Side-effect import: import '/polyfill.js'
+	esSideEffectPattern = regexp.MustCompile(`(\bimport\s+['"])(/[^"']+)(['"])`)
 	linkPathPattern     = regexp.MustCompile(`<(/[^>]+)>`)
 
 	// Byte version of the proxy path prefix for zero-copy comparisons
@@ -147,24 +155,33 @@ func (r *contentRewriter) rewrite(content []byte) []byte {
 	content = r.rewriteSrcset(content)
 	content = r.rewriteRootPaths(content)
 	content = r.rewriteURLBase(content)
-	content = r.rewriteJSONPaths(content)
+	// JSON path rewriting ("key": "/path") is intentionally NOT applied to HTML.
+	// SSR frameworks (Nuxt 3, Next.js, SvelteKit) embed route/data payloads in
+	// inline <script> tags. Rewriting paths in these payloads corrupts hydration
+	// state and causes the client-side router to navigate to non-existent routes
+	// (e.g. "/proxy/slug/recipe/123" instead of "/recipe/123") → 404.
+	// The runtime interceptor handles outgoing API calls from these paths.
 	content = r.rewriteImageSet(content)
-	content = r.rewriteJSONArrayPaths(content)
 	content = r.rewriteCSSImports(content)
 	content = r.rewriteSVGHrefs(content)
+	content = r.rewriteMetaRefresh(content)
+	content = r.rewriteModuleImports(content)
 	return content
 }
 
-// rewriteScript performs URL rewriting for JavaScript content.
+// rewriteScript performs URL rewriting for JavaScript/JSON content.
 // It only applies safe rewrites (absolute URLs, target paths, SRI stripping,
-// and base path config values). Root-relative path rewriting is skipped because
-// the injected runtime interceptor handles those, and statically rewriting paths
-// in JS source corrupts URLs meant for third-party servers (e.g. plex.tv).
+// base path config values, and ES module imports). General root-relative path
+// rewriting is skipped because the injected runtime interceptor handles those,
+// and statically rewriting paths in JS source corrupts URLs meant for
+// third-party servers (e.g. plex.tv). ES module imports are an exception
+// because the browser's module loader bypasses fetch/XHR interception.
 func (r *contentRewriter) rewriteScript(content []byte) []byte {
 	content = r.stripIntegrity(content)
 	content = r.rewriteAbsoluteURLs(content)
 	content = r.rewriteTargetPaths(content)
 	content = r.rewriteURLBase(content)
+	content = r.rewriteModuleImports(content)
 	return content
 }
 
@@ -348,24 +365,7 @@ func (r *contentRewriter) rewriteURLBase(result []byte) []byte {
 	return urlBaseEmptyPattern.ReplaceAll(result, r.urlBaseRepl)
 }
 
-// rewriteJSONPaths rewrites generic JSON paths: any "key": "/path" where path
-// doesn't start with /proxy/. Handles apiRoot, basePath, redirectUrl, etc.
-func (r *contentRewriter) rewriteJSONPaths(result []byte) []byte {
-	marker := []byte(`"/`)
-	return jsonPathPattern.ReplaceAllFunc(result, func(match []byte) []byte {
-		if bytes.Contains(match, proxyPathPrefixB) {
-			return match
-		}
-		idx := bytes.Index(match, marker)
-		if idx == -1 {
-			return match
-		}
-		return spliceAt(match, idx+1, r.proxyPrefixB)
-	})
-}
-
-// rewriteImageSet rewrites CSS image-set() functions. Must run before JSON array
-// handler because `, "/2x.png"` inside image-set() would otherwise match.
+// rewriteImageSet rewrites CSS image-set() functions.
 func (r *contentRewriter) rewriteImageSet(result []byte) []byte {
 	return imageSetPattern.ReplaceAllFunc(result, func(match []byte) []byte {
 		return imageSetPathPattern.ReplaceAllFunc(match, func(inner []byte) []byte {
@@ -385,19 +385,37 @@ func (r *contentRewriter) rewriteImageSet(result []byte) []byte {
 	})
 }
 
-// rewriteJSONArrayPaths rewrites JSON arrays of paths: ["/path1", "/path2"]
-func (r *contentRewriter) rewriteJSONArrayPaths(result []byte) []byte {
-	marker := []byte(`"/`)
-	return jsonArrayPathPat.ReplaceAllFunc(result, func(match []byte) []byte {
+// rewriteModuleImports rewrites ES module import/export specifiers so the
+// browser's module loader fetches chunks through the proxy. Unlike fetch/XHR,
+// module imports (static and dynamic) use the browser's internal loader which
+// cannot be intercepted by the runtime script. Without this rewrite, code-split
+// chunks (e.g. Nuxt lazy routes) would be fetched from the wrong origin.
+func (r *contentRewriter) rewriteModuleImports(content []byte) []byte {
+	dqSlash := []byte(`"/`)
+	sqSlash := []byte(`'/`)
+
+	rewriteImportPath := func(match []byte) []byte {
 		if bytes.Contains(match, proxyPathPrefixB) {
 			return match
 		}
-		idx := bytes.Index(match, marker)
+		// Find the quoted root-relative path ("/ or '/) and splice in the proxy prefix
+		idx := bytes.LastIndex(match, dqSlash)
+		if idx == -1 {
+			idx = bytes.LastIndex(match, sqSlash)
+		}
 		if idx == -1 {
 			return match
 		}
 		return spliceAt(match, idx+1, r.proxyPrefixB)
-	})
+	}
+
+	// Static: import { x } from '/path', export * from '/path'
+	content = esStaticImportPattern.ReplaceAllFunc(content, rewriteImportPath)
+	// Side-effect: import '/polyfill.js'
+	content = esSideEffectPattern.ReplaceAllFunc(content, rewriteImportPath)
+	// Dynamic: import('/chunk.js')
+	content = esDynImportPattern.ReplaceAllFunc(content, rewriteImportPath)
+	return content
 }
 
 // rewriteCSSImports rewrites CSS @import statements, both direct and url() forms.
@@ -452,6 +470,28 @@ func (r *contentRewriter) rewriteSVGHrefs(result []byte) []byte {
 			return match
 		}
 		return spliceAt(match, idx+1, r.proxyPrefixB)
+	})
+}
+
+// rewriteMetaRefresh rewrites URLs in <meta http-equiv="refresh" content="5;url=/path">.
+// The Refresh response header is handled separately by rewriteLocationHeaders; this
+// catches the equivalent <meta> tag in HTML where the URL is embedded in the content
+// attribute value after ";url=".
+func (r *contentRewriter) rewriteMetaRefresh(result []byte) []byte {
+	return metaRefreshPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		if bytes.Contains(match, proxyPathPrefixB) {
+			return match
+		}
+		lowerMatch := bytes.ToLower(match)
+		urlIdx := bytes.Index(lowerMatch, []byte("url"))
+		if urlIdx == -1 {
+			return match
+		}
+		slashIdx := bytes.IndexByte(match[urlIdx:], '/')
+		if slashIdx == -1 {
+			return match
+		}
+		return spliceAt(match, urlIdx+slashIdx, r.proxyPrefixB)
 	})
 }
 
@@ -728,30 +768,66 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// Save history API originals before any patching — used for initial strip,
 		// pushState/replaceState overrides, and the popstate listener.
 		`var _hps=history.pushState,_hrs=history.replaceState;` +
-		// Strip the proxy prefix from the initial URL before SPA frameworks read
-		// location.pathname for routing. Without this, SPAs see "/proxy/slug/"
-		// as the route and show a 404 because their router doesn't recognise it.
-		`var _il=location.pathname;` +
+		// Try to override Location.prototype getters so SPA code sees clean
+		// paths (without the proxy prefix) at all times. If the pathname getter
+		// patch succeeds (_pG=true), the replaceState strip and popstate handler
+		// become unnecessary: the actual URL keeps the proxy prefix (correct for
+		// server reload) while getters transparently strip it.
+		`var _pG=false;` +
+		`try{var _pD=Object.getOwnPropertyDescriptor(Location.prototype,"pathname");` +
+		`if(_pD&&_pD.get&&_pD.configurable){Object.defineProperty(Location.prototype,"pathname",` +
+		`{get:function(){var v=_pD.get.call(this);if(v===P)return"/";` +
+		`if(v.indexOf(P+"/")===0)return v.slice(P.length);return v},` +
+		`set:_pD.set,enumerable:_pD.enumerable,configurable:true});_pG=true}}catch(e){}` +
+		// Override href getter to return URL without proxy prefix, and setter
+		// to add the prefix (best-effort — non-configurable in some browsers).
+		`try{var _hD=Object.getOwnPropertyDescriptor(Location.prototype,"href");` +
+		`if(_hD&&_hD.get&&_hD.configurable){Object.defineProperty(Location.prototype,"href",` +
+		`{get:function(){var v=_hD.get.call(this);` +
+		`var pn=_pD?_pD.get.call(this):"";` +
+		`if(pn===P)return v.replace(P,"/");` +
+		`if(pn.indexOf(P+"/")===0)return v.replace(P,"");` +
+		`return v},` +
+		`set:function(v){_hD.set.call(this,R(""+v))},` +
+		`enumerable:_hD.enumerable,configurable:true})}}catch(e){}` +
+		// Override toString to match the patched href getter.
+		`Location.prototype.toString=function(){return this.href};` +
+		// Override document.URL and document.documentURI to match patched href,
+		// so frameworks reading these see the clean URL too.
+		`try{var _dU=Object.getOwnPropertyDescriptor(Document.prototype,"URL");` +
+		`if(_dU&&_dU.get&&_dU.configurable){Object.defineProperty(Document.prototype,"URL",` +
+		`{get:function(){return location.href},enumerable:_dU.enumerable,configurable:true})}}catch(e){}` +
+		`try{var _dI=Object.getOwnPropertyDescriptor(Document.prototype,"documentURI");` +
+		`if(_dI&&_dI.get&&_dI.configurable){Object.defineProperty(Document.prototype,"documentURI",` +
+		`{get:function(){return location.href},enumerable:_dI.enumerable,configurable:true})}}catch(e){}` +
+		// Fallback: strip the proxy prefix from the initial URL via replaceState.
+		// Skipped when getter patches succeeded (_pG=true) since those
+		// transparently strip the prefix on every read.
+		`if(!_pG){var _il=location.pathname;` +
 		`if(_il===P||_il.indexOf(P+"/")===0){` +
-		`_hrs.call(history,history.state,"",(_il.slice(P.length)||"/")+location.search+location.hash)}` +
-		// R(u) rewrites root-relative and same-origin absolute URLs to go through the proxy
+		`_hrs.call(history,history.state,"",(_il.slice(P.length)||"/")+location.search+location.hash)}}` +
+		// R(u) rewrites root-relative, relative, and same-origin absolute URLs
+		// to go through the proxy. Protocol-relative URLs (//host) and scheme
+		// URIs (data:, javascript:, mailto:, etc.) are left untouched.
 		`function R(u){` +
 		`if(u instanceof URL)u=u.href;` +
 		`if(typeof u!=="string")return u;` +
-		`if(u[0]==="/"&&!u.startsWith(P+"/")&&u!==P)return P+u;` +
+		`if(u[0]==="/"&&u[1]!=="/"&&!u.startsWith(P+"/")&&u!==P)return P+u;` +
 		`try{var p=new URL(u);if(p.host===location.host&&!p.pathname.startsWith(P+"/")&&p.pathname!==P){p.pathname=P+p.pathname;return p.href}}catch(e){}` +
+		`if(u&&u[0]!=="#"&&u[0]!=="?"&&u[0]!=="/"&&u.indexOf(":")===-1)return P+"/"+u;` +
 		`return u}` +
 		// Patch history.pushState/replaceState to add the proxy prefix so that
 		// "Reload frame" requests the correct /proxy/slug/... URL from the server.
 		`history.pushState=function(s,t,u){if(u!=null)u=R(""+u);return _hps.call(this,s,t,u)};` +
 		`history.replaceState=function(s,t,u){if(u!=null)u=R(""+u);return _hrs.call(this,s,t,u)};` +
 		// On back/forward, strip the prefix before the SPA's popstate handler
-		// reads location.pathname. Capture phase ensures we fire first.
-		`window.addEventListener("popstate",function(){` +
+		// reads location.pathname. Skipped when getter patches succeeded (_pG)
+		// since the pathname getter already strips transparently.
+		`if(!_pG){window.addEventListener("popstate",function(){` +
 		`var p=location.pathname;` +
 		`if(p===P||p.indexOf(P+"/")===0){` +
 		`_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash)}` +
-		`},true);` +
+		`},true)}` +
 		// Patch location.assign/replace so programmatic navigation goes through proxy
 		`var _la=Location.prototype.assign;` +
 		`Location.prototype.assign=function(u){return _la.call(this,R(u))};` +
@@ -790,6 +866,52 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`navigator.serviceWorker.register=function(){return Promise.resolve()};` +
 		`try{navigator.serviceWorker.getRegistrations().then(function(r){r.forEach(function(reg){` +
 		`if(reg.scope.indexOf(P)!==-1)reg.unregister()})})}catch(e){}}` +
+		// Patch Worker/SharedWorker constructors so worker scripts load through the
+		// proxy. Without this, new Worker('/worker.js') loads from the Muximux origin.
+		`var _Wk=window.Worker;` +
+		`if(_Wk){window.Worker=function(u,o){` +
+		`if(typeof u==="string")u=R(u);else if(u instanceof URL)u=R(u.href);` +
+		`return o!==void 0?new _Wk(u,o):new _Wk(u)};` +
+		`window.Worker.prototype=_Wk.prototype}` +
+		`var _SW=window.SharedWorker;` +
+		`if(_SW){window.SharedWorker=function(u,o){` +
+		`if(typeof u==="string")u=R(u);else if(u instanceof URL)u=R(u.href);` +
+		`return o!==void 0?new _SW(u,o):new _SW(u)};` +
+		`window.SharedWorker.prototype=_SW.prototype}` +
+		// Namespace localStorage and sessionStorage so each proxied app gets
+		// isolated storage, preventing key collisions across apps sharing the
+		// same origin. Keys are prefixed with the proxy path (e.g.
+		// "/proxy/mealie::token"). Uses ES6 Proxy when available so property
+		// access syntax (localStorage["key"] = val) also works.
+		`var _ls=window.localStorage,_ss=window.sessionStorage;` +
+		`function NS(s){` +
+		`var px=P+"::";` +
+		`var m={` +
+		`getItem:function(k){return s.getItem(px+k)},` +
+		`setItem:function(k,v){s.setItem(px+k,""+v)},` +
+		`removeItem:function(k){s.removeItem(px+k)},` +
+		`clear:function(){var r=[];for(var i=0;i<s.length;i++){var k=s.key(i);` +
+		`if(k&&k.indexOf(px)===0)r.push(k)}for(var j=0;j<r.length;j++)s.removeItem(r[j])},` +
+		`key:function(n){var c=0;for(var i=0;i<s.length;i++){var k=s.key(i);` +
+		`if(k&&k.indexOf(px)===0){if(c===n)return k.slice(px.length);c++}}return null}};` +
+		`if(typeof Proxy==="undefined")return m;` +
+		`return new Proxy(m,{` +
+		`get:function(t,p){` +
+		`if(p==="length"){var c=0;for(var i=0;i<s.length;i++)if((s.key(i)||"").indexOf(px)===0)c++;return c}` +
+		`if(p in t)return t[p];` +
+		`if(typeof p!=="string")return void 0;` +
+		`return s.getItem(px+p)},` +
+		`set:function(t,p,v){s.setItem(px+p,""+v);return true},` +
+		`deleteProperty:function(t,p){s.removeItem(px+p);return true},` +
+		`has:function(t,p){return p==="length"||p in t||s.getItem(px+p)!==null},` +
+		`ownKeys:function(){var r=[];for(var i=0;i<s.length;i++){var k=s.key(i);` +
+		`if(k&&k.indexOf(px)===0)r.push(k.slice(px.length))}return r},` +
+		`getOwnPropertyDescriptor:function(t,p){` +
+		`var v=s.getItem(px+p);if(v!==null)return{value:v,writable:true,enumerable:true,configurable:true};` +
+		`return void 0}` +
+		`})}` +
+		`try{Object.defineProperty(window,"localStorage",{value:NS(_ls),configurable:true})}catch(e){}` +
+		`try{Object.defineProperty(window,"sessionStorage",{value:NS(_ss),configurable:true})}catch(e){}` +
 		// Property setter overrides for synchronous URL rewriting on DOM elements.
 		// When an SPA sets img.src = "/photo/...", the setter intercepts it and
 		// rewrites the URL BEFORE the browser starts loading, preserving the normal
@@ -800,9 +922,10 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`Object.defineProperty(C.prototype,a,{get:d.get,set:function(v){d.set.call(this,R(v))},enumerable:d.enumerable,configurable:d.configurable})}` +
 		`W(HTMLImageElement,"src");W(HTMLScriptElement,"src");W(HTMLSourceElement,"src");W(HTMLMediaElement,"src");W(HTMLVideoElement,"poster");` +
 		`W(HTMLIFrameElement,"src");W(HTMLLinkElement,"href");W(HTMLAnchorElement,"href");W(HTMLFormElement,"action");` +
+		`W(HTMLObjectElement,"data");W(HTMLButtonElement,"formAction");W(HTMLInputElement,"formAction");` +
 		// MutationObserver as fallback for elements created via innerHTML/parser
 		// where property setters don't fire. Only rewrites if URL isn't already prefixed.
-		`var urlAttrs={"src":1,"poster":1,"href":1,"action":1};` +
+		`var urlAttrs={"src":1,"poster":1,"href":1,"action":1,"data":1,"formaction":1};` +
 		`function fixAttr(el,a){var v=el.getAttribute(a);if(v){var n=R(v);if(n!==v)el.setAttribute(a,n)}}` +
 		// fixSrcset rewrites each URL in a srcset attribute (comma-separated "url descriptor" pairs)
 		`function fixSrcset(el){` +
@@ -816,7 +939,7 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(el.nodeType!==1)return;` +
 		`for(var a in urlAttrs){if(el.hasAttribute&&el.hasAttribute(a))fixAttr(el,a)}` +
 		`if(el.hasAttribute&&el.hasAttribute("srcset"))fixSrcset(el);` +
-		`var ch=el.querySelectorAll("[src],[poster],[href],[srcset],[action]");` +
+		`var ch=el.querySelectorAll("[src],[poster],[href],[srcset],[action],[data],[formaction]");` +
 		`for(var i=0;i<ch.length;i++){for(var a in urlAttrs){if(ch[i].hasAttribute(a))fixAttr(ch[i],a)}` +
 		`if(ch[i].hasAttribute("srcset"))fixSrcset(ch[i])}}` +
 		`new MutationObserver(function(muts){` +
@@ -824,7 +947,7 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(m.type==="childList"){for(var j=0;j<m.addedNodes.length;j++)fixEl(m.addedNodes[j])}` +
 		`else if(m.type==="attributes"){if(urlAttrs[m.attributeName])fixAttr(m.target,m.attributeName);` +
 		`else if(m.attributeName==="srcset")fixSrcset(m.target)}}` +
-		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster","href","srcset","action"]});` +
+		`}).observe(document,{childList:true,subtree:true,attributes:true,attributeFilter:["src","poster","href","srcset","action","data","formaction"]});` +
 		// Chrome may freeze document.timeline in iframes, leaving Web Animations
 		// (like Plex's opacity fade-in) stuck indefinitely. Periodic scan detects
 		// loaded images with opacity stuck at 0, cancels their frozen animations,
