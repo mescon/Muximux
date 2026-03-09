@@ -507,9 +507,14 @@ func TestSlugify(t *testing.T) {
 		{"CamelCase", "camelcase"},
 		{"with_underscores", "with-underscores"},
 		{"Already-slug", "already-slug"},
-		{"Multiple   Spaces", "multiple---spaces"},
+		{"Multiple   Spaces", "multiple-spaces"},
 		{"123Numbers", "123numbers"},
 		{"Special!@#Chars", "specialchars"},
+		{"qBittorrent - WebUI", "qbittorrent-webui"},
+		{"  Leading Spaces", "leading-spaces"},
+		{"Trailing Spaces  ", "trailing-spaces"},
+		{" - Dashes - ", "dashes"},
+		{"---triple---dashes---", "triple-dashes"},
 	}
 
 	for _, tt := range tests {

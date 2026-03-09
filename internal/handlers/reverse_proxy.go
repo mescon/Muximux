@@ -878,6 +878,12 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(typeof u==="string")u=R(u);else if(u instanceof URL)u=R(u.href);` +
 		`return o!==void 0?new _SW(u,o):new _SW(u)};` +
 		`window.SharedWorker.prototype=_SW.prototype}` +
+		// Patch Audio constructor so new Audio('/sound.mp3') loads through the proxy.
+		// The HTMLMediaElement.src setter (via W) catches audio.src = url, but the
+		// constructor argument bypasses it.
+		`var _Au=window.Audio;` +
+		`if(_Au){window.Audio=function(u){return typeof u==="string"?new _Au(R(u)):new _Au};` +
+		`window.Audio.prototype=_Au.prototype}` +
 		// Namespace localStorage and sessionStorage so each proxied app gets
 		// isolated storage, preventing key collisions across apps sharing the
 		// same origin. Keys are prefixed with the proxy path (e.g.
@@ -921,11 +927,50 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(!d||!d.set)return;` +
 		`Object.defineProperty(C.prototype,a,{get:d.get,set:function(v){d.set.call(this,R(v))},enumerable:d.enumerable,configurable:d.configurable})}` +
 		`W(HTMLImageElement,"src");W(HTMLScriptElement,"src");W(HTMLSourceElement,"src");W(HTMLMediaElement,"src");W(HTMLVideoElement,"poster");` +
-		`W(HTMLIFrameElement,"src");W(HTMLLinkElement,"href");W(HTMLAnchorElement,"href");W(HTMLFormElement,"action");` +
+		`W(HTMLIFrameElement,"src");W(HTMLLinkElement,"href");W(HTMLAnchorElement,"href");W(HTMLBaseElement,"href");W(HTMLFormElement,"action");` +
 		`W(HTMLObjectElement,"data");W(HTMLButtonElement,"formAction");W(HTMLInputElement,"formAction");` +
+		// srcset property setter — parses comma-separated "url descriptor" pairs
+		// and rewrites each URL via R(). W() can't handle this because srcset
+		// contains multiple URLs, not a single value.
+		`var _srs=Object.getOwnPropertyDescriptor(HTMLImageElement.prototype,"srcset");` +
+		`if(_srs&&_srs.set){Object.defineProperty(HTMLImageElement.prototype,"srcset",` +
+		`{get:_srs.get,set:function(v){if(typeof v==="string"){` +
+		`var ps=v.split(","),c=false;` +
+		`for(var i=0;i<ps.length;i++){var t=ps[i].trim();if(!t)continue;` +
+		`var sp=t.indexOf(" "),u=sp>0?t.substring(0,sp):t,rest=sp>0?t.substring(sp):"";` +
+		`var n=R(u);if(n!==u){ps[i]=(i?" ":"")+n+rest;c=true}}` +
+		`if(c)v=ps.join(",")}` +
+		`_srs.set.call(this,v)},enumerable:_srs.enumerable,configurable:true})}` +
 		// MutationObserver as fallback for elements created via innerHTML/parser
 		// where property setters don't fire. Only rewrites if URL isn't already prefixed.
 		`var urlAttrs={"src":1,"poster":1,"href":1,"action":1,"data":1,"formaction":1};` +
+		// Patch setAttribute so that libraries using el.setAttribute("src", url)
+		// (instead of el.src = url) get synchronous URL rewriting. Without this,
+		// only the MutationObserver catches setAttribute calls — but it fires
+		// asynchronously, too late for <script> elements that start loading the
+		// moment they're added to the DOM. This fixes MooTools/qBittorrent.
+		`var _sA=Element.prototype.setAttribute;` +
+		`Element.prototype.setAttribute=function(n,v){` +
+		`if(urlAttrs[n.toLowerCase()]&&typeof v==="string")v=R(v);` +
+		`return _sA.call(this,n,v)};` +
+		// Patch CSSStyleSheet.insertRule to rewrite url() references in CSS rules.
+		// CSS-in-JS libraries (styled-components, emotion) use insertRule to inject
+		// styles with background-image, @font-face src, etc.
+		`var _iR=CSSStyleSheet.prototype.insertRule;` +
+		`CSSStyleSheet.prototype.insertRule=function(){` +
+		`var a=[].slice.call(arguments);` +
+		`if(typeof a[0]==="string")a[0]=a[0].replace(/url\(\s*(['"]?)([^)'"]+)\1\s*\)/g,` +
+		`function(_,q,u){return"url("+q+R(u)+q+")"});` +
+		`return _iR.apply(this,a)};` +
+		// Patch insertAdjacentHTML for synchronous URL fixing. The original
+		// inserts HTML into the DOM, then we immediately fixEl() the parent's
+		// new children. This closes the same async gap as the setAttribute patch:
+		// <script> elements start loading the moment they enter the DOM.
+		`var _iAH=Element.prototype.insertAdjacentHTML;` +
+		`Element.prototype.insertAdjacentHTML=function(pos,html){` +
+		`_iAH.call(this,pos,html);` +
+		`var lp=pos.toLowerCase(),t=lp==="beforebegin"||lp==="afterend"?this.parentElement:this;` +
+		`if(t)fixEl(t)};` +
 		`function fixAttr(el,a){var v=el.getAttribute(a);if(v){var n=R(v);if(n!==v)el.setAttribute(a,n)}}` +
 		// fixSrcset rewrites each URL in a srcset attribute (comma-separated "url descriptor" pairs)
 		`function fixSrcset(el){` +

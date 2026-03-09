@@ -661,17 +661,27 @@ func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
 
 // Slugify converts a name to a URL-safe slug
 func Slugify(name string) string {
-	// Simple slugify - replace spaces with dashes, lowercase
+	// Slugify: lowercase, keep alphanumeric, collapse separators to single dash, trim edges
 	result := make([]byte, 0, len(name))
+	lastDash := true // start true to suppress leading dash
 	for _, c := range name {
 		switch {
 		case c >= 'A' && c <= 'Z':
 			result = append(result, byte(c+32)) // lowercase
+			lastDash = false
 		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
 			result = append(result, byte(c))
+			lastDash = false
 		case c == ' ', c == '-', c == '_':
-			result = append(result, '-')
+			if !lastDash {
+				result = append(result, '-')
+				lastDash = true
+			}
 		}
+	}
+	// Trim trailing dash
+	if len(result) > 0 && result[len(result)-1] == '-' {
+		result = result[:len(result)-1]
 	}
 	return string(result)
 }

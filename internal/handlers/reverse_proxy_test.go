@@ -2287,6 +2287,54 @@ func TestInterceptorScriptURLCoverage(t *testing.T) {
 	if !strings.Contains(script, `Document.prototype,"documentURI"`) {
 		t.Error("interceptor should attempt to patch Document.prototype.documentURI getter")
 	}
+
+	// Element.prototype.setAttribute should be wrapped so that libraries using
+	// el.setAttribute("src", url) (e.g. MooTools) get synchronous URL rewriting.
+	// Without this, only the MutationObserver catches setAttribute calls, but it
+	// fires asynchronously — too late for <script> elements.
+	if !strings.Contains(script, `Element.prototype.setAttribute=function`) {
+		t.Error("interceptor should patch Element.prototype.setAttribute for synchronous URL rewriting")
+	}
+	if !strings.Contains(script, `_sA.call(this,n,v)`) {
+		t.Error("patched setAttribute should delegate to original _sA")
+	}
+
+	// HTMLImageElement.srcset property setter should parse comma-separated
+	// "url descriptor" pairs and rewrite each URL individually via R().
+	if !strings.Contains(script, `HTMLImageElement.prototype,"srcset"`) {
+		t.Error("interceptor should override HTMLImageElement.srcset setter")
+	}
+
+	// HTMLBaseElement.href setter should be intercepted so <base href="/">
+	// set via JS goes through the proxy prefix.
+	if !strings.Contains(script, `W(HTMLBaseElement,"href")`) {
+		t.Error("interceptor should override HTMLBaseElement.href setter")
+	}
+
+	// Audio constructor should be wrapped so new Audio('/sound.mp3')
+	// rewrites the URL via R(). The src setter (via W()) only catches
+	// subsequent audio.src = url assignments, not the constructor arg.
+	if !strings.Contains(script, `window.Audio=function`) {
+		t.Error("interceptor should patch Audio constructor")
+	}
+
+	// CSSStyleSheet.insertRule should rewrite url() references in CSS rules
+	// so dynamically injected styles load resources through the proxy.
+	if !strings.Contains(script, `CSSStyleSheet.prototype.insertRule`) {
+		t.Error("interceptor should patch CSSStyleSheet.prototype.insertRule")
+	}
+	if !strings.Contains(script, `_iR.call(`) && !strings.Contains(script, `_iR.apply(`) {
+		t.Error("patched insertRule should delegate to original _iR")
+	}
+
+	// insertAdjacentHTML should synchronously fix URLs in injected HTML,
+	// because MutationObserver fires too late for <script> elements.
+	if !strings.Contains(script, `Element.prototype.insertAdjacentHTML=function`) {
+		t.Error("interceptor should patch Element.prototype.insertAdjacentHTML")
+	}
+	if !strings.Contains(script, `_iAH.call(`) && !strings.Contains(script, `_iAH.apply(`) {
+		t.Error("patched insertAdjacentHTML should delegate to original _iAH")
+	}
 }
 
 func TestInterceptorScriptHistoryAPI(t *testing.T) {

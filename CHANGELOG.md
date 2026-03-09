@@ -17,6 +17,13 @@ All notable changes to Muximux are documented in this file.
 - `localStorage` and `sessionStorage` in proxied apps are now isolated per app -- keys are transparently namespaced so apps sharing the same origin no longer collide with each other or with Muximux
 - Opening an app's settings no longer shows "unsaved changes" without making changes -- optional fields are now normalised with defaults on load
 - Icon background colour picker now works on existing apps -- factory functions deep-merge icon fields so `background` is always present
+- App names with trailing spaces or dashes (e.g. "qBittorrent - ") no longer produce malformed URL slugs with consecutive dashes -- the slugifier now collapses separators and trims edges
+- `setAttribute('src', url)` in proxied apps is now intercepted synchronously -- fixes apps using MooTools or similar libraries that set URL attributes via setAttribute instead of property assignment
+- `HTMLImageElement.srcset` property setter in proxied apps is now intercepted -- responsive image libraries setting srcset via JS no longer 404
+- `<base href>` set via JS in proxied apps is now intercepted -- prevents relative URL resolution from breaking when the base element is modified programmatically
+- `new Audio(url)` in proxied apps now routes through the proxy -- previously only subsequent `.src` assignments were caught
+- `CSSStyleSheet.insertRule()` with `url()` references in proxied apps now rewrites paths through the proxy -- fixes CSS-in-JS libraries injecting background images and font sources
+- `insertAdjacentHTML()` in proxied apps now synchronously rewrites URLs -- closes the same async MutationObserver timing gap that affected setAttribute
 
 ## [3.0.14] - 2026-03-08
 
