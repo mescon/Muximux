@@ -2,6 +2,23 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.16] - 2026-03-10
+
+### Fixed
+- App names with trailing spaces or dashes (e.g. "qBittorrent - ") no longer produce malformed URL slugs with consecutive dashes -- the slugifier now collapses separators and trims edges
+- `setAttribute('src', url)` in proxied apps is now intercepted synchronously -- fixes apps using MooTools or similar libraries that set URL attributes via setAttribute instead of property assignment
+- `HTMLImageElement.srcset` property setter in proxied apps is now intercepted -- responsive image libraries setting srcset via JS no longer 404
+- `<base href>` set via JS in proxied apps is now intercepted -- prevents relative URL resolution from breaking when the base element is modified programmatically
+- `new Audio(url)` in proxied apps now routes through the proxy -- previously only subsequent `.src` assignments were caught
+- `CSSStyleSheet.insertRule()` with `url()` references in proxied apps now rewrites paths through the proxy -- fixes CSS-in-JS libraries injecting background images and font sources
+- `insertAdjacentHTML()` in proxied apps now synchronously rewrites URLs -- closes the same async MutationObserver timing gap that affected setAttribute
+- `Origin` and `Referer` request headers are now rewritten to match the backend host when proxying -- fixes CSRF validation failures in apps like Django, Rails, and .NET that check these headers
+- `Set-Cookie` `Domain` attribute is now stripped from proxied responses -- cookies default to the proxy host instead of being scoped to the unreachable backend host
+- `Set-Cookie` `Secure` flag is now stripped when Muximux serves over HTTP -- prevents cookies from being silently dropped by browsers on non-HTTPS connections
+- `Set-Cookie` `SameSite=Strict` is now downgraded to `Lax` in proxied responses -- `Strict` is too restrictive when the app is embedded through a proxy
+- `ETag` and `Last-Modified` headers are now stripped from rewritten proxy responses -- prevents stale caching after the interceptor script is injected
+- `Access-Control-Allow-Origin` headers from proxied backends are now rewritten to match the request origin -- fixes CORS failures when the backend returns its own host instead of the proxy host
+
 ## [3.0.15] - 2026-03-09
 
 ### Fixed
@@ -17,19 +34,6 @@ All notable changes to Muximux are documented in this file.
 - `localStorage` and `sessionStorage` in proxied apps are now isolated per app -- keys are transparently namespaced so apps sharing the same origin no longer collide with each other or with Muximux
 - Opening an app's settings no longer shows "unsaved changes" without making changes -- optional fields are now normalised with defaults on load
 - Icon background colour picker now works on existing apps -- factory functions deep-merge icon fields so `background` is always present
-- App names with trailing spaces or dashes (e.g. "qBittorrent - ") no longer produce malformed URL slugs with consecutive dashes -- the slugifier now collapses separators and trims edges
-- `setAttribute('src', url)` in proxied apps is now intercepted synchronously -- fixes apps using MooTools or similar libraries that set URL attributes via setAttribute instead of property assignment
-- `HTMLImageElement.srcset` property setter in proxied apps is now intercepted -- responsive image libraries setting srcset via JS no longer 404
-- `<base href>` set via JS in proxied apps is now intercepted -- prevents relative URL resolution from breaking when the base element is modified programmatically
-- `new Audio(url)` in proxied apps now routes through the proxy -- previously only subsequent `.src` assignments were caught
-- `CSSStyleSheet.insertRule()` with `url()` references in proxied apps now rewrites paths through the proxy -- fixes CSS-in-JS libraries injecting background images and font sources
-- `insertAdjacentHTML()` in proxied apps now synchronously rewrites URLs -- closes the same async MutationObserver timing gap that affected setAttribute
-- `Origin` and `Referer` request headers are now rewritten to match the backend host when proxying -- fixes CSRF validation failures in apps like Django, Rails, and .NET that check these headers
-- `Set-Cookie` `Domain` attribute is now stripped from proxied responses -- cookies default to the proxy host instead of being scoped to the unreachable backend host
-- `Set-Cookie` `Secure` flag is now stripped when Muximux serves over HTTP -- prevents cookies from being silently dropped by browsers on non-HTTPS connections
-- `Set-Cookie` `SameSite=Strict` is now downgraded to `Lax` in proxied responses -- `Strict` is too restrictive when the app is embedded through a proxy
-- `ETag` and `Last-Modified` headers are now stripped from rewritten proxy responses -- prevents stale caching after the interceptor script is injected
-- `Access-Control-Allow-Origin` headers from proxied backends are now rewritten to match the request origin -- fixes CORS failures when the backend returns its own host instead of the proxy host
 
 ## [3.0.14] - 2026-03-08
 
