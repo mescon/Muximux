@@ -31,11 +31,18 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 
 ### HTTP Headers
 
-- Strips `X-Frame-Options` (allows iframe embedding)
-- Strips `Content-Security-Policy` (allows loading in iframe context)
-- Rewrites `Location` redirect headers to point to the proxy path
-- Rewrites `Set-Cookie` path attributes so cookies are scoped correctly
-- Rewrites `Content-Location` and `Refresh` headers
+**Response headers:**
+- Strips `X-Frame-Options` and `Content-Security-Policy` (allows iframe embedding)
+- Rewrites `Location`, `Content-Location`, and `Refresh` redirect headers to the proxy path
+- Rewrites `Set-Cookie` attributes: `Path` → proxy prefix, `Domain` stripped (defaults to proxy host), `Secure` stripped when frontend is HTTP, `SameSite=Strict` → `Lax` (too restrictive through proxy)
+- Rewrites `Link` header URIs (e.g., preload hints)
+- Rewrites restrictive `Access-Control-Allow-Origin` headers to match the request origin (with `Vary: Origin`)
+- Strips `ETag` and `Last-Modified` on responses whose body was rewritten (prevents stale cache hits)
+
+**Request headers:**
+- Rewrites `Origin` and `Referer` to match the backend's scheme and host, preventing CSRF rejections
+- Sets `Host` to the backend host
+- Forwards `X-Forwarded-For`, `X-Forwarded-Host`, `X-Forwarded-Proto`, and `X-Real-IP`
 
 ### HTML Content
 
@@ -55,13 +62,23 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 
 ### Runtime URL Interceptor
 
-For single-page applications (SPAs) that build URLs dynamically in JavaScript, static text rewriting is not enough. The proxy injects a small script into HTML responses that intercepts URL usage at runtime:
+For single-page applications (SPAs) that build URLs dynamically in JavaScript, static text rewriting is not enough. The proxy injects a small script into every HTML response that intercepts URL usage at runtime:
 
-- **`fetch()` and `XMLHttpRequest`** — API calls are rewritten before they leave the browser
-- **`WebSocket` and `EventSource`** — Real-time connections are routed through the proxy
-- **`img.src`, `script.src`, `video.poster`**, etc. — DOM property setters are overridden so the browser never requests the wrong URL
+- **`fetch()`, `XMLHttpRequest`, `sendBeacon()`** — API calls are rewritten before they leave the browser
+- **`WebSocket`, `EventSource`** — Real-time connections are routed through the proxy
+- **DOM property setters** — `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` — the browser's internal setter only ever sees the rewritten URL
+- **`img.srcset`** — Custom setter parses comma-separated `url descriptor` pairs and rewrites each URL
+- **`setAttribute()`** — Wrapped so libraries using `el.setAttribute('src', url)` get synchronous URL rewriting
+- **`CSSStyleSheet.insertRule()`** — Rewrites `url()` references in CSS-in-JS rules (styled-components, emotion)
+- **`insertAdjacentHTML()`** — Synchronously fixes URLs in newly inserted HTML fragments
+- **`history.pushState/replaceState`** — Adds proxy prefix so frame reload hits the correct URL
+- **`location.pathname/href`** — Getters transparently strip the proxy prefix so SPA routers see clean paths
+- **`location.assign/replace`, `window.open`** — Wrapped to route through the proxy
+- **`Worker`, `SharedWorker`, `Audio` constructors** — Script/source URLs routed through the proxy
 - **`MutationObserver` fallback** — Catches elements created via `innerHTML` or HTML parsing where property setters don't fire
-- **`window.parent` and `window.top` isolation** — Overridden to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. This prevents libraries like MooTools/MochaUI (used by qBittorrent) from calling methods on the Muximux host window.
+- **`window.parent` and `window.top` isolation** — Overridden to point back to the iframe's own window, so the app behaves as if it is running in a standalone browser tab. Smart detection keeps `window.parent` intact for sub-iframes within the same proxied app (e.g., qBittorrent's MochaUI dialogs).
+- **`localStorage` / `sessionStorage` isolation** — Namespaced per proxied app so multiple apps sharing the Muximux origin don't collide on storage keys
+- **Service worker blocking** — `register()` is no-op'd to prevent proxied apps from registering service workers under the Muximux origin; existing proxy-scoped registrations are unregistered
 
 This means apps like **Plex**, which construct all their image and API URLs in JavaScript at runtime, work through the proxy without needing any configuration in the app itself.
 
@@ -124,12 +141,11 @@ Leave `proxy: false` (or omit it) when:
 
 Even with the proxy and runtime interceptor enabled, some applications may not work correctly in an iframe. The most common reasons are:
 
-- **Service workers** -- Can cache responses under wrong paths or intercept requests before they reach the proxy or the runtime interceptor.
-- **Strict origin validation** -- Apps that validate `Origin` or `Referer` headers may reject proxied requests.
-- **Binary protocols** -- gRPC, MessagePack, and other non-text formats cannot be rewritten.
-- **SPA routing conflicts** -- Some SPAs may not recognize the `/proxy/{slug}/` prefix in their client-side router if they hardcode routes rather than using a configurable base path.
+- **Binary protocols** -- gRPC, MessagePack, and other non-text formats with embedded paths cannot be rewritten.
+- **Runtime-constructed paths** -- Template literals (`` `${base}/api` ``) and string concatenation (`'/api' + endpoint`) are invisible to any rewriter.
+- **SPA routing conflicts** -- Some SPAs may not recognize the `/proxy/{slug}/` prefix in their client-side router if they hardcode routes rather than using a configurable base path. The runtime interceptor patches `location.pathname` to strip the prefix, which handles most cases.
 
-> **Note:** Runtime-constructed URLs (template literals, string concatenation, `fetch()`, `new URL()`, etc.) are handled by the runtime interceptor. This covers dynamic API calls, image loads, and WebSocket connections that apps create at runtime.
+> **Note:** Many patterns that were previously problematic are now handled automatically: `Origin`/`Referer` header validation, cookie scoping, service workers, `history.pushState/replaceState`, `location.pathname`, `Worker`/`SharedWorker`, and `localStorage`/`sessionStorage` isolation.
 
 For detailed explanations of each limitation, symptoms, and workarounds, see the [Troubleshooting](troubleshooting.md#reverse-proxy-limitations) page.
 
@@ -228,19 +244,18 @@ Only text content types are buffered for rewriting. Binary responses (images, vi
 
 A small `<script>` tag injected into every HTML response patches browser APIs before the app's own JavaScript runs:
 
-| What's Patched | How |
-|---|---|
-| `fetch()` | Wrapper rewrites the URL argument |
-| `XMLHttpRequest.open()` | Wrapper rewrites the URL argument |
-| `WebSocket` constructor | Wrapper rewrites the URL argument |
-| `EventSource` constructor | Wrapper rewrites the URL argument |
-| `HTMLImageElement.src` | Property setter override on the prototype |
-| `HTMLScriptElement.src` | Property setter override on the prototype |
-| `HTMLSourceElement.src` | Property setter override on the prototype |
-| `HTMLMediaElement.src` | Property setter override on the prototype |
-| `HTMLVideoElement.poster` | Property setter override on the prototype |
-| `window.parent` | `Object.defineProperty` override to `window` |
-| `window.top` | `Object.defineProperty` override to `window` |
+| Category | What's Patched | How |
+|----------|---|---|
+| API calls | `fetch()`, `XMLHttpRequest.open()`, `sendBeacon()` | Wrapper rewrites URL argument |
+| Real-time | `WebSocket`, `EventSource` constructors | Wrapper rewrites URL argument |
+| DOM setters | `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` | Property setter override on prototype |
+| Special setters | `img.srcset`, `setAttribute()`, `CSSStyleSheet.insertRule()`, `insertAdjacentHTML()` | Custom wrappers for multi-URL and CSS-in-JS |
+| Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip prefix; setters add prefix |
+| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix |
+| Constructors | `Worker`, `SharedWorker`, `Audio` | Wrapper rewrites URL argument |
+| Isolation | `window.parent`, `window.top` | `Object.defineProperty` override |
+| Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |
+| Blocked | `navigator.serviceWorker.register()` | Returns resolved promise (no-op) |
 
 Property setter overrides are **synchronous** — when the app sets `img.src = "/photo/..."`, the browser's internal setter only ever sees the rewritten URL. This preserves the app's normal event chain (load events, animations, etc.) because the image loads from the correct URL on the first try.
 
