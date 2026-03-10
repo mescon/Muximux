@@ -266,20 +266,23 @@ func TestContentRewriter(t *testing.T) {
 	}
 }
 
-// TestCookiePathRewriting tests Set-Cookie path rewriting
-func TestCookiePathRewriting(t *testing.T) {
+// TestCookieRewriting tests Set-Cookie attribute rewriting (path, domain, secure, samesite)
+func TestCookieRewriting(t *testing.T) {
 	tests := []struct {
 		name        string
 		proxyPrefix string
 		targetPath  string
 		cookie      string
+		secure      bool
 		expected    string
 	}{
+		// Existing path-rewriting tests
 		{
 			name:        "rewrite cookie with target path",
 			proxyPrefix: "/proxy/app",
 			targetPath:  "/admin",
 			cookie:      "session=abc123; Path=/admin; HttpOnly",
+			secure:      true,
 			expected:    "session=abc123; Path=/proxy/app/; HttpOnly",
 		},
 		{
@@ -287,6 +290,7 @@ func TestCookiePathRewriting(t *testing.T) {
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
 			cookie:      "session=abc123; Path=/; HttpOnly",
+			secure:      true,
 			expected:    "session=abc123; Path=/proxy/app/; HttpOnly",
 		},
 		{
@@ -294,6 +298,7 @@ func TestCookiePathRewriting(t *testing.T) {
 			proxyPrefix: "/proxy/app",
 			targetPath:  "/admin",
 			cookie:      "token=xyz; Path=/admin/api; Secure",
+			secure:      true,
 			expected:    "token=xyz; Path=/proxy/app/api; Secure",
 		},
 		{
@@ -301,16 +306,85 @@ func TestCookiePathRewriting(t *testing.T) {
 			proxyPrefix: "/proxy/app",
 			targetPath:  "",
 			cookie:      "session=abc; Path=/proxy/app; HttpOnly",
+			secure:      true,
 			expected:    "session=abc; Path=/proxy/app; HttpOnly",
+		},
+		// Domain stripping
+		{
+			name:        "strip domain attribute",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "session=abc; Path=/; Domain=192.0.2.10; HttpOnly",
+			secure:      true,
+			expected:    "session=abc; Path=/proxy/app/; HttpOnly",
+		},
+		{
+			name:        "strip domain with leading dot",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "token=xyz; Domain=.example.com; Path=/",
+			secure:      true,
+			expected:    "token=xyz; Path=/proxy/app/",
+		},
+		// Secure flag management
+		{
+			name:        "keep Secure on HTTPS frontend",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "session=abc; Path=/; Secure; HttpOnly",
+			secure:      true,
+			expected:    "session=abc; Path=/proxy/app/; Secure; HttpOnly",
+		},
+		{
+			name:        "strip Secure on HTTP frontend",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "session=abc; Path=/; Secure; HttpOnly",
+			secure:      false,
+			expected:    "session=abc; Path=/proxy/app/; HttpOnly",
+		},
+		// SameSite rewriting
+		{
+			name:        "rewrite SameSite=Strict to Lax",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "csrf=token; Path=/; SameSite=Strict; HttpOnly",
+			secure:      true,
+			expected:    "csrf=token; Path=/proxy/app/; SameSite=Lax; HttpOnly",
+		},
+		{
+			name:        "keep SameSite=Lax unchanged",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "csrf=token; Path=/; SameSite=Lax; HttpOnly",
+			secure:      true,
+			expected:    "csrf=token; Path=/proxy/app/; SameSite=Lax; HttpOnly",
+		},
+		{
+			name:        "keep SameSite=None unchanged",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "",
+			cookie:      "track=id; Path=/; SameSite=None; Secure",
+			secure:      true,
+			expected:    "track=id; Path=/proxy/app/; SameSite=None; Secure",
+		},
+		// Combined attributes
+		{
+			name:        "strip domain and secure on HTTP, rewrite strict",
+			proxyPrefix: "/proxy/app",
+			targetPath:  "/admin",
+			cookie:      "session=abc; Path=/admin; Domain=backend.local; Secure; SameSite=Strict; HttpOnly",
+			secure:      false,
+			expected:    "session=abc; Path=/proxy/app/; SameSite=Lax; HttpOnly",
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			rewriter := newContentRewriter(tt.proxyPrefix, tt.targetPath, "")
-			result := rewriter.rewriteCookiePath(tt.cookie)
+			result := rewriter.rewriteCookie(tt.cookie, tt.secure)
 			if result != tt.expected {
-				t.Errorf("rewriteCookiePath() =\n  got:  %q\n  want: %q", result, tt.expected)
+				t.Errorf("rewriteCookie() =\n  got:  %q\n  want: %q", result, tt.expected)
 			}
 		})
 	}
@@ -507,6 +581,97 @@ func TestDirectorPathMapping(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestDirectorOriginRefererRewriting(t *testing.T) {
+	targetURL, _ := url.Parse("https://192.0.2.42:8989")
+	director := buildDirector("/proxy/sonarr", "", targetURL, nil)
+
+	tests := []struct {
+		name            string
+		origin          string
+		referer         string
+		expectedOrigin  string
+		expectedReferer string
+	}{
+		{
+			name:           "rewrites origin to target",
+			origin:         "https://muximux.example.com",
+			expectedOrigin: "https://192.0.2.42:8989",
+		},
+		{
+			name:            "rewrites referer host and strips proxy prefix",
+			referer:         "https://muximux.example.com/proxy/sonarr/series/123",
+			expectedReferer: "https://192.0.2.42:8989/series/123",
+		},
+		{
+			name:            "rewrites referer preserving query string",
+			referer:         "https://muximux.example.com/proxy/sonarr/api?key=val",
+			expectedReferer: "https://192.0.2.42:8989/api?key=val",
+		},
+		{
+			name:           "no origin header - no rewrite",
+			origin:         "",
+			expectedOrigin: "",
+		},
+		{
+			name:            "no referer header - no rewrite",
+			referer:         "",
+			expectedReferer: "",
+		},
+		{
+			name:            "referer without proxy prefix - rewrites host only",
+			referer:         "https://muximux.example.com/other/path",
+			expectedReferer: "https://192.0.2.42:8989/other/path",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest("POST", "/proxy/sonarr/api/action", nil)
+			if tt.origin != "" {
+				req.Header.Set("Origin", tt.origin)
+			}
+			if tt.referer != "" {
+				req.Header.Set("Referer", tt.referer)
+			}
+
+			director(req)
+
+			if tt.expectedOrigin != "" {
+				if got := req.Header.Get("Origin"); got != tt.expectedOrigin {
+					t.Errorf("Origin = %q, want %q", got, tt.expectedOrigin)
+				}
+			} else if tt.origin == "" {
+				if got := req.Header.Get("Origin"); got != "" {
+					t.Errorf("Origin should not be set, got %q", got)
+				}
+			}
+
+			if tt.expectedReferer != "" {
+				if got := req.Header.Get("Referer"); got != tt.expectedReferer {
+					t.Errorf("Referer = %q, want %q", got, tt.expectedReferer)
+				}
+			} else if tt.referer == "" {
+				if got := req.Header.Get("Referer"); got != "" {
+					t.Errorf("Referer should not be set, got %q", got)
+				}
+			}
+		})
+	}
+
+	// Test with targetPath to verify Referer includes backend base path
+	t.Run("referer includes target path for subpath apps", func(t *testing.T) {
+		subURL, _ := url.Parse("http://192.0.2.100/admin")
+		subDirector := buildDirector("/proxy/pihole", "/admin", subURL, nil)
+		req := httptest.NewRequest("POST", "/proxy/pihole/settings", nil)
+		req.Header.Set("Referer", "https://muximux.example.com/proxy/pihole/settings")
+		subDirector(req)
+		want := "http://192.0.2.100/admin/settings"
+		if got := req.Header.Get("Referer"); got != want {
+			t.Errorf("Referer = %q, want %q", got, want)
+		}
+	})
 }
 
 // TestProxyRouteCreation tests that proxy routes are correctly created from config
@@ -1115,7 +1280,7 @@ func TestRewriteCookieHeaders(t *testing.T) {
 				"pref=dark; Path=/settings; HttpOnly",
 			},
 			wantCookies: []string{
-				"token=xyz; Path=/proxy/app/; Secure",
+				"token=xyz; Path=/proxy/app/",
 				"pref=dark; Path=/proxy/app/settings; HttpOnly",
 			},
 		},
@@ -2442,5 +2607,168 @@ func TestInterceptorScriptStorageIsolation(t *testing.T) {
 	script2 := string(rewriter2.interceptorScript())
 	if !strings.Contains(script2, `"/proxy/mealie"`) {
 		t.Error("interceptor storage prefix should use the actual proxy path")
+	}
+}
+
+func TestRewriteResponseBodyETagStripping(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "example.com")
+
+	tests := []struct {
+		name             string
+		contentType      string
+		body             string
+		hasETag          bool
+		hasLastModified  bool
+		wantETag         bool
+		wantLastModified bool
+	}{
+		{
+			name:             "strip ETag and Last-Modified from rewritten HTML",
+			contentType:      "text/html",
+			body:             "<html><head></head><body>hello</body></html>",
+			hasETag:          true,
+			hasLastModified:  true,
+			wantETag:         false,
+			wantLastModified: false,
+		},
+		{
+			name:             "strip from CSS",
+			contentType:      "text/css",
+			body:             "body { color: red; }",
+			hasETag:          true,
+			hasLastModified:  true,
+			wantETag:         false,
+			wantLastModified: false,
+		},
+		{
+			name:             "strip from JavaScript",
+			contentType:      "application/javascript",
+			body:             "console.log('hello');",
+			hasETag:          true,
+			hasLastModified:  true,
+			wantETag:         false,
+			wantLastModified: false,
+		},
+		{
+			name:             "keep ETag on non-rewritable content (image)",
+			contentType:      "image/png",
+			body:             "PNG binary data",
+			hasETag:          true,
+			hasLastModified:  true,
+			wantETag:         true,
+			wantLastModified: true,
+		},
+		{
+			name:             "no ETag present - no error",
+			contentType:      "text/html",
+			body:             "<html><head></head><body></body></html>",
+			hasETag:          false,
+			hasLastModified:  false,
+			wantETag:         false,
+			wantLastModified: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &http.Response{
+				Header:        make(http.Header),
+				Body:          io.NopCloser(strings.NewReader(tt.body)),
+				ContentLength: int64(len(tt.body)),
+			}
+			resp.Header.Set("Content-Type", tt.contentType)
+			if tt.hasETag {
+				resp.Header.Set("ETag", `"abc123"`)
+			}
+			if tt.hasLastModified {
+				resp.Header.Set("Last-Modified", "Mon, 10 Mar 2026 00:00:00 GMT")
+			}
+
+			_ = rewriteResponseBody(resp, rewriter)
+
+			gotETag := resp.Header.Get("ETag") != ""
+			gotLastModified := resp.Header.Get("Last-Modified") != ""
+
+			if gotETag != tt.wantETag {
+				t.Errorf("ETag present = %v, want %v", gotETag, tt.wantETag)
+			}
+			if gotLastModified != tt.wantLastModified {
+				t.Errorf("Last-Modified present = %v, want %v", gotLastModified, tt.wantLastModified)
+			}
+		})
+	}
+}
+
+func TestRewriteCORSHeaders(t *testing.T) {
+	tests := []struct {
+		name          string
+		acao          string // Access-Control-Allow-Origin from backend
+		requestOrigin string // Origin header from browser request
+		wantACAO      string // expected ACAO after rewriting
+		wantACACreds  string // expected Access-Control-Allow-Credentials
+	}{
+		{
+			name:          "rewrite restrictive origin to request origin",
+			acao:          "http://192.0.2.10:8080",
+			requestOrigin: "https://muximux.example.com",
+			wantACAO:      "https://muximux.example.com",
+			wantACACreds:  "true",
+		},
+		{
+			name:          "leave wildcard unchanged",
+			acao:          "*",
+			requestOrigin: "https://muximux.example.com",
+			wantACAO:      "*",
+			wantACACreds:  "",
+		},
+		{
+			name:          "no ACAO header - no change",
+			acao:          "",
+			requestOrigin: "https://muximux.example.com",
+			wantACAO:      "",
+			wantACACreds:  "",
+		},
+		{
+			name:          "ACAO present but no request Origin - keep as is",
+			acao:          "http://192.0.2.10:8080",
+			requestOrigin: "",
+			wantACAO:      "http://192.0.2.10:8080",
+			wantACACreds:  "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &http.Response{
+				Header:  make(http.Header),
+				Request: httptest.NewRequest("GET", "/proxy/app/api", nil),
+			}
+			if tt.acao != "" {
+				resp.Header.Set("Access-Control-Allow-Origin", tt.acao)
+			}
+			if tt.requestOrigin != "" {
+				resp.Request.Header.Set("Origin", tt.requestOrigin)
+			}
+
+			rewriteCORSHeaders(resp)
+
+			if got := resp.Header.Get("Access-Control-Allow-Origin"); got != tt.wantACAO {
+				t.Errorf("ACAO = %q, want %q", got, tt.wantACAO)
+			}
+			if got := resp.Header.Get("Access-Control-Allow-Credentials"); got != tt.wantACACreds {
+				t.Errorf("ACAC = %q, want %q", got, tt.wantACACreds)
+			}
+			// Vary: Origin is required when ACAO is rewritten to a specific origin
+			hasVaryOrigin := false
+			for _, v := range resp.Header.Values("Vary") {
+				if v == "Origin" {
+					hasVaryOrigin = true
+				}
+			}
+			wantVary := tt.wantACACreds == "true" // Vary is set when ACAO was rewritten
+			if hasVaryOrigin != wantVary {
+				t.Errorf("Vary contains Origin = %v, want %v", hasVaryOrigin, wantVary)
+			}
+		})
 	}
 }

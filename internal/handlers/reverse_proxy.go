@@ -495,16 +495,41 @@ func (r *contentRewriter) rewriteMetaRefresh(result []byte) []byte {
 	})
 }
 
-// rewriteCookiePath rewrites the Path attribute in Set-Cookie headers
-func (r *contentRewriter) rewriteCookiePath(setCookie string) string {
+// rewriteCookie rewrites Set-Cookie attributes for proxy compatibility:
+// - Path: rewritten to use the proxy prefix
+// - Domain: stripped (cookie defaults to proxy host)
+// - Secure: stripped when frontend is HTTP
+// - SameSite: Strict downgraded to Lax (Strict is too restrictive through proxy)
+func (r *contentRewriter) rewriteCookie(setCookie string, secure bool) string {
 	parts := strings.Split(setCookie, ";")
-	for i, part := range parts {
+	filtered := parts[:0] // reuse backing array
+	for _, part := range parts {
 		trimmed := strings.TrimSpace(part)
 		lower := strings.ToLower(trimmed)
-		if strings.HasPrefix(lower, "path=") {
-			path := trimmed[5:] // Get value after "path=" or "Path="
 
-			// Rewrite path
+		// Strip Domain — cookie should default to the proxy host
+		if strings.HasPrefix(lower, "domain=") {
+			continue
+		}
+
+		// Strip Secure when frontend is HTTP
+		if lower == "secure" && !secure {
+			continue
+		}
+
+		// Downgrade SameSite=Strict to Lax
+		if strings.HasPrefix(lower, "samesite=") {
+			if strings.EqualFold(trimmed[9:], "Strict") {
+				filtered = append(filtered, " SameSite=Lax")
+				continue
+			}
+			filtered = append(filtered, part)
+			continue
+		}
+
+		// Rewrite Path (existing logic)
+		if strings.HasPrefix(lower, "path=") {
+			path := trimmed[5:]
 			if r.targetPath != "" && strings.HasPrefix(path, r.targetPath) {
 				path = r.proxyPrefix + strings.TrimPrefix(path, r.targetPath)
 				if path == r.proxyPrefix {
@@ -513,10 +538,13 @@ func (r *contentRewriter) rewriteCookiePath(setCookie string) string {
 			} else if strings.HasPrefix(path, "/") && !strings.HasPrefix(path, r.proxyPrefix) {
 				path = r.proxyPrefix + path
 			}
-			parts[i] = " Path=" + path
+			filtered = append(filtered, " Path="+path)
+			continue
 		}
+
+		filtered = append(filtered, part)
 	}
-	return strings.Join(parts, ";")
+	return strings.Join(filtered, ";")
 }
 
 // NewReverseProxyHandler creates a new reverse proxy handler.
@@ -643,6 +671,25 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 
 		req.Host = targetURL.Host
 		req.Header.Set("Accept-Encoding", "gzip, identity")
+
+		// Rewrite Origin and Referer so backend CSRF validation sees its own
+		// host, not the Muximux host. Without this, apps that validate
+		// Origin/Referer (Django, Rails, .NET) reject requests as cross-origin.
+		if origin := req.Header.Get("Origin"); origin != "" {
+			req.Header.Set("Origin", targetURL.Scheme+"://"+targetURL.Host)
+		}
+		if referer := req.Header.Get("Referer"); referer != "" {
+			if u, err := url.Parse(referer); err == nil {
+				u.Scheme = targetURL.Scheme
+				u.Host = targetURL.Host
+				u.Path = strings.TrimPrefix(u.Path, proxyPrefix)
+				if u.Path == "" {
+					u.Path = "/"
+				}
+				u.Path = resolveBackendRequestPath(u.Path, targetPath)
+				req.Header.Set("Referer", u.String())
+			}
+		}
 	}
 }
 
@@ -673,6 +720,7 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 		rewriteLocationHeaders(resp, proxyPrefix, targetPath, rewriter.targetHost)
 		rewriteCookieHeaders(resp, rewriter)
 		rewriteLinkHeaders(resp, proxyPrefix)
+		rewriteCORSHeaders(resp)
 
 		return rewriteResponseBody(resp, rewriter)
 	}
@@ -700,15 +748,26 @@ func rewriteLocationHeaders(resp *http.Response, proxyPrefix, targetPath, target
 	}
 }
 
-// rewriteCookieHeaders rewrites Set-Cookie Path attributes to use the proxy prefix.
+// rewriteCookieHeaders rewrites Set-Cookie attributes for proxy compatibility.
 func rewriteCookieHeaders(resp *http.Response, rewriter *contentRewriter) {
 	cookies := resp.Header.Values(headerSetCookie)
 	if len(cookies) == 0 {
 		return
 	}
+
+	// Determine if the frontend connection is secure (HTTPS)
+	secure := false
+	if resp.Request != nil {
+		if resp.Request.TLS != nil {
+			secure = true
+		} else if strings.EqualFold(resp.Request.Header.Get("X-Forwarded-Proto"), "https") {
+			secure = true
+		}
+	}
+
 	resp.Header.Del(headerSetCookie)
 	for _, cookie := range cookies {
-		rewritten := rewriter.rewriteCookiePath(cookie)
+		rewritten := rewriter.rewriteCookie(cookie, secure)
 		resp.Header.Add(headerSetCookie, rewritten)
 	}
 }
@@ -730,6 +789,26 @@ func rewriteLinkHeaders(resp *http.Response, proxyPrefix string) {
 		})
 		resp.Header.Add("Link", rewritten)
 	}
+}
+
+// rewriteCORSHeaders replaces a restrictive Access-Control-Allow-Origin with
+// the request's Origin so the browser accepts the response. Without this,
+// backends returning ACAO for their own host cause CORS failures on Muximux's domain.
+func rewriteCORSHeaders(resp *http.Response) {
+	acao := resp.Header.Get("Access-Control-Allow-Origin")
+	if acao == "" || acao == "*" {
+		return
+	}
+	if resp.Request == nil {
+		return
+	}
+	reqOrigin := resp.Request.Header.Get("Origin")
+	if reqOrigin == "" {
+		return
+	}
+	resp.Header.Set("Access-Control-Allow-Origin", reqOrigin)
+	resp.Header.Set("Access-Control-Allow-Credentials", "true")
+	resp.Header.Add("Vary", "Origin")
 }
 
 // interceptorScript returns a <script> tag that patches fetch, XMLHttpRequest,
@@ -1105,6 +1184,13 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	resp.ContentLength = int64(len(rewritten))
 	resp.Header.Set("Content-Length", strconv.Itoa(len(rewritten)))
 	resp.Header.Del(headerContentEncoding)
+
+	// Strip caching validators — the body was modified by URL rewriting
+	// and/or interceptor injection, so the original ETag and Last-Modified
+	// no longer describe this response. Without this, browsers cache the
+	// rewritten body keyed to the original ETag and get false 304s.
+	resp.Header.Del("ETag")
+	resp.Header.Del("Last-Modified")
 
 	return nil
 }
