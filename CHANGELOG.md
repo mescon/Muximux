@@ -2,6 +2,13 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.17] - 2026-03-10
+
+### Fixed
+- `<meta http-equiv="Content-Security-Policy">` tags are now stripped from proxied HTML responses -- apps like Mealie (Nuxt) that embed CSP with nonces in the HTML body no longer block the injected interceptor script
+- `Permissions-Policy` response header is now stripped from proxied responses -- prevents apps from restricting features like clipboard, fullscreen, and autoplay inside the iframe
+- Iframe sandbox now includes `allow-popups-to-escape-sandbox` -- OAuth and login popups opened by proxied apps can function without sandbox restrictions
+
 ## [3.0.16] - 2026-03-10
 
 ### Fixed

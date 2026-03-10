@@ -183,7 +183,7 @@
     style:transform-origin={transformOrigin}
     style:width
     style:height
-    sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-modals"
+    sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals"
     allowfullscreen
     onload={handleIframeLoad}
     onerror={handleIframeError}

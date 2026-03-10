@@ -39,6 +39,9 @@ var (
 	svgHrefPattern      = regexp.MustCompile(`(<(?:use|image)[^>]*(?:href|xlink:href)\s*=\s*["'])(/[^"'#]+)(#[^"']*)?(['"])`)
 	// Meta refresh: <meta http-equiv="refresh" content="5;url=/path">
 	metaRefreshPattern = regexp.MustCompile(`(?i)(content\s*=\s*["'][^"']*;\s*url\s*=\s*['"]?)(/[^"'\s>]+)`)
+	// Meta CSP: <meta http-equiv="Content-Security-Policy" content="...">
+	// Stripped so the injected interceptor script is not blocked by nonce requirements.
+	metaCSPPattern = regexp.MustCompile(`(?i)<meta\s[^>]*http-equiv\s*=\s*["']Content-Security-Policy(?:-Report-Only)?["'][^>]*/?\s*>`)
 
 	// ES module import/export patterns for rewriting module specifiers.
 	// Dynamic import(): import('/path') — browser module loader, not interceptable by fetch patches.
@@ -149,6 +152,7 @@ func spliceAt(src []byte, pos int, insert []byte) []byte {
 }
 
 func (r *contentRewriter) rewrite(content []byte) []byte {
+	content = r.stripMetaCSP(content)
 	content = r.stripIntegrity(content)
 	content = r.rewriteAbsoluteURLs(content)
 	content = r.rewriteTargetPaths(content)
@@ -192,6 +196,14 @@ func (r *contentRewriter) stripIntegrity(result []byte) []byte {
 	result = dynamicSriPattern.ReplaceAll(result, nil)
 	result = sriHashesPattern.ReplaceAll(result, r.sriHashRepl)
 	return result
+}
+
+// stripMetaCSP removes <meta http-equiv="Content-Security-Policy" ...> tags.
+// The proxy already strips the CSP response header (to allow iframe embedding),
+// but some apps (Nuxt/Mealie) embed CSP in a meta tag with a nonce. This blocks
+// the injected interceptor script, so we strip these meta tags too.
+func (r *contentRewriter) stripMetaCSP(result []byte) []byte {
+	return metaCSPPattern.ReplaceAll(result, nil)
 }
 
 // rewriteAbsoluteURLs rewrites absolute URLs containing the target host.
@@ -713,9 +725,10 @@ func resolveBackendRequestPath(reqPath, targetPath string) string {
 
 func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewriter) func(*http.Response) error {
 	return func(resp *http.Response) error {
-		// Remove headers that prevent iframe embedding
+		// Remove headers that prevent iframe embedding or restrict features inside it
 		resp.Header.Del("X-Frame-Options")
 		resp.Header.Del("Content-Security-Policy")
+		resp.Header.Del("Permissions-Policy")
 
 		rewriteLocationHeaders(resp, proxyPrefix, targetPath, rewriter.targetHost)
 		rewriteCookieHeaders(resp, rewriter)

@@ -2320,6 +2320,110 @@ func TestStripIntegrity(t *testing.T) {
 	}
 }
 
+func TestStripMetaCSP(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "strip meta CSP tag",
+			input:    `<head><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'nonce-abc123'"><script src="/app.js"></script></head>`,
+			expected: `<head><script src="/app.js"></script></head>`,
+		},
+		{
+			name:     "strip meta CSP case-insensitive",
+			input:    `<meta HTTP-EQUIV="content-security-policy" content="script-src 'self'">`,
+			expected: ``,
+		},
+		{
+			name:     "strip report-only variant",
+			input:    `<meta http-equiv="Content-Security-Policy-Report-Only" content="default-src 'self'">`,
+			expected: ``,
+		},
+		{
+			name:     "self-closing meta",
+			input:    `<meta http-equiv="Content-Security-Policy" content="default-src 'self'" />`,
+			expected: ``,
+		},
+		{
+			name:     "leave other meta tags untouched",
+			input:    `<meta charset="utf-8"><meta http-equiv="Content-Security-Policy" content="default-src 'self'"><meta name="viewport" content="width=device-width">`,
+			expected: `<meta charset="utf-8"><meta name="viewport" content="width=device-width">`,
+		},
+		{
+			name:     "no CSP meta present",
+			input:    `<meta charset="utf-8"><title>Test</title>`,
+			expected: `<meta charset="utf-8"><title>Test</title>`,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := string(rewriter.stripMetaCSP([]byte(tt.input)))
+			if result != tt.expected {
+				t.Errorf("stripMetaCSP() =\n  got:  %q\n  want: %q", result, tt.expected)
+			}
+		})
+	}
+}
+
+func TestStripEmbeddingHeaders(t *testing.T) {
+	// Verify that modifyResponse strips headers that prevent iframe embedding.
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Content-Security-Policy", "frame-ancestors 'none'")
+		w.Header().Set("Permissions-Policy", "fullscreen=(), clipboard-write=()")
+		w.Header().Set("Content-Type", "text/html")
+		w.Write([]byte(`<html><head></head><body>ok</body></html>`))
+	}))
+	defer backend.Close()
+
+	apps := []config.AppConfig{
+		{Name: "TestApp", URL: backend.URL, Enabled: true, Proxy: true},
+	}
+	handler := NewReverseProxyHandler(apps, "30s")
+
+	req := httptest.NewRequest("GET", "/proxy/testapp/", nil)
+	rec := httptest.NewRecorder()
+	handler.ServeHTTP(rec, req)
+
+	for _, hdr := range []string{"X-Frame-Options", "Content-Security-Policy", "Permissions-Policy"} {
+		if v := rec.Header().Get(hdr); v != "" {
+			t.Errorf("expected %s header to be stripped, got %q", hdr, v)
+		}
+	}
+}
+
+func TestStripMetaCSPInRewriteResponseBody(t *testing.T) {
+	// Verify that meta CSP tags are stripped during full HTML body rewriting.
+	rewriter := newContentRewriter("/proxy/app", "", "")
+
+	body := `<html><head><meta http-equiv="Content-Security-Policy" content="script-src 'nonce-abc123'"><script src="/app.js"></script></head></html>`
+	resp := &http.Response{
+		Header:        make(http.Header),
+		Body:          io.NopCloser(strings.NewReader(body)),
+		ContentLength: int64(len(body)),
+	}
+	resp.Header.Set("Content-Type", "text/html")
+
+	err := rewriteResponseBody(resp, rewriter)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+
+	rewritten, _ := io.ReadAll(resp.Body)
+	result := string(rewritten)
+	if strings.Contains(result, "Content-Security-Policy") {
+		t.Errorf("expected meta CSP tag to be stripped, got: %s", result)
+	}
+	if !strings.Contains(result, "/proxy/app/app.js") {
+		t.Errorf("expected script src to be rewritten, got: %s", result)
+	}
+}
+
 func TestInterceptorScriptIframeIsolation(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "")
 	script := string(rewriter.interceptorScript())
