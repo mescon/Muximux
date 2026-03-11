@@ -2,13 +2,17 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.19] - 2026-03-11
+
+### Fixed
+- Browser back button no longer exits Muximux entirely -- app navigation now creates proper history entries so back/forward moves between previously viewed apps
+- Browser back from within a proxied app no longer loads Muximux inside its own iframe -- the interceptor now restores the proxy prefix in the URL after initialization completes, so back/forward navigates to the correct proxied URL instead of "/"
+- Added safety net: Muximux detects when it is loaded inside an iframe and renders nothing, preventing nested dashboard UI if back/forward edge cases are missed
+
 ## [3.0.18] - 2026-03-11
 
 ### Fixed
 - Proxied SSR apps (Nuxt, Next.js) that read `location.pathname` during initialization in Chrome no longer get "Page not found" errors -- Chrome's `Location.prototype.pathname` is non-configurable so the getter patch fails, and framework routers calling `replaceState` during setup re-added the proxy prefix; the interceptor now re-strips the prefix after each `pushState`/`replaceState` until the page finishes loading
-- Browser back button no longer exits Muximux entirely -- app navigation now creates proper history entries so back/forward moves between previously viewed apps
-- Browser back from within a proxied app no longer loads Muximux inside its own iframe -- the interceptor now restores the proxy prefix in the URL after initialization completes, so back/forward navigates to the correct proxied URL instead of "/"
-- Added safety net: Muximux detects when it is loaded inside an iframe and renders nothing, preventing nested dashboard UI if back/forward edge cases are missed
 
 ### Changed
 - Bump `actions/download-artifact` from 8.0.0 to 8.0.1
