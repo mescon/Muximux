@@ -5,7 +5,16 @@ All notable changes to Muximux are documented in this file.
 ## [3.0.18] - 2026-03-11
 
 ### Fixed
-- Proxied SSR apps (Nuxt, Next.js) that read `location.pathname` during initialization in Chrome no longer get "Page not found" errors -- the interceptor now re-strips the proxy prefix after each `pushState`/`replaceState` during the initial event-loop turn, keeping the URL clean while framework routers set up
+- Proxied SSR apps (Nuxt, Next.js) that read `location.pathname` during initialization in Chrome no longer get "Page not found" errors -- Chrome's `Location.prototype.pathname` is non-configurable so the getter patch fails, and framework routers calling `replaceState` during setup re-added the proxy prefix; the interceptor now re-strips the prefix after each `pushState`/`replaceState` until the page finishes loading
+
+### Changed
+- Bump `actions/download-artifact` from 8.0.0 to 8.0.1
+- Bump `docker/setup-buildx-action` from 3.12.0 to 4.0.0
+- Bump `docker/build-push-action` from 6.19.2 to 7.0.0
+- Bump `docker/metadata-action` from 5.10.0 to 6.0.0
+- Bump `github/codeql-action` from 4.32.4 to 4.32.6
+- Bump `golang.org/x/term` from 0.40.0 to 0.41.0
+- Bump npm dependencies (svelte, vite, vitest, @sveltejs/kit, @sveltejs/vite-plugin-svelte)
 
 ## [3.0.17] - 2026-03-10
 
