@@ -252,7 +252,7 @@ A small `<script>` tag injected into every HTML response patches browser APIs be
 | DOM setters | `img.src`, `script.src`, `source.src`, `media.src`, `video.poster`, `iframe.src`, `link.href`, `a.href`, `base.href`, `form.action`, `object.data`, `button.formAction`, `input.formAction` | Property setter override on prototype |
 | Special setters | `img.srcset`, `setAttribute()`, `CSSStyleSheet.insertRule()`, `insertAdjacentHTML()` | Custom wrappers for multi-URL and CSS-in-JS |
 | Location | `pathname`, `href` getters, `assign()`, `replace()`, `toString()`, `document.URL`, `document.documentURI` | Getters strip prefix; setters add prefix |
-| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; init guard re-strips prefix during initialization when getters can't be patched (Chrome) |
+| Navigation | `history.pushState/replaceState`, `window.open` | Wrapper adds proxy prefix; init guard re-strips prefix during initialization when getters can't be patched (Chrome); prefix restored after init so back/forward navigates correctly |
 | Constructors | `Worker`, `SharedWorker`, `Audio` | Wrapper rewrites URL argument |
 | Isolation | `window.parent`, `window.top` | `Object.defineProperty` override |
 | Storage | `localStorage`, `sessionStorage` | Namespaced proxy with key prefix |

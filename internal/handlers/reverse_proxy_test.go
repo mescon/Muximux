@@ -2651,6 +2651,16 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 		t.Error("interceptor should conditionally add popstate listener to strip prefix on back/forward")
 	}
 
+	// After init completes, the proxy prefix must be restored in the URL so
+	// browser back/forward navigates to /proxy/slug/... instead of "/",
+	// which would load the Muximux SPA shell inside the iframe.
+	if !strings.Contains(script, `function _rP()`) {
+		t.Error("interceptor should define _rP restore-prefix function")
+	}
+	if !strings.Contains(script, `function _do(){var p=location.pathname`) {
+		t.Error("interceptor restore should check current pathname before restoring prefix")
+	}
+
 	// location.assign and location.replace should be patched so programmatic
 	// navigation goes through the proxy.
 	if !strings.Contains(script, `Location.prototype.assign=function`) {

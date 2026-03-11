@@ -225,6 +225,15 @@
   });
 
   onMount(async () => {
+    // Safety net: if Muximux is loaded inside an iframe (e.g. browser back
+    // navigated the iframe to "/" which serves the SPA shell), bail out.
+    // Proxied apps won't trigger this because their interceptor overrides
+    // window.top to equal window, so self === top for them.
+    if (window.self !== window.top) {
+      document.body.textContent = '';
+      return;
+    }
+
     // Initialize debug logging (must come before other inits)
     initDebug();
 
@@ -251,12 +260,17 @@
     // Auto-switch active split panel when the user clicks inside an iframe.
     document.addEventListener('focus', handleIframeFocus, true);
 
-    // Handle browser back/forward with hash-based app routing
+    // Handle browser back/forward with hash-based app routing.
+    // Sync currentNavHash BEFORE calling selectAppFromHash so that the
+    // selectApp → updateHash chain sees matching hashes and uses
+    // replaceState (avoiding a duplicate pushState entry).
     window.addEventListener('hashchange', () => {
       if (location.hash) {
+        currentNavHash = location.hash;
         selectAppFromHash();
       } else {
         // Hash cleared (e.g. navigating to /) — go home
+        currentNavHash = '';
         showSettings = false;
         showLogs = false;
         if (splitState.panels[0] || splitState.panels[1]) resetSplit();
@@ -532,20 +546,40 @@
     }
   }
 
+  // Track the current hash so we can distinguish "navigate to a different view"
+  // (pushState -- creates a back-button entry) from "update the same view"
+  // (replaceState -- no new entry).
+  let currentNavHash = '';
+
+  function navigateHash(newHash: string) {
+    if (newHash !== currentNavHash && currentNavHash !== '') {
+      history.pushState(null, '', newHash);
+    } else {
+      history.replaceState(null, '', newHash);
+    }
+    currentNavHash = newHash;
+  }
+
   function updateHash() {
+    let newHash: string;
     if (splitState.enabled && splitState.panels[0] && splitState.panels[1]) {
-      history.replaceState(null, '', '#' + slugify(splitState.panels[0].name) + '+' + slugify(splitState.panels[1].name));
+      newHash = '#' + slugify(splitState.panels[0].name) + '+' + slugify(splitState.panels[1].name);
     } else {
       const app = splitState.panels[0] || splitState.panels[1];
-      if (app) {
-        history.replaceState(null, '', '#' + slugify(app.name));
-      }
+      newHash = app ? '#' + slugify(app.name) : '';
     }
+    if (newHash) navigateHash(newHash);
   }
 
   function clearHash() {
     if (location.hash) {
-      history.replaceState(null, '', location.pathname + location.search);
+      const target = location.pathname + location.search;
+      if (currentNavHash) {
+        history.pushState(null, '', target);
+      } else {
+        history.replaceState(null, '', target);
+      }
+      currentNavHash = '';
     }
   }
 
@@ -560,7 +594,7 @@
   async function openSettings() {
     await loadSettings();
     showSettings = true;
-    history.replaceState(null, '', '#settings');
+    navigateHash('#settings');
   }
 
   async function openLogs() {
@@ -568,7 +602,7 @@
     showLogs = true;
     showSplash = false;
     resetSplit();
-    history.replaceState(null, '', '#logs');
+    navigateHash('#logs');
   }
 
   /** Try to select the app whose slug matches the URL hash (e.g. /#plex, /#my-cool-app, /#plex+sonarr).

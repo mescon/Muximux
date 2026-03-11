@@ -934,7 +934,19 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`var p=location.pathname;` +
 		`if(p===P||p.indexOf(P+"/")===0){` +
 		`_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash)}` +
-		`},true)}` +
+		`},true);` +
+		// After init completes, restore the proxy prefix in the URL so that:
+		// 1. Browser back/forward to this history entry navigates to /proxy/slug/...
+		//    instead of "/" (which would load the Muximux SPA shell inside the iframe)
+		// 2. "Reload frame" reloads the correct proxied URL from the server
+		// The popstate handler above strips the prefix on each back/forward event,
+		// so the app framework still sees clean paths.
+		`(function _rP(){` +
+		`function _do(){var p=location.pathname;` +
+		`if(p!==P&&p.indexOf(P+"/")!==0){` +
+		`_hrs.call(history,history.state,"",P+(p==="/"?"":p)+location.search+location.hash)}}` +
+		`if(document.readyState==="complete")_do();` +
+		`else window.addEventListener("load",function(){_do()},{once:true})})()}` +
 		// Patch location.assign/replace so programmatic navigation goes through proxy
 		`var _la=Location.prototype.assign;` +
 		`Location.prototype.assign=function(u){return _la.call(this,R(u))};` +
