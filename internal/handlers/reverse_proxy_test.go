@@ -2670,6 +2670,16 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 		t.Error("interceptor should patch Location.prototype.replace")
 	}
 
+	// When Location.prototype.href is non-configurable (Chrome), the
+	// Navigation API should intercept location.href assignments and redirect
+	// them through the proxy. Guarded by !_pG (skipped when getter patches work).
+	if !strings.Contains(script, `if(!_pG&&window.navigation)`) {
+		t.Error("interceptor should use Navigation API as fallback for non-configurable href setter")
+	}
+	if !strings.Contains(script, `e.preventDefault()`) {
+		t.Error("interceptor Navigation API handler should cancel unprefixed navigations")
+	}
+
 	// window.open should be patched so popups navigate through the proxy.
 	if !strings.Contains(script, `window.open=function`) {
 		t.Error("interceptor should patch window.open")

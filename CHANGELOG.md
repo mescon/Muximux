@@ -8,6 +8,7 @@ All notable changes to Muximux are documented in this file.
 - Browser back button no longer exits Muximux entirely -- app navigation now creates proper history entries so back/forward moves between previously viewed apps
 - Browser back from within a proxied app no longer loads Muximux inside its own iframe -- the interceptor now restores the proxy prefix in the URL after initialization completes, so back/forward navigates to the correct proxied URL instead of "/"
 - Added safety net: Muximux detects when it is loaded inside an iframe and renders nothing, preventing nested dashboard UI if back/forward edge cases are missed
+- Proxied apps that navigate via `location.href` assignment (e.g. Pi-hole after saving settings) no longer break out of the proxy on Chrome -- the interceptor now uses the Navigation API to catch these navigations when the native `href` setter can't be patched
 
 ## [3.0.18] - 2026-03-11
 

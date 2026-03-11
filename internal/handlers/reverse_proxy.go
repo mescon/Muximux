@@ -952,6 +952,17 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`Location.prototype.assign=function(u){return _la.call(this,R(u))};` +
 		`var _lr=Location.prototype.replace;` +
 		`Location.prototype.replace=function(u){return _lr.call(this,R(u))};` +
+		// When the href setter can't be patched (Chrome — non-configurable),
+		// location.href = "/path" navigates without the proxy prefix.
+		// Use the Navigation API (Chrome 102+) to intercept and redirect these.
+		// Skipped when getter patches succeeded (_pG) since the setter patch
+		// also succeeded and handles this. Skips form submissions (e.formData)
+		// to avoid turning POSTs into GETs.
+		`if(!_pG&&window.navigation){window.navigation.addEventListener("navigate",function(e){` +
+		`if(!e.canIntercept||!e.cancelable||e.formData)return;` +
+		`try{var u=new URL(e.destination.url);` +
+		`if(u.host===location.host&&!u.pathname.startsWith(P+"/")&&u.pathname!==P){` +
+		`e.preventDefault();_la.call(location,P+u.pathname+u.search+u.hash)}}catch(ex){}})}` +
 		// Patch window.open so popups/new-tab navigations go through the proxy
 		`var _wo=window.open;` +
 		`window.open=function(u){var a=[].slice.call(arguments);if(typeof a[0]==="string")a[0]=R(a[0]);return _wo.apply(this,a)};` +
