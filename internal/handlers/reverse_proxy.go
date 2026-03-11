@@ -910,8 +910,23 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`return u}` +
 		// Patch history.pushState/replaceState to add the proxy prefix so that
 		// "Reload frame" requests the correct /proxy/slug/... URL from the server.
-		`history.pushState=function(s,t,u){if(u!=null)u=R(""+u);return _hps.call(this,s,t,u)};` +
-		`history.replaceState=function(s,t,u){if(u!=null)u=R(""+u);return _hrs.call(this,s,t,u)};` +
+		// When Location getters can't be patched (Chrome — non-configurable), the
+		// proxy prefix added by R() makes location.pathname return the prefixed path.
+		// Framework routers (Vue Router, React Router) that read location.pathname
+		// during initialization would then fail to match routes ("Page not found").
+		// Fix: immediately re-strip the prefix after each pushState/replaceState
+		// so the URL stays clean throughout the entire initialization phase.
+		// The guard stays active until the window 'load' event (all resources
+		// loaded), which fires well after any framework init — covering sync,
+		// microtask (Promise/await), and macrotask (setTimeout/fetch) init paths.
+		`var _sR=!_pG;` +
+		`if(_sR){if(document.readyState==="complete")_sR=false;` +
+		`else window.addEventListener("load",function(){_sR=false},{once:true})}` +
+		`function _S(){var p=location.pathname;` +
+		`if(p===P||p.indexOf(P+"/")===0)` +
+		`_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash)}` +
+		`history.pushState=function(s,t,u){if(u!=null)u=R(""+u);var r=_hps.call(this,s,t,u);if(_sR)_S();return r};` +
+		`history.replaceState=function(s,t,u){if(u!=null)u=R(""+u);var r=_hrs.call(this,s,t,u);if(_sR)_S();return r};` +
 		// On back/forward, strip the prefix before the SPA's popstate handler
 		// reads location.pathname. Skipped when getter patches succeeded (_pG)
 		// since the pathname getter already strips transparently.

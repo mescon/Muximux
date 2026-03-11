@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.18] - 2026-03-11
+
+### Fixed
+- Proxied SSR apps (Nuxt, Next.js) that read `location.pathname` during initialization in Chrome no longer get "Page not found" errors -- the interceptor now re-strips the proxy prefix after each `pushState`/`replaceState` during the initial event-loop turn, keeping the URL clean while framework routers set up
+
 ## [3.0.17] - 2026-03-10
 
 ### Fixed

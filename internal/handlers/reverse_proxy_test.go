@@ -2629,6 +2629,21 @@ func TestInterceptorScriptHistoryAPI(t *testing.T) {
 		t.Error("interceptor should patch history.replaceState")
 	}
 
+	// When Location.prototype.pathname is non-configurable (Chrome), the proxy
+	// prefix added by R() in pushState/replaceState makes location.pathname
+	// return the prefixed path. Framework routers reading it during init would
+	// fail. The init guard (_sR flag + _S strip helper) keeps the URL clean
+	// during the synchronous initialization phase.
+	if !strings.Contains(script, `var _sR=!_pG`) {
+		t.Error("interceptor should declare _sR init-strip flag based on _pG")
+	}
+	if !strings.Contains(script, `function _S()`) {
+		t.Error("interceptor should define _S strip helper for init guard")
+	}
+	if !strings.Contains(script, `if(_sR)_S()`) {
+		t.Error("interceptor pushState/replaceState should call _S() during init phase")
+	}
+
 	// A popstate listener (capture phase) must strip the prefix before the
 	// SPA's own popstate handler reads location.pathname on back/forward.
 	// Wrapped in if(!_pG) since getter patches make it unnecessary.
