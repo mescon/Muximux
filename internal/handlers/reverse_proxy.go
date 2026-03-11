@@ -941,6 +941,10 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// 2. "Reload frame" reloads the correct proxied URL from the server
 		// The popstate handler above strips the prefix on each back/forward event,
 		// so the app framework still sees clean paths.
+		// NOTE: This load listener MUST be registered after _sR's load listener
+		// (line above) so that _sR becomes false before _rP restores the prefix.
+		// If reversed, _sR would still be true and a subsequent pushState/replaceState
+		// would re-strip the restored prefix.
 		`(function _rP(){` +
 		`function _do(){var p=location.pathname;` +
 		`if(p!==P&&p.indexOf(P+"/")!==0){` +

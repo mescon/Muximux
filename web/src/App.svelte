@@ -230,6 +230,7 @@
     // Proxied apps won't trigger this because their interceptor overrides
     // window.top to equal window, so self === top for them.
     if (window.self !== window.top) {
+      console.warn('[Muximux] Blocked nested iframe loading');
       document.body.textContent = '';
       return;
     }
