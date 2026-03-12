@@ -2,6 +2,13 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.20] - 2026-03-12
+
+### Fixed
+- Proxied apps using relative API paths (e.g. `api/v2/sync/maindata`) no longer 404 with double-prefixed URLs -- the interceptor's restore-prefix function now preserves the trailing slash in `document.baseURI`, so the browser resolves relative URLs against `/proxy/slug/` instead of `/proxy/`
+- Interceptor script is no longer injected into `<head>` tags that appear inside `<script>` blocks -- apps like qBittorrent whose HTML fragments contain `<head>` in JavaScript template literals (e.g. `srcdoc`) no longer get a `SyntaxError: Octal escape sequences are not allowed in template strings` at load time
+- Interceptor injection now correctly distinguishes `<head>` from `<header>` tags
+
 ## [3.0.19] - 2026-03-11
 
 ### Fixed

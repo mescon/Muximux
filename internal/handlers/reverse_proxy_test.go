@@ -2749,6 +2749,55 @@ func TestInterceptorScriptStorageIsolation(t *testing.T) {
 	}
 }
 
+func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/qbittorrent", "", "")
+
+	t.Run("normal document-level head", func(t *testing.T) {
+		content := []byte(`<html><head><title>Test</title></head></html>`)
+		result := rewriter.injectInterceptor(content)
+		if !strings.Contains(string(result), "data-muximux-proxy") {
+			t.Error("interceptor should be injected into document-level <head>")
+		}
+	})
+
+	t.Run("head inside script tag is skipped", func(t *testing.T) {
+		// This simulates qBittorrent's rss.html where <head> only appears
+		// inside a JavaScript template literal within a <script> block.
+		content := []byte(`<div><script>"use strict";el.srcdoc=` + "`" +
+			`<html><head><link href="style.css"></head><body></body></html>` + "`" +
+			`;</script></div>`)
+		result := rewriter.injectInterceptor(content)
+		if strings.Contains(string(result), "data-muximux-proxy") {
+			t.Error("interceptor must NOT be injected into <head> that appears inside a <script> block")
+		}
+	})
+
+	t.Run("head after script block is fine", func(t *testing.T) {
+		// A document where script appears before head — head is outside
+		content := []byte(`<html><script>var x = 1;</script><head><title>Test</title></head></html>`)
+		result := rewriter.injectInterceptor(content)
+		if !strings.Contains(string(result), "data-muximux-proxy") {
+			t.Error("interceptor should be injected into <head> that appears after a closed <script> block")
+		}
+	})
+
+	t.Run("no head at all", func(t *testing.T) {
+		content := []byte(`<div><p>No head tag here</p></div>`)
+		result := rewriter.injectInterceptor(content)
+		if strings.Contains(string(result), "data-muximux-proxy") {
+			t.Error("interceptor should not be injected when no <head> exists")
+		}
+	})
+
+	t.Run("header tag is not confused with head", func(t *testing.T) {
+		content := []byte(`<html><header>Not a head tag</header></html>`)
+		result := rewriter.injectInterceptor(content)
+		if strings.Contains(string(result), "data-muximux-proxy") {
+			t.Error("interceptor should not be injected into <header> tag")
+		}
+	})
+}
+
 func TestRewriteResponseBodyETagStripping(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "example.com")
 

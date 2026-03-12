@@ -948,7 +948,7 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`(function _rP(){` +
 		`function _do(){var p=location.pathname;` +
 		`if(p!==P&&p.indexOf(P+"/")!==0){` +
-		`_hrs.call(history,history.state,"",P+(p==="/"?"":p)+location.search+location.hash)}}` +
+		`_hrs.call(history,history.state,"",P+(p==="/"?"/":p)+location.search+location.hash)}}` +
 		`if(document.readyState==="complete")_do();` +
 		`else window.addEventListener("load",function(){_do()},{once:true})})()}` +
 		// Patch location.assign/replace so programmatic navigation goes through proxy
@@ -1146,24 +1146,53 @@ func (r *contentRewriter) interceptorScript() []byte {
 
 // injectInterceptor injects the runtime URL interceptor script into an HTML document,
 // right after the opening <head> tag so it runs before any other scripts.
+// It only injects into a document-level <head> — not one that appears inside a
+// <script> block (e.g., an HTML string in a JS template literal). Injecting into
+// script-embedded <head> corrupts the JavaScript: the interceptor's regex
+// backreferences (\1) become illegal octal escapes inside template strings.
 func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 	lower := bytes.ToLower(content)
-	headIdx := bytes.Index(lower, []byte("<head"))
-	if headIdx == -1 {
-		return content
-	}
-	closeIdx := bytes.IndexByte(content[headIdx:], '>')
-	if closeIdx == -1 {
-		return content
-	}
-	insertPos := headIdx + closeIdx + 1
+	searchFrom := 0
+	for {
+		idx := bytes.Index(lower[searchFrom:], []byte("<head"))
+		if idx == -1 {
+			return content
+		}
+		headIdx := searchFrom + idx
 
-	script := r.interceptorScript()
-	result := make([]byte, 0, len(content)+len(script))
-	result = append(result, content[:insertPos]...)
-	result = append(result, script...)
-	result = append(result, content[insertPos:]...)
-	return result
+		// Ensure this <head is a tag (followed by > or whitespace), not e.g. <header
+		after := headIdx + 5
+		if after < len(lower) && lower[after] != '>' && lower[after] != ' ' &&
+			lower[after] != '\t' && lower[after] != '\n' && lower[after] != '\r' &&
+			lower[after] != '/' {
+			searchFrom = after
+			continue
+		}
+
+		// Check we're not inside a <script> block by counting unclosed script tags
+		// before this position.
+		prefix := lower[:headIdx]
+		opens := bytes.Count(prefix, []byte("<script"))
+		closes := bytes.Count(prefix, []byte("</script"))
+		if opens > closes {
+			// Inside a script block — skip this <head> and keep searching
+			searchFrom = headIdx + 5
+			continue
+		}
+
+		closeIdx := bytes.IndexByte(content[headIdx:], '>')
+		if closeIdx == -1 {
+			return content
+		}
+		insertPos := headIdx + closeIdx + 1
+
+		script := r.interceptorScript()
+		result := make([]byte, 0, len(content)+len(script))
+		result = append(result, content[:insertPos]...)
+		result = append(result, script...)
+		result = append(result, content[insertPos:]...)
+		return result
+	}
 }
 
 // maxRewriteSize is the maximum response body size (50 MB) that will be buffered
