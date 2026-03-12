@@ -2960,3 +2960,48 @@ func TestRewriteCORSHeaders(t *testing.T) {
 		})
 	}
 }
+
+func TestInterceptorScriptNavigationAPISkipFlag(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/mealie", "", "")
+	script := string(rewriter.interceptorScript())
+
+	// The _skip flag must exist and be used in both _S() and the Navigation API handler
+	// to prevent the handler from blocking internal replaceState calls that strip
+	// the proxy prefix. Without this, Chrome's Navigation API fires synchronously
+	// during replaceState, and the handler's e.preventDefault() blocks the strip.
+	t.Run("_skip flag declared", func(t *testing.T) {
+		if !strings.Contains(script, "_skip=false") {
+			t.Error("interceptor must declare _skip flag")
+		}
+	})
+
+	t.Run("_S sets _skip before stripping", func(t *testing.T) {
+		if !strings.Contains(script, "_skip=true;_hrs.call(history,history.state") {
+			t.Error("_S() must set _skip=true before calling _hrs to strip prefix")
+		}
+	})
+
+	t.Run("Navigation API handler checks _skip", func(t *testing.T) {
+		if !strings.Contains(script, "if(_skip||!e.canIntercept") {
+			t.Error("Navigation API handler must check _skip flag before intercepting")
+		}
+	})
+
+	t.Run("popstate handler sets _skip", func(t *testing.T) {
+		// The popstate handler also calls _hrs to strip prefix and must set _skip
+		popstateIdx := strings.Index(script, `addEventListener("popstate"`)
+		if popstateIdx == -1 {
+			t.Fatal("popstate handler not found in interceptor")
+		}
+		popstateSection := script[popstateIdx:]
+		// Find the closing of the popstate handler (next },true)
+		endIdx := strings.Index(popstateSection, "},true)")
+		if endIdx == -1 {
+			t.Fatal("could not find end of popstate handler")
+		}
+		popstateBody := popstateSection[:endIdx]
+		if !strings.Contains(popstateBody, "_skip=true") {
+			t.Error("popstate handler must set _skip=true before calling _hrs")
+		}
+	})
+}

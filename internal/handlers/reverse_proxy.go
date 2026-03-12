@@ -919,12 +919,12 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// The guard stays active until the window 'load' event (all resources
 		// loaded), which fires well after any framework init — covering sync,
 		// microtask (Promise/await), and macrotask (setTimeout/fetch) init paths.
-		`var _sR=!_pG;` +
+		`var _sR=!_pG,_skip=false;` +
 		`if(_sR){if(document.readyState==="complete")_sR=false;` +
 		`else window.addEventListener("load",function(){_sR=false},{once:true})}` +
 		`function _S(){var p=location.pathname;` +
-		`if(p===P||p.indexOf(P+"/")===0)` +
-		`_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash)}` +
+		`if(p===P||p.indexOf(P+"/")===0){` +
+		`_skip=true;_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash);_skip=false}}` +
 		`history.pushState=function(s,t,u){if(u!=null)u=R(""+u);var r=_hps.call(this,s,t,u);if(_sR)_S();return r};` +
 		`history.replaceState=function(s,t,u){if(u!=null)u=R(""+u);var r=_hrs.call(this,s,t,u);if(_sR)_S();return r};` +
 		// On back/forward, strip the prefix before the SPA's popstate handler
@@ -933,7 +933,7 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`if(!_pG){window.addEventListener("popstate",function(){` +
 		`var p=location.pathname;` +
 		`if(p===P||p.indexOf(P+"/")===0){` +
-		`_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash)}` +
+		`_skip=true;_hrs.call(history,history.state,"",(p.slice(P.length)||"/")+location.search+location.hash);_skip=false}` +
 		`},true);` +
 		// After init completes, restore the proxy prefix in the URL so that:
 		// 1. Browser back/forward to this history entry navigates to /proxy/slug/...
@@ -961,9 +961,13 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// Use the Navigation API (Chrome 102+) to intercept and redirect these.
 		// Skipped when getter patches succeeded (_pG) since the setter patch
 		// also succeeded and handles this. Skips form submissions (e.formData)
-		// to avoid turning POSTs into GETs.
+		// to avoid turning POSTs into GETs. The _skip flag prevents this handler
+		// from interfering with our own internal replaceState calls (_S and
+		// popstate handler) which strip the proxy prefix — the Navigation API
+		// fires synchronously during replaceState and would otherwise block the
+		// URL change via preventDefault.
 		`if(!_pG&&window.navigation){window.navigation.addEventListener("navigate",function(e){` +
-		`if(!e.canIntercept||!e.cancelable||e.formData)return;` +
+		`if(_skip||!e.canIntercept||!e.cancelable||e.formData)return;` +
 		`try{var u=new URL(e.destination.url);` +
 		`if(u.host===location.host&&!u.pathname.startsWith(P+"/")&&u.pathname!==P){` +
 		`e.preventDefault();_la.call(location,P+u.pathname+u.search+u.hash)}}catch(ex){}})}` +

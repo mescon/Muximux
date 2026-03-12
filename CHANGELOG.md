@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.21] - 2026-03-13
+
+### Fixed
+- Proxied Nuxt/Vue apps (Mealie) no longer show "Page not found" 404 errors on Chrome -- the Navigation API handler introduced in v3.0.20 was blocking internal `replaceState` calls that strip the proxy prefix during initialization; added a skip flag so the handler does not interfere with the interceptor's own prefix management
+
 ## [3.0.20] - 2026-03-12
 
 ### Fixed
