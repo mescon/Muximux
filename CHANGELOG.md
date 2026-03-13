@@ -8,6 +8,9 @@ All notable changes to Muximux are documented in this file.
 - Proxied Nuxt/Vue apps (Mealie) no longer show "Page not found" 404 errors on Chrome -- the Navigation API handler introduced in v3.0.20 was blocking internal `replaceState` calls that strip the proxy prefix during initialization; added a skip flag so the handler does not interfere with the interceptor's own prefix management
 - Proxied apps using relative resource paths (e.g. qBittorrent's `css/style.css`) no longer fail to load stylesheets and scripts on Chrome -- a `<base>` tag is now injected into HTML responses that lack one, anchoring relative URL resolution to the proxy prefix before any resources load
 
+### Changed
+- Bump `devalue` from 5.6.3 to 5.6.4
+
 ## [3.0.20] - 2026-03-12
 
 ### Fixed
