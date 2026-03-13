@@ -1154,6 +1154,13 @@ func (r *contentRewriter) interceptorScript() []byte {
 // <script> block (e.g., an HTML string in a JS template literal). Injecting into
 // script-embedded <head> corrupts the JavaScript: the interceptor's regex
 // backreferences (\1) become illegal octal escapes inside template strings.
+//
+// When the document has no <base> tag, a <base href="/proxy/slug/"> is injected
+// before the interceptor script. On Chrome, Location.prototype.pathname is
+// non-configurable so the interceptor must strip the proxy prefix from the URL
+// via replaceState (_S). Without <base>, relative resource URLs (css/style.css,
+// scripts/app.js) resolve against the stripped "/" instead of the proxy prefix,
+// causing 404s for apps like qBittorrent that use relative paths throughout.
 func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 	lower := bytes.ToLower(content)
 	searchFrom := 0
@@ -1190,9 +1197,19 @@ func (r *contentRewriter) injectInterceptor(content []byte) []byte {
 		}
 		insertPos := headIdx + closeIdx + 1
 
+		// Inject <base> tag if the document doesn't already have one.
+		// This anchors relative URL resolution to the proxy prefix so that
+		// apps using relative paths (href="css/style.css") load correctly
+		// even after _S() strips the proxy prefix from the document URL.
+		var baseTag []byte
+		if !bytes.Contains(lower, []byte("<base ")) && !bytes.Contains(lower, []byte("<base>")) {
+			baseTag = []byte(`<base href="` + r.proxyPrefix + `/">`)
+		}
+
 		script := r.interceptorScript()
-		result := make([]byte, 0, len(content)+len(script))
+		result := make([]byte, 0, len(content)+len(baseTag)+len(script))
 		result = append(result, content[:insertPos]...)
+		result = append(result, baseTag...)
 		result = append(result, script...)
 		result = append(result, content[insertPos:]...)
 		return result

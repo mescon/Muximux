@@ -2798,6 +2798,48 @@ func TestInjectInterceptorSkipsScriptEmbeddedHead(t *testing.T) {
 	})
 }
 
+func TestInjectInterceptorBaseTag(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/qbittorrent", "", "")
+
+	t.Run("injects base tag when none exists", func(t *testing.T) {
+		content := []byte(`<html><head><title>qBittorrent</title></head><body></body></html>`)
+		result := string(rewriter.injectInterceptor(content))
+		if !strings.Contains(result, `<base href="/proxy/qbittorrent/">`) {
+			t.Error("should inject <base> tag when document has no existing <base>")
+		}
+	})
+
+	t.Run("base tag appears before interceptor script", func(t *testing.T) {
+		content := []byte(`<html><head><title>Test</title></head><body></body></html>`)
+		result := string(rewriter.injectInterceptor(content))
+		baseIdx := strings.Index(result, `<base href=`)
+		scriptIdx := strings.Index(result, `<script data-muximux-proxy`)
+		if baseIdx < 0 || scriptIdx < 0 {
+			t.Fatalf("missing base (%d) or script (%d)", baseIdx, scriptIdx)
+		}
+		if baseIdx >= scriptIdx {
+			t.Error("<base> tag must appear before the interceptor script")
+		}
+	})
+
+	t.Run("skips injection when base tag already exists", func(t *testing.T) {
+		content := []byte(`<html><head><base href="/admin/"><title>Pi-hole</title></head><body></body></html>`)
+		result := string(rewriter.injectInterceptor(content))
+		if strings.Contains(result, `<base href="/proxy/qbittorrent/">`) {
+			t.Error("should NOT inject <base> tag when document already has one")
+		}
+	})
+
+	t.Run("skips injection for self-closing base tag", func(t *testing.T) {
+		content := []byte(`<html><head><base href="/app/" /><title>App</title></head><body></body></html>`)
+		result := string(rewriter.injectInterceptor(content))
+		count := strings.Count(result, "<base ")
+		if count != 1 {
+			t.Errorf("expected exactly 1 <base> tag, got %d", count)
+		}
+	})
+}
+
 func TestRewriteResponseBodyETagStripping(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/app", "", "example.com")
 
