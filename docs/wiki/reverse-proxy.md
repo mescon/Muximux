@@ -47,7 +47,7 @@ The proxy performs several layers of rewriting to make apps work at their new pa
 ### HTML Content
 
 - Rewrites `href`, `src`, `action`, `poster`, `srcset`, `content`, and `data-*` attributes
-- Rewrites `<base href>` tags
+- Rewrites `<base href>` tags to point to the proxy path; injects a `<base>` tag when the document has none, so apps using relative resource URLs (e.g. qBittorrent's `css/style.css`) resolve against the proxy prefix
 - Strips `<meta http-equiv="Content-Security-Policy">` tags so the injected interceptor script is not blocked by nonce requirements
 
 ### CSS Content
