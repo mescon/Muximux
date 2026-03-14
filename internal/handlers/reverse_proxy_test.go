@@ -589,38 +589,82 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 
 	tests := []struct {
 		name            string
+		method          string
 		origin          string
 		referer         string
 		expectedOrigin  string
+		originStripped  bool
 		expectedReferer string
 	}{
 		{
-			name:           "rewrites origin to target",
+			name:           "POST rewrites origin to target",
+			method:         "POST",
 			origin:         "https://muximux.example.com",
 			expectedOrigin: "https://192.0.2.42:8989",
 		},
 		{
+			name:           "PUT rewrites origin to target",
+			method:         "PUT",
+			origin:         "https://muximux.example.com",
+			expectedOrigin: "https://192.0.2.42:8989",
+		},
+		{
+			name:           "DELETE rewrites origin to target",
+			method:         "DELETE",
+			origin:         "https://muximux.example.com",
+			expectedOrigin: "https://192.0.2.42:8989",
+		},
+		{
+			name:           "PATCH rewrites origin to target",
+			method:         "PATCH",
+			origin:         "https://muximux.example.com",
+			expectedOrigin: "https://192.0.2.42:8989",
+		},
+		{
+			name:           "GET strips origin",
+			method:         "GET",
+			origin:         "https://muximux.example.com",
+			originStripped: true,
+		},
+		{
+			name:           "HEAD strips origin",
+			method:         "HEAD",
+			origin:         "https://muximux.example.com",
+			originStripped: true,
+		},
+		{
+			name:           "OPTIONS strips origin",
+			method:         "OPTIONS",
+			origin:         "https://muximux.example.com",
+			originStripped: true,
+		},
+		{
 			name:            "rewrites referer host and strips proxy prefix",
+			method:          "POST",
 			referer:         "https://muximux.example.com/proxy/sonarr/series/123",
 			expectedReferer: "https://192.0.2.42:8989/series/123",
 		},
 		{
 			name:            "rewrites referer preserving query string",
+			method:          "POST",
 			referer:         "https://muximux.example.com/proxy/sonarr/api?key=val",
 			expectedReferer: "https://192.0.2.42:8989/api?key=val",
 		},
 		{
 			name:           "no origin header - no rewrite",
+			method:         "POST",
 			origin:         "",
 			expectedOrigin: "",
 		},
 		{
 			name:            "no referer header - no rewrite",
+			method:          "POST",
 			referer:         "",
 			expectedReferer: "",
 		},
 		{
 			name:            "referer without proxy prefix - rewrites host only",
+			method:          "POST",
 			referer:         "https://muximux.example.com/other/path",
 			expectedReferer: "https://192.0.2.42:8989/other/path",
 		},
@@ -628,7 +672,11 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			req := httptest.NewRequest("POST", "/proxy/sonarr/api/action", nil)
+			method := tt.method
+			if method == "" {
+				method = "POST"
+			}
+			req := httptest.NewRequest(method, "/proxy/sonarr/api/action", nil)
 			if tt.origin != "" {
 				req.Header.Set("Origin", tt.origin)
 			}
@@ -638,11 +686,16 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 
 			director(req)
 
-			if tt.expectedOrigin != "" {
+			switch {
+			case tt.originStripped:
+				if got := req.Header.Get("Origin"); got != "" {
+					t.Errorf("Origin should be stripped for %s, got %q", method, got)
+				}
+			case tt.expectedOrigin != "":
 				if got := req.Header.Get("Origin"); got != tt.expectedOrigin {
 					t.Errorf("Origin = %q, want %q", got, tt.expectedOrigin)
 				}
-			} else if tt.origin == "" {
+			case tt.origin == "":
 				if got := req.Header.Get("Origin"); got != "" {
 					t.Errorf("Origin should not be set, got %q", got)
 				}

@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.22] - 2026-03-15
+
+### Fixed
+- Proxied Angular apps (CyberPower PowerPanel Business) no longer return 403 Forbidden for module scripts -- the `Origin` header is now stripped from safe (GET/HEAD/OPTIONS) requests forwarded to backends, preventing Spring Security CORS rejection on apps with no CORS configuration; unsafe methods (POST/PUT/DELETE/PATCH) continue to send the rewritten `Origin` for CSRF compatibility
+
 ## [3.0.21] - 2026-03-13
 
 ### Fixed
