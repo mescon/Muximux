@@ -153,6 +153,80 @@ func TestRequireAuth_Session(t *testing.T) {
 	})
 }
 
+func TestRequireAuth_OIDCSessionOnly(t *testing.T) {
+	cfg := &AuthConfig{Method: AuthMethodOIDC}
+	m, ss, _ := newTestMiddleware(cfg)
+
+	// Create a session without a corresponding UserStore entry (OIDC flow)
+	session, err := ss.Create("oidc-jane", "jane", RoleAdmin)
+	if err != nil {
+		t.Fatal(err)
+	}
+	session.Data["email"] = "jane@corp.example.com"
+	session.Data["display_name"] = "Jane Doe"
+
+	t.Run("OIDC session authenticates without UserStore entry", func(t *testing.T) {
+		var captured *User
+		inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			captured = GetUserFromContext(r.Context())
+			w.WriteHeader(http.StatusOK)
+		})
+
+		handler := m.RequireAuth(inner)
+		req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+		req.AddCookie(&http.Cookie{Name: "test_session", Value: session.ID})
+		rec := httptest.NewRecorder()
+
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d — OIDC session-only user should authenticate", rec.Code)
+		}
+		if captured == nil {
+			t.Fatal("expected user in context")
+		}
+		if captured.Username != "jane" {
+			t.Errorf("Username = %q, want jane", captured.Username)
+		}
+		if captured.Role != RoleAdmin {
+			t.Errorf("Role = %q, want admin", captured.Role)
+		}
+		if captured.Email != "jane@corp.example.com" {
+			t.Errorf("Email = %q, want jane@corp.example.com", captured.Email)
+		}
+		if captured.DisplayName != "Jane Doe" {
+			t.Errorf("DisplayName = %q, want Jane Doe", captured.DisplayName)
+		}
+	})
+
+	t.Run("session with no extra data still authenticates", func(t *testing.T) {
+		plainSession, _ := ss.Create("oidc-bob", "bob", RoleUser)
+
+		var captured *User
+		inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			captured = GetUserFromContext(r.Context())
+			w.WriteHeader(http.StatusOK)
+		})
+
+		handler := m.RequireAuth(inner)
+		req := httptest.NewRequest(http.MethodGet, "/api/config", nil)
+		req.AddCookie(&http.Cookie{Name: "test_session", Value: plainSession.ID})
+		rec := httptest.NewRecorder()
+
+		handler.ServeHTTP(rec, req)
+
+		if rec.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", rec.Code)
+		}
+		if captured.Username != "bob" {
+			t.Errorf("Username = %q, want bob", captured.Username)
+		}
+		if captured.Email != "" {
+			t.Errorf("Email should be empty, got %q", captured.Email)
+		}
+	})
+}
+
 func TestRequireAuth_Bypass(t *testing.T) {
 	cfg := &AuthConfig{
 		Method: AuthMethodBuiltin,

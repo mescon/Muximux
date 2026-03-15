@@ -109,10 +109,9 @@ func TestOIDC_FullFlow(t *testing.T) {
 		w.WriteHeader(http.StatusOK)
 	})
 
-	// OIDC uses session-based auth same as builtin, so middleware should
-	// find the session and inject the user into context.
-	// However, OIDC doesn't add users to UserStore by default — the session
-	// carries the user info. Let's verify what the middleware does.
+	// OIDC users aren't persisted to UserStore — the middleware reconstructs
+	// the User from session data (UserID, Username, Role, plus email and
+	// display_name stored in session.Data by the callback handler).
 	handler := m.RequireAuth(inner)
 	authReq := httptest.NewRequest(http.MethodGet, "/api/dashboard", nil)
 	authReq.AddCookie(&http.Cookie{Name: "test_session", Value: sessionCookie.Value})
@@ -120,19 +119,24 @@ func TestOIDC_FullFlow(t *testing.T) {
 
 	handler.ServeHTTP(authRec, authReq)
 
-	// OIDC callback creates session with UserID=username, but UserStore
-	// may not have the user. The middleware does userStore.GetByID which
-	// will return nil for OIDC users. This is expected — OIDC sessions
-	// are ephemeral. Verify the session exists but middleware behavior.
-	if authRec.Code == http.StatusOK && capturedUser != nil {
-		// If middleware found the user, verify fields
-		if capturedUser.Username != "jane" {
-			t.Errorf("middleware user.Username = %q, want jane", capturedUser.Username)
-		}
+	if authRec.Code != http.StatusOK {
+		t.Fatalf("middleware returned %d, want 200 — OIDC session should authenticate", authRec.Code)
 	}
-	// Note: If the middleware returns 401 because UserStore doesn't have
-	// the OIDC user, that's a known limitation — OIDC users aren't persisted
-	// to UserStore. The session is still valid.
+	if capturedUser == nil {
+		t.Fatal("expected user in context after OIDC session auth")
+	}
+	if capturedUser.Username != "jane" {
+		t.Errorf("middleware user.Username = %q, want jane", capturedUser.Username)
+	}
+	if capturedUser.Role != RoleAdmin {
+		t.Errorf("middleware user.Role = %q, want admin", capturedUser.Role)
+	}
+	if capturedUser.Email != "jane@corp.example.com" {
+		t.Errorf("middleware user.Email = %q, want jane@corp.example.com", capturedUser.Email)
+	}
+	if capturedUser.DisplayName != "Jane Doe" {
+		t.Errorf("middleware user.DisplayName = %q, want Jane Doe", capturedUser.DisplayName)
+	}
 
 	// Step 6: Verify state is consumed (one-time use)
 	p.statesMu.Lock()

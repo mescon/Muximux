@@ -197,6 +197,11 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 		session := m.sessionStore.GetFromRequest(r)
 		if session != nil {
 			user := m.userStore.GetByID(session.UserID)
+			if user == nil {
+				// Session-only user (e.g. OIDC) — not in the config-based
+				// UserStore. Reconstruct from session data.
+				user = userFromSession(session)
+			}
 			return user, session
 		}
 		return nil, nil
@@ -207,6 +212,23 @@ func (m *Middleware) authenticateRequest(r *http.Request, snap *authSnapshot) (*
 	default:
 		return nil, nil
 	}
+}
+
+// userFromSession constructs a User from session data. This is used for
+// session-only users (OIDC) that aren't persisted to the config-based UserStore.
+func userFromSession(s *Session) *User {
+	u := &User{
+		ID:       s.UserID,
+		Username: s.Username,
+		Role:     s.Role,
+	}
+	if email, ok := s.Data["email"].(string); ok {
+		u.Email = email
+	}
+	if dn, ok := s.Data["display_name"].(string); ok {
+		u.DisplayName = dn
+	}
+	return u
 }
 
 // RequireRole returns middleware that requires a specific role

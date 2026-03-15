@@ -274,6 +274,12 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Store OIDC claims in session data so the auth middleware can
+	// reconstruct the full User without a UserStore lookup (OIDC
+	// users are session-only, not persisted to the config-based store).
+	session.Data["email"] = email
+	session.Data["display_name"] = displayName
+
 	// Set session cookie
 	p.sessionStore.SetCookie(w, session)
 	logging.From(r.Context()).Info("OIDC user logged in", "source", "audit", "user", username, "role", role)
