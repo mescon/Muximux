@@ -2,12 +2,16 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.23] - 2026-03-16
+
+### Fixed
+- Proxied Angular apps no longer get `SyntaxError: Unexpected token ':'` from corrupted JavaScript -- the base path rewriter was matching `_baseHref` as a substring of `baseHref` in minified code and replacing `=` with `:`, producing invalid syntax; the rewriter now requires the variable name to be standalone
+
 ## [3.0.22] - 2026-03-15
 
 ### Fixed
 - OIDC authentication with Keycloak (and other providers) no longer returns 401 after a successful login -- the auth middleware was looking up OIDC users in the config-based user store, which only contains builtin users; the middleware now reconstructs the user from session data when the store lookup fails
 - Proxied Angular apps (CyberPower PowerPanel Business) no longer return 403 Forbidden for module scripts -- the `Origin` header is now stripped from safe (GET/HEAD/OPTIONS) requests forwarded to backends, preventing Spring Security CORS rejection on apps with no CORS configuration; unsafe methods (POST/PUT/DELETE/PATCH) continue to send the rewritten `Origin` for CSRF compatibility
-- Proxied Angular apps no longer get `SyntaxError: Unexpected token ':'` from corrupted JavaScript -- the base path rewriter was matching `_baseHref` as a substring of `baseHref` in minified code and replacing `=` with `:`, producing invalid syntax; the rewriter now requires the variable name to be standalone
 
 ### Changed
 - Bump `undici` from 7.21.0 to 7.24.1
