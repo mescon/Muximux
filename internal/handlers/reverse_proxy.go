@@ -31,7 +31,7 @@ var (
 	rootPathAttrPattern = regexp.MustCompile(`([a-zA-Z][a-zA-Z0-9-]*\s*=\s*["'])/([a-zA-Z0-9_][^"']*)`)
 	rootPathUrlPattern  = regexp.MustCompile(`(url\s*\(\s*["']?)/([a-zA-Z0-9_-][^"')]*["']?\s*\))`)
 	baseHrefPattern     = regexp.MustCompile(`(<base[^>]*href\s*=\s*["'])([^"']*)(["'])`)
-	urlBaseEmptyPattern = regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*[:=]\s*(['"])(['"])`)
+	urlBaseEmptyPattern = regexp.MustCompile(`("?)(urlBase|basePath|baseUrl|baseHref)("?)\s*([:=])\s*(['"])(['"])`)
 	imageSetPattern     = regexp.MustCompile(`(image-set\s*\()([^)]+)(\))`)
 	imageSetPathPattern = regexp.MustCompile(`(["'])/([a-zA-Z0-9_-][^"']*)(["'])`)
 	cssImportPattern    = regexp.MustCompile(`(@import\s+["'])(/[^"']+)(["'])`)
@@ -100,7 +100,7 @@ type contentRewriter struct {
 
 	// Pre-built replacement templates for non-callback regex operations
 	sriHashRepl []byte // "${1}={}"
-	urlBaseRepl []byte // ${1}${2}${3}: "proxyPrefix"
+	urlBaseRepl []byte // ${1}${2}${3}${4} "proxyPrefix"
 	attrRepl    []byte // "${1}" + proxyPrefix + "${2}"
 	urlRepl     []byte // "${1}" + proxyPrefix + "${2}"
 	jsRepl      []byte // "${1}" + proxyPrefix + "${2}${3}"
@@ -120,7 +120,7 @@ func newContentRewriter(proxyPrefix, targetPath, targetHost string) *contentRewr
 		proxyPrefixB: []byte(proxyPrefix),
 		targetHostB:  []byte(targetHost),
 		sriHashRepl:  []byte("${1}={}"),
-		urlBaseRepl:  []byte(`${1}${2}${3}: "` + proxyPrefix + `"`),
+		urlBaseRepl:  []byte(`${1}${2}${3}${4} "` + proxyPrefix + `"`),
 	}
 	rw.targetPathB = []byte(rw.targetPath)
 
@@ -373,8 +373,24 @@ func (r *contentRewriter) rewriteBaseHref(result []byte) []byte {
 
 // rewriteURLBase rewrites JavaScript/JSON base path patterns for SPAs (e.g., Sonarr/Radarr).
 // Handles empty base path strings like urlBase or basePath set to blank values.
+// Uses a callback to check that the variable name is not part of a larger
+// identifier (e.g. _baseHref, this._baseHref) — only standalone names or
+// JSON keys are rewritten.
 func (r *contentRewriter) rewriteURLBase(result []byte) []byte {
-	return urlBaseEmptyPattern.ReplaceAll(result, r.urlBaseRepl)
+	return urlBaseEmptyPattern.ReplaceAllFunc(result, func(match []byte) []byte {
+		// Find where in result this match starts
+		idx := bytes.Index(result, match)
+		if idx > 0 {
+			prev := result[idx-1]
+			// If preceded by a word character or dot, this is part of a
+			// larger identifier (e.g. this._baseHref) — skip it.
+			if (prev >= 'a' && prev <= 'z') || (prev >= 'A' && prev <= 'Z') ||
+				(prev >= '0' && prev <= '9') || prev == '_' || prev == '.' {
+				return match
+			}
+		}
+		return urlBaseEmptyPattern.ReplaceAll(match, r.urlBaseRepl)
+	})
 }
 
 // rewriteImageSet rewrites CSS image-set() functions.
