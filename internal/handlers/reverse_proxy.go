@@ -700,23 +700,13 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		req.Host = targetURL.Host
 		req.Header.Set("Accept-Encoding", "gzip, identity")
 
-		// Handle the Origin header based on request method.
-		// Safe methods (GET, HEAD, OPTIONS): strip Origin entirely. The browser
-		// adds Origin to CORS-mode requests (e.g. <script type="module">), but
-		// some backends (Spring Security with no CORS config) reject ANY request
-		// bearing an Origin header with 403. Since safe methods don't need CSRF
-		// protection, stripping Origin is harmless and avoids this class of issue.
-		// Unsafe methods (POST, PUT, DELETE, PATCH): rewrite Origin to match the
-		// backend host so CSRF validation (Django, Rails, .NET) sees its own
-		// origin. Referer is also rewritten below as a fallback.
-		if origin := req.Header.Get("Origin"); origin != "" {
-			switch req.Method {
-			case http.MethodGet, http.MethodHead, http.MethodOptions:
-				req.Header.Del("Origin")
-			default:
-				req.Header.Set("Origin", targetURL.Scheme+"://"+targetURL.Host)
-			}
-		}
+		// Strip the Origin header entirely. The proxy makes a server-to-server
+		// request where CORS is irrelevant, and backends with no CORS config
+		// (e.g. Spring Security) reject ANY request bearing an Origin header
+		// with 403 — regardless of method. CSRF protection for frameworks that
+		// check Origin (Django, Rails, .NET) is covered by the Referer header,
+		// which is rewritten below to match the backend host.
+		req.Header.Del("Origin")
 		if referer := req.Header.Get("Referer"); referer != "" {
 			if u, err := url.Parse(referer); err == nil {
 				u.Scheme = targetURL.Scheme

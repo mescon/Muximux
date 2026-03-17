@@ -2,6 +2,11 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.24] - 2026-03-17
+
+### Fixed
+- Proxied apps with Spring Security (CyberPower PowerPanel Business) no longer return 403 on POST/PUT/DELETE requests -- the `Origin` header is now stripped from all proxied requests, not just safe methods; Spring Security's CorsFilter rejects any request with an `Origin` header when no CORS config is defined, including login and API endpoints
+
 ## [3.0.23] - 2026-03-16
 
 ### Fixed

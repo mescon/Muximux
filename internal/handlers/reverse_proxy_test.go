@@ -629,28 +629,28 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 		expectedReferer string
 	}{
 		{
-			name:           "POST rewrites origin to target",
+			name:           "POST strips origin",
 			method:         "POST",
 			origin:         "https://muximux.example.com",
-			expectedOrigin: "https://192.0.2.42:8989",
+			originStripped: true,
 		},
 		{
-			name:           "PUT rewrites origin to target",
+			name:           "PUT strips origin",
 			method:         "PUT",
 			origin:         "https://muximux.example.com",
-			expectedOrigin: "https://192.0.2.42:8989",
+			originStripped: true,
 		},
 		{
-			name:           "DELETE rewrites origin to target",
+			name:           "DELETE strips origin",
 			method:         "DELETE",
 			origin:         "https://muximux.example.com",
-			expectedOrigin: "https://192.0.2.42:8989",
+			originStripped: true,
 		},
 		{
-			name:           "PATCH rewrites origin to target",
+			name:           "PATCH strips origin",
 			method:         "PATCH",
 			origin:         "https://muximux.example.com",
-			expectedOrigin: "https://192.0.2.42:8989",
+			originStripped: true,
 		},
 		{
 			name:           "GET strips origin",
