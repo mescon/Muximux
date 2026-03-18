@@ -171,7 +171,7 @@ jobs:
 
       - name: Create Release (with CHANGELOG)
         if: steps.changelog.outputs.found == 'true'
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b  # v2
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe  # v2
         with:
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
@@ -182,7 +182,7 @@ jobs:
 
       - name: Create Release (auto-generated notes)
         if: steps.changelog.outputs.found != 'true'
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b  # v2
+        uses: softprops/action-gh-release@153bb8e04406b158c6c84fc1615b65b24149a1fe  # v2
         with:
           draft: false
           prerelease: ${{ contains(github.ref, '-') }}
