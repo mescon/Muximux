@@ -17,7 +17,7 @@
     "@eslint/js": "^10.0.1",
     "@inlang/paraglide-js": "^2.15.0",
     "@sveltejs/vite-plugin-svelte": "^7.0.0",
-    "@tailwindcss/vite": "^4.2.1",
+    "@tailwindcss/vite": "^4.2.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/svelte": "^5.3.1",
     "@tsconfig/svelte": "^5.0.8",
@@ -32,8 +32,8 @@
     "tslib": "^2.8.1",
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.57.1",
-    "vite": "^8.0.0",
-    "vitest": "^4.0.18"
+    "vite": "^8.0.1",
+    "vitest": "^4.1.0"
   },
   "dependencies": {
     "marked": "^17.0.4",
