@@ -20,6 +20,8 @@ One binary. One port. One YAML config file.
 [![Release](https://img.shields.io/github/v/release/mescon/Muximux)](https://github.com/mescon/Muximux/releases/latest)
 ![License](https://img.shields.io/badge/License-GPL%20v2-blue)
 
+> **AI Disclosure** -- Muximux is developed with significant AI assistance (Claude Code). All code is reviewed, tested, and approved by the maintainer before shipping. See [Development](#development) for details.
+
 ![Muximux Dashboard](docs/screenshots/09-dashboard-dark.png)
 
 <details>
