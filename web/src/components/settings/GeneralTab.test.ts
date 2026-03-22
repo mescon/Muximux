@@ -14,6 +14,7 @@ function makeConfig(overrides: Partial<Config> = {}): Config {
       show_on_hover: true,
       show_labels: true,
       show_logo: true,
+      show_home_button: true,
       show_app_colors: true,
       show_icon_background: false,
       icon_scale: 1,
@@ -147,7 +148,7 @@ describe('GeneralTab', () => {
     });
 
     expect(screen.getByText('Show Labels')).toBeInTheDocument();
-    expect(screen.getByText('Show Logo')).toBeInTheDocument();
+    expect(screen.getByText('Overview Button')).toBeInTheDocument();
     expect(screen.getByText('App Color Accents')).toBeInTheDocument();
     expect(screen.getByText('Icon Background')).toBeInTheDocument();
   });
@@ -363,8 +364,9 @@ describe('GeneralTab', () => {
       expect(showLabelsCheckbox.checked).toBe(false);
     });
 
-    it('toggles show_logo checkbox', async () => {
+    it('selects overview button style via visual selector', async () => {
       const config = makeConfig();
+      config.navigation.show_home_button = true;
       config.navigation.show_logo = true;
       render(GeneralTab, {
         props: {
@@ -375,10 +377,19 @@ describe('GeneralTab', () => {
         },
       });
 
-      const showLogoCheckbox = screen.getByText('Show Logo').closest('label')!.querySelector('input[type="checkbox"]') as HTMLInputElement;
-      await fireEvent.click(showLogoCheckbox);
+      // Click "Hidden" to hide the overview button
+      const hiddenButton = screen.getByText('Hidden');
+      await fireEvent.click(hiddenButton);
 
-      expect(showLogoCheckbox.checked).toBe(false);
+      expect(config.navigation.show_home_button).toBe(false);
+      expect(config.navigation.show_splash_on_startup).toBe(false);
+
+      // Click "House Icon" to switch to house icon
+      const houseButton = screen.getByText('House Icon');
+      await fireEvent.click(houseButton);
+
+      expect(config.navigation.show_home_button).toBe(true);
+      expect(config.navigation.show_logo).toBe(false);
     });
 
     it('toggles show_app_colors checkbox', async () => {

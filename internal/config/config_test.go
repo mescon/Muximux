@@ -134,6 +134,76 @@ func TestDefaultConfig(t *testing.T) {
 	}
 }
 
+func TestDefaultShowHomeButton(t *testing.T) {
+	cfg := defaultConfig()
+	if !cfg.Navigation.ShowHomeButton {
+		t.Error("ShowHomeButton should default to true")
+	}
+	if cfg.Navigation.HomeIcon != nil {
+		t.Error("HomeIcon should default to nil")
+	}
+}
+
+func TestShowHomeButtonFalseDisablesSplash(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	os.WriteFile(configPath, []byte(`
+navigation:
+  show_home_button: false
+  show_splash_on_startup: true
+`), 0600)
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if cfg.Navigation.ShowHomeButton {
+		t.Error("ShowHomeButton should be false")
+	}
+	if cfg.Navigation.ShowSplashOnStart {
+		t.Error("ShowSplashOnStart should be forced to false when ShowHomeButton is false")
+	}
+}
+
+func TestShowHomeButtonMissingDefaultsTrue(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	os.WriteFile(configPath, []byte(`
+navigation:
+  position: left
+`), 0600)
+
+	cfg, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if !cfg.Navigation.ShowHomeButton {
+		t.Error("ShowHomeButton should default to true when not in config")
+	}
+}
+
+func TestHomeIconRoundTrip(t *testing.T) {
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+
+	cfg := defaultConfig()
+	cfg.Navigation.HomeIcon = &AppIconConfig{Type: "lucide", Name: "star"}
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatalf("Save: %v", err)
+	}
+
+	loaded, err := Load(configPath)
+	if err != nil {
+		t.Fatalf("Load: %v", err)
+	}
+	if loaded.Navigation.HomeIcon == nil {
+		t.Fatal("HomeIcon should be preserved after save/load")
+	}
+	if loaded.Navigation.HomeIcon.Type != "lucide" || loaded.Navigation.HomeIcon.Name != "star" {
+		t.Errorf("HomeIcon = %+v, want lucide/star", loaded.Navigation.HomeIcon)
+	}
+}
+
 func TestSave(t *testing.T) {
 	cfg := defaultConfig()
 	cfg.Server.Title = "Saved Config"

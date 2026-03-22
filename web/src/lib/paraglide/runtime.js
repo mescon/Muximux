@@ -20,7 +20,7 @@ export const baseLocale = "en";
  *     throw new Error('Locale is not available');
  *   }
  */
-export const locales = /** @type {const} */ (["en", "sv", "uk", "zh", "es", "hi", "pt", "bn", "ru", "ja", "vi", "yue", "tr", "ar", "wuu", "mr", "nb", "fi", "da", "et", "lv", "lt", "pl", "de", "nl", "fr", "it", "hu", "cs", "ro", "el", "bg", "hr", "sr", "sk", "sl"]);
+export const locales = /** @type {const} */ (["en","sv","uk","zh","es","hi","pt","bn","ru","ja","vi","yue","tr","ar","wuu","mr","nb","fi","da","et","lv","lt","pl","de","nl","fr","it","hu","cs","ro","el","bg","hr","sr","sk","sl"]);
 /** @type {string} */
 export const cookieName = "PARAGLIDE_LOCALE";
 /** @type {number} */
@@ -51,7 +51,7 @@ export const routeStrategies = [];
 /**
  * The used URL patterns.
  *
- * @type {Array<{ pattern: string, localized: Array<[Locale, string]> }> }
+ * @type {Array<{ pattern: string, localized: Array<[Locale, string]> }>}
  */
 export const urlPatterns = [
   {
@@ -206,11 +206,11 @@ export const urlPatterns = [
 ];
 /** @type {string | undefined} */
 let cachedRouteStrategyUrl;
-/** @type {{ match: string; strategy?: Array<string>; exclude?: boolean } | undefined} */
+/** @type {{ match: string; strategy?: typeof strategy; exclude?: boolean } | undefined} */
 let cachedRouteStrategy;
 /**
  * @param {string | URL} url
- * @returns {{ match: string; strategy?: Array<string>; exclude?: boolean } | undefined}
+ * @returns {{ match: string; strategy?: typeof strategy; exclude?: boolean } | undefined}
  */
 function findMatchingRouteStrategy(url) {
     if (routeStrategies.length === 0) {
@@ -247,7 +247,6 @@ export function getStrategyForUrl(url) {
     if (routeStrategy &&
         routeStrategy.exclude !== true &&
         Array.isArray(routeStrategy.strategy)) {
-        // @ts-ignore - runtime value is injected and validated by compiler types.
         return routeStrategy.strategy;
     }
     return strategy;
@@ -285,7 +284,6 @@ export const disableAsyncLocalStorage = false;
 export const experimentalMiddlewareLocaleSplitting = false;
 export const isServer = import.meta.env?.SSR ?? typeof window === 'undefined';
 /** @type {Locale | undefined} */
-// @ts-ignore - injected by bundlers at compile time
 export const experimentalStaticLocale = undefined;
 /**
  * Sets the server side async local storage.
@@ -307,16 +305,19 @@ const TREE_SHAKE_PREFERRED_LANGUAGE_STRATEGY_USED = false;
 const TREE_SHAKE_DEFAULT_URL_PATTERN_USED = true;
 const TREE_SHAKE_LOCAL_STORAGE_STRATEGY_USED = true;
 
-globalThis.__paraglide = {}
+/** @type {any} */ (globalThis).__paraglide =
+	/** @type {any} */ (globalThis).__paraglide ?? {};
+/** @type {any} */ (globalThis).__paraglide.ssr =
+	/** @type {any} */ (globalThis).__paraglide.ssr ?? {};
 
 /**
  * This is a fallback to get started with a custom
  * strategy and avoid type errors.
  *
  * The implementation is overwritten
- * by \`overwriteGetLocale()\` and \`defineSetLocale()\`.
+ * by `overwriteGetLocale()` and `defineSetLocale()`.
  *
- * @type {Locale|undefined}
+ * @type {Locale | undefined}
  */
 let _locale;
 let localeInitiallySet = false;
@@ -336,11 +337,11 @@ let localeInitiallySet = false;
  *     console.log('Netherlands 🇳🇱');
  *   }
  *
- * @type {() => Locale}
+ * @returns {Locale} The current locale.
  */
 export let getLocale = () => {
     if (experimentalStaticLocale !== undefined) {
-        return assertIsLocale(experimentalStaticLocale);
+        return experimentalStaticLocale;
     }
     // if running in a server-side rendering context
     // retrieve the locale from the async local storage
@@ -374,7 +375,7 @@ export let getLocale = () => {
  */
 export function getLocaleForUrl(url) {
     if (experimentalStaticLocale !== undefined) {
-        return assertIsLocale(experimentalStaticLocale);
+        return experimentalStaticLocale;
     }
     const strategyToUse = getStrategyForUrl(url);
     const resolved = resolveLocaleWithStrategies(strategyToUse, typeof url === "string" ? url : url.href);
@@ -428,11 +429,14 @@ function resolveLocaleWithStrategies(strategyToUse, urlForUrlStrategy) {
                     // Can't await in sync function, skip async strategies
                     continue;
                 }
-                locale = result;
+                if (result !== undefined) {
+                    return assertIsLocale(result);
+                }
             }
         }
-        if (locale !== undefined) {
-            return assertIsLocale(locale);
+        const matchedLocale = toLocale(locale);
+        if (matchedLocale) {
+            return matchedLocale;
         }
     }
     return undefined;
@@ -450,7 +454,7 @@ function resolveLocaleWithStrategies(strategyToUse, urlForUrlStrategy) {
  *     return Cookies.get('locale') ?? baseLocale
  *   });
  *
- * @type {(fn: () => Locale) => void}
+ * @param {() => Locale} fn - The new implementation for `getLocale()`.
  */
 export const overwriteGetLocale = (fn) => {
     getLocale = fn;
@@ -505,7 +509,6 @@ export function getTextDirection(locale = getLocale()) {
  * Navigates to the localized URL, or reloads the current page
  *
  * @param {string} [newLocation] The new location
- * @return {undefined}
  */
 const navigateOrReload = (newLocation) => {
     if (newLocation) {
@@ -556,7 +559,7 @@ export let setLocale = (newLocale, options) => {
     catch {
         // do nothing, no locale has been set yet.
     }
-    /** @type {Array<Promise<any>>} */
+    /** @type {Array<Promise<void>>} */
     const customSetLocalePromises = [];
     /** @type {string | undefined} */
     let newLocation = undefined;
@@ -641,7 +644,7 @@ export let setLocale = (newLocale, options) => {
     return;
 };
 /**
- * Overwrite the \`setLocale()\` function.
+ * Overwrite the `setLocale()` function.
  *
  * Use this function to overwrite how the locale is set. For example,
  * modify a cookie, env variable, or a user's preference.
@@ -655,7 +658,7 @@ export let setLocale = (newLocale, options) => {
  * @param {SetLocaleFn} fn
  */
 export const overwriteSetLocale = (fn) => {
-    setLocale = /** @type {SetLocaleFn} */ (fn);
+    setLocale = fn;
 };
 
 /**
@@ -682,14 +685,32 @@ export let getUrlOrigin = () => {
  * Use this function in server environments to
  * define how the URL origin is resolved.
  *
- * @type {(fn: () => string) => void}
+ * @param {() => string} fn - The new implementation for `getUrlOrigin()`.
  */
 export let overwriteGetUrlOrigin = (fn) => {
     getUrlOrigin = fn;
 };
 
 /**
- * Check if something is an available locale.
+ * Coerces a locale-like string to the canonical locale value used by the runtime.
+ *
+ * @param {unknown} value
+ * @returns {Locale | undefined}
+ */
+export function toLocale(value) {
+    if (typeof value !== "string") {
+        return undefined;
+    }
+    const lowerValue = value.toLowerCase();
+    for (const locale of locales) {
+        if (locale.toLowerCase() === lowerValue) {
+            return locale;
+        }
+    }
+    return undefined;
+}
+/**
+ * Check if something is an available locale with the canonical project casing.
  *
  * @example
  *   if (isLocale(params.locale)) {
@@ -698,34 +719,26 @@ export let overwriteGetUrlOrigin = (fn) => {
  *     setLocale('en');
  *   }
  *
- * @param {any} locale
+ * Use `toLocale()` when you want case-insensitive matching and canonicalization.
+ *
+ * @param {unknown} locale
  * @returns {locale is Locale}
  */
 export function isLocale(locale) {
-    if (typeof locale !== "string")
-        return false;
-    return !locale
-        ? false
-        : locales.some((item) => item.toLowerCase() === locale.toLowerCase());
+    return !!locale && locales.some((item) => item === locale);
 }
-
 /**
- * Asserts that the input is a locale.
+ * Asserts that the input can be normalized to a locale.
  *
- * @param {any} input - The input to check.
- * @returns {Locale} The input if it is a locale.
+ * @param {unknown} input - The input to check.
+ * @returns {Locale} The input normalized to a Locale.
  * @throws {Error} If the input is not a locale.
  */
 export function assertIsLocale(input) {
-    if (typeof input !== "string") {
-        throw new Error(`Invalid locale: ${input}. Expected a string.`);
-    }
-    const lowerInput = input.toLowerCase();
-    const matchedLocale = locales.find((item) => item.toLowerCase() === lowerInput);
-    if (!matchedLocale) {
-        throw new Error(`Invalid locale: ${input}. Expected one of: ${locales.join(", ")}`);
-    }
-    return matchedLocale;
+    const locale = toLocale(input);
+    if (locale)
+        return locale;
+    throw new Error(`Invalid locale: ${input}. Expected one of: ${locales.join(", ")}`);
 }
 
 /**
@@ -744,7 +757,8 @@ export function assertIsLocale(input) {
  * @example
  *   const locale = extractLocaleFromRequest(request);
  *
- * @type {(request: Request) => Locale}
+ * @param {Request} request
+ * @returns {Locale}
  */
 export const extractLocaleFromRequest = (request) => {
     return extractLocaleFromRequestWithStrategies(request, getStrategyForUrl(request.url));
@@ -788,13 +802,9 @@ export const extractLocaleFromRequestWithStrategies = (request, strategies) => {
             // Use extractLocaleFromRequestAsync for custom server strategies
             continue;
         }
-        if (locale !== undefined) {
-            if (!isLocale(locale)) {
-                locale = undefined;
-            }
-            else {
-                return assertIsLocale(locale);
-            }
+        const matchedLocale = toLocale(locale);
+        if (matchedLocale) {
+            return matchedLocale;
         }
     }
     throw new Error("No locale found. There is an error in your strategy. Try adding 'baseLocale' as the very last strategy. Read more here https://inlang.com/m/gerre34r/library-inlang-paraglideJs/errors#no-locale-found");
@@ -827,7 +837,8 @@ export const extractLocaleFromRequestWithStrategies = (request, strategies) => {
  *
  *   const locale = await extractLocaleFromRequestAsync(request);
  *
- * @type {(request: Request) => Promise<Locale>}
+ * @param {Request} request - The request object to extract the locale from.
+ * @returns {Promise<Locale>} The extracted locale.
  */
 export const extractLocaleFromRequestAsync = async (request) => {
     /** @type {string|undefined} */
@@ -842,14 +853,14 @@ export const extractLocaleFromRequestAsync = async (request) => {
                 locale = await handler.getLocale(request);
             }
             // If we got a valid locale from this custom strategy, use it
-            if (locale !== undefined && isLocale(locale)) {
-                return assertIsLocale(locale);
+            const matchedLocale = toLocale(locale);
+            if (matchedLocale) {
+                return matchedLocale;
             }
         }
     }
     // If no custom strategy provided a valid locale, fall back to sync version
-    locale = extractLocaleFromRequestWithStrategies(request, strategy);
-    return assertIsLocale(locale);
+    return extractLocaleFromRequestWithStrategies(request, strategy);
 };
 
 /**
@@ -858,7 +869,7 @@ export const extractLocaleFromRequestAsync = async (request) => {
  * Will return undefined if the document is not available or if the cookie is not set.
  * The `document` object is not available in server-side rendering, so this function should not be called in that context.
  *
- * @returns {string | undefined}
+ * @returns {Locale | undefined}
  */
 export function extractLocaleFromCookie() {
     if (typeof document === "undefined" || !document.cookie) {
@@ -866,10 +877,7 @@ export function extractLocaleFromCookie() {
     }
     const match = document.cookie.match(new RegExp(`(^| )${cookieName}=([^;]+)`));
     const locale = match?.[2];
-    if (isLocale(locale)) {
-        return locale;
-    }
-    return undefined;
+    return toLocale(locale);
 }
 
 /**
@@ -881,9 +889,8 @@ export function extractLocaleFromCookie() {
  * @example
  *   const locale = extractLocaleFromHeader(request);
  *
- * @type {(request: Request) => Locale}
  * @param {Request} request - The request object to extract the locale from.
- * @returns {string|undefined} The negotiated preferred language.
+ * @returns {Locale | undefined} The negotiated preferred language.
  */
 export function extractLocaleFromHeader(request) {
     const acceptLanguageHeader = request.headers.get("accept-language");
@@ -894,20 +901,22 @@ export function extractLocaleFromHeader(request) {
             .map((lang) => {
             const [tag, q = "1"] = lang.trim().split(";q=");
             // Get both the full tag and base language code
-            const baseTag = tag?.split("-")[0]?.toLowerCase();
+            const baseTag = tag?.split("-")[0];
             return {
-                fullTag: tag?.toLowerCase(),
+                fullTag: tag,
                 baseTag,
                 q: Number(q),
             };
         })
             .sort((a, b) => b.q - a.q);
         for (const lang of languages) {
-            if (isLocale(lang.fullTag)) {
-                return lang.fullTag;
+            const fullLocale = toLocale(lang.fullTag);
+            if (fullLocale) {
+                return fullLocale;
             }
-            else if (isLocale(lang.baseTag)) {
-                return lang.baseTag;
+            const baseLocale = toLocale(lang.baseTag);
+            if (baseLocale) {
+                return baseLocale;
             }
         }
         return undefined;
@@ -924,23 +933,24 @@ export function extractLocaleFromHeader(request) {
  * @example
  *   const locale = extractLocaleFromNavigator();
  *
- * @type {() => Locale | undefined}
- * @returns {string | undefined}
+ * @returns {Locale | undefined}
  */
 export function extractLocaleFromNavigator() {
     if (!navigator?.languages?.length) {
         return undefined;
     }
     const languages = navigator.languages.map((lang) => ({
-        fullTag: lang.toLowerCase(),
-        baseTag: lang.split("-")[0]?.toLowerCase(),
+        fullTag: lang,
+        baseTag: lang.split("-")[0],
     }));
     for (const lang of languages) {
-        if (isLocale(lang.fullTag)) {
-            return lang.fullTag;
+        const fullLocale = toLocale(lang.fullTag);
+        if (fullLocale) {
+            return fullLocale;
         }
-        else if (isLocale(lang.baseTag)) {
-            return lang.baseTag;
+        const baseLocale = toLocale(lang.baseTag);
+        if (baseLocale) {
+            return baseLocale;
         }
     }
     return undefined;
@@ -959,6 +969,10 @@ let cachedLocale;
 /**
  * Extracts the locale from a given URL using native URLPattern.
  *
+ * The built-in default `/:locale/...` routing is case-insensitive because it
+ * canonicalizes the first path segment with `toLocale()`. Custom `urlPatterns`
+ * keep URLPattern's normal exact matching semantics for path segments.
+ *
  * @param {URL|string} url - The full URL from which to extract the locale.
  * @returns {Locale|undefined} The extracted locale, or undefined if no locale is found.
  */
@@ -967,6 +981,7 @@ export function extractLocaleFromUrl(url) {
     if (cachedUrl === urlString) {
         return cachedLocale;
     }
+    /** @type {Locale | undefined} */
     let result;
     if (TREE_SHAKE_DEFAULT_URL_PATTERN_USED) {
         result = defaultUrlPatternExtractLocale(url);
@@ -977,11 +992,7 @@ export function extractLocaleFromUrl(url) {
         for (const element of urlPatterns) {
             for (const [locale, localizedPattern] of element.localized) {
                 const match = new URLPattern(localizedPattern, urlObj.href).exec(urlObj.href);
-                if (!match) {
-                    continue;
-                }
-                // Check if the locale is valid
-                if (assertIsLocale(locale)) {
+                if (match) {
                     result = locale;
                     break;
                 }
@@ -997,20 +1008,13 @@ export function extractLocaleFromUrl(url) {
 /**
  * https://github.com/opral/inlang-paraglide-js/issues/381
  *
- * @param {URL|string} url - The full URL from which to extract the locale.
- * @returns {Locale|undefined} The extracted locale, or undefined if no locale is found.
+ * @param {URL | string} url - The full URL from which to extract the locale.
+ * @returns {Locale | undefined} The extracted locale, or undefined if no locale is found.
  */
 function defaultUrlPatternExtractLocale(url) {
     const urlObj = new URL(url, "http://dummy.com");
     const pathSegments = urlObj.pathname.split("/").filter(Boolean);
-    if (pathSegments.length > 0) {
-        const potentialLocale = pathSegments[0];
-        if (isLocale(potentialLocale)) {
-            return potentialLocale;
-        }
-    }
-    // everything else has to be the base locale
-    return baseLocale;
+    return toLocale(pathSegments[0]) || baseLocale;
 }
 
 /**
@@ -1053,15 +1057,17 @@ function defaultUrlPatternExtractLocale(url) {
  * ```
  *
  * @param {string | URL} url - The URL to localize. If string, must be absolute.
- * @param {Object} [options] - Options for localization
- * @param {string} [options.locale] - Target locale. If not provided, uses getLocale()
+ * @param {object} [options] - Options for localization
+ * @param {Locale} [options.locale] - Target locale. If not provided, uses getLocale()
  * @returns {URL} The localized URL, always absolute
  */
 export function localizeUrl(url, options) {
+    const targetLocale = options?.locale
+        ? assertIsLocale(options?.locale)
+        : getLocale();
     if (TREE_SHAKE_DEFAULT_URL_PATTERN_USED) {
-        return localizeUrlDefaultPattern(url, options);
+        return localizeUrlDefaultPattern(url, targetLocale);
     }
-    const targetLocale = options?.locale ?? getLocale();
     const urlObj = typeof url === "string" ? new URL(url) : url;
     // Iterate over URL patterns
     for (const element of urlPatterns) {
@@ -1094,13 +1100,11 @@ export function localizeUrl(url, options) {
  * https://github.com/opral/inlang-paraglide-js/issues/381
  *
  * @param {string | URL} url
- * @param {Object} [options]
- * @param {string} [options.locale]
+ * @param {Locale} locale
  * @returns {URL}
  */
-function localizeUrlDefaultPattern(url, options) {
+function localizeUrlDefaultPattern(url, locale) {
     const urlObj = typeof url === "string" ? new URL(url, getUrlOrigin()) : new URL(url);
-    const locale = options?.locale ?? getLocale();
     const currentLocale = extractLocaleFromUrl(urlObj);
     // If current locale matches target locale, no change needed
     if (currentLocale === locale) {
@@ -1108,7 +1112,7 @@ function localizeUrlDefaultPattern(url, options) {
     }
     const pathSegments = urlObj.pathname.split("/").filter(Boolean);
     // If current path starts with a locale, remove it
-    if (pathSegments.length > 0 && isLocale(pathSegments[0])) {
+    if (pathSegments.length > 0 && toLocale(pathSegments[0])) {
         pathSegments.shift();
     }
     // For base locale, don't add prefix
@@ -1196,7 +1200,7 @@ function deLocalizeUrlDefaultPattern(url) {
     const urlObj = typeof url === "string" ? new URL(url, getUrlOrigin()) : new URL(url);
     const pathSegments = urlObj.pathname.split("/").filter(Boolean);
     // If first segment is a locale, remove it
-    if (pathSegments.length > 0 && isLocale(pathSegments[0])) {
+    if (pathSegments.length > 0 && toLocale(pathSegments[0])) {
         urlObj.pathname = "/" + pathSegments.slice(1).join("/");
     }
     return urlObj;
@@ -1309,7 +1313,8 @@ function fillPattern(pattern, values, origin) {
  * Aggregates named groups from various parts of the URLPattern match result.
  *
  *
- * @type {(match: any) => Record<string, string | null | undefined>}
+ * @param {any} match - The URLPattern match result object.
+ * @returns {Record<string, string | null | undefined>} An object containing all named groups from the match.
  */
 export function aggregateGroups(match) {
     return {
@@ -1328,18 +1333,18 @@ export function aggregateGroups(match) {
  * @typedef {object} ShouldRedirectServerInput
  * @property {Request} request
  * @property {string | URL} [url]
- * @property {ReturnType<typeof assertIsLocale>} [locale]
+ * @property {Locale} [locale]
  *
  * @typedef {object} ShouldRedirectClientInput
  * @property {undefined} [request]
  * @property {string | URL} [url]
- * @property {ReturnType<typeof assertIsLocale>} [locale]
+ * @property {Locale} [locale]
  *
  * @typedef {ShouldRedirectServerInput | ShouldRedirectClientInput} ShouldRedirectInput
  *
  * @typedef {object} ShouldRedirectResult
  * @property {boolean} shouldRedirect - Indicates whether the consumer should perform a redirect.
- * @property {ReturnType<typeof assertIsLocale>} locale - Locale resolved using the configured strategies.
+ * @property {Locale} locale - Locale resolved using the configured strategies.
  * @property {URL | undefined} redirectUrl - Destination URL when a redirect is required.
  */
 /**
@@ -1380,7 +1385,7 @@ export function aggregateGroups(match) {
  */
 export async function shouldRedirect(input = {}) {
     const currentUrl = resolveUrl(input);
-    const locale = /** @type {ReturnType<typeof assertIsLocale>} */ (await resolveLocale(input, currentUrl));
+    const locale = await resolveLocale(input, currentUrl);
     const strategy = getStrategyForUrl(currentUrl.href);
     if (isExcludedByRouteStrategy(currentUrl.href) || !strategy.includes("url")) {
         return { shouldRedirect: false, locale, redirectUrl: undefined };
@@ -1398,11 +1403,12 @@ export async function shouldRedirect(input = {}) {
  *
  * @param {ShouldRedirectInput} input
  * @param {URL} currentUrl
- * @returns {Promise<ReturnType<typeof assertIsLocale>>}
+ * @returns {Promise<Locale>}
  */
 async function resolveLocale(input, currentUrl) {
-    if (input.locale) {
-        return assertIsLocale(input.locale);
+    const locale = toLocale(input.locale);
+    if (locale) {
+        return locale;
     }
     if (input.request) {
         return extractLocaleFromRequestAsync(input.request);
@@ -1481,8 +1487,8 @@ function normalizeUrl(url) {
  * which provides more precise control over URL handling.
  *
  * @param {string} href - The href to localize (can be relative or absolute)
- * @param {Object} [options] - Options for localization
- * @param {string} [options.locale] - Target locale. If not provided, uses `getLocale()`
+ * @param {object} [options] - Options for localization
+ * @param {Locale} [options.locale] - Target locale. If not provided, uses `getLocale()`
  * @returns {string} The localized href, relative if input was relative
  */
 export function localizeHref(href, options) {
@@ -1614,6 +1620,7 @@ export function trackMessageCall(safeModuleId, locale) {
  *   The order follows each input URL with all its locale variants before moving to the next URL.
  */
 export function generateStaticLocalizedUrls(urls) {
+    /** @type {Set<URL>} */
     const localizedUrls = new Set();
     // For default URL pattern, we can optimize the generation
     if (TREE_SHAKE_DEFAULT_URL_PATTERN_USED) {
@@ -1706,7 +1713,7 @@ export const customClientStrategies = new Map();
 /**
  * Checks if the given strategy is a custom strategy.
  *
- * @param {any} strategy The name of the custom strategy to validate.
+ * @param {unknown} strategy The name of the custom strategy to validate.
  * Must be a string that starts with "custom-" followed by alphanumeric characters, hyphens, or underscores.
  * @returns {boolean} Returns true if it is a custom strategy, false otherwise.
  */
@@ -1718,7 +1725,7 @@ export function isCustomStrategy(strategy) {
  *
  * @see https://inlang.com/m/gerre34r/library-inlang-paraglideJs/strategy#write-your-own-strategy
  *
- * @param {any} strategy The name of the custom strategy to define. Must follow the pattern custom-name with alphanumeric characters, hyphens, or underscores.
+ * @param {string} strategy The name of the custom strategy to define. Must follow the pattern custom-name with alphanumeric characters, hyphens, or underscores.
  * @param {CustomServerStrategyHandler} handler The handler for the custom strategy, which should implement
  * the method getLocale.
  * @returns {void}
@@ -1734,7 +1741,7 @@ export function defineCustomServerStrategy(strategy, handler) {
  *
  * @see https://inlang.com/m/gerre34r/library-inlang-paraglideJs/strategy#write-your-own-strategy
  *
- * @param {any} strategy The name of the custom strategy to define. Must follow the pattern custom-name with alphanumeric characters, hyphens, or underscores.
+ * @param {string} strategy The name of the custom strategy to define. Must follow the pattern custom-name with alphanumeric characters, hyphens, or underscores.
  * @param {CustomClientStrategyHandler} handler The handler for the custom strategy, which should implement the
  * methods getLocale and setLocale.
  * @returns {void}
@@ -1747,26 +1754,25 @@ export function defineCustomClientStrategy(strategy, handler) {
 }
 
 // ------ TYPES ------
-
+export {};
 /**
  * A locale that is available in the project.
  *
  * @example
  *   setLocale(request.locale as Locale)
  *
- * @typedef {(typeof locales)[number]} Locale
+ * @typedef {typeof locales[number]} Locale
  */
-
 /**
  * A branded type representing a localized string.
  *
- * Message functions return this type instead of `string`, enabling TypeScript
+ * Message functions return this type instead of \`string\`, enabling TypeScript
  * to distinguish translated strings from regular strings at compile time.
  * This allows you to enforce that only properly localized content is used
  * in your UI components.
  *
- * Since `LocalizedString` is a branded subtype of `string`, it remains fully
- * backward compatible—you can pass it anywhere a `string` is expected.
+ * Since \`LocalizedString\` is a branded subtype of \`string\`, it remains fully
+ * backward compatible—you can pass it anywhere a \`string\` is expected.
  *
  * @example
  *   // Enforce localized strings in your components
@@ -1798,19 +1804,32 @@ export function defineCustomClientStrategy(strategy, handler) {
  *
  * @typedef {string & { readonly __brand: 'LocalizedString' }} LocalizedString
  */
-
+/**
+ * A single markup option passed to a tag instance.
+ *
+ * @typedef {{
+ *   name: string;
+ *   value: unknown;
+ * }} MessageMarkupOption
+ */
+/**
+ * A single static markup attribute attached to a tag instance.
+ *
+ * @typedef {{
+ *   name: string;
+ *   value: string | true;
+ * }} MessageMarkupAttribute
+ */
 /**
  * Record of markup options for a tag instance.
  *
  * @typedef {Record<string, unknown>} MessageMarkupOptions
  */
-
 /**
  * Record of markup attributes for a tag instance.
  *
  * @typedef {Record<string, string | true>} MessageMarkupAttributes
  */
-
 /**
  * Type-level schema for a single markup tag.
  *
@@ -1820,19 +1839,17 @@ export function defineCustomClientStrategy(strategy, handler) {
  *   children: boolean;
  * }} MessageMarkupTag
  */
-
 /**
  * Type-level schema for all markup tags in a message.
  *
  * @typedef {Record<string, MessageMarkupTag>} MessageMarkupSchema
  */
-
 /**
  * Type-only metadata attached to compiled message functions.
  *
  * @template Inputs
  * @template Options
- * @template {MessageMarkupSchema} Markup
+ * @template {MessageMarkupSchema} [Markup = MessageMarkupSchema]
  * @typedef {{
  *   readonly __paraglide?: {
  *     inputs: Inputs;
@@ -1841,7 +1858,6 @@ export function defineCustomClientStrategy(strategy, handler) {
  *   };
  * }} MessageMetadata
  */
-
 /**
  * A compiled, framework-neutral message part.
  *
@@ -1865,4 +1881,23 @@ export function defineCustomClientStrategy(strategy, handler) {
  *   attributes: MessageMarkupAttributes;
  * }} MessagePart
  */
-
+/**
+ * A message function is a message for a specific locale.
+ *
+ * @example
+ *   m.hello({ name: 'world' })
+ *
+ * @typedef {(inputs?: Record<string, never>) => LocalizedString} MessageFunction
+ */
+/**
+ * A message bundle function that selects the message to be returned.
+ *
+ * Uses `getLocale()` under the hood to determine the locale with an option.
+ *
+ * @template {string} T
+ *
+ * @example
+ *   *   m.hello({ name: 'world' }, { locale: "en" })
+ *
+ * @typedef {(params: Record<string, never>, options: { locale: T }) => LocalizedString} MessageBundleFunction
+ */

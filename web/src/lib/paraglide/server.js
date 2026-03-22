@@ -5,6 +5,12 @@ import * as runtime from "./runtime.js";
 /**
  * Server middleware that handles locale-based routing and request processing.
  *
+ * Configure `disableAsyncLocalStorage` when generating Paraglide with
+ * `paraglideVitePlugin()` or `compile()`, not when calling
+ * `paraglideMiddleware()`. Keep AsyncLocalStorage enabled by default and
+ * only disable it for runtimes that lack `AsyncLocalStorage` support and
+ * guarantee request isolation.
+ *
  * This middleware performs several key functions:
  *
  * 1. Determines the locale for the incoming request using configured strategies
@@ -50,23 +56,6 @@ import * as runtime from "./runtime.js";
  *     return next(request);
  *   });
  * });
- * ```
- *
- * @example
- * ```typescript
- * // Usage in serverless environments like Cloudflare Workers
- * // ⚠️ WARNING: This should ONLY be used in serverless environments like Cloudflare Workers.
- * // Disabling AsyncLocalStorage in traditional server environments risks cross-request pollution where state from
- * // one request could leak into another concurrent request.
- * export default {
- *   fetch: async (request) => {
- *     return paraglideMiddleware(
- *       request,
- *       ({ request, locale }) => handleRequest(request, locale),
- *       { disableAsyncLocalStorage: true }
- *     );
- *   }
- * };
  * ```
  *
  * @example
@@ -168,7 +157,9 @@ export async function paraglideMiddleware(request, resolve, callbacks) {
             /** @type {[string, import("./runtime.js").Locale]} */ (messageCall.split(":"));
             messages.push(`${id}: ${compiledBundles[id]?.[locale]}`);
         }
-        const script = `<script>globalThis.__paraglide_ssr = { ${messages.join(",")} }</script>`;
+        // Prevent translated content from terminating the inline script tag.
+        const escapedMessages = messages.join(",").replace(/<\/(script)/gi, "<\\/$1");
+        const script = `<script>globalThis.__paraglide = globalThis.__paraglide ?? {}; globalThis.__paraglide.ssr = { ${escapedMessages} }</script>`;
         // Insert the script before the closing head tag
         const newBody = body.replace("</head>", `${script}</head>`);
         // Create a new response with the modified body
@@ -213,8 +204,8 @@ function cloneRequestWithFallback(request) {
  * native AsyncLocalStorage is not available or disabled.
  *
  * This mock implementation mimics the behavior of the native AsyncLocalStorage
- * but doesn't require the async_hooks module. It's designed to be used in
- * environments like Cloudflare Workers where AsyncLocalStorage is not available.
+ * but doesn't require the async_hooks module. It's used as a fallback when
+ * the runtime does not expose AsyncLocalStorage or when it has been disabled.
  *
  * @returns {import("./runtime.js").ParaglideAsyncLocalStorage}
  */

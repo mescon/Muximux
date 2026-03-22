@@ -664,6 +664,16 @@
     if (footerDrawerTimer) clearTimeout(footerDrawerTimer);
   }
 
+  // Toolbar drawer hover handlers (for collapsible top/bottom bar actions)
+  function handleToolbarDrawerEnter() {
+    if (toolbarDrawerTimer) clearTimeout(toolbarDrawerTimer);
+    toolbarDrawerOpen = true;
+  }
+  function handleToolbarDrawerLeave() {
+    if (toolbarDrawerTimer) clearTimeout(toolbarDrawerTimer);
+    toolbarDrawerTimer = setTimeout(() => { toolbarDrawerOpen = false; }, 300);
+  }
+
   function parseDelay(delay: string): number {
     const match = delay.match(/^([\d.]+)(ms|s)?$/);
     if (!match) return 3000;
@@ -690,8 +700,71 @@
   // Hide logout when auth is 'none' — the virtual admin user shouldn't appear to be "logged in"
   let hasRealAuth = $derived(config.auth?.method !== undefined && config.auth.method !== 'none');
 
+  // Configurable home button
+  let showHomeButton = $derived(config.navigation.show_home_button !== false);
+  let homeIcon = $derived(config.navigation.home_icon);
+
+  // Should the toolbar drawer be active for top/bottom bars?
+  let useToolbarDrawer = $derived(
+    config.navigation.hide_sidebar_footer &&
+    (effectivePosition === 'top' || effectivePosition === 'bottom') &&
+    !isMobile
+  );
+
+  // Toolbar drawer state (for collapsible top/bottom bar actions)
+  let toolbarDrawerOpen = $state(false);
+  let toolbarDrawerTimer: ReturnType<typeof setTimeout> | null = null;
 
 </script>
+
+{#snippet topBottomToolbarButtons()}
+  <button
+    class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+    onclick={() => onlogs?.()}
+    title={m.nav_logs()}
+    aria-label={m.nav_viewLogs()}
+  >
+    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
+    </svg>
+  </button>
+  {#if currentApp && !showSplash}
+    <button
+      class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+      onclick={() => onrefresh?.()}
+      title={m.nav_refreshApp()}
+      aria-label={m.nav_refreshCurrentApp()}
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+        <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
+      </svg>
+    </button>
+  {/if}
+  {#if !isMobile}
+    {#if splitEnabled}
+      <div class="flex items-center gap-0.5">
+        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+        </button>
+        <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
+        </button>
+        <div class="flex items-center">
+          <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
+          <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+        </div>
+        <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
+        </button>
+      </div>
+    {:else}
+      <button class="p-2 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title={m.nav_splitView()} aria-label={m.nav_splitView()}>
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+      </button>
+    {/if}
+  {/if}
+{/snippet}
 
 {#snippet footerFlyoutActions()}
   <button
@@ -820,28 +893,40 @@
       style="height: 56px;"
     >
       <!-- Logo — fixed -->
-      {#if config.navigation.show_logo}
-        <button
-          class="flex-shrink-0 hover:opacity-80"
-          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-          onclick={() => onsplash?.()}
-          title={config.title}
-          aria-label={m.nav_goToOverview()}
-        >
-          <MuximuxLogo height="24" />
-        </button>
-      {:else}
-        <button
-          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-          onclick={() => onsplash?.()}
-          title={m.nav_overview()}
-          aria-label={m.nav_goToOverview()}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-          </svg>
-        </button>
+      {#if showHomeButton}
+        {#if homeIcon?.name}
+          <button
+            class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => onsplash?.()}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+          </button>
+        {:else if config.navigation.show_logo}
+          <button
+            class="flex-shrink-0 hover:opacity-80"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => onsplash?.()}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <MuximuxLogo height="24" />
+          </button>
+        {:else}
+          <button
+            class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => onsplash?.()}
+            title={m.nav_overview()}
+            aria-label={m.nav_goToOverview()}
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+            </svg>
+          </button>
+        {/if}
       {/if}
 
       <!-- App tabs — flex-1 so it fills between logo and actions -->
@@ -985,64 +1070,46 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
-        <button
-          class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-          onclick={() => onlogs?.()}
-          title={m.nav_logs()}
-          aria-label={m.nav_viewLogs()}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
-          </svg>
-        </button>
-        {#if currentApp && !showSplash}
-          <button
-            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-            onclick={() => onrefresh?.()}
-            title={m.nav_refreshApp()}
-            aria-label={m.nav_refreshCurrentApp()}
+        {#if useToolbarDrawer}
+          <!-- Collapsible toolbar drawer -->
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="flex items-center"
+            onmouseenter={handleToolbarDrawerEnter}
+            onmouseleave={handleToolbarDrawerLeave}
           >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-              <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
-            </svg>
-          </button>
-        {/if}
-        {#if !isMobile}
-          {#if splitEnabled}
-            <div class="flex items-center gap-0.5">
-              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
-              </button>
-              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
-              </button>
-              <div class="flex items-center">
-                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+            <div class="toolbar-drawer-content" class:expanded={toolbarDrawerOpen}>
+              <div class="flex items-center space-x-1">
+                {@render topBottomToolbarButtons()}
               </div>
-              <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
-              </button>
             </div>
-          {:else}
-            <button class="p-2 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title={m.nav_splitView()} aria-label={m.nav_splitView()}>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+            <!-- Cogwheel trigger (always visible) -->
+            <button
+              class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+              onclick={() => { if ($isAdmin) onsettings?.(); }}
+              title={$isAdmin ? m.nav_settings() : ''}
+              aria-label={$isAdmin ? m.nav_openSettings() : ''}
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
+        {:else}
+          {@render topBottomToolbarButtons()}
+          {#if $isAdmin}
+            <button
+              class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+              onclick={() => onsettings?.()}
+              title={m.nav_settings()}
+              aria-label={m.nav_openSettings()}
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </button>
           {/if}
-        {/if}
-        {#if $isAdmin}
-          <button
-            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-            onclick={() => onsettings?.()}
-            title={m.nav_settings()}
-            aria-label={m.nav_openSettings()}
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
@@ -1085,34 +1152,49 @@
       style:z-index={config.navigation.auto_hide && !isMobile ? '30' : null}
     >
     <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
-    {#if config.navigation.show_logo}
-      <div class="border-b border-border flex items-center justify-center overflow-hidden"
-           style="height: 100px;">
-        <button
-          class="hover:opacity-80 flex items-center justify-center"
-          style="color: var(--accent-primary); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
-          onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
-          title={config.title}
-          aria-label={m.nav_goToOverview()}
-        >
-          <MuximuxLogo height="80" />
-        </button>
-      </div>
-    {:else}
-      <div class="border-b border-border flex items-center justify-center overflow-hidden"
-           style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
-        <button
-          class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-          onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
-          title={m.nav_overview()}
-          aria-label={m.nav_goToOverview()}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-          </svg>
-        </button>
-      </div>
+    {#if showHomeButton}
+      {#if homeIcon?.name}
+        <div class="border-b border-border flex items-center justify-center overflow-hidden"
+             style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
+          <button
+            class="p-2 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <AppIcon icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
+          </button>
+        </div>
+      {:else if config.navigation.show_logo}
+        <div class="border-b border-border flex items-center justify-center overflow-hidden"
+             style="height: 100px;">
+          <button
+            class="hover:opacity-80 flex items-center justify-center"
+            style="color: var(--accent-primary); transform: scale({isCollapsed ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
+            onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <MuximuxLogo height="80" />
+          </button>
+        </div>
+      {:else}
+        <div class="border-b border-border flex items-center justify-center overflow-hidden"
+             style="height: {isCollapsed ? `${collapsedStripWidth}px` : '52px'};">
+          <button
+            class="p-2 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
+            title={m.nav_overview()}
+            aria-label={m.nav_goToOverview()}
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+            </svg>
+          </button>
+        </div>
+      {/if}
     {/if}
 
     <!-- Search — fixed height, icon centered via container, text fades smoothly -->
@@ -1488,34 +1570,49 @@
       style:z-index={config.navigation.auto_hide && !isMobile ? '30' : null}
     >
     <!-- Header — fixed height, logo scales via CSS transform for smooth animation -->
-    {#if config.navigation.show_logo}
-      <div class="border-b border-border flex items-center justify-center overflow-hidden"
-           style="height: 100px;">
-        <button
-          class="hover:opacity-80 flex items-center justify-center"
-          style="color: var(--accent-primary); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
-          onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
-          title={config.title}
-          aria-label={m.nav_goToOverview()}
-        >
-          <MuximuxLogo height="80" />
-        </button>
-      </div>
-    {:else}
-      <div class="border-b border-border flex items-center justify-center overflow-hidden"
-           style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
-        <button
-          class="p-2 rounded-md hover:bg-bg-hover transition-colors"
-          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-          onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
-          title={m.nav_overview()}
-          aria-label={m.nav_goToOverview()}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-          </svg>
-        </button>
-      </div>
+    {#if showHomeButton}
+      {#if homeIcon?.name}
+        <div class="border-b border-border flex items-center justify-center overflow-hidden"
+             style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
+          <button
+            class="p-2 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <AppIcon icon={homeIcon} name={config.title} color="" size="md" showBackground={false} />
+          </button>
+        </div>
+      {:else if config.navigation.show_logo}
+        <div class="border-b border-border flex items-center justify-center overflow-hidden"
+             style="height: 100px;">
+          <button
+            class="hover:opacity-80 flex items-center justify-center"
+            style="color: var(--accent-primary); transform: scale({isCollapsedRight ? 0.25 : 1}); opacity: {showSplash ? '0.6' : '1'}; transition: transform 0.3s ease, opacity 0.2s ease;"
+            onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <MuximuxLogo height="80" />
+          </button>
+        </div>
+      {:else}
+        <div class="border-b border-border flex items-center justify-center overflow-hidden"
+             style="height: {isCollapsedRight ? `${collapsedStripWidth}px` : '52px'};">
+          <button
+            class="p-2 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => { onsplash?.(); mobileMenuOpen = false; }}
+            title={m.nav_overview()}
+            aria-label={m.nav_goToOverview()}
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+            </svg>
+          </button>
+        </div>
+      {/if}
     {/if}
 
     <!-- Search — fixed height, icon centered via container, text fades smoothly -->
@@ -1895,28 +1992,40 @@
       style="height: 56px;"
     >
       <!-- Logo — fixed -->
-      {#if config.navigation.show_logo}
-        <button
-          class="flex-shrink-0 hover:opacity-80"
-          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-          onclick={() => onsplash?.()}
-          title={config.title}
-          aria-label={m.nav_goToOverview()}
-        >
-          <MuximuxLogo height="24" />
-        </button>
-      {:else}
-        <button
-          class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
-          style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-          onclick={() => onsplash?.()}
-          title={m.nav_overview()}
-          aria-label={m.nav_goToOverview()}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-          </svg>
-        </button>
+      {#if showHomeButton}
+        {#if homeIcon?.name}
+          <button
+            class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => onsplash?.()}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+          </button>
+        {:else if config.navigation.show_logo}
+          <button
+            class="flex-shrink-0 hover:opacity-80"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => onsplash?.()}
+            title={config.title}
+            aria-label={m.nav_goToOverview()}
+          >
+            <MuximuxLogo height="24" />
+          </button>
+        {:else}
+          <button
+            class="flex-shrink-0 p-1 rounded-md hover:bg-bg-hover transition-colors"
+            style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+            onclick={() => onsplash?.()}
+            title={m.nav_overview()}
+            aria-label={m.nav_goToOverview()}
+          >
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+            </svg>
+          </button>
+        {/if}
       {/if}
 
       <!-- App tabs — flex-1 so it fills between logo and actions -->
@@ -2059,64 +2168,44 @@
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
         </button>
-        <button
-          class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-          onclick={() => onlogs?.()}
-          title={m.nav_logs()}
-          aria-label={m.nav_viewLogs()}
-        >
-          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h12" />
-          </svg>
-        </button>
-        {#if currentApp && !showSplash}
-          <button
-            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-            onclick={() => onrefresh?.()}
-            title={m.nav_refreshApp()}
-            aria-label={m.nav_refreshCurrentApp()}
+        {#if useToolbarDrawer}
+          <!-- svelte-ignore a11y_no_static_element_interactions -->
+          <div class="flex items-center"
+            onmouseenter={handleToolbarDrawerEnter}
+            onmouseleave={handleToolbarDrawerLeave}
           >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
-              <polyline stroke-linecap="round" stroke-linejoin="round" stroke-width="2" points="21 3 21 8 16 8" />
-            </svg>
-          </button>
-        {/if}
-        {#if !isMobile}
-          {#if splitEnabled}
-            <div class="flex items-center gap-0.5">
-              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'horizontal' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplithorizontal?.()} title={m.nav_horizontalSplit()} aria-label={m.nav_splitHorizontally()}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
-              </button>
-              <button class="p-1.5 rounded-lg transition-colors {splitOrientation === 'vertical' ? 'text-[var(--accent-primary)] bg-[var(--bg-hover)]' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]'}" onclick={() => onsplitvertical?.()} title={m.nav_verticalSplit()} aria-label={m.nav_splitVertically()}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitVPath} /></svg>
-              </button>
-              <div class="flex items-center">
-                <button class="p-0.5 transition-colors {splitActivePanel === 0 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(0)} title={m.nav_targetPanel1()} aria-label={m.nav_focusPanel1()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow0} /></svg></button>
-                                <button class="p-0.5 transition-colors {splitActivePanel === 1 ? 'text-[var(--accent-primary)]' : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]'}" onclick={() => onsplitpanel?.(1)} title={m.nav_targetPanel2()} aria-label={m.nav_focusPanel2()}><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d={panelArrow1} /></svg></button>
+            <div class="toolbar-drawer-content" class:expanded={toolbarDrawerOpen}>
+              <div class="flex items-center space-x-1">
+                {@render topBottomToolbarButtons()}
               </div>
-              <button class="p-1.5 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplitclose?.()} title={m.nav_closeSplit()} aria-label={m.nav_closeSplitView()}>
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 6L6 18M6 6l12 12" /></svg>
-              </button>
             </div>
-          {:else}
-            <button class="p-2 rounded-lg transition-colors text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--bg-hover)]" onclick={() => onsplithorizontal?.()} title={m.nav_splitView()} aria-label={m.nav_splitView()}>
-              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path d={splitHPath} /></svg>
+            <button
+              class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+              onclick={() => { if ($isAdmin) onsettings?.(); }}
+              title={$isAdmin ? m.nav_settings() : ''}
+              aria-label={$isAdmin ? m.nav_openSettings() : ''}
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+            </button>
+          </div>
+        {:else}
+          {@render topBottomToolbarButtons()}
+          {#if $isAdmin}
+            <button
+              class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+              onclick={() => onsettings?.()}
+              title={m.nav_settings()}
+              aria-label={m.nav_openSettings()}
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
             </button>
           {/if}
-        {/if}
-        {#if $isAdmin}
-          <button
-            class="p-2 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
-            onclick={() => onsettings?.()}
-            title={m.nav_settings()}
-            aria-label={m.nav_openSettings()}
-          >
-            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.11 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-          </button>
         {/if}
         {#if hasRealAuth && $isAuthenticated && $currentUser}
           <button
@@ -2247,28 +2336,40 @@
 
         <!-- Footer — all action buttons in one row -->
         <div class="border-t px-2 py-2 flex items-center gap-1 shrink-0" style="border-color: var(--border-subtle);">
-          {#if config.navigation.show_logo}
-            <button
-              class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-bg-hover"
-              style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-              onclick={() => { onsplash?.(); panelOpen = false; }}
-              title={config.title}
-              aria-label={m.nav_goToOverview()}
-            >
-              <MuximuxLogo height="18" />
-            </button>
-          {:else}
-            <button
-              class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
-              style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
-              onclick={() => { onsplash?.(); panelOpen = false; }}
-              title={m.nav_overview()}
-              aria-label={m.nav_goToOverview()}
-            >
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-              </svg>
-            </button>
+          {#if showHomeButton}
+            {#if homeIcon?.name}
+              <button
+                class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
+                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                onclick={() => { onsplash?.(); panelOpen = false; }}
+                title={config.title}
+                aria-label={m.nav_goToOverview()}
+              >
+                <AppIcon icon={homeIcon} name={config.title} color="" size="sm" showBackground={false} />
+              </button>
+            {:else if config.navigation.show_logo}
+              <button
+                class="p-1.5 hover:opacity-80 flex items-center rounded-md hover:bg-bg-hover"
+                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                onclick={() => { onsplash?.(); panelOpen = false; }}
+                title={config.title}
+                aria-label={m.nav_goToOverview()}
+              >
+                <MuximuxLogo height="18" />
+              </button>
+            {:else}
+              <button
+                class="p-1.5 rounded-md hover:bg-bg-hover transition-colors"
+                style="color: var(--accent-primary); opacity: {showSplash ? '0.6' : '1'}; transition: opacity 0.2s ease;"
+                onclick={() => { onsplash?.(); panelOpen = false; }}
+                title={m.nav_overview()}
+                aria-label={m.nav_goToOverview()}
+              >
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+                </svg>
+              </button>
+            {/if}
           {/if}
           <button
             class="p-1.5 text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
@@ -2655,5 +2756,18 @@
   }
   .flat-bar-scroll::-webkit-scrollbar-thumb:hover {
     background: var(--text-disabled);
+  }
+
+  /* Collapsible toolbar drawer for top/bottom bars */
+  .toolbar-drawer-content {
+    max-width: 0;
+    overflow: hidden;
+    transition: max-width 0.25s ease, opacity 0.2s ease;
+    opacity: 0;
+  }
+
+  .toolbar-drawer-content.expanded {
+    max-width: 400px;
+    opacity: 1;
   }
 </style>

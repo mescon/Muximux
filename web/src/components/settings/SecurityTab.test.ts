@@ -49,6 +49,7 @@ function makeConfig(overrides: Partial<Config['auth']> = {}): Config {
       show_on_hover: true,
       show_labels: true,
       show_logo: true,
+      show_home_button: true,
       show_app_colors: true,
       show_icon_background: false,
       icon_scale: 1,

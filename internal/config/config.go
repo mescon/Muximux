@@ -134,22 +134,24 @@ type OIDCConfig struct {
 
 // NavigationConfig holds navigation layout settings
 type NavigationConfig struct {
-	Position           string  `yaml:"position" json:"position"` // top, left, right, bottom, floating
-	Width              string  `yaml:"width" json:"width"`
-	AutoHide           bool    `yaml:"auto_hide" json:"auto_hide"`
-	AutoHideDelay      string  `yaml:"auto_hide_delay" json:"auto_hide_delay"`
-	ShowOnHover        bool    `yaml:"show_on_hover" json:"show_on_hover"`
-	ShowLabels         bool    `yaml:"show_labels" json:"show_labels"`
-	ShowLogo           bool    `yaml:"show_logo" json:"show_logo"`
-	ShowAppColors      bool    `yaml:"show_app_colors" json:"show_app_colors"`
-	ShowIconBackground bool    `yaml:"show_icon_background" json:"show_icon_background"`
-	IconScale          float64 `yaml:"icon_scale" json:"icon_scale"`
-	ShowSplashOnStart  bool    `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
-	ShowShadow         bool    `yaml:"show_shadow" json:"show_shadow"`
-	FloatingPosition   string  `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
-	BarStyle           string  `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
-	HideSidebarFooter  bool    `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
-	MaxOpenTabs        int     `yaml:"max_open_tabs" json:"max_open_tabs"`
+	Position           string         `yaml:"position" json:"position"` // top, left, right, bottom, floating
+	Width              string         `yaml:"width" json:"width"`
+	AutoHide           bool           `yaml:"auto_hide" json:"auto_hide"`
+	AutoHideDelay      string         `yaml:"auto_hide_delay" json:"auto_hide_delay"`
+	ShowOnHover        bool           `yaml:"show_on_hover" json:"show_on_hover"`
+	ShowLabels         bool           `yaml:"show_labels" json:"show_labels"`
+	ShowLogo           bool           `yaml:"show_logo" json:"show_logo"`
+	ShowHomeButton     bool           `yaml:"show_home_button" json:"show_home_button"`
+	HomeIcon           *AppIconConfig `yaml:"home_icon,omitempty" json:"home_icon,omitempty"`
+	ShowAppColors      bool           `yaml:"show_app_colors" json:"show_app_colors"`
+	ShowIconBackground bool           `yaml:"show_icon_background" json:"show_icon_background"`
+	IconScale          float64        `yaml:"icon_scale" json:"icon_scale"`
+	ShowSplashOnStart  bool           `yaml:"show_splash_on_startup" json:"show_splash_on_startup"`
+	ShowShadow         bool           `yaml:"show_shadow" json:"show_shadow"`
+	FloatingPosition   string         `yaml:"floating_position" json:"floating_position"` // bottom-right, bottom-left, top-right, top-left
+	BarStyle           string         `yaml:"bar_style" json:"bar_style"`                 // grouped, flat (top/bottom bars only)
+	HideSidebarFooter  bool           `yaml:"hide_sidebar_footer" json:"hide_sidebar_footer"`
+	MaxOpenTabs        int            `yaml:"max_open_tabs" json:"max_open_tabs"`
 }
 
 // IconsConfig holds icon settings
@@ -249,6 +251,12 @@ func Load(path string) (*Config, error) {
 	// Normalize zero-value fields that have non-zero defaults
 	if cfg.Navigation.IconScale <= 0 {
 		cfg.Navigation.IconScale = 1.0
+	}
+
+	// Splash on startup requires the home button to be visible,
+	// otherwise the user has no way to get back to the overview.
+	if !cfg.Navigation.ShowHomeButton {
+		cfg.Navigation.ShowSplashOnStart = false
 	}
 
 	if err := cfg.validate(); err != nil {
@@ -385,6 +393,7 @@ func defaultConfig() *Config {
 			ShowOnHover:        true,
 			ShowLabels:         true,
 			ShowLogo:           true,
+			ShowHomeButton:     true,
 			ShowAppColors:      true,
 			ShowIconBackground: false,
 			IconScale:          1.0,

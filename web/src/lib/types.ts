@@ -95,6 +95,8 @@ export interface NavigationConfig {
   show_on_hover: boolean;
   show_labels: boolean;
   show_logo: boolean;
+  show_home_button: boolean;
+  home_icon?: AppIcon;
   show_app_colors: boolean;
   show_icon_background: boolean;
   icon_scale: number;

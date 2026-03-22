@@ -1,5 +1,7 @@
 <script lang="ts">
   import type { App, Config } from '$lib/types';
+  import AppIcon from '../AppIcon.svelte';
+  import MuximuxLogo from '../MuximuxLogo.svelte';
   import LocaleSelect from '../LocaleSelect.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -8,11 +10,13 @@
     localApps = $bindable(),
     onexport,
     onimportselect,
+    onopenhomeicon,
   }: {
     localConfig: Config;
     localApps: App[];
     onexport: () => void;
     onimportselect: (e: Event) => void;
+    onopenhomeicon?: () => void;
   } = $props();
 
   let importFileInput = $state<HTMLInputElement | undefined>(undefined);
@@ -144,17 +148,54 @@
       </div>
     </label>
 
-    <label class="flex items-center gap-3 p-3 bg-bg-hover rounded-lg cursor-pointer">
-      <input
-        type="checkbox"
-        bind:checked={localConfig.navigation.show_logo}
-        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
-      />
-      <div>
-        <div class="text-sm text-text-primary">{m.general_showLogo()}</div>
-        <div class="text-xs text-text-muted">{m.general_showLogoDesc()}</div>
+    <div class="p-3 bg-bg-hover rounded-lg sm:col-span-2">
+      <div class="text-sm text-text-primary mb-2">{m.general_overviewButton()}</div>
+      <div class="text-xs text-text-muted mb-3">{m.general_overviewButtonDesc()}</div>
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+        <!-- Hidden -->
+        <button
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {!localConfig.navigation.show_home_button ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          onclick={() => { localConfig.navigation.show_home_button = false; localConfig.navigation.show_splash_on_startup = false; }}
+        >
+          <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+          </svg>
+          <span class="text-xs text-text-muted">{m.general_overviewHidden()}</span>
+        </button>
+        <!-- Muximux Logo -->
+        <button
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.show_logo && !localConfig.navigation.home_icon?.name ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          onclick={() => { localConfig.navigation.show_home_button = true; localConfig.navigation.show_logo = true; localConfig.navigation.home_icon = undefined; }}
+        >
+          <MuximuxLogo height="20" />
+          <span class="text-xs text-text-muted">{m.general_overviewLogo()}</span>
+        </button>
+        <!-- House Icon -->
+        <button
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && !localConfig.navigation.show_logo && !localConfig.navigation.home_icon?.name ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          onclick={() => { localConfig.navigation.show_home_button = true; localConfig.navigation.show_logo = false; localConfig.navigation.home_icon = undefined; }}
+        >
+          <svg class="w-5 h-5" style="color: var(--accent-primary);" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
+          </svg>
+          <span class="text-xs text-text-muted">{m.general_overviewHouse()}</span>
+        </button>
+        <!-- Custom Icon -->
+        <button
+          class="flex flex-col items-center gap-1.5 p-3 rounded-lg border-2 transition-colors {localConfig.navigation.show_home_button !== false && localConfig.navigation.home_icon?.name ? 'border-brand-500 bg-brand-500/10' : 'border-transparent bg-bg-surface hover:bg-bg-hover'}"
+          onclick={() => { localConfig.navigation.show_home_button = true; onopenhomeicon?.(); }}
+        >
+          {#if localConfig.navigation.home_icon?.name}
+            <AppIcon icon={localConfig.navigation.home_icon} name={localConfig.title} color="" size="sm" showBackground={false} />
+          {:else}
+            <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          {/if}
+          <span class="text-xs text-text-muted">{m.general_overviewCustom()}</span>
+        </button>
       </div>
-    </label>
+    </div>
 
     <label class="flex items-center gap-3 p-3 bg-bg-hover rounded-lg cursor-pointer">
       <input
@@ -193,11 +234,12 @@
         class="w-full" />
     </div>
 
-    <div class="p-3 bg-bg-hover rounded-lg">
+    <div class="p-3 bg-bg-hover rounded-lg" class:opacity-50={localConfig.navigation.show_home_button === false}>
       <label class="flex items-center gap-3 cursor-pointer">
         <input
           type="checkbox"
           checked={localConfig.navigation.show_splash_on_startup}
+          disabled={localConfig.navigation.show_home_button === false}
           onchange={(e) => {
             localConfig.navigation.show_splash_on_startup = (e.currentTarget as HTMLInputElement).checked;
             if (localConfig.navigation.show_splash_on_startup) {
@@ -255,7 +297,7 @@
       {/if}
     </div>
 
-    {#if localConfig.navigation.position === 'left' || localConfig.navigation.position === 'right'}
+    {#if localConfig.navigation.position === 'left' || localConfig.navigation.position === 'right' || localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
       <div class="p-3 bg-bg-hover rounded-lg sm:col-span-2">
         <label class="flex items-center gap-3 cursor-pointer">
           <input
@@ -264,8 +306,13 @@
             class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
           />
           <div class="flex-1">
-            <div class="text-sm text-text-primary">{m.general_collapsibleFooter()}</div>
-            <div class="text-xs text-text-muted">{m.general_collapsibleFooterDesc()}</div>
+            {#if localConfig.navigation.position === 'top' || localConfig.navigation.position === 'bottom'}
+              <div class="text-sm text-text-primary">{m.general_collapsibleToolbar()}</div>
+              <div class="text-xs text-text-muted">{m.general_collapsibleToolbarDesc()}</div>
+            {:else}
+              <div class="text-sm text-text-primary">{m.general_collapsibleFooter()}</div>
+              <div class="text-xs text-text-muted">{m.general_collapsibleFooterDesc()}</div>
+            {/if}
           </div>
         </label>
       </div>

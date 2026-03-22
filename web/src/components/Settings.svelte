@@ -70,7 +70,7 @@
 
   // Icon browser state
   let showIconBrowser = $state(false);
-  let iconBrowserTarget = $state<'newApp' | 'editApp' | 'newGroup' | 'editGroup' | null>(null);
+  let iconBrowserTarget = $state<'newApp' | 'editApp' | 'newGroup' | 'editGroup' | 'homeIcon' | null>(null);
 
   // Track keybindings changes
   let keybindingsChanged = $state(false);
@@ -106,7 +106,8 @@
     iconBrowserTarget === 'editApp' ? editingApp?.icon :
     iconBrowserTarget === 'editGroup' ? editingGroup?.icon :
     iconBrowserTarget === 'newApp' ? newApp.icon :
-    iconBrowserTarget === 'newGroup' ? newGroup.icon : null
+    iconBrowserTarget === 'newGroup' ? newGroup.icon :
+    iconBrowserTarget === 'homeIcon' ? localConfig.navigation.home_icon : null
   );
 
   // Validation error state
@@ -418,12 +419,14 @@
       newGroup = { ...newGroup, icon: iconData };
     } else if (iconBrowserTarget === 'editGroup' && editingGroup) {
       editingGroup.icon = iconData;
+    } else if (iconBrowserTarget === 'homeIcon') {
+      localConfig.navigation.home_icon = iconData;
     }
     showIconBrowser = false;
     iconBrowserTarget = null;
   }
 
-  function openIconBrowser(target: 'newApp' | 'editApp' | 'newGroup' | 'editGroup') {
+  function openIconBrowser(target: 'newApp' | 'editApp' | 'newGroup' | 'editGroup' | 'homeIcon') {
     iconBrowserTarget = target;
     showIconBrowser = true;
   }
@@ -513,7 +516,7 @@
     <div class="flex-1 overflow-y-auto p-6">
       <!-- General Settings -->
       {#if activeTab === 'general'}
-        <GeneralTab bind:localConfig bind:localApps onexport={handleExport} onimportselect={handleImportSelect} />
+        <GeneralTab bind:localConfig bind:localApps onexport={handleExport} onimportselect={handleImportSelect} onopenhomeicon={() => openIconBrowser('homeIcon')} />
 
 
       <!-- Apps & Groups Settings -->
