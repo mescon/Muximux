@@ -147,11 +147,13 @@ func TestDefaultShowHomeButton(t *testing.T) {
 func TestShowHomeButtonFalseDisablesSplash(t *testing.T) {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
-	os.WriteFile(configPath, []byte(`
+	if err := os.WriteFile(configPath, []byte(`
 navigation:
   show_home_button: false
   show_splash_on_startup: true
-`), 0600)
+`), 0600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	cfg, err := Load(configPath)
 	if err != nil {
@@ -168,10 +170,12 @@ navigation:
 func TestShowHomeButtonMissingDefaultsTrue(t *testing.T) {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")
-	os.WriteFile(configPath, []byte(`
+	if err := os.WriteFile(configPath, []byte(`
 navigation:
   position: left
-`), 0600)
+`), 0600); err != nil {
+		t.Fatalf("WriteFile: %v", err)
+	}
 
 	cfg, err := Load(configPath)
 	if err != nil {
