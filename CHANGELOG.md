@@ -2,6 +2,33 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.25] - 2026-03-22
+
+### Added
+- Configurable overview button -- choose between hidden, Muximux logo, house icon, or any custom icon via a visual selector in Settings > Navigation
+- Collapsible toolbar for top and bottom navigation -- utility buttons (logs, refresh, split view) collapse behind a cogwheel that reveals on hover, matching the existing sidebar footer drawer pattern; controlled by the "Collapsible Toolbar" toggle in settings
+
+### Changed
+- Bump `vite` from 8.0.0 to 8.0.1
+- Bump `@tailwindcss/vite` from 4.2.1 to 4.2.2
+- Bump `vitest` from 4.0.18 to 4.1.0
+- Bump `@inlang/paraglide-js` from 2.14.0 to 2.15.0
+- Bump `@sveltejs/vite-plugin-svelte` from 6.2.4 to 7.0.0
+- Bump `jsdom` from 28.1.0 to 29.0.0
+- Bump `svelte` from 5.53.10 to 5.54.0
+- Bump `typescript-eslint` from 8.57.0 to 8.57.1
+- Bump `@vitest/coverage-v8` from 4.0.18 to 4.1.0
+- Bump `actions/upload-artifact` from 6.0.0 to 7.0.0
+- Bump `softprops/action-gh-release` from 2.5.0 to 2.6.1
+- Bump `github/codeql-action` from 4.32.6 to 4.33.0
+- Bump `golang.org/x/crypto` from 0.48.0 to 0.49.0
+- Bump `google.golang.org/grpc` from 1.79.1 to 1.79.3
+- Bump `github.com/smallstep/certificates` from 0.30.0-rc3 to 0.30.0
+- Bump `flatted` from 3.3.3 to 3.4.2
+- Bump `kysely` and `@inlang/sdk`
+- Bump `undici` from 7.21.0 to 7.24.1
+- Bump `devalue` from 5.6.3 to 5.6.4
+
 ## [3.0.24] - 2026-03-17
 
 ### Fixed
