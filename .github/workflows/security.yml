@@ -92,4 +92,7 @@ jobs:
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
       - name: Run govulncheck
+        # continue-on-error until GO-2026-4923 (disputed bbolt CVE) is
+        # invalidated upstream: https://github.com/golang/vulndb/issues/4938
+        continue-on-error: true
         run: govulncheck ./...
