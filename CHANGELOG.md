@@ -2,6 +2,31 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.26] - 2026-04-07
+
+### Security
+- Bump `vite` from 8.0.1 to 8.0.5 -- fixes path traversal in optimized deps `.map` handling, `server.fs.deny` bypass with queries, and arbitrary file read via dev server WebSocket
+- Bump `github.com/go-jose/go-jose/v3` from 3.0.4 to 3.0.5 -- fixes panic in JWE decryption
+- Bump `github.com/go-jose/go-jose/v4` from 4.1.3 to 4.1.4 -- fixes panic in JWE decryption
+- Bump `picomatch` from 4.0.3 to 4.0.4 -- fixes method injection in POSIX character classes
+- Fix `brace-expansion` and `yaml` moderate vulnerabilities via npm audit fix
+
+### Changed
+- Bump `typescript` from 5.9.3 to 6.0.2
+- Bump `svelte` from 5.54.0 to 5.55.1
+- Bump `eslint` from 10.0.3 to 10.1.0
+- Bump `eslint-plugin-svelte` from 3.15.2 to 3.16.0
+- Bump `jsdom` from 29.0.0 to 29.0.1
+- Bump `svelte-check` from 4.4.5 to 4.4.6
+- Bump `marked` from 17.0.4 to 17.0.5
+- Bump `@inlang/paraglide-js` from 2.15.0 to 2.15.1
+- Bump `@vitest/coverage-v8` from 4.1.0 to 4.1.2
+- Bump `typescript-eslint` from 8.57.1 to 8.58.0
+- Bump `actions/setup-go` from 6.3.0 to 6.4.0
+- Bump `github/codeql-action` from 4.33.0 to 4.35.1
+- Bump `codecov/codecov-action` from 5.5.2 to 6.0.0
+- Bump `SonarSource/sonarqube-scan-action` from 7.0.0 to 7.1.0
+
 ## [3.0.25] - 2026-03-22
 
 ### Added
