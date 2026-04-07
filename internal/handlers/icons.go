@@ -308,10 +308,16 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Download with timeout and size limit (use parsed URL, not raw input)
+	// Download with timeout and size limit (use parsed URL, not raw input).
+	// Re-check scheme on the reconstructed URL as a defense-in-depth measure
+	// (also satisfies static analysis SSRF checks).
 	sanitizedURL := parsed.String()
+	if !strings.HasPrefix(sanitizedURL, "http://") && !strings.HasPrefix(sanitizedURL, "https://") {
+		respondError(w, r, http.StatusBadRequest, "Invalid URL scheme")
+		return
+	}
 	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(sanitizedURL)
+	resp, err := client.Get(sanitizedURL) //nolint:gosec // SSRF mitigated by validateHostSSRF above
 	if err != nil {
 		respondError(w, r, http.StatusBadGateway, "Failed to download icon", "source", "icons", "url", sanitizedURL, "error", err)
 		return
