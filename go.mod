@@ -8,7 +8,7 @@ require github.com/gorilla/websocket v1.5.3
 
 require (
 	github.com/caddyserver/caddy/v2 v2.11.2
-	github.com/coreos/go-oidc/v3 v3.17.0
+	github.com/coreos/go-oidc/v3 v3.18.0
 	golang.org/x/crypto v0.49.0
 	golang.org/x/term v0.41.0
 )
