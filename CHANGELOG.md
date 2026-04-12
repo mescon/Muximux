@@ -2,6 +2,20 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.27] - 2026-04-12
+
+### Security
+- Bump OpenTelemetry OTLP HTTP exporters to v1.43.0 -- fixes unbounded HTTP response body reads in `otlptracehttp` and `otlpmetrichttp`
+
+### Changed
+- Bump `github.com/coreos/go-oidc/v3` from 3.17.0 to 3.18.0
+- Bump `go.opentelemetry.io/otel/sdk` from 1.40.0 to 1.43.0
+- Bump `go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp` from 0.16.0 to 0.19.0
+- Bump `go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp` from 1.40.0 to 1.43.0
+- Bump `go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp` from 1.40.0 to 1.43.0
+- Bump `docker/login-action` from 4.0.0 to 4.1.0
+- Bump npm dependencies (svelte, vite, vitest, eslint, tailwindcss, and others)
+
 ## [3.0.26] - 2026-04-07
 
 ### Security
