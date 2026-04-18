@@ -70,22 +70,35 @@ var (
 	}
 )
 
+// ReverseProxyOptions holds optional configuration for NewReverseProxyHandler.
+// It exists as a struct so additional options can be added without breaking
+// the handler's constructor signature.
+type ReverseProxyOptions struct {
+	// SessionCookieName, when set, is stripped from outgoing Cookie headers
+	// on every proxied request (HTTP and WebSocket). Prevents leaking the
+	// Muximux session identifier to backend operators.
+	SessionCookieName string
+}
+
 // ReverseProxyHandler handles reverse proxy requests on the main server
 type ReverseProxyHandler struct {
-	mu      sync.RWMutex
-	routes  map[string]*proxyRoute
-	timeout time.Duration
+	mu                sync.RWMutex
+	routes            map[string]*proxyRoute
+	timeout           time.Duration
+	sessionCookieName string
 }
 
 type proxyRoute struct {
-	name          string
-	slug          string
-	proxyPrefix   string
-	targetURL     *url.URL
-	targetPath    string
-	skipTLSVerify bool
-	proxy         *httputil.ReverseProxy
-	rewriter      *contentRewriter
+	name              string
+	slug              string
+	proxyPrefix       string
+	targetURL         *url.URL
+	targetPath        string
+	skipTLSVerify     bool
+	proxy             *httputil.ReverseProxy
+	rewriter          *contentRewriter
+	customHeaders     map[string]string
+	sessionCookieName string
 }
 
 // contentRewriter handles URL rewriting in response content
@@ -578,15 +591,23 @@ func (r *contentRewriter) rewriteCookie(setCookie string, secure bool) string {
 
 // NewReverseProxyHandler creates a new reverse proxy handler.
 // proxyTimeout is the global timeout for proxied HTTP requests (e.g. "30s").
-func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string) *ReverseProxyHandler {
+// Optional ReverseProxyOptions control cross-cutting behavior such as
+// stripping the Muximux session cookie from outgoing requests.
+func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string, opts ...ReverseProxyOptions) *ReverseProxyHandler {
 	timeout, err := time.ParseDuration(proxyTimeout)
 	if err != nil || timeout <= 0 {
 		timeout = 30 * time.Second
 	}
 
+	var opt ReverseProxyOptions
+	if len(opts) > 0 {
+		opt = opts[0]
+	}
+
 	h := &ReverseProxyHandler{
-		routes:  make(map[string]*proxyRoute),
-		timeout: timeout,
+		routes:            make(map[string]*proxyRoute),
+		timeout:           timeout,
+		sessionCookieName: opt.SessionCookieName,
 	}
 	h.RebuildRoutes(apps)
 	return h
@@ -595,12 +616,16 @@ func NewReverseProxyHandler(apps []config.AppConfig, proxyTimeout string) *Rever
 // RebuildRoutes rebuilds proxy routes from the current app config.
 // This is called after config changes to pick up new/changed/removed proxy apps.
 func (h *ReverseProxyHandler) RebuildRoutes(apps []config.AppConfig) {
+	h.mu.RLock()
+	cookieName := h.sessionCookieName
+	h.mu.RUnlock()
+
 	newRoutes := make(map[string]*proxyRoute)
 	for i := range apps {
 		if !apps[i].Proxy || !apps[i].Enabled {
 			continue
 		}
-		route := buildSingleProxyRoute(&apps[i], h.timeout)
+		route := buildSingleProxyRoute(&apps[i], h.timeout, cookieName)
 		if route != nil {
 			newRoutes[route.slug] = route
 		}
@@ -619,7 +644,9 @@ func (h *ReverseProxyHandler) RebuildRoutes(apps []config.AppConfig) {
 
 // buildSingleProxyRoute creates a proxyRoute for a single app config.
 // Returns nil if the app URL is invalid or already uses a proxy path.
-func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration) *proxyRoute {
+// sessionCookieName, when non-empty, is the Muximux session cookie name that
+// must be stripped from outgoing Cookie headers before forwarding.
+func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, sessionCookieName string) *proxyRoute {
 	targetURL, err := url.Parse(app.URL)
 	if err != nil {
 		return nil
@@ -654,27 +681,31 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration) *proxyR
 	rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
 
 	proxy := &httputil.ReverseProxy{
-		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders),
+		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders, sessionCookieName),
 		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter), //nolint:bodyclose // response body managed by httputil.ReverseProxy
 		Transport:      transport,
 	}
 
 	return &proxyRoute{
-		name:          app.Name,
-		slug:          slug,
-		proxyPrefix:   proxyPrefix,
-		targetURL:     targetURL,
-		targetPath:    targetPath,
-		skipTLSVerify: skipTLS,
-		proxy:         proxy,
-		rewriter:      rewriter,
+		name:              app.Name,
+		slug:              slug,
+		proxyPrefix:       proxyPrefix,
+		targetURL:         targetURL,
+		targetPath:        targetPath,
+		skipTLSVerify:     skipTLS,
+		proxy:             proxy,
+		rewriter:          rewriter,
+		customHeaders:     app.ProxyHeaders,
+		sessionCookieName: sessionCookieName,
 	}
 }
 
 // buildDirector creates the Director function for a reverse proxy that rewrites
 // incoming request paths from the proxy prefix to the backend target.
-// customHeaders are injected into every proxied request.
-func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string) func(*http.Request) {
+// customHeaders are injected into every proxied request. sessionCookieName,
+// when non-empty, is removed from the outgoing Cookie header so the Muximux
+// session identifier is never leaked to the backend.
+func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHeaders map[string]string, sessionCookieName string) func(*http.Request) {
 	return func(req *http.Request) {
 		// Strip the /proxy/{slug} prefix from the request path
 		reqPath := strings.TrimPrefix(req.URL.Path, proxyPrefix)
@@ -692,6 +723,7 @@ func buildDirector(proxyPrefix, targetPath string, targetURL *url.URL, customHea
 		req.URL.Host = targetURL.Host
 
 		setProxyHeaders(req)
+		stripSessionCookie(req, sessionCookieName)
 
 		// Inject per-app custom headers (e.g., Authorization, X-Api-Key)
 		for k, v := range customHeaders {
@@ -1421,6 +1453,40 @@ func (route *proxyRoute) resolveBackendPath(reqPath string) string {
 	return resolveBackendRequestPath(path, route.targetPath)
 }
 
+// stripSessionCookie removes the named cookie from the outgoing Cookie
+// header. Backends must never see the Muximux session identifier: the
+// cookie is valid on the Muximux origin with admin privileges and any
+// operator of (or attacker between Muximux and) the backend would
+// otherwise gain equivalent access.
+func stripSessionCookie(r *http.Request, name string) {
+	if name == "" {
+		return
+	}
+	cookies := r.Cookies()
+	if len(cookies) == 0 {
+		return
+	}
+	filtered := make([]*http.Cookie, 0, len(cookies))
+	for _, c := range cookies {
+		if c.Name == name {
+			continue
+		}
+		filtered = append(filtered, c)
+	}
+	if len(filtered) == len(cookies) {
+		return
+	}
+	if len(filtered) == 0 {
+		r.Header.Del("Cookie")
+		return
+	}
+	parts := make([]string, 0, len(filtered))
+	for _, c := range filtered {
+		parts = append(parts, c.Name+"="+c.Value)
+	}
+	r.Header.Set("Cookie", strings.Join(parts, "; "))
+}
+
 // setProxyHeaders adds standard proxy forwarding headers (X-Forwarded-For,
 // X-Forwarded-Host, X-Forwarded-Proto, X-Real-IP) to the request.
 func setProxyHeaders(r *http.Request) {
@@ -1480,8 +1546,18 @@ func (route *proxyRoute) dialBackend() (net.Conn, error) {
 	return net.Dial("tcp", dialHost)
 }
 
-// buildUpgradeRequest constructs the raw HTTP upgrade request to send to the backend.
+// buildUpgradeRequest constructs the raw HTTP upgrade request to send to the
+// backend. It mirrors the HTTP Director's header policy: the Muximux session
+// cookie is stripped from the outgoing Cookie header, and per-app
+// ProxyHeaders are injected so backends that expect header-based
+// authentication on WebSocket upgrades see the same credentials they see on
+// ordinary HTTP requests.
 func (route *proxyRoute) buildUpgradeRequest(r *http.Request, backendPath, targetHost string) []byte {
+	stripSessionCookie(r, route.sessionCookieName)
+	for k, v := range route.customHeaders {
+		r.Header.Set(k, v)
+	}
+
 	var reqBuf bytes.Buffer
 	fmt.Fprintf(&reqBuf, "%s %s HTTP/1.1\r\n", r.Method, backendPath)
 	fmt.Fprintf(&reqBuf, "Host: %s\r\n", targetHost)

@@ -165,7 +165,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
 	// Always registered so routes added at runtime (via Settings) work without restart.
-	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps, cfg.Server.ProxyTimeout)
+	reverseProxyHandler := handlers.NewReverseProxyHandler(cfg.Apps, cfg.Server.ProxyTimeout, handlers.ReverseProxyOptions{
+		SessionCookieName: sessionCookieName,
+	})
 	mux.Handle(proxyPathPrefix, reverseProxyHandler)
 	if reverseProxyHandler.HasRoutes() {
 		logging.Info("Integrated reverse proxy enabled", "source", "server", "routes", reverseProxyHandler.GetRoutes())
@@ -304,7 +306,7 @@ var defaultBypassRules = []auth.BypassRule{
 // setupAuth creates the session store, user store, and auth middleware from config.
 func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.Middleware) {
 	sessionMaxAge := parseDuration(cfg.Auth.SessionMaxAge, 24*time.Hour)
-	sessionStore := auth.NewSessionStore("muximux_session", sessionMaxAge, cfg.Auth.SecureCookies)
+	sessionStore := auth.NewSessionStore(sessionCookieName, sessionMaxAge, cfg.Auth.SecureCookies)
 	userStore := auth.NewUserStore()
 
 	// Load users from config

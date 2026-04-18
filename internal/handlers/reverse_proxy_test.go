@@ -620,7 +620,7 @@ func TestDirectorPathMapping(t *testing.T) {
 
 func TestDirectorOriginRefererRewriting(t *testing.T) {
 	targetURL, _ := url.Parse("https://192.0.2.42:8989")
-	director := buildDirector("/proxy/sonarr", "", targetURL, nil)
+	director := buildDirector("/proxy/sonarr", "", targetURL, nil, "")
 
 	tests := []struct {
 		name            string
@@ -751,7 +751,7 @@ func TestDirectorOriginRefererRewriting(t *testing.T) {
 	// Test with targetPath to verify Referer includes backend base path
 	t.Run("referer includes target path for subpath apps", func(t *testing.T) {
 		subURL, _ := url.Parse("http://192.0.2.100/admin")
-		subDirector := buildDirector("/proxy/pihole", "/admin", subURL, nil)
+		subDirector := buildDirector("/proxy/pihole", "/admin", subURL, nil, "")
 		req := httptest.NewRequest("POST", "/proxy/pihole/settings", nil)
 		req.Header.Set("Referer", "https://muximux.example.com/proxy/pihole/settings")
 		subDirector(req)
@@ -1843,7 +1843,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(&app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second, "")
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
@@ -1874,7 +1874,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(&app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second, "")
 
 		if route != nil {
 			t.Error("expected nil route for invalid URL")
@@ -1889,7 +1889,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(&app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second, "")
 
 		if route != nil {
 			t.Error("expected nil route for app with proxy path URL")
@@ -1904,7 +1904,7 @@ func TestBuildSingleProxyRoute(t *testing.T) {
 			Proxy:   true,
 		}
 
-		route := buildSingleProxyRoute(&app, 30*time.Second)
+		route := buildSingleProxyRoute(&app, 30*time.Second, "")
 
 		if route == nil {
 			t.Fatal("expected non-nil route")
@@ -3239,4 +3239,142 @@ func TestInterceptorScriptNavigationAPISkipFlag(t *testing.T) {
 			t.Error("popstate handler must set _skip=true before calling _hrs")
 		}
 	})
+}
+
+// TestStripSessionCookie validates that Muximux's own session cookie is
+// removed from outgoing Cookie headers. Backends must never see the session
+// identifier; leaking it gives any backend operator (or anyone between
+// Muximux and that backend) full Muximux access (findings.md C2).
+func TestStripSessionCookie(t *testing.T) {
+	tests := []struct {
+		name     string
+		cookie   string
+		strip    string
+		expected string
+		deleted  bool
+	}{
+		{
+			name:     "strips named cookie, keeps others",
+			cookie:   "muximux_session=secret123; prefs=dark",
+			strip:    "muximux_session",
+			expected: "prefs=dark",
+		},
+		{
+			name:    "empty after stripping removes header",
+			cookie:  "muximux_session=secret123",
+			strip:   "muximux_session",
+			deleted: true,
+		},
+		{
+			name:     "empty name is a no-op",
+			cookie:   "muximux_session=secret123; prefs=dark",
+			strip:    "",
+			expected: "muximux_session=secret123; prefs=dark",
+		},
+		{
+			name:     "non-matching name is a no-op",
+			cookie:   "other=value",
+			strip:    "muximux_session",
+			expected: "other=value",
+		},
+		{
+			name:     "handles multiple cookies with the target name",
+			cookie:   "muximux_session=a; prefs=dark; muximux_session=b",
+			strip:    "muximux_session",
+			expected: "prefs=dark",
+		},
+		{
+			name:     "case-sensitive match (cookie names are case-sensitive)",
+			cookie:   "Muximux_Session=secret; muximux_session=real",
+			strip:    "muximux_session",
+			expected: "Muximux_Session=secret",
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			if tt.cookie != "" {
+				req.Header.Set("Cookie", tt.cookie)
+			}
+
+			stripSessionCookie(req, tt.strip)
+
+			got := req.Header.Get("Cookie")
+			if tt.deleted {
+				if got != "" {
+					t.Errorf("expected Cookie header deleted, got %q", got)
+				}
+				return
+			}
+			if got != tt.expected {
+				t.Errorf("Cookie = %q, want %q", got, tt.expected)
+			}
+		})
+	}
+}
+
+// TestBuildDirector_StripsSessionCookie verifies the HTTP Director strips
+// the configured session cookie before forwarding the request to the
+// backend.
+func TestBuildDirector_StripsSessionCookie(t *testing.T) {
+	targetURL, _ := url.Parse("https://192.0.2.99:8080")
+	director := buildDirector("/proxy/app", "", targetURL, nil, "muximux_session")
+
+	req := httptest.NewRequest(http.MethodGet, "/proxy/app/status", nil)
+	req.Header.Set("Cookie", "muximux_session=SECRET; backend_pref=light")
+
+	director(req)
+
+	got := req.Header.Get("Cookie")
+	if strings.Contains(got, "muximux_session") {
+		t.Errorf("session cookie leaked to backend: %q", got)
+	}
+	if !strings.Contains(got, "backend_pref=light") {
+		t.Errorf("expected backend-owned cookie preserved, got %q", got)
+	}
+}
+
+// TestBuildUpgradeRequest_StripsCookieAndInjectsHeaders covers the WebSocket
+// upgrade path. The raw upgrade request must not leak the Muximux session
+// cookie (findings.md C2), and per-app ProxyHeaders must be injected so
+// header-based auth still works on WS (findings.md H14).
+func TestBuildUpgradeRequest_StripsCookieAndInjectsHeaders(t *testing.T) {
+	targetURL, _ := url.Parse("http://192.0.2.77:1234")
+	route := &proxyRoute{
+		name:              "TestApp",
+		slug:              "testapp",
+		proxyPrefix:       "/proxy/testapp",
+		targetURL:         targetURL,
+		targetPath:        "/",
+		sessionCookieName: "muximux_session",
+		customHeaders: map[string]string{
+			"Authorization": "Bearer secret-token",
+			"X-Api-Key":     "abc123",
+		},
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/proxy/testapp/ws", nil)
+	req.Header.Set("Cookie", "muximux_session=LEAK; app_pref=dark")
+	req.Header.Set("Upgrade", "websocket")
+	req.Header.Set("Connection", "Upgrade")
+
+	out := string(route.buildUpgradeRequest(req, "/ws", "192.0.2.77:1234"))
+
+	if strings.Contains(out, "muximux_session=LEAK") {
+		t.Errorf("session cookie leaked to backend on WS upgrade:\n%s", out)
+	}
+	if !strings.Contains(out, "Cookie: app_pref=dark") {
+		t.Errorf("expected app cookie preserved, got:\n%s", out)
+	}
+	if !strings.Contains(out, "Authorization: Bearer secret-token") {
+		t.Errorf("expected Authorization header injected, got:\n%s", out)
+	}
+	if !strings.Contains(out, "X-Api-Key: abc123") {
+		t.Errorf("expected X-Api-Key header injected, got:\n%s", out)
+	}
+	if !strings.HasPrefix(out, "GET /ws HTTP/1.1\r\nHost: 192.0.2.77:1234\r\n") {
+		t.Errorf("expected request line + Host, got:\n%s", out)
+	}
 }
