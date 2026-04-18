@@ -149,16 +149,32 @@
       isRefreshing = true;
       pullDistance = 60; // Hold at indicator position
 
-      // Refresh the iframe
-      if (iframeRef) {
-        iframeRef.src = iframeRef.src;
-      }
-
-      // Wait a bit then reset
-      setTimeout(() => {
+      // Refresh the iframe and clear the spinner when the new load
+      // actually lands (or the safety timeout fires). Previously
+      // isRefreshing was cleared unconditionally after 1 s regardless
+      // of whether the iframe had actually reloaded, which lied to
+      // the user on slow or broken apps (findings.md L12).
+      const frame = iframeRef;
+      if (frame) {
+        const onLoad = () => {
+          isRefreshing = false;
+          pullDistance = 0;
+          frame.removeEventListener('load', onLoad);
+          clearTimeout(safety);
+        };
+        const safety = setTimeout(() => {
+          isRefreshing = false;
+          pullDistance = 0;
+          frame.removeEventListener('load', onLoad);
+        }, 10_000);
+        frame.addEventListener('load', onLoad);
+        frame.src = frame.src;
+      } else {
+        // Rare: touch gesture without a frame reference. Reset the
+        // overlay immediately rather than leaving it stuck.
         isRefreshing = false;
         pullDistance = 0;
-      }, 1000);
+      }
     } else {
       pullDistance = 0;
     }
