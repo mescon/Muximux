@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
 	"io"
 	"net"
 	"net/http"
@@ -14,7 +17,45 @@ import (
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
-// validateHostSSRF resolves a hostname and rejects private/internal IPs.
+// cgnatNet is RFC 6598 (Carrier-Grade NAT shared address space,
+// 100.64.0.0/10). net.IP.IsPrivate does not cover it.
+var cgnatNet = &net.IPNet{
+	IP:   net.IPv4(100, 64, 0, 0),
+	Mask: net.CIDRMask(10, 32),
+}
+
+// validateIP returns an error if the IP falls inside any of the address
+// classes that must not be reachable from user-supplied URLs (loopback,
+// RFC1918, link-local, multicast, unspecified, CGNAT). IPv4-mapped IPv6
+// addresses are unwrapped so `::ffff:10.0.0.1` cannot sneak past the
+// IsPrivate check by wearing an IPv6 disguise.
+func validateIP(ip net.IP) error {
+	if ip == nil {
+		return errors.New("invalid IP address")
+	}
+	if v4 := ip.To4(); v4 != nil {
+		ip = v4
+	}
+	switch {
+	case ip.IsLoopback(),
+		ip.IsPrivate(),
+		ip.IsLinkLocalUnicast(),
+		ip.IsLinkLocalMulticast(),
+		ip.IsUnspecified(),
+		ip.IsMulticast(),
+		ip.IsInterfaceLocalMulticast():
+		return fmt.Errorf("blocked address: %s", ip)
+	}
+	if ip.To4() != nil && cgnatNet.Contains(ip) {
+		return fmt.Errorf("blocked CGNAT address: %s", ip)
+	}
+	return nil
+}
+
+// validateHostSSRF resolves a hostname and rejects any IP that would let a
+// user-supplied URL reach internal infrastructure. Kept as a pre-flight
+// check so obviously-bad inputs fail fast; the http.Transport's
+// DialContext re-validates at connect time to close the DNS TOCTOU gap.
 // Defined as a variable so tests can override it for localhost test servers.
 var validateHostSSRF = func(hostname string) error {
 	ips, err := net.LookupHost(hostname)
@@ -23,11 +64,120 @@ var validateHostSSRF = func(hostname string) error {
 	}
 	for _, ipStr := range ips {
 		ip := net.ParseIP(ipStr)
-		if ip == nil || ip.IsLoopback() || ip.IsPrivate() || ip.IsLinkLocalUnicast() || ip.IsLinkLocalMulticast() || ip.IsUnspecified() {
-			return &net.AddrError{Err: "address is private or internal", Addr: ipStr}
+		if err := validateIP(ip); err != nil {
+			return &net.AddrError{Err: err.Error(), Addr: ipStr}
 		}
 	}
 	return nil
+}
+
+// safeSSRFDialContext re-resolves the target host at connect time and
+// validates every returned IP. This is the TOCTOU-safe counterpart to the
+// pre-flight validateHostSSRF: an attacker-controlled DNS with a short TTL
+// can no longer serve a public IP to the validator and a loopback IP to
+// the fetcher, because the actual socket uses these validated IPs.
+// Exposed as a variable so tests can substitute a trusting dialer when
+// exercising the handler against a loopback httptest server.
+var safeSSRFDialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return nil, err
+	}
+	ips, err := net.DefaultResolver.LookupIP(ctx, "ip", host)
+	if err != nil {
+		return nil, err
+	}
+	for _, ip := range ips {
+		if err := validateIP(ip); err != nil {
+			return nil, err
+		}
+	}
+	// Dial the first validated address directly so the transport doesn't
+	// resolve the name again on its own.
+	var dialer net.Dialer
+	return dialer.DialContext(ctx, network, net.JoinHostPort(ips[0].String(), port))
+}
+
+// resolveIconContentType chooses the content type for a downloaded icon,
+// preferring bytes over the server's declared header. Returns an empty
+// string when neither source yields a supported image type, which the
+// caller treats as an unsupported-type error.
+func resolveIconContentType(data []byte, headerValue string) string {
+	detected := http.DetectContentType(data)
+	if idx := strings.Index(detected, ";"); idx != -1 {
+		detected = strings.TrimSpace(detected[:idx])
+	}
+	if _, ok := icons.AllowedMimeTypes[detected]; ok {
+		return detected
+	}
+
+	header := strings.TrimSpace(headerValue)
+	if idx := strings.Index(header, ";"); idx != -1 {
+		header = strings.TrimSpace(header[:idx])
+	}
+	if strings.EqualFold(header, "image/svg+xml") && looksLikeSVG(data) {
+		return "image/svg+xml"
+	}
+	return ""
+}
+
+// looksLikeSVG returns true when the payload begins with an XML or SVG
+// marker, ignoring leading whitespace / UTF-8 BOM. Used to gate the
+// `image/svg+xml` server header so a text/html blob cannot put on an
+// SVG hat.
+func looksLikeSVG(data []byte) bool {
+	s := data
+	// Strip UTF-8 BOM
+	if len(s) >= 3 && s[0] == 0xEF && s[1] == 0xBB && s[2] == 0xBF {
+		s = s[3:]
+	}
+	s = []byte(strings.TrimLeft(string(s), " \t\r\n"))
+	lower := strings.ToLower(string(s))
+	return strings.HasPrefix(lower, "<?xml") || strings.HasPrefix(lower, "<svg")
+}
+
+// fetchWithSSRFSafeRedirects performs at most maxRedirects hops,
+// re-validating each intermediate URL (scheme + host) instead of letting
+// net/http follow redirects blindly.
+func fetchWithSSRFSafeRedirects(client *http.Client, initial string, maxRedirects int) (*http.Response, error) {
+	current := initial
+	var lastParsed *url.URL
+	for i := 0; i <= maxRedirects; i++ {
+		parsed, err := url.Parse(current)
+		if err != nil {
+			return nil, err
+		}
+		if parsed.Scheme != "http" && parsed.Scheme != "https" {
+			return nil, fmt.Errorf("blocked redirect scheme: %s", parsed.Scheme)
+		}
+		if err := validateHostSSRF(parsed.Hostname()); err != nil {
+			return nil, fmt.Errorf("redirect to blocked host %s: %w", parsed.Hostname(), err)
+		}
+		resp, err := client.Get(current)
+		if err != nil {
+			return nil, err
+		}
+		if resp.StatusCode >= 300 && resp.StatusCode < 400 {
+			loc := resp.Header.Get("Location")
+			resp.Body.Close()
+			if loc == "" {
+				return nil, errors.New("redirect without Location header")
+			}
+			base := parsed
+			if lastParsed != nil {
+				base = lastParsed
+			}
+			next, err := base.Parse(loc)
+			if err != nil {
+				return nil, fmt.Errorf("invalid redirect location: %w", err)
+			}
+			lastParsed = next
+			current = next.String()
+			continue
+		}
+		return resp, nil
+	}
+	return nil, errors.New("too many redirects")
 }
 
 // IconHandler handles icon-related requests
@@ -308,16 +458,26 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Download with timeout and size limit (use parsed URL, not raw input).
-	// Re-check scheme on the reconstructed URL as a defense-in-depth measure
-	// (also satisfies static analysis SSRF checks).
+	// Download via a transport that re-validates every resolved IP at
+	// connect time and a redirect chain that re-checks each hop's host
+	// against the SSRF allow-list (findings.md C8).
 	sanitizedURL := parsed.String()
 	if !strings.HasPrefix(sanitizedURL, "http://") && !strings.HasPrefix(sanitizedURL, "https://") {
 		respondError(w, r, http.StatusBadRequest, "Invalid URL scheme")
 		return
 	}
-	client := &http.Client{Timeout: 10 * time.Second}
-	resp, err := client.Get(sanitizedURL) //nolint:gosec // SSRF mitigated by validateHostSSRF above
+	client := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			DialContext: safeSSRFDialContext,
+		},
+		// Disable built-in redirect following; each hop is validated by
+		// fetchWithSSRFSafeRedirects before we issue the next request.
+		CheckRedirect: func(*http.Request, []*http.Request) error {
+			return http.ErrUseLastResponse
+		},
+	}
+	resp, err := fetchWithSSRFSafeRedirects(client, sanitizedURL, 5) //nolint:bodyclose // handled below
 	if err != nil {
 		respondError(w, r, http.StatusBadGateway, "Failed to download icon", "source", "icons", "url", sanitizedURL, "error", err)
 		return
@@ -340,15 +500,15 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Detect content type from response header, falling back to content sniffing
-	contentType := resp.Header.Get(headerContentType)
-	if contentType == "" || contentType == "application/octet-stream" {
-		contentType = http.DetectContentType(data)
-	}
-	// Strip parameters (e.g. "image/png; charset=utf-8" -> "image/png")
-	if idx := strings.Index(contentType, ";"); idx != -1 {
-		contentType = strings.TrimSpace(contentType[:idx])
-	}
+	// Content-type decision (findings.md L9): sniff the bytes ourselves.
+	// http.DetectContentType reliably identifies PNG / JPEG / GIF / WEBP
+	// / ICO, so if sniffing lands on one of the allowed image types that
+	// is what we use, regardless of what the server claims. SVG is a
+	// special case because sniffing reports it as text/xml: we accept the
+	// server's `image/svg+xml` claim only after verifying the bytes
+	// actually start with an SVG or XML marker, which stops a server
+	// from declaring `image/svg+xml` for an HTML / JS payload.
+	contentType := resolveIconContentType(data, resp.Header.Get(headerContentType))
 
 	// Validate MIME type
 	if _, ok := icons.AllowedMimeTypes[contentType]; !ok {

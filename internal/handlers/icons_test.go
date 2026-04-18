@@ -2,26 +2,39 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"mime/multipart"
+	"net"
 	"net/http"
 	"net/http/httptest"
 	"net/textproto"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/icons"
 )
 
-// disableSSRF replaces the SSRF validator with a no-op for tests that use
-// httptest.NewServer (which binds to 127.0.0.1). Returns a cleanup function.
+// disableSSRF replaces both the pre-flight SSRF validator and the
+// per-connect dial-time validator with no-ops. Tests use
+// httptest.NewServer which binds to 127.0.0.1, and after findings.md C8
+// both layers reject loopback independently.
 func disableSSRF(t *testing.T) {
 	t.Helper()
-	orig := validateHostSSRF
+	origValidator := validateHostSSRF
 	validateHostSSRF = func(hostname string) error { return nil }
-	t.Cleanup(func() { validateHostSSRF = orig })
+	origDial := safeSSRFDialContext
+	safeSSRFDialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		var dialer net.Dialer
+		return dialer.DialContext(ctx, network, addr)
+	}
+	t.Cleanup(func() {
+		validateHostSSRF = origValidator
+		safeSSRFDialContext = origDial
+	})
 }
 
 func TestGetDashboardIcon(t *testing.T) {
@@ -737,6 +750,133 @@ func TestValidateHostSSRF(t *testing.T) {
 			t.Error("expected error for unresolvable hostname")
 		}
 	})
+}
+
+// TestValidateIP_BlocksMaskedAndCGNAT covers the pieces findings.md C8
+// called out as bypassable: IPv4-mapped IPv6 (::ffff:a.b.c.d) and the
+// RFC 6598 CGNAT range (100.64.0.0/10).
+func TestValidateIP_BlocksMaskedAndCGNAT(t *testing.T) {
+	cases := []struct {
+		name string
+		ip   string
+		want bool // true if expected to be blocked
+	}{
+		{"IPv4 loopback", "127.0.0.1", true},
+		{"IPv4 RFC1918", "10.0.0.5", true},
+		{"IPv4 link-local", "169.254.169.254", true},
+		{"IPv4 CGNAT", "100.64.0.1", true},
+		{"IPv4-mapped IPv6 loopback", "::ffff:127.0.0.1", true},
+		{"IPv4-mapped IPv6 RFC1918", "::ffff:10.0.0.1", true},
+		{"public v4", "8.8.8.8", false},
+		{"public v6", "2001:db8::1", true}, // documentation range; not "private" per IsPrivate, but it's multicast-adjacent... actually it's global. Leave as false.
+	}
+	// 2001:db8::1 is the RFC 3849 documentation prefix. IsPrivate returns
+	// false for it, so validateIP should accept it. Adjust:
+	cases[len(cases)-1].want = false
+
+	for _, c := range cases {
+		c := c
+		t.Run(c.name, func(t *testing.T) {
+			ip := net.ParseIP(c.ip)
+			err := validateIP(ip)
+			if c.want && err == nil {
+				t.Errorf("expected %s to be blocked", c.ip)
+			}
+			if !c.want && err != nil {
+				t.Errorf("expected %s to be allowed, got %v", c.ip, err)
+			}
+		})
+	}
+}
+
+// TestResolveIconContentType covers findings.md L9: the server's
+// declared Content-Type must never override sniffing, except for SVG
+// where the server header is trusted only if the bytes start with SVG
+// or XML markers.
+func TestResolveIconContentType(t *testing.T) {
+	pngMagic := []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}
+	pngData := append(pngMagic, bytes.Repeat([]byte{0x00}, 16)...)
+
+	svgBytes := []byte(`<svg xmlns="http://www.w3.org/2000/svg"></svg>`)
+	htmlAsSVG := []byte(`<html><script>alert(1)</script></html>`)
+
+	cases := []struct {
+		name   string
+		data   []byte
+		header string
+		want   string
+	}{
+		{"PNG bytes trump any header", pngData, "image/jpeg", "image/png"},
+		{"PNG bytes with matching header", pngData, "image/png", "image/png"},
+		{"SVG header + SVG bytes", svgBytes, "image/svg+xml", "image/svg+xml"},
+		{"SVG header + HTML bytes rejected", htmlAsSVG, "image/svg+xml", ""},
+		{"Text bytes with no matching header", []byte("plain text"), "image/png", ""},
+		{"Text bytes with svg header but no SVG marker", []byte("plain text"), "image/svg+xml", ""},
+	}
+
+	for _, c := range cases {
+		c := c
+		t.Run(c.name, func(t *testing.T) {
+			got := resolveIconContentType(c.data, c.header)
+			if got != c.want {
+				t.Errorf("resolveIconContentType() = %q, want %q", got, c.want)
+			}
+		})
+	}
+}
+
+// TestFetchCustomIcon_RejectsRedirectToLoopback covers the second half of
+// C8: an attacker's remote server can no longer bounce the fetcher to a
+// private address via a 302 because each redirect hop is revalidated.
+func TestFetchCustomIcon_RejectsRedirectToLoopback(t *testing.T) {
+	// We need validateHostSSRF to permit the initial (loopback) hop for
+	// the test server but still reject a loopback literal on the
+	// redirect hop. Toggle it by hostname.
+	origValidator := validateHostSSRF
+	validateHostSSRF = func(hostname string) error {
+		if hostname == "blocked.invalid" || strings.HasPrefix(hostname, "127.") {
+			// Pretend the target looks internal on the redirect hop.
+			return &net.AddrError{Err: "blocked", Addr: hostname}
+		}
+		return nil
+	}
+	t.Cleanup(func() { validateHostSSRF = origValidator })
+	origDial := safeSSRFDialContext
+	safeSSRFDialContext = func(ctx context.Context, network, addr string) (net.Conn, error) {
+		var d net.Dialer
+		return d.DialContext(ctx, network, addr)
+	}
+	t.Cleanup(func() { safeSSRFDialContext = origDial })
+
+	ts := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// Redirect to a host we flagged as blocked above.
+		w.Header().Set("Location", "http://blocked.invalid/")
+		w.WriteHeader(http.StatusFound)
+	}))
+	defer ts.Close()
+
+	dir := t.TempDir()
+	handler := NewIconHandler(nil, nil, dir)
+
+	// Allow the initial hop by overriding the validator for the test
+	// server's host only.
+	validateHostSSRF = func(hostname string) error {
+		if hostname == "blocked.invalid" {
+			return &net.AddrError{Err: "blocked", Addr: hostname}
+		}
+		return nil
+	}
+
+	body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.png"})
+	req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+
+	handler.FetchCustomIcon(w, req)
+
+	if w.Code != http.StatusBadGateway {
+		t.Errorf("expected 502 on redirect to blocked host, got %d: %s", w.Code, w.Body.String())
+	}
 }
 
 func TestDeleteCustomIcon(t *testing.T) {
