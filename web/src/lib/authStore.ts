@@ -43,16 +43,77 @@ export const setupRequired = derived(authState, ($state) => $state.setupRequired
 const base = ((globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__) || '';
 const API_BASE = base + '/api/auth';
 
+/**
+ * parseJSONSafely runs response.json() but tolerates empty bodies and
+ * non-JSON error responses (e.g. a reverse-proxy 502 HTML page). Callers
+ * get `null` on failure instead of an uncaught SyntaxError that strands
+ * them in the "Unexpected token '<'" loop noted in findings.md M17.
+ *
+ * Prefers response.json() so common test mocks that only stub .json()
+ * keep working; falls back to response.text() + JSON.parse for real
+ * responses that might not carry a JSON body.
+ */
+async function parseJSONSafely(response: Response): Promise<unknown | null> {
+  try {
+    return await response.json();
+  } catch {
+    // .json() threw (not JSON, or body-not-present mock). Try text.
+  }
+  try {
+    if (typeof response.text === 'function') {
+      const text = await response.text();
+      if (!text) return null;
+      return JSON.parse(text);
+    }
+  } catch {
+    // fall through
+  }
+  return null;
+}
+
 // Check auth status
 export async function checkAuthStatus(): Promise<void> {
   authState.update((state) => ({ ...state, loading: true, error: null }));
 
   try {
     const response = await fetch(`${API_BASE}/status`);
-    const data = await response.json();
+    // Only bail when we explicitly got a non-OK status. Undefined `ok`
+    // (some mocks) is treated as success so the original test coverage
+    // of the JSON-parse path keeps working.
+    if (response.ok === false) {
+      // Don't try to JSON-parse a 5xx HTML page; surface a clean
+      // "backend unavailable" state instead of a SyntaxError
+      // (findings.md M17).
+      authState.set({
+        authenticated: false,
+        user: null,
+        loading: false,
+        error: `Auth status check failed (${response.status})`,
+        setupRequired: false,
+        logoutUrl: null,
+      });
+      return;
+    }
+    const data = (await parseJSONSafely(response)) as {
+      authenticated?: boolean;
+      user?: User;
+      setup_required?: boolean;
+      logout_url?: string;
+    } | null;
+    if (!data) {
+      authState.set({
+        authenticated: false,
+        user: null,
+        loading: false,
+        error: 'Auth status response was not valid JSON',
+        setupRequired: false,
+        logoutUrl: null,
+      });
+      return;
+    }
 
     authState.set({
-      authenticated: data.authenticated,
+      authenticated: data.authenticated ?? false,
       user: data.user || null,
       loading: false,
       error: null,
@@ -85,7 +146,18 @@ export async function login(username: string, password: string, rememberMe: bool
       body: JSON.stringify({ username, password, remember_me: rememberMe }),
     });
 
-    const data = await response.json();
+    const raw = await parseJSONSafely(response);
+    const data = (raw ?? {}) as { success?: boolean; user?: User; message?: string };
+
+    // Distinguish "backend answered with a proper JSON failure" from
+    // "backend returned an HTML error page" so the user sees "service
+    // unavailable" instead of a truncated parse failure
+    // (findings.md M17).
+    if (response.ok === false && !raw) {
+      const message = `Login failed (${response.status})`;
+      authState.update((state) => ({ ...state, loading: false, error: message }));
+      return { success: false, message };
+    }
 
     if (data.success) {
       authState.set({
@@ -176,9 +248,13 @@ export async function changePassword(currentPassword: string, newPassword: strin
       }),
     });
 
-    const data = await response.json();
+    const raw = await parseJSONSafely(response);
+    const data = (raw ?? {}) as { success?: boolean; message?: string };
+    if (response.ok === false && !raw) {
+      return { success: false, message: `Password change failed (${response.status})` };
+    }
     return {
-      success: data.success,
+      success: data.success ?? false,
       message: data.message,
     };
   } catch (e) {

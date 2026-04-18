@@ -7,6 +7,20 @@ export function getBase(): string {
 
 export const API_BASE = getBase() + '/api';
 
+/**
+ * ApiError carries the HTTP status alongside a concise message so callers
+ * can distinguish "unauthorized" from "backend is down" from "validation
+ * failed" without re-parsing a free-form string (findings.md M18).
+ */
+export class ApiError extends Error {
+  public readonly status: number;
+  constructor(status: number, message: string) {
+    super(message);
+    this.status = status;
+    this.name = 'ApiError';
+  }
+}
+
 async function request<R>(method: string, path: string, data?: unknown): Promise<R> {
   const opts: RequestInit = { method };
   if (data !== undefined) {
@@ -15,11 +29,42 @@ async function request<R>(method: string, path: string, data?: unknown): Promise
   }
   const response = await fetch(`${API_BASE}${path}`, opts);
   if (!response.ok) {
+    // Prefer JSON { error | message } when the server sent one. Fall
+    // back to a short, HTML-stripped plaintext body. Never forward raw
+    // HTML (typically a reverse-proxy 502 page) because it is useless
+    // to the user and clutters toasts (findings.md M18). Status is
+    // preserved on ApiError so callers can branch on 401/403 vs. 5xx
+    // without string matching.
     const text = await response.text();
-    throw new Error(`API error: ${response.status} ${text}`);
+    const friendly = extractFriendlyErrorMessage(text);
+    const message = friendly
+      ? `API error: ${response.status} ${friendly}`
+      : `API error: ${response.status}`;
+    throw new ApiError(response.status, message);
   }
   if (response.status === 204 || method === 'DELETE') return undefined as R;
   return response.json();
+}
+
+function extractFriendlyErrorMessage(body: string): string {
+  if (!body) return '';
+  try {
+    const parsed = JSON.parse(body);
+    if (parsed && typeof parsed === 'object') {
+      const obj = parsed as Record<string, unknown>;
+      if (typeof obj.error === 'string') return obj.error;
+      if (typeof obj.message === 'string') return obj.message;
+    }
+  } catch {
+    // Not JSON; fall through to plain-text handling.
+  }
+  const trimmed = body.trim();
+  // Drop HTML-looking bodies entirely (reverse-proxy 502 pages).
+  if (trimmed.startsWith('<') || /<html|<body|<!doctype/i.test(trimmed)) {
+    return '';
+  }
+  if (trimmed.length > 200) return '';
+  return trimmed;
 }
 
 async function fetchJSON<T>(path: string): Promise<T> {
@@ -145,12 +190,33 @@ export async function deleteGroup(name: string): Promise<void> {
   }
 }
 
+/**
+ * HealthResult carries a precise reason when checkHealth returns false so
+ * UI code can tell "backend is down" from "fetch threw a TypeError"
+ * (usually a CORS misconfig or aborted request). findings.md M19.
+ */
+export type HealthResult =
+  | { ok: true }
+  | { ok: false; reason: 'http_error' | 'network_error'; status?: number; message?: string };
+
 export async function checkHealth(): Promise<boolean> {
+  const result = await checkHealthDetailed();
+  return result.ok;
+}
+
+export async function checkHealthDetailed(): Promise<HealthResult> {
   try {
     const response = await fetch(`${API_BASE}/health`);
-    return response.ok;
-  } catch {
-    return false;
+    if (response.ok) {
+      return { ok: true };
+    }
+    return { ok: false, reason: 'http_error', status: response.status };
+  } catch (e) {
+    // TypeError here is typically "Failed to fetch" — network-level
+    // error (CORS, DNS, aborted). Keep the message so the operator
+    // can tell a misconfig from a truly unhealthy backend.
+    const message = e instanceof Error ? e.message : String(e);
+    return { ok: false, reason: 'network_error', message };
   }
 }
 
