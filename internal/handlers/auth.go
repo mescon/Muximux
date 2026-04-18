@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 	"sync"
+	"time"
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
@@ -13,27 +14,77 @@ import (
 
 // AuthHandler handles authentication endpoints
 type AuthHandler struct {
-	sessionStore   *auth.SessionStore
-	userStore      *auth.UserStore
-	oidcProvider   *auth.OIDCProvider
-	setupChecker   func() bool
-	config         *config.Config
-	configPath     string
-	authMiddleware *auth.Middleware
-	configMu       *sync.RWMutex
-	bypassRules    []auth.BypassRule
+	sessionStore          *auth.SessionStore
+	userStore             *auth.UserStore
+	oidcProvider          *auth.OIDCProvider
+	setupChecker          func() bool
+	config                *config.Config
+	configPath            string
+	authMiddleware        *auth.Middleware
+	configMu              *sync.RWMutex
+	bypassRules           []auth.BypassRule
+	changePasswordLimiter *userAttemptLimiter
+}
+
+// userAttemptLimiter is a minimal per-key attempt counter with a sliding
+// window. Used to throttle sensitive per-user actions (currently the
+// current-password check in ChangePassword). Map growth is bounded by
+// purging stale entries on every allow() call.
+type userAttemptLimiter struct {
+	mu       sync.Mutex
+	attempts map[string][]time.Time
+	max      int
+	window   time.Duration
+}
+
+func newUserAttemptLimiter(max int, window time.Duration) *userAttemptLimiter {
+	return &userAttemptLimiter{
+		attempts: make(map[string][]time.Time),
+		max:      max,
+		window:   window,
+	}
+}
+
+func (l *userAttemptLimiter) allow(key string) bool {
+	l.mu.Lock()
+	defer l.mu.Unlock()
+	now := time.Now()
+	cutoff := now.Add(-l.window)
+
+	// Prune stale entries across the whole map so a flood of distinct
+	// usernames cannot grow it without bound.
+	for k, ts := range l.attempts {
+		valid := ts[:0]
+		for _, t := range ts {
+			if t.After(cutoff) {
+				valid = append(valid, t)
+			}
+		}
+		if len(valid) == 0 {
+			delete(l.attempts, k)
+		} else {
+			l.attempts[k] = valid
+		}
+	}
+
+	if len(l.attempts[key]) >= l.max {
+		return false
+	}
+	l.attempts[key] = append(l.attempts[key], now)
+	return true
 }
 
 // NewAuthHandler creates a new auth handler
 func NewAuthHandler(sessionStore *auth.SessionStore, userStore *auth.UserStore,
 	cfg *config.Config, configPath string, authMiddleware *auth.Middleware, configMu *sync.RWMutex) *AuthHandler {
 	return &AuthHandler{
-		sessionStore:   sessionStore,
-		userStore:      userStore,
-		config:         cfg,
-		configPath:     configPath,
-		authMiddleware: authMiddleware,
-		configMu:       configMu,
+		sessionStore:          sessionStore,
+		userStore:             userStore,
+		config:                cfg,
+		configPath:            configPath,
+		authMiddleware:        authMiddleware,
+		configMu:              configMu,
+		changePasswordLimiter: newUserAttemptLimiter(5, 15*time.Minute),
 	}
 }
 
@@ -197,6 +248,19 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Per-user rate limit on the current-password check (findings.md H1).
+	// A thief with a short-lived session cookie would otherwise
+	// brute-force the existing password here unthrottled and persist
+	// their access beyond the cookie's lifetime.
+	if !h.changePasswordLimiter.allow(user.Username) {
+		w.Header().Set("Retry-After", "60")
+		sendJSON(w, http.StatusTooManyRequests, map[string]interface{}{
+			"success": false,
+			"message": "Too many password change attempts; try again later",
+		})
+		return
+	}
+
 	var req struct {
 		CurrentPassword string `json:"current_password"`
 		NewPassword     string `json:"new_password"`
@@ -231,12 +295,14 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Update user
+	// Update user. Keep a snapshot of the previous state so we can
+	// revert cleanly if the save fails (findings.md H7).
 	fullUser := h.userStore.Get(user.Username)
 	if fullUser == nil {
 		respondError(w, r, http.StatusInternalServerError, errUserNotFound)
 		return
 	}
+	prev := *fullUser
 	fullUser.PasswordHash = hash
 	if err := h.userStore.Update(fullUser); err != nil {
 		respondError(w, r, http.StatusInternalServerError, "Failed to update password")
@@ -244,7 +310,10 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.From(r.Context()).Error("Failed to persist password change", "source", "auth", "error", err)
+		_ = h.userStore.Update(&prev) // best-effort rollback
+		logging.From(r.Context()).Error("Failed to persist password change; reverted", "source", "auth", "user", user.Username, "error", err)
+		respondError(w, r, http.StatusInternalServerError, "Failed to persist password change")
+		return
 	}
 
 	// Invalidate all other sessions for this user
@@ -410,8 +479,13 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Roll the in-memory state back if we cannot persist to disk, so a
+	// restart does not quietly drop the new account (findings.md H7).
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.From(r.Context()).Error("Failed to persist user creation", "source", "auth", "error", err)
+		_ = h.userStore.Delete(user.Username)
+		logging.From(r.Context()).Error("Failed to persist user creation; reverted", "source", "auth", "user", user.Username, "error", err)
+		respondError(w, r, http.StatusInternalServerError, "Failed to persist user")
+		return
 	}
 
 	logging.From(r.Context()).Info("User created", "source", "audit", "user", user.Username, "role", user.Role)
@@ -444,11 +518,12 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user := h.userStore.Get(username)
-	if user == nil {
+	prev := h.userStore.Get(username)
+	if prev == nil {
 		respondError(w, r, http.StatusNotFound, errUserNotFound)
 		return
 	}
+	user := *prev // snapshot for rollback on save failure
 
 	if req.Role != "" {
 		if req.Role != auth.RoleAdmin && req.Role != auth.RolePowerUser && req.Role != auth.RoleUser {
@@ -464,13 +539,24 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 		user.DisplayName = *req.DisplayName
 	}
 
-	if err := h.userStore.Update(user); err != nil {
-		respondError(w, r, http.StatusInternalServerError, "Failed to update user")
+	// Atomic last-admin guard: reject the update if it would demote the
+	// only remaining admin (findings.md H11). Without this, an admin
+	// could demote themselves and the instance would have no one able to
+	// access admin-gated endpoints.
+	if err := h.userStore.UpdateIfNotLastAdminDemotion(&user); err != nil {
+		if err.Error() == "user not found" {
+			respondError(w, r, http.StatusNotFound, errUserNotFound)
+			return
+		}
+		sendJSON(w, http.StatusBadRequest, map[string]interface{}{"success": false, "message": err.Error()})
 		return
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.From(r.Context()).Error("Failed to persist user update", "source", "auth", "error", err)
+		_ = h.userStore.Update(prev) // best-effort rollback
+		logging.From(r.Context()).Error("Failed to persist user update; reverted", "source", "auth", "user", username, "error", err)
+		respondError(w, r, http.StatusInternalServerError, "Failed to persist user update")
+		return
 	}
 
 	logging.From(r.Context()).Info("User updated", "source", "audit", "user", username, "role", user.Role)
@@ -500,6 +586,9 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Snapshot the target before deletion so we can re-add on save failure.
+	prev := h.userStore.Get(username)
+
 	if err := h.userStore.DeleteIfNotLastAdmin(username); err != nil {
 		if err.Error() == "user not found" {
 			respondError(w, r, http.StatusNotFound, errUserNotFound)
@@ -510,7 +599,12 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		logging.From(r.Context()).Error("Failed to persist user deletion", "source", "auth", "error", err)
+		if prev != nil {
+			_ = h.userStore.Add(prev) // best-effort rollback
+		}
+		logging.From(r.Context()).Error("Failed to persist user deletion; reverted", "source", "auth", "user", username, "error", err)
+		respondError(w, r, http.StatusInternalServerError, "Failed to persist user deletion")
+		return
 	}
 
 	logging.From(r.Context()).Info("User deleted", "source", "audit", "user", username)

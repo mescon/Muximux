@@ -453,3 +453,35 @@ func TestSessionStore_Close(t *testing.T) {
 	// Close should not panic
 	store.Close()
 }
+
+// TestRefresh_CappedByAbsoluteMaxAge covers findings.md H21. Repeated
+// calls to Refresh must not extend the session past CreatedAt +
+// absoluteMaxAge; otherwise a stolen cookie can be kept alive forever
+// by issuing one request per expiration window.
+func TestRefresh_CappedByAbsoluteMaxAge(t *testing.T) {
+	store := NewSessionStore("test_session", 10*time.Minute, false)
+	store.absoluteMaxAge = 100 * time.Millisecond
+
+	session, err := store.Create("u", "u", "user")
+	if err != nil {
+		t.Fatalf("Create: %v", err)
+	}
+
+	// Backdate CreatedAt so we land right up against the cap.
+	store.mu.Lock()
+	store.sessions[session.ID].CreatedAt = time.Now().Add(-80 * time.Millisecond)
+	store.mu.Unlock()
+
+	store.Refresh(session.ID)
+
+	got := store.Get(session.ID)
+	if got == nil {
+		t.Fatal("session vanished after Refresh")
+	}
+	ttl := time.Until(got.ExpiresAt)
+	// After refresh the session may live at most the remaining 20ms of
+	// the absolute cap, not the configured 10m rolling window.
+	if ttl > 50*time.Millisecond {
+		t.Errorf("refresh exceeded absolute cap: ttl=%v", ttl)
+	}
+}

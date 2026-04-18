@@ -1551,3 +1551,36 @@ func searchSubstring(s, substr string) bool {
 	}
 	return false
 }
+
+// TestUserAttemptLimiter_Basics covers findings.md H1. Keys exceed the
+// window's cap after `max` attempts, and distinct keys do not share a
+// bucket.
+func TestUserAttemptLimiter_Basics(t *testing.T) {
+	l := newUserAttemptLimiter(3, time.Minute)
+	for i := 0; i < 3; i++ {
+		if !l.allow("alice") {
+			t.Fatalf("allow rejected attempt %d (alice)", i+1)
+		}
+	}
+	if l.allow("alice") {
+		t.Error("expected 4th attempt to be rejected")
+	}
+	if !l.allow("bob") {
+		t.Error("bob should have their own bucket")
+	}
+}
+
+func TestUserAttemptLimiter_PurgesStaleKeys(t *testing.T) {
+	l := newUserAttemptLimiter(2, 40*time.Millisecond)
+	l.allow("alice")
+	l.allow("alice")
+	if l.allow("alice") {
+		t.Fatal("expected 3rd attempt to be rejected")
+	}
+	time.Sleep(60 * time.Millisecond)
+	// After the window passes, allow() must purge alice's stale entries
+	// so the bucket resets.
+	if !l.allow("alice") {
+		t.Error("stale entries not purged; rate limit stuck")
+	}
+}

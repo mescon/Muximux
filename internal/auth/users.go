@@ -111,10 +111,30 @@ func (s *UserStore) copyUser(u *User) *User {
 	return &copy
 }
 
-// Authenticate verifies username and password
+// timingDummyHash is a pre-computed bcrypt hash ("not-a-real-password"
+// hashed at DefaultCost) used to absorb the ~60-100 ms bcrypt compare
+// when the supplied username does not match any user. Without it,
+// Authenticate returned near-instantly for unknown names, giving an
+// attacker a timing oracle for user enumeration (findings.md H2).
+var timingDummyHash = func() []byte {
+	h, err := bcrypt.GenerateFromPassword([]byte("muximux-timing-dummy-not-a-real-password"), bcrypt.DefaultCost)
+	if err != nil {
+		panic("auth: failed to pre-compute timing dummy hash: " + err.Error())
+	}
+	return h
+}()
+
+// Authenticate verifies username and password. The runtime cost of a
+// successful "user not found" path now matches the cost of a failed
+// password check on a real user, so an attacker cannot distinguish
+// them by timing.
 func (s *UserStore) Authenticate(username, password string) (*User, error) {
 	user := s.Get(username)
 	if user == nil {
+		// Perform a throwaway bcrypt compare so the failure path takes
+		// roughly as long as a real mismatch. Err is ignored; we always
+		// return the same error shape as a real bad-password case.
+		_ = bcrypt.CompareHashAndPassword(timingDummyHash, []byte(password))
 		logging.Debug("Auth attempt for unknown user", "source", "auth", "username", username)
 		return nil, errors.New(errUserNotFound)
 	}
@@ -149,13 +169,45 @@ func (s *UserStore) Add(user *User) error {
 	return nil
 }
 
-// Update updates an existing user
+// Update updates an existing user. The atomic last-admin guard in
+// UpdateIfNotLastAdminDemotion should be used when the caller is an
+// admin API that must not leave the instance with zero admins.
 func (s *UserStore) Update(user *User) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 
 	if _, exists := s.users[user.Username]; !exists {
 		return errors.New(errUserNotFound)
+	}
+
+	s.users[user.Username] = user
+	return nil
+}
+
+// UpdateIfNotLastAdminDemotion atomically checks that the update would
+// not leave the instance without any admin user, then writes it.
+// Complements DeleteIfNotLastAdmin (findings.md H11): without this, the
+// admin API let an admin demote the only remaining admin and lock the
+// instance out of its own role-gated endpoints.
+func (s *UserStore) UpdateIfNotLastAdminDemotion(user *User) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	prev, exists := s.users[user.Username]
+	if !exists {
+		return errors.New(errUserNotFound)
+	}
+
+	if prev.Role == RoleAdmin && user.Role != RoleAdmin {
+		adminCount := 0
+		for _, u := range s.users {
+			if u.Role == RoleAdmin {
+				adminCount++
+			}
+		}
+		if adminCount <= 1 {
+			return errors.New("cannot demote the last admin user")
+		}
 	}
 
 	s.users[user.Username] = user

@@ -2,6 +2,7 @@ package auth
 
 import (
 	"testing"
+	"time"
 
 	"golang.org/x/crypto/bcrypt"
 )
@@ -409,4 +410,72 @@ func mustHash(password string) string {
 		panic(err)
 	}
 	return hash
+}
+
+// TestAuthenticate_EqualTimingForUnknownUser covers findings.md H2. An
+// unknown username must not return orders of magnitude faster than a
+// known username with a bad password; otherwise an attacker can learn
+// which usernames exist just by measuring response latency.
+func TestAuthenticate_EqualTimingForUnknownUser(t *testing.T) {
+	store := NewUserStore()
+	store.LoadFromConfig([]UserConfig{
+		{Username: "alice", PasswordHash: mustHash("correct-horse"), Role: RoleUser},
+	})
+
+	// Warm the bcrypt library's internal state so the first call doesn't
+	// skew the measurement.
+	_, _ = store.Authenticate("alice", "warmup")
+
+	timeIt := func(user, pass string) time.Duration {
+		start := time.Now()
+		_, _ = store.Authenticate(user, pass)
+		return time.Since(start)
+	}
+
+	tKnown := timeIt("alice", "wrong-password")
+	tUnknown := timeIt("mallory", "anything")
+
+	// The unknown-user path should take at least 30% of the known-user
+	// compare; if it returns in a microsecond while the known path takes
+	// ~70ms the timing oracle is wide open.
+	if tUnknown*3 < tKnown {
+		t.Errorf("unknown-user path returned too quickly (known=%v, unknown=%v) -> enumeration oracle open", tKnown, tUnknown)
+	}
+}
+
+// TestUpdateIfNotLastAdminDemotion covers findings.md H11. Demoting the
+// only remaining admin must fail; demoting any non-last admin, demoting
+// a non-admin, or editing non-role fields must succeed.
+func TestUpdateIfNotLastAdminDemotion(t *testing.T) {
+	t.Run("rejects last-admin demotion", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "only-admin", PasswordHash: mustHash("x"), Role: RoleAdmin},
+			{Username: "normal", PasswordHash: mustHash("x"), Role: RoleUser},
+		})
+
+		demoted := &User{ID: "only-admin", Username: "only-admin", Role: RoleUser}
+		if err := store.UpdateIfNotLastAdminDemotion(demoted); err == nil {
+			t.Error("expected last-admin demotion to be rejected")
+		}
+		if got := store.Get("only-admin"); got == nil || got.Role != RoleAdmin {
+			t.Errorf("state mutated on rejected update: %+v", got)
+		}
+	})
+
+	t.Run("allows demotion when another admin remains", func(t *testing.T) {
+		store := NewUserStore()
+		store.LoadFromConfig([]UserConfig{
+			{Username: "admin-a", PasswordHash: mustHash("x"), Role: RoleAdmin},
+			{Username: "admin-b", PasswordHash: mustHash("x"), Role: RoleAdmin},
+		})
+
+		demoted := &User{ID: "admin-b", Username: "admin-b", Role: RoleUser}
+		if err := store.UpdateIfNotLastAdminDemotion(demoted); err != nil {
+			t.Fatalf("unexpected error: %v", err)
+		}
+		if got := store.Get("admin-b"); got == nil || got.Role != RoleUser {
+			t.Errorf("expected admin-b demoted, got %+v", got)
+		}
+	})
 }

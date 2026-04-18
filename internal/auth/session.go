@@ -28,22 +28,37 @@ func (s *Session) IsExpired() bool {
 
 // SessionStore manages sessions
 type SessionStore struct {
-	sessions   map[string]*Session
-	mu         sync.RWMutex
-	cookieName string
-	maxAge     time.Duration
-	secure     bool
-	done       chan struct{}
+	sessions       map[string]*Session
+	mu             sync.RWMutex
+	cookieName     string
+	maxAge         time.Duration
+	absoluteMaxAge time.Duration // hard cap on total session lifetime; 0 disables the cap
+	secure         bool
+	done           chan struct{}
 }
+
+// defaultSessionAbsoluteMaxAge is the wall-clock maximum lifetime of any
+// session, irrespective of how often Refresh extends it. Prevents the
+// "infinite rolling session for any active cookie" outcome flagged in
+// findings.md H21.
+const defaultSessionAbsoluteMaxAge = 7 * 24 * time.Hour
 
 // NewSessionStore creates a new session store
 func NewSessionStore(cookieName string, maxAge time.Duration, secure bool) *SessionStore {
+	absolute := defaultSessionAbsoluteMaxAge
+	if maxAge > absolute {
+		// A rolling session cannot usefully live longer than the hard
+		// cap, so use the rolling window as the ceiling when that is
+		// larger (operator has deliberately configured a long session).
+		absolute = maxAge
+	}
 	store := &SessionStore{
-		sessions:   make(map[string]*Session),
-		cookieName: cookieName,
-		maxAge:     maxAge,
-		secure:     secure,
-		done:       make(chan struct{}),
+		sessions:       make(map[string]*Session),
+		cookieName:     cookieName,
+		maxAge:         maxAge,
+		absoluteMaxAge: absolute,
+		secure:         secure,
+		done:           make(chan struct{}),
 	}
 
 	// Start cleanup goroutine
@@ -118,13 +133,25 @@ func (s *SessionStore) DeleteByUserID(userID string, exceptSessionID string) {
 	}
 }
 
-// Refresh extends the session expiration
+// Refresh extends the session expiration. The extension is capped by the
+// store's absolute maximum lifetime (CreatedAt + absoluteMaxAge), so an
+// attacker who steals an active cookie cannot keep it alive forever just
+// by making a request before each expiration.
 func (s *SessionStore) Refresh(id string) {
 	s.mu.Lock()
-	if session, exists := s.sessions[id]; exists {
-		session.ExpiresAt = time.Now().Add(s.maxAge)
+	defer s.mu.Unlock()
+	session, exists := s.sessions[id]
+	if !exists {
+		return
 	}
-	s.mu.Unlock()
+	newExpiry := time.Now().Add(s.maxAge)
+	if s.absoluteMaxAge > 0 {
+		deadline := session.CreatedAt.Add(s.absoluteMaxAge)
+		if newExpiry.After(deadline) {
+			newExpiry = deadline
+		}
+	}
+	session.ExpiresAt = newExpiry
 }
 
 // GetFromRequest extracts session from HTTP request cookie
