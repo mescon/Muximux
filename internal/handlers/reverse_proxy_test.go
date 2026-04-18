@@ -3241,6 +3241,84 @@ func TestInterceptorScriptNavigationAPISkipFlag(t *testing.T) {
 	})
 }
 
+// TestRewriteResponseBody_GzipOpenFailureErrors covers findings.md H15:
+// a malformed gzip body must surface an error up to ReverseProxy's
+// ErrorHandler instead of silently returning nil, which had the proxy
+// forward partial bytes as a "success".
+func TestRewriteResponseBody_GzipOpenFailureErrors(t *testing.T) {
+	resp := &http.Response{
+		Header: make(http.Header),
+		Body:   io.NopCloser(strings.NewReader("not really gzipped")),
+	}
+	resp.Header.Set(headerContentType, "text/html")
+	resp.Header.Set(headerContentEncoding, "gzip")
+
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	err := rewriteResponseBody(resp, rewriter)
+	if err == nil {
+		t.Error("expected error from malformed gzip, got nil")
+	}
+	if err != nil && !strings.Contains(err.Error(), "gzip") {
+		t.Errorf("expected gzip-related error, got %v", err)
+	}
+}
+
+// TestRewriteResponseBody_GzipBombCapped covers findings.md H16: the
+// body reader must be capped so a small gzip payload that decompresses
+// to gigabytes cannot OOM the process.
+func TestRewriteResponseBody_GzipBombCapped(t *testing.T) {
+	var buf bytes.Buffer
+	gz := gzip.NewWriter(&buf)
+	// 80 MB of zeroes compresses down to ~80 KB, giving us a realistic
+	// ratio without making the test slow.
+	chunk := bytes.Repeat([]byte{0}, 64*1024)
+	for i := 0; i < 80*16; i++ {
+		gz.Write(chunk)
+	}
+	gz.Close()
+
+	resp := &http.Response{
+		Header: make(http.Header),
+		Body:   io.NopCloser(bytes.NewReader(buf.Bytes())),
+	}
+	resp.Header.Set(headerContentType, "text/html")
+	resp.Header.Set(headerContentEncoding, "gzip")
+
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	if err := rewriteResponseBody(resp, rewriter); err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	// Read back the (possibly truncated) body to make sure we didn't
+	// fully allocate the decompressed output.
+	body, _ := io.ReadAll(resp.Body)
+	if int64(len(body)) > maxRewriteSize+10 {
+		t.Errorf("body not capped: got %d bytes, want <= maxRewriteSize+10", len(body))
+	}
+}
+
+// TestDialBackend_Timeout covers findings.md H17: a backend that never
+// answers must not hang the WebSocket path indefinitely.
+func TestDialBackend_Timeout(t *testing.T) {
+	// A non-routable address (RFC 5737 TEST-NET-1). Dials will time out
+	// after the configured timeout rather than ever connecting.
+	targetURL, _ := url.Parse("http://192.0.2.1:65535")
+	route := &proxyRoute{
+		targetURL: targetURL,
+		timeout:   150 * time.Millisecond,
+	}
+
+	start := time.Now()
+	_, err := route.dialBackend()
+	elapsed := time.Since(start)
+
+	if err == nil {
+		t.Fatal("expected dial error against unroutable address")
+	}
+	if elapsed > 2*time.Second {
+		t.Errorf("dial should time out quickly, took %v", elapsed)
+	}
+}
+
 // TestStripSessionCookie validates that Muximux's own session cookie is
 // removed from outgoing Cookie headers. Backends must never see the session
 // identifier; leaking it gives any backend operator (or anyone between

@@ -531,3 +531,58 @@ func TestGenerateThemeCSS(t *testing.T) {
 		t.Error("expected color-scheme: light in CSS")
 	}
 }
+
+// TestWriteFileAtomic covers findings.md H18: the write must land
+// either fully or not at all, leaving no stray temp files in the
+// directory.
+func TestWriteFileAtomic(t *testing.T) {
+	t.Run("success overwrites target and cleans up", func(t *testing.T) {
+		dir := t.TempDir()
+		target := filepath.Join(dir, "theme.css")
+		if err := os.WriteFile(target, []byte("old"), 0o600); err != nil {
+			t.Fatal(err)
+		}
+
+		if err := writeFileAtomic(target, []byte("new content"), 0o600); err != nil {
+			t.Fatalf("writeFileAtomic: %v", err)
+		}
+
+		got, err := os.ReadFile(target)
+		if err != nil {
+			t.Fatalf("read target: %v", err)
+		}
+		if string(got) != "new content" {
+			t.Errorf("target contents = %q, want \"new content\"", got)
+		}
+
+		entries, err := os.ReadDir(dir)
+		if err != nil {
+			t.Fatalf("read dir: %v", err)
+		}
+		if len(entries) != 1 {
+			t.Errorf("expected just the target file, got %v", entries)
+		}
+	})
+
+	t.Run("respects mode bits", func(t *testing.T) {
+		dir := t.TempDir()
+		target := filepath.Join(dir, "theme.css")
+		if err := writeFileAtomic(target, []byte("data"), 0o600); err != nil {
+			t.Fatalf("writeFileAtomic: %v", err)
+		}
+		info, err := os.Stat(target)
+		if err != nil {
+			t.Fatalf("stat: %v", err)
+		}
+		if got := info.Mode().Perm(); got != 0o600 {
+			t.Errorf("mode = %o, want 0600", got)
+		}
+	})
+
+	t.Run("missing dir surfaces error", func(t *testing.T) {
+		target := filepath.Join(t.TempDir(), "no-such-dir", "theme.css")
+		if err := writeFileAtomic(target, []byte("x"), 0o600); err == nil {
+			t.Error("expected error for missing directory")
+		}
+	})
+}

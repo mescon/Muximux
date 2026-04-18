@@ -183,10 +183,13 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	// Generate CSS content
 	css := generateThemeCSS(id, &req)
 
-	// Write to file (filepath.Clean satisfies static analysis path-traversal checks;
-	// sanitizeThemeID already restricts id to [a-z0-9-])
+	// Atomic write: write to a temp file in the same directory and rename
+	// over the target. os.WriteFile leaves a truncated .css on crash
+	// mid-write, which ListThemes then surfaces as a valid (but broken)
+	// theme (findings.md H18). The temp file carries a random suffix so
+	// two concurrent saves of the same theme cannot race.
 	filename := filepath.Clean(filepath.Join(h.themesDir, id+".css"))
-	if err := os.WriteFile(filename, []byte(css), 0600); err != nil {
+	if err := writeFileAtomic(filename, []byte(css), 0o600); err != nil {
 		respondError(w, r, http.StatusInternalServerError, "Failed to save theme", "source", "themes", "theme", id, "error", err)
 		return
 	}

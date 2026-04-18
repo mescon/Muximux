@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/tls"
 	"fmt"
 	"io"
@@ -95,6 +96,7 @@ type proxyRoute struct {
 	targetURL         *url.URL
 	targetPath        string
 	skipTLSVerify     bool
+	timeout           time.Duration
 	proxy             *httputil.ReverseProxy
 	rewriter          *contentRewriter
 	customHeaders     map[string]string
@@ -680,10 +682,25 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 
 	rewriter := newContentRewriter(proxyPrefix, targetPath, targetURL.Host)
 
+	appName := app.Name
 	proxy := &httputil.ReverseProxy{
 		Director:       buildDirector(proxyPrefix, targetPath, targetURL, app.ProxyHeaders, sessionCookieName),
 		ModifyResponse: createModifyResponse(proxyPrefix, targetPath, rewriter), //nolint:bodyclose // response body managed by httputil.ReverseProxy
 		Transport:      transport,
+		ErrorHandler: func(w http.ResponseWriter, r *http.Request, err error) {
+			// httputil.ReverseProxy's default ErrorHandler is net/http's
+			// "Bad Gateway" with no log line. Emit a structured audit
+			// entry so an operator can correlate 502s with the backend
+			// that produced them (findings.md H15).
+			logging.From(r.Context()).Warn("Reverse proxy error",
+				"source", "proxy",
+				"app", appName,
+				"target", targetURL.String(),
+				"path", r.URL.Path,
+				"error", err,
+			)
+			respondError(w, r, http.StatusBadGateway, errBadGateway)
+		},
 	}
 
 	return &proxyRoute{
@@ -693,6 +710,7 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 		targetURL:         targetURL,
 		targetPath:        targetPath,
 		skipTLSVerify:     skipTLS,
+		timeout:           timeout,
 		proxy:             proxy,
 		rewriter:          rewriter,
 		customHeaders:     app.ProxyHeaders,
@@ -1317,15 +1335,24 @@ func rewriteResponseBody(resp *http.Response, rewriter *contentRewriter) error {
 	if isGzipped {
 		gzReader, err := gzip.NewReader(resp.Body)
 		if err != nil {
-			return nil
+			// Surface decode failures so ReverseProxy's ErrorHandler can
+			// return a clean 502 rather than forwarding a partially-
+			// consumed body as "success" (findings.md H15).
+			return fmt.Errorf("proxy: gzip open: %w", err)
 		}
 		reader = gzReader
 		defer gzReader.Close()
 	}
 
-	body, err := io.ReadAll(reader)
+	// Cap the decompressed size so an upstream sending an enormous
+	// Content-Encoding: gzip payload cannot expand into multi-GB of
+	// allocated memory and OOM the process (findings.md H16). The +1 lets
+	// us distinguish "exactly at the limit" from "definitely over".
+	limited := io.LimitReader(reader, maxRewriteSize+1)
+
+	body, err := io.ReadAll(limited)
 	if err != nil {
-		return nil
+		return fmt.Errorf("proxy: read body: %w", err)
 	}
 	resp.Body.Close()
 
@@ -1523,19 +1550,36 @@ func setProxyHeaders(r *http.Request) {
 }
 
 // dialBackend establishes a TCP connection (plain or TLS) to the backend.
+// The WebSocket path used bare net.Dial / tls.Dial before, which hangs
+// indefinitely on a dropped SYN-ACK and blocks the hijacked client
+// connection right along with it (findings.md H17). Use the route's
+// configured proxy timeout as both the connect and TLS handshake
+// deadline.
 func (route *proxyRoute) dialBackend() (net.Conn, error) {
 	targetHost := route.targetURL.Host
 	scheme := route.targetURL.Scheme
+
+	timeout := route.timeout
+	if timeout <= 0 {
+		timeout = 30 * time.Second
+	}
 
 	if scheme == "https" {
 		host := targetHost
 		if h, _, splitErr := net.SplitHostPort(targetHost); splitErr == nil {
 			host = h
 		}
-		return tls.Dial("tcp", targetHost, &tls.Config{
-			ServerName:         host,
-			InsecureSkipVerify: route.skipTLSVerify, //nolint:gosec // configurable per-app
-		})
+		dialer := &net.Dialer{Timeout: timeout}
+		tlsDialer := tls.Dialer{
+			NetDialer: dialer,
+			Config: &tls.Config{
+				ServerName:         host,
+				InsecureSkipVerify: route.skipTLSVerify, //nolint:gosec // configurable per-app
+			},
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), timeout)
+		defer cancel()
+		return tlsDialer.DialContext(ctx, "tcp", targetHost)
 	}
 
 	// If no port in host, default to 80
@@ -1543,7 +1587,7 @@ func (route *proxyRoute) dialBackend() (net.Conn, error) {
 	if _, _, splitErr := net.SplitHostPort(targetHost); splitErr != nil {
 		dialHost = targetHost + ":80"
 	}
-	return net.Dial("tcp", dialHost)
+	return net.DialTimeout("tcp", dialHost, timeout)
 }
 
 // buildUpgradeRequest constructs the raw HTTP upgrade request to send to the
