@@ -283,7 +283,9 @@ If `permissions` is omitted or empty, no features are delegated -- the browser's
 
 ## Notification Bridge
 
-Browsers block the Web Notifications API in cross-origin iframes, even when the embedded app has notification permission at the OS level. Muximux offers a `postMessage` bridge so opted-in apps can request a notification that is shown under Muximux's top-level origin.
+Browsers block the Web Notifications API in cross-origin iframes, even when the embedded app has notification permission at the OS level. Muximux can route notifications from embedded apps through its own top-level origin via a `postMessage` bridge.
+
+**If your app's notifications don't appear when embedded, try setting `proxy: true` on the app. Proxied apps get a transparent Notifications API shim so most existing apps work with no code changes.**
 
 Enable the bridge per-app:
 
@@ -291,10 +293,30 @@ Enable the bridge per-app:
 apps:
   - name: My App
     url: https://app.local
+    proxy: true                 # recommended: enables the transparent shim
     allow_notifications: true
 ```
 
-From inside the embedded app, post a message to the parent window:
+### How it works
+
+Muximux supports the bridge in two tiers, depending on whether the app is proxied:
+
+**Tier 1 — Proxied apps (recommended, zero code changes needed).**
+When `proxy: true` is set, Muximux injects a `Notification` API shim into the app's HTML. Any call the app makes to the standard Web Notifications API is transparently forwarded to Muximux:
+
+```javascript
+// Inside the embedded app — works as if Muximux wasn't there:
+new Notification('New message', { body: 'You have a new task' });
+
+// Permission checks also "just work" (always returns granted):
+if (Notification.permission === 'granted') { ... }
+await Notification.requestPermission();
+```
+
+Most existing apps use exactly this pattern, so they light up immediately once `allow_notifications` is enabled.
+
+**Tier 2 — Non-proxied apps (explicit bridge calls).**
+When `proxy: false`, Muximux cannot inject code into the iframe (browsers enforce cross-origin isolation). The app must explicitly post a message to the parent window:
 
 ```javascript
 window.parent.postMessage({
@@ -305,16 +327,21 @@ window.parent.postMessage({
 }, '*');
 ```
 
-Muximux validates the message:
+### Validation and behaviour
 
-- The `type` must be `'muximux:notify'`.
+Muximux validates every notification request:
+
+- The `type` must be `'muximux:notify'` (ignored otherwise).
 - The sending iframe must belong to an app with `allow_notifications: true`.
 - Rate limit: at most one notification per app every 2 seconds.
-
-Behaviour:
-
-- The notification uses the app's configured icon (Muximux ignores any icon URL in the message -- this prevents spoofing the branding of one app to impersonate another).
+- The notification always uses the app's configured icon. Muximux ignores any icon URL in the message so one embedded app cannot spoof another app's branding.
 - Clicking the notification focuses the Muximux tab and switches to the sending app. Arbitrary click targets from the message are ignored.
 - The first notification from any app triggers a browser permission prompt from Muximux's origin. Users grant or deny once for Muximux as a whole, not per embedded app.
+
+### Limitations
+
+- The shim only forwards `title`, `body`, and `tag`. Advanced Notification API features (`actions`, `data`, `onclick` handlers, service-worker-delivered notifications) are not supported.
+- Browsers only allow notifications in **secure contexts**. Muximux must be served over HTTPS or accessed via `localhost`/`127.0.0.1`. On plain HTTP (non-localhost), the browser permanently denies notifications and the bridge can do nothing about it.
+- If the user denies the Muximux-origin permission prompt, nothing shows — but the shim still returns `'granted'` to the embedded app. The app will believe its notification fired.
 
 > **Design note:** Because the permission belongs to Muximux's origin, any app you enable `allow_notifications` for can send notifications. Only enable this for apps you trust to send appropriate content.

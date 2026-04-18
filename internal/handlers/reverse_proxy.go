@@ -1039,6 +1039,25 @@ func (r *contentRewriter) interceptorScript() []byte {
 		`var _Au=window.Audio;` +
 		`if(_Au){window.Audio=function(u){return typeof u==="string"?new _Au(R(u)):new _Au};` +
 		`window.Audio.prototype=_Au.prototype}` +
+		// Shim the Notifications API so proxied apps can show notifications
+		// despite the browser's cross-origin iframe restriction. Calls are
+		// forwarded to Muximux via postMessage; Muximux's notification bridge
+		// shows the notification under its top-level origin. Requires
+		// allow_notifications: true on the app config. Apps that use the
+		// standard new Notification(title, {body}) API work without code changes.
+		`try{` +
+		`var _fakeN=function(t,o){` +
+		`o=o||{};` +
+		`window.parent.postMessage({type:"muximux:notify",title:t,body:o.body,tag:o.tag},"*");` +
+		`this.title=t;this.body=o.body||"";this.tag=o.tag||"";` +
+		`this.close=function(){};this.addEventListener=function(){};this.removeEventListener=function(){};` +
+		`};` +
+		`_fakeN.permission="granted";` +
+		`_fakeN.requestPermission=function(cb){var p=Promise.resolve("granted");` +
+		`if(typeof cb==="function")cb("granted");return p};` +
+		`_fakeN.maxActions=0;` +
+		`Object.defineProperty(window,"Notification",{value:_fakeN,writable:true,configurable:true})` +
+		`}catch(e){}` +
 		// Namespace localStorage and sessionStorage so each proxied app gets
 		// isolated storage, preventing key collisions across apps sharing the
 		// same origin. Keys are prefixed with the proxy path (e.g.

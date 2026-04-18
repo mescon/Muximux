@@ -3088,6 +3088,33 @@ func TestRewriteCORSHeaders(t *testing.T) {
 	}
 }
 
+func TestInterceptorScriptNotificationShim(t *testing.T) {
+	rewriter := newContentRewriter("/proxy/app", "", "")
+	script := string(rewriter.interceptorScript())
+
+	// The shim replaces window.Notification so proxied apps can use the
+	// standard API without knowing about the Muximux bridge.
+	if !strings.Contains(script, `Object.defineProperty(window,"Notification"`) {
+		t.Error("interceptor should redefine window.Notification")
+	}
+
+	// The shim must forward to the parent via postMessage using the bridge
+	// protocol (type: muximux:notify).
+	if !strings.Contains(script, `"type":"muximux:notify"`) && !strings.Contains(script, `type:"muximux:notify"`) {
+		t.Error("interceptor Notification shim should postMessage with type muximux:notify")
+	}
+
+	// requestPermission must always resolve to granted — the real permission
+	// belongs to Muximux's top-level origin; the shim tells the embedded app
+	// to proceed and lets the bridge handle the actual Notification call.
+	if !strings.Contains(script, `_fakeN.permission="granted"`) {
+		t.Error("interceptor Notification shim should report permission as granted")
+	}
+	if !strings.Contains(script, `requestPermission=function`) {
+		t.Error("interceptor Notification shim should stub requestPermission")
+	}
+}
+
 func TestInterceptorScriptNavigationAPISkipFlag(t *testing.T) {
 	rewriter := newContentRewriter("/proxy/mealie", "", "")
 	script := string(rewriter.interceptorScript())
