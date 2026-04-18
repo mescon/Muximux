@@ -22,6 +22,7 @@
   import { findAction, initKeybindings, type KeyAction } from './lib/keybindingsStore';
   import { initDebug, debug } from './lib/debug';
   import { syncFaviconsWithTheme } from './lib/favicon';
+  import { installNotificationBridge } from './lib/notificationBridge';
   import { syncLocaleFromConfig } from './lib/localeStore';
   import { getLocale } from '$lib/paraglide/runtime.js';
   import * as m from '$lib/paraglide/messages.js';
@@ -114,6 +115,9 @@
 
   // Version info (fetched after auth)
   let appVersion = $state('');
+
+  // Cleanup handle for the notification bridge listener
+  let bridgeCleanup: (() => void) | null = null;
 
   /**
    * Resolve template variables in the dashboard title.
@@ -260,6 +264,15 @@
 
     // Auto-switch active split panel when the user clicks inside an iframe.
     document.addEventListener('focus', handleIframeFocus, true);
+
+    // Notification bridge — embedded apps with allow_notifications can
+    // postMessage Muximux to show browser notifications.
+    const removeNotificationBridge = installNotificationBridge({
+      getApps: () => apps,
+      onActivate: (app) => selectApp(app),
+      baseUrl: (globalThis as unknown as Record<string, string>).__MUXIMUX_BASE__ || '',
+    });
+    bridgeCleanup = removeNotificationBridge;
 
     // Handle browser back/forward with hash-based app routing.
     // Sync currentNavHash BEFORE calling selectAppFromHash so that the
@@ -421,6 +434,7 @@
     stopHealthPolling();
     disconnectWs();
     document.removeEventListener('focus', handleIframeFocus, true);
+    bridgeCleanup?.();
   });
 
   async function handleLoginSuccess() {
