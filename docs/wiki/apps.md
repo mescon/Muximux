@@ -35,6 +35,10 @@ apps:
     shortcut: 1                      # Assign keyboard shortcut 1-9
     min_role: ""                     # Minimum role to see this app (user, power-user, admin)
     force_icon_background: false     # Show icon background even when global setting is off
+    permissions:                    # Browser features delegated to the iframe (see below)
+      - camera
+      - microphone
+    allow_notifications: false       # Enable the postMessage notification bridge (see below)
     access:                         # Restrict access to specific roles/users
       roles: []
       users: []
@@ -239,3 +243,78 @@ apps:
 If `access` is not set on an app, all authenticated users can see it.
 
 You can use `roles`, `users`, or both. When both are specified, a user who matches **either** condition gains access -- they do not need to satisfy both.
+
+---
+
+## Iframe Permissions
+
+Modern browsers deny sensitive features (camera, microphone, geolocation, etc.) to cross-origin iframes by default. To let an embedded app use these features, you must explicitly delegate them via the `permissions` field.
+
+```yaml
+apps:
+  - name: Video Meeting
+    url: https://meet.local
+    permissions:
+      - camera
+      - microphone
+      - display-capture
+      - fullscreen
+```
+
+Available permission names follow the [Permissions Policy spec](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy). Commonly used values:
+
+| Permission | What it unlocks |
+|------------|-----------------|
+| `camera` | `getUserMedia({ video: true })` |
+| `microphone` | `getUserMedia({ audio: true })` |
+| `geolocation` | `navigator.geolocation` |
+| `display-capture` | Screen sharing via `getDisplayMedia()` |
+| `fullscreen` | `element.requestFullscreen()` |
+| `clipboard-read` / `clipboard-write` | Clipboard API |
+| `autoplay` | Unmuted autoplay of audio/video |
+| `midi` | Web MIDI API |
+| `payment` | Payment Request API |
+
+When `proxy: true` is set, Muximux delegates the permission to `'self'` (the proxy's own origin). For non-proxied apps, the permission is delegated to the app's specific origin (e.g. `camera 'self' https://meet.local`).
+
+If `permissions` is omitted or empty, no features are delegated -- the browser's default-deny behaviour stays in effect.
+
+---
+
+## Notification Bridge
+
+Browsers block the Web Notifications API in cross-origin iframes, even when the embedded app has notification permission at the OS level. Muximux offers a `postMessage` bridge so opted-in apps can request a notification that is shown under Muximux's top-level origin.
+
+Enable the bridge per-app:
+
+```yaml
+apps:
+  - name: My App
+    url: https://app.local
+    allow_notifications: true
+```
+
+From inside the embedded app, post a message to the parent window:
+
+```javascript
+window.parent.postMessage({
+  type: 'muximux:notify',
+  title: 'New message',    // up to 120 chars
+  body: 'You have a new task waiting.',  // up to 400 chars
+  tag: 'task-123'          // optional: replaces earlier notifications with the same tag
+}, '*');
+```
+
+Muximux validates the message:
+
+- The `type` must be `'muximux:notify'`.
+- The sending iframe must belong to an app with `allow_notifications: true`.
+- Rate limit: at most one notification per app every 2 seconds.
+
+Behaviour:
+
+- The notification uses the app's configured icon (Muximux ignores any icon URL in the message -- this prevents spoofing the branding of one app to impersonate another).
+- Clicking the notification focuses the Muximux tab and switches to the sending app. Arbitrary click targets from the message are ignored.
+- The first notification from any app triggers a browser permission prompt from Muximux's origin. Users grant or deny once for Muximux as a whole, not per embedded app.
+
+> **Design note:** Because the permission belongs to Muximux's origin, any app you enable `allow_notifications` for can send notifications. Only enable this for apps you trust to send appropriate content.
