@@ -50,11 +50,20 @@ func writeFileAtomic(filename string, data []byte, perm os.FileMode) error {
 	return nil
 }
 
-// sendJSON writes a JSON response with the given status code.
+// sendJSON writes a JSON response with the given status code. Encode
+// and write errors are surfaced to the server log at warning level so
+// a truncated response (client disconnect mid-write, or a value that
+// produced a marshal error after the status line was committed) is
+// visible in logs instead of becoming an invisible audit gap
+// (findings.md H8). The HTTP response has already been partially sent
+// at this point, so there is nothing the handler can do for the
+// client beyond the log entry.
 func sendJSON(w http.ResponseWriter, status int, data interface{}) {
 	w.Header().Set(headerContentType, contentTypeJSON)
 	w.WriteHeader(status)
-	json.NewEncoder(w).Encode(data)
+	if err := json.NewEncoder(w).Encode(data); err != nil {
+		logging.Warn("Failed to write JSON response", "source", "handlers", "status", status, "error", err)
+	}
 }
 
 const (

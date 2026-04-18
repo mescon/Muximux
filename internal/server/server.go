@@ -904,8 +904,16 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Strict decode: unknown fields reject the import rather than being
+	// silently ignored (findings.md M7). Without this, a backup that
+	// carried fields not yet known to this Muximux version would load
+	// as a "success" with the unknown fields quietly dropped, and a
+	// future code change that added one of those names as a sensitive
+	// field would inherit them unexpectedly.
 	var cfg config.Config
-	if err := yaml.Unmarshal(body, &cfg); err != nil {
+	dec := yaml.NewDecoder(bytes.NewReader(body))
+	dec.KnownFields(true)
+	if err := dec.Decode(&cfg); err != nil {
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusBadRequest)
 		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Invalid YAML: %s", err.Error())})

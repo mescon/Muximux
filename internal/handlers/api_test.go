@@ -1635,6 +1635,31 @@ apps:
 		}
 	})
 
+	// findings.md M7: unknown fields in the imported YAML must be
+	// rejected, not silently dropped. This guards against future
+	// mass-assignment if the Config struct gains a field whose name
+	// happens to match something carried in a stale backup.
+	t.Run("rejects unknown fields", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+
+		yamlBody := []byte(`
+apps:
+  - name: Sonarr
+    url: http://localhost:8989
+    enabled: true
+unknown_future_field: "this should not be accepted"
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+
+		handler.ParseImportedConfig(w, req)
+
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 for unknown field, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
 	t.Run("wrong method", func(t *testing.T) {
 		cfg := createTestConfig()
 		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})

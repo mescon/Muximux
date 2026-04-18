@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -109,8 +110,16 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	// KnownFields(true) rejects any YAML field not declared on the
+	// Config struct. Guards against mass-assignment: if a sensitive
+	// field is ever added to Config, an older backup that happens to
+	// contain a field of the same name cannot seed it without an
+	// explicit code change acknowledging the import path
+	// (findings.md M7).
 	var cfg config.Config
-	if err := yaml.Unmarshal(body, &cfg); err != nil {
+	dec := yaml.NewDecoder(bytes.NewReader(body))
+	dec.KnownFields(true)
+	if err := dec.Decode(&cfg); err != nil {
 		respondError(w, r, http.StatusBadRequest, fmt.Sprintf("Invalid YAML: %s", err.Error()), "source", "config", "error", err)
 		return
 	}
