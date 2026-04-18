@@ -350,9 +350,14 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	mux.HandleFunc("/api/auth/oidc/login", authHandler.OIDCLogin)
 	mux.HandleFunc("/api/auth/oidc/callback", authHandler.OIDCCallback)
 
-	// WebSocket endpoint
+	// WebSocket endpoint. The top-level RequireAuth middleware guarantees a
+	// user is in context; we read the role here so the hub can filter
+	// admin-only broadcasts (config snapshots, raw log lines) away from
+	// non-admin subscribers.
 	mux.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
-		websocket.ServeWs(wsHub, w, r)
+		user := auth.GetUserFromContext(r.Context())
+		isAdmin := user != nil && user.Role == auth.RoleAdmin
+		websocket.ServeWs(wsHub, w, r, isAdmin)
 	})
 
 	return loginLimiter

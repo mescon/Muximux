@@ -39,17 +39,22 @@ var upgrader = websocket.Upgrader{
 
 // Client represents a WebSocket connection
 type Client struct {
-	hub  *Hub
-	conn *websocket.Conn
-	send chan []byte
+	hub     *Hub
+	conn    *websocket.Conn
+	send    chan []byte
+	isAdmin bool
 }
 
-// NewClient creates a new WebSocket client
-func NewClient(hub *Hub, conn *websocket.Conn) *Client {
+// NewClient creates a new WebSocket client. isAdmin, when true, allows the
+// client to receive events flagged adminOnly (config updates, raw log
+// lines). Callers are responsible for deriving this from the authenticated
+// user's role.
+func NewClient(hub *Hub, conn *websocket.Conn, isAdmin bool) *Client {
 	return &Client{
-		hub:  hub,
-		conn: conn,
-		send: make(chan []byte, 256),
+		hub:     hub,
+		conn:    conn,
+		send:    make(chan []byte, 256),
+		isAdmin: isAdmin,
 	}
 }
 
@@ -124,15 +129,17 @@ func (c *Client) WritePump() {
 	}
 }
 
-// ServeWs handles WebSocket requests from the peer
-func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request) {
+// ServeWs handles WebSocket requests from the peer. isAdmin tags the client
+// as privileged so it receives admin-only broadcasts; non-admin clients
+// continue to receive health updates but not config/log events.
+func ServeWs(hub *Hub, w http.ResponseWriter, r *http.Request, isAdmin bool) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		logging.Error("WebSocket upgrade failed", "source", "websocket", "error", err)
 		return
 	}
 
-	client := NewClient(hub, conn)
+	client := NewClient(hub, conn, isAdmin)
 	hub.Register(client)
 
 	// Start the client pumps in new goroutines

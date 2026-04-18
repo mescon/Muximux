@@ -21,6 +21,10 @@ const (
 type Event struct {
 	Type    EventType   `json:"type"`
 	Payload interface{} `json:"payload"`
+	// adminOnly restricts the event to clients flagged as admin. Kept
+	// unexported (no JSON tag) so the wire format is unchanged and clients
+	// cannot learn that a sensitive event exists.
+	adminOnly bool
 }
 
 // Hub maintains the set of active clients and broadcasts messages
@@ -71,6 +75,13 @@ func (h *Hub) Run() {
 			var toDrop []*Client
 			h.mu.RLock()
 			for client := range h.clients {
+				// Admin-only events must not be delivered to
+				// non-admin clients: the payload contains full
+				// config (user table, API key hash, trusted
+				// proxies) or raw log lines (audit usernames).
+				if event.adminOnly && !client.isAdmin {
+					continue
+				}
 				select {
 				case client.send <- data:
 				default:
@@ -109,11 +120,14 @@ func (h *Hub) Broadcast(event Event) {
 	h.broadcast <- event
 }
 
-// BroadcastConfigUpdate sends a config update event
+// BroadcastConfigUpdate sends a config update event. Restricted to admin
+// clients because the payload includes user records, API-key hashes, and
+// trusted-proxy networks.
 func (h *Hub) BroadcastConfigUpdate(config interface{}) {
 	h.Broadcast(Event{
-		Type:    EventConfigUpdated,
-		Payload: config,
+		Type:      EventConfigUpdated,
+		Payload:   config,
+		adminOnly: true,
 	})
 }
 
@@ -136,11 +150,14 @@ func (h *Hub) BroadcastAppHealthUpdate(appName string, health interface{}) {
 	})
 }
 
-// BroadcastLogEntry sends a log entry event to all connected clients
+// BroadcastLogEntry sends a log entry event. Restricted to admin clients
+// because log lines include audit entries (usernames, client IPs) and
+// panic stack traces.
 func (h *Hub) BroadcastLogEntry(entry interface{}) {
 	h.Broadcast(Event{
-		Type:    EventLogEntry,
-		Payload: entry,
+		Type:      EventLogEntry,
+		Payload:   entry,
+		adminOnly: true,
 	})
 }
 

@@ -88,8 +88,8 @@ func TestHub_Broadcast(t *testing.T) {
 	go hub.Run()
 
 	// Create and register two clients
-	client1 := &Client{hub: hub, send: make(chan []byte, 256)}
-	client2 := &Client{hub: hub, send: make(chan []byte, 256)}
+	client1 := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
+	client2 := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 
 	hub.Register(client1)
 	hub.Register(client2)
@@ -141,7 +141,7 @@ func TestHub_BroadcastConfigUpdate(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
 
-	client := &Client{hub: hub, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 	hub.Register(client)
 	time.Sleep(50 * time.Millisecond)
 
@@ -168,7 +168,7 @@ func TestHub_BroadcastHealthUpdate(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
 
-	client := &Client{hub: hub, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 	hub.Register(client)
 	time.Sleep(50 * time.Millisecond)
 
@@ -195,7 +195,7 @@ func TestHub_BroadcastAppHealthUpdate(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
 
-	client := &Client{hub: hub, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 	hub.Register(client)
 	time.Sleep(50 * time.Millisecond)
 
@@ -230,7 +230,7 @@ func TestHub_BroadcastLogEntry(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
 
-	client := &Client{hub: hub, send: make(chan []byte, 256)}
+	client := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 	hub.Register(client)
 	time.Sleep(50 * time.Millisecond)
 
@@ -272,8 +272,8 @@ func TestHub_BroadcastLogEntry_MultipleClients(t *testing.T) {
 	hub := NewHub()
 	go hub.Run()
 
-	client1 := &Client{hub: hub, send: make(chan []byte, 256)}
-	client2 := &Client{hub: hub, send: make(chan []byte, 256)}
+	client1 := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
+	client2 := &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 	hub.Register(client1)
 	hub.Register(client2)
 	time.Sleep(50 * time.Millisecond)
@@ -316,7 +316,7 @@ func TestHub_MultipleRegistrations(t *testing.T) {
 
 	clients := make([]*Client, 10)
 	for i := range clients {
-		clients[i] = &Client{hub: hub, send: make(chan []byte, 256)}
+		clients[i] = &Client{hub: hub, send: make(chan []byte, 256), isAdmin: true}
 		hub.Register(clients[i])
 	}
 

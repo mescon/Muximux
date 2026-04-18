@@ -13,7 +13,7 @@ import (
 func TestNewClient(t *testing.T) {
 	hub := NewHub()
 	// Create a mock connection (nil for unit test of constructor)
-	client := NewClient(hub, nil)
+	client := NewClient(hub, nil, true)
 
 	if client == nil {
 		t.Fatal("expected non-nil client")
@@ -28,13 +28,23 @@ func TestNewClient(t *testing.T) {
 	if cap(client.send) != 256 {
 		t.Errorf("expected send channel capacity 256, got %d", cap(client.send))
 	}
+	if !client.isAdmin {
+		t.Error("expected isAdmin to be true")
+	}
 }
 
-// testWSServer creates a test HTTP server with WebSocket support.
+// testWSServer creates a test HTTP server that upgrades connections as
+// admin. Tests that exercise role-based filtering use testWSServerAs
+// directly so they can opt in to non-admin.
 func testWSServer(t *testing.T, hub *Hub) *httptest.Server {
 	t.Helper()
+	return testWSServerAs(t, hub, true)
+}
+
+func testWSServerAs(t *testing.T, hub *Hub, isAdmin bool) *httptest.Server {
+	t.Helper()
 	return httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		ServeWs(hub, w, r)
+		ServeWs(hub, w, r, isAdmin)
 	}))
 }
 
@@ -235,6 +245,87 @@ func TestUpgrader_OriginCheck(t *testing.T) {
 			t.Error("cross-origin should be rejected")
 		}
 	})
+}
+
+// TestBroadcast_FilterByRole covers the gating introduced for findings.md
+// C3: admin-only events (config snapshot, log entries) must not reach
+// non-admin subscribers, while health updates continue to reach everyone.
+func TestBroadcast_FilterByRole(t *testing.T) {
+	hub := NewHub()
+	go hub.Run()
+
+	adminSrv := testWSServerAs(t, hub, true)
+	defer adminSrv.Close()
+	userSrv := testWSServerAs(t, hub, false)
+	defer userSrv.Close()
+
+	dial := func(srv *httptest.Server) *websocket.Conn {
+		wsURL := "ws" + strings.TrimPrefix(srv.URL, "http") + "/"
+		conn, resp, err := websocket.DefaultDialer.Dial(wsURL, http.Header{
+			"Origin": []string{srv.URL},
+		})
+		if err != nil {
+			t.Fatalf("dial failed: %v", err)
+		}
+		resp.Body.Close()
+		return conn
+	}
+
+	adminConn := dial(adminSrv)
+	defer adminConn.Close()
+	userConn := dial(userSrv)
+	defer userConn.Close()
+
+	time.Sleep(50 * time.Millisecond)
+	if hub.ClientCount() != 2 {
+		t.Fatalf("expected 2 clients, got %d", hub.ClientCount())
+	}
+
+	// Fire both events first so the user connection's read stream has at
+	// most the health update (the admin-only event was filtered before the
+	// send channel). Then assert the admin saw both in order and the user
+	// saw exactly the health update.
+	hub.BroadcastConfigUpdate(map[string]string{"title": "sensitive"})
+	hub.BroadcastAppHealthUpdate("sonarr", map[string]string{"status": "up"})
+	time.Sleep(200 * time.Millisecond)
+
+	readAll := func(conn *websocket.Conn) []string {
+		var msgs []string
+		for {
+			_ = conn.SetReadDeadline(time.Now().Add(300 * time.Millisecond))
+			_, m, readErr := conn.ReadMessage()
+			if readErr != nil {
+				return msgs
+			}
+			msgs = append(msgs, string(m))
+		}
+	}
+
+	adminMsgs := readAll(adminConn)
+	userMsgs := readAll(userConn)
+
+	countContains := func(haystacks []string, needle string) int {
+		n := 0
+		for _, h := range haystacks {
+			if strings.Contains(h, needle) {
+				n++
+			}
+		}
+		return n
+	}
+
+	if countContains(adminMsgs, "config_updated") != 1 {
+		t.Errorf("admin expected 1 config_updated, got %d (%v)", countContains(adminMsgs, "config_updated"), adminMsgs)
+	}
+	if countContains(adminMsgs, "app_health_changed") != 1 {
+		t.Errorf("admin expected 1 app_health_changed, got %d (%v)", countContains(adminMsgs, "app_health_changed"), adminMsgs)
+	}
+	if countContains(userMsgs, "config_updated") != 0 {
+		t.Errorf("non-admin received admin-only broadcast: %v", userMsgs)
+	}
+	if countContains(userMsgs, "app_health_changed") != 1 {
+		t.Errorf("non-admin expected 1 app_health_changed, got %v", userMsgs)
+	}
 }
 
 func TestClient_ConnectionDrop(t *testing.T) {
