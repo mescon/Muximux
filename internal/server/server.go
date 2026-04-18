@@ -1510,6 +1510,14 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
 
+		// HSTS on any request that actually arrived over TLS. Keep the
+		// max-age modest (one year) and opt out of includeSubDomains by
+		// default since the cookie-Domain is usually a single host
+		// (findings.md L5).
+		if r.TLS != nil {
+			w.Header().Set("Strict-Transport-Security", "max-age=31536000")
+		}
+
 		// Skip CSP and X-Frame-Options for proxied content — those apps have
 		// their own scripts, styles, and framing needs that our policy would break.
 		if !strings.HasPrefix(r.URL.Path, proxyPathPrefix) {

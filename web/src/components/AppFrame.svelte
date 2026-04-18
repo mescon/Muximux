@@ -225,6 +225,7 @@
     style:height
     sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals"
     allow={allowAttr}
+    referrerpolicy="no-referrer-when-downgrade"
     allowfullscreen
     onload={handleIframeLoad}
     onerror={handleIframeError}

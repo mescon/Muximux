@@ -163,3 +163,27 @@ For transparency, here are ASVS categories that are not applicable to Muximux's 
 5. **Use the reverse proxy for sensitive apps** -- Set `proxy: true` on apps that should be gated behind Muximux's authentication.
 6. **Restrict network access** -- In a homelab, consider running Muximux on an internal network or behind a VPN for defense-in-depth.
 7. **Monitor audit logs** -- Filter for `source=audit` in the log viewer to track authentication and configuration events.
+
+---
+
+## Architectural Trade-offs
+
+These are design choices whose security implications are worth calling out so operators can weigh them against their threat model.
+
+### Proxied apps share Muximux's origin
+
+When an app is configured with `proxy: true`, the reverse proxy serves it at `/proxy/{slug}/` on Muximux's own origin. This enables a few headline features: same-origin iframe embedding without X-Frame-Options friction, transparent cookie scoping, and the runtime request interceptor that rewrites fetch/XHR/WebSocket URLs for SPAs with hard-coded paths.
+
+The trade-off is that a compromised or intentionally malicious proxied app is not meaningfully isolated from Muximux itself:
+
+- The iframe sandbox (`allow-scripts allow-same-origin`) specifically disables the "null origin" protection for same-origin content. An attacker who can run script inside the iframe can reach into Muximux's origin.
+- Muximux deliberately strips `Content-Security-Policy` and `X-Frame-Options` from proxied responses, because the interceptor script needs to run and upstream CSP would block it. This means any reflected-XSS primitive the upstream had is no longer constrained by its own CSP when accessed through Muximux.
+- Same-origin also means the session cookie is attached to `/proxy/...` requests, so cookie stripping in the proxy's Director (introduced as part of the batch-2 hardening) is load-bearing; Muximux's session no longer leaks to backends, but the proxied iframe itself is still same-origin from the browser's point of view.
+
+Practically, this means: **trust a proxied app the way you trust its upstream, plus Muximux**. If you put a random untrusted web service behind `proxy: true`, any compromise of that service is a compromise of your Muximux admin surface. For apps you manage (Sonarr, Jellyfin, Home Assistant, etc.), this is fine; for third-party or multi-tenant apps, either leave `proxy: false` (iframes them as cross-origin) or don't embed them at all.
+
+### Permissions-Policy is permissive
+
+The HTTP `Permissions-Policy` header is the ceiling for iframe `allow` delegations. An iframe can only grant features the parent page is itself permitted to use, so Muximux ships with every delegatable feature set to `*`. This lets per-app iframe `allow` attributes scope camera/microphone/WebAuthn/etc. down to specific app origins. Muximux's own frontend never calls these APIs, so the wide ceiling does not broaden Muximux's own attack surface -- the narrowing happens per-iframe.
+
+If you want to tighten this, per-app delegation is controlled by the `permissions` array on each app.

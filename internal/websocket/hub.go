@@ -53,8 +53,9 @@ func (h *Hub) Run() {
 		case client := <-h.register:
 			h.mu.Lock()
 			h.clients[client] = true
+			total := len(h.clients)
 			h.mu.Unlock()
-			logging.Debug("WebSocket client connected", "source", "websocket", "total_clients", len(h.clients))
+			logging.Debug("WebSocket client connected", "source", "websocket", "total_clients", total)
 
 		case client := <-h.unregister:
 			h.mu.Lock()
@@ -62,8 +63,9 @@ func (h *Hub) Run() {
 				delete(h.clients, client)
 				close(client.send)
 			}
+			total := len(h.clients)
 			h.mu.Unlock()
-			logging.Debug("WebSocket client disconnected", "source", "websocket", "total_clients", len(h.clients))
+			logging.Debug("WebSocket client disconnected", "source", "websocket", "total_clients", total)
 
 		case event := <-h.broadcast:
 			data, err := json.Marshal(event)
