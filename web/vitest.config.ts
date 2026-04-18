@@ -1,0 +1,36 @@
+import { defineConfig } from 'vitest/config';
+import { svelte } from '@sveltejs/vite-plugin-svelte';
+import path from 'node:path';
+
+export default defineConfig({
+  plugins: [svelte()],
+  resolve: {
+    conditions: ['browser'],
+    alias: {
+      $lib: path.resolve('./src/lib'),
+    },
+  },
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    pool: 'forks',
+    include: ['src/**/*.{test,spec}.{js,ts}'],
+    setupFiles: ['./src/test/setup.ts'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html', 'lcov'],
+      include: ['src/lib/**/*.ts', 'src/components/**/*.svelte'],
+      exclude: ['src/test/**', '**/*.d.ts', 'src/lib/paraglide/**'],
+      thresholds: {
+        statements: 85,
+        branches: 70,
+        functions: 80,
+        lines: 85,
+      },
+    },
+    // Properly handle Svelte component tests
+    alias: {
+      $lib: path.resolve('./src/lib'),
+    },
+  },
+});

@@ -1,0 +1,40 @@
+language: en-US
+reviews:
+  auto_review:
+    enabled: true
+  path_instructions:
+    - path: "internal/**/*.go"
+      instructions: |
+        Go backend code. Check for:
+        - Proper error handling (no silently ignored errors)
+        - Doc comments on all exported identifiers
+        - Thread safety when accessing shared state
+        - HTTP handler patterns consistent with existing code (handlers return void, write errors directly)
+        - No secrets or credentials in code
+    - path: "web/src/**/*.svelte"
+      instructions: |
+        Svelte frontend components. Check for:
+        - Reactive declarations used correctly
+        - Event handlers properly typed
+        - Accessibility attributes on interactive elements
+        - Consistent use of CSS custom properties for theming
+    - path: "web/src/lib/**/*.ts"
+      instructions: |
+        TypeScript library code shared across components. Check for:
+        - Types match the Go backend config structs
+        - No use of 'any' type without justification
+        - Proper null/undefined handling
+    - path: ".github/workflows/**"
+      instructions: |
+        GitHub Actions workflow files. Check for:
+        - Pinned action versions with commit SHAs (not tags)
+        - No use of untrusted input in run: commands (command injection)
+        - Proper use of secrets (never logged or echoed)
+        - Job dependencies (needs:) are correct
+    - path: "Dockerfile"
+      instructions: |
+        Multi-stage Docker build. Check for:
+        - Minimal final image (alpine-based, no build tools)
+        - Proper layer caching (dependencies before source)
+        - No secrets baked into the image
+        - PUID/PGID entrypoint pattern preserved

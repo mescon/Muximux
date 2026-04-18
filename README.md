@@ -1,0 +1,307 @@
+<p align="center">
+  <img src="web/public/muximux-logo.svg" width="200" alt="Muximux">
+</p>
+
+# Muximux
+
+A self-hosted homelab dashboard with an optional built-in reverse proxy that makes stubborn apps work in iframes.
+
+One binary. One port. One YAML config file.
+
+[![CI](https://github.com/mescon/Muximux/actions/workflows/ci.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/ci.yml)
+[![CodeQL](https://github.com/mescon/Muximux/actions/workflows/codeql.yml/badge.svg)](https://github.com/mescon/Muximux/actions/workflows/codeql.yml)
+[![Go Report Card](https://goreportcard.com/badge/github.com/mescon/muximux/v3)](https://goreportcard.com/report/github.com/mescon/muximux/v3)
+[![Quality Gate](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=alert_status)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Maintainability](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=sqale_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Security](https://sonarcloud.io/api/project_badges/measure?project=mescon_Muximux&metric=security_rating)](https://sonarcloud.io/summary/overall?id=mescon_Muximux)
+[![Codecov](https://codecov.io/gh/mescon/Muximux/branch/main/graph/badge.svg)](https://codecov.io/gh/mescon/Muximux)
+[![OWASP ASVS](https://img.shields.io/badge/OWASP_ASVS-Level_2-005571?logo=owasp)](docs/wiki/security.md)
+[![Docker](https://img.shields.io/badge/ghcr.io-mescon%2Fmuximux-blue?logo=docker)](https://ghcr.io/mescon/muximux)
+[![Release](https://img.shields.io/github/v/release/mescon/Muximux)](https://github.com/mescon/Muximux/releases/latest)
+![License](https://img.shields.io/badge/License-GPL%20v2-blue)
+
+> **AI Disclosure** -- Muximux is developed with significant AI assistance (Claude Code). All code is reviewed, tested, and approved by the maintainer before shipping. See [Development](#development) for details.
+
+![Muximux Dashboard](docs/screenshots/09-dashboard-dark.png)
+
+<details>
+<summary><strong>More screenshots</strong> — onboarding wizard, light mode, themes, split view, command palette</summary>
+<br>
+<table>
+<tr>
+<td align="center"><a href="docs/screenshots/10-dashboard-light.png"><img src="docs/screenshots/10-dashboard-light.png" width="280" alt="Dashboard (Light)"></a><br><sub>Dashboard (Light)</sub></td>
+<td align="center"><a href="docs/screenshots/01-welcome.png"><img src="docs/screenshots/01-welcome.png" width="280" alt="Onboarding — Welcome"></a><br><sub>Onboarding — Welcome</sub></td>
+<td align="center"><a href="docs/screenshots/02-security.png"><img src="docs/screenshots/02-security.png" width="280" alt="Onboarding — Security"></a><br><sub>Onboarding — Security</sub></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/screenshots/03-apps-catalog.png"><img src="docs/screenshots/03-apps-catalog.png" width="280" alt="Onboarding — App Catalog"></a><br><sub>Onboarding — App Catalog</sub></td>
+<td align="center"><a href="docs/screenshots/04-apps-selected.png"><img src="docs/screenshots/04-apps-selected.png" width="280" alt="Onboarding — Apps Configured"></a><br><sub>Onboarding — Apps Configured</sub></td>
+<td align="center"><a href="docs/screenshots/05-style.png"><img src="docs/screenshots/05-style.png" width="280" alt="Onboarding — Style"></a><br><sub>Onboarding — Style</sub></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/screenshots/06-theme-dark.png"><img src="docs/screenshots/06-theme-dark.png" width="280" alt="Onboarding — Themes (Dark)"></a><br><sub>Onboarding — Themes (Dark)</sub></td>
+<td align="center"><a href="docs/screenshots/07-theme-light.png"><img src="docs/screenshots/07-theme-light.png" width="280" alt="Onboarding — Themes (Light)"></a><br><sub>Onboarding — Themes (Light)</sub></td>
+<td align="center"><a href="docs/screenshots/08-done.png"><img src="docs/screenshots/08-done.png" width="280" alt="Onboarding — Done"></a><br><sub>Onboarding — Done</sub></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/screenshots/13-logs.png"><img src="docs/screenshots/13-logs.png" width="280" alt="Real-Time Log Viewer"></a><br><sub>Real-Time Log Viewer</sub></td>
+<td align="center"><a href="docs/screenshots/11-themes.png"><img src="docs/screenshots/11-themes.png" width="280" alt="Theme Selector"></a><br><sub>Theme Selector</sub></td>
+<td align="center"><a href="docs/screenshots/12-theme-customizer.png"><img src="docs/screenshots/12-theme-customizer.png" width="280" alt="Theme Customizer"></a><br><sub>Theme Customizer</sub></td>
+</tr>
+<tr>
+<td align="center"><a href="docs/screenshots/14-split-horizontal.png"><img src="docs/screenshots/14-split-horizontal.png" width="280" alt="Split View — Horizontal"></a><br><sub>Split View — Horizontal</sub></td>
+<td align="center"><a href="docs/screenshots/15-split-vertical.png"><img src="docs/screenshots/15-split-vertical.png" width="280" alt="Split View — Vertical"></a><br><sub>Split View — Vertical</sub></td>
+<td align="center"><a href="docs/screenshots/16-command-palette.png"><img src="docs/screenshots/16-command-palette.png" width="280" alt="Command Palette"></a><br><sub>Command Palette</sub></td>
+</tr>
+</table>
+</details>
+
+---
+
+## What Is Muximux?
+
+There's a good chance you already have a homelab dashboard. [Homepage](https://gethomepage.dev), [Homarr](https://homarr.dev), [Organizr](https://github.com/causefx/Organizr), and [Dashy](https://dashy.to) are all excellent tools in this space. If one of them already fits your workflow, you probably don't need to read further.
+
+Muximux is built for a specific kind of user: someone who spends the day working *inside* their self-hosted apps, not glancing at widgets on a landing page. Click Sonarr and Sonarr opens inside the dashboard. Click Plex and Plex does too. No new tabs, no context switches. You never actually leave Muximux.
+
+Making apps embed reliably is where it gets interesting. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in reverse proxy that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime so even heavy single-page apps work the way they do when opened directly. Most dashboards point at your apps. Muximux makes them actually embed.
+
+There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a drag-and-drop visual editor (Homarr excels there). It doesn't have Dashy's breadth of built-in monitoring widgets. It's focused on one thing: making apps work side by side inside a single tab, polished enough to live in.
+
+Everything is configured in one YAML file, no database, no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
+
+### How does it compare?
+
+The dashboards in this space approach things differently. This table is a quick way to see where each one leans.
+
+| | Muximux | Homepage | Homarr | Organizr | Dashy |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Apps open inside the dashboard | Iframe (default) | iFrame widget | Link-out + widgets | Iframe tabs | Workspace view |
+| Rewrites iframe-blocking headers | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Runtime SPA interceptor (fetch / XHR / WebSocket) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Iframe permission delegation (camera, mic, geo, passkeys) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Notification bridge for embedded apps | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Split view (two apps side by side) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Live service widgets (torrent counts, episode lists, etc.) | ❌ | ✅ (100+) | ✅ | Partial | ✅ (50+) |
+| Drag-and-drop visual editor | ❌ | ❌ | ✅ | Partial | ✅ |
+| Real-time health checks | ✅ (WebSocket) | ✅ | ✅ | ✅ | ✅ |
+| Built-in users and roles | ✅ | ❌ (external auth) | ✅ | ✅ | Simple |
+| Forward-auth / OIDC / SSO | ✅ | Via external proxy | ✅ (OIDC + LDAP) | ✅ (Plex / Emby / LDAP) | ✅ (Keycloak) |
+| Auto-HTTPS via Let's Encrypt | ✅ (embedded Caddy) | ❌ | ❌ | ❌ | ❌ |
+| Reverse-proxy other sites (gateway mode) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Config | YAML (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
+| Deployment | Single Go binary | Docker / K8s / binary | Docker | Docker / PHP | Docker / Node.js |
+
+If the rows near the top describe what you want, keep reading.
+
+---
+
+## Why v3?
+
+Muximux v3 is a ground-up rewrite. The original [Muximux](https://github.com/mescon/Muximux/tree/v2.0) was a PHP application that served as a simple bookmark portal. v3 replaces it with a modern stack and a much broader feature set:
+
+- **Go backend** with the frontend embedded in the binary - no PHP, no web server, no runtime dependencies
+- **Built-in reverse proxy** that rewrites HTML, CSS, JS, and headers so apps actually work inside iframes
+- **Real-time health monitoring** via WebSocket - see which apps are up or down without refreshing
+- **Built-in authentication** - username/password, forward auth (Authelia/Authentik), or OIDC
+- **Optional TLS and gateway** - an embedded Caddy instance can handle HTTPS certificates and serve other sites alongside Muximux
+- **Guided onboarding** - a setup wizard walks you through security setup and adding your first apps
+- **Split view** - display two apps side by side or stacked with a draggable divider
+- **1,600+ icons** from Lucide plus thousands of service-specific icons from [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons)
+- **Themes** - built-in light and dark modes, plus custom themes via CSS
+
+---
+
+## How You Can Use It
+
+Muximux fits different setups. Pick the level that matches yours.
+
+### Dashboard behind your existing proxy
+
+You already have Traefik, nginx, or Caddy handling TLS and auth. Run Muximux behind it with `auth: none` and let your proxy do the heavy lifting. Muximux serves on a single port and your proxy forwards to it. This is the simplest setup.
+
+### Dashboard with the built-in reverse proxy
+
+Same as above, but some of your apps refuse to load in iframes. Set `proxy: true` on those apps and Muximux will proxy them through `/proxy/{slug}/`, stripping blocking headers and rewriting paths. This runs inside the Go server and works in every deployment mode - no extra configuration needed.
+
+### Full reverse proxy appliance
+
+No existing proxy? Use Muximux as your only reverse proxy. Configure `tls.domain` for automatic HTTPS via Let's Encrypt and a `gateway` Caddyfile to serve your other services on their own domains. Caddy handles TLS certificates, HTTP-to-HTTPS redirects, and routing - all from the same single binary.
+
+See the [Deployment Guide](docs/wiki/deployment.md) for Docker Compose examples for each setup.
+
+---
+
+## Quick Start
+
+### Docker
+
+```bash
+docker run -d \
+  --name muximux \
+  -p 8080:8080 \
+  -v $(pwd)/data:/app/data \
+  ghcr.io/mescon/muximux:latest
+```
+
+Open `http://localhost:8080`. If no config file exists, an onboarding wizard will guide you through security and initial setup.
+
+### Docker Compose
+
+```yaml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+```
+
+### Binary
+
+```bash
+./muximux
+```
+
+By default, Muximux uses `data/` beside the binary as its data directory (containing config, themes, icons). Override it with `--data` or the `MUXIMUX_DATA` environment variable.
+
+See [docker-compose.yml](docker-compose.yml) for a full example with environment variables, health checks, and optional TLS/gateway ports.
+
+---
+
+## Documentation
+
+Full documentation is available in the **[Wiki](docs/wiki/README.md)**:
+
+- [Installation](docs/wiki/installation.md) - Docker, binary, building from source
+- [Getting Started](docs/wiki/getting-started.md) - First launch and onboarding
+- [Configuration Reference](docs/wiki/configuration.md) - All config.yaml options
+- [Apps](docs/wiki/apps.md) - Adding and configuring applications
+- [Built-in Reverse Proxy](docs/wiki/reverse-proxy.md) - How the proxy works and when to use it
+- [Security](docs/wiki/security.md) - Security measures and OWASP ASVS compliance
+- [Authentication](docs/wiki/authentication.md) - Auth methods and setup
+- [TLS & HTTPS](docs/wiki/tls-and-gateway.md) - Certificates and gateway mode
+- [Deployment Guide](docs/wiki/deployment.md) - Production deployment examples
+- [Split View](docs/wiki/split-view.md) - Side-by-side or stacked app panels
+- [Themes](docs/wiki/themes.md) - Customizing the look
+- [API Reference](docs/wiki/api.md) - REST API endpoints
+
+---
+
+## Configuration at a Glance
+
+Everything lives in one YAML file. Here's the essentials:
+
+```yaml
+server:
+  listen: ":8080"
+  title: "My Homelab"
+
+apps:
+  - name: Sonarr
+    url: http://sonarr:8989
+    icon: { type: dashboard, name: sonarr }
+    group: Media
+    proxy: true            # Proxy through /proxy/sonarr/
+    open_mode: iframe      # iframe, new_tab, new_window, redirect
+
+  - name: Grafana
+    url: http://grafana:3000
+    icon: { type: dashboard, name: grafana }
+    group: Monitoring
+
+groups:
+  - name: Media
+    icon: { type: lucide, name: play }
+    color: "#e5a00d"
+
+  - name: Monitoring
+    icon: { type: lucide, name: activity }
+    color: "#27ae60"
+```
+
+Configuration values can reference environment variables (`${OIDC_CLIENT_SECRET}`), and the listen address can be overridden via `--listen` flag or `MUXIMUX_LISTEN` env var. The data directory (where config, themes, and icons live) defaults to `data/` beside the binary and can be set via `--data` or `MUXIMUX_DATA`.
+
+For the full configuration reference, authentication options, TLS setup, and more, see the **[Wiki](docs/wiki/README.md)**.
+
+---
+
+## Features
+
+| | |
+|---|---|
+| **Reverse Proxy** | Strips iframe-blocking headers, rewrites HTML/CSS/JS paths, handles gzip, and isolates `window.parent`/`window.top` - makes apps work in iframes that normally refuse. Per-app TLS settings, custom headers, and configurable timeout |
+| **Health Monitoring** | Periodic health checks with real-time WebSocket updates and colored status indicators |
+| **Real-Time Log Viewer** | In-app log viewer with level/source filtering, search, auto-scroll, pause/resume, and download. Debug level exposes detailed request tracing |
+| **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
+| **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
+| **Gateway** | Reverse proxy other sites and services on your network -- things that don't need to be in the Muximux menu -- via a standard Caddyfile |
+| **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
+| **Navigation** | 5 positions (top, left, right, bottom, floating), draggable FAB, auto-hide, customizable width |
+| **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |
+| **Keyboard Shortcuts** | Keybindings for switching apps, toggling navigation, and search |
+| **Themes** | 9 built-in theme families (Default, Nord, Dracula, Catppuccin, Solarized, Tokyo Night, Gruvbox, Cineplex, Rose Pine) with dark/light variants, plus custom themes via CSS |
+| **Config Export/Import** | Export config as YAML, import to preview and apply - sensitive data stripped on export |
+| **Environment Variables** | `${VAR}` expansion in config.yaml, `MUXIMUX_DATA`, `MUXIMUX_LISTEN`, and `MUXIMUX_CONFIG` overrides |
+| **REST API** | Full CRUD for apps, groups, config, health, and auth |
+| **Single Binary** | Frontend embedded in the Go binary - one file to deploy, no runtime dependencies |
+| **Portable** | No database - one YAML config file stores everything. Every setting is editable in the GUI. Copy one file to back up or migrate |
+
+---
+
+## Project Philosophy
+
+Muximux aims to be a solid, focused piece of software. The goal is a homelab dashboard that does its job well - not a monitoring suite, not a system management tool, not a kitchen sink. Features are evaluated by whether they serve the core purpose: giving you a single page to access and organize your self-hosted apps.
+
+Suggestions and ideas are always welcome. Not everything will make it in, but that's by design - quality over quantity, and the project is better for it.
+
+## Development
+
+Muximux is developed using Claude Code (Opus 4.6) with MCP servers for browser automation (Playwright), GitHub integration, and other validation tools. It's a heavily AI-assisted workflow, but all code is reviewed, tested, and committed by the sole maintainer. AI output is treated the same way as a pull request from a contributor - nothing ships without understanding and approval.
+
+Every push goes through CI with 86%+ backend and 87%+ frontend test coverage, golangci-lint, ESLint, `svelte-check`, CodeQL analysis, Snyk vulnerability scanning (Go, Node, Docker), govulncheck, SonarCloud quality gates, and a pre-push hook that blocks pushes below coverage thresholds. The security model is designed against [OWASP ASVS Level 2](docs/wiki/security.md).
+
+```bash
+git clone https://github.com/mescon/Muximux.git
+cd Muximux
+
+# Enable git hooks (pre-push runs tests with coverage checks)
+git config core.hooksPath .githooks
+
+# Frontend dev server (hot reload)
+cd web && npm install && npm run dev &
+
+# Backend (uses data/ beside the binary by default for config, themes, icons)
+go run ./cmd/muximux
+```
+
+### Building
+
+```bash
+# Build frontend (outputs to internal/server/dist/)
+cd web && npm run build && cd ..
+
+# Build binary (embeds frontend)
+go build -tags embed_web -o muximux ./cmd/muximux
+
+# With version info (uses latest git tag)
+go build -tags embed_web -ldflags "-X main.version=$(git describe --tags --abbrev=0)" -o muximux ./cmd/muximux
+```
+
+---
+
+## License
+
+GPL v2 - see [LICENSE](LICENSE) for details.
+
+## Credits
+
+- [Lucide Icons](https://lucide.dev/) for the icon library
+- [Dashboard Icons](https://github.com/homarr-labs/dashboard-icons) by Homarr Labs
+- [Caddy](https://caddyserver.com/) for embedded TLS and gateway support
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/image?repos=mescon/Muximux&type=date&legend=top-left)](https://www.star-history.com/?repos=mescon%2FMuximux&type=date&legend=bottom-right)

@@ -1,0 +1,56 @@
+name: Sync Wiki
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "docs/wiki/**"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-wiki:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Sync docs to wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          wiki_url="https://x-access-token:${GITHUB_TOKEN}@github.com/${GH_REPO}.wiki.git"
+          git clone "$wiki_url" wiki-checkout 2>/dev/null || {
+            echo "::error::Wiki not initialized. Create a page in the Wiki tab first."
+            exit 1
+          }
+
+          # Clear old content (keep .git)
+          find wiki-checkout -maxdepth 1 -not -name '.git' -not -path wiki-checkout -delete 2>/dev/null || true
+
+          # Copy all wiki files
+          cp docs/wiki/*.md wiki-checkout/
+
+          # GitHub Wiki uses Home.md as landing page
+          if [ -f wiki-checkout/README.md ]; then
+            mv wiki-checkout/README.md wiki-checkout/Home.md
+          fi
+
+          # Fix inter-page links: remove .md extension for wiki compatibility
+          sed -i 's/(\([a-z-]*\)\.md)/(\1)/g' wiki-checkout/*.md
+
+          cd wiki-checkout
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No wiki changes to push."
+          else
+            git commit -m "Sync wiki from docs/wiki"
+            git push
+            echo "Wiki updated."
+          fi

@@ -1,0 +1,229 @@
+# Muximux 3 Configuration Example
+# Copy this file to data/config.yaml and customize as needed
+#
+# Environment variable expansion:
+#   Use ${VAR_NAME} in any string value to reference environment variables.
+#   This keeps secrets out of config files — set them in your environment,
+#   Docker Compose, or systemd unit instead.
+#   Example: client_secret: ${OIDC_CLIENT_SECRET}
+
+# ─── Server ─────────────────────────────────────
+server:
+  listen: ":8080"              # Listen address (host:port)
+  title: "Muximux"             # Page title shown in browser tab
+  log_level: info              # debug, info, warn, error (hot-reloadable)
+  proxy_timeout: 30s           # Global timeout for proxied requests
+  # base_path: /muximux        # Subpath when behind a reverse proxy (e.g. /muximux)
+
+  # Optional: enable HTTPS on this port
+  # tls:
+  #   domain: "muximux.example.com"  # Auto-HTTPS via Let's Encrypt (requires email)
+  #   email: "admin@example.com"     # Let's Encrypt registration email
+  #   # Or bring your own certs (use domain OR cert/key, not both):
+  #   # cert: /path/to/cert.pem
+  #   # key: /path/to/key.pem
+
+  # Optional: reverse proxy additional sites through this port (Caddyfile format)
+  # gateway: /path/to/sites.Caddyfile
+
+# ─── Health Monitoring ──────────────────────────
+health:
+  enabled: true
+  interval: 30s                # How often to check app health
+  timeout: 5s                  # Request timeout for each health check
+
+# ─── Authentication ─────────────────────────────
+auth:
+  method: none                 # none, builtin, forward_auth, oidc
+  # session_max_age: 24h       # How long sessions last (default: 24h)
+  # secure_cookies: false      # Set true when serving over HTTPS
+  # api_key_hash: "$2a$10$..."  # Optional: bcrypt hash of API key for X-Api-Key header auth
+  #   Generate with:  muximux hash 'my-api-key'
+  #   Or:  htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
+
+  # ── Builtin auth ──
+  # users:
+  #   - username: admin
+  #     password_hash: "$2a$10$..."  # bcrypt hash (generate with: muximux hash)
+  #     role: admin                  # admin, power-user, or user
+  #     email: "admin@example.com"   # Optional
+  #     display_name: "Admin User"   # Optional
+
+  # ── Forward auth (Authelia / Authentik / Traefik Forward Auth) ──
+  # trusted_proxies:             # CIDR ranges of your reverse proxy
+  #   - 10.0.0.0/8
+  #   - 172.16.0.0/12
+  #   - 192.168.0.0/16
+  # headers:                     # Header names set by your auth proxy (defaults shown)
+  #   user: Remote-User
+  #   email: Remote-Email
+  #   groups: Remote-Groups
+  #   name: Remote-Name          # Note: key is "name" not "display_name"
+  # logout_url: ""               # Auth provider logout URL — redirected to on sign-out
+  #                              # Authelia: https://auth.example.com/logout
+  #                              # Authentik: https://app.example.com/outpost.goauthentik.io/sign_out
+
+  # ── OIDC (OpenID Connect) ──
+  # oidc:
+  #   enabled: true
+  #   issuer_url: https://auth.example.com
+  #   client_id: ${OIDC_CLIENT_ID}
+  #   client_secret: ${OIDC_CLIENT_SECRET}
+  #   redirect_url: https://muximux.example.com/api/auth/oidc/callback
+  #   scopes: [openid, profile, email]         # Default scopes
+  #   username_claim: preferred_username        # Claim for username (default)
+  #   email_claim: email                        # Claim for email (default)
+  #   groups_claim: groups                      # Claim for group membership (default)
+  #   display_name_claim: name                  # Claim for display name (default)
+  #   admin_groups: [admins]                    # Groups that grant admin role
+
+# ─── Theme ──────────────────────────────────────
+theme:
+  family: default              # default, nord, dracula, catppuccin, solarized,
+                               # tokyo-night, gruvbox, plex, rose-pine
+  variant: system              # dark, light, system (follow OS preference)
+
+# ─── Navigation ─────────────────────────────────
+navigation:
+  position: top                # top, left, right, bottom, floating
+  width: 220px                 # Sidebar width (left/right positions)
+  auto_hide: false             # Auto-hide navigation after delay
+  auto_hide_delay: 0.5s        # Delay before hiding (requires auto_hide: true)
+  show_on_hover: true          # Show navigation on mouse hover when auto-hidden
+  show_labels: true            # Show app names alongside icons
+  show_logo: true              # Show Muximux logo in navigation
+  show_app_colors: true        # Tint nav items with their app color
+  show_icon_background: false  # Show icon background circles
+  show_splash_on_startup: false # Show splash screen on first load
+  show_shadow: true            # Drop shadow on navigation bar
+  icon_scale: 1.0              # Icon zoom multiplier (e.g. 1.2 = 20% larger)
+  bar_style: grouped           # grouped (default) or flat (top/bottom bars only)
+  floating_position: bottom-right  # Floating button position (when position: floating)
+                               # bottom-right, bottom-left, top-right, top-left
+  hide_sidebar_footer: false   # Hide the footer section in left/right sidebars
+  max_open_tabs: 0             # Max app tabs kept alive in memory (0 = unlimited)
+
+# ─── Keyboard Shortcuts ────────────────────────
+# Only overrides — defaults are managed client-side.
+# keybindings:
+#   bindings:
+#     search:
+#       - key: "k"
+#         ctrl: true             # Modifiers: ctrl, alt, shift, meta (all optional)
+
+# ─── Icons ──────────────────────────────────────
+icons:
+  dashboard_icons:
+    enabled: true
+    mode: on_demand            # on_demand: fetch when needed
+                               # prefetch: fetch all on startup
+                               # offline: use only cached icons
+    cache_dir: icons/dashboard # Relative to data directory
+    cache_ttl: 7d              # How long cached icons are valid
+
+# ─── Groups ─────────────────────────────────────
+groups:
+  - name: Media
+    icon:
+      type: lucide             # lucide, dashboard, custom, url
+      name: play               # Icon name (Lucide icon name or Dashboard Icon slug)
+    color: "#e5a00d"           # Group accent color
+    order: 1                   # Sort order
+    expanded: true             # Whether group starts expanded in sidebar
+
+  - name: Downloads
+    icon:
+      type: lucide
+      name: download
+    color: "#3498db"
+    order: 2
+    expanded: true
+
+  - name: System
+    icon:
+      type: lucide
+      name: server
+    color: "#e74c3c"
+    order: 3
+    expanded: true
+
+# ─── Applications ───────────────────────────────
+apps:
+  - name: Plex
+    url: http://localhost:32400
+    # health_url: ""           # Custom health check URL (defaults to app url)
+    icon:
+      type: dashboard          # Icon types: dashboard, lucide, custom, url
+      name: plex               # Dashboard Icons slug or Lucide icon name
+      # variant: light         # Icon variant (e.g. light, dark — Dashboard Icons only)
+      # file: healarr          # Filename in data/icons/ (type: custom only)
+      # url: https://example.com/icon.png  # Remote image URL (type: url only)
+      # color: "#ff0000"       # Tint color (Lucide icons only)
+      # background: "#1a1a2e"  # Override icon background color
+      # invert: false          # Flip icon colors (dark ↔ light)
+    color: "#e5a00d"           # App accent color
+    group: Media               # Group name (must match a group above)
+    order: 1                   # Sort order within group
+    enabled: true              # Show/hide this app
+    default: true              # Load this app on startup
+    open_mode: iframe          # iframe, new_tab, new_window, redirect
+    proxy: false               # Route through built-in reverse proxy
+    scale: 1                   # Iframe zoom level (1 = 100%)
+    # health_check: true       # Enable health monitoring for this app
+    # shortcut: 1              # Assign keyboard shortcut (1-9)
+    # min_role: ""             # Minimum role to see this app (user, power-user, admin)
+    # force_icon_background: false  # Show icon background even when global setting is off
+    # access:                  # Fine-grained access control
+    #   roles: []              # Roles that can see this app
+    #   users: []              # Usernames that can see this app
+
+  - name: Sonarr
+    url: http://localhost:8989
+    # health_url: http://localhost:8989/ping  # Custom health endpoint
+    icon:
+      type: dashboard
+      name: sonarr
+    color: "#3498db"
+    group: Downloads
+    order: 1
+    enabled: true
+    open_mode: iframe
+    proxy: true                # Proxy through /proxy/sonarr/ — strips iframe-blocking headers
+    proxy_skip_tls_verify: true      # Skip backend TLS cert verification (default: true)
+    # proxy_headers:                 # Custom headers sent to the backend
+    #   X-Api-Key: "your-api-key"
+    auth_bypass:               # Paths that bypass authentication for this proxied app
+      - path: /api/*
+        require_api_key: true  # Require X-Api-Key header instead
+      - path: /feed/*
+        methods: [GET]         # Only allow specific HTTP methods
+        # allowed_ips:         # Restrict to specific IPs/CIDRs
+        #   - 10.0.0.0/8
+
+  - name: Radarr
+    url: http://localhost:7878
+    icon:
+      type: dashboard
+      name: radarr
+    color: "#ffc107"
+    group: Downloads
+    order: 2
+    enabled: true
+    open_mode: iframe
+    proxy: true
+    auth_bypass:
+      - path: /api/*
+        require_api_key: true
+
+  - name: Portainer
+    url: http://localhost:9000
+    icon:
+      type: dashboard
+      name: portainer
+    color: "#13bef9"
+    group: System
+    order: 1
+    enabled: true
+    open_mode: new_tab         # Opens in new browser tab instead of iframe
+    proxy: false
+    # min_role: admin          # Only visible to admin users

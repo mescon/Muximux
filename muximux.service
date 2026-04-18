@@ -1,0 +1,31 @@
+[Unit]
+Description=Muximux Dashboard
+Documentation=https://github.com/mescon/Muximux
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=muximux
+Group=muximux
+WorkingDirectory=/opt/muximux
+ExecStart=/opt/muximux/muximux --data /opt/muximux/data
+Restart=on-failure
+RestartSec=5
+
+# Security hardening
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+ReadWritePaths=/opt/muximux/data
+
+# Resource limits
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

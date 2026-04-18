@@ -1,0 +1,1160 @@
+<script lang="ts">
+  import { onMount, untrack } from 'svelte';
+  import { fade, fly } from 'svelte/transition';
+  import { type App, type Config, type Group, makeApp, makeGroup, stampAppId, stampGroupId } from '$lib/types';
+  import IconBrowser from './IconBrowser.svelte';
+  import AppForm from './AppForm.svelte';
+  import AppIcon from './AppIcon.svelte';
+  import KeybindingsEditor from './KeybindingsEditor.svelte';
+  import AboutTab from './settings/AboutTab.svelte';
+  import AppsTab from './settings/AppsTab.svelte';
+  import GeneralTab from './settings/GeneralTab.svelte';
+  import SecurityTab from './settings/SecurityTab.svelte';
+  import ThemeTab from './settings/ThemeTab.svelte';
+  import { get } from 'svelte/store';
+  import { selectedFamily, variantMode, setThemeFamily, setVariantMode } from '$lib/themeStore';
+  import { isMobileViewport } from '$lib/useSwipe';
+  import { exportConfig, parseImportedConfig, type ImportedConfig } from '$lib/api';
+  import { toasts } from '$lib/toastStore';
+  import { getKeybindingsForConfig } from '$lib/keybindingsStore';
+  import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
+  import { popularApps, templateToApp, type PopularAppTemplate } from '$lib/popularApps';
+  import * as m from '$lib/paraglide/messages.js';
+
+  let {
+    config,
+    apps,
+    initialTab = 'general',
+    onclose,
+    onsave,
+  }: {
+    config: Config;
+    apps: App[];
+    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about';
+    onclose?: () => void;
+    onsave?: (config: Config) => void;
+  } = $props();
+
+  // Exported: returns true if Escape was consumed by closing an inner sub-modal.
+  export function handleEscape(): boolean {
+    if (showIconBrowser) { showIconBrowser = false; iconBrowserTarget = null; return true; }
+    if (editingApp) { cancelEditApp(); return true; }
+    if (editingGroup) { cancelEditGroup(); return true; }
+    if (showAddApp) { showAddApp = false; return true; }
+    if (showAddGroup) { showAddGroup = false; return true; }
+    if (pendingImport) { pendingImport = null; showImportConfirm = false; return true; }
+    return false; // No sub-modal was open; caller should close Settings
+  }
+
+  let isMobile = $state(false);
+
+  onMount(() => {
+    isMobile = isMobileViewport();
+    const handleResize = () => { isMobile = isMobileViewport(); };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  });
+
+  // Active tab
+  let activeTab = $state(untrack(() => initialTab ?? 'general'));
+
+  // Local copy of config for editing — normalise through factories so every
+  // optional field (omitempty in Go) is present, preventing bind:value from
+  // adding new properties and triggering false "unsaved changes" detection.
+  let localConfig = $state(untrack(() => {
+    const c = JSON.parse(JSON.stringify(config)) as Config;
+    c.groups = c.groups.map((g: Group) => makeGroup(g));
+    return c;
+  }));
+  let localApps = $state(untrack(() => (apps as App[]).map(a => makeApp(JSON.parse(JSON.stringify(a))))));
+
+  // Icon browser state
+  let showIconBrowser = $state(false);
+  let iconBrowserTarget = $state<'newApp' | 'editApp' | 'newGroup' | 'editGroup' | 'homeIcon' | null>(null);
+
+  // Track keybindings changes
+  let keybindingsChanged = $state(false);
+
+  // Track if changes have been made (declared below after snapshot variables)
+
+  // Editing state
+  let editingApp = $state<App | null>(null);
+  let editingGroup = $state<Group | null>(null);
+  let editAppSnapshot = $state<string | null>(null);
+  let editGroupSnapshot = $state<string | null>(null);
+  let editAppErrors = $state<Record<string, string>>({});
+  let editGroupErrors = $state<Record<string, string>>({});
+  let showAddApp = $state(false);
+  let addAppStep = $state<'choose' | 'configure'>('choose');
+  let addAppSearch = $state('');
+  let addAppSearchLower = $derived(addAppSearch.toLowerCase());
+  let showAddGroup = $state(false);
+
+  // Import/export state
+  let showImportConfirm = $state(false);
+  let pendingImport = $state<ImportedConfig | null>(null);
+
+  // New app/group templates
+  const newAppTemplate: App = makeApp();
+  const newGroupTemplate: Group = makeGroup();
+
+  let newApp = $state({ ...newAppTemplate });
+  let newGroup = $state({ ...newGroupTemplate });
+
+  // Icon browser: derive the current target's icon for pre-populating the browser
+  let iconBrowserIcon = $derived(
+    iconBrowserTarget === 'editApp' ? editingApp?.icon :
+    iconBrowserTarget === 'editGroup' ? editingGroup?.icon :
+    iconBrowserTarget === 'newApp' ? newApp.icon :
+    iconBrowserTarget === 'newGroup' ? newGroup.icon :
+    iconBrowserTarget === 'homeIcon' ? localConfig.navigation.home_icon : null
+  );
+
+  // Validation error state
+  let appErrors = $state<Record<string, string>>({});
+  let groupErrors = $state<Record<string, string>>({});
+
+  // Assign stable `id` fields for svelte-dnd-action (must be done once, before building dnd arrays)
+  untrack(() => localApps).forEach(stampAppId);
+  untrack(() => localConfig).groups.forEach(stampGroupId);
+
+  // Snapshot taken AFTER id fields are added, so hasChanges starts as false
+  const initialConfigSnapshot = untrack(() => JSON.stringify(localConfig));
+  const initialAppsSnapshot = untrack(() => JSON.stringify(localApps));
+
+  // Snapshot theme so we can revert on close without save
+  const initialFamily = untrack(() => get(selectedFamily));
+  const initialVariant = untrack(() => get(variantMode));
+
+  // Track if changes have been made
+  let hasChanges = $derived(JSON.stringify(localConfig) !== initialConfigSnapshot ||
+                  JSON.stringify(localApps) !== initialAppsSnapshot ||
+                  keybindingsChanged ||
+                  $selectedFamily !== initialFamily ||
+                  $variantMode !== initialVariant);
+
+  // Mutable arrays for svelte-dnd-action (NOT reactive derivations — the library owns these)
+  let dndGroups = $state<Group[]>([...untrack(() => localConfig).groups].sort((a, b) => a.order - b.order));
+  let dndGroupedApps = $state<Record<string, App[]>>(buildGroupedApps());
+
+  function buildGroupedApps(): Record<string, App[]> {
+    const acc: Record<string, App[]> = {};
+    for (const app of localApps) {
+      const group = app.group || '';
+      if (!acc[group]) acc[group] = [];
+      acc[group].push(app);
+    }
+    Object.values(acc).forEach(arr => arr.sort((a, b) => a.order - b.order));
+    return acc;
+  }
+
+  function rebuildDndArrays() {
+    dndGroups = [...localConfig.groups].sort((a, b) => a.order - b.order);
+    dndGroupedApps = buildGroupedApps();
+  }
+
+  // Sync callbacks from AppsTab DnD
+  function syncGroupOrder(groups: Group[]) {
+    localConfig.groups = [...groups];
+  }
+
+  function syncAppOrder(groupName: string, items: App[]) {
+    if (groupName === '__delete__' || groupName === '__rebuild__') {
+      // Full rebuild from dndGroupedApps
+      const allApps: App[] = [];
+      for (const apps of Object.values(dndGroupedApps)) {
+        allApps.push(...apps);
+      }
+      allApps.forEach(stampAppId);
+      localApps = allApps;
+      if (groupName === '__rebuild__') {
+        localConfig.groups = [...dndGroups];
+      }
+      return;
+    }
+    // Sync a single group's apps back to localApps
+    const otherApps = localApps.filter(a => (a.group || '') !== groupName && !items.find(n => n.name === a.name));
+    localApps = [...otherApps, ...items];
+  }
+
+  function handleSave() {
+    try {
+      // Update config with local changes
+      localConfig.apps = localApps;
+      // Capture current theme from stores into config
+      localConfig.theme = {
+        family: get(selectedFamily),
+        variant: get(variantMode)
+      };
+      // Include keybindings if changed
+      if (keybindingsChanged) {
+        localConfig.keybindings = getKeybindingsForConfig();
+      }
+      onsave?.(localConfig);
+    } finally {
+      onclose?.();
+    }
+  }
+
+  // Inline confirmation state
+  let confirmClose = $state(false);
+
+  function handleClose() {
+    if (hasChanges) {
+      confirmClose = true;
+      return;
+    }
+    revertTheme();
+    onclose?.();
+  }
+
+  function confirmCloseDiscard() {
+    confirmClose = false;
+    revertTheme();
+    onclose?.();
+  }
+
+  function revertTheme() {
+    setThemeFamily(initialFamily);
+    setVariantMode(initialVariant);
+  }
+
+  function selectPopularApp(template: PopularAppTemplate) {
+    const app = templateToApp(template, template.defaultUrl, localApps.length);
+    newApp = { ...app };
+    addAppStep = 'configure';
+  }
+
+  function startCustomApp() {
+    newApp = { ...newAppTemplate };
+    addAppStep = 'configure';
+  }
+
+  function addApp() {
+    const result = appSchema.safeParse(newApp);
+    if (!result.success) {
+      appErrors = extractErrors(result);
+      return;
+    }
+    appErrors = {};
+    newApp.order = localApps.length;
+    const app = { ...newApp };
+    stampAppId(app);
+    // Auto-create the group if it doesn't exist yet (e.g. gallery apps with preset groups)
+    if (app.group && !localConfig.groups.some(g => g.name === app.group)) {
+      const groupName = app.group as string;
+      const autoGroup = makeGroup({
+        name: groupName,
+        icon: { type: 'lucide', name: 'folder', file: '', url: '', variant: '' },
+        color: '',
+        order: localConfig.groups.length,
+      });
+      stampGroupId(autoGroup);
+      localConfig.groups = [...localConfig.groups, autoGroup];
+    }
+    localApps = [...localApps, app];
+    newApp = { ...newAppTemplate };
+    showAddApp = false;
+    rebuildDndArrays();
+  }
+
+  function addGroup() {
+    const result = groupSchema.safeParse(newGroup);
+    if (!result.success) {
+      groupErrors = extractErrors(result);
+      return;
+    }
+    groupErrors = {};
+    newGroup.order = localConfig.groups.length;
+    const group = { ...newGroup };
+    stampGroupId(group);
+    localConfig.groups = [...localConfig.groups, group];
+    newGroup = { ...newGroupTemplate };
+    showAddGroup = false;
+    rebuildDndArrays();
+  }
+
+  function startEditApp(app: App) {
+    editAppSnapshot = JSON.stringify(app);
+    editingApp = app;
+  }
+
+  function startEditGroup(group: Group) {
+    editGroupSnapshot = JSON.stringify(group);
+    editingGroup = group;
+  }
+
+  function closeEditApp() {
+    if (editingApp) {
+      const result = appSchema.safeParse({ name: editingApp.name, url: editingApp.url });
+      if (!result.success) {
+        editAppErrors = extractErrors(result);
+        return;
+      }
+      editAppErrors = {};
+      stampAppId(editingApp);
+      // Sync DnD app changes back to localApps before rebuilding
+      const allApps: App[] = [];
+      for (const apps of Object.values(dndGroupedApps)) {
+        allApps.push(...apps);
+      }
+      localApps = allApps;
+    }
+    editingApp = null;
+    editAppSnapshot = null;
+    rebuildDndArrays();
+  }
+
+  function cancelEditApp() {
+    if (editingApp && editAppSnapshot) {
+      const original = JSON.parse(editAppSnapshot) as App;
+      for (const apps of Object.values(dndGroupedApps)) {
+        const idx = apps.findIndex(a => a === editingApp);
+        if (idx !== -1) { Object.assign(apps[idx], original); break; }
+      }
+    }
+    editingApp = null;
+    editAppSnapshot = null;
+    editAppErrors = {};
+    rebuildDndArrays();
+  }
+
+  function closeEditGroup() {
+    if (editingGroup) {
+      const result = groupSchema.safeParse({ name: editingGroup.name });
+      if (!result.success) {
+        editGroupErrors = extractErrors(result);
+        return;
+      }
+      editGroupErrors = {};
+      stampGroupId(editingGroup);
+      // Sync DnD group changes back to localConfig before rebuilding
+      localConfig.groups = [...dndGroups];
+    }
+    editingGroup = null;
+    editGroupSnapshot = null;
+    rebuildDndArrays();
+  }
+
+  function cancelEditGroup() {
+    if (editingGroup && editGroupSnapshot) {
+      const original = JSON.parse(editGroupSnapshot) as Group;
+      const idx = dndGroups.findIndex(g => g === editingGroup);
+      if (idx !== -1) { Object.assign(dndGroups[idx], original); }
+    }
+    editingGroup = null;
+    editGroupSnapshot = null;
+    editGroupErrors = {};
+    rebuildDndArrays();
+  }
+
+  // Export config as YAML file
+  function handleExport() {
+    exportConfig();
+    toasts.success(m.toast_configExported());
+  }
+
+  // Handle import file selection
+  async function handleImportSelect(e: Event) {
+    const input = e.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    try {
+      const content = await file.text();
+      pendingImport = await parseImportedConfig(content);
+      showImportConfirm = true;
+    } catch (err) {
+      toasts.error(err instanceof Error ? err.message : m.toast_failedParseConfig());
+    }
+
+    // Reset input so same file can be selected again
+    input.value = '';
+  }
+
+  // Apply imported config
+  function applyImport() {
+    if (!pendingImport) return;
+
+    localConfig = {
+      ...localConfig,
+      title: pendingImport.title,
+      navigation: pendingImport.navigation,
+      groups: pendingImport.groups,
+    };
+    localApps = pendingImport.apps;
+
+    // Assign stable ids for svelte-dnd-action
+    localApps.forEach(stampAppId);
+    localConfig.groups.forEach(stampGroupId);
+    rebuildDndArrays();
+
+    showImportConfirm = false;
+    pendingImport = null;
+    toasts.success(m.toast_configImported());
+  }
+
+  function cancelImport() {
+    showImportConfirm = false;
+    pendingImport = null;
+  }
+
+  function handleIconSelect(detail: { name: string; variant: string; type: string }) {
+    const { name, variant, type } = detail;
+    const iconData = {
+      type: type as 'dashboard' | 'lucide' | 'custom' | 'url',
+      name: type === 'custom' ? '' : name,
+      variant,
+      file: type === 'custom' ? name : '',
+      url: '',
+      color: '',
+      background: '',
+    };
+
+    if (iconBrowserTarget === 'newApp') {
+      newApp = { ...newApp, icon: iconData };
+    } else if (iconBrowserTarget === 'editApp' && editingApp) {
+      editingApp.icon = iconData;
+    } else if (iconBrowserTarget === 'newGroup') {
+      newGroup = { ...newGroup, icon: iconData };
+    } else if (iconBrowserTarget === 'editGroup' && editingGroup) {
+      editingGroup.icon = iconData;
+    } else if (iconBrowserTarget === 'homeIcon') {
+      localConfig.navigation.home_icon = iconData;
+    }
+    showIconBrowser = false;
+    iconBrowserTarget = null;
+  }
+
+  function openIconBrowser(target: 'newApp' | 'editApp' | 'newGroup' | 'editGroup' | 'homeIcon') {
+    iconBrowserTarget = target;
+    showIconBrowser = true;
+  }
+
+</script>
+
+<div class="settings">
+
+<div
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
+  transition:fade={{ duration: 150 }}
+>
+  <div
+    class="bg-bg-surface shadow-2xl w-full overflow-hidden border border-border flex flex-col
+           {isMobile
+             ? 'h-full max-h-full rounded-none'
+             : 'rounded-xl max-w-4xl max-h-[90vh]'}"
+    in:fly={{ y: isMobile ? 50 : 20, duration: 200 }}
+    out:fade={{ duration: 100 }}
+  >
+    <!-- Header -->
+    <div class="flex items-center justify-between p-4 border-b border-border flex-shrink-0">
+      <h2 class="text-lg font-semibold text-text-primary">{m.settings_title()}</h2>
+      <div class="flex items-center gap-2">
+        {#if hasChanges}
+          <span class="text-xs text-yellow-400">{m.settings_unsavedChanges()}</span>
+        {/if}
+        <button
+          class="btn btn-primary btn-sm disabled:opacity-50"
+          disabled={!hasChanges}
+          onclick={handleSave}
+        >
+          {m.settings_saveChanges()}
+        </button>
+        <button
+          class="btn btn-ghost btn-icon btn-sm"
+          onclick={handleClose}
+          aria-label={m.settings_closeSettings()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Unsaved changes confirmation banner -->
+    {#if confirmClose}
+      <div class="flex items-center justify-between px-4 py-2 bg-yellow-600/20 border-b border-yellow-600/40">
+        <span class="text-sm text-yellow-200">{m.settings_discardPrompt()}</span>
+        <div class="flex gap-2">
+          <button
+            class="btn btn-secondary btn-sm"
+            onclick={() => confirmClose = false}
+          >{m.settings_keepEditing()}</button>
+          <button
+            class="btn btn-danger btn-sm"
+            onclick={confirmCloseDiscard}
+          >{m.settings_discard()}</button>
+        </div>
+      </div>
+    {/if}
+
+    <!-- Tabs - scrollable on mobile -->
+    <div class="flex border-b border-border flex-shrink-0 overflow-x-auto scrollbar-hide">
+      {#each [
+        { id: 'general', get label() { return m.settings_general(); } },
+        { id: 'apps', get label() { return m.settings_appsAndGroups(); } },
+        { id: 'theme', get label() { return m.settings_theme(); } },
+        { id: 'keybindings', get label() { return m.settings_keybindings(); } },
+        { id: 'security', get label() { return m.settings_security(); } },
+        { id: 'about', get label() { return m.settings_about(); } }
+      ] as tab (tab.id)}
+        <button
+          class="px-4 py-3 text-sm font-medium transition-colors border-b-2 whitespace-nowrap min-h-[48px]
+                 {activeTab === tab.id
+                   ? 'text-brand-400 border-brand-400'
+                   : 'text-text-muted border-transparent hover:text-text-secondary hover:border-border'}"
+          onclick={() => activeTab = tab.id as typeof activeTab}
+        >
+          {tab.label}
+        </button>
+      {/each}
+    </div>
+
+    <!-- Content -->
+    <div class="flex-1 overflow-y-auto p-6">
+      <!-- General Settings -->
+      {#if activeTab === 'general'}
+        <GeneralTab bind:localConfig bind:localApps onexport={handleExport} onimportselect={handleImportSelect} onopenhomeicon={() => openIconBrowser('homeIcon')} />
+
+
+      <!-- Apps & Groups Settings -->
+      {:else if activeTab === 'apps'}
+        <AppsTab
+          bind:dndGroups
+          bind:dndGroupedApps
+          localAppsCount={localApps.length}
+          localGroupsCount={localConfig.groups.length}
+          onstartEditApp={startEditApp}
+          onstartEditGroup={startEditGroup}
+          onshowAddApp={() => { appErrors = {}; addAppStep = 'choose'; addAppSearch = ''; showAddApp = true; }}
+          onshowAddGroup={() => { groupErrors = {}; showAddGroup = true; }}
+          onsyncGroupOrder={syncGroupOrder}
+          onsyncAppOrder={syncAppOrder}
+        />
+
+      <!-- Theme Settings -->
+      {:else if activeTab === 'theme'}
+        <ThemeTab />
+
+      <!-- Keybindings Settings -->
+      {:else if activeTab === 'keybindings'}
+        <KeybindingsEditor onchange={() => keybindingsChanged = true} />
+
+      <!-- Security Settings -->
+      {:else if activeTab === 'security'}
+        <SecurityTab {localConfig} />
+
+      <!-- About -->
+      {:else if activeTab === 'about'}
+        <AboutTab />
+      {/if}
+    </div>
+  </div>
+</div>
+
+<!-- Add App Modal -->
+{#if showAddApp}
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-bg-surface rounded-xl shadow-2xl w-full border border-border {addAppStep === 'choose' ? 'max-w-2xl' : 'max-w-lg'}"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <div class="flex items-center gap-2">
+          {#if addAppStep === 'configure'}
+            <button
+              class="btn btn-ghost btn-icon"
+              onclick={() => { addAppStep = 'choose'; addAppSearch = ''; }}
+              aria-label={m.common_back()}
+            >
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+              </svg>
+            </button>
+          {/if}
+          <h3 class="text-lg font-semibold text-text-primary">{addAppStep === 'choose' ? m.settings_addApplication() : m.settings_configureApp({ appName: newApp.name || m.settings_appFallbackName() })}</h3>
+        </div>
+        <button
+          class="btn btn-ghost btn-icon"
+          onclick={() => showAddApp = false}
+          aria-label={m.common_close()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      {#if addAppStep === 'choose'}
+        <!-- Step 1: Choose from popular apps or custom -->
+        <div class="p-4 max-h-[65vh] overflow-y-auto">
+          <!-- Search -->
+          <div class="mb-4">
+            <input
+              type="text"
+              bind:value={addAppSearch}
+              class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+              placeholder={m.settings_searchApps()}
+            />
+          </div>
+
+          <!-- Custom App card -->
+          {#if !addAppSearch}
+            <button
+              class="w-full flex items-center gap-3 p-3 mb-4 rounded-lg border-2 border-dashed border-border-subtle hover:border-brand-500 hover:bg-bg-hover transition-colors text-start"
+              onclick={startCustomApp}
+            >
+              <div class="w-10 h-10 rounded-lg bg-bg-elevated flex items-center justify-center flex-shrink-0">
+                <svg class="w-5 h-5 text-text-muted" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <div>
+                <div class="text-sm font-medium text-text-primary">{m.settings_customApp()}</div>
+                <div class="text-xs text-text-muted">{m.settings_customAppDesc()}</div>
+              </div>
+            </button>
+          {/if}
+
+          <!-- Popular apps by category -->
+          {#each Object.entries(popularApps) as [category, templates] (category)}
+            {@const filtered = addAppSearch ? templates.filter(t => t.name.toLowerCase().includes(addAppSearchLower) || t.description.toLowerCase().includes(addAppSearchLower)) : templates}
+            {#if filtered.length > 0}
+              <div class="mb-4">
+                <h4 class="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">{category}</h4>
+                <div class="grid grid-cols-2 gap-2">
+                  {#each filtered as template (template.name)}
+                    {@const alreadyAdded = localApps.some(a => a.name === template.name)}
+                    <button
+                      class="flex items-center gap-3 p-2.5 rounded-lg text-start transition-colors hover:bg-bg-hover {alreadyAdded ? 'bg-bg-elevated/30' : 'bg-bg-surface'}"
+                      onclick={() => selectPopularApp(template)}
+                      title={template.description}
+                    >
+                      <div class="flex-shrink-0">
+                        <AppIcon icon={{ type: template.iconType || 'dashboard', name: template.icon, file: '', url: '', variant: 'svg', background: template.iconBackground }} name={template.name} color={template.color} size="sm" showBackground={localConfig.navigation.show_icon_background} />
+                      </div>
+                      <div class="min-w-0">
+                        <div class="text-sm font-medium text-text-primary truncate flex items-center gap-1.5">
+                          {template.name}
+                          {#if alreadyAdded}
+                            <span class="text-[10px] px-1.5 py-0.5 rounded-full bg-bg-overlay text-text-muted font-normal flex-shrink-0">{m.settings_added()}</span>
+                          {/if}
+                        </div>
+                        <div class="text-xs text-text-disabled truncate">{template.description}</div>
+                      </div>
+                    </button>
+                  {/each}
+                </div>
+              </div>
+            {/if}
+          {/each}
+
+          {#if addAppSearch && Object.values(popularApps).every(templates => templates.every(t => !t.name.toLowerCase().includes(addAppSearchLower) && !t.description.toLowerCase().includes(addAppSearchLower)))}
+            <div class="text-center py-6">
+              <p class="text-text-muted text-sm mb-3">{m.settings_noMatchingApps()}</p>
+              <button
+                class="btn btn-primary btn-sm"
+                onclick={startCustomApp}
+              >
+                {m.settings_addAsCustomApp()}
+              </button>
+            </div>
+          {/if}
+        </div>
+      {:else}
+        <!-- Step 2: Configure app details -->
+        <div class="p-4 max-h-[60vh] overflow-y-auto">
+          <AppForm
+            bind:app={newApp}
+            mode="create"
+            groups={localConfig.groups}
+            allApps={localApps}
+            errors={appErrors}
+            onopenicon={() => openIconBrowser('newApp')}
+            ondefaultchange={(checked) => {
+              if (checked) {
+                localApps.forEach(a => a.default = false);
+                localConfig.navigation.show_splash_on_startup = false;
+              }
+            }}
+            onclearerror={(field) => { delete appErrors[field]; appErrors = appErrors; }}
+          />
+        </div>
+        <div class="flex justify-end gap-2 p-4 border-t border-border">
+          <button
+            class="btn btn-secondary btn-sm"
+            onclick={() => showAddApp = false}
+          >
+            {m.common_cancel()}
+          </button>
+          <button
+            class="btn btn-primary btn-sm"
+            onclick={addApp}
+          >
+            {m.settings_addApp()}
+          </button>
+        </div>
+      {/if}
+    </div>
+  </div>
+{/if}
+
+<!-- Add Group Modal -->
+{#if showAddGroup}
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_addGroup()}</h3>
+        <button
+          class="btn btn-ghost btn-icon"
+          onclick={() => showAddGroup = false}
+          aria-label={m.common_close()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 space-y-4">
+        <div>
+          <label for="group-name" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_name()}</label>
+          <input
+            id="group-name"
+            type="text"
+            bind:value={newGroup.name}
+            oninput={() => { delete groupErrors.name; groupErrors = groupErrors; }}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {groupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
+            placeholder={m.settings_groupNamePlaceholder()}
+          />
+          {#if groupErrors.name}<p class="text-red-400 text-xs mt-1">{groupErrors.name}</p>{/if}
+        </div>
+        <div>
+          <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
+          <div class="flex items-center gap-3">
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('newGroup')}>
+              <AppIcon icon={newGroup.icon} name={newGroup.name || 'G'} color={newGroup.color} size="lg" />
+            </button>
+            <button
+              class="btn btn-secondary btn-sm flex-1 text-start"
+              onclick={() => openIconBrowser('newGroup')}
+            >
+              {newGroup.icon?.name || m.settings_chooseIcon()}
+            </button>
+          </div>
+        </div>
+        <div>
+          <label for="group-color" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_color()}</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="group-color"
+              type="color"
+              bind:value={newGroup.color}
+              class="w-10 h-10 rounded cursor-pointer"
+            />
+            <input
+              type="text"
+              bind:value={newGroup.color}
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 p-4 border-t border-border">
+        <button
+          class="px-4 py-2 text-sm text-text-muted hover:text-text-primary rounded-md hover:bg-bg-hover"
+          onclick={() => showAddGroup = false}
+        >
+          {m.common_cancel()}
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          onclick={addGroup}
+        >
+          {m.settings_addGroup()}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Edit App Modal -->
+{#if editingApp}
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    in:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-lg border border-border"
+      in:fly={{ y: 10, duration: 150 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_editApp({ appName: editingApp.name })}</h3>
+        <button
+          class="btn btn-ghost btn-icon"
+          onclick={cancelEditApp}
+          aria-label={m.common_close()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 max-h-[60vh] overflow-y-auto">
+        <AppForm
+          bind:app={editingApp}
+          mode="edit"
+          groups={localConfig.groups}
+          allApps={localApps}
+          errors={editAppErrors}
+          onopenicon={() => openIconBrowser('editApp')}
+          ondefaultchange={(checked) => {
+            if (checked) {
+              for (const apps of Object.values(dndGroupedApps)) {
+                for (const a of apps) {
+                  if (a !== editingApp) a.default = false;
+                }
+              }
+              localConfig.navigation.show_splash_on_startup = false;
+            }
+          }}
+          onclearerror={(field) => { delete editAppErrors[field]; editAppErrors = editAppErrors; }}
+        />
+      </div>
+      <div class="flex justify-end gap-2 p-4 border-t border-border">
+        <button
+          class="btn btn-secondary btn-sm"
+          onclick={cancelEditApp}
+        >
+          {m.common_cancel()}
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          onclick={closeEditApp}
+        >
+          {m.common_done()}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Edit Group Modal -->
+{#if editingGroup}
+  <div
+    class="fixed inset-0 z-[60] flex items-center justify-center bg-black/50 p-4"
+    in:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
+      in:fly={{ y: 10, duration: 150 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_editGroup({ groupName: editingGroup.name })}</h3>
+        <button
+          class="btn btn-ghost btn-icon"
+          onclick={cancelEditGroup}
+          aria-label={m.common_close()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 space-y-4">
+        <div>
+          <label for="edit-group-name" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_name()}</label>
+          <input
+            id="edit-group-name"
+            type="text"
+            bind:value={editingGroup.name}
+            oninput={() => { delete editGroupErrors.name; editGroupErrors = editGroupErrors; }}
+            class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {editGroupErrors.name ? 'border-red-500' : 'border-border-subtle'}"
+          />
+          {#if editGroupErrors.name}<p class="text-red-400 text-xs mt-1">{editGroupErrors.name}</p>{/if}
+        </div>
+        <div>
+          <span class="block text-sm font-medium text-text-secondary mb-1">{m.settings_icon()}</span>
+          <div class="flex items-center gap-3">
+            <button type="button" class="cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all" onclick={() => openIconBrowser('editGroup')}>
+              <AppIcon icon={editingGroup.icon} name={editingGroup.name} color={editingGroup.color} size="lg" />
+            </button>
+            <div class="flex-1">
+              <button
+                class="btn btn-secondary btn-sm w-full text-start"
+                onclick={() => openIconBrowser('editGroup')}
+              >
+                {editingGroup.icon?.name || m.settings_chooseIcon()}
+              </button>
+              <p class="text-xs text-text-muted mt-1">
+                {editingGroup.icon?.type === 'dashboard' ? m.settings_dashboardIcon() : editingGroup.icon?.type || m.settings_noIconSet()}
+              </p>
+            </div>
+          </div>
+          {#if editingGroup?.icon?.type === 'lucide'}
+            <div class="flex items-center gap-4 mt-2">
+              <label class="flex items-center gap-2 text-xs text-text-muted">
+                {m.settings_iconColor()}
+                <input type="color" value={editingGroup!.icon.color || '#ffffff'} oninput={(e) => editingGroup!.icon.color = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
+                {#if editingGroup!.icon.color}
+                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.color = ''} title={m.settings_resetToDefault()}>&times;</button>
+                {/if}
+              </label>
+              <label class="flex items-center gap-2 text-xs text-text-muted">
+                {m.settings_background()}
+                <input type="color" value={editingGroup!.icon.background || editingGroup!.color || '#374151'} oninput={(e) => editingGroup!.icon.background = (e.target as HTMLInputElement).value} class="w-8 h-8 rounded cursor-pointer" />
+                <button class="text-text-disabled hover:text-text-secondary text-xs" onclick={() => editingGroup!.icon.background = 'transparent'} title={m.settings_transparent()}>{m.settings_none()}</button>
+                {#if editingGroup!.icon.background}
+                  <button class="text-text-disabled hover:text-text-secondary" onclick={() => editingGroup!.icon.background = ''} title={m.settings_resetToGroupColor()}>&times;</button>
+                {/if}
+              </label>
+            </div>
+          {/if}
+        </div>
+        <div>
+          <label for="edit-group-color" class="block text-sm font-medium text-text-secondary mb-1">{m.settings_color()}</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="edit-group-color"
+              type="color"
+              bind:value={editingGroup.color}
+              class="w-10 h-10 rounded cursor-pointer"
+            />
+            <input
+              type="text"
+              bind:value={editingGroup.color}
+              class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 text-sm"
+            />
+          </div>
+        </div>
+      </div>
+      <div class="flex justify-end gap-2 p-4 border-t border-border">
+        <button
+          class="btn btn-secondary btn-sm"
+          onclick={cancelEditGroup}
+        >
+          {m.common_cancel()}
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          onclick={closeEditGroup}
+        >
+          {m.common_done()}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+
+<!-- Icon Browser Modal -->
+{#if showIconBrowser}
+  <div
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 {isMobile ? 'p-0' : 'p-4'}"
+    transition:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-bg-surface shadow-2xl w-full border border-border
+             {isMobile ? 'h-full max-h-full rounded-none' : 'rounded-xl max-w-3xl'}"
+      in:fly={{ y: 10, duration: 150 }}
+      out:fade={{ duration: 75 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_selectIcon()}</h3>
+        <button
+          class="btn btn-ghost btn-icon"
+          onclick={() => { showIconBrowser = false; iconBrowserTarget = null; }}
+          aria-label={m.common_close()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <IconBrowser
+        selectedIcon={iconBrowserIcon?.type === 'dashboard' || iconBrowserIcon?.type === 'lucide' ? iconBrowserIcon.name : ''}
+        selectedVariant={iconBrowserIcon?.variant || 'svg'}
+        selectedType={iconBrowserIcon?.type === 'dashboard' || iconBrowserIcon?.type === 'lucide' ? iconBrowserIcon.type : 'dashboard'}
+        onselect={handleIconSelect}
+        onclose={() => { showIconBrowser = false; iconBrowserTarget = null; }}
+      />
+    </div>
+  </div>
+{/if}
+
+<!-- Import Confirmation Modal -->
+{#if showImportConfirm && pendingImport}
+  <div
+    class="fixed inset-0 z-[70] flex items-center justify-center bg-black/50 p-4"
+    in:fade={{ duration: 100 }}
+  >
+    <div
+      class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-md border border-border"
+      in:fly={{ y: 10, duration: 150 }}
+    >
+      <div class="flex items-center justify-between p-4 border-b border-border">
+        <h3 class="text-lg font-semibold text-text-primary">{m.settings_importConfig()}</h3>
+        <button
+          class="btn btn-ghost btn-icon"
+          onclick={cancelImport}
+          aria-label={m.common_close()}
+        >
+          <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="p-4 space-y-4">
+        <p class="text-text-secondary">
+          {m.settings_importDesc()}
+        </p>
+        <div class="bg-bg-hover rounded-lg p-3 text-sm">
+          <div class="text-text-muted">{m.settings_importPreview()}</div>
+          <div class="text-text-primary font-medium">{pendingImport.title}</div>
+          <div class="text-text-muted text-xs mt-1">
+            {m.settings_importSummary({ appCount: pendingImport.apps.length, groupCount: pendingImport.groups.length })}
+          </div>
+        </div>
+        <p class="text-yellow-400 text-sm flex items-center gap-2">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          {m.settings_importWarning()}
+        </p>
+      </div>
+      <div class="flex justify-end gap-2 p-4 border-t border-border">
+        <button
+          class="btn btn-secondary btn-sm"
+          onclick={cancelImport}
+        >
+          {m.common_cancel()}
+        </button>
+        <button
+          class="btn btn-primary btn-sm"
+          onclick={applyImport}
+        >
+          {m.settings_import()}
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}
+</div>
+
+<style>
+  /* Theme-aware overrides: map Tailwind's hardcoded grays to CSS custom properties.
+     This makes the Settings UI adapt to light, dark, and custom themes instead of
+     being locked to dark-mode gray values. */
+
+  /* Surface backgrounds */
+  .settings :global(.bg-bg-surface) {
+    background-color: var(--bg-surface) !important;
+  }
+  .settings :global(.bg-bg-elevated) {
+    background-color: var(--bg-elevated) !important;
+  }
+  .settings :global([class*="bg-bg-elevated/"]) {
+    background-color: var(--bg-hover) !important;
+  }
+  .settings :global(.bg-bg-overlay) {
+    background-color: var(--bg-overlay) !important;
+  }
+
+  /* Borders */
+  .settings :global(.border-border) {
+    border-color: var(--border-default) !important;
+  }
+  .settings :global(.border-border-subtle) {
+    border-color: var(--border-subtle) !important;
+  }
+  .settings :global(.border-border-strong) {
+    border-color: var(--border-strong) !important;
+  }
+
+  /* Text */
+  .settings :global(.text-text-primary) {
+    color: var(--text-primary) !important;
+  }
+  .settings :global(.text-text-secondary) {
+    color: var(--text-secondary) !important;
+  }
+  .settings :global(.text-text-muted) {
+    color: var(--text-muted) !important;
+  }
+  .settings :global(.text-text-disabled) {
+    color: var(--text-disabled) !important;
+  }
+
+  /* Hover backgrounds */
+  .settings :global(.hover\:bg-bg-elevated:hover) {
+    background-color: var(--bg-hover) !important;
+  }
+  .settings :global(.hover\:bg-bg-overlay:hover) {
+    background-color: var(--bg-active) !important;
+  }
+  .settings :global(.hover\:bg-bg-active:hover) {
+    background-color: var(--bg-active) !important;
+  }
+
+  /* Hover text */
+  .settings :global(.hover\:text-text-primary:hover) {
+    color: var(--text-primary) !important;
+  }
+  .settings :global(.hover\:text-text-secondary:hover) {
+    color: var(--text-secondary) !important;
+  }
+
+  /* Hover borders */
+  .settings :global(.hover\:border-border-subtle:hover) {
+    border-color: var(--border-default) !important;
+  }
+  .settings :global(.hover\:border-border-strong:hover) {
+    border-color: var(--border-strong) !important;
+  }
+
+  /* App status indicators (global so they survive DnD reparenting to body) */
+  :global(.app-indicator) {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 0.875rem;
+    line-height: 1;
+    padding: 4px 8px;
+    border-radius: 4px;
+    background: var(--bg-elevated);
+    color: var(--text-muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Drop indicator for intra-group drag-and-drop */
+  .settings :global(.drop-indicator) {
+    height: 2px;
+    background: var(--accent-primary);
+    border-radius: 1px;
+    margin: 0 8px;
+    box-shadow: 0 0 6px var(--accent-primary);
+  }
+
+
+  /* Range inputs: use theme accent color */
+  .settings :global(input[type="range"]) {
+    accent-color: var(--accent-primary);
+  }
+
+  /* Focus rings: use theme accent instead of hardcoded brand-500 */
+  .settings :global(*:focus) {
+    --tw-ring-color: var(--accent-primary) !important;
+  }
+</style>

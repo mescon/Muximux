@@ -1,0 +1,26 @@
+coverage:
+  status:
+    project:
+      default:
+        target: 85%
+    patch:
+      default:
+        target: 85%
+
+flags:
+  backend:
+    paths:
+      - internal/
+    carryforward: true
+  frontend:
+    paths:
+      - web/src/
+    carryforward: true
+
+ignore:
+  - "cmd/**"
+  - "**/*_test.go"
+  - "**/*.svelte"
+  - "internal/server/dist/**"
+  - "web/dist/**"
+  - "web/node_modules/**"
