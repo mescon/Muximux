@@ -4,13 +4,34 @@ All notable changes to Muximux are documented in this file.
 
 ## [3.0.28] - 2026-04-18
 
-### Added
-- Iframe permission delegation -- per-app `permissions` list (20 browser Feature-Policy directives: camera, microphone, geolocation, fullscreen, display-capture, clipboard, autoplay, midi, payment, WebAuthn/passkeys, picture-in-picture, screen-wake-lock, USB, serial, HID, and more) delegates browser features to the embedded iframe. Terse `permissions: [all]` / `[none]` YAML sentinels, plus a Settings UI with hover tooltips and MDN docs links for each directive. Resolves #320
-- Notification bridge -- embedded apps with `allow_notifications: true` can request browser notifications through Muximux's top-level origin via `window.parent.postMessage({type: 'muximux:notify', title, body, tag})`. Proxied apps get a transparent `window.Notification` shim so standard `new Notification(...)` calls route through the bridge without code changes. Icons always come from the app's configured icon (anti-spoofing) and clicking a notification always switches to the sending app (anti-phishing). Rate-limited to one notification per app every 2 seconds. Resolves #320
+Your embedded apps can finally do the things they couldn't before.
+
+### Let your apps actually use the camera, microphone, and friends
+
+If you've ever tried embedding a video meeting app, a scanner, a passkey login, or anything that wants access to the camera, microphone, or geolocation, you've probably been greeted with "Permission denied". That's the browser being cautious: by default, sensitive features are off-limits to anything running inside an iframe, no matter what.
+
+v3.0.28 adds a per-app `permissions` setting. Pick what the app is allowed to use (camera, microphone, geolocation, fullscreen, screen capture, clipboard, audio autoplay, MIDI, payments, passkeys, picture-in-picture, wake lock, USB, serial, HID) and Muximux delegates that permission to the iframe. There's a settings panel with a checkbox for every supported feature, each with a hover tooltip that explains what it does and a link to full MDN docs.
+
+If you just want the embedded app to have everything, set `permissions: [all]` in your YAML (or click "Allow all permissions" in the settings). New permissions Muximux adds in future releases automatically get included.
+
+### Notifications from embedded apps, finally
+
+Browsers block the Web Notifications API in cross-origin iframes. Your self-hosted app might have notifications working perfectly when you open it directly, then go completely silent the moment it's embedded in Muximux.
+
+There's now a notification bridge that fixes this. Enable `allow_notifications: true` on an app and it can trigger real browser notifications that appear under Muximux's own origin.
+
+Two tiers, depending on whether the app is proxied:
+
+- **Proxied apps (`proxy: true`):** transparent. No code changes needed. Muximux intercepts calls to the standard `new Notification(...)` API inside the iframe and routes them through the bridge. Most apps that already support notifications when opened directly will start working.
+- **Non-proxied apps:** the app needs to explicitly post a message to Muximux with `window.parent.postMessage({ type: 'muximux:notify', title, body, tag }, '*')`. This is a small code change but unavoidable: browsers block cross-origin code injection, so Muximux can't reach into the iframe to install the shim.
+
+Click a notification and Muximux switches to the app that sent it. There's a short rate limit (one notification per app every 2 seconds) and some anti-spoofing guardrails: the notification icon always comes from the app's configured icon, and clicks always go to the app in Muximux. An embedded app can't dress its notification up as another app, or use a notification click to redirect you somewhere unexpected.
+
+Resolves #320.
 
 ### Changed
-- Document-level `Permissions-Policy` header now permits delegatable features for iframe delegation (was `camera=(), microphone=(), geolocation=()`). Muximux's own JS does not call these APIs, so widening the policy does not broaden Muximux's attack surface -- per-app iframe `allow` attributes remain the effective gate.
-- Bump `github.com/jackc/pgx/v5` from 5.8.0 to 5.9.0 -- fixes memory-safety vulnerability (critical)
+- Document-level `Permissions-Policy` header now permits delegatable features for iframe delegation (was `camera=(), microphone=(), geolocation=()`). Muximux's own JS does not call these APIs, so widening the policy does not broaden Muximux's attack surface. Per-app iframe `allow` attributes remain the effective gate.
+- Bump `github.com/jackc/pgx/v5` from 5.8.0 to 5.9.0 to fix a memory-safety vulnerability (critical)
 - Bump npm group (svelte 5.55.4, vite 8.0.8, vitest 4.1.4, @vitest/coverage-v8 4.1.4, @inlang/paraglide-js 2.16.0, globals 17.5.0, typescript-eslint 8.58.2)
 - Bump `actions/upload-artifact` from 7.0.0 to 7.0.1
 - Bump `softprops/action-gh-release` from 2.6.1 to 3.0.0
