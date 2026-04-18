@@ -3104,7 +3104,7 @@ func TestInterceptorScriptNotificationShim(t *testing.T) {
 		t.Error("interceptor Notification shim should postMessage with type muximux:notify")
 	}
 
-	// requestPermission must always resolve to granted — the real permission
+	// requestPermission must always resolve to granted. The real permission
 	// belongs to Muximux's top-level origin; the shim tells the embedded app
 	// to proceed and lets the bridge handle the actual Notification call.
 	if !strings.Contains(script, `_fakeN.permission="granted"`) {

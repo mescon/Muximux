@@ -59,7 +59,7 @@
 
   function toggleAllPermissions(checked: boolean) {
     if (checked) {
-      // Store the terse "all" sentinel — preserves intent in YAML and
+      // Store the terse "all" sentinel. Preserves intent in YAML and
       // auto-includes future permissions if we add them.
       app.permissions = ['all'];
     } else {
@@ -574,7 +574,7 @@
     display: block;
   }
 
-  /* Flipped placement — tooltip renders above the trigger when there's not
+  /* Flipped placement: tooltip renders above the trigger when there's not
      enough room below inside the scrolling container.
      `:global()` because the flip class is toggled via JS and Svelte's CSS
      scoping would otherwise require the component hash on the raw class. */
@@ -583,7 +583,7 @@
     bottom: calc(100% + 6px);
   }
 
-  /* Right-anchored placement — tooltip extends to the left of the trigger
+  /* Right-anchored placement: tooltip extends to the left of the trigger
      instead of the right when it would otherwise overflow the container. */
   .help-tooltip:global(.tooltip-right-anchored) {
     inset-inline-start: auto;

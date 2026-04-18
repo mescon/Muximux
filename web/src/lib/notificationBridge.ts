@@ -126,7 +126,7 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
       debug('notify', 'bridge: rate limited', { app: app.name });
       return;
     }
-    // Reserve the rate-limit slot before awaiting — otherwise a burst of
+    // Reserve the rate-limit slot before awaiting. Otherwise a burst of
     // messages all see the same (stale) last-notified time and race past.
     lastNotified.set(app.name, now);
 

@@ -265,7 +265,7 @@
     // Auto-switch active split panel when the user clicks inside an iframe.
     document.addEventListener('focus', handleIframeFocus, true);
 
-    // Notification bridge — embedded apps with allow_notifications can
+    // Notification bridge: embedded apps with allow_notifications can
     // postMessage Muximux to show browser notifications.
     const removeNotificationBridge = installNotificationBridge({
       getApps: () => apps,

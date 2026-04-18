@@ -279,9 +279,9 @@ Available permission names follow the [Permissions Policy spec](https://develope
 | `encrypted-media` | DRM-protected media playback (Plex, Jellyfin premium content) |
 | `screen-wake-lock` | Keep the screen awake (Wake Lock API) |
 | `picture-in-picture` | Floating Picture-in-Picture video window |
-| `usb` | WebUSB — device programmers, firmware flashers |
-| `serial` | Web Serial — serial consoles, ESPHome, 3D printer firmware |
-| `hid` | WebHID — gamepads, security keys, HID devices |
+| `usb` | WebUSB for device programmers and firmware flashers |
+| `serial` | Web Serial for serial consoles, ESPHome, 3D printer firmware |
+| `hid` | WebHID for gamepads, security keys, HID devices |
 
 As a shortcut, you can set `permissions: [all]` to delegate every supported feature (auto-includes any new permissions Muximux adds later) or `permissions: [none]` to explicitly deny everything (same as omitting the field).
 
@@ -313,11 +313,11 @@ apps:
 
 Muximux supports the bridge in two tiers, depending on whether the app is proxied:
 
-**Tier 1 — Proxied apps (recommended, zero code changes needed).**
+**Tier 1: proxied apps (recommended, zero code changes needed).**
 When `proxy: true` is set, Muximux injects a `Notification` API shim into the app's HTML. Any call the app makes to the standard Web Notifications API is transparently forwarded to Muximux:
 
 ```javascript
-// Inside the embedded app — works as if Muximux wasn't there:
+// Inside the embedded app, works as if Muximux wasn't there:
 new Notification('New message', { body: 'You have a new task' });
 
 // Permission checks also "just work" (always returns granted):
@@ -327,7 +327,7 @@ await Notification.requestPermission();
 
 Most existing apps use exactly this pattern, so they light up immediately once `allow_notifications` is enabled.
 
-**Tier 2 — Non-proxied apps (explicit bridge calls).**
+**Tier 2: non-proxied apps (explicit bridge calls).**
 When `proxy: false`, Muximux cannot inject code into the iframe (browsers enforce cross-origin isolation). The app must explicitly post a message to the parent window:
 
 ```javascript
@@ -354,6 +354,6 @@ Muximux validates every notification request:
 
 - The shim only forwards `title`, `body`, and `tag`. Advanced Notification API features (`actions`, `data`, `onclick` handlers, service-worker-delivered notifications) are not supported.
 - Browsers only allow notifications in **secure contexts**. Muximux must be served over HTTPS or accessed via `localhost`/`127.0.0.1`. On plain HTTP (non-localhost), the browser permanently denies notifications and the bridge can do nothing about it.
-- If the user denies the Muximux-origin permission prompt, nothing shows — but the shim still returns `'granted'` to the embedded app. The app will believe its notification fired.
+- If the user denies the Muximux-origin permission prompt, nothing shows, but the shim still returns `'granted'` to the embedded app. The app will believe its notification fired.
 
 > **Design note:** Because the permission belongs to Muximux's origin, any app you enable `allow_notifications` for can send notifications. Only enable this for apps you trust to send appropriate content.
