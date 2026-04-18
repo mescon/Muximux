@@ -7,6 +7,7 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 	"testing/fstest"
 )
@@ -529,6 +530,72 @@ func TestGenerateThemeCSS(t *testing.T) {
 	css = generateThemeCSS("test-light", &req)
 	if !bytes.Contains([]byte(css), []byte("color-scheme: light")) {
 		t.Error("expected color-scheme: light in CSS")
+	}
+}
+
+// TestGenerateThemeCSS_NeutralizesCommentInjection covers findings.md H19.
+// A metadata field containing `*/` must not be able to break out of the
+// comment block into live CSS.
+func TestGenerateThemeCSS_NeutralizesCommentInjection(t *testing.T) {
+	req := ThemeSaveRequest{
+		Name:        "Evil*/}body{background:red;}/*",
+		Author:      "<script>alert(1)</script>*/",
+		BaseTheme:   "dark",
+		Description: "*/body{color:red}/*",
+		IsDark:      true,
+		Variables: map[string]string{
+			"--brand-500": "#ff00ff",
+		},
+	}
+	out := generateThemeCSS("evil", &req)
+
+	// The closing-comment marker must never appear on its own inside
+	// the header block; the safe() helper escapes it to `*\/`.
+	before, after, found := strings.Cut(out, "*/\n\n")
+	if !found {
+		t.Fatalf("expected to find end of header comment in output")
+	}
+	if strings.Contains(before, "*/") {
+		t.Errorf("unescaped comment close appeared inside the header block:\n%s", before)
+	}
+	// And the attacker CSS payload must not appear outside a comment.
+	if strings.Contains(after, "body{background:red") {
+		t.Errorf("attacker payload escaped the comment:\n%s", after)
+	}
+}
+
+// TestSaveTheme_RejectsInjectionValues covers findings.md H20. The
+// blocklist now rejects backslashes, semicolons, at-rules, and comment
+// markers inside CSS variable values.
+func TestSaveTheme_RejectsInjectionValues(t *testing.T) {
+	dir := t.TempDir()
+	h := &ThemeHandler{themesDir: dir}
+
+	cases := []struct {
+		name string
+		val  string
+	}{
+		{"trailing semicolon", "#fff;"},
+		{"backslash escape", "\\75 rl(x)"},
+		{"at-rule", "@media x"},
+		{"comment close", "red */"},
+		{"data url", "data:text/html,<script>"},
+		{"javascript url", "javascript:alert(1)"},
+	}
+	for _, c := range cases {
+		c := c
+		t.Run(c.name, func(t *testing.T) {
+			body := `{"id":"evil","name":"Evil","base_theme":"dark","variables":{"--bg":"` + c.val + `"}}`
+			req := httptest.NewRequest(http.MethodPost, "/api/themes", strings.NewReader(body))
+			req.Header.Set("Content-Type", "application/json")
+			rec := httptest.NewRecorder()
+
+			h.SaveTheme(rec, req)
+
+			if rec.Code != http.StatusBadRequest {
+				t.Errorf("expected 400 for injection value %q, got %d: %s", c.val, rec.Code, rec.Body.String())
+			}
+		})
 	}
 }
 

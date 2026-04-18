@@ -7,7 +7,29 @@
 
   let { app }: { app: App } = $props();
 
-  let effectiveUrl = $derived(getEffectiveUrl(app));
+  // Allowlist the iframe src so `javascript:` / `data:` URLs in app.url
+  // cannot execute in Muximux's origin via the `allow-same-origin`
+  // sandbox token (findings.md H4). Same-origin paths (proxied apps,
+  // which arrive as `/proxy/...`) and http/https URLs are accepted;
+  // anything else falls back to `about:blank` so the iframe becomes
+  // inert rather than a stored-XSS pivot.
+  function safeIframeSrc(raw: string): string {
+    if (!raw) return 'about:blank';
+    if (raw.startsWith('/') && !raw.startsWith('//') && !raw.startsWith('/\\')) {
+      return raw;
+    }
+    try {
+      const u = new URL(raw, window.location.href);
+      if (u.protocol === 'http:' || u.protocol === 'https:') {
+        return u.toString();
+      }
+    } catch {
+      /* fall through */
+    }
+    return 'about:blank';
+  }
+
+  let effectiveUrl = $derived(safeIframeSrc(getEffectiveUrl(app)));
 
   // Build the iframe allow attribute from configured permissions.
   // For proxied apps the iframe is same-origin, so 'self' is sufficient.

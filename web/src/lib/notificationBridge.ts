@@ -76,26 +76,35 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
 
   function findAppForOrigin(origin: string, source: MessageEventSource | null): App | undefined {
     const apps = opts.getApps();
-    // Iterate iframes so we can match source === iframe.contentWindow
+    // The unforgeable identity is `source === frame.contentWindow`: a
+    // postMessage can spoof origin (same-origin proxied apps all share
+    // window.location.origin) but it cannot pretend to be a different
+    // window handle. Iterate iframes and match by source only.
+    //
+    // For non-proxied (cross-origin) apps we additionally check that
+    // the reported `origin` matches the app's configured URL, as a
+    // second line of defence if the data-app attribute is ever reused.
     const frames = document.querySelectorAll<HTMLIFrameElement>('iframe[data-app]');
     for (const frame of frames) {
-      if (source && frame.contentWindow === source) {
-        const name = frame.dataset.app;
-        return apps.find(a => a.name === name);
+      if (!source || frame.contentWindow !== source) continue;
+      const name = frame.dataset.app;
+      const app = apps.find(a => a.name === name);
+      if (!app) return undefined;
+      if (!app.proxyUrl) {
+        try {
+          if (new URL(app.url).origin !== origin) return undefined;
+        } catch {
+          return undefined;
+        }
       }
+      return app;
     }
-    // Fallback: origin match (useful if data-app missing for some reason)
-    return apps.find(app => {
-      if (!app.allow_notifications) return false;
-      try {
-        const expected = app.proxyUrl
-          ? window.location.origin
-          : new URL(app.url).origin;
-        return expected === origin;
-      } catch {
-        return false;
-      }
-    });
+    // No window-handle match: the sender is not one of our registered
+    // iframes. Refusing here closes the cross-app spoofing path
+    // (findings.md H22): any same-origin proxied app could otherwise
+    // forge a notification on behalf of a different registered app
+    // merely by matching its origin.
+    return undefined;
   }
 
   async function handleMessage(event: MessageEvent) {

@@ -141,9 +141,24 @@ export async function logout(): Promise<void> {
     logoutUrl: null,
   });
 
-  // Redirect to external auth provider's logout page (e.g. Authelia, Authentik)
-  if (logoutUrl) {
+  // Redirect to external auth provider's logout page (e.g. Authelia,
+  // Authentik) but only if the URL is http(s) (findings.md H23). Any
+  // vector that influenced this field (forward-auth misconfig,
+  // compromised upstream) would otherwise accept `javascript:` or
+  // `data:` and fire at logout.
+  if (logoutUrl && isSafeExternalURL(logoutUrl)) {
     globalThis.location.href = logoutUrl;
+  } else if (logoutUrl) {
+    console.warn('[auth] ignored logout_url with unsafe scheme', logoutUrl);
+  }
+}
+
+function isSafeExternalURL(raw: string): boolean {
+  try {
+    const u = new URL(raw, globalThis.location.href);
+    return u.protocol === 'http:' || u.protocol === 'https:';
+  } catch {
+    return false;
   }
 }
 

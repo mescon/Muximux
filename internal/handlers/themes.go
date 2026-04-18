@@ -19,7 +19,13 @@ var (
 	reMultiDash   = regexp.MustCompile(`-+`)
 	reThemeMeta   = regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
 	reCSSVarName  = regexp.MustCompile(`^--[a-z][a-z0-9-]*$`)
-	reCSSBadValue = regexp.MustCompile(`(?i)(url\s*\(|@import|expression\s*\(|javascript:|\\00)`)
+	// Block anything that can exit a CSS property value: block declarators
+	// (`{` `}` `;`), at-rules (`@`), URL-bearing functions and JS URLs
+	// (`url(`, `@import`, `expression(`, `javascript:`), CSS escape
+	// sequences (`\` followed by hex), and env()/var() redirects that
+	// could leak values from other variables. Admin-only but still a
+	// hardening win (findings.md H20).
+	reCSSBadValue = regexp.MustCompile(`(?i)(url\s*\(|image-set\s*\(|image\s*\(|@import|@charset|@media|expression\s*\(|javascript:|vbscript:|data:|behavior\s*:|-moz-binding|\\|[;{}]|</|/\*|\*/)`)
 )
 
 // ThemeHandler handles custom theme CRUD operations
@@ -344,16 +350,25 @@ func generateThemeCSS(id string, req *ThemeSaveRequest) string {
 		description = fmt.Sprintf("Custom theme based on %s", req.BaseTheme)
 	}
 
-	// Metadata comments
-	sb.WriteString(fmt.Sprintf("/**\n * %s - Custom Theme for Muximux\n", req.Name))
-	if req.Author != "" {
-		sb.WriteString(fmt.Sprintf(" * Author: %s\n", req.Author))
+	// Metadata comments. Strip any `*/` sequence from user-supplied
+	// fields so the attacker-controlled value cannot break out of the
+	// comment block and drop live CSS rules outside the
+	// [data-theme="..."] scope (findings.md H19).
+	safe := func(s string) string {
+		s = strings.ReplaceAll(s, "*/", "*\\/")
+		s = strings.ReplaceAll(s, "\r", " ")
+		s = strings.ReplaceAll(s, "\n", " ")
+		return s
 	}
-	sb.WriteString(fmt.Sprintf(" * Based on: %s\n", req.BaseTheme))
+	sb.WriteString(fmt.Sprintf("/**\n * %s - Custom Theme for Muximux\n", safe(req.Name)))
+	if req.Author != "" {
+		sb.WriteString(fmt.Sprintf(" * Author: %s\n", safe(req.Author)))
+	}
+	sb.WriteString(fmt.Sprintf(" * Based on: %s\n", safe(req.BaseTheme)))
 	sb.WriteString(" *\n")
 	sb.WriteString(fmt.Sprintf(" * @theme-id: %s\n", id))
-	sb.WriteString(fmt.Sprintf(" * @theme-name: %s\n", req.Name))
-	sb.WriteString(fmt.Sprintf(" * @theme-description: %s\n", description))
+	sb.WriteString(fmt.Sprintf(" * @theme-name: %s\n", safe(req.Name)))
+	sb.WriteString(fmt.Sprintf(" * @theme-description: %s\n", safe(description)))
 	sb.WriteString(fmt.Sprintf(" * @theme-is-dark: %v\n", req.IsDark))
 	sb.WriteString(fmt.Sprintf(" * @theme-preview-bg: %s\n", previewBG))
 	sb.WriteString(fmt.Sprintf(" * @theme-preview-surface: %s\n", previewSurface))

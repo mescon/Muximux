@@ -732,6 +732,37 @@ func TestFetchCustomIcon(t *testing.T) {
 	})
 }
 
+// TestServeIcon_CustomHardenedHeaders covers findings.md H3. A custom
+// icon served over /api/icons/custom/... must arrive with headers that
+// neuter direct-load XSS: Content-Disposition: attachment,
+// X-Content-Type-Options: nosniff, and a restrictive CSP.
+func TestServeIcon_CustomHardenedHeaders(t *testing.T) {
+	dir := t.TempDir()
+	if err := os.WriteFile(filepath.Join(dir, "icon.svg"),
+		[]byte(`<svg xmlns="http://www.w3.org/2000/svg"><script>alert(1)</script></svg>`),
+		0o600); err != nil {
+		t.Fatalf("seed icon: %v", err)
+	}
+	h := NewIconHandler(nil, nil, dir)
+
+	req := httptest.NewRequest(http.MethodGet, "/icons/custom/icon.svg", nil)
+	rec := httptest.NewRecorder()
+	h.ServeIcon(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if got := rec.Header().Get("X-Content-Type-Options"); got != "nosniff" {
+		t.Errorf("X-Content-Type-Options = %q, want nosniff", got)
+	}
+	if csp := rec.Header().Get("Content-Security-Policy"); !strings.Contains(csp, "default-src 'none'") || !strings.Contains(csp, "sandbox") {
+		t.Errorf("Content-Security-Policy = %q, want default-src 'none' with sandbox", csp)
+	}
+	if dp := rec.Header().Get("Content-Disposition"); !strings.HasPrefix(dp, "attachment") {
+		t.Errorf("Content-Disposition = %q, want attachment", dp)
+	}
+}
+
 func TestValidateHostSSRF(t *testing.T) {
 	t.Run("rejects loopback", func(t *testing.T) {
 		if err := validateHostSSRF("127.0.0.1"); err == nil {

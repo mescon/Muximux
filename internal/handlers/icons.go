@@ -329,7 +329,14 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		w.Write(data)
 
 	case "custom":
-		// Serve from custom icons directory
+		// Serve from custom icons directory. Custom icons can be SVGs,
+		// and SVG can contain <script> / onload handlers. Loading an SVG
+		// as an <img> is safe, but navigating directly to the icon URL
+		// would render it with full script privileges on Muximux's
+		// origin (findings.md H3). Harden the response so a direct
+		// navigation is neutered: download-as-attachment (which the
+		// browser ignores for <img>), no script/resource loads allowed
+		// by CSP, and no MIME sniffing.
 		data, contentType, err := h.customManager.GetIcon(iconName)
 		if err != nil {
 			respondError(w, r, http.StatusNotFound, err.Error())
@@ -338,6 +345,13 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set(headerContentType, contentType)
 		w.Header().Set(headerCacheControl, cachePublic24h)
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("Content-Security-Policy", "default-src 'none'; style-src 'unsafe-inline'; sandbox")
+		// Quote the filename so slashes/quotes in iconName cannot
+		// smuggle header content. iconName has already been validated
+		// by the customManager path check, but defence in depth.
+		safeName := strings.ReplaceAll(iconName, "\"", "")
+		w.Header().Set("Content-Disposition", `attachment; filename="`+safeName+`"`)
 		w.Write(data)
 
 	case "lucide":
