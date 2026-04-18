@@ -59,6 +59,14 @@ func TestOIDC_FullFlow(t *testing.T) {
 		t.Errorf("scope = %q, want 'openid profile email'", q.Get("scope"))
 	}
 
+	// Step 1b: Follow the authorization redirect so the mock IdP captures
+	// the nonce it must echo back in the signed ID token.
+	resp, err := http.Get(authURL)
+	if err != nil {
+		t.Fatalf("GET authURL: %v", err)
+	}
+	resp.Body.Close()
+
 	// Step 2: Simulate callback from OIDC provider with authorization code
 	callbackURL := "/api/auth/oidc/callback?code=auth-code-xyz&state=" + url.QueryEscape(state)
 	req := httptest.NewRequest(http.MethodGet, callbackURL, nil)
@@ -269,7 +277,7 @@ func TestOIDC_TokenExchangeParameters(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 	p.config.RedirectURL = "http://app.example.com/callback"
 
-	tokens, err := p.exchangeCode("my-auth-code")
+	tokens, err := p.exchangeCode("my-auth-code", "")
 	if err != nil {
 		t.Fatalf("exchangeCode: %v", err)
 	}
@@ -463,7 +471,7 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	}
 
 	// Token exchange should use the discovered endpoint
-	if _, err := p.exchangeCode("test-code"); err != nil {
+	if _, err := p.exchangeCode("test-code", ""); err != nil {
 		t.Fatalf("exchangeCode: %v", err)
 	}
 	if !tokenHit {
@@ -626,31 +634,17 @@ func TestOIDC_TokenEndpointError(t *testing.T) {
 	}
 }
 
-// TestOIDC_UserinfoEndpointError verifies graceful handling of userinfo failures.
+// TestOIDC_UserinfoEndpointError verifies graceful handling of userinfo
+// failures when the earlier ID-token verification has already succeeded.
+// The mock issues a valid signed ID token so the handler proceeds past the
+// C7 gate and then fails at userinfo.
 func TestOIDC_UserinfoEndpointError(t *testing.T) {
-	mux := http.NewServeMux()
-	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
-		base := "http://" + r.Host
-		json.NewEncoder(w).Encode(map[string]string{
-			"authorization_endpoint": base + "/authorize",
-			"token_endpoint":         base + "/token",
-			"userinfo_endpoint":      base + "/userinfo",
-			"jwks_uri":               base + "/jwks",
-		})
-	})
-	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
-		json.NewEncoder(w).Encode(TokenResponse{
-			AccessToken: "valid-token",
-			TokenType:   "Bearer",
-		})
-	})
-	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusUnauthorized)
-		w.Write([]byte("token expired"))
-	})
-
-	srv := httptest.NewServer(mux)
+	userinfo := map[string]interface{}{"sub": "user"}
+	srv := mockOIDCServer(t, userinfo)
 	defer srv.Close()
+
+	// Swap the userinfo handler so the mock returns 401.
+	srv.Config.Handler = failingUserinfoHandler(t, userinfo, srv.URL)
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 	if err := p.loadDiscovery(); err != nil {
@@ -673,6 +667,51 @@ func TestOIDC_UserinfoEndpointError(t *testing.T) {
 	if rec.Code != http.StatusInternalServerError {
 		t.Errorf("expected 500 for failed userinfo, got %d", rec.Code)
 	}
+}
+
+// failingUserinfoHandler returns a mux mirroring mockOIDCServer but where
+// /userinfo responds with 401, so tests can assert the handler's behavior
+// on userinfo failure without also failing the ID-token verification.
+func failingUserinfoHandler(t *testing.T, _ map[string]interface{}, issuerURL string) http.Handler {
+	t.Helper()
+	mux := http.NewServeMux()
+
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
+		base := "http://" + r.Host
+		doc := map[string]string{
+			"issuer":                 base,
+			"authorization_endpoint": base + "/authorize",
+			"token_endpoint":         base + "/token",
+			"userinfo_endpoint":      base + "/userinfo",
+			"jwks_uri":               base + "/jwks",
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(doc)
+	})
+	mux.HandleFunc("/jwks", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(testJWKSResponse(t))
+	})
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		now := time.Now()
+		claims := map[string]interface{}{
+			"iss": issuerURL,
+			"aud": "test-client-id",
+			"sub": "user",
+			"iat": now.Unix(),
+			"exp": now.Add(time.Hour).Unix(),
+		}
+		json.NewEncoder(w).Encode(TokenResponse{
+			AccessToken: "valid-token",
+			TokenType:   "Bearer",
+			IDToken:     signTestIDToken(t, claims),
+		})
+	})
+	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusUnauthorized)
+		w.Write([]byte("token expired"))
+	})
+	return mux
 }
 
 // TestOIDC_LoginRedirectSanitization verifies that the HandleLogin endpoint

@@ -3,6 +3,7 @@ package auth
 import (
 	"context"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -41,9 +42,10 @@ type OIDCProvider struct {
 }
 
 type stateEntry struct {
-	createdAt   time.Time
-	redirectURL string
-	nonce       string
+	createdAt    time.Time
+	redirectURL  string
+	nonce        string
+	codeVerifier string // PKCE verifier; sent with code exchange to defend against code interception
 }
 
 // NewOIDCProvider creates a new OIDC provider
@@ -153,12 +155,22 @@ func (p *OIDCProvider) GetAuthorizationURL(redirectAfterLogin string) (string, e
 		return "", fmt.Errorf("failed to generate nonce: %w", err)
 	}
 
+	// PKCE: generate a code verifier and derive an S256 challenge so an
+	// attacker who intercepts the authorization code cannot redeem it
+	// without also possessing the verifier we kept on the server.
+	codeVerifier, err := generateRandomString()
+	if err != nil {
+		return "", fmt.Errorf("failed to generate PKCE verifier: %w", err)
+	}
+	codeChallenge := pkceS256Challenge(codeVerifier)
+
 	// Store state
 	p.statesMu.Lock()
 	p.states[state] = stateEntry{
-		createdAt:   time.Now(),
-		redirectURL: redirectAfterLogin,
-		nonce:       nonce,
+		createdAt:    time.Now(),
+		redirectURL:  redirectAfterLogin,
+		nonce:        nonce,
+		codeVerifier: codeVerifier,
 	}
 	p.statesMu.Unlock()
 
@@ -170,8 +182,17 @@ func (p *OIDCProvider) GetAuthorizationURL(redirectAfterLogin string) (string, e
 	params.Set("scope", strings.Join(p.config.Scopes, " "))
 	params.Set("state", state)
 	params.Set("nonce", nonce)
+	params.Set("code_challenge", codeChallenge)
+	params.Set("code_challenge_method", "S256")
 
 	return p.authorizationEndpoint + "?" + params.Encode(), nil
+}
+
+// pkceS256Challenge returns the base64url-encoded SHA-256 of the verifier
+// per RFC 7636 §4.2, with no padding.
+func pkceS256Challenge(verifier string) string {
+	sum := sha256.Sum256([]byte(verifier))
+	return base64.RawURLEncoding.EncodeToString(sum[:])
 }
 
 // HandleCallback processes the OIDC callback
@@ -206,35 +227,44 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Exchange code for tokens
-	tokens, err := p.exchangeCode(code)
+	// Exchange code for tokens. The PKCE verifier stashed in the state
+	// entry accompanies the exchange so an attacker who snatched the
+	// authorization code out of a redirect URL cannot redeem it.
+	tokens, err := p.exchangeCode(code, entry.codeVerifier)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC code exchange failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
 		return
 	}
 
-	// Validate ID token if present (signature, issuer, audience, expiry, nonce)
-	if tokens.IDToken != "" {
-		ctx := context.Background()
-		provider, err := gooidc.NewProvider(ctx, p.config.IssuerURL)
-		if err != nil {
-			logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
-			http.Error(w, errAuthFailed, http.StatusInternalServerError)
-			return
-		}
-		verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
-		idToken, err := verifier.Verify(ctx, tokens.IDToken)
-		if err != nil {
-			logging.From(r.Context()).Info("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
-			http.Error(w, errAuthFailed, http.StatusUnauthorized)
-			return
-		}
-		if idToken.Nonce != entry.nonce {
-			logging.From(r.Context()).Info("OIDC: nonce mismatch", "source", "audit")
-			http.Error(w, errAuthFailed, http.StatusUnauthorized)
-			return
-		}
+	// ID token is required. Userinfo alone is unauthenticated from the
+	// client's perspective: without a verified ID token we cannot prove
+	// the tokens came from the configured IdP, cannot bind them to the
+	// nonce we sent, and cannot check audience/expiry. An IdP that omits
+	// id_token (misconfig, bug, MITM) must be rejected outright.
+	if tokens.IDToken == "" {
+		logging.From(r.Context()).Warn("OIDC: token endpoint returned no id_token; rejecting login", "source", "audit")
+		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		return
+	}
+	ctx := context.Background()
+	provider, err := gooidc.NewProvider(ctx, p.config.IssuerURL)
+	if err != nil {
+		logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
+		http.Error(w, errAuthFailed, http.StatusInternalServerError)
+		return
+	}
+	verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
+	idToken, err := verifier.Verify(ctx, tokens.IDToken)
+	if err != nil {
+		logging.From(r.Context()).Info("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
+		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		return
+	}
+	if idToken.Nonce != entry.nonce {
+		logging.From(r.Context()).Info("OIDC: nonce mismatch", "source", "audit")
+		http.Error(w, errAuthFailed, http.StatusUnauthorized)
+		return
 	}
 
 	// Get user info
@@ -298,8 +328,11 @@ type TokenResponse struct {
 	IDToken      string `json:"id_token,omitempty"`
 }
 
-// exchangeCode exchanges an authorization code for tokens
-func (p *OIDCProvider) exchangeCode(code string) (*TokenResponse, error) {
+// exchangeCode exchanges an authorization code for tokens. codeVerifier is
+// the PKCE verifier originally paired with the code_challenge sent on the
+// authorization request; it must be presented here or the IdP rejects the
+// exchange.
+func (p *OIDCProvider) exchangeCode(code, codeVerifier string) (*TokenResponse, error) {
 	if err := p.loadDiscovery(); err != nil {
 		return nil, err
 	}
@@ -310,6 +343,9 @@ func (p *OIDCProvider) exchangeCode(code string) (*TokenResponse, error) {
 	data.Set("redirect_uri", p.config.RedirectURL)
 	data.Set("client_id", p.config.ClientID)
 	data.Set("client_secret", p.config.ClientSecret)
+	if codeVerifier != "" {
+		data.Set("code_verifier", codeVerifier)
+	}
 
 	req, err := http.NewRequest("POST", p.tokenEndpoint, strings.NewReader(data.Encode()))
 	if err != nil {
@@ -437,11 +473,25 @@ func determineOIDCRole(groups []string, adminGroups []string) string {
 	return RoleUser
 }
 
-// sanitizeRedirectURL validates that the redirect URL is a safe relative path
-// to prevent open redirect vulnerabilities
+// sanitizeRedirectURL validates that the redirect URL is a safe relative
+// path so the OIDC login callback cannot be tricked into bouncing the user
+// to an attacker-controlled origin. Accepted: a path starting with "/"
+// followed by a non-slash, non-backslash character. Rejected: empty
+// input, protocol-relative URLs ("//evil"), backslash prefixes ("/\evil"
+// which some browsers normalize to "//evil"), and any input containing
+// control characters or a CRLF that could smuggle a second header.
 func sanitizeRedirectURL(redirectURL, basePath string) string {
-	if redirectURL == "" || !strings.HasPrefix(redirectURL, "/") || strings.HasPrefix(redirectURL, "//") {
-		return basePath + "/"
+	fallback := basePath + "/"
+	if redirectURL == "" || !strings.HasPrefix(redirectURL, "/") {
+		return fallback
+	}
+	if strings.HasPrefix(redirectURL, "//") || strings.HasPrefix(redirectURL, "/\\") {
+		return fallback
+	}
+	for _, r := range redirectURL {
+		if r < 0x20 || r == 0x7f {
+			return fallback
+		}
 	}
 	return redirectURL
 }

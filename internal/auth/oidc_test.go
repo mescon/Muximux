@@ -2,29 +2,106 @@ package auth
 
 import (
 	"context"
+	"crypto"
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/sha256"
+	"encoding/base64"
 	"encoding/json"
+	"math/big"
 	"net/http"
 	"net/http/httptest"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
+// testIssuerKey holds the RSA keypair used by mockOIDCServer to sign
+// ID tokens. Regenerated per process.
+var (
+	testIssuerKeyOnce sync.Once
+	testIssuerKey     *rsa.PrivateKey
+)
+
+func getTestIssuerKey(t *testing.T) *rsa.PrivateKey {
+	t.Helper()
+	testIssuerKeyOnce.Do(func() {
+		key, err := rsa.GenerateKey(rand.Reader, 2048)
+		if err != nil {
+			t.Fatalf("generate test RSA key: %v", err)
+		}
+		testIssuerKey = key
+	})
+	return testIssuerKey
+}
+
+// signTestIDToken serializes the given claims into a JWT signed with the
+// test issuer's RSA key. Used by the mock token endpoint so HandleCallback
+// exercises the real go-oidc verification path end to end (findings.md C7).
+func signTestIDToken(t *testing.T, claims map[string]interface{}) string {
+	t.Helper()
+	key := getTestIssuerKey(t)
+
+	header := map[string]interface{}{
+		"alg": "RS256",
+		"typ": "JWT",
+		"kid": "test-kid",
+	}
+	headerJSON, err := json.Marshal(header)
+	if err != nil {
+		t.Fatalf("marshal JWT header: %v", err)
+	}
+	claimsJSON, err := json.Marshal(claims)
+	if err != nil {
+		t.Fatalf("marshal JWT claims: %v", err)
+	}
+	signingInput := base64.RawURLEncoding.EncodeToString(headerJSON) + "." + base64.RawURLEncoding.EncodeToString(claimsJSON)
+
+	h := sha256.Sum256([]byte(signingInput))
+	sig, err := rsa.SignPKCS1v15(rand.Reader, key, crypto.SHA256, h[:])
+	if err != nil {
+		t.Fatalf("sign JWT: %v", err)
+	}
+	return signingInput + "." + base64.RawURLEncoding.EncodeToString(sig)
+}
+
+func testJWKSResponse(t *testing.T) map[string]interface{} {
+	t.Helper()
+	pub := getTestIssuerKey(t).PublicKey
+	return map[string]interface{}{
+		"keys": []map[string]interface{}{{
+			"kty": "RSA",
+			"alg": "RS256",
+			"use": "sig",
+			"kid": "test-kid",
+			"n":   base64.RawURLEncoding.EncodeToString(pub.N.Bytes()),
+			"e":   base64.RawURLEncoding.EncodeToString(big.NewInt(int64(pub.E)).Bytes()),
+		}},
+	}
+}
+
 // mockOIDCServer creates a test HTTP server that simulates an OIDC provider.
-// It serves discovery, token, and userinfo endpoints.
+// It serves discovery, JWKS, token, and userinfo endpoints. The token
+// endpoint returns an RS256-signed ID token so HandleCallback exercises
+// the same verification code path as a real IdP.
 func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Server {
 	t.Helper()
 	mux := http.NewServeMux()
 
+	var (
+		issuer   string
+		nonceMu  sync.Mutex
+		lastNonce string
+	)
+
 	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
-		// We need the server URL, but it isn't known until the server starts.
-		// The caller patches the discovery cache after creation, so we build
-		// the URLs relative to the Host header.
 		scheme := "http"
 		base := scheme + "://" + r.Host
 		doc := map[string]string{
+			"issuer":                 base,
 			"authorization_endpoint": base + "/authorize",
 			"token_endpoint":         base + "/token",
 			"userinfo_endpoint":      base + "/userinfo",
@@ -34,12 +111,16 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 		json.NewEncoder(w).Encode(doc)
 	})
 
+	mux.HandleFunc("/jwks", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(testJWKSResponse(t))
+	})
+
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != http.MethodPost {
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		// Verify expected form values
 		if err := r.ParseForm(); err != nil {
 			http.Error(w, "bad form", http.StatusBadRequest)
 			return
@@ -53,10 +134,31 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 			return
 		}
 
+		now := time.Now()
+		sub := "test-sub"
+		if s, ok := userinfo["sub"].(string); ok {
+			sub = s
+		}
+		nonceMu.Lock()
+		nonceForToken := lastNonce
+		nonceMu.Unlock()
+		aud := r.FormValue("client_id")
+		if aud == "" {
+			aud = "test-client-id"
+		}
+		claims := map[string]interface{}{
+			"iss":   issuer,
+			"aud":   aud,
+			"sub":   sub,
+			"iat":   now.Unix(),
+			"exp":   now.Add(time.Hour).Unix(),
+			"nonce": nonceForToken,
+		}
 		resp := TokenResponse{
 			AccessToken: "test-access-token",
 			TokenType:   "Bearer",
 			ExpiresIn:   3600,
+			IDToken:     signTestIDToken(t, claims),
 		}
 		w.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(w).Encode(resp)
@@ -73,11 +175,19 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 	})
 
 	mux.HandleFunc("/authorize", func(w http.ResponseWriter, r *http.Request) {
-		// Just return 200 for checking the URL was built correctly
+		// Capture the nonce so /token can echo it back in the signed ID
+		// token, matching real-IdP behavior.
+		if n := r.URL.Query().Get("nonce"); n != "" {
+			nonceMu.Lock()
+			lastNonce = n
+			nonceMu.Unlock()
+		}
 		w.WriteHeader(http.StatusOK)
 	})
 
-	return httptest.NewServer(mux)
+	srv := httptest.NewServer(mux)
+	issuer = srv.URL
+	return srv
 }
 
 func newTestOIDCProvider(t *testing.T, issuerURL string) (*OIDCProvider, *SessionStore) {
@@ -227,13 +337,111 @@ func TestGetAuthorizationURL(t *testing.T) {
 	if len(p.states) != 1 {
 		t.Errorf("expected 1 state entry, got %d", len(p.states))
 	}
-	// Find the state entry and check redirect URL
+	// Find the state entry and check redirect URL + PKCE plumbing.
 	for _, entry := range p.states {
 		if entry.redirectURL != "/dashboard" {
 			t.Errorf("expected redirectURL /dashboard, got %s", entry.redirectURL)
 		}
+		if entry.codeVerifier == "" {
+			t.Error("expected stored codeVerifier for PKCE (findings.md L2)")
+		}
 	}
 	p.statesMu.Unlock()
+
+	// findings.md L2: PKCE S256 challenge must be sent on the
+	// authorization request, paired with the verifier stashed server-side.
+	if !strings.Contains(authURL, "code_challenge=") {
+		t.Error("expected code_challenge in auth URL")
+	}
+	if !strings.Contains(authURL, "code_challenge_method=S256") {
+		t.Error("expected code_challenge_method=S256 in auth URL")
+	}
+}
+
+// TestPKCE_VerifierSentOnExchange covers findings.md L2. The verifier
+// stored in the state entry must be sent with the token exchange.
+func TestPKCE_VerifierSentOnExchange(t *testing.T) {
+	var capturedVerifier string
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
+		base := "http://" + r.Host
+		json.NewEncoder(w).Encode(map[string]string{
+			"authorization_endpoint": base + "/authorize",
+			"token_endpoint":         base + "/token",
+			"userinfo_endpoint":      base + "/userinfo",
+			"jwks_uri":               base + "/jwks",
+		})
+	})
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		_ = r.ParseForm()
+		capturedVerifier = r.FormValue("code_verifier")
+		json.NewEncoder(w).Encode(TokenResponse{AccessToken: "x", TokenType: "Bearer"})
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	p, _ := newTestOIDCProvider(t, srv.URL)
+	if _, err := p.exchangeCode("code", "the-verifier"); err != nil {
+		t.Fatalf("exchangeCode: %v", err)
+	}
+	if capturedVerifier != "the-verifier" {
+		t.Errorf("verifier not sent: got %q, want the-verifier", capturedVerifier)
+	}
+}
+
+// TestPKCE_S256 verifies the RFC 7636 code-challenge derivation.
+func TestPKCE_S256(t *testing.T) {
+	// RFC 7636 Appendix B test vector:
+	// verifier  = dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk
+	// challenge = E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM
+	got := pkceS256Challenge("dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk")
+	if got != "E9Melhoa2OwvFrEMTJguCHaoeK1t8URWbuGJSstw-cM" {
+		t.Errorf("pkceS256Challenge mismatch: got %q", got)
+	}
+}
+
+// TestHandleCallback_RejectsMissingIDToken pins down findings.md C7.
+// Even a successful /token response without an id_token must be refused:
+// falling back to userinfo-only would bypass signature/issuer/audience/
+// nonce verification.
+func TestHandleCallback_RejectsMissingIDToken(t *testing.T) {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/.well-known/openid-configuration", func(w http.ResponseWriter, r *http.Request) {
+		base := "http://" + r.Host
+		json.NewEncoder(w).Encode(map[string]string{
+			"authorization_endpoint": base + "/authorize",
+			"token_endpoint":         base + "/token",
+			"userinfo_endpoint":      base + "/userinfo",
+			"jwks_uri":               base + "/jwks",
+		})
+	})
+	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
+		// No IDToken in the response.
+		json.NewEncoder(w).Encode(TokenResponse{
+			AccessToken: "something",
+			TokenType:   "Bearer",
+		})
+	})
+	srv := httptest.NewServer(mux)
+	defer srv.Close()
+
+	p, _ := newTestOIDCProvider(t, srv.URL)
+	if err := p.loadDiscovery(); err != nil {
+		t.Fatalf("loadDiscovery: %v", err)
+	}
+
+	state := "no-id-token-state"
+	p.statesMu.Lock()
+	p.states[state] = stateEntry{createdAt: time.Now(), redirectURL: "/"}
+	p.statesMu.Unlock()
+
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/oidc/callback?code=x&state="+state, nil)
+	rec := httptest.NewRecorder()
+	p.HandleCallback(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401 without id_token, got %d: %s", rec.Code, rec.Body.String())
+	}
 }
 
 // --- exchangeCode ---
@@ -245,7 +453,7 @@ func TestExchangeCode(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	tokens, err := p.exchangeCode("test-auth-code")
+	tokens, err := p.exchangeCode("test-auth-code", "")
 	if err != nil {
 		t.Fatalf("exchangeCode failed: %v", err)
 	}
@@ -282,7 +490,7 @@ func TestExchangeCode_ServerError(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, errorSrv.URL)
 
-	_, err := p.exchangeCode("bad-code")
+	_, err := p.exchangeCode("bad-code", "")
 	if err == nil {
 		t.Error("expected error for bad token exchange")
 	}
@@ -771,6 +979,13 @@ func TestSanitizeRedirectURL(t *testing.T) {
 		{"no leading slash", "dashboard", "", "/"},
 		{"empty with base path", "", "/dash", "/dash/"},
 		{"invalid with base path", "https://evil.com", "/dash", "/dash/"},
+		// findings.md L3: some browsers normalize backslashes to forward
+		// slashes, so "/\evil.com" becomes "//evil.com" post-normalization
+		// and reaches attacker origins. Reject the input rather than
+		// relying on browser-specific behavior.
+		{"backslash after leading slash", "/\\evil.com", "", "/"},
+		{"control char in path", "/foo\r\nBar", "", "/"},
+		{"tab in path", "/foo\tbar", "", "/"},
 	}
 
 	for _, tt := range tests {
