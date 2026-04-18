@@ -261,7 +261,7 @@ apps:
       - fullscreen
 ```
 
-Available permission names follow the [Permissions Policy spec](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy). Commonly used values:
+Available permission names follow the [Permissions Policy spec](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Permissions-Policy). The full list Muximux can delegate:
 
 | Permission | What it unlocks |
 |------------|-----------------|
@@ -271,13 +271,25 @@ Available permission names follow the [Permissions Policy spec](https://develope
 | `display-capture` | Screen sharing via `getDisplayMedia()` |
 | `fullscreen` | `element.requestFullscreen()` |
 | `clipboard-read` / `clipboard-write` | Clipboard API |
-| `autoplay` | Unmuted autoplay of audio/video |
+| `autoplay` | Audio/video autoplay without a user gesture |
 | `midi` | Web MIDI API |
-| `payment` | Payment Request API |
+| `payment` | Payment Request API for checkout flows |
+| `publickey-credentials-get` | WebAuthn sign-in with existing passkeys / security keys |
+| `publickey-credentials-create` | WebAuthn registration of new passkeys / security keys |
+| `encrypted-media` | DRM-protected media playback (Plex, Jellyfin premium content) |
+| `screen-wake-lock` | Keep the screen awake (Wake Lock API) |
+| `picture-in-picture` | Floating Picture-in-Picture video window |
+| `usb` | WebUSB — device programmers, firmware flashers |
+| `serial` | Web Serial — serial consoles, ESPHome, 3D printer firmware |
+| `hid` | WebHID — gamepads, security keys, HID devices |
 
-When `proxy: true` is set, Muximux delegates the permission to `'self'` (the proxy's own origin). For non-proxied apps, the permission is delegated to the app's specific origin (e.g. `camera 'self' https://meet.local`).
+As a shortcut, you can set `permissions: [all]` to delegate every supported feature (auto-includes any new permissions Muximux adds later) or `permissions: [none]` to explicitly deny everything (same as omitting the field).
+
+When `proxy: true` is set, Muximux delegates each permission to `'self'` (the proxy's own origin). For non-proxied apps, the permission is delegated to the app's specific origin (e.g. `camera 'self' https://meet.local`).
 
 If `permissions` is omitted or empty, no features are delegated -- the browser's default-deny behaviour stays in effect.
+
+> **Not listed**: `web-share` and `bluetooth` are valid Permissions-Policy directives in the spec but Chrome currently logs "Unrecognized feature" warnings when they appear in HTTP Permissions-Policy headers. They'll be re-added once browser support catches up.
 
 ---
 
