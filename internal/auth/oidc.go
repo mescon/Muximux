@@ -39,6 +39,11 @@ type OIDCProvider struct {
 	// State storage (for CSRF protection)
 	states   map[string]stateEntry
 	statesMu sync.Mutex
+
+	// Cleanup goroutine lifecycle. Close signals done so Close()
+	// actually stops the cleanup ticker instead of leaking the
+	// goroutine past a provider reload (findings.md M13).
+	done chan struct{}
 }
 
 type stateEntry struct {
@@ -57,6 +62,7 @@ func NewOIDCProvider(cfg *config.OIDCConfig, basePath string, sessionStore *Sess
 		sessionStore: sessionStore,
 		userStore:    userStore,
 		states:       make(map[string]stateEntry),
+		done:         make(chan struct{}),
 	}
 
 	// Set default scopes
@@ -86,7 +92,10 @@ func NewOIDCProvider(cfg *config.OIDCConfig, basePath string, sessionStore *Sess
 
 // loadDiscovery fetches the OIDC discovery document using double-check locking
 // so the write lock is not held during the (potentially slow) HTTP call.
-func (p *OIDCProvider) loadDiscovery() error {
+// Accepts a context so an in-flight OIDC login that the user abandons
+// cancels the discovery fetch instead of pinning a goroutine against
+// a slow IdP (findings.md M14).
+func (p *OIDCProvider) loadDiscovery(ctx context.Context) error {
 	// Fast path: already loaded
 	p.mu.RLock()
 	loaded := p.discoveryLoaded
@@ -98,7 +107,11 @@ func (p *OIDCProvider) loadDiscovery() error {
 	discoveryURL := strings.TrimSuffix(p.config.IssuerURL, "/") + "/.well-known/openid-configuration"
 
 	// Fetch outside lock — network I/O can take seconds
-	resp, err := p.httpClient.Get(discoveryURL)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, discoveryURL, nil)
+	if err != nil {
+		return fmt.Errorf("failed to build discovery request: %w", err)
+	}
+	resp, err := p.httpClient.Do(req)
 	if err != nil {
 		logging.Error("OIDC discovery failed", "source", "auth", "url", discoveryURL, "error", err)
 		return fmt.Errorf("failed to fetch discovery document: %w", err)
@@ -137,9 +150,10 @@ func (p *OIDCProvider) loadDiscovery() error {
 	return nil
 }
 
-// GetAuthorizationURL returns the URL to redirect the user to for authentication
-func (p *OIDCProvider) GetAuthorizationURL(redirectAfterLogin string) (string, error) {
-	if err := p.loadDiscovery(); err != nil {
+// GetAuthorizationURL returns the URL to redirect the user to for authentication.
+// ctx is used to cancel the discovery fetch if the caller goes away.
+func (p *OIDCProvider) GetAuthorizationURL(ctx context.Context, redirectAfterLogin string) (string, error) {
+	if err := p.loadDiscovery(ctx); err != nil {
 		return "", err
 	}
 
@@ -230,7 +244,10 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// Exchange code for tokens. The PKCE verifier stashed in the state
 	// entry accompanies the exchange so an attacker who snatched the
 	// authorization code out of a redirect URL cannot redeem it.
-	tokens, err := p.exchangeCode(code, entry.codeVerifier)
+	// Use the request's context so a slow IdP cannot pin this goroutine
+	// past the client disconnect (findings.md M14).
+	ctx := r.Context()
+	tokens, err := p.exchangeCode(ctx, code, entry.codeVerifier)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC code exchange failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
@@ -247,7 +264,6 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}
-	ctx := context.Background()
 	provider, err := gooidc.NewProvider(ctx, p.config.IssuerURL)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC: failed to create provider for token verification", "source", "auth", "error", err)
@@ -268,7 +284,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Get user info
-	userInfo, err := p.getUserInfo(tokens.AccessToken)
+	userInfo, err := p.getUserInfo(ctx, tokens.AccessToken)
 	if err != nil {
 		logging.From(r.Context()).Error("OIDC user info retrieval failed", "source", "auth", "error", err)
 		http.Error(w, errAuthFailed, http.StatusInternalServerError)
@@ -332,8 +348,8 @@ type TokenResponse struct {
 // the PKCE verifier originally paired with the code_challenge sent on the
 // authorization request; it must be presented here or the IdP rejects the
 // exchange.
-func (p *OIDCProvider) exchangeCode(code, codeVerifier string) (*TokenResponse, error) {
-	if err := p.loadDiscovery(); err != nil {
+func (p *OIDCProvider) exchangeCode(ctx context.Context, code, codeVerifier string) (*TokenResponse, error) {
+	if err := p.loadDiscovery(ctx); err != nil {
 		return nil, err
 	}
 
@@ -347,7 +363,7 @@ func (p *OIDCProvider) exchangeCode(code, codeVerifier string) (*TokenResponse, 
 		data.Set("code_verifier", codeVerifier)
 	}
 
-	req, err := http.NewRequest("POST", p.tokenEndpoint, strings.NewReader(data.Encode()))
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, p.tokenEndpoint, strings.NewReader(data.Encode()))
 	if err != nil {
 		return nil, err
 	}
@@ -373,12 +389,12 @@ func (p *OIDCProvider) exchangeCode(code, codeVerifier string) (*TokenResponse, 
 }
 
 // getUserInfo fetches user info from the userinfo endpoint
-func (p *OIDCProvider) getUserInfo(accessToken string) (map[string]interface{}, error) {
-	if err := p.loadDiscovery(); err != nil {
+func (p *OIDCProvider) getUserInfo(ctx context.Context, accessToken string) (map[string]interface{}, error) {
+	if err := p.loadDiscovery(ctx); err != nil {
 		return nil, err
 	}
 
-	req, err := http.NewRequest("GET", p.userinfoEndpoint, nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, p.userinfoEndpoint, nil)
 	if err != nil {
 		return nil, err
 	}
@@ -403,19 +419,27 @@ func (p *OIDCProvider) getUserInfo(accessToken string) (map[string]interface{}, 
 	return claims, nil
 }
 
-// cleanupStates periodically removes expired states
+// cleanupStates periodically removes expired states. Exits when Close
+// is called so a provider reload does not leak this goroutine
+// (findings.md M13).
 func (p *OIDCProvider) cleanupStates() {
 	ticker := time.NewTicker(5 * time.Minute)
-	for range ticker.C {
-		p.statesMu.Lock()
-		now := time.Now()
-		for state, entry := range p.states {
-			// States expire after 10 minutes
-			if now.Sub(entry.createdAt) > 10*time.Minute {
-				delete(p.states, state)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-p.done:
+			return
+		case <-ticker.C:
+			p.statesMu.Lock()
+			now := time.Now()
+			for state, entry := range p.states {
+				// States expire after 10 minutes
+				if now.Sub(entry.createdAt) > 10*time.Minute {
+					delete(p.states, state)
+				}
 			}
+			p.statesMu.Unlock()
 		}
-		p.statesMu.Unlock()
 	}
 }
 
@@ -500,7 +524,7 @@ func sanitizeRedirectURL(redirectURL, basePath string) string {
 func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	redirectAfter := sanitizeRedirectURL(r.URL.Query().Get("redirect"), p.basePath)
 
-	authURL, err := p.GetAuthorizationURL(redirectAfter)
+	authURL, err := p.GetAuthorizationURL(r.Context(), redirectAfter)
 	if err != nil {
 		logging.From(r.Context()).Warn("OIDC: failed to generate authorization URL", "source", "auth", "error", err)
 		http.Error(w, "Failed to get authorization URL: "+err.Error(), http.StatusInternalServerError)
@@ -510,9 +534,15 @@ func (p *OIDCProvider) HandleLogin(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, authURL, http.StatusFound)
 }
 
-// Close cleans up resources
+// Close signals the cleanup goroutine to exit. Safe to call multiple
+// times (findings.md M13).
 func (p *OIDCProvider) Close() error {
-	// Nothing to clean up currently
+	select {
+	case <-p.done:
+		// already closed
+	default:
+		close(p.done)
+	}
 	return nil
 }
 
@@ -533,5 +563,5 @@ func (p *OIDCProvider) Verify(ctx context.Context) error {
 	if !p.Enabled() {
 		return nil
 	}
-	return p.loadDiscovery()
+	return p.loadDiscovery(ctx)
 }

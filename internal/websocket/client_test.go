@@ -222,15 +222,19 @@ func TestUpgrader_OriginCheck(t *testing.T) {
 		time.Sleep(50 * time.Millisecond)
 	})
 
-	t.Run("no origin allowed", func(t *testing.T) {
+	// findings.md M5: a missing Origin header used to pass CheckOrigin
+	// because browsers always send one; but a non-browser tool with a
+	// stolen session cookie could connect without the header and
+	// bypass the same-origin check. CheckOrigin now requires Origin.
+	t.Run("no origin rejected", func(t *testing.T) {
 		dialer := websocket.Dialer{}
-		conn, resp, err := dialer.Dial(wsURL, nil) // No origin header
-		if err != nil {
-			t.Fatalf("no origin should be allowed: %v", err)
+		_, resp, err := dialer.Dial(wsURL, nil) // No origin header
+		if resp != nil {
+			resp.Body.Close()
 		}
-		resp.Body.Close()
-		conn.Close()
-		time.Sleep(50 * time.Millisecond)
+		if err == nil {
+			t.Error("expected error for missing Origin header")
+		}
 	})
 
 	t.Run("cross origin rejected", func(t *testing.T) {

@@ -1136,6 +1136,15 @@ func (s *Server) Stop() error {
 		}
 	}
 
+	// Stop the WebSocket hub and OIDC state-cleanup goroutines so they
+	// don't leak past shutdown (findings.md L16 / M13).
+	if s.wsHub != nil {
+		s.wsHub.Close()
+	}
+	if s.oidcProvider != nil {
+		_ = s.oidcProvider.Close()
+	}
+
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	return s.httpServer.Shutdown(ctx)

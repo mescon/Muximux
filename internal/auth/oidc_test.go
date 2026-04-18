@@ -210,6 +210,7 @@ func newTestOIDCProvider(t *testing.T, issuerURL string) (*OIDCProvider, *Sessio
 		sessionStore: ss,
 		userStore:    us,
 		states:       make(map[string]stateEntry),
+		done:         make(chan struct{}),
 	}
 	// Set defaults
 	if len(p.config.Scopes) == 0 {
@@ -240,7 +241,7 @@ func TestLoadDiscovery(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery failed: %v", err)
 	}
 
@@ -266,13 +267,13 @@ func TestLoadDiscovery_Cached(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
 	// First load
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("first loadDiscovery failed: %v", err)
 	}
 
 	// Second load should use cache (no error even if server is down)
 	srv.Close()
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("cached loadDiscovery failed: %v", err)
 	}
 }
@@ -286,7 +287,7 @@ func TestLoadDiscovery_ServerError(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	if err := p.loadDiscovery(); err == nil {
+	if err := p.loadDiscovery(context.Background()); err == nil {
 		t.Error("expected error from server returning 500")
 	} else if !strings.Contains(err.Error(), "500") {
 		t.Errorf("expected error mentioning 500, got: %v", err)
@@ -296,7 +297,7 @@ func TestLoadDiscovery_ServerError(t *testing.T) {
 func TestLoadDiscovery_Unreachable(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, "http://127.0.0.1:1") // port 1 should fail to connect
 
-	if err := p.loadDiscovery(); err == nil {
+	if err := p.loadDiscovery(context.Background()); err == nil {
 		t.Error("expected error for unreachable server")
 	}
 }
@@ -310,7 +311,7 @@ func TestGetAuthorizationURL(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	authURL, err := p.GetAuthorizationURL("/dashboard")
+	authURL, err := p.GetAuthorizationURL(context.Background(), "/dashboard")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL failed: %v", err)
 	}
@@ -381,7 +382,7 @@ func TestPKCE_VerifierSentOnExchange(t *testing.T) {
 	defer srv.Close()
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
-	if _, err := p.exchangeCode("code", "the-verifier"); err != nil {
+	if _, err := p.exchangeCode(context.Background(), "code", "the-verifier"); err != nil {
 		t.Fatalf("exchangeCode: %v", err)
 	}
 	if capturedVerifier != "the-verifier" {
@@ -426,7 +427,7 @@ func TestHandleCallback_RejectsMissingIDToken(t *testing.T) {
 	defer srv.Close()
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
@@ -453,7 +454,7 @@ func TestExchangeCode(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	tokens, err := p.exchangeCode("test-auth-code", "")
+	tokens, err := p.exchangeCode(context.Background(), "test-auth-code", "")
 	if err != nil {
 		t.Fatalf("exchangeCode failed: %v", err)
 	}
@@ -490,7 +491,7 @@ func TestExchangeCode_ServerError(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, errorSrv.URL)
 
-	_, err := p.exchangeCode("bad-code", "")
+	_, err := p.exchangeCode(context.Background(), "bad-code", "")
 	if err == nil {
 		t.Error("expected error for bad token exchange")
 	}
@@ -511,7 +512,7 @@ func TestGetUserInfo(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	claims, err := p.getUserInfo("test-access-token")
+	claims, err := p.getUserInfo(context.Background(), "test-access-token")
 	if err != nil {
 		t.Fatalf("getUserInfo failed: %v", err)
 	}
@@ -540,7 +541,7 @@ func TestHandleCallback_Success(t *testing.T) {
 	p, ss := newTestOIDCProvider(t, srv.URL)
 
 	// Pre-populate discovery and state
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery failed: %v", err)
 	}
 
@@ -811,9 +812,16 @@ func TestVerify(t *testing.T) {
 // --- Close ---
 
 func TestClose(t *testing.T) {
-	p := &OIDCProvider{config: config.OIDCConfig{}}
+	p := &OIDCProvider{
+		config: config.OIDCConfig{},
+		done:   make(chan struct{}),
+	}
 	if err := p.Close(); err != nil {
 		t.Errorf("Close returned error: %v", err)
+	}
+	// Second Close must not panic or double-close.
+	if err := p.Close(); err != nil {
+		t.Errorf("second Close returned error: %v", err)
 	}
 }
 
@@ -1192,7 +1200,7 @@ func TestHandleCallback_AdminGroupDetection(t *testing.T) {
 	defer srv.Close()
 
 	p, ss := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery failed: %v", err)
 	}
 
@@ -1231,7 +1239,7 @@ func TestHandleCallback_FallbackToSub(t *testing.T) {
 	defer srv.Close()
 
 	p, ss := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery failed: %v", err)
 	}
 

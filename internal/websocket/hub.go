@@ -33,6 +33,7 @@ type Hub struct {
 	broadcast  chan Event
 	register   chan *Client
 	unregister chan *Client
+	done       chan struct{}
 	mu         sync.RWMutex
 }
 
@@ -43,13 +44,32 @@ func NewHub() *Hub {
 		broadcast:  make(chan Event, 256),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
+		done:       make(chan struct{}),
 	}
 }
 
-// Run starts the hub's main loop
+// Close signals the hub's Run loop to exit. Safe to call multiple times.
+// After Close returns any further Broadcast / Register / Unregister
+// calls simply deliver to channels that nothing reads; callers should
+// arrange to stop those paths themselves (findings.md L16).
+func (h *Hub) Close() {
+	h.mu.Lock()
+	defer h.mu.Unlock()
+	select {
+	case <-h.done:
+		// already closed
+	default:
+		close(h.done)
+	}
+}
+
+// Run starts the hub's main loop. Returns when Close is called.
 func (h *Hub) Run() {
 	for {
 		select {
+		case <-h.done:
+			return
+
 		case client := <-h.register:
 			h.mu.Lock()
 			h.clients[client] = true

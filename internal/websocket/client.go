@@ -27,13 +27,22 @@ var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
 	CheckOrigin: func(r *http.Request) bool {
+		// The Muximux WebSocket is only ever opened by the in-page SPA,
+		// which runs on the same origin as /ws. Require Origin to be
+		// present AND to match r.Host; a missing Origin header is
+		// enough for a non-browser tool with a stolen session cookie
+		// to bypass the same-origin check (findings.md M5).
 		origin := r.Header.Get("Origin")
 		if origin == "" {
-			return true // No origin header (e.g. non-browser clients)
+			logging.Debug("WebSocket upgrade rejected: missing Origin header", "source", "websocket")
+			return false
 		}
-		// Allow same-origin requests
 		host := r.Host
-		return origin == "http://"+host || origin == "https://"+host
+		if origin == "http://"+host || origin == "https://"+host {
+			return true
+		}
+		logging.Debug("WebSocket upgrade rejected: origin mismatch", "source", "websocket", "origin", origin, "host", host)
+		return false
 	},
 }
 
@@ -67,7 +76,13 @@ func (c *Client) ReadPump() {
 	}()
 
 	c.conn.SetReadLimit(maxMessageSize)
-	_ = c.conn.SetReadDeadline(time.Now().Add(pongWait))
+	// A deadline that fails to set means the next read can hang
+	// forever on a broken peer, so log the error instead of the
+	// previous _ = discard pattern (findings.md L14).
+	if err := c.conn.SetReadDeadline(time.Now().Add(pongWait)); err != nil {
+		logging.Debug("WebSocket SetReadDeadline failed", "source", "websocket", "error", err)
+		return
+	}
 	c.conn.SetPongHandler(func(string) error {
 		return c.conn.SetReadDeadline(time.Now().Add(pongWait))
 	})
@@ -96,7 +111,10 @@ func (c *Client) WritePump() {
 	for {
 		select {
 		case message, ok := <-c.send:
-			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				logging.Debug("WebSocket SetWriteDeadline failed", "source", "websocket", "error", err)
+				return
+			}
 			if !ok {
 				_ = c.conn.WriteMessage(websocket.CloseMessage, []byte{})
 				return
@@ -121,7 +139,10 @@ func (c *Client) WritePump() {
 			}
 
 		case <-ticker.C:
-			_ = c.conn.SetWriteDeadline(time.Now().Add(writeWait))
+			if err := c.conn.SetWriteDeadline(time.Now().Add(writeWait)); err != nil {
+				logging.Debug("WebSocket ping SetWriteDeadline failed", "source", "websocket", "error", err)
+				return
+			}
 			if err := c.conn.WriteMessage(websocket.PingMessage, nil); err != nil {
 				return
 			}

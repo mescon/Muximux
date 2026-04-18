@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
@@ -30,7 +31,7 @@ func TestOIDC_FullFlow(t *testing.T) {
 	us := p.userStore
 
 	// Step 1: Get authorization URL (triggers discovery)
-	authURL, err := p.GetAuthorizationURL("/settings")
+	authURL, err := p.GetAuthorizationURL(context.Background(), "/settings")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL: %v", err)
 	}
@@ -190,9 +191,10 @@ func TestOIDC_CustomClaimMapping(t *testing.T) {
 		sessionStore: ss,
 		userStore:    us,
 		states:       make(map[string]stateEntry),
+		done:         make(chan struct{}),
 	}
 
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
@@ -277,7 +279,7 @@ func TestOIDC_TokenExchangeParameters(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 	p.config.RedirectURL = "http://app.example.com/callback"
 
-	tokens, err := p.exchangeCode("my-auth-code", "")
+	tokens, err := p.exchangeCode(context.Background(), "my-auth-code", "")
 	if err != nil {
 		t.Fatalf("exchangeCode: %v", err)
 	}
@@ -333,7 +335,7 @@ func TestOIDC_UserinfoAuthHeader(t *testing.T) {
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
-	_, err := p.getUserInfo("my-access-token-abc")
+	_, err := p.getUserInfo(context.Background(), "my-access-token-abc")
 	if err != nil {
 		t.Fatalf("getUserInfo: %v", err)
 	}
@@ -354,7 +356,7 @@ func TestOIDC_StateOneTimeUse(t *testing.T) {
 	defer srv.Close()
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
@@ -462,7 +464,7 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	p, _ := newTestOIDCProvider(t, srv.URL)
 
 	// Authorization URL should use the discovered endpoint
-	authURL, err := p.GetAuthorizationURL("/")
+	authURL, err := p.GetAuthorizationURL(context.Background(), "/")
 	if err != nil {
 		t.Fatalf("GetAuthorizationURL: %v", err)
 	}
@@ -471,7 +473,7 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	}
 
 	// Token exchange should use the discovered endpoint
-	if _, err := p.exchangeCode("test-code", ""); err != nil {
+	if _, err := p.exchangeCode(context.Background(), "test-code", ""); err != nil {
 		t.Fatalf("exchangeCode: %v", err)
 	}
 	if !tokenHit {
@@ -479,7 +481,7 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	}
 
 	// Userinfo should use the discovered endpoint
-	if _, err := p.getUserInfo("disc-token"); err != nil {
+	if _, err := p.getUserInfo(context.Background(), "disc-token"); err != nil {
 		t.Fatalf("getUserInfo: %v", err)
 	}
 	if !userinfoHit {
@@ -500,7 +502,7 @@ func TestOIDC_NonAdminUserRole(t *testing.T) {
 	defer srv.Close()
 
 	p, ss := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
@@ -547,7 +549,7 @@ func TestOIDC_SpaceSeparatedGroups(t *testing.T) {
 	defer srv.Close()
 
 	p, ss := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
@@ -606,7 +608,7 @@ func TestOIDC_TokenEndpointError(t *testing.T) {
 	defer srv.Close()
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
@@ -647,7 +649,7 @@ func TestOIDC_UserinfoEndpointError(t *testing.T) {
 	srv.Config.Handler = failingUserinfoHandler(t, userinfo, srv.URL)
 
 	p, _ := newTestOIDCProvider(t, srv.URL)
-	if err := p.loadDiscovery(); err != nil {
+	if err := p.loadDiscovery(context.Background()); err != nil {
 		t.Fatalf("loadDiscovery: %v", err)
 	}
 
