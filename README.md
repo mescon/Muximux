@@ -60,11 +60,39 @@ One binary. One port. One YAML config file.
 
 ## What Is Muximux?
 
-If you run services like Sonarr, Radarr, Plex, Grafana, or Home Assistant in your homelab, you probably have a dozen browser bookmarks and port numbers to remember. Muximux gives you a single page where all of those apps live, organized into groups, with live health indicators showing what's up and what's down.
+There's a good chance you already have a homelab dashboard. [Homepage](https://gethomepage.dev), [Homarr](https://homarr.dev), [Organizr](https://github.com/causefx/Organizr), and [Dashy](https://dashy.to) are all excellent tools in this space. If one of them already fits your workflow, you probably don't need to read further.
 
-Apps load inside the dashboard as iframes, so switching between them is instant - no page reloads, no losing your place. For apps that refuse to be embedded (most set `X-Frame-Options: DENY`), Muximux includes a reverse proxy that transparently strips those headers and rewrites paths so they work.
+Muximux is built for a specific kind of user: someone who spends the day working *inside* their self-hosted apps, not glancing at widgets on a landing page. Click Sonarr and Sonarr opens inside the dashboard. Click Plex and Plex does too. No new tabs, no context switches. You never actually leave Muximux.
 
-Everything is configured in one YAML file — no database, no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
+Making apps embed reliably is where it gets interesting. Most self-hosted apps set `X-Frame-Options: DENY` and refuse to load in an iframe. Muximux includes a built-in reverse proxy that strips those headers, rewrites paths in HTML/CSS/JS, and patches `fetch()` and `XMLHttpRequest` at runtime so even heavy single-page apps work the way they do when opened directly. Most dashboards point at your apps. Muximux makes them actually embed.
+
+There are things Muximux deliberately doesn't do. It doesn't pull live widgets from Sonarr or qBittorrent (Homepage is lovely at that). It doesn't have a drag-and-drop visual editor (Homarr excels there). It doesn't have Dashy's breadth of built-in monitoring widgets. It's focused on one thing: making apps work side by side inside a single tab, polished enough to live in.
+
+Everything is configured in one YAML file, no database, no external dependencies. The entire application ships as a single binary with the frontend embedded. Every setting is configurable through the built-in GUI, so you never have to touch the YAML directly. Back up or migrate your entire setup by copying a single file.
+
+### How does it compare?
+
+The dashboards in this space approach things differently. This table is a quick way to see where each one leans.
+
+| | Muximux | Homepage | Homarr | Organizr | Dashy |
+|---|:---:|:---:|:---:|:---:|:---:|
+| Apps open inside the dashboard | Iframe (default) | iFrame widget | Link-out + widgets | Iframe tabs | Workspace view |
+| Rewrites iframe-blocking headers | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Runtime SPA interceptor (fetch / XHR / WebSocket) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Iframe permission delegation (camera, mic, geo, passkeys) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Notification bridge for embedded apps | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Split view (two apps side by side) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Live service widgets (torrent counts, episode lists, etc.) | ❌ | ✅ (100+) | ✅ | Partial | ✅ (50+) |
+| Drag-and-drop visual editor | ❌ | ❌ | ✅ | Partial | ✅ |
+| Real-time health checks | ✅ (WebSocket) | ✅ | ✅ | ✅ | ✅ |
+| Built-in users and roles | ✅ | ❌ (external auth) | ✅ | ✅ | Simple |
+| Forward-auth / OIDC / SSO | ✅ | Via external proxy | ✅ (OIDC + LDAP) | ✅ (Plex / Emby / LDAP) | ✅ (Keycloak) |
+| Auto-HTTPS via Let's Encrypt | ✅ (embedded Caddy) | ❌ | ❌ | ❌ | ❌ |
+| Reverse-proxy other sites (gateway mode) | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Config | YAML (no DB) | YAML + Docker labels | Database | Database | YAML / UI |
+| Deployment | Single Go binary | Docker / K8s / binary | Docker | Docker / PHP | Docker / Node.js |
+
+If the rows near the top describe what you want, keep reading.
 
 ---
 
