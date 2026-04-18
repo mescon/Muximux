@@ -711,9 +711,7 @@ func (s *Server) setupGuardMiddleware(next http.Handler) http.Handler {
 		}
 
 		logging.From(r.Context()).Debug("API blocked: setup not complete", "source", "server", "path", r.URL.Path)
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusServiceUnavailable)
-		json.NewEncoder(w).Encode(map[string]string{"error": "setup_required"})
+		writeJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "setup_required"})
 	})
 }
 
@@ -851,25 +849,19 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	defer s.setupMu.Unlock()
 
 	if !s.needsSetup.Load() {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
+		writeJSON(w, http.StatusConflict, map[string]string{"error": "Setup already completed"})
 		return
 	}
 
 	if err := s.validateSetupToken(strings.TrimSpace(r.Header.Get(setupTokenHeader))); err != nil {
 		logging.From(r.Context()).Warn("Setup token rejected", "source", "audit", "error", err.Error(), "path", r.URL.Path)
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or missing setup token"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Invalid or missing setup token"})
 		return
 	}
 
 	var req setupRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": errInvalidBody})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": errInvalidBody})
 		return
 	}
 
@@ -880,17 +872,13 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		}
 	case "forward_auth":
 		if err := s.setupForwardAuth(&req); err != nil {
-			setJSONContentType(w)
-			w.WriteHeader(http.StatusBadRequest)
-			json.NewEncoder(w).Encode(map[string]string{"error": err.Error()})
+			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
 			return
 		}
 	case "none":
 		s.setupNone()
 	default:
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid method. Must be builtin, forward_auth, or none"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid method. Must be builtin, forward_auth, or none"})
 		return
 	}
 
@@ -901,9 +889,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		return s.config.Save(s.configPath)
 	}(); err != nil {
 		logging.From(r.Context()).Error("Failed to save config after setup", "source", "server", "error", err)
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to save configuration"})
 		return
 	}
 
@@ -912,8 +898,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	s.needsSetup.Store(false)
 	s.clearSetupToken()
 
-	setJSONContentType(w)
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	writeJSON(w, http.StatusOK, map[string]interface{}{
 		"success": true,
 		"method":  req.Method,
 	})
@@ -931,18 +916,14 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	defer s.setupMu.Unlock()
 
 	if !s.needsSetup.Load() {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusConflict)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
+		writeJSON(w, http.StatusConflict, map[string]string{"error": "Setup already completed"})
 		return
 	}
 
 	supplied := strings.TrimSpace(r.Header.Get(setupTokenHeader))
 	if err := s.validateSetupToken(supplied); err != nil {
 		logging.From(r.Context()).Warn("Setup token rejected on restore", "source", "audit", "error", err.Error(), "path", r.URL.Path)
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusUnauthorized)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or missing setup token"})
+		writeJSON(w, http.StatusUnauthorized, map[string]string{"error": "Invalid or missing setup token"})
 		return
 	}
 
@@ -962,9 +943,7 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	dec := yaml.NewDecoder(bytes.NewReader(body))
 	dec.KnownFields(true)
 	if err := dec.Decode(&cfg); err != nil {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("Invalid YAML: %s", err.Error())})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": fmt.Sprintf("Invalid YAML: %s", err.Error())})
 		return
 	}
 
@@ -990,9 +969,7 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		logging.From(r.Context()).Error("Failed to save restored config; reverted", "source", "config", "error", err)
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to save configuration"})
 		return
 	}
 
@@ -1000,29 +977,22 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	s.needsSetup.Store(false)
 	s.clearSetupToken()
 
-	setJSONContentType(w)
-	json.NewEncoder(w).Encode(map[string]string{"success": "true"})
+	writeJSON(w, http.StatusOK, map[string]string{"success": "true"})
 }
 
 func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 	if strings.TrimSpace(req.Username) == "" {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Username is required"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Username is required"})
 		return fmt.Errorf("username required")
 	}
 	if len(req.Password) < 8 {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusBadRequest)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Password must be at least 8 characters"})
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Password must be at least 8 characters"})
 		return fmt.Errorf("password too short")
 	}
 
 	hash, err := auth.HashPassword(req.Password)
 	if err != nil {
-		setJSONContentType(w)
-		w.WriteHeader(http.StatusInternalServerError)
-		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to hash password"})
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to hash password"})
 		return err
 	}
 

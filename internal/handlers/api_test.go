@@ -1635,6 +1635,64 @@ apps:
 		}
 	})
 
+	// findings.md M20: the import must reject structurally invalid
+	// inputs (bad URLs, unknown open_mode, unknown roles, bad
+	// durations) up front rather than leaving a later runtime to
+	// stumble over them.
+	t.Run("rejects invalid app URL", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+		yamlBody := []byte(`
+apps:
+  - name: Bad
+    url: "javascript:alert(1)"
+    enabled: true
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+		handler.ParseImportedConfig(w, req)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 for non-http(s) URL, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("rejects unknown open_mode", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+		yamlBody := []byte(`
+apps:
+  - name: X
+    url: http://example.com
+    enabled: true
+    open_mode: telepathy
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+		handler.ParseImportedConfig(w, req)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 for unknown open_mode, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
+	t.Run("rejects unparseable duration", func(t *testing.T) {
+		cfg := createTestConfig()
+		handler := NewAPIHandler(cfg, "", &sync.RWMutex{})
+		yamlBody := []byte(`
+server:
+  proxy_timeout: "five minutes"
+apps:
+  - name: X
+    url: http://example.com
+    enabled: true
+`)
+		req := httptest.NewRequest(http.MethodPost, "/api/config/import", bytes.NewReader(yamlBody))
+		w := httptest.NewRecorder()
+		handler.ParseImportedConfig(w, req)
+		if w.Code != http.StatusBadRequest {
+			t.Errorf("expected 400 for bad duration, got %d: %s", w.Code, w.Body.String())
+		}
+	})
+
 	// findings.md M7: unknown fields in the imported YAML must be
 	// rejected, not silently dropped. This guards against future
 	// mass-assignment if the Config struct gains a field whose name

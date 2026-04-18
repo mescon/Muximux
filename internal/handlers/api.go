@@ -129,19 +129,70 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	for i := range cfg.Apps {
-		if cfg.Apps[i].Name == "" {
-			respondError(w, r, http.StatusBadRequest, "Each app must have a name")
-			return
-		}
-		if cfg.Apps[i].URL == "" {
-			respondError(w, r, http.StatusBadRequest, fmt.Sprintf("App %q must have a URL", cfg.Apps[i].Name))
-			return
-		}
+	if err := validateImportedConfig(&cfg); err != nil {
+		respondError(w, r, http.StatusBadRequest, err.Error(), "source", "config")
+		return
 	}
 
 	// Return as the same sanitized JSON format the frontend expects
 	sendJSON(w, http.StatusOK, buildClientConfigResponse(&cfg, ""))
+}
+
+// validateImportedConfig rejects backups that would leave the running
+// instance in an opaque broken state (findings.md M20). Checks:
+//   - every app has a Name and URL, and each URL is parseable http(s)
+//   - known open_mode values
+//   - min_role is either empty or a known role
+//   - auth.method is one of the known values
+//   - any duration fields parse
+//
+// Missing fields that Load() would silently default are left alone; the
+// point here is to reject structurally invalid inputs, not to force
+// every field to be explicit.
+func validateImportedConfig(cfg *config.Config) error {
+	knownOpenModes := map[string]bool{"": true, "iframe": true, "tab": true, "window": true, "popup": true}
+	knownRoles := map[string]bool{"": true, auth.RoleAdmin: true, auth.RolePowerUser: true, auth.RoleUser: true}
+	knownAuthMethods := map[string]bool{"": true, "none": true, "builtin": true, "forward_auth": true, "oidc": true}
+
+	for i := range cfg.Apps {
+		app := &cfg.Apps[i]
+		if app.Name == "" {
+			return fmt.Errorf("each app must have a name")
+		}
+		if app.URL == "" {
+			return fmt.Errorf("app %q must have a URL", app.Name)
+		}
+		if u, err := parseURL(app.URL); err != nil || (u.Scheme != "http" && u.Scheme != "https" && u.Scheme != "") {
+			return fmt.Errorf("app %q has invalid URL %q", app.Name, app.URL)
+		}
+		if !knownOpenModes[app.OpenMode] {
+			return fmt.Errorf("app %q has unknown open_mode %q", app.Name, app.OpenMode)
+		}
+		if !knownRoles[app.MinRole] {
+			return fmt.Errorf("app %q has unknown min_role %q", app.Name, app.MinRole)
+		}
+	}
+
+	if !knownAuthMethods[cfg.Auth.Method] {
+		return fmt.Errorf("unknown auth.method %q", cfg.Auth.Method)
+	}
+
+	if cfg.Auth.SessionMaxAge != "" {
+		if _, err := time.ParseDuration(cfg.Auth.SessionMaxAge); err != nil {
+			return fmt.Errorf("invalid auth.session_max_age: %w", err)
+		}
+	}
+	if cfg.Server.ProxyTimeout != "" {
+		if _, err := time.ParseDuration(cfg.Server.ProxyTimeout); err != nil {
+			return fmt.Errorf("invalid server.proxy_timeout: %w", err)
+		}
+	}
+
+	return nil
+}
+
+func parseURL(raw string) (*url.URL, error) {
+	return url.Parse(raw)
 }
 
 // clientConfigResponse is the sanitized config structure sent to the frontend.
