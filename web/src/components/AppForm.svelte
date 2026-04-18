@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { App, Group } from '$lib/types';
-  import { openModes, IFRAME_PERMISSIONS, ALL_IFRAME_PERMISSIONS } from '$lib/constants';
+  import { openModes, IFRAME_PERMISSIONS } from '$lib/constants';
   import AppIcon from './AppIcon.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -42,10 +42,11 @@
   }
 
   function togglePermission(id: string, checked: boolean) {
-    const current = new Set(expandSentinels(app.permissions));
-    if (checked) current.add(id);
-    else current.delete(id);
-    app.permissions = current.size > 0 ? Array.from(current) : undefined;
+    // Work with a plain array (not a Set) to keep the svelte/prefer-svelte-reactivity
+    // lint happy. The list has ~20 items max so linear scans are fine.
+    const current = expandSentinels(app.permissions).filter(p => p !== id);
+    if (checked) current.push(id);
+    app.permissions = current.length > 0 ? current : undefined;
   }
 
   function hasPermission(id: string): boolean {
