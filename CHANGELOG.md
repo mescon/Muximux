@@ -2,6 +2,22 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.28] - 2026-04-18
+
+### Added
+- Iframe permission delegation -- per-app `permissions` list (20 browser Feature-Policy directives: camera, microphone, geolocation, fullscreen, display-capture, clipboard, autoplay, midi, payment, WebAuthn/passkeys, picture-in-picture, screen-wake-lock, USB, serial, HID, and more) delegates browser features to the embedded iframe. Terse `permissions: [all]` / `[none]` YAML sentinels, plus a Settings UI with hover tooltips and MDN docs links for each directive. Resolves #320
+- Notification bridge -- embedded apps with `allow_notifications: true` can request browser notifications through Muximux's top-level origin via `window.parent.postMessage({type: 'muximux:notify', title, body, tag})`. Proxied apps get a transparent `window.Notification` shim so standard `new Notification(...)` calls route through the bridge without code changes. Icons always come from the app's configured icon (anti-spoofing) and clicking a notification always switches to the sending app (anti-phishing). Rate-limited to one notification per app every 2 seconds. Resolves #320
+
+### Changed
+- Document-level `Permissions-Policy` header now permits delegatable features for iframe delegation (was `camera=(), microphone=(), geolocation=()`). Muximux's own JS does not call these APIs, so widening the policy does not broaden Muximux's attack surface -- per-app iframe `allow` attributes remain the effective gate.
+- Bump `github.com/jackc/pgx/v5` from 5.8.0 to 5.9.0 -- fixes memory-safety vulnerability (critical)
+- Bump npm group (svelte 5.55.4, vite 8.0.8, vitest 4.1.4, @vitest/coverage-v8 4.1.4, @inlang/paraglide-js 2.16.0, globals 17.5.0, typescript-eslint 8.58.2)
+- Bump `actions/upload-artifact` from 7.0.0 to 7.0.1
+- Bump `softprops/action-gh-release` from 2.6.1 to 3.0.0
+- Bump `github/codeql-action` from 4.35.1 to 4.35.2
+- Bump `docker/build-push-action` from 7.0.0 to 7.1.0
+- Bump go-dependencies group (2 updates)
+
 ## [3.0.27] - 2026-04-12
 
 ### Security
