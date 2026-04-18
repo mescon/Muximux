@@ -46,10 +46,22 @@
   let restoreError = $state('');
   let restoring = $state(false);
 
+  // Pre-setup authorization token. Printed to the server's stdout/log on
+  // first boot; the operator copies it into the wizard to prove
+  // ownership, preventing an attacker on the same network from racing
+  // through setup first (findings.md C1).
+  let setupToken = $state('');
+
   async function handleRestore(e: Event) {
     const input = e.target as HTMLInputElement;
     const file = input.files?.[0];
     if (!file) return;
+
+    if (needsSetup && !setupToken.trim()) {
+      restoreError = 'Enter the setup token from the server logs before restoring.';
+      input.value = '';
+      return;
+    }
 
     restoreError = '';
     restoring = true;
@@ -58,7 +70,10 @@
       const content = await file.text();
       const resp = await fetch(`${API_BASE}/config/restore`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/x-yaml' },
+        headers: {
+          'Content-Type': 'application/x-yaml',
+          'X-Setup-Token': setupToken.trim(),
+        },
         body: content,
       });
 
@@ -82,7 +97,7 @@
     oncomplete,
     needsSetup = false
   }: {
-    oncomplete?: (detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: SetupRequest }) => void;
+    oncomplete?: (detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: SetupRequest; setupToken?: string }) => void;
     needsSetup?: boolean;
   } = $props();
 
@@ -591,7 +606,13 @@
       variant: get(variantMode)
     };
 
-    oncomplete?.({ apps, navigation, groups, theme, ...(needsSetup && authMethod ? { setup: buildSetupRequest() } : {}) });
+    oncomplete?.({
+      apps,
+      navigation,
+      groups,
+      theme,
+      ...(needsSetup && authMethod ? { setup: buildSetupRequest(), setupToken: setupToken.trim() } : {}),
+    });
   }
 
   function rebuildDndFromSelections() {
@@ -1235,9 +1256,28 @@
             </div>
           </div>
 
+          {#if needsSetup}
+            <div class="max-w-xl mx-auto mb-6 text-start">
+              <label for="setup-token" class="block text-sm font-medium text-text-primary mb-1">Setup token</label>
+              <input
+                id="setup-token"
+                type="text"
+                bind:value={setupToken}
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="Paste the token printed on the server"
+                class="w-full px-3 py-2 bg-bg-surface border border-border rounded-md text-text-primary focus:outline-none focus:border-brand-500 font-mono text-sm"
+              />
+              <p class="text-xs text-text-muted mt-1">
+                A one-time token was printed to the server's stdout on first boot (also saved to <code>data/.setup-token</code>). Paste it here to prove ownership before completing setup or restoring a backup.
+              </p>
+            </div>
+          {/if}
+
           <button
-            class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors"
+            class="px-8 py-3 bg-brand-600 hover:bg-brand-700 text-white font-medium rounded-lg text-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             onclick={nextStep}
+            disabled={needsSetup && !setupToken.trim()}
           >
             {m.onboarding_letsGetStarted()}
           </button>
@@ -1245,9 +1285,9 @@
           <div class="mt-6">
             <p class="text-sm text-text-muted mb-2">{m.onboarding_existingConfig()}</p>
             <button
-              class="text-sm text-brand-400 hover:text-brand-300 transition-colors"
+              class="text-sm text-brand-400 hover:text-brand-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               onclick={() => restoreFileInput?.click()}
-              disabled={restoring}
+              disabled={restoring || (needsSetup && !setupToken.trim())}
             >
               {restoring ? m.onboarding_restoring() : m.onboarding_restoreFromBackup()}
             </button>

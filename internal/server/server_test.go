@@ -1793,6 +1793,19 @@ func defaultTestConfig() *config.Config {
 	}
 }
 
+// testSetupToken is the canned value every pre-setup test uses. The
+// validateSetupToken check is constant-time and not value-dependent, so
+// this just has to match between the Server field and the request header.
+const testSetupToken = "test-setup-token"
+
+// withSetupToken stamps the canned token onto both the Server state and
+// the inbound request so tests can exercise the path past the
+// authorization gate introduced in findings.md C1.
+func withSetupToken(s *Server, r *http.Request) {
+	s.setupToken = testSetupToken
+	r.Header.Set(setupTokenHeader, testSetupToken)
+}
+
 func TestSetupGuardMiddleware(t *testing.T) {
 	inner := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -1907,11 +1920,131 @@ func TestHandleConfigRestore_WrongMethod(t *testing.T) {
 	s.needsSetup.Store(true)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/config/restore", nil)
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleConfigRestore(rec, req)
 
 	if rec.Code != http.StatusMethodNotAllowed {
 		t.Errorf("expected 405, got %d", rec.Code)
+	}
+}
+
+// TestHandleConfigRestore_MissingToken and TestHandleSetup_MissingToken
+// pin down the pre-setup authorization gate introduced for findings.md
+// C1: an unauthenticated network attacker racing to seed admin credentials
+// must be rejected with 401 before any parsing or state changes happen.
+func TestHandleConfigRestore_MissingToken(t *testing.T) {
+	s := &Server{setupToken: "the-real-token"}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader("apps: []"))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401 with no token, got %d", rec.Code)
+	}
+}
+
+func TestHandleConfigRestore_WrongToken(t *testing.T) {
+	s := &Server{setupToken: "the-real-token"}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader("apps: []"))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	req.Header.Set(setupTokenHeader, "wrong-token")
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401 with wrong token, got %d", rec.Code)
+	}
+}
+
+func TestHandleSetup_MissingToken(t *testing.T) {
+	s := &Server{setupToken: "the-real-token"}
+	s.needsSetup.Store(true)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"none"}`))
+	req.Header.Set("Content-Type", "application/json")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("expected 401 with no token, got %d", rec.Code)
+	}
+}
+
+// TestHandleSetup_ClearsTokenOnSuccess verifies the one-time nature of the
+// token: once setup succeeds the in-memory value is zeroed and the on-disk
+// file is removed, so a compromised token cannot be replayed to re-seed
+// credentials later.
+func TestHandleSetup_ClearsTokenOnSuccess(t *testing.T) {
+	tmpDir := t.TempDir()
+	tokenPath := filepath.Join(tmpDir, setupTokenFilename)
+	if err := os.WriteFile(tokenPath, []byte("the-real-token\n"), 0o600); err != nil {
+		t.Fatalf("seed token file: %v", err)
+	}
+
+	s := &Server{
+		config:     defaultTestConfig(),
+		configPath: filepath.Join(tmpDir, "config.yaml"),
+		dataDir:    tmpDir,
+		setupToken: "the-real-token",
+	}
+	s.needsSetup.Store(true)
+	s.sessionStore = auth.NewSessionStore("test", time.Hour, false)
+	s.userStore = auth.NewUserStore()
+	s.authMiddleware = auth.NewMiddleware(&auth.AuthConfig{Method: auth.AuthMethodNone}, s.sessionStore, s.userStore)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"none"}`))
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set(setupTokenHeader, "the-real-token")
+	rec := httptest.NewRecorder()
+	s.handleSetup(rec, req)
+
+	if rec.Code != http.StatusOK {
+		t.Fatalf("expected 200 on successful setup, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if s.setupToken != "" {
+		t.Errorf("expected setupToken cleared, got %q", s.setupToken)
+	}
+	if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
+		t.Errorf("expected token file removed, got err=%v", err)
+	}
+}
+
+// TestEnsureSetupToken_GeneratesAndPersists covers the startup path: an
+// instance that boots needing setup generates a random token, writes it
+// with 0600 mode, and reuses it on restart.
+func TestEnsureSetupToken_GeneratesAndPersists(t *testing.T) {
+	tmpDir := t.TempDir()
+	s := &Server{dataDir: tmpDir}
+
+	if err := s.ensureSetupToken(); err != nil {
+		t.Fatalf("ensureSetupToken failed: %v", err)
+	}
+	if s.setupToken == "" {
+		t.Fatal("expected setupToken to be populated")
+	}
+	originalTok := s.setupToken
+
+	info, err := os.Stat(filepath.Join(tmpDir, setupTokenFilename))
+	if err != nil {
+		t.Fatalf("token file missing: %v", err)
+	}
+	if mode := info.Mode().Perm(); mode != 0o600 {
+		t.Errorf("token file mode = %o, want 0600", mode)
+	}
+
+	// Second boot: token should be reused, not regenerated.
+	s2 := &Server{dataDir: tmpDir}
+	if err := s2.ensureSetupToken(); err != nil {
+		t.Fatalf("ensureSetupToken second call failed: %v", err)
+	}
+	if s2.setupToken != originalTok {
+		t.Errorf("expected reuse of existing token; got %q, want %q", s2.setupToken, originalTok)
 	}
 }
 
@@ -1921,6 +2054,7 @@ func TestHandleConfigRestore_AlreadyComplete(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader("apps: []"))
 	req.Header.Set("Content-Type", "application/x-yaml")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleConfigRestore(rec, req)
 
@@ -1935,6 +2069,7 @@ func TestHandleConfigRestore_InvalidYAML(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader(":::not yaml"))
 	req.Header.Set("Content-Type", "application/x-yaml")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleConfigRestore(rec, req)
 
@@ -1950,6 +2085,7 @@ func TestHandleConfigRestore_Success(t *testing.T) {
 	s := &Server{
 		config:     cfg,
 		configPath: configPath,
+		dataDir:    tmpDir,
 	}
 	s.needsSetup.Store(true)
 
@@ -1966,6 +2102,8 @@ groups:
 `
 	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader(yamlContent))
 	req.Header.Set("Content-Type", "application/x-yaml")
+	withSetupToken(s, req)
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleConfigRestore(rec, req)
 
@@ -2012,6 +2150,7 @@ func TestHandleSetup_WrongMethod(t *testing.T) {
 	s.needsSetup.Store(true)
 
 	req := httptest.NewRequest(http.MethodGet, "/api/auth/setup", nil)
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2026,6 +2165,7 @@ func TestHandleSetup_AlreadyComplete(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"none"}`))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2040,6 +2180,7 @@ func TestHandleSetup_InvalidMethod(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`{"method":"invalid"}`))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2054,6 +2195,7 @@ func TestHandleSetup_InvalidJSON(t *testing.T) {
 
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(`not json`))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2075,6 +2217,7 @@ func TestHandleSetup_Builtin_WeakPassword(t *testing.T) {
 	body := `{"method":"builtin","username":"admin","password":"short"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2096,6 +2239,7 @@ func TestHandleSetup_Builtin_EmptyUsername(t *testing.T) {
 	body := `{"method":"builtin","username":"","password":"longenoughpassword"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2117,6 +2261,7 @@ func TestHandleSetup_ForwardAuth_MissingProxy(t *testing.T) {
 	body := `{"method":"forward_auth","trusted_proxies":[]}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2141,6 +2286,7 @@ func TestHandleSetup_Builtin_Success(t *testing.T) {
 	body := `{"method":"builtin","username":"admin","password":"securepass123"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2215,6 +2361,7 @@ func TestHandleSetup_ForwardAuth_Success(t *testing.T) {
 	body := `{"method":"forward_auth","trusted_proxies":["10.0.0.0/8"],"headers":{"user":"Remote-User","email":"Remote-Email"},"logout_url":"https://auth.example.com/logout"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 
@@ -2249,6 +2396,7 @@ func TestHandleSetup_None_Success(t *testing.T) {
 	body := `{"method":"none"}`
 	req := httptest.NewRequest(http.MethodPost, "/api/auth/setup", strings.NewReader(body))
 	req.Header.Set("Content-Type", "application/json")
+	withSetupToken(s, req)
 	rec := httptest.NewRecorder()
 	s.handleSetup(rec, req)
 

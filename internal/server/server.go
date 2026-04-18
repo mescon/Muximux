@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/subtle"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
@@ -55,6 +56,7 @@ type Server struct {
 	oidcProvider   *auth.OIDCProvider
 	needsSetup     atomic.Bool
 	setupMu        sync.Mutex // serializes setup requests
+	setupToken     string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
 	loginLimiter   *rateLimiter
 	setupLimiter   *rateLimiter
 	logCh          chan logging.LogEntry
@@ -91,6 +93,18 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		buildDate:      buildDate,
 	}
 	s.needsSetup.Store(cfg.NeedsSetup())
+
+	// When the instance needs setup, an unauthenticated attacker on the
+	// network could race the legitimate operator to /api/auth/setup or
+	// /api/config/restore and install credentials they control. A random
+	// setup token (written to dataDir with 0600 and logged to stdout) must
+	// be presented on those endpoints, anchoring the trust boundary to
+	// the physical server rather than the network.
+	if s.needsSetup.Load() {
+		if err := s.ensureSetupToken(); err != nil {
+			return nil, fmt.Errorf("failed to initialize setup token: %w", err)
+		}
+	}
 
 	// Set up routes
 	mux := http.NewServeMux()
@@ -680,6 +694,94 @@ func (s *Server) isSetupAllowed(r *http.Request) bool {
 	return false
 }
 
+// setupTokenFilename is the name of the file holding the setup token in
+// the data directory. The file is created with mode 0600 and removed once
+// setup completes.
+const setupTokenFilename = ".setup-token"
+
+// setupTokenHeader is the HTTP header clients must present on
+// /api/auth/setup and /api/config/restore while the instance is in the
+// pre-setup state.
+const setupTokenHeader = "X-Setup-Token"
+
+// ensureSetupToken generates or loads the one-time setup token used to
+// authorize the initial setup wizard and restore endpoint. The token is
+// persisted to dataDir with mode 0600 so an operator who restarts Muximux
+// mid-setup does not have to hunt for a new value in the logs.
+func (s *Server) ensureSetupToken() error {
+	path := filepath.Join(s.dataDir, setupTokenFilename)
+	if data, err := os.ReadFile(path); err == nil {
+		tok := strings.TrimSpace(string(data))
+		if tok != "" {
+			s.setupToken = tok
+			s.logSetupToken(tok, false)
+			return nil
+		}
+	} else if !os.IsNotExist(err) {
+		return err
+	}
+
+	buf := make([]byte, 32)
+	if _, err := rand.Read(buf); err != nil {
+		return err
+	}
+	tok := hex.EncodeToString(buf)
+
+	if err := os.MkdirAll(s.dataDir, 0o750); err != nil {
+		return err
+	}
+	if err := os.WriteFile(path, []byte(tok+"\n"), 0o600); err != nil {
+		return err
+	}
+
+	s.setupToken = tok
+	s.logSetupToken(tok, true)
+	return nil
+}
+
+// logSetupToken writes a prominent log line instructing the operator where
+// to find the setup token. Kept as its own method so tests can silence it.
+func (s *Server) logSetupToken(tok string, fresh bool) {
+	verb := "Reusing existing"
+	if fresh {
+		verb = "Generated new"
+	}
+	logging.Info(
+		verb+" setup token; present it via X-Setup-Token to complete setup or restore",
+		"source", "server",
+		"token", tok,
+		"token_file", filepath.Join(s.dataDir, setupTokenFilename),
+	)
+}
+
+// clearSetupToken wipes the in-memory token and removes the on-disk file.
+// Called after a successful setup or restore so the proof-of-ownership
+// cannot be reused to re-trigger either flow.
+func (s *Server) clearSetupToken() {
+	s.setupToken = ""
+	path := filepath.Join(s.dataDir, setupTokenFilename)
+	if err := os.Remove(path); err != nil && !os.IsNotExist(err) {
+		logging.Warn("Failed to remove setup token file", "source", "server", "error", err)
+	}
+}
+
+// validateSetupToken returns nil if the supplied token matches the
+// server's current setup token. Comparison is constant-time. An empty
+// supplied token always fails.
+func (s *Server) validateSetupToken(supplied string) error {
+	expected := s.setupToken
+	if expected == "" {
+		return fmt.Errorf("setup token not initialized")
+	}
+	if supplied == "" {
+		return fmt.Errorf("missing setup token")
+	}
+	if subtle.ConstantTimeCompare([]byte(expected), []byte(supplied)) != 1 {
+		return fmt.Errorf("invalid setup token")
+	}
+	return nil
+}
+
 // setupRequest is the JSON body for POST /api/auth/setup
 type setupRequest struct {
 	Method         string            `json:"method"`
@@ -704,6 +806,14 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
+		return
+	}
+
+	if err := s.validateSetupToken(strings.TrimSpace(r.Header.Get(setupTokenHeader))); err != nil {
+		logging.From(r.Context()).Warn("Setup token rejected", "source", "audit", "error", err.Error(), "path", r.URL.Path)
+		setJSONContentType(w)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or missing setup token"})
 		return
 	}
 
@@ -752,6 +862,7 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 	logging.From(r.Context()).Info("Setup completed", "source", "config", "method", req.Method)
 
 	s.needsSetup.Store(false)
+	s.clearSetupToken()
 
 	setJSONContentType(w)
 	json.NewEncoder(w).Encode(map[string]interface{}{
@@ -775,6 +886,15 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusConflict)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Setup already completed"})
+		return
+	}
+
+	supplied := strings.TrimSpace(r.Header.Get(setupTokenHeader))
+	if err := s.validateSetupToken(supplied); err != nil {
+		logging.From(r.Context()).Warn("Setup token rejected on restore", "source", "audit", "error", err.Error(), "path", r.URL.Path)
+		setJSONContentType(w)
+		w.WriteHeader(http.StatusUnauthorized)
+		json.NewEncoder(w).Encode(map[string]string{"error": "Invalid or missing setup token"})
 		return
 	}
 
@@ -813,6 +933,7 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 
 	logging.From(r.Context()).Info("Config restored from backup", "source", "config", "apps", len(cfg.Apps), "groups", len(cfg.Groups))
 	s.needsSetup.Store(false)
+	s.clearSetupToken()
 
 	setJSONContentType(w)
 	json.NewEncoder(w).Encode(map[string]string{"success": "true"})

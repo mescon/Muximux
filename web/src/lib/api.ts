@@ -38,8 +38,26 @@ async function deleteJSON(path: string): Promise<void> {
   return request<void>('DELETE', path);
 }
 
-export async function submitSetup(data: SetupRequest): Promise<SetupResponse> {
-  return postJSON<SetupRequest, SetupResponse>('/auth/setup', data);
+/**
+ * Submit the setup wizard. setupToken is the one-time proof-of-ownership
+ * token printed on the server's stdout during first boot; required while
+ * the instance is in the pre-setup state (findings.md C1).
+ */
+export async function submitSetup(data: SetupRequest, setupToken?: string): Promise<SetupResponse> {
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  if (setupToken) {
+    headers['X-Setup-Token'] = setupToken;
+  }
+  const response = await fetch(`${API_BASE}/auth/setup`, {
+    method: 'POST',
+    headers,
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`API error: ${response.status} ${text}`);
+  }
+  return response.json();
 }
 
 export async function listUsers(): Promise<UserInfo[]> {

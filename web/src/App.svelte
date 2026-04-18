@@ -494,13 +494,13 @@
     showSettings = false;
   }
 
-  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: import('./lib/types').SetupRequest }) {
-    const { apps: newApps, navigation, groups, theme, setup } = detail;
+  async function handleOnboardingComplete(detail: { apps: App[]; navigation: NavigationConfig; groups: Group[]; theme: ThemeConfig; setup?: import('./lib/types').SetupRequest; setupToken?: string }) {
+    const { apps: newApps, navigation, groups, theme, setup, setupToken } = detail;
 
     try {
       // Submit security setup first (if this was initial setup)
       if (setup) {
-        const resp = await submitSetup(setup);
+        const resp = await submitSetup(setup, setupToken);
         if (!resp.success) {
           toasts.error(resp.error || m.toast_securitySetupFailed());
           return;
