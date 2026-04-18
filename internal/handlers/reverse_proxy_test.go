@@ -3414,6 +3414,40 @@ func TestBuildDirector_StripsSessionCookie(t *testing.T) {
 	}
 }
 
+// TestBuildUpgradeRequest_DropsCRLFInjection covers findings.md H6.
+// An attacker-supplied header name or value that contains CR/LF would
+// otherwise smuggle an extra header (or a whole second request) into
+// the raw upgrade bytes the proxy writes to the backend socket.
+func TestBuildUpgradeRequest_DropsCRLFInjection(t *testing.T) {
+	targetURL, _ := url.Parse("http://192.0.2.77:1234")
+	route := &proxyRoute{
+		name:        "TestApp",
+		slug:        "testapp",
+		proxyPrefix: "/proxy/testapp",
+		targetURL:   targetURL,
+		targetPath:  "/",
+	}
+	req := httptest.NewRequest(http.MethodGet, "/proxy/testapp/ws", nil)
+	// Header value containing CRLF and a smuggled header.
+	req.Header.Set("X-Benign", "value\r\nX-Admin: injected")
+	// Header key containing CRLF.
+	req.Header["X-Bad-Key\r\nSmuggled"] = []string{"whatever"}
+	req.Header.Set("Upgrade", "websocket")
+
+	out := string(route.buildUpgradeRequest(req, "/ws", "192.0.2.77:1234"))
+
+	if strings.Contains(out, "X-Admin: injected") {
+		t.Errorf("smuggled header slipped through:\n%s", out)
+	}
+	if strings.Contains(out, "X-Bad-Key") {
+		t.Errorf("smuggled header name slipped through:\n%s", out)
+	}
+	// Sanity: the line separator count matches expected header count.
+	if strings.Count(out, "\r\n") < 2 {
+		t.Errorf("upgrade request missing expected CRLF line terminators:\n%s", out)
+	}
+}
+
 // TestBuildUpgradeRequest_StripsCookieAndInjectsHeaders covers the WebSocket
 // upgrade path. The raw upgrade request must not leak the Muximux session
 // cookie (findings.md C2), and per-app ProxyHeaders must be injected so

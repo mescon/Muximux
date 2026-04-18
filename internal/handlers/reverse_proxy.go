@@ -1606,17 +1606,35 @@ func (route *proxyRoute) buildUpgradeRequest(r *http.Request, backendPath, targe
 	fmt.Fprintf(&reqBuf, "%s %s HTTP/1.1\r\n", r.Method, backendPath)
 	fmt.Fprintf(&reqBuf, "Host: %s\r\n", targetHost)
 
-	// Forward all client headers except Host (already set above)
+	// Forward all client headers except Host (already set above).
+	// Reject any header value containing CR or LF: writing one verbatim
+	// would smuggle extra headers (or a second request body) into the
+	// upstream connection. Go's HTTP server normally rejects these at
+	// parse time, but that's a brittle single line of defence for a
+	// raw-bytes writer like this (findings.md H6).
 	for key, values := range r.Header {
 		if strings.EqualFold(key, "Host") {
 			continue
 		}
+		if containsCRLF(key) {
+			continue
+		}
 		for _, v := range values {
+			if containsCRLF(v) {
+				continue
+			}
 			fmt.Fprintf(&reqBuf, "%s: %s\r\n", key, v)
 		}
 	}
 	reqBuf.WriteString("\r\n")
 	return reqBuf.Bytes()
+}
+
+// containsCRLF reports whether s contains any CR, LF, or NUL byte. These
+// are the request-smuggling primitives for anything that writes HTTP
+// bytes directly to a socket.
+func containsCRLF(s string) bool {
+	return strings.ContainsAny(s, "\r\n\x00")
 }
 
 // forwardUpgradeResponse writes the 101 Switching Protocols response to the client.

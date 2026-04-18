@@ -918,13 +918,22 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 		cfg.ConfigVersion = config.CurrentConfigVersion
 	}
 
+	// Try to persist to disk first. If that succeeds we swap the
+	// in-memory config; if it fails we leave in-memory alone so a
+	// restart does not find disk and memory describing different
+	// instances (findings.md H9). Save writes to a temp file and
+	// renames, so a failure here leaves config.yaml unchanged.
 	s.configMu.Lock()
+	previous := *s.config
 	*s.config = cfg
 	err = s.config.Save(s.configPath)
+	if err != nil {
+		*s.config = previous // roll back in-memory snapshot
+	}
 	s.configMu.Unlock()
 
 	if err != nil {
-		logging.From(r.Context()).Error("Failed to save restored config", "source", "config", "error", err)
+		logging.From(r.Context()).Error("Failed to save restored config; reverted", "source", "config", "error", err)
 		setJSONContentType(w)
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(map[string]string{"error": "Failed to save configuration"})

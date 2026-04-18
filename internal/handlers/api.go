@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
 	"sync"
 	"time"
 
@@ -590,16 +591,34 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 	w.WriteHeader(http.StatusNoContent)
 }
 
-// sanitizeApp converts a single app config to client format
+// sanitizeApp converts a single app config to client format. It assumes
+// an admin-level caller: use sanitizeAppForRole instead when returning
+// config to non-admins so embedded URL credentials
+// (https://user:token@host/) and per-app injected headers (Authorization
+// / X-Api-Key) don't leak to everyone who can read /api/config.
 func sanitizeApp(app *config.AppConfig) ClientAppConfig {
+	return sanitizeAppForRole(app, true)
+}
+
+// sanitizeAppForRole builds a client-facing app config with sensitive
+// fields stripped when isAdmin is false. Non-admins see app.URL with
+// any userinfo removed and never receive ProxyHeaders.
+func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 	var proxyURL string
 	if app.Proxy {
 		proxyURL = proxyPathPrefix + Slugify(app.Name) + "/"
 	}
+	url := app.URL
+	var proxyHeaders map[string]string
+	if isAdmin {
+		proxyHeaders = app.ProxyHeaders
+	} else {
+		url = stripURLCredentials(url)
+	}
 	return ClientAppConfig{
 		Name:                app.Name,
-		URL:                 app.URL,
-		HealthURL:           app.HealthURL,
+		URL:                 url,
+		HealthURL:           stripURLCredentialsIf(!isAdmin, app.HealthURL),
 		ProxyURL:            proxyURL,
 		Icon:                app.Icon,
 		Color:               app.Color,
@@ -611,7 +630,7 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 		Proxy:               app.Proxy,
 		HealthCheck:         app.HealthCheck,
 		ProxySkipTLSVerify:  app.ProxySkipTLSVerify,
-		ProxyHeaders:        app.ProxyHeaders,
+		ProxyHeaders:        proxyHeaders,
 		Scale:               app.Scale,
 		Shortcut:            app.Shortcut,
 		MinRole:             app.MinRole,
@@ -619,6 +638,30 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 		Permissions:         app.Permissions,
 		AllowNotifications:  app.AllowNotifications,
 	}
+}
+
+// stripURLCredentials removes any userinfo component (user / user:pass)
+// from a URL string so non-admin clients cannot read admin-embedded
+// credentials out of the app config (findings.md H12). Returns the
+// input unchanged if parsing fails, since an unparseable URL cannot
+// leak a structured credential.
+func stripURLCredentials(raw string) string {
+	if raw == "" {
+		return raw
+	}
+	u, err := url.Parse(raw)
+	if err != nil || u.User == nil {
+		return raw
+	}
+	u.User = nil
+	return u.String()
+}
+
+func stripURLCredentialsIf(strip bool, raw string) string {
+	if !strip {
+		return raw
+	}
+	return stripURLCredentials(raw)
 }
 
 // ClientAppConfig is the app config sent to the frontend (no sensitive data)
@@ -647,8 +690,11 @@ type ClientAppConfig struct {
 }
 
 // sanitizeApps removes sensitive fields and filters by role.
-// userRole is the requesting user's role; empty string disables filtering.
+// userRole is the requesting user's role; empty string disables filtering
+// AND is treated as admin-level for compatibility with callers that never
+// carried a role (e.g. unauthenticated setup previews).
 func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
+	isAdmin := userRole == "" || userRole == auth.RoleAdmin
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
 		if !apps[i].Enabled {
@@ -660,7 +706,7 @@ func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
 				continue
 			}
 		}
-		result = append(result, sanitizeApp(&apps[i]))
+		result = append(result, sanitizeAppForRole(&apps[i], isAdmin))
 	}
 	return result
 }

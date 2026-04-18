@@ -2092,6 +2092,50 @@ func TestHandleConfigRestore_InvalidYAML(t *testing.T) {
 	}
 }
 
+// TestHandleConfigRestore_RollbackOnSaveFailure covers findings.md H9.
+// When Save fails, the in-memory config must NOT be swapped to the
+// restored state, or a restart would revert to the old disk config
+// while the running instance ran the new one.
+func TestHandleConfigRestore_RollbackOnSaveFailure(t *testing.T) {
+	tmpDir := t.TempDir()
+	// Point configPath at a directory, not a file. config.Save writes a
+	// temp file and renames over the path, which fails when the target
+	// is an existing directory.
+	configPath := filepath.Join(tmpDir, "cfgdir")
+	if err := os.MkdirAll(configPath, 0o755); err != nil {
+		t.Fatal(err)
+	}
+
+	original := *defaultTestConfig()
+	original.Server.Title = "Original"
+	s := &Server{
+		config:     &original,
+		configPath: configPath,
+		dataDir:    tmpDir,
+	}
+	s.needsSetup.Store(true)
+
+	yamlContent := `server:
+  title: "Restored"
+apps: []
+`
+	req := httptest.NewRequest(http.MethodPost, "/api/config/restore", strings.NewReader(yamlContent))
+	req.Header.Set("Content-Type", "application/x-yaml")
+	withSetupToken(s, req)
+	rec := httptest.NewRecorder()
+	s.handleConfigRestore(rec, req)
+
+	if rec.Code != http.StatusInternalServerError {
+		t.Errorf("expected 500 when Save fails, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if s.config.Server.Title != "Original" {
+		t.Errorf("in-memory config was NOT rolled back: Title = %q", s.config.Server.Title)
+	}
+	if !s.needsSetup.Load() {
+		t.Error("needsSetup should stay true when restore failed")
+	}
+}
+
 func TestHandleConfigRestore_Success(t *testing.T) {
 	tmpDir := t.TempDir()
 	configPath := filepath.Join(tmpDir, "config.yaml")

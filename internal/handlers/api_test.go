@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 
@@ -1353,6 +1354,67 @@ func TestCreateGroupDuplicate(t *testing.T) {
 	if w.Code != http.StatusConflict {
 		t.Errorf("expected status 409, got %d", w.Code)
 	}
+}
+
+// TestStripURLCredentials covers the URL sanitizer used by
+// sanitizeAppForRole (findings.md H12).
+func TestStripURLCredentials(t *testing.T) {
+	cases := []struct {
+		in, want string
+	}{
+		{"http://example.com/", "http://example.com/"},
+		{"https://user@example.com/", "https://example.com/"},
+		{"https://user:token@example.com/path?x=1", "https://example.com/path?x=1"},
+		{"", ""},
+		{"not a url", "not a url"},
+	}
+	for _, c := range cases {
+		c := c
+		t.Run(c.in, func(t *testing.T) {
+			if got := stripURLCredentials(c.in); got != c.want {
+				t.Errorf("stripURLCredentials(%q) = %q, want %q", c.in, got, c.want)
+			}
+		})
+	}
+}
+
+// TestSanitizeAppsHidesCredentialsForNonAdmin covers findings.md H12:
+// a non-admin reading /api/config must never see embedded URL
+// credentials or per-app ProxyHeaders.
+func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
+	apps := []config.AppConfig{
+		{
+			Name:    "Secret",
+			URL:     "https://adminuser:s3cret@example.com/path",
+			Enabled: true,
+			ProxyHeaders: map[string]string{
+				"Authorization": "Bearer supersecret",
+			},
+		},
+	}
+
+	t.Run("admin keeps secrets", func(t *testing.T) {
+		result := sanitizeApps(apps, "admin")
+		if len(result) != 1 || !strings.Contains(result[0].URL, "adminuser:s3cret@") {
+			t.Errorf("admin URL = %q, want credentials preserved", result[0].URL)
+		}
+		if result[0].ProxyHeaders["Authorization"] != "Bearer supersecret" {
+			t.Error("admin should still receive ProxyHeaders")
+		}
+	})
+
+	t.Run("non-admin loses credentials", func(t *testing.T) {
+		result := sanitizeApps(apps, "user")
+		if len(result) != 1 {
+			t.Fatalf("expected 1 app, got %d", len(result))
+		}
+		if strings.Contains(result[0].URL, "adminuser") || strings.Contains(result[0].URL, "s3cret") {
+			t.Errorf("non-admin URL leaked credentials: %q", result[0].URL)
+		}
+		if result[0].ProxyHeaders != nil {
+			t.Errorf("non-admin should NOT receive ProxyHeaders: %v", result[0].ProxyHeaders)
+		}
+	})
 }
 
 func TestSanitizeApps(t *testing.T) {
