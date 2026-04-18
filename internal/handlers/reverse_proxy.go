@@ -17,6 +17,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
@@ -785,12 +786,18 @@ func rewriteCookieHeaders(resp *http.Response, rewriter *contentRewriter) {
 		return
 	}
 
-	// Determine if the frontend connection is secure (HTTPS)
+	// Determine if the frontend connection is secure (HTTPS). The client
+	// scheme is stamped into the request context by ResolveClientIP, which
+	// is the only path that validates X-Forwarded-Proto against the set of
+	// trusted proxies. Falling back to X-Forwarded-Proto here would let a
+	// direct-HTTP client set Secure=true on proxied cookies just by sending
+	// the header, locking the cookies out of their own browser.
 	secure := false
 	if resp.Request != nil {
-		if resp.Request.TLS != nil {
+		switch {
+		case resp.Request.TLS != nil:
 			secure = true
-		} else if strings.EqualFold(resp.Request.Header.Get("X-Forwarded-Proto"), "https") {
+		case auth.ClientSchemeFromContext(resp.Request.Context()) == "https":
 			secure = true
 		}
 	}

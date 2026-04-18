@@ -4,7 +4,9 @@ import (
 	"bufio"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"crypto/sha1" //nolint:gosec // SHA-1 required by RFC 6455 WebSocket handshake
+	"crypto/tls"
 	"encoding/base64"
 	"fmt"
 	"io"
@@ -16,6 +18,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 )
 
@@ -1398,6 +1401,84 @@ func TestRewriteCookieHeaders(t *testing.T) {
 				if got[i] != want {
 					t.Errorf("cookie[%d] = %q, want %q", i, got[i], want)
 				}
+			}
+		})
+	}
+}
+
+// TestRewriteCookieHeaders_SecureFlag validates that the cookie Secure flag
+// is only kept when the frontend connection was demonstrably HTTPS, either
+// via TLS on the incoming request or via a ClientScheme stamped in the
+// request context by ResolveClientIP. X-Forwarded-Proto from the wire must
+// not be consulted here because it is client-controllable on a direct HTTP
+// connection (findings.md M15).
+func TestRewriteCookieHeaders_SecureFlag(t *testing.T) {
+	tests := []struct {
+		name   string
+		build  func() *http.Request
+		expect bool // true if Secure should be kept
+	}{
+		{
+			name: "direct TLS connection keeps Secure",
+			build: func() *http.Request {
+				req := httptest.NewRequest(http.MethodGet, "http://example.com/path", nil)
+				req.TLS = &tls.ConnectionState{}
+				return req
+			},
+			expect: true,
+		},
+		{
+			name: "context scheme https keeps Secure",
+			build: func() *http.Request {
+				req := httptest.NewRequest(http.MethodGet, "http://example.com/path", nil)
+				ctx := context.WithValue(req.Context(), auth.ContextKeyClientScheme, "https")
+				return req.WithContext(ctx)
+			},
+			expect: true,
+		},
+		{
+			name: "context scheme http strips Secure",
+			build: func() *http.Request {
+				req := httptest.NewRequest(http.MethodGet, "http://example.com/path", nil)
+				ctx := context.WithValue(req.Context(), auth.ContextKeyClientScheme, "http")
+				return req.WithContext(ctx)
+			},
+			expect: false,
+		},
+		{
+			name: "spoofed X-Forwarded-Proto header alone is ignored",
+			build: func() *http.Request {
+				req := httptest.NewRequest(http.MethodGet, "http://example.com/path", nil)
+				req.Header.Set("X-Forwarded-Proto", "https")
+				return req
+			},
+			expect: false,
+		},
+		{
+			name: "no TLS, no context, no header strips Secure",
+			build: func() *http.Request {
+				return httptest.NewRequest(http.MethodGet, "http://example.com/path", nil)
+			},
+			expect: false,
+		},
+	}
+
+	for _, tt := range tests {
+		tt := tt
+		t.Run(tt.name, func(t *testing.T) {
+			resp := &http.Response{
+				Header:  make(http.Header),
+				Request: tt.build(),
+			}
+			resp.Header.Add("Set-Cookie", "sid=abc; Path=/; Secure; HttpOnly")
+
+			rewriter := newContentRewriter("/proxy/app", "", "")
+			rewriteCookieHeaders(resp, rewriter)
+
+			got := resp.Header.Get("Set-Cookie")
+			hasSecure := strings.Contains(got, "Secure")
+			if hasSecure != tt.expect {
+				t.Errorf("Secure flag: got=%v, want=%v (cookie=%q)", hasSecure, tt.expect, got)
 			}
 		})
 	}

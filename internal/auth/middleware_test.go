@@ -2,6 +2,7 @@ package auth
 
 import (
 	"context"
+	"crypto/tls"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -562,6 +563,173 @@ func TestGetClientIP(t *testing.T) {
 		got := getClientIP(req, m.snapshot())
 		if got != "5.5.5.5" {
 			t.Errorf("expected 5.5.5.5, got %s", got)
+		}
+	})
+
+	t.Run("rightmost-untrusted walk ignores prepended attacker IP", func(t *testing.T) {
+		// Attacker sends `X-Forwarded-For: 66.66.66.66` to a Muximux that
+		// sits behind a trusted Caddy at 10.0.0.1. Caddy appends the real
+		// client IP (203.0.113.50). Walking leftmost would return the
+		// attacker's forged value. Walking right-to-left must land on the
+		// first untrusted hop (203.0.113.50).
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "10.0.0.1:12345"
+		req.Header.Set("X-Forwarded-For", "66.66.66.66, 203.0.113.50, 10.0.0.1")
+
+		got := getClientIP(req, m.snapshot())
+		if got != "203.0.113.50" {
+			t.Errorf("expected 203.0.113.50 (first untrusted hop from right), got %s", got)
+		}
+	})
+
+	t.Run("all XFF hops trusted falls back to leftmost", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "10.0.0.1:12345"
+		req.Header.Set("X-Forwarded-For", "10.0.0.2, 10.0.0.3")
+
+		got := getClientIP(req, m.snapshot())
+		if got != "10.0.0.2" {
+			t.Errorf("expected 10.0.0.2 (leftmost when all hops trusted), got %s", got)
+		}
+	})
+
+	t.Run("direct untrusted client cannot spoof XFF", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "198.51.100.77:55555"
+		req.Header.Set("X-Forwarded-For", "1.1.1.1, 2.2.2.2")
+		req.Header.Set("X-Real-IP", "3.3.3.3")
+
+		got := getClientIP(req, m.snapshot())
+		if got != "198.51.100.77" {
+			t.Errorf("expected 198.51.100.77 (direct), got %s", got)
+		}
+	})
+
+	t.Run("whitespace-only XFF entries skipped", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "10.0.0.1:12345"
+		req.Header.Set("X-Forwarded-For", " , 198.51.100.5, , 10.0.0.1")
+
+		got := getClientIP(req, m.snapshot())
+		if got != "198.51.100.5" {
+			t.Errorf("expected 198.51.100.5, got %s", got)
+		}
+	})
+}
+
+// --- ResolveClientIP middleware ---
+
+func TestResolveClientIP_StampsContextValues(t *testing.T) {
+	m, _, _ := newTestMiddleware(&AuthConfig{
+		Method:         AuthMethodBuiltin,
+		TrustedProxies: []string{"10.0.0.0/8"},
+	})
+
+	var seenIP, seenScheme string
+	h := m.ResolveClientIP(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if v, ok := r.Context().Value(ContextKeyClientIP).(string); ok {
+			seenIP = v
+		}
+		seenScheme = ClientSchemeFromContext(r.Context())
+	}))
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "10.0.0.1:8080"
+	req.Header.Set("X-Forwarded-For", "203.0.113.50")
+	req.Header.Set("X-Forwarded-Proto", "https")
+
+	h.ServeHTTP(httptest.NewRecorder(), req)
+
+	if seenIP != "203.0.113.50" {
+		t.Errorf("ContextKeyClientIP = %q, want 203.0.113.50", seenIP)
+	}
+	if seenScheme != "https" {
+		t.Errorf("ContextKeyClientScheme = %q, want https", seenScheme)
+	}
+}
+
+func TestClientSchemeFromContext_Absent(t *testing.T) {
+	if got := ClientSchemeFromContext(context.Background()); got != "" {
+		t.Errorf("expected empty string when scheme absent, got %q", got)
+	}
+}
+
+// --- getClientScheme ---
+
+func TestGetClientScheme(t *testing.T) {
+	t.Run("direct TLS connection returns https", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{Method: AuthMethodBuiltin})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "1.2.3.4:443"
+		req.TLS = &tls.ConnectionState{} // non-nil marks TLS
+
+		if got := getClientScheme(req, m.snapshot()); got != "https" {
+			t.Errorf("expected https, got %s", got)
+		}
+	})
+
+	t.Run("trusted proxy with X-Forwarded-Proto=https returns https", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "10.0.0.1:8080"
+		req.Header.Set("X-Forwarded-Proto", "https")
+
+		if got := getClientScheme(req, m.snapshot()); got != "https" {
+			t.Errorf("expected https, got %s", got)
+		}
+	})
+
+	t.Run("untrusted direct client with X-Forwarded-Proto is ignored", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "198.51.100.5:1234"
+		req.Header.Set("X-Forwarded-Proto", "https")
+
+		if got := getClientScheme(req, m.snapshot()); got != "http" {
+			t.Errorf("expected http (spoofed XFP ignored), got %s", got)
+		}
+	})
+
+	t.Run("trusted proxy without X-Forwarded-Proto defaults to http", func(t *testing.T) {
+		m, _, _ := newTestMiddleware(&AuthConfig{
+			Method:         AuthMethodBuiltin,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		})
+
+		req := httptest.NewRequest(http.MethodGet, "/", nil)
+		req.RemoteAddr = "10.0.0.1:8080"
+
+		if got := getClientScheme(req, m.snapshot()); got != "http" {
+			t.Errorf("expected http, got %s", got)
 		}
 	})
 }

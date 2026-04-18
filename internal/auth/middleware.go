@@ -23,6 +23,10 @@ const (
 	// ContextKeyClientIP is the context key for the real client IP
 	// (resolved from X-Forwarded-For / X-Real-IP when behind a trusted proxy).
 	ContextKeyClientIP ContextKey = "client_ip"
+	// ContextKeyClientScheme is the context key for the scheme the client
+	// used to reach Muximux ("http" or "https"). Derived from r.TLS and,
+	// when the request arrived from a trusted proxy, X-Forwarded-Proto.
+	ContextKeyClientScheme ContextKey = "client_scheme"
 )
 
 // AuthMethod defines the authentication method
@@ -98,19 +102,32 @@ func (m *Middleware) UpdateConfig(config *AuthConfig) {
 	logging.Info("Auth config updated", "source", "auth", "method", string(config.Method))
 }
 
-// parseTrustedProxies converts a list of CIDR strings or IP addresses into net.IPNet entries.
+// parseTrustedProxies converts a list of CIDR strings or IP addresses into
+// net.IPNet entries. Invalid entries are logged and skipped so a
+// misconfiguration is visible rather than silently widening or narrowing the
+// trust boundary.
 func parseTrustedProxies(proxies []string) []*net.IPNet {
 	var nets []*net.IPNet
-	for _, cidr := range proxies {
-		_, network, err := net.ParseCIDR(cidr)
+	for _, entry := range proxies {
+		trimmed := strings.TrimSpace(entry)
+		if trimmed == "" {
+			continue
+		}
+		_, network, err := net.ParseCIDR(trimmed)
 		if err != nil {
-			ip := net.ParseIP(cidr)
-			if ip != nil {
-				suffix := "/128"
-				if ip.To4() != nil {
-					suffix = "/32"
-				}
-				_, network, _ = net.ParseCIDR(cidr + suffix)
+			ip := net.ParseIP(trimmed)
+			if ip == nil {
+				logging.Warn("Invalid trusted_proxy entry ignored", "source", "auth", "value", entry)
+				continue
+			}
+			suffix := "/128"
+			if ip.To4() != nil {
+				suffix = "/32"
+			}
+			_, network, err = net.ParseCIDR(trimmed + suffix)
+			if err != nil {
+				logging.Warn("Invalid trusted_proxy entry ignored", "source", "auth", "value", entry, "error", err)
+				continue
 			}
 		}
 		if network != nil {
@@ -125,14 +142,19 @@ func (m *Middleware) snapshot() *authSnapshot {
 	return m.snap.Load()
 }
 
-// ResolveClientIP returns middleware that stores the real client IP in the
-// request context.  It must be chained OUTSIDE the logging middleware so that
-// log entries see the resolved IP instead of the proxy's address.
+// ResolveClientIP returns middleware that stores the real client IP and the
+// client-facing scheme (http/https) in the request context. It must be
+// chained OUTSIDE the logging middleware so that log entries see the
+// resolved IP instead of the proxy's address. Downstream code that needs to
+// decide cookie Secure flags or build redirects should read the scheme from
+// context rather than trusting X-Forwarded-Proto directly.
 func (m *Middleware) ResolveClientIP(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		snap := m.snapshot()
-		clientIP := getClientIP(r, snap)
-		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), ContextKeyClientIP, clientIP)))
+		ctx := r.Context()
+		ctx = context.WithValue(ctx, ContextKeyClientIP, getClientIP(r, snap))
+		ctx = context.WithValue(ctx, ContextKeyClientScheme, getClientScheme(r, snap))
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
 
@@ -371,18 +393,22 @@ func isFromTrustedProxy(r *http.Request, snap *authSnapshot) bool {
 		logging.From(r.Context()).Warn("Forward auth enabled but no trusted_proxies configured; rejecting request", "source", "auth")
 		return false
 	}
+	return ipIsTrusted(getDirectIP(r), snap)
+}
 
-	directIP := net.ParseIP(getDirectIP(r))
-	if directIP == nil {
+// ipIsTrusted reports whether the given IP string falls within any of the
+// configured trusted-proxy networks. Used both for direct-hop checks and for
+// walking the X-Forwarded-For chain.
+func ipIsTrusted(ipStr string, snap *authSnapshot) bool {
+	ip := net.ParseIP(strings.TrimSpace(ipStr))
+	if ip == nil {
 		return false
 	}
-
 	for _, network := range snap.trustedNets {
-		if network.Contains(directIP) {
+		if network.Contains(ip) {
 			return true
 		}
 	}
-
 	return false
 }
 
@@ -401,20 +427,70 @@ func (m *Middleware) GetClientIP(r *http.Request) string {
 	return getClientIP(r, m.snapshot())
 }
 
+// getClientIP resolves the real client IP by walking X-Forwarded-For from
+// right to left, skipping hops that are themselves trusted proxies. The
+// first untrusted hop is the real client. This prevents an attacker from
+// forging their own IP by prepending values to X-Forwarded-For; the leftmost
+// (attacker-controlled) entry is only returned when every upstream hop is
+// inside the configured trusted_proxies set, which is the expected layout.
 func getClientIP(r *http.Request, snap *authSnapshot) string {
-	if isFromTrustedProxy(r, snap) {
-		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
-			ips := strings.Split(xff, ",")
-			if len(ips) > 0 {
-				return strings.TrimSpace(ips[0])
+	direct := getDirectIP(r)
+	if !ipIsTrusted(direct, snap) {
+		return direct
+	}
+
+	if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+		parts := strings.Split(xff, ",")
+		for i := len(parts) - 1; i >= 0; i-- {
+			ip := strings.TrimSpace(parts[i])
+			if ip == "" {
+				continue
+			}
+			if !ipIsTrusted(ip, snap) {
+				return ip
 			}
 		}
-		if xri := r.Header.Get("X-Real-IP"); xri != "" {
-			return xri
+		// Every XFF hop is a trusted proxy; the leftmost hop is the
+		// closest thing we have to the originator.
+		for _, part := range parts {
+			if ip := strings.TrimSpace(part); ip != "" {
+				return ip
+			}
 		}
 	}
 
-	return getDirectIP(r)
+	if xri := strings.TrimSpace(r.Header.Get("X-Real-IP")); xri != "" {
+		return xri
+	}
+
+	return direct
+}
+
+// getClientScheme returns "https" if the client reached Muximux over TLS,
+// either directly or via a trusted proxy that reported it with
+// X-Forwarded-Proto. Returns "http" otherwise. An X-Forwarded-Proto header
+// from an untrusted direct caller is ignored.
+func getClientScheme(r *http.Request, snap *authSnapshot) string {
+	if r.TLS != nil {
+		return "https"
+	}
+	if ipIsTrusted(getDirectIP(r), snap) {
+		if xfp := strings.TrimSpace(r.Header.Get("X-Forwarded-Proto")); xfp != "" {
+			if strings.EqualFold(xfp, "https") {
+				return "https"
+			}
+			return "http"
+		}
+	}
+	return "http"
+}
+
+// ClientSchemeFromContext returns the scheme the client used to reach
+// Muximux ("http" or "https") as resolved by ResolveClientIP middleware.
+// Returns an empty string when the middleware has not run.
+func ClientSchemeFromContext(ctx context.Context) string {
+	scheme, _ := ctx.Value(ContextKeyClientScheme).(string)
+	return scheme
 }
 
 func handleUnauthenticated(w http.ResponseWriter, r *http.Request, snap *authSnapshot) {

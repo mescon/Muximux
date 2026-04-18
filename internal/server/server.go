@@ -1421,11 +1421,28 @@ func bodySizeLimitMiddleware(next http.Handler) http.Handler {
 	})
 }
 
-// rateLimiter implements a simple per-IP rate limiter
+// defaultRateLimitMaxIPs caps the number of distinct client IPs the rate
+// limiter will track at once. When the map is full, the entry with the
+// oldest last-seen timestamp is evicted to make room for a new caller. This
+// bounds memory usage under a flood of distinct source IPs and keeps the
+// limiter useful for legitimate traffic.
+const defaultRateLimitMaxIPs = 10000
+
+// rateLimitEntry holds the in-window attempt timestamps for a single IP
+// along with the time it was last touched (used for LRU-style eviction when
+// the bounded map is full).
+type rateLimitEntry struct {
+	times    []time.Time
+	lastSeen time.Time
+}
+
+// rateLimiter implements a simple per-IP rate limiter with a bounded number
+// of tracked IPs.
 type rateLimiter struct {
 	mu       sync.Mutex
-	attempts map[string][]time.Time
+	attempts map[string]*rateLimitEntry
 	max      int
+	maxIPs   int
 	window   time.Duration
 	done     chan struct{}
 	ipFunc   func(*http.Request) string // extracts real client IP
@@ -1433,8 +1450,9 @@ type rateLimiter struct {
 
 func newRateLimiter(max int, window time.Duration, ipFunc func(*http.Request) string) *rateLimiter {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      max,
+		maxIPs:   defaultRateLimitMaxIPs,
 		window:   window,
 		done:     make(chan struct{}),
 		ipFunc:   ipFunc,
@@ -1468,9 +1486,9 @@ func (rl *rateLimiter) purgeStaleEntries() {
 	defer rl.mu.Unlock()
 
 	now := time.Now()
-	for ip, times := range rl.attempts {
-		valid := times[:0]
-		for _, t := range times {
+	for ip, entry := range rl.attempts {
+		valid := entry.times[:0]
+		for _, t := range entry.times {
 			if now.Sub(t) < rl.window {
 				valid = append(valid, t)
 			}
@@ -1478,7 +1496,7 @@ func (rl *rateLimiter) purgeStaleEntries() {
 		if len(valid) == 0 {
 			delete(rl.attempts, ip)
 		} else {
-			rl.attempts[ip] = valid
+			entry.times = valid
 		}
 	}
 }
@@ -1490,22 +1508,55 @@ func (rl *rateLimiter) allow(ip string) bool {
 	now := time.Now()
 	cutoff := now.Add(-rl.window)
 
-	// Filter to only recent attempts
-	times := rl.attempts[ip]
-	valid := times[:0]
-	for _, t := range times {
+	entry, existed := rl.attempts[ip]
+	if !existed {
+		entry = &rateLimitEntry{}
+	}
+
+	valid := entry.times[:0]
+	for _, t := range entry.times {
 		if t.After(cutoff) {
 			valid = append(valid, t)
 		}
 	}
+	entry.times = valid
+	entry.lastSeen = now
 
-	if len(valid) >= rl.max {
-		rl.attempts[ip] = valid
+	if len(entry.times) >= rl.max {
+		rl.attempts[ip] = entry
 		return false
 	}
 
-	rl.attempts[ip] = append(valid, now)
+	entry.times = append(entry.times, now)
+	rl.attempts[ip] = entry
+
+	if rl.maxIPs > 0 && len(rl.attempts) > rl.maxIPs {
+		rl.evictLeastRecent(ip)
+	}
+
 	return true
+}
+
+// evictLeastRecent drops the entry with the oldest lastSeen timestamp,
+// excluding the IP that just called allow() so an attacker cannot evict
+// their own fresh entry and escape the limit.
+func (rl *rateLimiter) evictLeastRecent(keepIP string) {
+	var oldestIP string
+	var oldestTime time.Time
+	first := true
+	for ip, entry := range rl.attempts {
+		if ip == keepIP {
+			continue
+		}
+		if first || entry.lastSeen.Before(oldestTime) {
+			oldestIP = ip
+			oldestTime = entry.lastSeen
+			first = false
+		}
+	}
+	if oldestIP != "" {
+		delete(rl.attempts, oldestIP)
+	}
 }
 
 func (rl *rateLimiter) wrap(handler http.HandlerFunc) http.HandlerFunc {

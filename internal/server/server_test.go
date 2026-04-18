@@ -26,7 +26,7 @@ import (
 
 func TestRateLimiter_Allow(t *testing.T) {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      3,
 		window:   1 * time.Minute,
 	}
@@ -53,7 +53,7 @@ func TestRateLimiter_Allow(t *testing.T) {
 
 func TestRateLimiter_Window(t *testing.T) {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      2,
 		window:   50 * time.Millisecond,
 	}
@@ -78,7 +78,7 @@ func TestRateLimiter_Window(t *testing.T) {
 
 func TestRateLimiter_PurgeStale(t *testing.T) {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      10,
 		window:   50 * time.Millisecond,
 	}
@@ -103,7 +103,7 @@ func TestRateLimiter_PurgeStale(t *testing.T) {
 
 func TestRateLimiter_PurgeStale_KeepsRecent(t *testing.T) {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      10,
 		window:   1 * time.Hour,
 	}
@@ -122,9 +122,98 @@ func TestRateLimiter_PurgeStale_KeepsRecent(t *testing.T) {
 	}
 }
 
+func TestRateLimiter_MapBounded(t *testing.T) {
+	// With a small cap, feeding many distinct IPs must never let the map
+	// grow beyond the cap. This is the defense against the "one login
+	// attempt per forged IP" memory-exhaustion pattern called out in
+	// findings.md C6.
+	rl := &rateLimiter{
+		attempts: make(map[string]*rateLimitEntry),
+		max:      3,
+		maxIPs:   5,
+		window:   1 * time.Minute,
+	}
+
+	for i := 0; i < 50; i++ {
+		ip := fmt.Sprintf("203.0.113.%d", i)
+		if !rl.allow(ip) {
+			t.Fatalf("expected allow for fresh IP %s", ip)
+		}
+	}
+
+	rl.mu.Lock()
+	size := len(rl.attempts)
+	rl.mu.Unlock()
+	if size > 5 {
+		t.Errorf("map exceeded cap: got %d entries, want <= 5", size)
+	}
+}
+
+func TestRateLimiter_EvictLeastRecent(t *testing.T) {
+	rl := &rateLimiter{
+		attempts: make(map[string]*rateLimitEntry),
+		max:      10,
+		maxIPs:   3,
+		window:   1 * time.Hour,
+	}
+
+	rl.allow("1.1.1.1")
+	time.Sleep(2 * time.Millisecond)
+	rl.allow("2.2.2.2")
+	time.Sleep(2 * time.Millisecond)
+	rl.allow("3.3.3.3")
+	time.Sleep(2 * time.Millisecond)
+
+	// Touch 1.1.1.1 again so it becomes the most-recently-seen entry.
+	rl.allow("1.1.1.1")
+	time.Sleep(2 * time.Millisecond)
+
+	// Adding a fourth IP must evict the oldest (2.2.2.2), not the caller
+	// and not the recently-touched entry.
+	rl.allow("4.4.4.4")
+
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	if len(rl.attempts) != 3 {
+		t.Fatalf("expected 3 entries after eviction, got %d", len(rl.attempts))
+	}
+	if _, ok := rl.attempts["2.2.2.2"]; ok {
+		t.Error("expected 2.2.2.2 (oldest) to be evicted")
+	}
+	for _, ip := range []string{"1.1.1.1", "3.3.3.3", "4.4.4.4"} {
+		if _, ok := rl.attempts[ip]; !ok {
+			t.Errorf("expected %s to remain", ip)
+		}
+	}
+}
+
+func TestRateLimiter_EvictionDoesNotDropCurrentCaller(t *testing.T) {
+	rl := &rateLimiter{
+		attempts: make(map[string]*rateLimitEntry),
+		max:      10,
+		maxIPs:   2,
+		window:   1 * time.Hour,
+	}
+
+	rl.allow("1.1.1.1")
+	rl.allow("2.2.2.2")
+
+	// The caller of allow() must never evict itself.
+	rl.allow("3.3.3.3")
+
+	rl.mu.Lock()
+	defer rl.mu.Unlock()
+	if _, ok := rl.attempts["3.3.3.3"]; !ok {
+		t.Error("current caller was evicted, which would break its own rate limit accounting")
+	}
+	if len(rl.attempts) != 2 {
+		t.Errorf("expected map size 2, got %d", len(rl.attempts))
+	}
+}
+
 func TestRateLimiter_Wrap(t *testing.T) {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      2,
 		window:   1 * time.Minute,
 	}
@@ -156,7 +245,7 @@ func TestRateLimiter_Wrap(t *testing.T) {
 	t.Run("POST requests are rate limited", func(t *testing.T) {
 		// Reset the limiter
 		rl.mu.Lock()
-		rl.attempts = make(map[string][]time.Time)
+		rl.attempts = make(map[string]*rateLimitEntry)
 		rl.mu.Unlock()
 
 		ip := "6.6.6.6"
@@ -190,7 +279,7 @@ func TestRateLimiter_Wrap(t *testing.T) {
 
 func TestRateLimiter_Wrap_NoPort(t *testing.T) {
 	rl := &rateLimiter{
-		attempts: make(map[string][]time.Time),
+		attempts: make(map[string]*rateLimitEntry),
 		max:      1,
 		window:   1 * time.Minute,
 	}
