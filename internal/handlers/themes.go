@@ -259,7 +259,11 @@ func (h *ThemeHandler) isBundledTheme(id string) bool {
 	return err == nil
 }
 
-// parseThemeMetadata extracts theme info from CSS file comments
+// parseThemeMetadata extracts theme info from CSS file comments.
+// Returns nil when the file carries no Muximux theme metadata at all —
+// a stray .css that happens to live in data/themes/ should not get
+// enumerated as a real theme (findings.md M11). Callers that want to
+// still list metadata-less files must handle nil themselves.
 func parseThemeMetadata(content, filename string) *ThemeInfo {
 	id := strings.TrimSuffix(filename, ".css")
 
@@ -272,6 +276,9 @@ func parseThemeMetadata(content, filename string) *ThemeInfo {
 
 	// Parse @theme-* metadata comments
 	matches := reThemeMeta.FindAllStringSubmatch(content, -1)
+	if len(matches) == 0 {
+		return nil
+	}
 	for _, match := range matches {
 		key := match[1]
 		value := strings.TrimSpace(match[2])

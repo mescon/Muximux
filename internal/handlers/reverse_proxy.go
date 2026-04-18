@@ -801,7 +801,6 @@ func createModifyResponse(proxyPrefix, targetPath string, rewriter *contentRewri
 		rewriteLocationHeaders(resp, proxyPrefix, targetPath, rewriter.targetHost)
 		rewriteCookieHeaders(resp, rewriter)
 		rewriteLinkHeaders(resp, proxyPrefix)
-		rewriteCORSHeaders(resp)
 
 		return rewriteResponseBody(resp, rewriter)
 	}
@@ -876,26 +875,6 @@ func rewriteLinkHeaders(resp *http.Response, proxyPrefix string) {
 		})
 		resp.Header.Add("Link", rewritten)
 	}
-}
-
-// rewriteCORSHeaders replaces a restrictive Access-Control-Allow-Origin with
-// the request's Origin so the browser accepts the response. Without this,
-// backends returning ACAO for their own host cause CORS failures on Muximux's domain.
-func rewriteCORSHeaders(resp *http.Response) {
-	acao := resp.Header.Get("Access-Control-Allow-Origin")
-	if acao == "" || acao == "*" {
-		return
-	}
-	if resp.Request == nil {
-		return
-	}
-	reqOrigin := resp.Request.Header.Get("Origin")
-	if reqOrigin == "" {
-		return
-	}
-	resp.Header.Set("Access-Control-Allow-Origin", reqOrigin)
-	resp.Header.Set("Access-Control-Allow-Credentials", "true")
-	resp.Header.Add("Vary", "Origin")
 }
 
 // interceptorScript returns a <script> tag that patches fetch, XMLHttpRequest,
@@ -1652,8 +1631,11 @@ func (route *proxyRoute) forwardUpgradeResponse(clientConn net.Conn, resp *http.
 	return err
 }
 
-// bridgeConnections performs bidirectional copy between the client and backend,
-// first flushing any data already buffered in either reader.
+// bridgeConnections performs bidirectional copy between the client and
+// backend, first flushing any data already buffered in either reader.
+// When one direction completes (error or EOF) the opposite side is
+// closed immediately so its io.Copy unblocks instead of leaking a
+// goroutine until the peer eventually times out (findings.md M10).
 func (route *proxyRoute) bridgeConnections(clientConn net.Conn, clientBuf *bufio.ReadWriter, backendConn net.Conn, backendBuf *bufio.Reader) {
 	var wg sync.WaitGroup
 	wg.Add(2)
@@ -1668,6 +1650,10 @@ func (route *proxyRoute) bridgeConnections(clientConn net.Conn, clientBuf *bufio
 			_, _ = backendBuf.Discard(len(buffered))
 		}
 		_, _ = io.Copy(clientConn, backendConn)
+		// Signal the other direction to stop by closing the read side
+		// of the client connection. The write side stays open so our
+		// own buffered writes drain before teardown.
+		_ = clientConn.Close()
 	}()
 
 	// Client → Backend
@@ -1680,6 +1666,7 @@ func (route *proxyRoute) bridgeConnections(clientConn net.Conn, clientBuf *bufio
 			_, _ = clientBuf.Discard(len(buffered))
 		}
 		_, _ = io.Copy(backendConn, clientConn)
+		_ = backendConn.Close()
 	}()
 
 	wg.Wait()

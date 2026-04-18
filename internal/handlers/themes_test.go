@@ -45,11 +45,15 @@ func TestParseThemeMetadata(t *testing.T) {
 			hasPreview:     true,
 		},
 		{
-			name:           "minimal metadata",
-			css:            `/* no metadata */\n[data-theme="custom"] {}`,
+			// findings.md M11: a file with only @theme-name but no other
+			// metadata still counts as a theme.
+			name: "minimal metadata",
+			css: `/**
+ * @theme-name: Custom
+ */`,
 			filename:       "custom.css",
 			expectedID:     "custom",
-			expectedName:   "custom",
+			expectedName:   "Custom",
 			expectedIsDark: true, // default
 			hasPreview:     false,
 		},
@@ -88,6 +92,27 @@ func TestParseThemeMetadata(t *testing.T) {
 			}
 			if !tt.hasPreview && theme.Preview != nil {
 				t.Error("expected Preview to be nil")
+			}
+		})
+	}
+}
+
+// TestParseThemeMetadata_RejectsMetadataLess covers findings.md M11.
+// A CSS file with no @theme-* comments at all must not be enumerated
+// as a theme, so a stray user-dropped .css in data/themes/ stays out
+// of the theme picker.
+func TestParseThemeMetadata_RejectsMetadataLess(t *testing.T) {
+	inputs := []string{
+		``,
+		`body { color: red }`,
+		`/* just a comment, no @theme-* */`,
+		`[data-theme="foo"] { --x: 1 }`,
+	}
+	for _, css := range inputs {
+		css := css
+		t.Run(css, func(t *testing.T) {
+			if theme := parseThemeMetadata(css, "stray.css"); theme != nil {
+				t.Errorf("expected nil for metadata-less CSS, got %+v", theme)
 			}
 		})
 	}

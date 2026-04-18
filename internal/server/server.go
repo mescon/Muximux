@@ -15,6 +15,7 @@ import (
 	"io/fs"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -352,7 +353,46 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 
 // setupOIDC configures and returns the OIDC provider.
 func setupOIDC(cfg *config.Config, sessionStore *auth.SessionStore, userStore *auth.UserStore) *auth.OIDCProvider {
+	warnOIDCRedirectMismatch(cfg)
 	return auth.NewOIDCProvider(&cfg.Auth.OIDC, cfg.Server.NormalizedBasePath(), sessionStore, userStore)
+}
+
+// warnOIDCRedirectMismatch nudges the operator when the OIDC redirect_uri
+// they registered with their IdP clearly points at a different port than
+// Muximux is listening on (findings.md L1). This is advisory only --
+// deployments behind a reverse proxy legitimately have a public-facing
+// host/port that differs from the listener, so we don't refuse to start.
+func warnOIDCRedirectMismatch(cfg *config.Config) {
+	if !cfg.Auth.OIDC.Enabled || cfg.Auth.OIDC.RedirectURL == "" {
+		return
+	}
+	parsed, err := url.Parse(cfg.Auth.OIDC.RedirectURL)
+	if err != nil {
+		logging.Warn("OIDC redirect_url is not a valid URL; logins will fail", "source", "server", "redirect_url", cfg.Auth.OIDC.RedirectURL)
+		return
+	}
+	if parsed.Scheme != "http" && parsed.Scheme != "https" {
+		logging.Warn("OIDC redirect_url must use http or https", "source", "server", "redirect_url", cfg.Auth.OIDC.RedirectURL, "scheme", parsed.Scheme)
+	}
+	// Listener is ":8080" style; extract port only. When the configured
+	// redirect_url has an explicit port that differs from the listener
+	// and is not http(s) default, flag it. We deliberately do not
+	// compare hosts -- operators behind Caddy/nginx legitimately use a
+	// public hostname that differs from Muximux's listen interface.
+	_, listenPort, splitErr := net.SplitHostPort(cfg.Server.Listen)
+	if splitErr != nil {
+		return
+	}
+	redirectPort := parsed.Port()
+	if redirectPort == "" {
+		// Default ports: 80 for http, 443 for https. Listen port without
+		// an explicit redirect port is probably fine (reverse proxy in
+		// front), so skip.
+		return
+	}
+	if redirectPort != listenPort {
+		logging.Info("OIDC redirect_url port differs from listener; ensure your reverse proxy / port-forward matches", "source", "server", "listen", cfg.Server.Listen, "redirect_port", redirectPort)
+	}
 }
 
 // registerAuthRoutes registers authentication and WebSocket endpoints.
@@ -537,13 +577,21 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 			return
 		}
 		localPath := filepath.Join(themesDir, name)
-		// Double-check resolved path is within the themes directory
+		// Double-check resolved path is within the themes directory.
+		// The validThemeName regex already rejects "../", but defence in
+		// depth: if filepath.Abs fails on either side we bail out
+		// rather than trust a HasPrefix("", ...) which would match
+		// everything (findings.md M12).
 		absPath, err := filepath.Abs(localPath)
 		if err != nil {
 			http.NotFound(w, r)
 			return
 		}
-		absThemesDir, _ := filepath.Abs(themesDir)
+		absThemesDir, err := filepath.Abs(themesDir)
+		if err != nil || absThemesDir == "" {
+			http.NotFound(w, r)
+			return
+		}
 		if !strings.HasPrefix(absPath, absThemesDir+string(filepath.Separator)) {
 			http.NotFound(w, r)
 			return
