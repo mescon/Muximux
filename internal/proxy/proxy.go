@@ -50,8 +50,11 @@ func New(cfg *Config) *Proxy {
 	}
 }
 
-// ComputeInternalAddr derives the internal Go server address from the user-facing listen address.
-// ":8080" → "127.0.0.1:18080", ":3000" → "127.0.0.1:13000"
+// ComputeInternalAddr derives the internal Go server address from the
+// user-facing listen address. ":8080" → "127.0.0.1:18080",
+// ":3000" → "127.0.0.1:13000". Listen ports above 55535 would overflow
+// past the 16-bit port range when adding the +10000 offset, so those
+// wrap down to a low free port instead (findings.md L8).
 func ComputeInternalAddr(listen string) string {
 	_, port, _ := net.SplitHostPort(listen)
 	if port == "" {
@@ -61,7 +64,16 @@ func ComputeInternalAddr(listen string) string {
 	if portNum == 0 {
 		portNum = 8080
 	}
-	return fmt.Sprintf("127.0.0.1:%d", portNum+10000)
+	internal := portNum + 10000
+	if internal > 65535 {
+		// Wrap around and subtract 20000 so the result stays inside
+		// valid port range and is distinct from the listener.
+		internal = portNum - 10000
+		if internal < 1024 {
+			internal = 18080
+		}
+	}
+	return fmt.Sprintf("127.0.0.1:%d", internal)
 }
 
 // SetRoutes updates the proxy routes (used for tracking which apps have proxy enabled).

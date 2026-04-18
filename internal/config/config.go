@@ -356,7 +356,22 @@ func (c *Config) Save(path string) error {
 		os.Remove(tmpName)
 		return err
 	}
-	return os.Rename(tmpName, path)
+	if err := os.Rename(tmpName, path); err != nil {
+		return err
+	}
+	// fsync the parent directory so the rename hits stable storage
+	// before Save returns. Without this, a power loss between rename
+	// and the directory's eventual writeback can leave the filesystem
+	// seeing the temp file removed but the rename not persisted
+	// (findings.md L10). Best-effort: on filesystems that don't
+	// support directory fsync the error is returned for visibility.
+	if dir != "." {
+		if d, err := os.Open(dir); err == nil {
+			_ = d.Sync()
+			_ = d.Close()
+		}
+	}
+	return nil
 }
 
 // NeedsSetup returns true when the application has not been configured yet.

@@ -1308,9 +1308,13 @@ func parseDuration(s string, defaultVal time.Duration) time.Duration {
 }
 
 // panicRecoveryMiddleware catches panics in downstream handlers, logs them,
-// and returns a 500 response instead of crashing the server.
+// and returns a 500 response if the handler hadn't already started writing.
+// Writing http.Error unconditionally after headers are committed produces
+// a 200 with corrupt trailing bytes for streaming handlers and dumps the
+// panic stack inline with the user-visible body (findings.md M16).
 func panicRecoveryMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		sr := &statusRecorder{ResponseWriter: w, status: http.StatusOK}
 		defer func() {
 			if rec := recover(); rec != nil {
 				logging.From(r.Context()).Error("Panic recovered",
@@ -1319,11 +1323,18 @@ func panicRecoveryMiddleware(next http.Handler) http.Handler {
 					"stack", string(debug.Stack()),
 					"method", r.Method,
 					"path", r.URL.Path,
+					"headers_committed", sr.written,
 				)
-				http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				if !sr.written {
+					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+				}
+				// If the handler already wrote response bytes there is
+				// nothing honest to send back. Closing the connection
+				// is the cleanest signal; let Go's server do that by
+				// returning to let the deferred write finish.
 			}
 		}()
-		next.ServeHTTP(w, r)
+		next.ServeHTTP(sr, r)
 	})
 }
 

@@ -466,9 +466,19 @@ func (h *IconHandler) FetchCustomIcon(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// SSRF protection: resolve hostname and reject private/internal IPs
+	// SSRF protection: resolve hostname and reject private/internal IPs.
+	// Distinguish a DNS failure (the hostname cannot be resolved at all)
+	// from a resolved-but-blocked IP so an operator looking at the
+	// audit log can tell "attacker sending bogus names" from "attacker
+	// pointing at internal infrastructure" (findings.md M1).
 	if err := validateHostSSRF(parsed.Hostname()); err != nil {
-		respondError(w, r, http.StatusBadRequest, "URL must not point to a private or internal address")
+		if _, ok := err.(*net.AddrError); ok {
+			respondError(w, r, http.StatusBadRequest, "URL must not point to a private or internal address",
+				"source", "audit", "host", parsed.Hostname(), "reason", "blocked_ip")
+		} else {
+			respondError(w, r, http.StatusBadRequest, "Could not resolve hostname",
+				"source", "audit", "host", parsed.Hostname(), "reason", "dns_error", "error", err)
+		}
 		return
 	}
 

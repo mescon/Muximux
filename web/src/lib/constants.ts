@@ -66,5 +66,20 @@ export function resolvePermissions(perms: readonly string[] | undefined): string
   if (!perms || perms.length === 0) return [];
   if (perms.includes('none')) return [];
   if (perms.includes('all')) return [...ALL_IFRAME_PERMISSIONS];
-  return perms.filter(p => (ALL_IFRAME_PERMISSIONS as readonly string[]).includes(p));
+  // Warn on unknown permission strings so an admin who typos "web-share"
+  // or reuses an old permission name sees something in the console
+  // instead of silently debugging why the permission never activates
+  // (findings.md L11). Recognised sentinels 'all' / 'none' are skipped
+  // here because they were already handled above.
+  const allowed = ALL_IFRAME_PERMISSIONS as readonly string[];
+  const resolved: string[] = [];
+  for (const p of perms) {
+    if (p === 'all' || p === 'none') continue;
+    if (allowed.includes(p)) {
+      resolved.push(p);
+    } else {
+      console.warn('[muximux] unknown iframe permission ignored:', p);
+    }
+  }
+  return resolved;
 }

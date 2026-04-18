@@ -753,3 +753,52 @@ func TestNeedsSetup(t *testing.T) {
 		})
 	}
 }
+
+// TestSave_RoundTrip covers findings.md L10's happy path: Save writes
+// the config atomically (temp-file + rename) and the result parses back.
+// The fsync-parent-dir addition itself is best-effort and can't be
+// portably observed from user space, but the round-trip at minimum
+// confirms the save path still produces a readable file.
+func TestSave_RoundTrip(t *testing.T) {
+	tmpDir := t.TempDir()
+	path := filepath.Join(tmpDir, "config.yaml")
+	c := &Config{
+		Server: ServerConfig{Listen: ":8080", Title: "Round Trip"},
+		Apps: []AppConfig{
+			{Name: "App", URL: "http://example.com", Enabled: true},
+		},
+	}
+	if err := c.Save(path); err != nil {
+		t.Fatalf("Save failed: %v", err)
+	}
+
+	// File must exist with mode 0600.
+	info, err := os.Stat(path)
+	if err != nil {
+		t.Fatalf("stat saved config: %v", err)
+	}
+	if info.Mode().Perm() != 0o600 {
+		t.Errorf("saved config mode = %o, want 0600", info.Mode().Perm())
+	}
+
+	// No stray .config-*.yaml temp file left behind.
+	entries, err := os.ReadDir(tmpDir)
+	if err != nil {
+		t.Fatalf("readdir: %v", err)
+	}
+	if len(entries) != 1 {
+		t.Errorf("expected exactly one file in dir, got %d entries", len(entries))
+	}
+
+	// Parseable as our own Config type.
+	loaded, err := Load(path)
+	if err != nil {
+		t.Fatalf("load round-tripped config: %v", err)
+	}
+	if loaded.Server.Title != "Round Trip" {
+		t.Errorf("Server.Title = %q, want Round Trip", loaded.Server.Title)
+	}
+	if len(loaded.Apps) != 1 || loaded.Apps[0].Name != "App" {
+		t.Errorf("Apps mismatch: %+v", loaded.Apps)
+	}
+}

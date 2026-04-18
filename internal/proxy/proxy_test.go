@@ -41,6 +41,10 @@ func TestComputeInternalAddr(t *testing.T) {
 		// Edge case: empty or invalid port
 		{"", "127.0.0.1:18080"},
 		{":abc", "127.0.0.1:18080"},
+		// findings.md L8: ports above 55535 would push +10000 past the
+		// 16-bit port range, so those wrap down to portNum-10000.
+		{":60000", "127.0.0.1:50000"},
+		{":65000", "127.0.0.1:55000"},
 	}
 
 	for _, tt := range tests {
