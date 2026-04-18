@@ -117,6 +117,43 @@ describe('AppFrame', () => {
       expect(iframe.allowFullscreen).toBe(true);
     });
 
+    it('omits the allow attribute when no permissions are configured', () => {
+      const { container } = render(AppFrame, {
+        props: { app: makeApp() },
+      });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.hasAttribute('allow')).toBe(false);
+    });
+
+    it('sets the allow attribute with configured permissions scoped to the app origin', () => {
+      const { container } = render(AppFrame, {
+        props: {
+          app: makeApp({
+            url: 'https://grafana.local:3000',
+            permissions: ['camera', 'microphone'],
+          }),
+        },
+      });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      const allowAttr = iframe.getAttribute('allow') || '';
+      expect(allowAttr).toContain("camera 'self' https://grafana.local:3000");
+      expect(allowAttr).toContain("microphone 'self' https://grafana.local:3000");
+    });
+
+    it('uses self-only when the app is served through the proxy', () => {
+      const { container } = render(AppFrame, {
+        props: {
+          app: makeApp({
+            url: 'https://app.local',
+            proxyUrl: '/proxy/app',
+            permissions: ['geolocation'],
+          }),
+        },
+      });
+      const iframe = container.querySelector('iframe') as HTMLIFrameElement;
+      expect(iframe.getAttribute('allow')).toBe("geolocation 'self'");
+    });
+
     it('has the app-frame CSS class', () => {
       const { container } = render(AppFrame, {
         props: { app: makeApp() },

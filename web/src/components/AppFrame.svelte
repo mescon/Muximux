@@ -1,12 +1,30 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { getEffectiveUrl, type App } from '$lib/types';
+  import { resolvePermissions } from '$lib/constants';
   import { isMobileViewport, isTouchDevice } from '$lib/useSwipe';
   import * as m from '$lib/paraglide/messages.js';
 
   let { app }: { app: App } = $props();
 
   let effectiveUrl = $derived(getEffectiveUrl(app));
+
+  // Build the iframe allow attribute from configured permissions.
+  // For proxied apps the iframe is same-origin, so 'self' is sufficient.
+  // For non-proxied cross-origin apps we delegate to the app's specific origin.
+  let allowAttr = $derived.by(() => {
+    const perms = resolvePermissions(app.permissions);
+    if (perms.length === 0) return undefined;
+    let origin = "'self'";
+    if (!app.proxyUrl) {
+      try {
+        origin = "'self' " + new URL(app.url).origin;
+      } catch {
+        origin = "'self'";
+      }
+    }
+    return perms.map(p => `${p} ${origin}`).join('; ');
+  });
 
   let scale = $derived(app.scale || 1);
   let transform = $derived(scale !== 1 ? `scale(${scale})` : '');
@@ -184,6 +202,7 @@
     style:width
     style:height
     sandbox="allow-forms allow-same-origin allow-pointer-lock allow-scripts allow-downloads allow-popups allow-popups-to-escape-sandbox allow-modals"
+    allow={allowAttr}
     allowfullscreen
     onload={handleIframeLoad}
     onerror={handleIframeError}
