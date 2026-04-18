@@ -372,6 +372,20 @@ func TestSecurityHeadersMiddleware(t *testing.T) {
 		if strings.Contains(csp, "sha256") {
 			t.Errorf("CSP should not contain sha256 hash without base path: %s", csp)
 		}
+		// findings.md H10 hardening: frame-ancestors, form-action, and
+		// a tightened connect-src (no wildcard ws:/wss:) must appear.
+		for _, want := range []string{
+			"frame-ancestors 'self'",
+			"form-action 'self'",
+			"connect-src 'self'",
+		} {
+			if !strings.Contains(csp, want) {
+				t.Errorf("CSP missing %q: %s", want, csp)
+			}
+		}
+		if strings.Contains(csp, "connect-src 'self' ws:") {
+			t.Errorf("CSP still contains wildcard ws: directive: %s", csp)
+		}
 	})
 
 	t.Run("with script hash", func(t *testing.T) {

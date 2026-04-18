@@ -1457,8 +1457,21 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 		"style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
 		"font-src 'self' https://fonts.gstatic.com",
 		"img-src 'self' data: blob: https:",
-		"connect-src 'self' ws: wss:",
+		// Drop wildcard ws: / wss:. Muximux's own /ws is same-origin and
+		// is covered by 'self' for both HTTP and WebSocket connections
+		// (same-origin rule applies transparently). Leaving the wildcard
+		// in would let any injected script exfiltrate to an attacker's
+		// WebSocket server (findings.md H10).
+		"connect-src 'self'",
 		"frame-src *",
+		// frame-ancestors 'self' turns clickjacking protection into a
+		// modern directive rather than relying on the deprecated
+		// X-Frame-Options header alone.
+		"frame-ancestors 'self'",
+		// form-action 'self' blocks a form-hijack that would post the
+		// user's submission to an attacker origin (CSS attribute
+		// selectors can turn this into a slow character oracle).
+		"form-action 'self'",
 		"manifest-src 'self' blob:",
 		"object-src 'none'",
 		"base-uri 'self'",
