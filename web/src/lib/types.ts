@@ -18,6 +18,8 @@ export interface App {
   shortcut?: number;  // 1-9 keyboard shortcut slot
   min_role?: string;  // minimum role to see this app
   force_icon_background?: boolean;  // show icon background even when global setting is off
+  permissions?: string[];  // browser feature policy: camera, microphone, geolocation, fullscreen, etc.
+  allow_notifications?: boolean;  // enable postMessage notification bridge
 }
 
 export function getEffectiveUrl(app: App): string {

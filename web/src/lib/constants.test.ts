@@ -1,7 +1,37 @@
 import { describe, it, expect } from 'vitest';
-import { openModes } from './constants';
+import { openModes, ALL_IFRAME_PERMISSIONS, resolvePermissions } from './constants';
 
 describe('constants', () => {
+  describe('resolvePermissions', () => {
+    it('returns empty list for undefined', () => {
+      expect(resolvePermissions(undefined)).toEqual([]);
+    });
+
+    it('returns empty list for empty array', () => {
+      expect(resolvePermissions([])).toEqual([]);
+    });
+
+    it('expands "all" sentinel to the full permission list', () => {
+      expect(resolvePermissions(['all'])).toEqual([...ALL_IFRAME_PERMISSIONS]);
+    });
+
+    it('treats "none" sentinel as empty list', () => {
+      expect(resolvePermissions(['none'])).toEqual([]);
+    });
+
+    it('returns deny when both "all" and "none" are present', () => {
+      expect(resolvePermissions(['all', 'none'])).toEqual([]);
+    });
+
+    it('passes known permissions through unchanged', () => {
+      expect(resolvePermissions(['camera', 'microphone'])).toEqual(['camera', 'microphone']);
+    });
+
+    it('filters out unknown permission values', () => {
+      expect(resolvePermissions(['camera', 'not-a-real-permission'])).toEqual(['camera']);
+    });
+  });
+
   describe('openModes', () => {
     it('should have exactly 4 entries', () => {
       expect(openModes).toHaveLength(4);
