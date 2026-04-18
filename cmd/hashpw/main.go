@@ -7,8 +7,9 @@ import (
 	"os"
 	"strings"
 
-	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
+
+	"github.com/mescon/muximux/v3/internal/auth"
 )
 
 func main() {
@@ -49,11 +50,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := auth.HashPassword(password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating hash: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println(string(hash))
+	fmt.Println(hash)
 }

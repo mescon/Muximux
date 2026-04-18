@@ -11,9 +11,9 @@ import (
 	"strings"
 	"syscall"
 
-	"golang.org/x/crypto/bcrypt"
 	"golang.org/x/term"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
 	"github.com/mescon/muximux/v3/internal/server"
@@ -90,13 +90,13 @@ func runHash() {
 		os.Exit(1)
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := auth.HashPassword(password)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error generating hash: %v\n", err)
 		os.Exit(1)
 	}
 
-	fmt.Println(string(hash))
+	fmt.Println(hash)
 }
 
 func main() {

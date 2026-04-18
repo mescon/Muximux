@@ -838,6 +838,38 @@ func TestAuthenticateRequest(t *testing.T) {
 		}
 	})
 
+	// findings.md M2: forward-auth admin-group matching must be
+	// case-insensitive to match OIDC's behaviour. Authelia/Authentik
+	// commonly preserve the operator's configured casing ("Admins",
+	// "ADMIN"), and a silent case-sensitive compare was a misconfig
+	// trap where the admin appeared as a regular user.
+	t.Run("forward_auth admin groups are case-insensitive", func(t *testing.T) {
+		cfg := &AuthConfig{
+			Method:         AuthMethodForwardAuth,
+			TrustedProxies: []string{"10.0.0.0/8"},
+		}
+		m, _, _ := newTestMiddleware(cfg)
+
+		for _, group := range []string{"Admin", "ADMIN", "Administrators", "ADMINS"} {
+			group := group
+			t.Run(group, func(t *testing.T) {
+				req := httptest.NewRequest(http.MethodGet, "/", nil)
+				req.RemoteAddr = "10.0.0.1:80"
+				req.Header.Set("Remote-User", "charlie")
+				req.Header.Set("Remote-Groups", "users, "+group)
+
+				user, _ := m.authenticateRequest(req, m.snapshot())
+				if user == nil {
+					t.Fatal("expected user")
+					return
+				}
+				if user.Role != RoleAdmin {
+					t.Errorf("group %q should map to admin, got %s", group, user.Role)
+				}
+			})
+		}
+	})
+
 	t.Run("unknown auth method returns nil", func(t *testing.T) {
 		cfg := &AuthConfig{Method: "something_unknown"}
 		m, _, _ := newTestMiddleware(cfg)

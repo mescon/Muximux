@@ -111,23 +111,33 @@ func (s *UserStore) copyUser(u *User) *User {
 	return &copy
 }
 
-// timingDummyHash is a pre-computed bcrypt hash ("not-a-real-password"
-// hashed at DefaultCost) used to absorb the ~60-100 ms bcrypt compare
-// when the supplied username does not match any user. Without it,
-// Authenticate returned near-instantly for unknown names, giving an
-// attacker a timing oracle for user enumeration (findings.md H2).
+// bcryptTargetCost is the bcrypt work factor Authenticate rehashes to
+// on a successful login when the stored hash is weaker. DefaultCost
+// (10) is dated; 12 is the 2024-era recommendation and takes ~250 ms
+// on a modest CPU. Raising this transparently on each login lets old
+// accounts migrate forward without operator action (findings.md M4).
+const bcryptTargetCost = 12
+
+// timingDummyHash is a pre-computed bcrypt hash used to absorb the
+// bcrypt compare cost when the supplied username does not match any
+// user. It is generated at bcryptTargetCost so the unknown-user and
+// wrong-password paths take the same wall-clock time (findings.md H2).
 var timingDummyHash = func() []byte {
-	h, err := bcrypt.GenerateFromPassword([]byte("muximux-timing-dummy-not-a-real-password"), bcrypt.DefaultCost)
+	h, err := bcrypt.GenerateFromPassword([]byte("muximux-timing-dummy-not-a-real-password"), bcryptTargetCost)
 	if err != nil {
 		panic("auth: failed to pre-compute timing dummy hash: " + err.Error())
 	}
 	return h
 }()
 
-// Authenticate verifies username and password. The runtime cost of a
-// successful "user not found" path now matches the cost of a failed
-// password check on a real user, so an attacker cannot distinguish
-// them by timing.
+// Authenticate verifies username and password. Three failure modes are
+// distinguished in the logs so an operator can tell an unknown user
+// from a wrong password from a corrupt stored hash, while callers
+// still see the same error shape for the two user-facing failures
+// (findings.md M3). A successful login silently re-hashes the
+// password if the stored hash is below bcryptTargetCost
+// (findings.md M4); the rehash is best-effort and does not fail the
+// login if it cannot be persisted.
 func (s *UserStore) Authenticate(username, password string) (*User, error) {
 	user := s.Get(username)
 	if user == nil {
@@ -139,17 +149,50 @@ func (s *UserStore) Authenticate(username, password string) (*User, error) {
 		return nil, errors.New(errUserNotFound)
 	}
 
+	// Pre-check hash validity so a corrupt stored hash does not masquerade
+	// as "wrong password" forever. bcrypt.Cost returns an error only for
+	// malformed input; a valid hash at any cost returns nil here.
+	if _, err := bcrypt.Cost([]byte(user.PasswordHash)); err != nil {
+		logging.Warn("Auth attempt against corrupt password hash", "source", "audit", "username", username)
+		return nil, errors.New("invalid password")
+	}
+
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
 		logging.Debug("Auth attempt: wrong password", "source", "auth", "username", username)
 		return nil, errors.New("invalid password")
 	}
 
+	s.maybeUpgradeHash(user.Username, user.PasswordHash, password)
 	return user, nil
 }
 
-// HashPassword creates a bcrypt hash of a password
+// maybeUpgradeHash rehashes the password at bcryptTargetCost in place
+// when the stored hash is below the target. Silent: a failure to
+// compute or store the new hash does not break the current login.
+// Callers are expected to persist the UserStore to disk shortly after
+// (syncUsersToConfig runs on password change and user update paths;
+// login alone currently does not sync, so the upgraded hash survives
+// in memory until the next config save).
+func (s *UserStore) maybeUpgradeHash(username, oldHash, password string) {
+	cost, err := bcrypt.Cost([]byte(oldHash))
+	if err != nil || cost >= bcryptTargetCost {
+		return
+	}
+	newHash, err := bcrypt.GenerateFromPassword([]byte(password), bcryptTargetCost)
+	if err != nil {
+		return
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if u, ok := s.users[username]; ok && u.PasswordHash == oldHash {
+		u.PasswordHash = string(newHash)
+	}
+}
+
+// HashPassword creates a bcrypt hash of a password at the current
+// target cost.
 func HashPassword(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcryptTargetCost)
 	if err != nil {
 		return "", err
 	}

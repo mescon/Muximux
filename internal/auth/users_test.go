@@ -479,3 +479,55 @@ func TestUpdateIfNotLastAdminDemotion(t *testing.T) {
 		}
 	})
 }
+
+// TestAuthenticate_CorruptHashRejected covers findings.md M3. A stored
+// hash that is not a valid bcrypt output must be rejected with a clean
+// "invalid password" response rather than silently crashing inside
+// bcrypt.CompareHashAndPassword.
+func TestAuthenticate_CorruptHashRejected(t *testing.T) {
+	store := NewUserStore()
+	store.LoadFromConfig([]UserConfig{
+		{Username: "broken", PasswordHash: "this-is-not-a-valid-bcrypt-hash", Role: RoleUser},
+	})
+
+	if _, err := store.Authenticate("broken", "anything"); err == nil {
+		t.Error("expected corrupt hash to fail Authenticate")
+	}
+}
+
+// TestAuthenticate_RehashesWeakHash covers findings.md M4. A successful
+// login with a hash below bcryptTargetCost must silently upgrade the
+// stored hash; the user's password still verifies afterward.
+func TestAuthenticate_RehashesWeakHash(t *testing.T) {
+	oldHash, err := bcrypt.GenerateFromPassword([]byte("s3cret"), 6) // weak cost
+	if err != nil {
+		t.Fatalf("seed hash: %v", err)
+	}
+	store := NewUserStore()
+	store.LoadFromConfig([]UserConfig{
+		{Username: "alice", PasswordHash: string(oldHash), Role: RoleUser},
+	})
+
+	if _, err := store.Authenticate("alice", "s3cret"); err != nil {
+		t.Fatalf("unexpected auth failure: %v", err)
+	}
+
+	updated := store.Get("alice")
+	if updated == nil {
+		t.Fatal("user missing after login")
+	}
+	if updated.PasswordHash == string(oldHash) {
+		t.Error("hash was not upgraded after successful login")
+	}
+	gotCost, err := bcrypt.Cost([]byte(updated.PasswordHash))
+	if err != nil {
+		t.Fatalf("new hash is malformed: %v", err)
+	}
+	if gotCost < bcryptTargetCost {
+		t.Errorf("rehash cost = %d, want >= %d", gotCost, bcryptTargetCost)
+	}
+	// And the upgraded hash still verifies the original password.
+	if _, err := store.Authenticate("alice", "s3cret"); err != nil {
+		t.Errorf("upgraded hash failed to verify password: %v", err)
+	}
+}

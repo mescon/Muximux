@@ -371,7 +371,12 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	role := RoleUser
 	if groups != "" {
 		for _, g := range strings.Split(groups, ",") {
-			g = strings.TrimSpace(g)
+			// Case-insensitive compare to match OIDC's behaviour.
+			// Authelia/Authentik etc. tend to preserve the operator's
+			// configured casing ("Admins", "ADMIN"), and a silently
+			// case-sensitive check here was a common misconfig trap
+			// (findings.md M2).
+			g = strings.ToLower(strings.TrimSpace(g))
 			if g == "admin" || g == "admins" || g == "administrators" {
 				role = RoleAdmin
 				break
