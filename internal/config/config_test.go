@@ -546,6 +546,64 @@ server:
 			t.Errorf("expected empty default base_path, got %q", cfg.Server.BasePath)
 		}
 	})
+
+	t.Run("permissions nil when absent", func(t *testing.T) {
+		content := `
+apps:
+  - name: TestApp
+    url: http://localhost:8080
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if cfg.Apps[0].Permissions != nil {
+			t.Errorf("expected nil permissions, got %v", cfg.Apps[0].Permissions)
+		}
+		if cfg.Apps[0].AllowNotifications {
+			t.Error("expected allow_notifications to default to false")
+		}
+	})
+
+	t.Run("permissions and allow_notifications parsed from YAML", func(t *testing.T) {
+		content := `
+apps:
+  - name: TestApp
+    url: http://localhost:8080
+    permissions:
+      - camera
+      - microphone
+      - geolocation
+    allow_notifications: true
+`
+		tmpDir := t.TempDir()
+		configPath := filepath.Join(tmpDir, "config.yaml")
+		if err := os.WriteFile(configPath, []byte(content), 0600); err != nil {
+			t.Fatal(err)
+		}
+		cfg, err := Load(configPath)
+		if err != nil {
+			t.Fatal(err)
+		}
+		got := cfg.Apps[0].Permissions
+		want := []string{"camera", "microphone", "geolocation"}
+		if len(got) != len(want) {
+			t.Fatalf("permissions: got %v, want %v", got, want)
+		}
+		for i := range want {
+			if got[i] != want[i] {
+				t.Errorf("permissions[%d]: got %q, want %q", i, got[i], want[i])
+			}
+		}
+		if !cfg.Apps[0].AllowNotifications {
+			t.Error("expected allow_notifications=true")
+		}
+	})
 }
 
 func TestLoadPreservesBcryptHash(t *testing.T) {

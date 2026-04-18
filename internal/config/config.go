@@ -198,6 +198,15 @@ type AppConfig struct {
 	ForceIconBackground bool              `yaml:"force_icon_background,omitempty"`              // show icon background even when global setting is off
 	AuthBypass          []AuthBypassRule  `yaml:"auth_bypass"`
 	Access              AppAccessConfig   `yaml:"access"`
+	// Permissions is the list of browser feature policy permissions delegated to
+	// the iframe (camera, microphone, geolocation, fullscreen, display-capture,
+	// clipboard-read, clipboard-write, autoplay, midi, payment). Empty = no
+	// permissions delegated (browser default for cross-origin iframes).
+	Permissions []string `yaml:"permissions,omitempty" json:"permissions,omitempty"`
+	// AllowNotifications enables the Muximux notification bridge for this app:
+	// the embedded iframe can postMessage {type: 'muximux:notify', title, body, tag}
+	// to request a browser notification via Muximux's top-level origin.
+	AllowNotifications bool `yaml:"allow_notifications,omitempty" json:"allow_notifications,omitempty"`
 }
 
 // AppIconConfig holds app icon settings
