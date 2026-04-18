@@ -297,6 +297,8 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		Shortcut:            c.Shortcut,
 		MinRole:             c.MinRole,
 		ForceIconBackground: c.ForceIconBackground,
+		Permissions:         c.Permissions,
+		AllowNotifications:  c.AllowNotifications,
 	}
 }
 
@@ -614,6 +616,8 @@ func sanitizeApp(app *config.AppConfig) ClientAppConfig {
 		Shortcut:            app.Shortcut,
 		MinRole:             app.MinRole,
 		ForceIconBackground: app.ForceIconBackground,
+		Permissions:         app.Permissions,
+		AllowNotifications:  app.AllowNotifications,
 	}
 }
 
@@ -638,6 +642,8 @@ type ClientAppConfig struct {
 	Shortcut            *int                 `json:"shortcut,omitempty"`
 	MinRole             string               `json:"min_role,omitempty"`
 	ForceIconBackground bool                 `json:"force_icon_background,omitempty"`
+	Permissions         []string             `json:"permissions,omitempty"`
+	AllowNotifications  bool                 `json:"allow_notifications,omitempty"`
 }
 
 // sanitizeApps removes sensitive fields and filters by role.
