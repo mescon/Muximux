@@ -11,6 +11,19 @@ vi.mock('$lib/constants', () => ({
     { value: 'iframe', label: 'Embedded', description: 'Show inside Muximux' },
     { value: 'new_tab', label: 'New Tab', description: 'Open in a new browser tab' },
   ],
+  IFRAME_PERMISSIONS: [
+    { id: 'camera', description: 'camera desc', docsUrl: 'https://mdn.example/camera' },
+    { id: 'microphone', description: 'microphone desc', docsUrl: 'https://mdn.example/microphone' },
+    { id: 'geolocation', description: 'geolocation desc', docsUrl: 'https://mdn.example/geolocation' },
+    { id: 'fullscreen', description: 'fullscreen desc', docsUrl: 'https://mdn.example/fullscreen' },
+  ] as const,
+  ALL_IFRAME_PERMISSIONS: ['camera', 'microphone', 'geolocation', 'fullscreen'] as const,
+  resolvePermissions: (perms: readonly string[] | undefined) => {
+    if (!perms || perms.length === 0) return [];
+    if (perms.includes('none')) return [];
+    if (perms.includes('all')) return ['camera', 'microphone', 'geolocation', 'fullscreen'];
+    return perms.filter(p => ['camera', 'microphone', 'geolocation', 'fullscreen'].includes(p));
+  },
 }));
 
 function noopComponent() {

@@ -1,6 +1,6 @@
 <script lang="ts">
   import type { App, Group } from '$lib/types';
-  import { openModes } from '$lib/constants';
+  import { openModes, IFRAME_PERMISSIONS, ALL_IFRAME_PERMISSIONS } from '$lib/constants';
   import AppIcon from './AppIcon.svelte';
   import * as m from '$lib/paraglide/messages.js';
 
@@ -26,19 +26,116 @@
 
   let prefix = $derived(mode === 'create' ? 'create' : 'edit');
 
+  // Standard iframe Feature Policy permissions we expose as simple checkboxes,
+  // with per-permission description and docs URL used by the hover tooltip.
+  const availablePermissions = IFRAME_PERMISSIONS;
+
+  // "all" / "none" sentinels stored in app.permissions mean the user wrote a
+  // shortcut in YAML (or clicked the "all" toggle). For the checkbox grid we
+  // treat "all" as every permission being selected, "none" as everything
+  // deselected.
+  function expandSentinels(perms: string[] | undefined): string[] {
+    if (!perms || perms.length === 0) return [];
+    if (perms.includes('none')) return [];
+    if (perms.includes('all')) return availablePermissions.map(p => p.id);
+    return perms;
+  }
+
+  function togglePermission(id: string, checked: boolean) {
+    const current = new Set(expandSentinels(app.permissions));
+    if (checked) current.add(id);
+    else current.delete(id);
+    app.permissions = current.size > 0 ? Array.from(current) : undefined;
+  }
+
+  function hasPermission(id: string): boolean {
+    return expandSentinels(app.permissions).includes(id);
+  }
+
+  let allPermissionsSelected = $derived(
+    availablePermissions.every(p => hasPermission(p.id))
+  );
+
+  function toggleAllPermissions(checked: boolean) {
+    if (checked) {
+      // Store the terse "all" sentinel — preserves intent in YAML and
+      // auto-includes future permissions if we add them.
+      app.permissions = ['all'];
+    } else {
+      app.permissions = undefined;
+    }
+  }
+
   function clearError(field: string) {
     onclearerror?.(field);
+  }
+
+  // Flip the tooltip above the trigger when there isn't enough room below
+  // inside the nearest scrollable ancestor (e.g. the Settings modal body).
+  // Called on mouseenter so the flip happens before the tooltip becomes visible.
+  function positionTooltip(trigger: HTMLElement) {
+    const tooltip = trigger.querySelector('.help-tooltip') as HTMLElement | null;
+    if (!tooltip) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    const scrollParent = findScrollParent(trigger);
+    const containerRect = scrollParent
+      ? scrollParent.getBoundingClientRect()
+      : { bottom: window.innerHeight, right: window.innerWidth, left: 0 } as DOMRect;
+    // Temporarily render invisibly to measure dimensions accurately.
+    const prev = tooltip.style.cssText;
+    tooltip.style.cssText = 'display: block; visibility: hidden;';
+    const tooltipHeight = tooltip.offsetHeight;
+    const tooltipWidth = tooltip.offsetWidth;
+    tooltip.style.cssText = prev;
+    // Vertical: flip above if the tooltip would overflow the scrollable area.
+    const roomBelow = containerRect.bottom - triggerRect.bottom;
+    tooltip.classList.toggle('tooltip-above', roomBelow < tooltipHeight + 12);
+    // Horizontal: flip to the right-anchored side if the tooltip would extend
+    // past the container's right edge.
+    const wouldOverflowRight = triggerRect.left + tooltipWidth > containerRect.right - 8;
+    tooltip.classList.toggle('tooltip-right-anchored', wouldOverflowRight);
+  }
+
+  function findScrollParent(el: HTMLElement): HTMLElement | null {
+    let node: HTMLElement | null = el.parentElement;
+    while (node && node !== document.body) {
+      const style = getComputedStyle(node);
+      if (style.overflowY === 'auto' || style.overflowY === 'scroll' ||
+          style.overflowX === 'auto' || style.overflowX === 'scroll') return node;
+      node = node.parentElement;
+    }
+    return null;
   }
 </script>
 
 {#snippet helpTip(text: string)}
-  <span class="help-trigger relative ms-1 inline-block align-middle">
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <span
+    class="help-trigger relative ms-1 inline-block align-middle"
+    onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
+  >
     <svg class="w-3.5 h-3.5 text-text-disabled cursor-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
     <!-- eslint-disable-next-line svelte/no-at-html-tags -- tooltip text is hardcoded, not user input -->
     <span class="help-tooltip">{@html text}</span>
   </span>
+{/snippet}
+
+{#snippet docsLink(description: string, url: string)}
+  <a
+    href={url}
+    target="_blank"
+    rel="noopener noreferrer"
+    class="docs-trigger relative ms-1 inline-flex items-center align-middle text-text-disabled hover:text-brand-400"
+    title={m.common_readMore()}
+    onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
+  >
+    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10" /><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" /><line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+    <span class="help-tooltip">{description}</span>
+  </a>
 {/snippet}
 
 <div class="space-y-4">
@@ -403,6 +500,51 @@
       </div>
     </div>
   </div>
+
+  <!-- Browser Permissions -->
+  <div class="border-t border-border pt-3">
+    <h4 class="text-xs font-medium text-text-disabled uppercase tracking-wide mb-1">{m.appForm_sectionPermissions()}</h4>
+    <p class="text-xs text-text-muted mb-3">{m.appForm_permissionsDesc()}</p>
+    <label class="flex items-center gap-2 cursor-pointer text-sm mb-2 pb-2 border-b border-border-subtle">
+      <input
+        type="checkbox"
+        checked={allPermissionsSelected}
+        onchange={(e) => toggleAllPermissions((e.target as HTMLInputElement).checked)}
+        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+      />
+      <span class="text-text-primary font-medium">{m.appForm_permissionsAll()}</span>
+    </label>
+    <div class="grid grid-cols-2 gap-2">
+      {#each availablePermissions as perm (perm.id)}
+        <div class="flex items-center gap-2 text-sm">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={hasPermission(perm.id)}
+              onchange={(e) => togglePermission(perm.id, (e.target as HTMLInputElement).checked)}
+              class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+            />
+            <span class="text-text-primary font-mono text-xs">{perm.id}</span>
+          </label>
+          {@render docsLink(perm.description, perm.docsUrl)}
+        </div>
+      {/each}
+    </div>
+
+    <label class="flex items-center gap-3 cursor-pointer mt-4">
+      <input
+        type="checkbox"
+        bind:checked={app.allow_notifications}
+        class="w-4 h-4 rounded border-border-subtle text-brand-500 focus:ring-brand-500"
+      />
+      <div>
+        <span class="text-sm text-text-primary">{m.appForm_allowNotifications()}
+          {@render helpTip(m.appForm_helpAllowNotifications())}
+        </span>
+        <p class="text-xs text-text-muted">{m.appForm_allowNotificationsDesc()}</p>
+      </div>
+    </label>
+  </div>
 </div>
 
 <style>
@@ -425,7 +567,25 @@
     pointer-events: none;
   }
 
-  .help-trigger:hover > .help-tooltip {
+  .help-trigger:hover > .help-tooltip,
+  .docs-trigger:hover > .help-tooltip,
+  .docs-trigger:focus > .help-tooltip {
     display: block;
+  }
+
+  /* Flipped placement — tooltip renders above the trigger when there's not
+     enough room below inside the scrolling container.
+     `:global()` because the flip class is toggled via JS and Svelte's CSS
+     scoping would otherwise require the component hash on the raw class. */
+  .help-tooltip:global(.tooltip-above) {
+    top: auto;
+    bottom: calc(100% + 6px);
+  }
+
+  /* Right-anchored placement — tooltip extends to the left of the trigger
+     instead of the right when it would otherwise overflow the container. */
+  .help-tooltip:global(.tooltip-right-anchored) {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
   }
 </style>
