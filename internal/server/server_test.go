@@ -259,12 +259,20 @@ func TestSecurityHeadersMiddleware(t *testing.T) {
 			"X-Content-Type-Options": "nosniff",
 			"X-Frame-Options":        "SAMEORIGIN",
 			"Referrer-Policy":        "strict-origin-when-cross-origin",
-			"Permissions-Policy":     "camera=(), microphone=(), geolocation=()",
 		}
 		for header, value := range expected {
 			got := rec.Header().Get(header)
 			if got != value {
 				t.Errorf("header %s = %q, want %q", header, got, value)
+			}
+		}
+
+		// Permissions-Policy must permit `*` for features we want to be
+		// delegatable via iframe `allow` attributes.
+		permPolicy := rec.Header().Get("Permissions-Policy")
+		for _, feature := range []string{"camera=*", "microphone=*", "geolocation=*", "fullscreen=*"} {
+			if !strings.Contains(permPolicy, feature) {
+				t.Errorf("Permissions-Policy missing %q: %s", feature, permPolicy)
 			}
 		}
 

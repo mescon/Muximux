@@ -1336,6 +1336,35 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 		"base-uri 'self'",
 	}, "; ")
 
+	// Permissions-Policy: delegatable features are set to `*` so per-app iframe
+	// `allow` attributes can scope them to specific app origins. Must match the
+	// IFRAME_PERMISSIONS list on the frontend.
+	//
+	// Chrome currently logs "Unrecognized feature" warnings for `web-share` and
+	// `bluetooth` in HTTP Permissions-Policy headers (they work in iframe allow
+	// attributes but not yet as header directives), so they are omitted here.
+	// Re-add when browser support lands.
+	permissionsPolicy := strings.Join([]string{
+		"camera=*",
+		"microphone=*",
+		"geolocation=*",
+		"display-capture=*",
+		"fullscreen=*",
+		"clipboard-read=*",
+		"clipboard-write=*",
+		"autoplay=*",
+		"midi=*",
+		"payment=*",
+		"publickey-credentials-get=*",
+		"publickey-credentials-create=*",
+		"encrypted-media=*",
+		"screen-wake-lock=*",
+		"picture-in-picture=*",
+		"usb=*",
+		"serial=*",
+		"hid=*",
+	}, ", ")
+
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
@@ -1344,7 +1373,13 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 		// their own scripts, styles, and framing needs that our policy would break.
 		if !strings.HasPrefix(r.URL.Path, proxyPathPrefix) {
 			w.Header().Set("X-Frame-Options", "SAMEORIGIN")
-			w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+			// Permissions-Policy at the document level is the ceiling for iframe
+			// delegation: an iframe's `allow` attribute can only grant features
+			// the parent itself is permitted to use. We allow `*` (any origin)
+			// for delegatable features so per-app iframe `allow` attributes can
+			// scope them to specific app origins. Muximux's own JS never calls
+			// these APIs, so `*` here doesn't broaden Muximux's attack surface.
+			w.Header().Set("Permissions-Policy", permissionsPolicy)
 			w.Header().Set("Content-Security-Policy", csp)
 		}
 		next.ServeHTTP(w, r)
