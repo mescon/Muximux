@@ -223,11 +223,58 @@ client_secret: ${OIDC_CLIENT_SECRET}
 
 ## API Key Authentication
 
-When `api_key_hash` is set in the auth config, you can authenticate API requests using the `X-Api-Key` header instead of a session cookie. This is useful for integrations, scripts, and automated tools.
+Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Overseerr or a cron job reach Muximux without having to maintain a logged-in session.
+
+**Important scope note:** the API key is not a universal bypass. It only authenticates requests whose path has been **allowlisted** with `require_api_key: true`. Everything else still requires a session cookie. This keeps a leaked key's blast radius bounded to exactly the endpoints the operator has opted in.
+
+### Where the API Key Works
+
+Out of the box, these paths accept `X-Api-Key`:
+
+| Path | What it's for |
+|---|---|
+| `GET /api/appearance` | Embedded / external apps fetching Muximux's current language and theme (see [Apps > Appearance API](apps.md#appearance-api)). |
+
+Additionally, operators can allowlist **per-app proxy paths** via `auth_bypass` on each proxied app. This is the common integration pattern: expose a backend app's own API (e.g. Sonarr's `/api/v3/*`) through the Muximux reverse proxy, gated by the Muximux API key at the front door. See [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the full setup.
+
+Typical example -- giving Overseerr access to Sonarr through Muximux:
+
+```yaml
+apps:
+  - name: Sonarr
+    url: http://sonarr:8989
+    proxy: true
+    # Muximux -> Sonarr: Sonarr's own auth (so the user doesn't see it)
+    proxy_headers:
+      X-Api-Key: "${SONARR_API_KEY}"
+    # Caller -> Muximux: require the Muximux API key on /api/*
+    auth_bypass:
+      - path: /api/*
+        methods: [GET, POST]
+        require_api_key: true
+```
+
+Overseerr calls:
 
 ```bash
-curl -H "X-Api-Key: your-secret-key" https://muximux.example.com/api/apps
+curl -H "X-Api-Key: $MUXIMUX_API_KEY" \
+  https://muximux.example.com/proxy/sonarr/api/v3/series
 ```
+
+Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. Two different keys, two different jobs, in the same request.
+
+### What the API Key Does NOT Unlock
+
+The following endpoints **always** require a session cookie (logged-in user). Sending `X-Api-Key` against them has no effect -- the request still gets a 401:
+
+- `GET /api/config`, `PUT /api/config` (dashboard configuration)
+- `GET/POST /api/apps`, `GET/POST /api/groups` (app and group CRUD)
+- `GET/POST /api/themes` (theme CRUD)
+- `GET/POST/DELETE /api/auth/users` (user management)
+- `POST /api/auth/password` (password change)
+- Every other `/api/*` path not explicitly listed above
+
+This is deliberate. A session cookie is attributable to a specific user in audit logs, is `HttpOnly` so JavaScript can't read it, and expires on its own. A bearer token like an API key doesn't have any of those properties, so it doesn't get to drive state-changing administrative endpoints.
 
 ### How It Works
 
@@ -237,9 +284,13 @@ The API key is stored as a **bcrypt hash** in `config.yaml` -- not as plaintext.
 - If `config.yaml` is compromised, the attacker cannot extract the key
 - Verification is constant-time, preventing timing attacks
 
-### Generating an API Key Hash
+### Generating an API Key
 
-Use the same tools as for password hashes:
+Two ways:
+
+**In the UI:** **Settings → Security → API Key.** Type or paste the key and save. Muximux hashes it before persisting. The plaintext is shown once in that session so you can copy it into your integration; after that, only the hash is kept on disk.
+
+**On the command line:**
 
 ```bash
 # Using the built-in hash subcommand
@@ -257,7 +308,14 @@ auth:
   api_key_hash: "$2a$10$..."
 ```
 
-You can also set the API key through the **Settings > Security** panel in the Muximux UI. The UI hashes the key automatically before storing it.
+Restart Muximux (or wait for the UI hot-reload) and the key is live.
+
+### Operational Guidance
+
+- **Keep the key out of browser code.** `X-Api-Key` is a bearer token; anyone who sees it can authenticate as that key. Put it on server-side integrations, not in JavaScript loaded by untrusted users.
+- **Rotating the key** invalidates every integration at once -- there's only one `api_key_hash` per instance. Coordinate the swap.
+- **Disable the key** by removing `api_key_hash` from config (or clearing it in the UI). Every allowlisted path immediately stops accepting `X-Api-Key`.
+- **Audit logs** for API-key requests show a sentinel user (not a human username). If you need per-integration attribution, use separate proxied apps with their own `auth_bypass` rules.
 
 ---
 

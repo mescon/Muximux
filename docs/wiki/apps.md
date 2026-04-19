@@ -191,7 +191,9 @@ This is useful for temporarily hiding apps that are down for maintenance or that
 
 ## Per-App Auth Bypass
 
-When authentication is enabled globally, you may need to allow certain paths of a proxied app to be accessed without logging in. The `auth_bypass` field lets you define exceptions:
+When authentication is enabled globally, you may need to allow certain paths of a proxied app to be accessed without logging in. The `auth_bypass` field lets you define exceptions.
+
+This is also the **primary reason** Muximux has an API key. Combining `proxy: true` with `auth_bypass: [{require_api_key: true}]` exposes a backend app's API through Muximux without requiring a Muximux login session -- integrations present the Muximux API key at the front door, Muximux forwards to the backend with the backend's own credentials injected via `proxy_headers`. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full picture and how to create the key.
 
 ```yaml
 apps:

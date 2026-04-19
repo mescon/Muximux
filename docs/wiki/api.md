@@ -70,14 +70,19 @@ The `auth_method` field returns the active authentication method: `none`, `built
 
 **API key authentication:**
 
-Instead of a session cookie, you can authenticate with an API key by including the `X-Api-Key` header:
+Non-browser integrations can authenticate with an API key via the `X-Api-Key` header, but **only on allowlisted paths** -- not every `/api/*` endpoint. Out of the box:
+
+- `GET /api/appearance` -- read Muximux's current theme + language (see [Apps > Appearance API](apps.md#appearance-api))
+- Any proxied-app path the operator has opted into via `auth_bypass: [{require_api_key: true}]` (see [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass))
+
+Example, calling Sonarr through Muximux with a configured bypass:
 
 ```
-GET /api/apps
+GET /proxy/sonarr/api/v3/series
 X-Api-Key: your-api-key-here
 ```
 
-The API key is configured as a bcrypt hash in `auth.api_key_hash` in your config file. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for setup instructions.
+State-changing endpoints like `/api/config`, `/api/apps`, `/api/themes`, and `/api/auth/users` require a session cookie -- the API key will not work against them. See [Authentication > API Key Authentication](authentication.md#api-key-authentication) for the full scope and setup instructions.
 
 ### User Management
 
