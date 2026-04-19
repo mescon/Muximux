@@ -357,3 +357,131 @@ Muximux validates every notification request:
 - If the user denies the Muximux-origin permission prompt, nothing shows, but the shim still returns `'granted'` to the embedded app. The app will believe its notification fired.
 
 > **Design note:** Because the permission belongs to Muximux's origin, any app you enable `allow_notifications` for can send notifications. Only enable this for apps you trust to send appropriate content.
+
+## Appearance API
+
+Apps embedded through the built-in reverse proxy can ask Muximux what language, theme, and colors the user currently has active -- so they can style themselves to match. Muximux exposes a single read-only endpoint:
+
+```
+GET /api/appearance
+```
+
+Example response:
+
+```json
+{
+  "language": "en",
+  "theme": {
+    "family": "catppuccin",
+    "variant": "dark",
+    "id": "catppuccin",
+    "is_dark": true
+  },
+  "colors": {
+    "--bg-base": "#1e1e2e",
+    "--bg-surface": "#313244",
+    "--bg-elevated": "#45475a",
+    "--bg-overlay": "#585b70",
+    "--bg-hover": "#45475a",
+    "--text-primary": "#cdd6f4",
+    "--text-secondary": "#a6adc8",
+    "--text-muted": "#9399b2",
+    "--border-subtle": "rgba(205, 214, 244, 0.06)",
+    "--border-default": "rgba(205, 214, 244, 0.1)",
+    "--border-strong": "rgba(205, 214, 244, 0.16)",
+    "--accent-primary": "#cba6f7",
+    "--accent-secondary": "#b4befe",
+    "--color-brand-500": "#cba6f7"
+  },
+  "theme_css_url": "/themes/catppuccin.css"
+}
+```
+
+### Authentication
+
+The endpoint sits behind Muximux's normal `/api/*` authentication middleware. **If your app is proxied through Muximux** (`proxy: true` on the app config), it lives at `/proxy/<slug>/` on Muximux's own origin, so the Muximux session cookie is automatically attached to any same-origin `fetch('/api/appearance')` call -- your app doesn't need to know about auth at all.
+
+Non-proxied apps embedded as cross-origin iframes cannot read this endpoint directly (CORS), and that's intentional: if the app is cross-origin, it has its own origin and should style itself however it wants.
+
+### What an app should do with this
+
+Most apps will fetch this once, on page load, and either:
+
+**Option 1: Apply the returned colors as CSS custom properties** (simplest, works in any app that already uses `var(--something)`):
+
+```js
+async function applyMuximuxTheme() {
+  try {
+    const r = await fetch('/api/appearance');
+    if (!r.ok) return;
+    const a = await r.json();
+    for (const [name, value] of Object.entries(a.colors)) {
+      document.documentElement.style.setProperty(name, value);
+    }
+    document.documentElement.setAttribute('data-theme', a.theme.id);
+    document.documentElement.lang = a.language;
+  } catch {
+    // Muximux not reachable -- leave the app's own defaults alone.
+  }
+}
+
+applyMuximuxTheme();
+```
+
+**Option 2: Load the full theme CSS into your own `<head>`** if you want every variable, not just the curated subset:
+
+```js
+async function importMuximuxTheme() {
+  const r = await fetch('/api/appearance');
+  if (!r.ok) return;
+  const a = await r.json();
+  if (!a.theme_css_url) return;
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = a.theme_css_url;
+  document.head.appendChild(link);
+}
+```
+
+Your app's own stylesheet can then reference the same `--bg-surface`, `--text-primary`, etc. that Muximux uses, and the two will stay visually consistent.
+
+### What's in `colors`
+
+The fourteen names in `colors` are the curated, stable subset -- they have documented semantics and will not be renamed between Muximux versions. If you need a variable that isn't in this list, load `theme_css_url` and parse it yourself.
+
+| Variable | Purpose |
+|---|---|
+| `--bg-base` | Page background |
+| `--bg-surface` | Card / panel background |
+| `--bg-elevated` | Raised surface (dialog, dropdown) |
+| `--bg-overlay` | Modal overlay |
+| `--bg-hover` | Hover state background |
+| `--text-primary` | Primary text |
+| `--text-secondary` | Secondary text |
+| `--text-muted` | Muted / placeholder text |
+| `--border-subtle` | Faint borders |
+| `--border-default` | Standard borders |
+| `--border-strong` | Emphasized borders |
+| `--accent-primary` | Brand accent |
+| `--accent-secondary` | Secondary accent |
+| `--color-brand-500` | Canonical brand color |
+
+### Theme id conventions
+
+The `theme.id` field is the exact value Muximux puts on `<html data-theme="...">` for itself. Every named theme follows the same pattern:
+
+- Dark variant: `<family>` -- e.g. `catppuccin`, `nord`, `muximux` (the built-in default)
+- Light variant: `<family>-light` -- e.g. `catppuccin-light`, `nord-light`, `muximux-light`
+
+If `theme.variant === "system"` the operator has asked Muximux to follow the client's OS preference. Because the server can't know that preference, it returns the dark palette (`muximux`) as the default. An app that cares about this can use `matchMedia('(prefers-color-scheme: light)')` client-side and re-fetch with the opposite variant -- but in practice most apps just take whatever the endpoint returns and move on.
+
+### Re-fetching on changes
+
+The endpoint doesn't push updates. If the operator changes the theme while your app is open, your app stays on the old colors until it next fetches. That's deliberate: polling or a push channel would cost either battery or complexity for a feature that most apps just won't care to handle. If you do want to re-theme on every change, fetch again on `visibilitychange` -- it's enough for the common case of "user switches theme, then tabs back to the app".
+
+### Limitations
+
+- Only reachable by proxied apps (same-origin). Cross-origin apps hit CORS.
+- No push / event channel. Apps read once on boot.
+- `colors` is a curated subset, not every theme variable. Use `theme_css_url` for the rest.
+- `variant: "system"` resolves to the dark palette server-side; clients that care can check `prefers-color-scheme`.
