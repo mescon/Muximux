@@ -317,6 +317,13 @@ var defaultBypassRules = []auth.BypassRule{
 	{Path: "/mstile-150x150.png"},
 	{Path: "/login"},
 	{Path: "/api/health"},
+	// Appearance endpoint (issue #321). Session-authenticated callers
+	// (proxied apps reaching /api/appearance same-origin) hit the
+	// normal auth path; external integrations with a valid X-Api-Key
+	// match this bypass rule instead. The rule itself requires the
+	// API key, so a request without a session cookie AND without a
+	// valid key still falls through to the regular 401/login flow.
+	{Path: "/api/appearance", Methods: []string{http.MethodGet}, RequireAPIKey: true},
 }
 
 // setupAuth creates the session store, user store, and auth middleware from config.

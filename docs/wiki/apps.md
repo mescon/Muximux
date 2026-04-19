@@ -399,9 +399,42 @@ Example response:
 
 ### Authentication
 
-The endpoint sits behind Muximux's normal `/api/*` authentication middleware. **If your app is proxied through Muximux** (`proxy: true` on the app config), it lives at `/proxy/<slug>/` on Muximux's own origin, so the Muximux session cookie is automatically attached to any same-origin `fetch('/api/appearance')` call -- your app doesn't need to know about auth at all.
+`/api/appearance` accepts two credential shapes.
 
-Non-proxied apps embedded as cross-origin iframes cannot read this endpoint directly (CORS), and that's intentional: if the app is cross-origin, it has its own origin and should style itself however it wants.
+**Proxied apps (`proxy: true`)** run at `/proxy/<slug>/` on Muximux's own origin, so a same-origin `fetch('/api/appearance')` automatically carries the Muximux session cookie. The app doesn't need to know about auth at all -- this is the zero-config path and the one most integrations should take.
+
+**External apps** (cross-origin iframes, scripts, dashboards, scheduled jobs) can authenticate with an API key instead of a session cookie. Add the header:
+
+```
+X-Api-Key: your-api-key
+```
+
+to the request and Muximux accepts it for `GET /api/appearance` specifically. This is a dedicated bypass rule for this endpoint -- other `/api/*` endpoints still require a session cookie. If the key doesn't match (or isn't set) the request falls through to the normal auth path and gets a 401 / login redirect.
+
+### Finding or creating the API key
+
+The API key lives on disk as a **bcrypt hash** at `auth.api_key_hash` in `config.yaml`. The plaintext value is never stored -- once you set it, only the hash remains. Two ways to create one:
+
+**In the UI:** **Settings → Security → API Key.** Paste or generate a key, save. Muximux hashes it before persisting.
+
+**On the command line:** use the built-in hash subcommand:
+
+```bash
+muximux hash 'your-chosen-api-key'
+# prints: $2a$12$...
+```
+
+Then add the output to your config:
+
+```yaml
+auth:
+  method: builtin
+  api_key_hash: "$2a$12$..."
+```
+
+Restart Muximux (or hot-reload via the UI) and the key is live. Give the plaintext value to your integration as its `X-Api-Key` header value.
+
+> **Keep the key out of browser code.** `X-Api-Key` is a bearer token: anyone who sees it can read the endpoint. Do NOT embed it in JavaScript loaded by untrusted users -- put it on a server-side integration that fetches Muximux and passes the result to clients, or use the proxied-app flow where the session cookie does the work.
 
 ### What an app should do with this
 
@@ -481,7 +514,8 @@ The endpoint doesn't push updates. If the operator changes the theme while your 
 
 ### Limitations
 
-- Only reachable by proxied apps (same-origin). Cross-origin apps hit CORS.
+- Proxied apps authenticate automatically via the session cookie (same-origin). External integrations need an `X-Api-Key` header; other `/api/*` endpoints are not reachable by API key.
 - No push / event channel. Apps read once on boot.
 - `colors` is a curated subset, not every theme variable. Use `theme_css_url` for the rest.
 - `variant: "system"` resolves to the dark palette server-side; clients that care can check `prefers-color-scheme`.
+- A cross-origin `fetch` with `X-Api-Key` may require a CORS preflight that Muximux doesn't answer today. If that bites, run the fetch from a server-side integration rather than directly from the browser.

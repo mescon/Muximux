@@ -2531,3 +2531,28 @@ func TestAppearanceResponse_ResolveAndParse(t *testing.T) {
 		}
 	})
 }
+
+// TestAppearance_APIKeyBypass pins issue #321's external-app flow:
+// /api/appearance is in defaultBypassRules with require_api_key=true
+// so an integrator with a valid X-Api-Key can fetch it without a
+// Muximux session cookie. The bypass rule must require the key,
+// not merely permit it -- a request without any credential still
+// has to fall through to regular auth.
+func TestAppearance_APIKeyBypass(t *testing.T) {
+	var found *auth.BypassRule
+	for i := range defaultBypassRules {
+		if defaultBypassRules[i].Path == "/api/appearance" {
+			found = &defaultBypassRules[i]
+			break
+		}
+	}
+	if found == nil {
+		t.Fatal("expected /api/appearance in defaultBypassRules")
+	}
+	if !found.RequireAPIKey {
+		t.Error("bypass rule for /api/appearance must set RequireAPIKey=true; otherwise the endpoint becomes public")
+	}
+	if len(found.Methods) != 1 || found.Methods[0] != http.MethodGet {
+		t.Errorf("expected methods=[GET], got %v", found.Methods)
+	}
+}
