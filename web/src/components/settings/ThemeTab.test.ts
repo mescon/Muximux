@@ -6,10 +6,10 @@ const { mockStores, mockSaveCustomTheme, mockDeleteCustomTheme, mockGetCurrentTh
   // vi.fn() is available inside vi.hoisted
   return {
     mockStores: {
-      resolvedTheme: 'dark',
+      resolvedTheme: 'muximux',
       allThemes: [
-        { id: 'dark', name: 'Dark', isBuiltin: true },
-        { id: 'light', name: 'Light', isBuiltin: true },
+        { id: 'muximux', name: 'Muximux Dark', isBuiltin: true },
+        { id: 'muximux-light', name: 'Muximux Light', isBuiltin: true },
       ],
       isDarkTheme: true,
       selectedFamily: 'default',
@@ -17,10 +17,10 @@ const { mockStores, mockSaveCustomTheme, mockDeleteCustomTheme, mockGetCurrentTh
       themeFamilies: [
         {
           id: 'default',
-          name: 'Default',
+          name: 'Muximux',
           description: 'The default theme',
-          darkTheme: { id: 'dark', name: 'Dark', isBuiltin: true, preview: { bg: '#1a1a2e', surface: '#16213e', accent: '#0f3460', text: '#e0e0e0' } },
-          lightTheme: { id: 'light', name: 'Light', isBuiltin: true, preview: { bg: '#ffffff', surface: '#f5f5f5', accent: '#3b82f6', text: '#1a1a1a' } },
+          darkTheme: { id: 'muximux', name: 'Muximux Dark', isBuiltin: true, preview: { bg: '#1a1a2e', surface: '#16213e', accent: '#0f3460', text: '#e0e0e0' } },
+          lightTheme: { id: 'muximux-light', name: 'Muximux Light', isBuiltin: true, preview: { bg: '#ffffff', surface: '#f5f5f5', accent: '#3b82f6', text: '#1a1a1a' } },
         },
       ],
     },
@@ -106,7 +106,7 @@ describe('ThemeTab', () => {
     render(ThemeTab);
 
     expect(screen.getByText('Choose Theme')).toBeInTheDocument();
-    expect(screen.getByText('Default')).toBeInTheDocument();
+    expect(screen.getByText('Muximux')).toBeInTheDocument();
   });
 
   it('shows variant mode options (Dark / System / Light)', () => {
@@ -181,7 +181,7 @@ describe('ThemeTab', () => {
       render(ThemeTab);
 
       // Click the Default theme card
-      const defaultTheme = screen.getByText('Default').closest('[role="button"]')!;
+      const defaultTheme = screen.getByText('Muximux').closest('[role="button"]')!;
       await fireEvent.click(defaultTheme);
 
       expect(mockSetThemeFamily).toHaveBeenCalledWith('default');
@@ -613,10 +613,9 @@ describe('ThemeTab', () => {
     it('displays resolved theme name in Currently using section', () => {
       render(ThemeTab);
 
-      // The "Currently using: Dark theme" section
+      // The "Currently using: Muximux Dark theme" section
       expect(screen.getByText(/Currently using:/)).toBeInTheDocument();
-      // "Dark theme" text node within the info section
-      expect(screen.getByText('Dark theme')).toBeInTheDocument();
+      expect(screen.getByText(/Muximux Dark theme/)).toBeInTheDocument();
     });
   });
 });

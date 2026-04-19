@@ -84,8 +84,8 @@ describe('themeStore', () => {
   describe('builtinThemes', () => {
     it('has dark and light themes', () => {
       expect(builtinThemes).toHaveLength(2);
-      expect(builtinThemes[0].id).toBe('dark');
-      expect(builtinThemes[1].id).toBe('light');
+      expect(builtinThemes[0].id).toBe('muximux');
+      expect(builtinThemes[1].id).toBe('muximux-light');
     });
 
     it('both belong to default family', () => {
@@ -113,8 +113,8 @@ describe('themeStore', () => {
     it('includes builtinThemes when no custom themes', () => {
       const themes = get(allThemes);
       expect(themes).toHaveLength(builtinThemes.length);
-      expect(themes.map(t => t.id)).toContain('dark');
-      expect(themes.map(t => t.id)).toContain('light');
+      expect(themes.map(t => t.id)).toContain('muximux');
+      expect(themes.map(t => t.id)).toContain('muximux-light');
     });
 
     it('includes custom themes when added', () => {
@@ -167,35 +167,35 @@ describe('themeStore', () => {
   });
 
   describe('resolvedTheme derived store', () => {
-    it('resolves to dark when variantMode is dark and family is default', () => {
+    it('resolves to muximux when variantMode is dark and family is default', () => {
       selectedFamily.set('default');
       variantMode.set('dark');
-      expect(get(resolvedTheme)).toBe('dark');
+      expect(get(resolvedTheme)).toBe('muximux');
     });
 
-    it('resolves to light when variantMode is light and family is default', () => {
+    it('resolves to muximux-light when variantMode is light and family is default', () => {
       selectedFamily.set('default');
       variantMode.set('light');
-      expect(get(resolvedTheme)).toBe('light');
+      expect(get(resolvedTheme)).toBe('muximux-light');
     });
 
     it('resolves based on systemTheme when variantMode is system', () => {
       selectedFamily.set('default');
       variantMode.set('system');
       systemTheme.set('dark');
-      expect(get(resolvedTheme)).toBe('dark');
+      expect(get(resolvedTheme)).toBe('muximux');
 
       systemTheme.set('light');
-      expect(get(resolvedTheme)).toBe('light');
+      expect(get(resolvedTheme)).toBe('muximux-light');
     });
 
-    it('falls back to dark/light when family not found', () => {
+    it('falls back to muximux/muximux-light when family not found', () => {
       selectedFamily.set('nonexistent');
       variantMode.set('dark');
-      expect(get(resolvedTheme)).toBe('dark');
+      expect(get(resolvedTheme)).toBe('muximux');
 
       variantMode.set('light');
-      expect(get(resolvedTheme)).toBe('light');
+      expect(get(resolvedTheme)).toBe('muximux-light');
     });
 
     it('resolves custom family theme', () => {
@@ -474,7 +474,7 @@ describe('themeStore', () => {
       // Give the subscription time to fire
       await new Promise(r => setTimeout(r, 50));
 
-      expect(document.documentElement.dataset.theme).toBe('dark');
+      expect(document.documentElement.dataset.theme).toBe('muximux');
     });
 
     it('sets up matchMedia listener', () => {
@@ -519,9 +519,9 @@ describe('themeStore', () => {
 
   describe('getThemeInfo', () => {
     it('returns theme info for known theme', () => {
-      const info = getThemeInfo('dark');
+      const info = getThemeInfo('muximux');
       expect(info).toBeDefined();
-      expect(info?.id).toBe('dark');
+      expect(info?.id).toBe('muximux');
       expect(info?.isDark).toBe(true);
     });
 

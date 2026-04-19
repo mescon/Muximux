@@ -1,0 +1,83 @@
+/**
+ * Muximux Dark Theme
+ *
+ * @theme-id: muximux
+ * @theme-name: Muximux Dark
+ * @theme-family: default
+ * @theme-family-name: Default
+ * @theme-variant: dark
+ * @theme-is-dark: true
+ * @theme-description: Muximux's built-in dark palette
+ * @theme-preview-bg: #09090b
+ * @theme-preview-surface: #111114
+ * @theme-preview-accent: #2dd4bf
+ * @theme-preview-text: #fafafa
+ *
+ * This file mirrors the [data-theme="muximux"] block in web/src/app.css so
+ * the palette is discoverable as /themes/dark.css, both for embedded
+ * apps that want to fetch it and for the /api/appearance backend
+ * response. Keep it in sync with app.css when changing the default
+ * palette -- the inline rules in app.css are still the canonical
+ * source applied to the Muximux UI itself.
+ */
+
+[data-theme="muximux"] {
+  color-scheme: dark;
+
+  /* Backgrounds - layered depth */
+  --bg-base: #09090b;
+  --bg-surface: #111114;
+  --bg-elevated: #18181c;
+  --bg-overlay: #1f1f24;
+  --bg-hover: #27272d;
+  --bg-active: #2f2f36;
+
+  /* Glass surfaces */
+  --glass-bg: rgba(17, 17, 20, 0.8);
+  --glass-border: rgba(255, 255, 255, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.04);
+
+  /* Text hierarchy */
+  --text-primary: #fafafa;
+  --text-secondary: #a1a1aa;
+  --text-muted: #848490;
+  --text-disabled: #52525b;
+
+  /* Borders */
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --border-focus: var(--accent-primary);
+
+  /* Accent colors - sophisticated teal */
+  --accent-primary: #2dd4bf;
+  --accent-secondary: #14b8a6;
+  --accent-muted: rgba(45, 212, 191, 0.2);
+  --accent-subtle: rgba(45, 212, 191, 0.1);
+  --accent-on-primary: #fff;
+
+  /* Brand palette (for app-specific elements) */
+  --color-brand-50: #f0fdfa;
+  --color-brand-100: #ccfbf1;
+  --color-brand-200: #99f6e4;
+  --color-brand-300: #5eead4;
+  --color-brand-400: #2dd4bf;
+  --color-brand-500: #14b8a6;
+  --color-brand-600: #0d9488;
+  --color-brand-700: #0f766e;
+  --color-brand-800: #115e59;
+  --color-brand-900: #134e4a;
+  --color-brand-950: #042f2e;
+
+  /* Status colors */
+  --status-success: #22c55e;
+  --status-warning: #f59e0b;
+  --status-error: #ef4444;
+  --status-info: #3b82f6;
+
+  /* Shadows for dark mode */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+  --shadow-glow: 0 0 20px rgba(45, 212, 191, 0.15);
+}

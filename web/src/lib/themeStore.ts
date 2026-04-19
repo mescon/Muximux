@@ -45,11 +45,14 @@ export interface ThemeFamily {
   lightTheme?: ThemeInfo;
 }
 
-// Built-in theme definitions (CSS-only, defined in app.css)
+// Built-in theme definitions. The rules live inline in app.css and are
+// also mirrored as /themes/muximux.css and /themes/muximux-light.css so
+// they're discoverable on the same code path as every other theme
+// (third-party themes like nord or catppuccin).
 export const builtinThemes: ThemeInfo[] = [
   {
-    id: 'dark',
-    name: 'Dark',
+    id: 'muximux',
+    name: 'Muximux Dark',
     description: 'Deep charcoals with teal accents',
     isBuiltin: true,
     isDark: true,
@@ -64,8 +67,8 @@ export const builtinThemes: ThemeInfo[] = [
     }
   },
   {
-    id: 'light',
-    name: 'Light',
+    id: 'muximux-light',
+    name: 'Muximux Light',
     description: 'Clean and bright with subtle shadows',
     isBuiltin: true,
     isDark: false,
@@ -170,8 +173,8 @@ export const resolvedTheme = derived(
       if (fallback) return fallback.id;
     }
 
-    // Ultimate fallback: built-in dark/light
-    return wantDark ? 'dark' : 'light';
+    // Ultimate fallback: built-in Muximux palette
+    return wantDark ? 'muximux' : 'muximux-light';
   }
 );
 
@@ -215,8 +218,11 @@ async function applyTheme(theme: string) {
   root.dataset.theme = theme;
   debug('theme', 'applied', theme);
 
-  // Maintain .dark class for Tailwind compatibility
-  if (themeInfo?.isDark ?? theme === 'dark') {
+  // Maintain .dark class for Tailwind compatibility. themeInfo is the
+  // authoritative source; the id fallback only matters if an unknown
+  // theme is ever applied, in which case we assume dark (since
+  // Muximux's default-when-nothing-is-set is dark).
+  if (themeInfo?.isDark ?? true) {
     root.classList.add('dark');
   } else {
     root.classList.remove('dark');

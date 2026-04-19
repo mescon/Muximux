@@ -169,7 +169,7 @@ input[type="color"]::-moz-color-swatch {
    Deep charcoals with blue undertones, refined and focused
    ───────────────────────────────────────────────────────────────────────────── */
 :root,
-[data-theme="dark"] {
+[data-theme="muximux"] {
   color-scheme: dark;
 
   /* Backgrounds - layered depth */
@@ -234,7 +234,7 @@ input[type="color"]::-moz-color-swatch {
    LIGHT THEME
    Warm off-whites with subtle shadows, clean and bright
    ───────────────────────────────────────────────────────────────────────────── */
-[data-theme="light"] {
+[data-theme="muximux-light"] {
   color-scheme: light;
 
   /* Backgrounds */
