@@ -176,6 +176,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	themesDir := filepath.Join(dataDir, "themes")
 	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler, themesDir)
+	registerAppearanceRoute(mux, s, distFS, themesDir)
 	s.iconCacheDirs, s.iconCacheTTL = registerIconRoutes(mux, cfg, requireAdmin, dataDir)
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
@@ -606,6 +607,222 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 		// Fall through to static handler (web/dist/themes/ or embedded)
 		(*staticHandler).ServeHTTP(w, r)
 	})
+}
+
+// appearanceResponse is the payload of GET /api/appearance. Embedded
+// apps (issue #321) fetch this once on boot to learn Muximux's current
+// language and theme; the `colors` map contains the subset of CSS
+// custom properties that are stable enough to rely on.
+type appearanceResponse struct {
+	Language    string            `json:"language"`
+	Theme       appearanceTheme   `json:"theme"`
+	Colors      map[string]string `json:"colors,omitempty"`
+	ThemeCSSURL string            `json:"theme_css_url,omitempty"`
+}
+
+type appearanceTheme struct {
+	Family  string `json:"family"`
+	Variant string `json:"variant"`
+	ID      string `json:"id"`
+	IsDark  bool   `json:"is_dark"`
+}
+
+// publicAppearanceVars is the allowlist of CSS custom properties that
+// embedded apps can rely on. Keeping this narrow means:
+//   - the API response stays small,
+//   - apps know exactly which names to code against,
+//   - internal-only variables can be renamed without breaking apps.
+var publicAppearanceVars = []string{
+	"--bg-base",
+	"--bg-surface",
+	"--bg-elevated",
+	"--bg-overlay",
+	"--bg-hover",
+	"--text-primary",
+	"--text-secondary",
+	"--text-muted",
+	"--border-subtle",
+	"--border-default",
+	"--border-strong",
+	"--accent-primary",
+	"--accent-secondary",
+	"--color-brand-500",
+}
+
+// registerAppearanceRoute wires GET /api/appearance. The handler reads
+// the current theme/language from the live config, resolves the theme
+// id, and parses the matching CSS file for the publicAppearanceVars.
+// No polling, no push -- apps call this once on boot.
+func registerAppearanceRoute(mux *http.ServeMux, s *Server, distFS fs.FS, themesDir string) {
+	mux.HandleFunc("/api/appearance", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			return
+		}
+
+		s.configMu.RLock()
+		language := s.config.Server.Language
+		family := s.config.Theme.Family
+		variant := s.config.Theme.Variant
+		s.configMu.RUnlock()
+
+		if language == "" {
+			language = "en"
+		}
+		if family == "" {
+			family = "default"
+		}
+		if variant == "" {
+			variant = "dark"
+		}
+
+		themeID, isDark := resolveThemeID(family, variant)
+		cssBytes := readThemeCSS(themeID, themesDir, distFS)
+		colors := extractCSSVars(cssBytes, themeID, publicAppearanceVars)
+
+		cssURL := ""
+		if len(cssBytes) > 0 {
+			cssURL = "/themes/" + themeID + ".css"
+		}
+
+		writeJSON(w, http.StatusOK, appearanceResponse{
+			Language: language,
+			Theme: appearanceTheme{
+				Family:  family,
+				Variant: variant,
+				ID:      themeID,
+				IsDark:  isDark,
+			},
+			Colors:      colors,
+			ThemeCSSURL: cssURL,
+		})
+	})
+}
+
+// resolveThemeID maps (family, variant) to the `data-theme` attribute
+// value the frontend would apply, and reports whether the chosen
+// variant is dark. "system" falls back to dark because the server
+// cannot know the client's OS preference; apps that care can use
+// prefers-color-scheme client-side. The built-in "default" family is
+// branded as "muximux" in the data-theme id so it follows the same
+// `<family>` / `<family>-light` convention as third-party themes.
+func resolveThemeID(family, variant string) (string, bool) {
+	if family == "" || family == "default" {
+		family = "muximux"
+	}
+	if variant == "light" {
+		return family + "-light", false
+	}
+	return family, true
+}
+
+// readThemeCSS looks for <themeID>.css first in the operator's
+// themesDir, then falls back to the bundled themes/ under distFS.
+// Returns an empty slice when no CSS is found (typical for the
+// default dark/light, which live inline in app.css).
+func readThemeCSS(themeID, themesDir string, distFS fs.FS) []byte {
+	if data, err := os.ReadFile(filepath.Join(themesDir, themeID+".css")); err == nil {
+		return data
+	}
+	if distFS != nil {
+		if data, err := fs.ReadFile(distFS, "themes/"+themeID+".css"); err == nil {
+			return data
+		}
+	}
+	return nil
+}
+
+// cssVarPattern matches `  --name: value;` inside a CSS block. Kept
+// permissive on value content (rgb/hsl/var/... are fine) but stops at
+// the first `;` on the same line, which matches Muximux's authored
+// theme files.
+var cssVarPattern = regexp.MustCompile(`(?m)^\s*(--[a-z0-9-]+)\s*:\s*([^;\n]+);`)
+
+// extractCSSVars parses the given CSS bytes and returns the values for
+// names in `allowed` that appear inside a `[data-theme="<id>"] { ... }`
+// block, falling back to any `:root { ... }` block. Values are trimmed
+// of surrounding whitespace; variables not present in `allowed` are
+// ignored so the response stays bounded.
+func extractCSSVars(css []byte, themeID string, allowed []string) map[string]string {
+	if len(css) == 0 {
+		return nil
+	}
+	allowSet := make(map[string]bool, len(allowed))
+	for _, n := range allowed {
+		allowSet[n] = true
+	}
+	out := map[string]string{}
+
+	for _, block := range findCSSBlocks(css, themeID) {
+		for _, m := range cssVarPattern.FindAllStringSubmatch(block, -1) {
+			name := m[1]
+			if !allowSet[name] {
+				continue
+			}
+			out[name] = strings.TrimSpace(m[2])
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
+}
+
+// findCSSBlocks returns the contents of `:root { ... }` and
+// `[data-theme="<id>"] { ... }` blocks inside the given CSS bytes, in
+// that order. Callers that merge values later win, which mirrors how
+// a real browser applies the more-specific `[data-theme="..."]`
+// selector on top of `:root`. Uses a simple brace counter rather than
+// a full parser; fine for Muximux's CSS shape.
+func findCSSBlocks(css []byte, themeID string) []string {
+	src := string(css)
+	var out []string
+	for _, selector := range []string{`:root`, `[data-theme="` + themeID + `"]`} {
+		idx := 0
+		for {
+			rel := strings.Index(src[idx:], selector)
+			if rel < 0 {
+				break
+			}
+			start := idx + rel + len(selector)
+			// Walk to the next `{`.
+			for start < len(src) && src[start] != '{' {
+				if src[start] != ' ' && src[start] != '\t' && src[start] != ',' && src[start] != '\n' {
+					// Selector list or something else; skip.
+					start = -1
+					break
+				}
+				start++
+			}
+			if start < 0 || start >= len(src) {
+				idx = idx + rel + len(selector)
+				continue
+			}
+			// start points at `{`. Find the matching `}`.
+			depth := 0
+			end := start
+			for end < len(src) {
+				switch src[end] {
+				case '{':
+					depth++
+				case '}':
+					depth--
+					if depth == 0 {
+						goto done
+					}
+				}
+				end++
+			}
+		done:
+			if end < len(src) && depth == 0 {
+				out = append(out, src[start+1:end])
+				idx = end + 1
+			} else {
+				break
+			}
+		}
+	}
+	return out
 }
 
 // registerIconRoutes registers icon API and serving routes.

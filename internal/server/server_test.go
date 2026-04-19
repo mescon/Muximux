@@ -2466,3 +2466,68 @@ func TestHandleSetup_None_Success(t *testing.T) {
 		t.Errorf("expected none, got %s", s.config.Auth.Method)
 	}
 }
+
+// TestAppearanceResponse_ResolveAndParse covers issue #321's
+// /api/appearance endpoint: the handler resolves (family, variant)
+// to the theme_id the frontend would actually apply, reads the
+// matching CSS file, and extracts the allowlisted custom properties.
+func TestAppearanceResponse_ResolveAndParse(t *testing.T) {
+	t.Run("resolveThemeID", func(t *testing.T) {
+		cases := []struct {
+			family, variant string
+			wantID          string
+			wantDark        bool
+		}{
+			{"default", "dark", "muximux", true},
+			{"default", "light", "muximux-light", false},
+			{"default", "system", "muximux", true}, // server-side default
+			{"", "dark", "muximux", true},          // empty family treated as default
+			{"catppuccin", "dark", "catppuccin", true},
+			{"catppuccin", "light", "catppuccin-light", false},
+		}
+		for _, c := range cases {
+			id, isDark := resolveThemeID(c.family, c.variant)
+			if id != c.wantID || isDark != c.wantDark {
+				t.Errorf("resolveThemeID(%q,%q) = (%q,%v), want (%q,%v)",
+					c.family, c.variant, id, isDark, c.wantID, c.wantDark)
+			}
+		}
+	})
+
+	t.Run("extractCSSVars", func(t *testing.T) {
+		css := []byte(`
+			[data-theme="test"] {
+				--bg-base: #111;
+				--bg-surface: rgb(0,0,0);
+				--not-allowed: #fff;
+				--text-primary: #eee;
+			}
+			:root {
+				--bg-base: #000;
+				--accent-primary: #0f0;
+			}
+		`)
+		got := extractCSSVars(css, "test", []string{"--bg-base", "--bg-surface", "--text-primary", "--accent-primary"})
+		want := map[string]string{
+			"--bg-base":        "#111", // [data-theme="test"] overrides :root, matching browser cascade
+			"--bg-surface":     "rgb(0,0,0)",
+			"--text-primary":   "#eee",
+			"--accent-primary": "#0f0", // only present in :root
+		}
+		if len(got) != len(want) {
+			t.Fatalf("got %v vars, want %v (%v vs %v)", len(got), len(want), got, want)
+		}
+		for k, v := range want {
+			if got[k] != v {
+				t.Errorf("%s = %q, want %q", k, got[k], v)
+			}
+		}
+	})
+
+	t.Run("missing theme yields empty colors", func(t *testing.T) {
+		got := extractCSSVars(nil, "nonexistent", []string{"--bg-base"})
+		if got != nil {
+			t.Errorf("expected nil for empty input, got %v", got)
+		}
+	})
+}
