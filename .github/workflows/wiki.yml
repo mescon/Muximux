@@ -42,8 +42,11 @@ jobs:
             mv wiki-checkout/README.md wiki-checkout/Home.md
           fi
 
-          # Fix inter-page links: remove .md extension for wiki compatibility
-          sed -i 's/(\([a-z-]*\)\.md)/(\1)/g' wiki-checkout/*.md
+          # Fix inter-page links: remove .md extension for wiki compatibility.
+          # Covers both plain (page.md) and anchored (page.md#section) links;
+          # the capture group is optional so it matches either form and drops
+          # only the .md, keeping the #anchor intact.
+          sed -i 's/(\([a-z-]*\)\.md\(#[^)]*\)\{0,1\})/(\1\2)/g' wiki-checkout/*.md
 
           cd wiki-checkout
           git add -A
