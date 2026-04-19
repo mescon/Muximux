@@ -2,6 +2,83 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.29] - 2026-04-19
+
+A security-heavy release alongside one small feature for app developers.
+
+### The built-in theme is now called "Muximux"
+
+Every third-party theme follows the pattern `<family>` (dark) and `<family>-light`: `nord` and `nord-light`, `catppuccin` and `catppuccin-light`. Muximux's own built-in palette was the odd one out, shipping as plain `dark` and `light`. This release renames it to `muximux` and `muximux-light` so the built-ins sit next to the rest instead of special-cased.
+
+Nothing changes in your `config.yaml` -- the theme family is still `default`. In the Settings theme picker the card reads "Muximux" and its two variants read "Muximux Dark" / "Muximux Light" (they used to read "Dark" / "Light"). The "Currently using" banner updates to match.
+
+The one thing worth watching: if you've ever hand-written a CSS selector somewhere that targets `[data-theme="dark"]` specifically (e.g. in a custom stylesheet you inject into a proxied app), that selector will no longer match. Update it to `[data-theme="muximux"]` or switch to the semantic CSS variables (`--bg-base`, `--text-primary`, etc.) which are stable.
+
+### Embedded apps can sync their appearance with Muximux
+
+Addresses #321. If you've written a self-hosted app that you embed in Muximux, it can now read Muximux's current language, theme, and theme colors from one endpoint so it can style itself consistently without polling or reverse-engineering the CSS.
+
+```
+GET /api/appearance
+```
+
+Response is a JSON snapshot with the active language, the resolved theme id, a curated palette of CSS custom-property values (`--bg-base`, `--text-primary`, etc.), and a URL pointing at the full theme CSS for apps that want every variable.
+
+Proxied apps (`proxy: true`) fetch this with no authentication work at all -- they share Muximux's origin, so the session cookie rides along. External integrations (scripts, cross-origin dashboards) authenticate with the Muximux API key via the `X-Api-Key` header. See the [Appearance API wiki page](https://github.com/mescon/Muximux/wiki/apps#appearance-api) for examples and the full contract.
+
+There is intentionally no push / event channel: most apps just fetch once on boot and done. If you want your app to re-theme when the operator changes theme mid-session, re-fetch on `visibilitychange` -- a cheap way to catch "user changed theme, tabbed back to the app".
+
+### First-run setup is no longer a race against attackers
+
+If you were on the same network as a fresh Muximux instance before today, you could beat the legitimate operator through the onboarding wizard and seed admin credentials you controlled. Same story for the "Restore from Backup" flow on the welcome screen. Both endpoints were gated only by "no setup has happened yet", which isn't enough.
+
+v3.0.29 generates a one-time **setup token** on first boot. Both endpoints now require it. Find the token two places:
+
+- In the server's log / stdout -- `docker logs muximux` on Docker, the systemd journal on bare metal. Look for `Generated new setup token`.
+- On disk at `<dataDir>/.setup-token` with mode 0600 (for example `/app/data/.setup-token` in a default Docker deployment).
+
+Paste it into the wizard's welcome screen before clicking "Let's Get Started" or "Restore from Backup". Once setup completes the token is destroyed and the endpoints reject every subsequent request.
+
+This only affects fresh installs. If you're upgrading and already have an admin, you won't notice any change.
+
+### Pull-to-refresh no longer lies
+
+On mobile, pulling down on an embedded app to refresh it used to clear the spinner after exactly one second regardless of whether the page had actually loaded. Fast loads felt sluggish; slow or broken apps looked like they'd succeeded when they hadn't. The spinner now waits for the iframe's real `load` event, with a 10-second safety cap so a hung backend doesn't leave the overlay stuck.
+
+### Security: a thorough audit, top to bottom
+
+Between v3.0.28 and this release, Muximux got a full security review and dozens of findings landed as fixes. The headlines, in plain terms:
+
+- **Sessions are safer.** Proxied backends no longer receive Muximux's session cookie along with your requests -- it's stripped before the forward. Sessions also now have an absolute 7-day lifetime ceiling, so an active browser can't roll a single session forever.
+- **Admin and non-admin see different things.** The real-time WebSocket that ships live updates to the dashboard now gates admin-only events (config changes, full logs) behind the subscriber's role. A regular user's browser no longer receives admin-scope state. Similarly, embedded URL credentials (`https://user:token@host/`) and per-app Authorization headers are stripped from the config response for non-admin users.
+- **Logins are harder to probe.** Login rate limiting now defends against IP spoofing in `X-Forwarded-For`, the login attempt map is bounded to prevent memory DoS, and the login path takes the same time for a valid username with a wrong password and an invalid username -- so an attacker can't enumerate users by timing.
+- **OIDC is stricter.** The ID token is now required on every sign-in, PKCE is on by default, and the post-login redirect sanitizer rejects a wider set of open-redirect tricks.
+- **SVG icons can no longer run scripts.** A malicious SVG uploaded by an admin used to execute when opened directly in a new tab. It now downloads as an attachment with a locked-down CSP.
+- **The proxy refuses junk input.** Header values with CR/LF can no longer smuggle extra requests into the backend; Content-Encoding: gzip responses are size-capped so an upstream bomb can't OOM Muximux; dial timeouts now apply to WebSocket connections too.
+- **Setup and config changes are now transactional.** If Muximux can't write to disk, it doesn't half-apply the change in memory either.
+- **Tighter HTTP headers.** `Strict-Transport-Security` is now sent on TLS connections (one-year max-age). The Content Security Policy gained `frame-ancestors 'self'` and `form-action 'self'` and dropped a wildcard WebSocket directive that let any XSS exfiltrate to an attacker-controlled WebSocket.
+
+See [docs/wiki/security.md](https://github.com/mescon/Muximux/wiki/security) for the complete posture and architectural trade-offs.
+
+### Changed
+- Settings > Security > API Key is unchanged, but the documentation around what the API key actually authenticates has been rewritten end-to-end: it's only useful on allowlisted paths (`/api/appearance` out of the box, plus any per-app `auth_bypass` rules the operator configures). Every `/api/*` endpoint that mutates state (config, apps, themes, users) still requires a session cookie. See the [Authentication wiki page](https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication).
+- WebSocket upgrades now require a matching `Origin` header. Browsers always send one; a non-browser tool with a stolen session cookie can no longer skip same-origin checks by leaving the header off.
+- Forward-auth admin-group matching is now case-insensitive, matching OIDC. "Admins", "ADMIN", and "administrators" all promote to admin regardless of the casing your identity provider sends.
+- Bcrypt target cost is now 12 (was 10). Existing accounts silently re-hash on their next login.
+- The theme picker's family label reads "Muximux" (was "Default").
+- Forward-auth and OIDC providers now shut down cleanly when Muximux restarts -- no more goroutine leaks across provider reloads.
+- Built-in `dark` / `light` theme ids renamed to `muximux` / `muximux-light`. `config.theme.family` stays `default` so existing configs load unchanged.
+
+### Fixed
+- Pull-to-refresh on mobile now clears its spinner when the iframe actually finishes loading, not after a hard-coded 1 s timeout.
+- Frontend no longer enters an "Unexpected token '<'" error loop when the backend is behind a proxy that returns an HTML 5xx page during transient failures.
+- Muximux no longer shows raw reverse-proxy 502 HTML inside toast messages. JSON `error` / `message` fields from the server are surfaced verbatim; plaintext errors are kept short and HTML is dropped.
+- `checkHealth` distinguishes a real HTTP failure from a network-level fetch error (CORS, aborted request), so diagnostic logs are actually useful.
+- Theme files are written atomically. A crash mid-write no longer leaves a truncated `.css` that `ListThemes` surfaces as a broken entry.
+- Setup and restore are transactional: when disk writes fail, the in-memory config rolls back instead of silently diverging.
+- Admin cannot accidentally demote the last remaining admin, closing the "permanent lockout" foot-gun that matched the existing guard on user deletion.
+- Config imports reject unknown fields and validate durations / auth methods / `open_mode` / `min_role` up front, rather than loading an invalid backup and failing opaquely later.
+
 ## [3.0.28] - 2026-04-18
 
 Your embedded apps can finally do the things they couldn't before.

@@ -75,3 +75,6 @@ go.work.sum
 
 # Plans (may contain local paths)
 docs/plans/
+
+# Local-only analysis scratch, not part of the product
+findings.md
