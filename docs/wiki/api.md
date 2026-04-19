@@ -22,7 +22,7 @@ When authentication is enabled, most endpoints require a valid session cookie or
 | `/api/auth/users/{username}` | PUT | Admin | Update user role/email/display name |
 | `/api/auth/users/{username}` | DELETE | Admin | Delete a user |
 | `/api/auth/method` | PUT | Admin | Switch authentication method |
-| `/api/auth/setup` | POST | No | Initial setup (onboarding wizard) |
+| `/api/auth/setup` | POST | No (but requires `X-Setup-Token`) | Initial setup (onboarding wizard). See [Authentication > First-Run Setup](authentication.md#first-run-setup) for the token. |
 | `/api/auth/oidc/login` | GET | No | Redirect to OIDC provider |
 | `/api/auth/oidc/callback` | GET | No | OIDC callback handler |
 
@@ -162,6 +162,8 @@ Valid methods: `builtin`, `forward_auth`, `none`. Switching to `builtin` require
 | `/api/config` | PUT | Admin | Update full configuration |
 | `/api/config/export` | GET | Admin | Download config as YAML (sensitive data stripped) |
 | `/api/config/import` | POST | Admin | Parse and validate uploaded YAML, returns preview |
+| `/api/config/restore` | POST | Pre-setup only (requires `X-Setup-Token`) | Replace the live config with an uploaded YAML during first-run onboarding |
+| `/api/appearance` | GET | Any authenticated user, or any caller with `X-Api-Key` | Read-only snapshot of language + theme + colors for embedded apps |
 
 The PUT endpoint accepts the full configuration object. Changes to most settings take effect immediately. Server-level settings (listen address, TLS, gateway) require a restart. Auth method changes can be made live via `PUT /api/auth/method`.
 
@@ -179,6 +181,22 @@ Content-Type: application/x-yaml
 (YAML body, max 1 MB)
 ```
 Validates the YAML and returns the parsed config as JSON for preview. The frontend can then apply it via `PUT /api/config`. Validation requires at least one app with a name and URL.
+
+**Restore config (first-run only):**
+```
+POST /api/config/restore
+Content-Type: application/x-yaml
+X-Setup-Token: <token from server stdout or data/.setup-token>
+
+(YAML body, max 1 MB)
+```
+Replaces the live config during the initial onboarding flow. Only accepted while the instance is in the pre-setup state; subsequent calls return `409 Conflict`. Missing or invalid `X-Setup-Token` returns `401`. See [Authentication > First-Run Setup](authentication.md#first-run-setup) for how to find the token.
+
+**Appearance (read-only):**
+```
+GET /api/appearance
+```
+Returns a JSON snapshot with `language`, `theme` (`family`, `variant`, `id`, `is_dark`), `colors` (a curated subset of CSS custom-property values), and `theme_css_url`. Embedded apps call this once on boot to sync their own styling with Muximux. See [Apps > Appearance API](apps.md#appearance-api) for the full contract and usage examples.
 
 ---
 
