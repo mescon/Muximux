@@ -35,15 +35,15 @@ auth:
   method: builtin
   session_max_age: 24h        # How long sessions last (default: 24h)
   secure_cookies: true         # Set true if serving over HTTPS
-  api_key_hash: "$2a$10$..."    # Optional: bcrypt hash of API key (see below)
+  api_key_hash: "$2a$12$..."    # Optional: bcrypt hash of API key (see below)
   users:
     - username: admin
-      password_hash: "$2a$10$..."  # bcrypt hash
+      password_hash: "$2a$12$..."  # bcrypt hash
       role: admin
       email: admin@example.com     # Optional
       display_name: "Admin User"   # Optional
     - username: viewer
-      password_hash: "$2a$10$..."
+      password_hash: "$2a$12$..."
       role: user
 ```
 
@@ -67,7 +67,7 @@ Alternatively, use any bcrypt tool:
 
 ```bash
 # Using htpasswd (from apache2-utils)
-htpasswd -nbBC 10 "" 'my-secret-password' | cut -d: -f2
+htpasswd -nbBC 12 "" 'my-secret-password' | cut -d: -f2
 
 # Using Python
 python3 -c "import bcrypt; print(bcrypt.hashpw(b'my-secret-password', bcrypt.gensalt()).decode())"
@@ -297,7 +297,7 @@ Two ways:
 muximux hash 'my-api-key'
 
 # Using htpasswd
-htpasswd -nbBC 10 "" 'my-api-key' | cut -d: -f2
+htpasswd -nbBC 12 "" 'my-api-key' | cut -d: -f2
 ```
 
 Then add the hash to your config:
@@ -305,7 +305,7 @@ Then add the hash to your config:
 ```yaml
 auth:
   method: builtin
-  api_key_hash: "$2a$10$..."
+  api_key_hash: "$2a$12$..."
 ```
 
 Restart Muximux (or wait for the UI hot-reload) and the key is live.
@@ -340,6 +340,17 @@ See [Apps & Groups > Open Modes](apps.md#open-modes) for more details on the thr
 When Muximux starts with no configuration, the onboarding wizard includes a **Security** step that lets you configure authentication before anything else. You can choose between password authentication, forward auth, or no authentication. This ensures the dashboard is secured from the first launch.
 
 If authentication is already configured (or you're running behind an auth proxy), the security step is skipped and the wizard proceeds directly to app setup.
+
+### Setup Token
+
+To stop an attacker on the same network from racing the legitimate operator through the onboarding wizard, Muximux generates a one-time **setup token** on first boot. The wizard (and the restore-from-backup flow) refuse to proceed without it. The token is only required during initial setup; once setup completes it is destroyed.
+
+Find the token one of two ways:
+
+- **Server log / stdout.** At first boot, Muximux prints a log line tagged with the token, for example via `docker logs muximux` or the systemd journal. Look for `Generated new setup token` or `Reusing existing setup token` (the latter appears on restarts that happen before setup is complete).
+- **Filesystem.** The token is also written to `<dataDir>/.setup-token` with mode `0600`. On a default Docker deployment that's `/app/data/.setup-token` inside the container.
+
+Paste the token into the **Setup token** field on the onboarding wizard's welcome screen. The wizard sends it as an `X-Setup-Token` HTTP header on the underlying setup and restore requests. Once setup is complete the token file is removed and the header is no longer accepted -- the setup endpoints reject every request after that point.
 
 [![Onboarding security setup](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)](https://raw.githubusercontent.com/mescon/Muximux/main/docs/screenshots/02-security.png)
 

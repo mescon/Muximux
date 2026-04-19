@@ -42,7 +42,7 @@ Adding a new language requires no Go code, no Svelte changes, and no CSS changes
 
 ### Prerequisites
 
-- Node.js 18+
+- Node.js 20+ (matches the version required in [Installation > Building from Source](installation.md))
 - A clone of the Muximux repository
 
 ### Step-by-step

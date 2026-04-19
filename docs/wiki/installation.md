@@ -149,7 +149,7 @@ If this file does not exist when Muximux starts, defaults are used and the onboa
 
 ### themes/
 
-Custom CSS theme files created through the Settings UI or placed here manually. Built-in themes (dark and light) are bundled into the binary and do not appear in this directory.
+Custom CSS theme files created through the Settings UI or placed here manually. The built-in Muximux palette (theme ids `muximux` and `muximux-light`) and the bundled third-party themes (Catppuccin, Nord, Dracula, etc.) are compiled into the binary and do not appear in this directory.
 
 ### icons/dashboard/
 

@@ -159,9 +159,7 @@ filebrowser.example.com {
 }
 ```
 
-Generate a bcrypt hash with: `caddy hash-password`
-
-> **Note:** Muximux ships with Caddy embedded. You can use the Muximux binary itself: `muximux caddy hash-password` (if the Caddy subcommand is exposed), or generate the hash with any bcrypt tool (`htpasswd -nbBC 14 "" password | cut -d: -f2`).
+Generate a bcrypt hash with Caddy's own tool (`caddy hash-password`) or any bcrypt utility -- for example `htpasswd -nbBC 12 "" 'your-password' | cut -d: -f2`. Muximux's embedded Caddy is an internal runtime only and does not expose a CLI surface of its own.
 
 ---
 

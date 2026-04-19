@@ -248,7 +248,7 @@ Or, if you prefer to use a different UID, you can set it in your `docker-compose
 ```yaml
 services:
   muximux:
-    image: muximux
+    image: ghcr.io/mescon/muximux:latest
     user: "1000:1000"
     volumes:
       - ./data:/app/data

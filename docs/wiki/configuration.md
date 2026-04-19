@@ -240,5 +240,6 @@ The configuration can also be read and updated via the API:
 
 - `GET /api/config` -- Retrieve the current configuration (any authenticated user).
 - `PUT /api/config` -- Update the full configuration (admin role required).
+- `GET /api/appearance` -- Read-only snapshot of language, theme id, and theme colors, for embedded apps that want to sync their own appearance (see [Apps > Appearance API](apps.md#appearance-api)).
 
 See the [API Reference](api.md) for details.

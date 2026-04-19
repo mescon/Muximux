@@ -21,7 +21,7 @@ Many ASVS requirements (SOAP, GraphQL, LDAP, SMS/OTP, HSM, etc.) are not applica
 
 ### Authentication (ASVS V2)
 
-- **Bcrypt password hashing** -- All user passwords are hashed with bcrypt (cost 10) before storage. Plaintext passwords never touch disk.
+- **Bcrypt password hashing** -- All user passwords are hashed with bcrypt (cost 12) before storage. Plaintext passwords never touch disk. Successful logins silently re-hash passwords stored below the current target cost, so older accounts migrate forward on their own.
 - **Bcrypt API key hashing** -- API keys are stored as bcrypt hashes in `config.yaml`. The original key cannot be recovered from the hash. Verification uses `bcrypt.CompareHashAndPassword`, which is constant-time and resistant to timing attacks.
 - **Rate limiting** -- Login endpoints are rate-limited to 5 attempts per minute per IP address to prevent brute-force attacks.
 - **OIDC ID token validation** -- When using OpenID Connect, Muximux validates the ID token's cryptographic signature (via JWKS), issuer, audience, expiry, and nonce. This prevents token forgery and replay attacks.
@@ -85,7 +85,8 @@ Every response from Muximux includes:
 | `X-Content-Type-Options` | `nosniff` | Prevents MIME-type sniffing |
 | `X-Frame-Options` | `SAMEORIGIN` | Prevents clickjacking of the Muximux UI |
 | `Referrer-Policy` | `strict-origin-when-cross-origin` | Limits referrer information leakage |
-| `Permissions-Policy` | `camera=(), microphone=(), geolocation=()` | Disables unnecessary browser APIs |
+| `Permissions-Policy` | `camera=*, microphone=*, geolocation=*, …` | Opens delegatable APIs at the document level so per-app iframe `allow` attributes can scope them. See [Architectural Trade-offs](#architectural-trade-offs). |
+| `Strict-Transport-Security` | `max-age=31536000` (on TLS only) | Pins the browser to HTTPS for a year once the site has been seen over TLS. Not sent on plain-HTTP requests. |
 
 ### Content Security Policy
 
@@ -95,8 +96,11 @@ script-src 'self';
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 font-src 'self' https://fonts.gstatic.com;
 img-src 'self' data: blob: https:;
-connect-src 'self' ws: wss:;
+connect-src 'self';
 frame-src *;
+frame-ancestors 'self';
+form-action 'self';
+manifest-src 'self' blob:;
 object-src 'none';
 base-uri 'self'
 ```
@@ -104,10 +108,12 @@ base-uri 'self'
 **Design decisions:**
 
 - **`frame-src *`** -- Muximux's core feature is embedding arbitrary web applications in iframes. Restricting frame sources would break the primary use case.
-- **`style-src 'unsafe-inline'`** -- Required for Svelte component scoped styles and CSS custom property theming. The risk is mitigated by the strict `script-src 'self'` policy, which prevents inline script execution.
+- **`frame-ancestors 'self'`** -- Modern clickjacking protection that replaces reliance on the deprecated `X-Frame-Options` alone. Muximux will only load inside its own origin.
+- **`form-action 'self'`** -- Blocks a form-hijack that would POST user submissions to an attacker origin.
+- **`connect-src 'self'`** -- Same-origin fetches and WebSocket (`ws://`/`wss://` on the same host) both fall under `'self'`; dropping the wildcard `ws: wss:` closed a stealth exfiltration lane for any injected script.
+- **`style-src 'unsafe-inline'`** -- Required for Svelte component scoped styles and CSS custom property theming. Risk mitigated by the strict `script-src 'self'` policy, which prevents inline script execution.
 - **`img-src https:`** -- Allows external icon URLs (url-type app icons, favicons). Icons from Dashboard Icons and Lucide are served through Muximux's backend API, so they're covered by `'self'`.
-- **`connect-src ws: wss:`** -- WebSocket connections for real-time log streaming.
-- **No HSTS** -- Muximux can run over plain HTTP in trusted networks. HSTS is left to the reverse proxy or TLS configuration.
+- **HSTS on TLS only** -- Muximux emits `Strict-Transport-Security: max-age=31536000` on requests that actually arrived over TLS. Plain-HTTP deployments in trusted networks are unaffected; TLS deployments get automatic HTTPS pinning without extra configuration.
 
 ### Proxied Response Isolation
 
