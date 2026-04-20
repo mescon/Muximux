@@ -3111,11 +3111,24 @@ func TestInterceptorScriptNotificationShim(t *testing.T) {
 		t.Error("interceptor Notification shim should postMessage with type muximux:notify")
 	}
 
-	// requestPermission must always resolve to granted. The real permission
-	// belongs to Muximux's top-level origin; the shim tells the embedded app
-	// to proceed and lets the bridge handle the actual Notification call.
-	if !strings.Contains(script, `_fakeN.permission="granted"`) {
-		t.Error("interceptor Notification shim should report permission as granted")
+	// Permission state comes from the top-level Muximux window via a
+	// postMessage handshake, not a hardcoded "granted". The shim starts
+	// at "default" and updates when the parent replies with
+	// muximux:notify-permission.
+	if !strings.Contains(script, `_fakePerm="default"`) {
+		t.Error("interceptor Notification shim should default permission to \"default\"")
+	}
+	if strings.Contains(script, `_fakeN.permission="granted"`) {
+		t.Error("interceptor Notification shim should not hardcode permission=granted anymore")
+	}
+	if !strings.Contains(script, `"muximux:notify-query-permission"`) {
+		t.Error("interceptor should query top-level permission on load")
+	}
+	if !strings.Contains(script, `"muximux:notify-request-permission"`) {
+		t.Error("interceptor requestPermission should forward to the top-level window")
+	}
+	if !strings.Contains(script, `"muximux:notify-permission"`) {
+		t.Error("interceptor should consume muximux:notify-permission replies from the parent")
 	}
 	if !strings.Contains(script, `requestPermission=function`) {
 		t.Error("interceptor Notification shim should stub requestPermission")

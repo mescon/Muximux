@@ -2,6 +2,18 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.30] - 2026-04-20
+
+Notification bridge fixes for mobile and HTTP-origin Muximux installs (follow-up to #320 test results).
+
+### Fixed
+- Notifications from embedded apps now work on Android Chrome, Samsung Browser, and mobile Firefox. The bridge renders through `ServiceWorkerRegistration.showNotification()` instead of the `Notification` constructor, which mobile browsers don't implement.
+- Notification clicks on mobile route back to the right app. The service worker posts the target app name to the active window client and the bridge calls `selectApp` on receipt.
+- The proxy-injected `Notification` shim no longer lies about permission. It starts at `"default"`, queries the parent via `postMessage`, and forwards `requestPermission()` to the top-level window so the real browser prompt appears at Muximux's origin. Apps that read `Notification.permission` before sending see the actual state instead of a hardcoded `"granted"`.
+
+### Changed
+- Apps wiki documents the HTTPS requirement and the iOS Safari PWA-install caveat for notifications.
+
 ## [3.0.29] - 2026-04-19
 
 A security-heavy release plus an appearance API for embedded apps.

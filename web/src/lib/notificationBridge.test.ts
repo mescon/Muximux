@@ -207,4 +207,146 @@ describe('notificationBridge', () => {
 
     expect(MockNotification.instances).toHaveLength(0);
   });
+
+  it('replies to a permission query with the current Notification.permission', async () => {
+    MockNotification.permission = 'granted';
+    const app = makeApp({ name: 'Q', url: 'https://q.local', allow_notifications: true });
+    apps = [app];
+    const iframe = addIframeForApp(app);
+    installBridge();
+
+    // The iframe's contentWindow is cross-realm in jsdom; stub postMessage on
+    // the iframe's window so we can observe the reply.
+    const postSpy = vi.fn();
+    Object.defineProperty(iframe.contentWindow!, 'postMessage', { value: postSpy, writable: true });
+
+    window.dispatchEvent(new MessageEvent('message', {
+      data: { type: 'muximux:notify-query-permission' },
+      origin: 'https://q.local',
+      source: iframe.contentWindow!,
+    }));
+    await new Promise(r => setTimeout(r, 0));
+
+    expect(postSpy).toHaveBeenCalledWith(
+      { type: 'muximux:notify-permission', permission: 'granted' },
+      'https://q.local',
+    );
+  });
+
+  it('replies to a permission request after calling requestPermission', async () => {
+    MockNotification.permission = 'default';
+    MockNotification.requestPermission.mockImplementation(async () => {
+      MockNotification.permission = 'granted';
+      return 'granted';
+    });
+    const app = makeApp({ name: 'R', url: 'https://r.local', allow_notifications: true });
+    apps = [app];
+    const iframe = addIframeForApp(app);
+    installBridge();
+
+    const postSpy = vi.fn();
+    Object.defineProperty(iframe.contentWindow!, 'postMessage', { value: postSpy, writable: true });
+
+    window.dispatchEvent(new MessageEvent('message', {
+      data: { type: 'muximux:notify-request-permission' },
+      origin: 'https://r.local',
+      source: iframe.contentWindow!,
+    }));
+    await new Promise(r => setTimeout(r, 0));
+
+    expect(MockNotification.requestPermission).toHaveBeenCalled();
+    expect(postSpy).toHaveBeenCalledWith(
+      { type: 'muximux:notify-permission', permission: 'granted' },
+      'https://r.local',
+    );
+  });
+
+  it('ignores permission queries from unregistered iframes', async () => {
+    installBridge();
+    const postSpy = vi.fn();
+    const fakeWindow = { postMessage: postSpy } as unknown as MessageEventSource;
+
+    window.dispatchEvent(new MessageEvent('message', {
+      data: { type: 'muximux:notify-query-permission' },
+      origin: 'https://attacker.example',
+      source: fakeWindow,
+    }));
+    await new Promise(r => setTimeout(r, 0));
+
+    expect(postSpy).not.toHaveBeenCalled();
+  });
+
+  it('prefers ServiceWorkerRegistration.showNotification when available', async () => {
+    const app = makeApp({ name: 'SWApp', url: 'https://sw.local', allow_notifications: true });
+    apps = [app];
+    const iframe = addIframeForApp(app);
+
+    const swShow = vi.fn(async () => undefined);
+    const fakeRegistration = { showNotification: swShow };
+    const fakeSW = {
+      ready: Promise.resolve(fakeRegistration),
+      addEventListener: vi.fn(),
+      removeEventListener: vi.fn(),
+    };
+    Object.defineProperty(globalThis.navigator, 'serviceWorker', {
+      value: fakeSW,
+      configurable: true,
+    });
+
+    installBridge();
+
+    window.dispatchEvent(new MessageEvent('message', {
+      data: { type: 'muximux:notify', title: 'Hi mobile', body: 'body' },
+      origin: 'https://sw.local',
+      source: iframe.contentWindow!,
+    }));
+    // Allow navigator.serviceWorker.ready to resolve.
+    await new Promise(r => setTimeout(r, 0));
+    await new Promise(r => setTimeout(r, 0));
+
+    expect(swShow).toHaveBeenCalledTimes(1);
+    expect(swShow.mock.calls[0][0]).toBe('Hi mobile');
+    expect(swShow.mock.calls[0][1]).toMatchObject({ body: 'body', data: { muximuxApp: 'SWApp' } });
+    // Constructor path should be skipped when the SW path succeeded.
+    expect(MockNotification.instances).toHaveLength(0);
+
+    // Cleanup - remove the fake SW so later tests get the default jsdom value.
+    Object.defineProperty(globalThis.navigator, 'serviceWorker', {
+      value: undefined,
+      configurable: true,
+    });
+  });
+
+  it('routes a service-worker notification click to onActivate', async () => {
+    const app = makeApp({ name: 'SWClick', url: 'https://swc.local', allow_notifications: true });
+    apps = [app];
+    addIframeForApp(app);
+
+    let swMessageHandler: ((e: MessageEvent) => void) | null = null;
+    const fakeSW = {
+      ready: Promise.resolve({ showNotification: vi.fn() }),
+      addEventListener: vi.fn((type: string, handler: (e: MessageEvent) => void) => {
+        if (type === 'message') swMessageHandler = handler;
+      }),
+      removeEventListener: vi.fn(),
+    };
+    Object.defineProperty(globalThis.navigator, 'serviceWorker', {
+      value: fakeSW,
+      configurable: true,
+    });
+
+    installBridge();
+
+    expect(swMessageHandler).not.toBeNull();
+    swMessageHandler!(new MessageEvent('message', {
+      data: { type: 'muximux:notification-click', appName: 'SWClick' },
+    }));
+
+    expect(onActivate).toHaveBeenCalledWith(app);
+
+    Object.defineProperty(globalThis.navigator, 'serviceWorker', {
+      value: undefined,
+      configurable: true,
+    });
+  });
 });

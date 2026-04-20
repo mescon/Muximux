@@ -12,6 +12,17 @@
  *     '*'
  *   );
  *
+ * Rendering:
+ *   Android Chrome, Samsung Browser, and mobile Firefox do not implement
+ *   the Notification() constructor at all - it throws TypeError. The
+ *   ServiceWorkerRegistration.showNotification() path is the only one
+ *   that works on mobile, so we prefer it when a service worker is
+ *   registered and fall back to the constructor only on platforms where
+ *   no SW is available (e.g. dev servers or no-SW browsers). The SW
+ *   (web/public/sw.js) has a notificationclick handler that posts back
+ *   to the active client, which is routed to onActivate via a
+ *   navigator.serviceWorker message listener.
+ *
  * Security:
  * - The app must have allow_notifications: true in its Muximux config
  * - The message sender's origin must match the app's configured URL origin
@@ -32,7 +43,7 @@ const MAX_TITLE = 120;
 const MAX_BODY = 400;
 const MAX_TAG = 80;
 
-interface BridgeMessage {
+interface NotifyMessage {
   type: 'muximux:notify';
   title?: unknown;
   body?: unknown;
@@ -40,9 +51,20 @@ interface BridgeMessage {
   url?: unknown;
 }
 
+type PermissionQuery = { type: 'muximux:notify-query-permission' };
+type PermissionRequest = { type: 'muximux:notify-request-permission' };
+type BridgeMessage = NotifyMessage | PermissionQuery | PermissionRequest;
+
+const BRIDGE_TYPES = new Set<string>([
+  'muximux:notify',
+  'muximux:notify-query-permission',
+  'muximux:notify-request-permission',
+]);
+
 function isBridgeMessage(data: unknown): data is BridgeMessage {
-  return !!data && typeof data === 'object'
-    && (data as { type?: unknown }).type === 'muximux:notify';
+  if (!data || typeof data !== 'object') return false;
+  const type = (data as { type?: unknown }).type;
+  return typeof type === 'string' && BRIDGE_TYPES.has(type);
 }
 
 function truncate(v: unknown, max: number): string {
@@ -72,6 +94,35 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
     } catch {
       return 'denied';
     }
+  }
+
+  // Prefer the service worker's showNotification() because mobile browsers
+  // (Android Chrome / Samsung / Firefox) do not implement the Notification
+  // constructor. The SW is registered once in App.svelte; here we wait on
+  // navigator.serviceWorker.ready so the first call after page load doesn't
+  // race the registration. The fallback constructor is kept for desktop
+  // browsers without a controlling SW (dev servers, WebView-based hosts).
+  async function showNotificationForApp(app: App, title: string, options: NotificationOptions): Promise<void> {
+    const dataCarrier = { ...(options.data as Record<string, unknown> | undefined), muximuxApp: app.name };
+    if ('serviceWorker' in navigator) {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        await reg.showNotification(title, { ...options, data: dataCarrier });
+        return;
+      } catch (err) {
+        // Fall through to the constructor path. The SW may not be
+        // controlling this page yet on the very first visit, or the
+        // platform may have rejected showNotification for a reason
+        // unrelated to the Notification constructor itself.
+        debug('notify', 'SW showNotification failed, falling back to constructor', err);
+      }
+    }
+    const notification = new Notification(title, { ...options, data: dataCarrier });
+    notification.onclick = () => {
+      window.focus();
+      opts.onActivate(app);
+      notification.close();
+    };
   }
 
   function findAppForOrigin(origin: string, source: MessageEventSource | null): App | undefined {
@@ -107,6 +158,19 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
     return undefined;
   }
 
+  function replyPermission(target: MessageEventSource | null, targetOrigin: string, permission: NotificationPermission): void {
+    if (!target) return;
+    try {
+      // Narrow to Window.postMessage (ports/SW have a different signature).
+      (target as Window).postMessage(
+        { type: 'muximux:notify-permission', permission },
+        targetOrigin,
+      );
+    } catch {
+      // Source may have gone away between dispatch and reply; nothing to do.
+    }
+  }
+
   async function handleMessage(event: MessageEvent) {
     if (!isBridgeMessage(event.data)) return;
 
@@ -126,6 +190,18 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
         app: app.name,
         hint: 'Toggle "Allow notifications" in the app\'s settings',
       });
+      return;
+    }
+
+    if (event.data.type === 'muximux:notify-query-permission') {
+      const perm = 'Notification' in window ? Notification.permission : 'denied';
+      replyPermission(event.source, event.origin, perm);
+      return;
+    }
+
+    if (event.data.type === 'muximux:notify-request-permission') {
+      const perm = await ensurePermission();
+      replyPermission(event.source, event.origin, perm);
       return;
     }
 
@@ -155,19 +231,23 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
     const icon = iconUrlFor(app, opts.baseUrl);
 
     try {
-      const notification = new Notification(title, {
-        body,
-        tag,
-        icon,
-      });
-      notification.onclick = () => {
-        window.focus();
-        opts.onActivate(app);
-        notification.close();
-      };
+      await showNotificationForApp(app, title, { body, tag, icon });
     } catch (err) {
       console.warn('[muximux:notify] failed to create notification', err);
     }
+  }
+
+  // Handle clicks routed back from the service worker. The SW cannot call
+  // onActivate directly because it runs in a different realm; it posts
+  // a message to the active window client and we re-dispatch it here.
+  function handleServiceWorkerMessage(event: MessageEvent): void {
+    const data = event.data;
+    if (!data || typeof data !== 'object') return;
+    if ((data as { type?: unknown }).type !== 'muximux:notification-click') return;
+    const appName = (data as { appName?: unknown }).appName;
+    if (typeof appName !== 'string') return;
+    const app = opts.getApps().find(a => a.name === appName);
+    if (app) opts.onActivate(app);
   }
 
   function iconUrlFor(app: App, baseUrl: string | undefined): string | undefined {
@@ -184,5 +264,10 @@ export function installNotificationBridge(opts: NotificationBridgeOptions): () =
   }
 
   window.addEventListener('message', handleMessage);
-  return () => window.removeEventListener('message', handleMessage);
+  const sw = 'serviceWorker' in navigator ? navigator.serviceWorker : null;
+  sw?.addEventListener('message', handleServiceWorkerMessage);
+  return () => {
+    window.removeEventListener('message', handleMessage);
+    sw?.removeEventListener('message', handleServiceWorkerMessage);
+  };
 }

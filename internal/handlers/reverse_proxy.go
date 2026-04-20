@@ -1081,18 +1081,35 @@ func (r *contentRewriter) interceptorScript() []byte {
 		// shows the notification under its top-level origin. Requires
 		// allow_notifications: true on the app config. Apps that use the
 		// standard new Notification(title, {body}) API work without code changes.
+		//
+		// Permission state is synced from the top-level Muximux window via a
+		// postMessage handshake rather than hardcoded to "granted". The shim
+		// starts at "default", queries the parent on load, and forwards any
+		// requestPermission() call to the parent so the real browser prompt
+		// shows up at Muximux's top-level origin.
 		`try{` +
+		`var _fakePerm="default";var _permResolvers=[];` +
 		`var _fakeN=function(t,o){` +
 		`o=o||{};` +
 		`window.parent.postMessage({type:"muximux:notify",title:t,body:o.body,tag:o.tag},"*");` +
 		`this.title=t;this.body=o.body||"";this.tag=o.tag||"";` +
 		`this.close=function(){};this.addEventListener=function(){};this.removeEventListener=function(){};` +
 		`};` +
-		`_fakeN.permission="granted";` +
-		`_fakeN.requestPermission=function(cb){var p=Promise.resolve("granted");` +
-		`if(typeof cb==="function")cb("granted");return p};` +
+		`Object.defineProperty(_fakeN,"permission",{get:function(){return _fakePerm},configurable:true});` +
+		`_fakeN.requestPermission=function(cb){` +
+		`var p=new Promise(function(r){_permResolvers.push(r)});` +
+		`window.parent.postMessage({type:"muximux:notify-request-permission"},"*");` +
+		`if(typeof cb==="function")p.then(cb);return p};` +
 		`_fakeN.maxActions=0;` +
-		`Object.defineProperty(window,"Notification",{value:_fakeN,writable:true,configurable:true})` +
+		`window.addEventListener("message",function(e){` +
+		`if(!e.data||e.data.type!=="muximux:notify-permission")return;` +
+		`if(e.source!==window.parent)return;` +
+		`var p=e.data.permission;` +
+		`if(p==="granted"||p==="denied"||p==="default"){` +
+		`_fakePerm=p;` +
+		`while(_permResolvers.length){var r=_permResolvers.shift();try{r(p)}catch(err){}}}});` +
+		`Object.defineProperty(window,"Notification",{value:_fakeN,writable:true,configurable:true});` +
+		`window.parent.postMessage({type:"muximux:notify-query-permission"},"*")` +
 		`}catch(e){}` +
 		// Namespace localStorage and sessionStorage so each proxied app gets
 		// isolated storage, preventing key collisions across apps sharing the

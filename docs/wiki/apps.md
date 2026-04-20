@@ -329,6 +329,8 @@ await Notification.requestPermission();
 
 Most existing apps use exactly this pattern, so they light up immediately once `allow_notifications` is enabled.
 
+Permission state is synced from the top-level Muximux window via a `postMessage` handshake: the shim starts at `"default"`, asks the parent on load, and forwards any `Notification.requestPermission()` call to Muximux so the real browser prompt appears at Muximux's origin. Reads of `Notification.permission` inside the embedded app reflect the parent's actual state.
+
 **Tier 2: non-proxied apps (explicit bridge calls).**
 When `proxy: false`, Muximux cannot inject code into the iframe (browsers enforce cross-origin isolation). The app must explicitly post a message to the parent window:
 
@@ -356,7 +358,17 @@ Muximux validates every notification request:
 
 - The shim only forwards `title`, `body`, and `tag`. Advanced Notification API features (`actions`, `data`, `onclick` handlers, service-worker-delivered notifications) are not supported.
 - Browsers only allow notifications in **secure contexts**. Muximux must be served over HTTPS or accessed via `localhost`/`127.0.0.1`. On plain HTTP (non-localhost), the browser permanently denies notifications and the bridge can do nothing about it.
-- If the user denies the Muximux-origin permission prompt, nothing shows, but the shim still returns `'granted'` to the embedded app. The app will believe its notification fired.
+
+### Platform support
+
+Notifications render through the service worker registered at `/sw.js`, which uses `ServiceWorkerRegistration.showNotification()`. This is the only path that works on mobile -- the `Notification` constructor is unsupported or unreliable on Android Chrome, Samsung Browser, and mobile Firefox. On desktop browsers without a controlling service worker (e.g. the dev server before the SW activates), Muximux falls back to the constructor.
+
+| Platform | Support | Notes |
+|----------|---------|-------|
+| Desktop Chrome/Firefox/Edge/Safari on HTTPS | Works | Both proxied and non-proxied apps. |
+| Desktop Chrome/Firefox/Edge on plain HTTP (non-localhost) | Blocked | Browsers deny the Notifications API on insecure origins. Use HTTPS or localhost. |
+| Android Chrome / Samsung Browser / Firefox on HTTPS | Works | Via the service worker. |
+| iOS Safari | Requires PWA install | iOS only allows notifications from sites installed to the home screen. Add Muximux to the home screen first; notifications then work for both proxied and non-proxied apps. |
 
 > **Design note:** Because the permission belongs to Muximux's origin, any app you enable `allow_notifications` for can send notifications. Only enable this for apps you trust to send appropriate content.
 
