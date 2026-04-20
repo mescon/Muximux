@@ -3197,9 +3197,11 @@ func TestRewriteResponseBody_GzipBombCapped(t *testing.T) {
 	gz := gzip.NewWriter(&buf)
 	// 80 MB of zeroes compresses down to ~80 KB, giving us a realistic
 	// ratio without making the test slow.
-	chunk := bytes.Repeat([]byte{0}, 64*1024)
+	chunk := make([]byte, 64*1024)
 	for i := 0; i < 80*16; i++ {
-		gz.Write(chunk)
+		if _, err := gz.Write(chunk); err != nil {
+			t.Fatalf("gz write: %v", err)
+		}
 	}
 	gz.Close()
 

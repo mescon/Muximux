@@ -826,7 +826,9 @@ func TestValidateIP_BlocksMaskedAndCGNAT(t *testing.T) {
 // or XML markers.
 func TestResolveIconContentType(t *testing.T) {
 	pngMagic := []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}
-	pngData := append(pngMagic, bytes.Repeat([]byte{0x00}, 16)...)
+	pngData := make([]byte, 0, len(pngMagic)+16)
+	pngData = append(pngData, pngMagic...)
+	pngData = append(pngData, make([]byte, 16)...)
 
 	svgBytes := []byte(`<svg xmlns="http://www.w3.org/2000/svg"></svg>`)
 	htmlAsSVG := []byte(`<html><script>alert(1)</script></html>`)

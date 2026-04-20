@@ -635,7 +635,7 @@ func TestWriteFileAtomic(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		if err := writeFileAtomic(target, []byte("new content"), 0o600); err != nil {
+		if err := writeFileAtomic(target, []byte("new content")); err != nil {
 			t.Fatalf("writeFileAtomic: %v", err)
 		}
 
@@ -659,7 +659,7 @@ func TestWriteFileAtomic(t *testing.T) {
 	t.Run("respects mode bits", func(t *testing.T) {
 		dir := t.TempDir()
 		target := filepath.Join(dir, "theme.css")
-		if err := writeFileAtomic(target, []byte("data"), 0o600); err != nil {
+		if err := writeFileAtomic(target, []byte("data")); err != nil {
 			t.Fatalf("writeFileAtomic: %v", err)
 		}
 		info, err := os.Stat(target)
@@ -673,7 +673,7 @@ func TestWriteFileAtomic(t *testing.T) {
 
 	t.Run("missing dir surfaces error", func(t *testing.T) {
 		target := filepath.Join(t.TempDir(), "no-such-dir", "theme.css")
-		if err := writeFileAtomic(target, []byte("x"), 0o600); err == nil {
+		if err := writeFileAtomic(target, []byte("x")); err == nil {
 			t.Error("expected error for missing directory")
 		}
 	})

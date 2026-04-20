@@ -92,8 +92,8 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 	mux := http.NewServeMux()
 
 	var (
-		issuer   string
-		nonceMu  sync.Mutex
+		issuer    string
+		nonceMu   sync.Mutex
 		lastNonce string
 	)
 
@@ -121,15 +121,15 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
 			return
 		}
-		if err := r.ParseForm(); err != nil {
+		if err := r.ParseForm(); err != nil { //nolint:gosec // test mock, trusted input
 			http.Error(w, "bad form", http.StatusBadRequest)
 			return
 		}
-		if r.FormValue("grant_type") != "authorization_code" {
+		if r.FormValue("grant_type") != "authorization_code" { //nolint:gosec // test mock
 			http.Error(w, "invalid grant_type", http.StatusBadRequest)
 			return
 		}
-		if r.FormValue("code") == "" {
+		if r.FormValue("code") == "" { //nolint:gosec // test mock
 			http.Error(w, "missing code", http.StatusBadRequest)
 			return
 		}
@@ -142,7 +142,7 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 		nonceMu.Lock()
 		nonceForToken := lastNonce
 		nonceMu.Unlock()
-		aud := r.FormValue("client_id")
+		aud := r.FormValue("client_id") //nolint:gosec // test mock
 		if aud == "" {
 			aud = "test-client-id"
 		}
@@ -374,9 +374,9 @@ func TestPKCE_VerifierSentOnExchange(t *testing.T) {
 		})
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
-		_ = r.ParseForm()
-		capturedVerifier = r.FormValue("code_verifier")
-		json.NewEncoder(w).Encode(TokenResponse{AccessToken: "x", TokenType: "Bearer"})
+		_ = r.ParseForm()                                                               //nolint:gosec // test mock, trusted input
+		capturedVerifier = r.FormValue("code_verifier")                                 //nolint:gosec // test mock
+		json.NewEncoder(w).Encode(TokenResponse{AccessToken: "x", TokenType: "Bearer"}) //nolint:gosec // test fixture
 	})
 	srv := httptest.NewServer(mux)
 	defer srv.Close()
@@ -418,7 +418,7 @@ func TestHandleCallback_RejectsMissingIDToken(t *testing.T) {
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		// No IDToken in the response.
-		json.NewEncoder(w).Encode(TokenResponse{
+		json.NewEncoder(w).Encode(TokenResponse{ //nolint:gosec // test fixture
 			AccessToken: "something",
 			TokenType:   "Bearer",
 		})

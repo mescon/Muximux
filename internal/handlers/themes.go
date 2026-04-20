@@ -15,10 +15,10 @@ import (
 )
 
 var (
-	reNonAlnum    = regexp.MustCompile(`[^a-z0-9-]`)
-	reMultiDash   = regexp.MustCompile(`-+`)
-	reThemeMeta   = regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
-	reCSSVarName  = regexp.MustCompile(`^--[a-z][a-z0-9-]*$`)
+	reNonAlnum   = regexp.MustCompile(`[^a-z0-9-]`)
+	reMultiDash  = regexp.MustCompile(`-+`)
+	reThemeMeta  = regexp.MustCompile(`@theme-(\w[\w-]*):\s*(.+)`)
+	reCSSVarName = regexp.MustCompile(`^--[a-z][a-z0-9-]*$`)
 	// Block anything that can exit a CSS property value: block declarators
 	// (`{` `}` `;`), at-rules (`@`), URL-bearing functions and JS URLs
 	// (`url(`, `@import`, `expression(`, `javascript:`), CSS escape
@@ -195,7 +195,7 @@ func (h *ThemeHandler) SaveTheme(w http.ResponseWriter, r *http.Request) {
 	// theme (findings.md H18). The temp file carries a random suffix so
 	// two concurrent saves of the same theme cannot race.
 	filename := filepath.Clean(filepath.Join(h.themesDir, id+".css"))
-	if err := writeFileAtomic(filename, []byte(css), 0o600); err != nil {
+	if err := writeFileAtomic(filename, []byte(css)); err != nil {
 		respondError(w, r, http.StatusInternalServerError, "Failed to save theme", "source", "themes", "theme", id, "error", err)
 		return
 	}
@@ -367,29 +367,29 @@ func generateThemeCSS(id string, req *ThemeSaveRequest) string {
 		s = strings.ReplaceAll(s, "\n", " ")
 		return s
 	}
-	sb.WriteString(fmt.Sprintf("/**\n * %s - Custom Theme for Muximux\n", safe(req.Name)))
+	fmt.Fprintf(&sb, "/**\n * %s - Custom Theme for Muximux\n", safe(req.Name))
 	if req.Author != "" {
-		sb.WriteString(fmt.Sprintf(" * Author: %s\n", safe(req.Author)))
+		fmt.Fprintf(&sb, " * Author: %s\n", safe(req.Author))
 	}
-	sb.WriteString(fmt.Sprintf(" * Based on: %s\n", safe(req.BaseTheme)))
+	fmt.Fprintf(&sb, " * Based on: %s\n", safe(req.BaseTheme))
 	sb.WriteString(" *\n")
-	sb.WriteString(fmt.Sprintf(" * @theme-id: %s\n", id))
-	sb.WriteString(fmt.Sprintf(" * @theme-name: %s\n", safe(req.Name)))
-	sb.WriteString(fmt.Sprintf(" * @theme-description: %s\n", safe(description)))
-	sb.WriteString(fmt.Sprintf(" * @theme-is-dark: %v\n", req.IsDark))
-	sb.WriteString(fmt.Sprintf(" * @theme-preview-bg: %s\n", previewBG))
-	sb.WriteString(fmt.Sprintf(" * @theme-preview-surface: %s\n", previewSurface))
-	sb.WriteString(fmt.Sprintf(" * @theme-preview-accent: %s\n", previewAccent))
-	sb.WriteString(fmt.Sprintf(" * @theme-preview-text: %s\n", previewText))
+	fmt.Fprintf(&sb, " * @theme-id: %s\n", id)
+	fmt.Fprintf(&sb, " * @theme-name: %s\n", safe(req.Name))
+	fmt.Fprintf(&sb, " * @theme-description: %s\n", safe(description))
+	fmt.Fprintf(&sb, " * @theme-is-dark: %v\n", req.IsDark)
+	fmt.Fprintf(&sb, " * @theme-preview-bg: %s\n", previewBG)
+	fmt.Fprintf(&sb, " * @theme-preview-surface: %s\n", previewSurface)
+	fmt.Fprintf(&sb, " * @theme-preview-accent: %s\n", previewAccent)
+	fmt.Fprintf(&sb, " * @theme-preview-text: %s\n", previewText)
 	sb.WriteString(" */\n\n")
 
 	// CSS selector
 	fmt.Fprintf(&sb, "[data-theme=%q] {\n", id)
-	sb.WriteString(fmt.Sprintf("  color-scheme: %s;\n\n", colorScheme))
+	fmt.Fprintf(&sb, "  color-scheme: %s;\n\n", colorScheme)
 
 	// Write all variables
 	for varName, varValue := range req.Variables {
-		sb.WriteString(fmt.Sprintf("  %s: %s;\n", varName, varValue))
+		fmt.Fprintf(&sb, "  %s: %s;\n", varName, varValue)
 	}
 
 	sb.WriteString("}\n")

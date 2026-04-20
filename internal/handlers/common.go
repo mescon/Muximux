@@ -15,7 +15,7 @@ import (
 // or the new file complete, never a truncated/corrupt one. Used for
 // state files whose consumers glob a directory and would otherwise
 // surface a partial write as a valid entry.
-func writeFileAtomic(filename string, data []byte, perm os.FileMode) error {
+func writeFileAtomic(filename string, data []byte) error {
 	dir := filepath.Dir(filename)
 	tmp, err := os.CreateTemp(dir, filepath.Base(filename)+".tmp.*")
 	if err != nil {
@@ -29,7 +29,7 @@ func writeFileAtomic(filename string, data []byte, perm os.FileMode) error {
 		cleanup()
 		return err
 	}
-	if err := tmp.Chmod(perm); err != nil {
+	if err := tmp.Chmod(0o600); err != nil {
 		tmp.Close()
 		cleanup()
 		return err

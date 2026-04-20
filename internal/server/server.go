@@ -972,7 +972,7 @@ const setupTokenFilename = ".setup-token"
 // setupTokenHeader is the HTTP header clients must present on
 // /api/auth/setup and /api/config/restore while the instance is in the
 // pre-setup state.
-const setupTokenHeader = "X-Setup-Token"
+const setupTokenHeader = "X-Setup-Token" //nolint:gosec // header name, not a credential
 
 // ensureSetupToken generates or loads the one-time setup token used to
 // authorize the initial setup wizard and restore endpoint. The token is
@@ -1569,6 +1569,7 @@ func panicRecoveryMiddleware(next http.Handler) http.Handler {
 				)
 				if !sr.written {
 					http.Error(w, "Internal Server Error", http.StatusInternalServerError)
+					return
 				}
 				// If the handler already wrote response bytes there is
 				// nothing honest to send back. Closing the connection

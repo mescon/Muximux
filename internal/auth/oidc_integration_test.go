@@ -62,7 +62,7 @@ func TestOIDC_FullFlow(t *testing.T) {
 
 	// Step 1b: Follow the authorization redirect so the mock IdP captures
 	// the nonce it must echo back in the signed ID token.
-	resp, err := http.Get(authURL)
+	resp, err := http.Get(authURL) //nolint:gosec // test mock IdP, trusted URL
 	if err != nil {
 		t.Fatalf("GET authURL: %v", err)
 	}
@@ -264,9 +264,9 @@ func TestOIDC_TokenExchangeParameters(t *testing.T) {
 	})
 	mux.HandleFunc("/token", func(w http.ResponseWriter, r *http.Request) {
 		capturedContentType = r.Header.Get("Content-Type")
-		_ = r.ParseForm()
+		_ = r.ParseForm() //nolint:gosec // test mock, trusted input
 		capturedForm = r.PostForm
-		json.NewEncoder(w).Encode(TokenResponse{
+		json.NewEncoder(w).Encode(TokenResponse{ //nolint:gosec // test fixture, not a real credential
 			AccessToken: "captured-token",
 			TokenType:   "Bearer",
 			ExpiresIn:   3600,
@@ -444,8 +444,8 @@ func TestOIDC_DiscoveryEndpointsUsed(t *testing.T) {
 	})
 	mux.HandleFunc("/custom-token-path", func(w http.ResponseWriter, r *http.Request) {
 		tokenHit = true
-		_ = r.ParseForm()
-		json.NewEncoder(w).Encode(TokenResponse{
+		_ = r.ParseForm()                        //nolint:gosec // test mock, trusted input
+		json.NewEncoder(w).Encode(TokenResponse{ //nolint:gosec // test fixture, not a real credential
 			AccessToken: "disc-token",
 			TokenType:   "Bearer",
 		})
@@ -703,7 +703,7 @@ func failingUserinfoHandler(t *testing.T, _ map[string]interface{}, issuerURL st
 			"iat": now.Unix(),
 			"exp": now.Add(time.Hour).Unix(),
 		}
-		json.NewEncoder(w).Encode(TokenResponse{
+		json.NewEncoder(w).Encode(TokenResponse{ //nolint:gosec // test fixture, not a real credential
 			AccessToken: "valid-token",
 			TokenType:   "Bearer",
 			IDToken:     signTestIDToken(t, claims),

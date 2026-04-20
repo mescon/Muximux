@@ -1383,7 +1383,7 @@ func TestStripURLCredentials(t *testing.T) {
 // credentials or per-app ProxyHeaders.
 func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	apps := []config.AppConfig{
-		{
+		{ //nolint:gosec // fixture URL, not a real credential
 			Name:    "Secret",
 			URL:     "https://adminuser:s3cret@example.com/path",
 			Enabled: true,
