@@ -13,6 +13,7 @@ Notification bridge fixes for mobile and HTTP-origin Muximux installs (follow-up
 
 ### Changed
 - Apps wiki documents the HTTPS requirement and the iOS Safari PWA-install caveat for notifications.
+- `golangci-lint run` on the repo now reports zero issues -- eleven pre-existing false positives (test fixtures, ASCII-range byte conversions, trusted-content writes) got narrow `//nolint` comments with actual reasons so new contributions start from a clean baseline.
 
 ## [3.0.29] - 2026-04-19
 
