@@ -162,7 +162,7 @@ export async function login(username: string, password: string, rememberMe: bool
     if (data.success) {
       authState.set({
         authenticated: true,
-        user: data.user,
+        user: data.user ?? null,
         loading: false,
         error: null,
         setupRequired: false,
