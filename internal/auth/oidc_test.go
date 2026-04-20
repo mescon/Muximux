@@ -161,7 +161,7 @@ func mockOIDCServer(t *testing.T, userinfo map[string]interface{}) *httptest.Ser
 			IDToken:     signTestIDToken(t, claims),
 		}
 		w.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(w).Encode(resp)
+		json.NewEncoder(w).Encode(resp) //nolint:gosec // test fixture, not a real credential
 	})
 
 	mux.HandleFunc("/userinfo", func(w http.ResponseWriter, r *http.Request) {

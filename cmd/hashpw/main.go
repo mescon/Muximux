@@ -23,7 +23,7 @@ func main() {
 		fmt.Print("Enter password: ")
 
 		// Try to read without echo if terminal
-		fd := int(os.Stdin.Fd())
+		fd := int(os.Stdin.Fd()) //nolint:gosec // stdin fd fits in int on every supported platform
 		if term.IsTerminal(fd) {
 			bytePassword, err := term.ReadPassword(fd)
 			fmt.Println()

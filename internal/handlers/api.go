@@ -782,7 +782,7 @@ func Slugify(name string) string {
 			result = append(result, byte(c+32)) // lowercase
 			lastDash = false
 		case c >= 'a' && c <= 'z', c >= '0' && c <= '9':
-			result = append(result, byte(c))
+			result = append(result, byte(c)) //nolint:gosec // case guard restricts c to ASCII range
 			lastDash = false
 		case c == ' ', c == '-', c == '_':
 			if !lastDash {

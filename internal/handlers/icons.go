@@ -227,7 +227,7 @@ func (h *IconHandler) GetDashboardIcon(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(headerContentType, contentType)
 	w.Header().Set(headerCacheControl, cachePublic24h)
-	w.Write(data)
+	w.Write(data) //nolint:gosec // icon bytes from trusted dashboard client, content-type set above
 }
 
 // ListDashboardIcons returns a list of available dashboard icons
@@ -288,7 +288,7 @@ func (h *IconHandler) GetLucideIcon(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set(headerContentType, contentType)
 	w.Header().Set(headerCacheControl, cachePublic24h)
-	w.Write(data)
+	w.Write(data) //nolint:gosec // icon bytes from trusted lucide client, content-type set above
 }
 
 // ServeIcon serves an icon based on type (dashboard, lucide, or custom)
@@ -326,7 +326,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set(headerContentType, contentType)
 		w.Header().Set(headerCacheControl, cachePublic24h)
-		w.Write(data)
+		w.Write(data) //nolint:gosec // icon bytes from trusted dashboard client, content-type set above
 
 	case "custom":
 		// Serve from custom icons directory. Custom icons can be SVGs,
@@ -352,7 +352,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 		// by the customManager path check, but defence in depth.
 		safeName := strings.ReplaceAll(iconName, "\"", "")
 		w.Header().Set("Content-Disposition", `attachment; filename="`+safeName+`"`)
-		w.Write(data)
+		w.Write(data) //nolint:gosec // custom icon served as attachment with locked CSP + nosniff above
 
 	case "lucide":
 		// Serve from Lucide CDN (cached locally)
@@ -365,7 +365,7 @@ func (h *IconHandler) ServeIcon(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Set(headerContentType, contentType)
 		w.Header().Set(headerCacheControl, cachePublic24h)
-		w.Write(data)
+		w.Write(data) //nolint:gosec // icon bytes from trusted lucide client, content-type set above
 
 	default:
 		respondError(w, r, http.StatusBadRequest, "Unknown icon type")

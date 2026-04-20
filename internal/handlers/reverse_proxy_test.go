@@ -602,7 +602,7 @@ func TestDirectorPathMapping(t *testing.T) {
 			req := httptest.NewRequest("GET", tt.requestPath, nil)
 
 			// Apply the director
-			route.proxy.Director(req)
+			route.proxy.Director(req) //nolint:staticcheck // production still wires Director; test exercises the same field
 
 			// Verify the transformed request
 			if req.URL.Path != tt.expectedPath {

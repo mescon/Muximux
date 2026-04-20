@@ -604,7 +604,7 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 			http.NotFound(w, r)
 			return
 		}
-		f, openErr := os.Open(localPath)
+		f, openErr := os.Open(localPath) //nolint:gosec // absPath verified to be inside absThemesDir above
 		if openErr == nil {
 			defer f.Close()
 			stat, _ := f.Stat()

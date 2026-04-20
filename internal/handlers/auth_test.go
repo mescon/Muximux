@@ -48,7 +48,7 @@ func TestLogin(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)
 
-		body, _ := json.Marshal(LoginRequest{
+		body, _ := json.Marshal(LoginRequest{ //nolint:gosec // test fixture
 			Username: "admin",
 			Password: "testpass123",
 		})
@@ -95,7 +95,7 @@ func TestLogin(t *testing.T) {
 	t.Run("bad credentials", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)
 
-		body, _ := json.Marshal(LoginRequest{
+		body, _ := json.Marshal(LoginRequest{ //nolint:gosec // test fixture
 			Username: "admin",
 			Password: "wrongpass",
 		})
@@ -146,7 +146,7 @@ func TestLogin(t *testing.T) {
 	t.Run("empty username", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)
 
-		body, _ := json.Marshal(LoginRequest{
+		body, _ := json.Marshal(LoginRequest{ //nolint:gosec // test fixture
 			Username: "",
 			Password: "testpass123",
 		})
@@ -163,7 +163,7 @@ func TestLogin(t *testing.T) {
 	t.Run("empty password", func(t *testing.T) {
 		handler, _ := setupAuthTest(t)
 
-		body, _ := json.Marshal(LoginRequest{
+		body, _ := json.Marshal(LoginRequest{ //nolint:gosec // test fixture
 			Username: "admin",
 			Password: "",
 		})
