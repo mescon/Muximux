@@ -28,6 +28,14 @@ Muximux is designed to fit your setup, from a simple dashboard to a full reverse
 - [Built-in Reverse Proxy](reverse-proxy.md) -- Proxying app traffic through Muximux
 - [Security Overview](security.md) -- Security measures, OWASP ASVS compliance, and hardening details
 - [Authentication](authentication.md) -- Built-in auth, forward auth, and OIDC
+  - [Microsoft Entra ID](oidc-microsoft-entra-id.md) -- step-by-step OIDC setup, including readable group names
+  - [Keycloak](oidc-keycloak.md) -- realm-based OIDC client with the `groups` mapper
+  - [Authentik](oidc-authentik.md) -- OAuth2 / OpenID provider with the `groups` scope
+  - [Pocket ID](oidc-pocket-id.md) -- minimal self-hosted IdP with passkey sign-in
+  - [Zitadel](oidc-zitadel.md) -- self-hosted IdP with project roles as groups
+  - [Google](oidc-google.md) -- consumer + Workspace accounts (no group support)
+  - [Authelia](forward-auth-authelia.md) -- forward auth via Traefik / Nginx / Caddy, or OIDC mode
+  - [Cloudflare Access](forward-auth-cloudflare-access.md) -- forward auth via Cloudflare Zero Trust
 - [TLS & HTTPS](tls-and-gateway.md) -- Automatic certificates, custom certificates, and gateway mode
 - [Gateway Examples](gateway-examples.md) -- Recipes for proxying common homelab services
 - [Navigation & Layout](navigation.md) -- Sidebar positions, auto-hide, labels, and display options

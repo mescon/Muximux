@@ -24,6 +24,16 @@
 - [TLS & HTTPS](tls-and-gateway)
 - [Gateway Examples](gateway-examples)
 
+**Identity provider guides**
+- [Microsoft Entra ID](oidc-microsoft-entra-id)
+- [Keycloak](oidc-keycloak)
+- [Authentik](oidc-authentik)
+- [Pocket ID](oidc-pocket-id)
+- [Zitadel](oidc-zitadel)
+- [Google](oidc-google)
+- [Authelia](forward-auth-authelia)
+- [Cloudflare Access](forward-auth-cloudflare-access)
+
 **Operations**
 - [Deployment](deployment)
 - [Troubleshooting](troubleshooting)

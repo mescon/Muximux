@@ -211,6 +211,17 @@ auth:
 - Note the client ID and client secret.
 - The issuer URL is usually the base URL of your provider (e.g., `https://auth.example.com/application/o/muximux/` for Authentik).
 
+For step-by-step instructions tailored to a specific provider, including how to surface group memberships so `admin_groups` matches:
+
+- **[Microsoft Entra ID](oidc-microsoft-entra-id)** (formerly Azure AD)
+- **[Keycloak](oidc-keycloak)**
+- **[Authentik](oidc-authentik)**
+- **[Pocket ID](oidc-pocket-id)** -- minimal self-hosted IdP with passkey sign-in
+- **[Zitadel](oidc-zitadel)** -- self-hosted IdP with project roles as groups
+- **[Google](oidc-google)** (consumer + Workspace; no group support)
+- **[Authelia](forward-auth-authelia)** (forward auth or OIDC)
+- **[Cloudflare Access](forward-auth-cloudflare-access)** -- Cloudflare Zero Trust as forward auth
+
 ### Environment Variables
 
 Use `${VAR_NAME}` syntax in `config.yaml` to reference environment variables. This is useful for secrets:
