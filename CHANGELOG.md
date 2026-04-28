@@ -2,6 +2,14 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.0.31] - 2026-04-28
+
+API Key management UI plus a worked webhook example so admins can actually configure and use the key from the dashboard.
+
+### Added
+- **Settings > Security > API Key** lets admins generate, rotate, and delete the instance-wide API key from the dashboard. The plaintext is shown exactly once after generation; afterwards only the bcrypt hash lives on disk. The previous flow (write `api_key_hash` to `config.yaml` by hand or via `muximux hash`) still works and the UI surfaces the result of either path. Resolves the comment from #321 about the missing UI.
+- Authentication wiki gained a second worked example showing how to expose a proxied app's webhook endpoint (for example a CI tool's GitHub receiver) to an external service via `auth_bypass` + `require_api_key: true`, with notes on how the proxied app's own `X-Api-Key` header semantics interact with Muximux's.
+
 ## [3.0.30] - 2026-04-20
 
 Notification bridge fixes for mobile and HTTP-origin Muximux installs (follow-up to #320 test results).

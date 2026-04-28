@@ -2,7 +2,7 @@
   import { onMount, tick } from 'svelte';
   import { fly } from 'svelte/transition';
   import type { Config, UserInfo, ChangeAuthMethodRequest } from '$lib/types';
-  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod } from '$lib/api';
+  import { listUsers, createUser, updateUser, deleteUserAccount, changeAuthMethod, getAPIKeyStatus, generateAPIKey, deleteAPIKey } from '$lib/api';
   import { changePassword, isAdmin, currentUser } from '$lib/authStore';
   import { forwardAuthPresets, applyPreset, detectPreset, buildForwardAuthRequest, type PresetName } from '$lib/forwardAuthPresets';
   import * as m from '$lib/paraglide/messages.js';
@@ -40,6 +40,75 @@
   let methodTrustedProxies = $state('');
   let methodLoading = $state(false);
   let methodError = $state<string | null>(null);
+
+  // API key management
+  let apiKeyConfigured = $state<boolean | null>(null); // null until first status fetch
+  let apiKeyLoading = $state(false);
+  let apiKeyError = $state<string | null>(null);
+  let apiKeyPlaintext = $state<string | null>(null); // only set immediately after generate
+  let apiKeyCopied = $state(false);
+  let confirmRotateApiKey = $state(false);
+  let confirmDeleteApiKey = $state(false);
+
+  async function loadAPIKeyStatus() {
+    try {
+      const status = await getAPIKeyStatus();
+      apiKeyConfigured = status.configured;
+    } catch (e) {
+      apiKeyError = e instanceof Error ? e.message : 'Failed to load API key status';
+    }
+  }
+
+  async function handleGenerateAPIKey() {
+    apiKeyLoading = true;
+    apiKeyError = null;
+    apiKeyCopied = false;
+    try {
+      const result = await generateAPIKey();
+      if (result.success) {
+        apiKeyPlaintext = result.key;
+        apiKeyConfigured = true;
+        confirmRotateApiKey = false;
+      } else {
+        apiKeyError = result.message || 'Failed to generate API key';
+      }
+    } catch (e) {
+      apiKeyError = e instanceof Error ? e.message : 'Failed to generate API key';
+    } finally {
+      apiKeyLoading = false;
+    }
+  }
+
+  async function handleDeleteAPIKey() {
+    apiKeyLoading = true;
+    apiKeyError = null;
+    try {
+      await deleteAPIKey();
+      apiKeyConfigured = false;
+      apiKeyPlaintext = null;
+      confirmDeleteApiKey = false;
+    } catch (e) {
+      apiKeyError = e instanceof Error ? e.message : 'Failed to delete API key';
+    } finally {
+      apiKeyLoading = false;
+    }
+  }
+
+  async function copyAPIKeyToClipboard() {
+    if (!apiKeyPlaintext) return;
+    try {
+      await navigator.clipboard.writeText(apiKeyPlaintext);
+      apiKeyCopied = true;
+      setTimeout(() => { apiKeyCopied = false; }, 2000);
+    } catch {
+      apiKeyError = 'Clipboard write failed; copy the key manually.';
+    }
+  }
+
+  function dismissAPIKeyPlaintext() {
+    apiKeyPlaintext = null;
+    apiKeyCopied = false;
+  }
 
   // Forward auth preset & header fields
   let faPreset = $state<PresetName>('authelia');
@@ -199,6 +268,7 @@
   onMount(() => {
     if ($isAdmin) {
       loadSecurityUsers();
+      loadAPIKeyStatus();
     }
 
     selectedAuthMethod = (localConfig.auth?.method || 'none') as typeof selectedAuthMethod;
@@ -565,6 +635,150 @@
     {/if}
   </div>
 
+
+  <!-- API Key (admin-only) -->
+  {#if $isAdmin}
+    <div>
+      <div class="mb-4">
+        <h3 class="text-lg font-semibold text-text-primary mb-1">API Key</h3>
+        <p class="text-sm text-text-muted">
+          A bearer token for non-browser integrations (scripts, cron jobs, webhook senders) that need to reach Muximux without a login session.
+        </p>
+      </div>
+
+      <div class="mb-4 p-3 rounded-lg bg-bg-elevated/60 border border-border-subtle text-xs text-text-secondary space-y-2">
+        <p class="font-semibold text-text-primary">What this key actually unlocks</p>
+        <ul class="space-y-1 list-disc ms-5">
+          <li><code>GET /api/appearance</code> for embedded or external apps reading Muximux's active language and theme.</li>
+          <li>Any per-app proxy paths an admin has allowlisted with <code>auth_bypass</code> + <code>require_api_key: true</code> in <code>config.yaml</code>. Common case: webhook URLs reaching a proxied app's API.</li>
+        </ul>
+        <p class="text-text-muted">Everything else under <code>/api/*</code> still requires a session cookie. A leaked key cannot rotate users, change config, or write themes. See the <a href="https://github.com/mescon/Muximux/wiki/authentication#api-key-authentication" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:text-brand-300 underline">authentication wiki</a> for the full list and webhook example.</p>
+      </div>
+
+      {#if apiKeyError}
+        <div class="mb-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
+          {apiKeyError}
+        </div>
+      {/if}
+
+      {#if apiKeyPlaintext}
+        <div class="mb-4 p-4 rounded-lg bg-amber-500/10 border border-amber-500/30">
+          <div class="flex items-start gap-2 mb-3">
+            <svg class="w-5 h-5 text-amber-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5 19h14a2 2 0 001.84-2.75L13.74 4a2 2 0 00-3.5 0L3.16 16.25A2 2 0 005 19z" />
+            </svg>
+            <div class="flex-1">
+              <p class="text-sm font-semibold text-amber-200 mb-1">This is the only time the key will be shown.</p>
+              <p class="text-xs text-amber-300/80">Copy it somewhere safe now. Muximux stores only a hash and cannot show it again. If you lose it, generate a new one.</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2">
+            <code class="flex-1 px-3 py-2 bg-bg-elevated border border-border-subtle rounded font-mono text-xs text-text-primary break-all select-all">{apiKeyPlaintext}</code>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm flex items-center gap-1.5 flex-shrink-0"
+              onclick={copyAPIKeyToClipboard}
+            >
+              {#if apiKeyCopied}
+                <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                </svg>
+                Copied
+              {:else}
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                </svg>
+                Copy
+              {/if}
+            </button>
+          </div>
+          <button
+            type="button"
+            class="mt-3 text-xs text-amber-300/80 hover:text-amber-200 underline"
+            onclick={dismissAPIKeyPlaintext}
+          >
+            I've saved it, hide the key
+          </button>
+        </div>
+      {:else if apiKeyConfigured === null}
+        <div class="text-sm text-text-muted">Loading...</div>
+      {:else if apiKeyConfigured}
+        <div class="flex items-center gap-3 mb-3">
+          <div class="flex items-center gap-2 text-sm text-text-secondary">
+            <svg class="w-4 h-4 text-green-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+            An API key is configured.
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          {#if confirmRotateApiKey}
+            <span class="text-sm text-text-muted">Generating a new key invalidates the existing one.</span>
+            <button
+              type="button"
+              class="btn btn-danger btn-sm disabled:opacity-50 flex items-center gap-2"
+              onclick={handleGenerateAPIKey}
+              disabled={apiKeyLoading}
+            >
+              {#if apiKeyLoading}
+                <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              {/if}
+              Rotate key
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              onclick={() => { confirmRotateApiKey = false; }}
+            >Cancel</button>
+          {:else if confirmDeleteApiKey}
+            <span class="text-sm text-text-muted">Clients using this key will stop authenticating.</span>
+            <button
+              type="button"
+              class="btn btn-danger btn-sm disabled:opacity-50 flex items-center gap-2"
+              onclick={handleDeleteAPIKey}
+              disabled={apiKeyLoading}
+            >
+              {#if apiKeyLoading}
+                <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+              {/if}
+              Delete key
+            </button>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              onclick={() => { confirmDeleteApiKey = false; }}
+            >Cancel</button>
+          {:else}
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              onclick={() => { confirmRotateApiKey = true; }}
+            >Rotate</button>
+            <button
+              type="button"
+              class="btn btn-ghost btn-sm text-red-400 hover:bg-red-500/10"
+              onclick={() => { confirmDeleteApiKey = true; }}
+            >Delete</button>
+          {/if}
+        </div>
+      {:else}
+        <div class="flex items-center gap-3">
+          <span class="text-sm text-text-muted">No API key is configured.</span>
+          <button
+            type="button"
+            class="btn btn-primary btn-sm disabled:opacity-50 flex items-center gap-2"
+            onclick={handleGenerateAPIKey}
+            disabled={apiKeyLoading}
+          >
+            {#if apiKeyLoading}
+              <span class="inline-block w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+            {/if}
+            Generate API key
+          </button>
+        </div>
+      {/if}
+    </div>
+  {/if}
 
   <!-- User Management (visible when builtin + admin) -->
   {#if currentMethod === 'builtin' && $isAdmin}

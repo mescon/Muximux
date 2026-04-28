@@ -8,9 +8,12 @@ import (
 	"net/http/httptest"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
@@ -1583,4 +1586,220 @@ func TestUserAttemptLimiter_PurgesStaleKeys(t *testing.T) {
 	if !l.allow("alice") {
 		t.Error("stale entries not purged; rate limit stuck")
 	}
+}
+
+func TestAPIKeyStatus_Unconfigured(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/api-key", nil)
+	w := httptest.NewRecorder()
+	handler.APIKeyStatus(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	var resp struct {
+		Configured bool `json:"configured"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if resp.Configured {
+		t.Error("expected configured=false on a fresh handler")
+	}
+}
+
+func TestGenerateAPIKey_StoresHashAndReturnsPlaintextOnce(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/api-key", nil)
+	w := httptest.NewRecorder()
+	handler.GenerateAPIKey(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+
+	var resp struct {
+		Success    bool   `json:"success"`
+		Key        string `json:"key"`
+		Rotated    bool   `json:"rotated"`
+		Configured bool   `json:"configured"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if !resp.Success || resp.Key == "" {
+		t.Fatalf("response missing success or key: %+v", resp)
+	}
+	if !strings.HasPrefix(resp.Key, "muximux_") {
+		t.Errorf("key missing muximux_ prefix: %q", resp.Key)
+	}
+	if resp.Rotated {
+		t.Error("first generation should report rotated=false")
+	}
+	if !resp.Configured {
+		t.Error("response should report configured=true after generation")
+	}
+
+	// Verify the hash on disk matches the returned plaintext.
+	on := loadConfigForTest(t, configPath)
+	if on.Auth.APIKeyHash == "" {
+		t.Fatal("APIKeyHash empty on disk after POST")
+	}
+	if err := bcrypt.CompareHashAndPassword([]byte(on.Auth.APIKeyHash), []byte(resp.Key)); err != nil {
+		t.Errorf("disk hash does not validate plaintext: %v", err)
+	}
+
+	// A second POST rotates the key and reports rotated=true.
+	w2 := httptest.NewRecorder()
+	handler.GenerateAPIKey(w2, httptest.NewRequest(http.MethodPost, "/api/auth/api-key", nil))
+	var resp2 struct {
+		Key     string `json:"key"`
+		Rotated bool   `json:"rotated"`
+	}
+	if err := json.NewDecoder(w2.Body).Decode(&resp2); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if !resp2.Rotated {
+		t.Error("second generation should report rotated=true")
+	}
+	if resp2.Key == resp.Key {
+		t.Error("rotated key matched the original; rand returned the same bytes")
+	}
+}
+
+func TestDeleteAPIKey_ClearsHash(t *testing.T) {
+	handler, configPath := setupAuthTestWithConfig(t)
+
+	// Seed a key first.
+	w := httptest.NewRecorder()
+	handler.GenerateAPIKey(w, httptest.NewRequest(http.MethodPost, "/api/auth/api-key", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("seed: status = %d", w.Code)
+	}
+
+	// Delete it.
+	dw := httptest.NewRecorder()
+	handler.DeleteAPIKey(dw, httptest.NewRequest(http.MethodDelete, "/api/auth/api-key", nil))
+	if dw.Code != http.StatusOK {
+		t.Fatalf("delete status = %d", dw.Code)
+	}
+
+	on := loadConfigForTest(t, configPath)
+	if on.Auth.APIKeyHash != "" {
+		t.Errorf("APIKeyHash not cleared on disk: %q", on.Auth.APIKeyHash)
+	}
+
+	// Status should now report unconfigured.
+	sw := httptest.NewRecorder()
+	handler.APIKeyStatus(sw, httptest.NewRequest(http.MethodGet, "/api/auth/api-key", nil))
+	var status struct {
+		Configured bool `json:"configured"`
+	}
+	if err := json.NewDecoder(sw.Body).Decode(&status); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if status.Configured {
+		t.Error("status should report configured=false after delete")
+	}
+}
+
+func TestDeleteAPIKey_NoKeyConfiguredIsNoop(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	w := httptest.NewRecorder()
+	handler.DeleteAPIKey(w, httptest.NewRequest(http.MethodDelete, "/api/auth/api-key", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200 even when no key is set", w.Code)
+	}
+}
+
+func TestAPIKey_MethodNotAllowed(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	cases := []struct {
+		fn     func(http.ResponseWriter, *http.Request)
+		method string
+	}{
+		{handler.APIKeyStatus, http.MethodPut},
+		{handler.GenerateAPIKey, http.MethodGet},
+		{handler.DeleteAPIKey, http.MethodPost},
+	}
+	for _, c := range cases {
+		w := httptest.NewRecorder()
+		c.fn(w, httptest.NewRequest(c.method, "/api/auth/api-key", nil))
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Errorf("%s: status = %d, want 405", c.method, w.Code)
+		}
+	}
+}
+
+// pointAtUnwritablePath redirects the handler's configPath to a directory
+// path so config.Save fails with a write error. Returns the previous path.
+func pointAtUnwritablePath(t *testing.T, h *AuthHandler) {
+	t.Helper()
+	dir := t.TempDir()
+	// A directory cannot be opened for writing as a regular file, so
+	// Save's atomic temp+rename fails on the rename step.
+	h.configPath = dir
+}
+
+func TestGenerateAPIKey_DiskWriteFailureRollsBack(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+	pointAtUnwritablePath(t, handler)
+
+	w := httptest.NewRecorder()
+	handler.GenerateAPIKey(w, httptest.NewRequest(http.MethodPost, "/api/auth/api-key", nil))
+
+	if w.Code != http.StatusInternalServerError {
+		t.Fatalf("status = %d, want 500", w.Code)
+	}
+	// The in-memory hash must be rolled back so the running instance
+	// does not start authenticating against a key that was never
+	// persisted to disk.
+	handler.configMu.RLock()
+	defer handler.configMu.RUnlock()
+	if handler.config.Auth.APIKeyHash != "" {
+		t.Errorf("APIKeyHash should be empty after failed save, got %q", handler.config.Auth.APIKeyHash)
+	}
+}
+
+func TestDeleteAPIKey_DiskWriteFailureRollsBack(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+
+	// Seed a key successfully.
+	w := httptest.NewRecorder()
+	handler.GenerateAPIKey(w, httptest.NewRequest(http.MethodPost, "/api/auth/api-key", nil))
+	if w.Code != http.StatusOK {
+		t.Fatalf("seed status = %d", w.Code)
+	}
+	handler.configMu.RLock()
+	seeded := handler.config.Auth.APIKeyHash
+	handler.configMu.RUnlock()
+	if seeded == "" {
+		t.Fatal("seed did not persist a hash")
+	}
+
+	// Now make Save fail on the delete path.
+	pointAtUnwritablePath(t, handler)
+
+	dw := httptest.NewRecorder()
+	handler.DeleteAPIKey(dw, httptest.NewRequest(http.MethodDelete, "/api/auth/api-key", nil))
+	if dw.Code != http.StatusInternalServerError {
+		t.Fatalf("delete status = %d, want 500", dw.Code)
+	}
+
+	handler.configMu.RLock()
+	defer handler.configMu.RUnlock()
+	if handler.config.Auth.APIKeyHash != seeded {
+		t.Errorf("APIKeyHash rolled forward after failed delete: got %q, want %q", handler.config.Auth.APIKeyHash, seeded)
+	}
+}
+
+// loadConfigForTest reads and YAML-decodes a config file from disk so a
+// test can verify the handler's persisted state without relying on the
+// in-memory copy held by the handler.
+func loadConfigForTest(t *testing.T, path string) *config.Config {
+	t.Helper()
+	cfg, err := config.Load(path)
+	if err != nil {
+		t.Fatalf("config.Load: %v", err)
+	}
+	return cfg
 }

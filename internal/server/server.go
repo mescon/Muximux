@@ -248,6 +248,26 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		})).ServeHTTP(w, r)
 	})
 
+	// API key management. GET reports whether a key is configured; POST
+	// generates a new one (returning the plaintext exactly once); DELETE
+	// clears the configured key. All three are admin-only because the
+	// API key authenticates against bypass rules that would otherwise
+	// require a session cookie.
+	mux.HandleFunc("/api/auth/api-key", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case http.MethodGet:
+				requireAdmin(authHandler.APIKeyStatus)(w, r)
+			case http.MethodPost:
+				requireAdmin(authHandler.GenerateAPIKey)(w, r)
+			case http.MethodDelete:
+				requireAdmin(authHandler.DeleteAPIKey)(w, r)
+			default:
+				http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			}
+		})).ServeHTTP(w, r)
+	})
+
 	// Serve embedded frontend files
 	if distErr != nil {
 		// Fallback to serving from web/dist during development

@@ -9,6 +9,9 @@ const mockCreateUser = vi.fn().mockResolvedValue({ success: true });
 const mockUpdateUser = vi.fn().mockResolvedValue({ success: true });
 const mockDeleteUserAccount = vi.fn().mockResolvedValue({ success: true });
 const mockChangeAuthMethod = vi.fn().mockResolvedValue({ success: true });
+const mockGetAPIKeyStatus = vi.fn().mockResolvedValue({ configured: false });
+const mockGenerateAPIKey = vi.fn().mockResolvedValue({ success: true, key: 'muximux_test123', warning: 'shown once', rotated: false, configured: true });
+const mockDeleteAPIKey = vi.fn().mockResolvedValue(undefined);
 
 vi.mock('$lib/api', () => ({
   listUsers: (...args: unknown[]) => mockListUsers(...args),
@@ -16,6 +19,9 @@ vi.mock('$lib/api', () => ({
   updateUser: (...args: unknown[]) => mockUpdateUser(...args),
   deleteUserAccount: (...args: unknown[]) => mockDeleteUserAccount(...args),
   changeAuthMethod: (...args: unknown[]) => mockChangeAuthMethod(...args),
+  getAPIKeyStatus: (...args: unknown[]) => mockGetAPIKeyStatus(...args),
+  generateAPIKey: (...args: unknown[]) => mockGenerateAPIKey(...args),
+  deleteAPIKey: (...args: unknown[]) => mockDeleteAPIKey(...args),
 }));
 
 // Mock authStore
@@ -86,6 +92,9 @@ describe('SecurityTab', () => {
     mockListUsers.mockResolvedValue([]);
     mockCreateUser.mockResolvedValue({ success: true });
     mockChangeAuthMethod.mockResolvedValue({ success: true });
+    mockGetAPIKeyStatus.mockResolvedValue({ configured: false });
+    mockGenerateAPIKey.mockResolvedValue({ success: true, key: 'muximux_test123', warning: 'shown once', rotated: false, configured: true });
+    mockDeleteAPIKey.mockResolvedValue(undefined);
   });
 
   // ─── Existing tests (preserved) ───────────────────────────────────────────
@@ -1011,5 +1020,102 @@ describe('SecurityTab', () => {
         expect(screen.getByText(/Authentication method changed to none/)).toBeInTheDocument();
       });
     });
+  });
+
+  // ─── API Key management ───────────────────────────────────────────────────
+
+  describe('API Key', () => {
+    it('shows the unconfigured state with a Generate button when no key is set', async () => {
+      mockGetAPIKeyStatus.mockResolvedValue({ configured: false });
+      render(SecurityTab, { props: { localConfig: makeBuiltinConfig() } });
+
+      await waitFor(() => {
+        expect(screen.getByText('No API key is configured.')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: /generate api key/i })).toBeInTheDocument();
+    });
+
+    it('shows the configured state with Rotate and Delete actions when a key exists', async () => {
+      mockGetAPIKeyStatus.mockResolvedValue({ configured: true });
+      render(SecurityTab, { props: { localConfig: makeBuiltinConfig() } });
+
+      await waitFor(() => {
+        expect(screen.getByText('An API key is configured.')).toBeInTheDocument();
+      });
+      expect(screen.getByRole('button', { name: /^rotate$/i })).toBeInTheDocument();
+      expect(screen.getByRole('button', { name: /^delete$/i })).toBeInTheDocument();
+    });
+
+    it('shows the plaintext key once after a successful generate, and hides it on dismiss', async () => {
+      mockGetAPIKeyStatus.mockResolvedValue({ configured: false });
+      mockGenerateAPIKey.mockResolvedValue({ success: true, key: 'muximux_abcDEF123', warning: 'shown once', rotated: false, configured: true });
+      render(SecurityTab, { props: { localConfig: makeBuiltinConfig() } });
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /generate api key/i })).toBeInTheDocument());
+      await fireEvent.click(screen.getByRole('button', { name: /generate api key/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('muximux_abcDEF123')).toBeInTheDocument();
+        expect(screen.getByText(/only time the key will be shown/i)).toBeInTheDocument();
+      });
+
+      await fireEvent.click(screen.getByRole('button', { name: /i've saved it/i }));
+
+      await waitFor(() => {
+        expect(screen.queryByText('muximux_abcDEF123')).not.toBeInTheDocument();
+      });
+    });
+
+    it('requires confirmation before rotating an existing key', async () => {
+      mockGetAPIKeyStatus.mockResolvedValue({ configured: true });
+      mockGenerateAPIKey.mockResolvedValue({ success: true, key: 'muximux_newkey', warning: 'shown once', rotated: true, configured: true });
+      render(SecurityTab, { props: { localConfig: makeBuiltinConfig() } });
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /^rotate$/i })).toBeInTheDocument());
+      await fireEvent.click(screen.getByRole('button', { name: /^rotate$/i }));
+
+      // Generate has not been called yet; we are in the confirm step.
+      expect(mockGenerateAPIKey).not.toHaveBeenCalled();
+      expect(screen.getByText(/invalidates the existing one/i)).toBeInTheDocument();
+
+      await fireEvent.click(screen.getByRole('button', { name: /^rotate key$/i }));
+
+      await waitFor(() => {
+        expect(mockGenerateAPIKey).toHaveBeenCalledTimes(1);
+        expect(screen.getByText('muximux_newkey')).toBeInTheDocument();
+      });
+    });
+
+    it('requires confirmation before deleting and hides the key after delete succeeds', async () => {
+      mockGetAPIKeyStatus.mockResolvedValue({ configured: true });
+      render(SecurityTab, { props: { localConfig: makeBuiltinConfig() } });
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /^delete$/i })).toBeInTheDocument());
+      await fireEvent.click(screen.getByRole('button', { name: /^delete$/i }));
+
+      expect(mockDeleteAPIKey).not.toHaveBeenCalled();
+      expect(screen.getByText(/Clients using this key will stop authenticating/i)).toBeInTheDocument();
+
+      await fireEvent.click(screen.getByRole('button', { name: /^delete key$/i }));
+
+      await waitFor(() => {
+        expect(mockDeleteAPIKey).toHaveBeenCalledTimes(1);
+        expect(screen.getByText('No API key is configured.')).toBeInTheDocument();
+      });
+    });
+
+    it('surfaces a generate failure as an inline error', async () => {
+      mockGetAPIKeyStatus.mockResolvedValue({ configured: false });
+      mockGenerateAPIKey.mockRejectedValue(new Error('boom'));
+      render(SecurityTab, { props: { localConfig: makeBuiltinConfig() } });
+
+      await waitFor(() => expect(screen.getByRole('button', { name: /generate api key/i })).toBeInTheDocument());
+      await fireEvent.click(screen.getByRole('button', { name: /generate api key/i }));
+
+      await waitFor(() => {
+        expect(screen.getByText('boom')).toBeInTheDocument();
+      });
+    });
+
   });
 });

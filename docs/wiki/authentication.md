@@ -237,7 +237,7 @@ Out of the box, these paths accept `X-Api-Key`:
 
 Additionally, operators can allowlist **per-app proxy paths** via `auth_bypass` on each proxied app. This is the common integration pattern: expose a backend app's own API (e.g. Sonarr's `/api/v3/*`) through the Muximux reverse proxy, gated by the Muximux API key at the front door. See [Apps > Per-App Auth Bypass](apps.md#per-app-auth-bypass) for the full setup.
 
-Typical example -- giving Overseerr access to Sonarr through Muximux:
+#### Example 1: Overseerr calling Sonarr through Muximux
 
 ```yaml
 apps:
@@ -263,6 +263,42 @@ curl -H "X-Api-Key: $MUXIMUX_API_KEY" \
 
 Muximux validates the Muximux key at the front door, then forwards the request to Sonarr with Sonarr's own API key injected as a header. Two different keys, two different jobs, in the same request.
 
+#### Example 2: GitHub webhook hitting a proxied app
+
+Say you run a self-hosted CI tool behind Muximux at `/proxy/ci/` and want GitHub to POST to its webhook receiver. GitHub does not have a Muximux session cookie and never will, so without an `auth_bypass` rule the request gets a 401.
+
+Configure the proxied app to accept the Muximux API key on the exact webhook path:
+
+```yaml
+apps:
+  - name: CI
+    url: http://ci.internal:8080
+    proxy: true
+    # Caller -> Muximux: only the webhook path, only POST, only with the API key.
+    auth_bypass:
+      - path: /proxy/ci/hooks/github
+        methods: [POST]
+        require_api_key: true
+```
+
+In GitHub, configure the webhook with:
+
+- **Payload URL:** `https://muximux.example.com/proxy/ci/hooks/github`
+- **Content type:** `application/json`
+- **Secret:** GitHub's HMAC secret if you use one. This is independent of the Muximux key and rides through the proxy as the standard `X-Hub-Signature-256` header.
+- **Custom header:** `X-Api-Key: <your Muximux API key>`. (GitHub's webhook UI does not let you add arbitrary headers, so you typically run the webhook through a small relay that adds the header. Other services like Linear, Sentry, Tailscale, or n8n let you set custom headers directly.)
+
+Then the request flow is:
+
+1. External service POSTs to `https://muximux.example.com/proxy/ci/hooks/github` with `X-Api-Key`.
+2. Muximux's `auth_bypass` matches `/proxy/ci/hooks/github` + `POST` + `require_api_key: true`, verifies the bcrypt hash, and lets the request through without a session cookie.
+3. Muximux's reverse proxy forwards the request to `http://ci.internal:8080/hooks/github`. The original payload, `X-Hub-Signature-256`, and other app-specific headers ride through unchanged.
+4. The CI tool processes the webhook normally.
+
+Scope is tight by design: this rule allows only `POST /proxy/ci/hooks/github`. The same key cannot hit `GET /proxy/ci/admin` or any other `/api/*` endpoint that has not been allowlisted.
+
+> **Header note:** Muximux does not strip the inbound `X-Api-Key` header before forwarding to the backend. If the proxied app reads `X-Api-Key` for its own auth (Sonarr, Radarr, Prowlarr, Lidarr, Bazarr all do), set `proxy_headers.X-Api-Key: "<backend-key>"` on the app so Muximux overwrites the inbound key with the backend's own key before forwarding. If the backend ignores `X-Api-Key`, no action is needed: the Muximux key just rides through and gets dropped on the backend's floor.
+
 ### What the API Key Does NOT Unlock
 
 The following endpoints **always** require a session cookie (logged-in user). Sending `X-Api-Key` against them has no effect -- the request still gets a 401:
@@ -286,11 +322,9 @@ The API key is stored as a **bcrypt hash** in `config.yaml` -- not as plaintext.
 
 ### Generating an API Key
 
-Two ways:
+**Recommended: in the UI.** Open **Settings → Security → API Key** as an admin and click **Generate API key**. Muximux uses 32 bytes of `crypto/rand`, prefixes the result with `muximux_` so a leaked key is recognisable, and stores only the bcrypt hash on disk. The plaintext is shown exactly once so you can copy it into your integration. If you lose it, click **Rotate** to generate a new one. **Delete** clears the configured key, after which every allowlisted path immediately stops accepting `X-Api-Key`.
 
-**In the UI:** **Settings → Security → API Key.** Type or paste the key and save. Muximux hashes it before persisting. The plaintext is shown once in that session so you can copy it into your integration; after that, only the hash is kept on disk.
-
-**On the command line:**
+**Alternative: command line.** If you want to set a key you generated yourself, hash it first and write the hash into `config.yaml`:
 
 ```bash
 # Using the built-in hash subcommand
@@ -300,15 +334,13 @@ muximux hash 'my-api-key'
 htpasswd -nbBC 12 "" 'my-api-key' | cut -d: -f2
 ```
 
-Then add the hash to your config:
-
 ```yaml
 auth:
   method: builtin
   api_key_hash: "$2a$12$..."
 ```
 
-Restart Muximux (or wait for the UI hot-reload) and the key is live.
+Restart Muximux and the key is live. The UI then reports the key as configured and offers Rotate / Delete from there on.
 
 ### Operational Guidance
 

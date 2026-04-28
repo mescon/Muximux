@@ -33,6 +33,9 @@ import {
   updateUser,
   deleteUserAccount,
   changeAuthMethod,
+  getAPIKeyStatus,
+  generateAPIKey,
+  deleteAPIKey,
 } from './api';
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest } from './types';
 
@@ -670,6 +673,50 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       const data: ChangeAuthMethodRequest = { method: 'none' };
       globalThis.fetch = mockFetchError(400, 'Bad Request', 'Invalid method');
       await expect(changeAuthMethod(data)).rejects.toThrow('API error: 400 Invalid method');
+    });
+  });
+
+  describe('getAPIKeyStatus', () => {
+    it('GETs /auth/api-key and returns the status payload', async () => {
+      globalThis.fetch = mockFetchOk({ configured: true });
+      const result = await getAPIKeyStatus();
+      expect(result).toEqual({ configured: true });
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'GET' });
+    });
+
+    it('throws an ApiError on a non-OK response', async () => {
+      globalThis.fetch = mockFetchError(403, 'Forbidden', 'admin only');
+      await expect(getAPIKeyStatus()).rejects.toThrow('API error: 403 admin only');
+    });
+  });
+
+  describe('generateAPIKey', () => {
+    it('POSTs /auth/api-key without a body and returns the plaintext key once', async () => {
+      const response = { success: true, key: 'muximux_abc', warning: 'shown once', rotated: false, configured: true };
+      globalThis.fetch = mockFetchOk(response);
+      const result = await generateAPIKey();
+      expect(result).toEqual(response);
+      // postJSON called with `undefined` body sets no Content-Type and no body.
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'POST' });
+    });
+
+    it('throws when the server reports failure', async () => {
+      globalThis.fetch = mockFetchError(500, 'Internal Server Error', 'rand failed');
+      await expect(generateAPIKey()).rejects.toThrow('API error: 500 rand failed');
+    });
+  });
+
+  describe('deleteAPIKey', () => {
+    it('DELETEs /auth/api-key and resolves on 200', async () => {
+      // The endpoint returns JSON, but the helper discards bodies on DELETE.
+      globalThis.fetch = mockFetchOk({ success: true, configured: false });
+      await expect(deleteAPIKey()).resolves.toBeUndefined();
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'DELETE' });
+    });
+
+    it('throws on a non-OK response', async () => {
+      globalThis.fetch = mockFetchError(500, 'Internal Server Error', 'disk write failed');
+      await expect(deleteAPIKey()).rejects.toThrow('API error: 500 disk write failed');
     });
   });
 });

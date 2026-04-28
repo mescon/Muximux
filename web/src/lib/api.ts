@@ -125,6 +125,21 @@ export async function changeAuthMethod(data: ChangeAuthMethodRequest): Promise<{
   return putJSON<ChangeAuthMethodRequest, { success: boolean; method?: string; message?: string }>('/auth/method', data);
 }
 
+// API key management. Status reports whether a key is configured;
+// the plaintext is never exposed because only the bcrypt hash is
+// stored. Generate returns the plaintext exactly once.
+export async function getAPIKeyStatus(): Promise<{ configured: boolean }> {
+  return fetchJSON<{ configured: boolean }>('/auth/api-key');
+}
+
+export async function generateAPIKey(): Promise<{ success: boolean; key: string; warning: string; rotated: boolean; configured: boolean; message?: string }> {
+  return postJSON<undefined, { success: boolean; key: string; warning: string; rotated: boolean; configured: boolean; message?: string }>('/auth/api-key', undefined);
+}
+
+export async function deleteAPIKey(): Promise<void> {
+  await deleteJSON('/auth/api-key');
+}
+
 export async function fetchRecentLogs(limit?: number): Promise<LogEntry[]> {
   const params = limit ? `?limit=${limit}` : '';
   return fetchJSON<LogEntry[]>(`/logs/recent${params}`);

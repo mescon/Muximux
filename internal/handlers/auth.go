@@ -1,11 +1,15 @@
 package handlers
 
 import (
+	"crypto/rand"
+	"encoding/base64"
 	"encoding/json"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"golang.org/x/crypto/bcrypt"
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
@@ -686,4 +690,137 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		"success": true,
 		"method":  req.Method,
 	})
+}
+
+// apiKeyTargetCost matches the project-wide bcrypt cost used for user
+// passwords (auth.bcryptTargetCost). Hardcoded rather than imported to
+// avoid widening the auth package's exported surface for one constant.
+const apiKeyTargetCost = 12
+
+// apiKeyByteLen is the random byte budget for a generated API key.
+// 32 bytes encoded as base64url is 43 chars; with the muximux_ prefix
+// the user-visible key is 51 characters.
+const apiKeyByteLen = 32
+
+// APIKeyStatus reports whether an API key is configured. The plaintext
+// is never exposed because only the bcrypt hash is stored. Admin only.
+func (h *AuthHandler) APIKeyStatus(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		return
+	}
+	h.configMu.RLock()
+	configured := h.config.Auth.APIKeyHash != ""
+	h.configMu.RUnlock()
+	sendJSON(w, http.StatusOK, map[string]interface{}{
+		"configured": configured,
+	})
+}
+
+// GenerateAPIKey creates a new random API key, replaces any existing
+// key, and returns the plaintext exactly once. The plaintext is not
+// recoverable afterwards because only the bcrypt hash is persisted.
+// Admin only.
+func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		return
+	}
+
+	raw := make([]byte, apiKeyByteLen)
+	if _, err := rand.Read(raw); err != nil {
+		respondError(w, r, http.StatusInternalServerError, "Failed to generate key", "source", "auth", "error", err)
+		return
+	}
+	plaintext := "muximux_" + base64.RawURLEncoding.EncodeToString(raw)
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(plaintext), apiKeyTargetCost)
+	if err != nil {
+		respondError(w, r, http.StatusInternalServerError, "Failed to hash key", "source", "auth", "error", err)
+		return
+	}
+
+	h.configMu.Lock()
+	prev := h.config.Auth.APIKeyHash
+	h.config.Auth.APIKeyHash = string(hash)
+	saveErr := h.config.Save(h.configPath)
+	if saveErr != nil {
+		// Roll back the in-memory mutation so a failed disk write does
+		// not leave the live config diverged from what is on disk.
+		h.config.Auth.APIKeyHash = prev
+	} else {
+		h.refreshAuthSnapshotLocked()
+	}
+	h.configMu.Unlock()
+
+	if saveErr != nil {
+		respondError(w, r, http.StatusInternalServerError, "Failed to save config", "source", "auth", "error", saveErr)
+		return
+	}
+
+	rotated := prev != ""
+	logging.From(r.Context()).Info("API key generated", "source", "audit", "rotated", rotated)
+
+	sendJSON(w, http.StatusOK, map[string]interface{}{
+		"success":    true,
+		"key":        plaintext,
+		"warning":    "This is the only time the key will be shown. Store it securely.",
+		"rotated":    rotated,
+		"configured": true,
+	})
+}
+
+// DeleteAPIKey clears the configured API key. Bypass rules that
+// require the key (for example /api/appearance) immediately stop
+// authenticating with X-Api-Key once this returns. Admin only.
+func (h *AuthHandler) DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodDelete {
+		http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+		return
+	}
+
+	h.configMu.Lock()
+	prev := h.config.Auth.APIKeyHash
+	if prev == "" {
+		h.configMu.Unlock()
+		sendJSON(w, http.StatusOK, map[string]interface{}{
+			"success":    true,
+			"configured": false,
+		})
+		return
+	}
+	h.config.Auth.APIKeyHash = ""
+	saveErr := h.config.Save(h.configPath)
+	if saveErr != nil {
+		h.config.Auth.APIKeyHash = prev
+	} else {
+		h.refreshAuthSnapshotLocked()
+	}
+	h.configMu.Unlock()
+
+	if saveErr != nil {
+		respondError(w, r, http.StatusInternalServerError, "Failed to save config", "source", "auth", "error", saveErr)
+		return
+	}
+
+	logging.From(r.Context()).Info("API key deleted", "source", "audit")
+	sendJSON(w, http.StatusOK, map[string]interface{}{
+		"success":    true,
+		"configured": false,
+	})
+}
+
+// refreshAuthSnapshotLocked rebuilds the middleware's auth config from
+// the current h.config and pushes it. Caller must hold h.configMu's
+// write lock.
+func (h *AuthHandler) refreshAuthSnapshotLocked() {
+	authCfg := auth.AuthConfig{
+		Method:         auth.AuthMethod(h.config.Auth.Method),
+		BypassRules:    h.bypassRules,
+		APIKeyHash:     h.config.Auth.APIKeyHash,
+		BasePath:       h.config.Server.NormalizedBasePath(),
+		TrustedProxies: h.config.Auth.TrustedProxies,
+		Headers:        auth.ForwardAuthHeadersFromMap(h.config.Auth.Headers),
+	}
+	h.authMiddleware.UpdateConfig(&authCfg)
 }
