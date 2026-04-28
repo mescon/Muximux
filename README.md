@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/mescon-muximux-badge.png)](https://mseep.ai/app/mescon-muximux)
+
 <p align="center">
   <img src="web/public/muximux-logo.svg" width="200" alt="Muximux">
 </p>
