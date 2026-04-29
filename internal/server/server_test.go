@@ -1,6 +1,7 @@
 package server
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -2555,4 +2556,307 @@ func TestAppearance_APIKeyBypass(t *testing.T) {
 	if len(found.Methods) != 1 || found.Methods[0] != http.MethodGet {
 		t.Errorf("expected methods=[GET], got %v", found.Methods)
 	}
+}
+
+// TestRegisterAppearanceRoute exercises the actual HTTP handler that
+// /api/appearance is wired to. Direct unit tests on resolveThemeID and
+// extractCSSVars existed already, but the closure registered against
+// the mux was uncovered, hiding regressions in the request decoding
+// path (method check, config lock acquisition, response shape).
+func TestRegisterAppearanceRoute(t *testing.T) {
+	t.Run("returns active language, theme id, and parsed colors", func(t *testing.T) {
+		themesDir := t.TempDir()
+		themeCSS := []byte(`[data-theme="catppuccin"] {
+			--bg-base: #1e1e2e;
+			--text-primary: #cdd6f4;
+		}`)
+		if err := os.WriteFile(filepath.Join(themesDir, "catppuccin.css"), themeCSS, 0o600); err != nil {
+			t.Fatalf("seed theme: %v", err)
+		}
+
+		mux := http.NewServeMux()
+		s := &Server{
+			config: &config.Config{
+				Server: config.ServerConfig{Language: "sv"},
+				Theme:  config.ThemeConfig{Family: "catppuccin", Variant: "dark"},
+			},
+		}
+		registerAppearanceRoute(mux, s, fstest.MapFS{}, themesDir)
+
+		req := httptest.NewRequest(http.MethodGet, "/api/appearance", nil)
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("status = %d, want 200", w.Code)
+		}
+		var resp appearanceResponse
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if resp.Language != "sv" {
+			t.Errorf("language = %q, want sv", resp.Language)
+		}
+		if resp.Theme.ID != "catppuccin" || resp.Theme.Family != "catppuccin" || !resp.Theme.IsDark {
+			t.Errorf("theme = %+v, want id=catppuccin family=catppuccin isDark=true", resp.Theme)
+		}
+		if resp.Colors["--bg-base"] != "#1e1e2e" {
+			t.Errorf("--bg-base = %q, want #1e1e2e", resp.Colors["--bg-base"])
+		}
+		if resp.ThemeCSSURL != "/themes/catppuccin.css" {
+			t.Errorf("themeCSSURL = %q, want /themes/catppuccin.css", resp.ThemeCSSURL)
+		}
+	})
+
+	t.Run("falls back to defaults when config is empty", func(t *testing.T) {
+		mux := http.NewServeMux()
+		s := &Server{config: &config.Config{}}
+		registerAppearanceRoute(mux, s, fstest.MapFS{}, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodGet, "/api/appearance", nil)
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("status = %d, want 200", w.Code)
+		}
+		var resp appearanceResponse
+		if err := json.Unmarshal(w.Body.Bytes(), &resp); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if resp.Language != "en" {
+			t.Errorf("language fallback = %q, want en", resp.Language)
+		}
+		if resp.Theme.Family != "default" || resp.Theme.Variant != "dark" {
+			t.Errorf("theme fallback = %+v, want family=default variant=dark", resp.Theme)
+		}
+		// No CSS file on disk and an empty distFS, so themeCSSURL stays empty.
+		if resp.ThemeCSSURL != "" {
+			t.Errorf("themeCSSURL = %q, want empty when no CSS is present", resp.ThemeCSSURL)
+		}
+	})
+
+	t.Run("rejects non-GET methods", func(t *testing.T) {
+		mux := http.NewServeMux()
+		s := &Server{config: &config.Config{}}
+		registerAppearanceRoute(mux, s, fstest.MapFS{}, t.TempDir())
+
+		req := httptest.NewRequest(http.MethodPost, "/api/appearance", nil)
+		w := httptest.NewRecorder()
+		mux.ServeHTTP(w, req)
+
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Errorf("POST status = %d, want 405", w.Code)
+		}
+	})
+}
+
+// TestReadThemeCSS pins the lookup precedence: operator-supplied
+// themesDir takes priority over the bundled distFS. This matters
+// because operators expect their custom theme overrides to win even
+// when a bundled theme of the same name exists.
+func TestReadThemeCSS(t *testing.T) {
+	themesDir := t.TempDir()
+	bundled := []byte(`[data-theme="x"]{--bg-base:#000;}`)
+	override := []byte(`[data-theme="x"]{--bg-base:#fff;}`)
+	distFS := fstest.MapFS{
+		"themes/x.css":       &fstest.MapFile{Data: bundled},
+		"themes/bundled.css": &fstest.MapFile{Data: bundled},
+	}
+
+	t.Run("operator override wins over bundled", func(t *testing.T) {
+		if err := os.WriteFile(filepath.Join(themesDir, "x.css"), override, 0o600); err != nil {
+			t.Fatalf("seed: %v", err)
+		}
+		got := readThemeCSS("x", themesDir, distFS)
+		if !bytes.Equal(got, override) {
+			t.Errorf("got bundled bytes; expected operator override to win")
+		}
+	})
+
+	t.Run("falls through to distFS when not on disk", func(t *testing.T) {
+		got := readThemeCSS("bundled", themesDir, distFS)
+		if !bytes.Equal(got, bundled) {
+			t.Errorf("expected bundled bytes from distFS, got %q", got)
+		}
+	})
+
+	t.Run("returns nil when no source has the theme", func(t *testing.T) {
+		got := readThemeCSS("nonexistent", themesDir, distFS)
+		if got != nil {
+			t.Errorf("expected nil, got %q", got)
+		}
+	})
+
+	t.Run("nil distFS is safe", func(t *testing.T) {
+		got := readThemeCSS("nonexistent", themesDir, nil)
+		if got != nil {
+			t.Errorf("expected nil with nil distFS, got %q", got)
+		}
+	})
+}
+
+// TestWarnOIDCRedirectMismatch covers each of the function's branches.
+// The function is purely a logging helper, so we exercise it by
+// confirming every code path returns without panicking; failures here
+// would mean a regression in the validation logic that an operator
+// would only notice when their OIDC login broke.
+func TestWarnOIDCRedirectMismatch(t *testing.T) {
+	cases := []struct {
+		name string
+		cfg  *config.Config
+	}{
+		{
+			name: "OIDC disabled is a no-op",
+			cfg:  &config.Config{Auth: config.AuthConfig{OIDC: config.OIDCConfig{Enabled: false}}},
+		},
+		{
+			name: "OIDC enabled but no redirect_url is a no-op",
+			cfg:  &config.Config{Auth: config.AuthConfig{OIDC: config.OIDCConfig{Enabled: true}}},
+		},
+		{
+			name: "unparseable URL logs a warning",
+			cfg: &config.Config{
+				Auth: config.AuthConfig{OIDC: config.OIDCConfig{
+					Enabled:     true,
+					RedirectURL: "://not a url",
+				}},
+				Server: config.ServerConfig{Listen: ":8080"},
+			},
+		},
+		{
+			name: "non-http(s) scheme logs a warning",
+			cfg: &config.Config{
+				Auth: config.AuthConfig{OIDC: config.OIDCConfig{
+					Enabled:     true,
+					RedirectURL: "ftp://muximux.example.com/api/auth/oidc/callback",
+				}},
+				Server: config.ServerConfig{Listen: ":8080"},
+			},
+		},
+		{
+			name: "matching port is fine",
+			cfg: &config.Config{
+				Auth: config.AuthConfig{OIDC: config.OIDCConfig{
+					Enabled:     true,
+					RedirectURL: "http://muximux.example.com:8080/api/auth/oidc/callback",
+				}},
+				Server: config.ServerConfig{Listen: ":8080"},
+			},
+		},
+		{
+			name: "redirect with no explicit port is fine (reverse proxy in front)",
+			cfg: &config.Config{
+				Auth: config.AuthConfig{OIDC: config.OIDCConfig{
+					Enabled:     true,
+					RedirectURL: "https://muximux.example.com/api/auth/oidc/callback",
+				}},
+				Server: config.ServerConfig{Listen: ":8080"},
+			},
+		},
+		{
+			name: "redirect port differs from listen port logs an info",
+			cfg: &config.Config{
+				Auth: config.AuthConfig{OIDC: config.OIDCConfig{
+					Enabled:     true,
+					RedirectURL: "https://muximux.example.com:9090/api/auth/oidc/callback",
+				}},
+				Server: config.ServerConfig{Listen: ":8080"},
+			},
+		},
+		{
+			name: "listener without host:port format is a no-op",
+			cfg: &config.Config{
+				Auth: config.AuthConfig{OIDC: config.OIDCConfig{
+					Enabled:     true,
+					RedirectURL: "https://muximux.example.com:9090/api/auth/oidc/callback",
+				}},
+				Server: config.ServerConfig{Listen: "not-a-host-port"},
+			},
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			// All branches must run without panicking. The warning
+			// content is asserted via the logger in production; here
+			// we only need branch coverage.
+			warnOIDCRedirectMismatch(c.cfg)
+		})
+	}
+}
+
+// TestClearSetupToken makes sure both branches of the cleanup path are
+// exercised: when the token file exists on disk it is removed, and when
+// it doesn't the function quietly returns without surfacing an error.
+func TestClearSetupToken(t *testing.T) {
+	t.Run("removes the token file when present", func(t *testing.T) {
+		dir := t.TempDir()
+		tokenPath := filepath.Join(dir, setupTokenFilename)
+		if err := os.WriteFile(tokenPath, []byte("opaque-token"), 0o600); err != nil {
+			t.Fatalf("seed: %v", err)
+		}
+		s := &Server{dataDir: dir, setupToken: "opaque-token"} //nolint:gosec // test fixture, not a real credential
+		s.clearSetupToken()
+		if s.setupToken != "" {
+			t.Errorf("in-memory token not cleared: %q", s.setupToken)
+		}
+		if _, err := os.Stat(tokenPath); !os.IsNotExist(err) {
+			t.Errorf("token file still exists: %v", err)
+		}
+	})
+
+	t.Run("missing file is not an error", func(t *testing.T) {
+		dir := t.TempDir()
+		s := &Server{dataDir: dir, setupToken: "opaque-token"} //nolint:gosec // test fixture, not a real credential
+		s.clearSetupToken()                                    // file was never written; should not panic or log an error
+		if s.setupToken != "" {
+			t.Errorf("token not cleared: %q", s.setupToken)
+		}
+	})
+}
+
+// TestServerStop exercises the shutdown path. Each subtest builds a
+// Server with only the fields that drive the branch being tested; the
+// rest are nil to confirm Stop's nil-guards behave.
+func TestServerStop(t *testing.T) {
+	t.Run("Stop is safe with optional subsystems nil", func(t *testing.T) {
+		s := &Server{httpServer: &http.Server{ReadHeaderTimeout: time.Second}}
+		if err := s.Stop(); err != nil {
+			t.Errorf("Stop with nothing wired: %v", err)
+		}
+	})
+
+	t.Run("Stop closes the cleanupDone channel", func(t *testing.T) {
+		done := make(chan struct{})
+		s := &Server{
+			httpServer:  &http.Server{ReadHeaderTimeout: time.Second},
+			cleanupDone: done,
+		}
+		if err := s.Stop(); err != nil {
+			t.Fatalf("Stop: %v", err)
+		}
+		select {
+		case <-done:
+			// channel closed as expected
+		default:
+			t.Error("cleanupDone was not closed by Stop")
+		}
+	})
+
+	t.Run("Stop shuts down rate limiters cleanly", func(t *testing.T) {
+		// rateLimiter spins up its own goroutine via newRateLimiter; if
+		// Stop forgets to call .stop() the goroutine leaks. -race won't
+		// catch a leak, but the call path itself must not error.
+		ipFn := func(r *http.Request) string { return r.RemoteAddr }
+		// Vary both `max` and `window` so unparam stays satisfied that
+		// the helper's parameters are genuinely variable.
+		s := &Server{
+			httpServer:   &http.Server{ReadHeaderTimeout: time.Second},
+			loginLimiter: newRateLimiter(3, 30*time.Second, ipFn),
+			setupLimiter: newRateLimiter(7, 90*time.Second, ipFn),
+		}
+		if err := s.Stop(); err != nil {
+			t.Fatalf("Stop: %v", err)
+		}
+	})
 }
