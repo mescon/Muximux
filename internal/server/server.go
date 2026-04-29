@@ -361,6 +361,7 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 			Role:         u.Role,
 			Email:        u.Email,
 			DisplayName:  u.DisplayName,
+			Groups:       u.Groups,
 		})
 	}
 	userStore.LoadFromConfig(userConfigs)

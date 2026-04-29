@@ -41,15 +41,27 @@ type User struct {
 	Role         string
 	Email        string
 	DisplayName  string
+	// Groups are the user's group memberships used for app-level
+	// allowed_groups filtering. For built-in users, the operator sets
+	// this in config.yaml or the Settings UI. For OIDC users this is
+	// populated from the configured groups_claim each login. For
+	// forward-auth users it is populated from the Remote-Groups header
+	// each request. The list is the source of truth at the time of
+	// session creation; it does not auto-refresh until the user logs
+	// in again.
+	Groups []string
 }
 
-// UserConfig represents user configuration from YAML
+// UserConfig represents user configuration from YAML, mirrored on the
+// auth-package side so handlers/server can pass user records into the
+// user store without the auth package importing config.
 type UserConfig struct {
-	Username     string `yaml:"username"`
-	PasswordHash string `yaml:"password_hash"`
-	Role         string `yaml:"role"`
-	Email        string `yaml:"email,omitempty"`
-	DisplayName  string `yaml:"display_name,omitempty"`
+	Username     string   `yaml:"username"`
+	PasswordHash string   `yaml:"password_hash"`
+	Role         string   `yaml:"role"`
+	Email        string   `yaml:"email,omitempty"`
+	DisplayName  string   `yaml:"display_name,omitempty"`
+	Groups       []string `yaml:"groups,omitempty"`
 }
 
 // UserStore manages users
@@ -83,6 +95,7 @@ func (s *UserStore) LoadFromConfig(configs []UserConfig) {
 			Role:         role,
 			Email:        cfg.Email,
 			DisplayName:  cfg.DisplayName,
+			Groups:       append([]string(nil), cfg.Groups...), // defensive copy so later mutations to cfg.Groups don't leak in
 		}
 	}
 	logging.Debug("User store loaded", "source", "auth", "count", len(configs))
@@ -108,6 +121,12 @@ func (s *UserStore) copyUser(u *User) *User {
 		return nil
 	}
 	copy := *u
+	// Slice is shared by value-copy of the struct above; clone it so
+	// callers cannot mutate the user store's internal state by writing
+	// to the returned User's Groups field.
+	if u.Groups != nil {
+		copy.Groups = append([]string(nil), u.Groups...)
+	}
 	return &copy
 }
 
@@ -305,13 +324,19 @@ func (s *UserStore) List() []*User {
 
 	users := make([]*User, 0, len(s.users))
 	for _, user := range s.users {
-		// Return copy without password hash
+		// Return copy without password hash; clone Groups so callers
+		// cannot mutate the user store's internal slice.
+		var groups []string
+		if user.Groups != nil {
+			groups = append([]string(nil), user.Groups...)
+		}
 		users = append(users, &User{
 			ID:          user.ID,
 			Username:    user.Username,
 			Role:        user.Role,
 			Email:       user.Email,
 			DisplayName: user.DisplayName,
+			Groups:      groups,
 		})
 	}
 	return users
@@ -325,6 +350,10 @@ func (s *UserStore) ListWithHashes() []*User {
 
 	users := make([]*User, 0, len(s.users))
 	for _, user := range s.users {
+		var groups []string
+		if user.Groups != nil {
+			groups = append([]string(nil), user.Groups...)
+		}
 		users = append(users, &User{
 			ID:           user.ID,
 			Username:     user.Username,
@@ -332,6 +361,7 @@ func (s *UserStore) ListWithHashes() []*User {
 			Role:         user.Role,
 			Email:        user.Email,
 			DisplayName:  user.DisplayName,
+			Groups:       groups,
 		})
 	}
 	return users

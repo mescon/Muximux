@@ -17,6 +17,7 @@ export interface App {
   scale: number;
   shortcut?: number;  // 1-9 keyboard shortcut slot
   min_role?: string;  // minimum role to see this app
+  allowed_groups?: string[];  // when set, user must be in at least one of these groups (case-insensitive); admins bypass
   force_icon_background?: boolean;  // show icon background even when global setting is off
   permissions?: string[];  // browser feature policy: camera, microphone, geolocation, fullscreen, etc.
   allow_notifications?: boolean;  // enable postMessage notification bridge
@@ -191,6 +192,7 @@ export interface UserInfo {
   role: string;
   email?: string;
   display_name?: string;
+  groups?: string[];  // group memberships used by per-app allowed_groups filtering
 }
 
 export interface CreateUserRequest {
@@ -199,12 +201,14 @@ export interface CreateUserRequest {
   role: string;
   email?: string;
   display_name?: string;
+  groups?: string[];
 }
 
 export interface UpdateUserRequest {
   role?: string;
   email?: string;
   display_name?: string;
+  groups?: string[];  // omit to leave existing groups untouched; pass [] to clear
 }
 
 export interface ChangeAuthMethodRequest {

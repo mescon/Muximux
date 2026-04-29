@@ -2,7 +2,16 @@
 
 All notable changes to Muximux are documented in this file.
 
-## [3.0.31] - 2026-04-29
+## [3.0.32] - 2026-04-30
+
+Per-app group-based access control. Apps can now declare an `allowed_groups: [...]` allowlist; only users in at least one of those groups see and reach the app. Resolves #326.
+
+### Added
+- New `allowed_groups: []string` field on each app config. Empty or missing means no group gate (current behavior). When set, a non-admin user must belong to at least one matching group; matching is case-insensitive. Stacks with `min_role`: both gates must pass.
+- Built-in user records gained an optional `groups: []string` field, editable in **Settings -> Security -> Users** next to the role selector. The change persists on blur.
+- New **Allowed groups** input on the App edit form (comma-separated), so admins can wire up filtering without touching `config.yaml`.
+- OIDC users now carry their `groups_claim` value through the session so per-app filtering can match against it. Forward-auth users similarly carry their `Remote-Groups` header value through. Admins still bypass the group gate the same way they bypass `min_role`.
+- Authentication wiki gained a "Per-App Group Filtering" section explaining the rules, the source-of-truth for each auth method, and how a misconfigured IdP fails closed (invisible) rather than open.
 
 API Key management UI plus per-provider OIDC and forward-auth setup guides covering Microsoft Entra ID, Keycloak, Authentik, Pocket ID, Zitadel, Google, Authelia, and Cloudflare Access.
 

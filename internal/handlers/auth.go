@@ -123,10 +123,11 @@ type LoginResponse struct {
 
 // UserResponse represents a user in API responses
 type UserResponse struct {
-	Username    string `json:"username"`
-	Role        string `json:"role"`
-	Email       string `json:"email,omitempty"`
-	DisplayName string `json:"display_name,omitempty"`
+	Username    string   `json:"username"`
+	Role        string   `json:"role"`
+	Email       string   `json:"email,omitempty"`
+	DisplayName string   `json:"display_name,omitempty"`
+	Groups      []string `json:"groups,omitempty"`
 }
 
 // Login handles POST /api/auth/login
@@ -235,6 +236,7 @@ func (h *AuthHandler) Me(w http.ResponseWriter, r *http.Request) {
 			Role:        user.Role,
 			Email:       user.Email,
 			DisplayName: user.DisplayName,
+			Groups:      user.Groups,
 		},
 	})
 }
@@ -415,6 +417,7 @@ func (h *AuthHandler) syncUsersToConfig() error {
 			Role:         u.Role,
 			Email:        u.Email,
 			DisplayName:  u.DisplayName,
+			Groups:       u.Groups,
 		})
 	}
 	h.config.Auth.Users = cfgUsers
@@ -431,6 +434,7 @@ func (h *AuthHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 			Role:        u.Role,
 			Email:       u.Email,
 			DisplayName: u.DisplayName,
+			Groups:      u.Groups,
 		})
 	}
 	sendJSON(w, http.StatusOK, resp)
@@ -439,11 +443,12 @@ func (h *AuthHandler) ListUsers(w http.ResponseWriter, r *http.Request) {
 // CreateUser handles POST /api/auth/users
 func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Username    string `json:"username"`
-		Password    string `json:"password"`
-		Role        string `json:"role"`
-		Email       string `json:"email"`
-		DisplayName string `json:"display_name"`
+		Username    string   `json:"username"`
+		Password    string   `json:"password"`
+		Role        string   `json:"role"`
+		Email       string   `json:"email"`
+		DisplayName string   `json:"display_name"`
+		Groups      []string `json:"groups"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
@@ -476,6 +481,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 		Role:         req.Role,
 		Email:        req.Email,
 		DisplayName:  req.DisplayName,
+		Groups:       sanitizeGroupList(req.Groups),
 	}
 
 	if err := h.userStore.Add(user); err != nil {
@@ -500,6 +506,7 @@ func (h *AuthHandler) CreateUser(w http.ResponseWriter, r *http.Request) {
 			Role:        user.Role,
 			Email:       user.Email,
 			DisplayName: user.DisplayName,
+			Groups:      user.Groups,
 		},
 	})
 }
@@ -513,9 +520,10 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	var req struct {
-		Role        string  `json:"role"`
-		Email       *string `json:"email"`
-		DisplayName *string `json:"display_name"`
+		Role        string    `json:"role"`
+		Email       *string   `json:"email"`
+		DisplayName *string   `json:"display_name"`
+		Groups      *[]string `json:"groups"` // pointer so omission and explicit []/null both round-trip cleanly
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
@@ -541,6 +549,9 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 	if req.DisplayName != nil {
 		user.DisplayName = *req.DisplayName
+	}
+	if req.Groups != nil {
+		user.Groups = sanitizeGroupList(*req.Groups)
 	}
 
 	// Atomic last-admin guard: reject the update if it would demote the
@@ -571,8 +582,37 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 			Role:        user.Role,
 			Email:       user.Email,
 			DisplayName: user.DisplayName,
+			Groups:      user.Groups,
 		},
 	})
+}
+
+// sanitizeGroupList trims whitespace, drops empties, and de-duplicates
+// a group list submitted by an admin. Group matching elsewhere is
+// case-insensitive, but we preserve the operator's chosen casing so it
+// is easier to read when the file is opened or exported.
+func sanitizeGroupList(in []string) []string {
+	if len(in) == 0 {
+		return nil
+	}
+	seen := make(map[string]struct{}, len(in))
+	out := make([]string, 0, len(in))
+	for _, g := range in {
+		g = strings.TrimSpace(g)
+		if g == "" {
+			continue
+		}
+		key := strings.ToLower(g)
+		if _, ok := seen[key]; ok {
+			continue
+		}
+		seen[key] = struct{}{}
+		out = append(out, g)
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 // DeleteUser handles DELETE /api/auth/users/{username}

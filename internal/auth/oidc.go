@@ -310,6 +310,7 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 		Email:       email,
 		DisplayName: displayName,
 		Role:        role,
+		Groups:      groups,
 	}
 
 	// Create session
@@ -325,6 +326,11 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	// users are session-only, not persisted to the config-based store).
 	session.Data["email"] = email
 	session.Data["display_name"] = displayName
+	if len(groups) > 0 {
+		// Stored as a slice on the session map; the middleware reads it
+		// back into User.Groups so per-app allowed_groups checks work.
+		session.Data["groups"] = groups
+	}
 
 	// Set session cookie
 	p.sessionStore.SetCookie(w, session)

@@ -1546,6 +1546,201 @@ func contains(s, substr string) bool {
 	return len(s) >= len(substr) && searchSubstring(s, substr)
 }
 
+func TestCreateUser_AcceptsGroups(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+
+	body, _ := json.Marshal(map[string]interface{}{
+		"username":     "alice",
+		"password":     "longenoughpw",
+		"role":         "user",
+		"email":        "alice@example.com",
+		"display_name": "Alice",
+		"groups":       []string{"developers", " ops ", "DEVELOPERS", ""},
+	})
+	req := httptest.NewRequest(http.MethodPost, "/api/auth/users", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.CreateUser(w, req)
+
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body = %s", w.Code, w.Body.String())
+	}
+
+	stored := handler.userStore.Get("alice")
+	if stored == nil {
+		t.Fatal("alice not in user store")
+	}
+	// sanitizeGroupList trims, dedupes case-insensitively, and drops
+	// empty strings; "DEVELOPERS" is dropped as a dup of "developers".
+	if got := stored.Groups; len(got) != 2 || got[0] != "developers" || got[1] != "ops" {
+		t.Errorf("groups = %v, want [developers ops]", got)
+	}
+
+	// And it must round-trip through the response so the UI can show it.
+	var resp struct {
+		User UserResponse `json:"user"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if len(resp.User.Groups) != 2 {
+		t.Errorf("response groups = %v, want [developers ops]", resp.User.Groups)
+	}
+}
+
+func TestUpdateUser_GroupsOmittedKeepsExisting(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{
+		ID:           "bob",
+		Username:     "bob",
+		PasswordHash: hash,
+		Role:         "user",
+		Groups:       []string{"developers"},
+	}); err != nil {
+		t.Fatalf("add: %v", err)
+	}
+
+	// Body without `groups` key — must leave existing groups intact.
+	body, _ := json.Marshal(map[string]interface{}{"role": "power-user"})
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/users/bob", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateUser(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body = %s", w.Code, w.Body.String())
+	}
+
+	updated := handler.userStore.Get("bob")
+	if got := updated.Groups; len(got) != 1 || got[0] != "developers" {
+		t.Errorf("groups changed despite being omitted: got %v, want [developers]", got)
+	}
+}
+
+func TestUpdateUser_GroupsPresentReplaces(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{
+		ID:           "carol",
+		Username:     "carol",
+		PasswordHash: hash,
+		Role:         "user",
+		Groups:       []string{"developers"},
+	}); err != nil {
+		t.Fatalf("add: %v", err)
+	}
+
+	// Body with explicit groups — replaces, not merges.
+	body, _ := json.Marshal(map[string]interface{}{"groups": []string{"ops"}})
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/users/carol", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateUser(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body = %s", w.Code, w.Body.String())
+	}
+
+	updated := handler.userStore.Get("carol")
+	if got := updated.Groups; len(got) != 1 || got[0] != "ops" {
+		t.Errorf("groups not replaced: got %v, want [ops]", got)
+	}
+}
+
+func TestUpdateUser_EmptyGroupsClears(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{
+		ID:           "dave",
+		Username:     "dave",
+		PasswordHash: hash,
+		Role:         "user",
+		Groups:       []string{"developers", "ops"},
+	}); err != nil {
+		t.Fatalf("add: %v", err)
+	}
+
+	body, _ := json.Marshal(map[string]interface{}{"groups": []string{}})
+	req := httptest.NewRequest(http.MethodPut, "/api/auth/users/dave", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateUser(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body = %s", w.Code, w.Body.String())
+	}
+
+	updated := handler.userStore.Get("dave")
+	if len(updated.Groups) != 0 {
+		t.Errorf("groups not cleared: got %v", updated.Groups)
+	}
+}
+
+func TestSanitizeGroupList(t *testing.T) {
+	cases := []struct {
+		name string
+		in   []string
+		want []string
+	}{
+		{"nil", nil, nil},
+		{"all empty", []string{"", "  ", ""}, nil},
+		{"trims whitespace", []string{"  developers  "}, []string{"developers"}},
+		{"dedupes case-insensitively", []string{"Devs", "devs", "DEVS"}, []string{"Devs"}},
+		{"preserves first-seen casing", []string{"OnCall", "oncall"}, []string{"OnCall"}},
+		{"keeps order", []string{"a", "b", "c"}, []string{"a", "b", "c"}},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := sanitizeGroupList(c.in)
+			if len(got) != len(c.want) {
+				t.Fatalf("len = %d, want %d (got %v)", len(got), len(c.want), got)
+			}
+			for i := range got {
+				if got[i] != c.want[i] {
+					t.Errorf("[%d] = %q, want %q", i, got[i], c.want[i])
+				}
+			}
+		})
+	}
+}
+
+func TestListUsers_IncludesGroups(t *testing.T) {
+	handler, _ := setupAuthTestWithConfig(t)
+
+	hash, _ := auth.HashPassword("longenoughpw")
+	if err := handler.userStore.Add(&auth.User{
+		ID:           "eve",
+		Username:     "eve",
+		PasswordHash: hash,
+		Role:         "user",
+		Groups:       []string{"developers", "on-call"},
+	}); err != nil {
+		t.Fatalf("add: %v", err)
+	}
+
+	req := httptest.NewRequest(http.MethodGet, "/api/auth/users", nil)
+	w := httptest.NewRecorder()
+	handler.ListUsers(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200; body = %s", w.Code, w.Body.String())
+	}
+
+	var users []UserResponse
+	if err := json.NewDecoder(w.Body).Decode(&users); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	var found *UserResponse
+	for i := range users {
+		if users[i].Username == "eve" {
+			found = &users[i]
+			break
+		}
+	}
+	if found == nil {
+		t.Fatal("eve not in ListUsers response")
+	}
+	if len(found.Groups) != 2 {
+		t.Errorf("groups not in response: %+v", found)
+	}
+}
+
 func searchSubstring(s, substr string) bool {
 	for i := 0; i <= len(s)-len(substr); i++ {
 		if s[i:i+len(substr)] == substr {

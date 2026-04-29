@@ -7,6 +7,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"strings"
 	"sync"
 	"time"
 
@@ -59,8 +60,8 @@ func (h *APIHandler) GetConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	userRole := getUserRole(r)
-	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, userRole))
+	userRole, userGroups := getUserRoleAndGroups(r)
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, userRole, userGroups))
 }
 
 // ExportConfig returns the full configuration as a downloadable YAML file,
@@ -135,7 +136,7 @@ func (h *APIHandler) ParseImportedConfig(w http.ResponseWriter, r *http.Request)
 	}
 
 	// Return as the same sanitized JSON format the frontend expects
-	sendJSON(w, http.StatusOK, buildClientConfigResponse(&cfg, ""))
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(&cfg, "", nil))
 }
 
 // validateImportedConfig rejects backups that would leave the running
@@ -221,7 +222,8 @@ type clientAuthConfig struct {
 
 // buildClientConfigResponse creates a sanitized config response from the server config.
 // userRole filters apps by minimum role; empty string means no filtering (e.g. import preview).
-func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfigResponse {
+// userGroups filters apps by allowed_groups; nil means no group filtering.
+func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups []string) clientConfigResponse {
 	language := cfg.Server.Language
 	if language == "" {
 		language = "en"
@@ -235,7 +237,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string) clientConfig
 		Theme:        cfg.Theme,
 		Health:       &cfg.Health,
 		Groups:       cfg.Groups,
-		Apps:         sanitizeApps(cfg.Apps, userRole),
+		Apps:         sanitizeApps(cfg.Apps, userRole, userGroups),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -301,7 +303,9 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		logging.From(r.Context()).Info("Log level changed", "source", "config", "level", h.config.Server.LogLevel)
 	}
 
-	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin))
+	// Admin role automatically passes every group gate, so no need to
+	// thread the admin's actual group list here.
+	sendJSON(w, http.StatusOK, buildClientConfigResponse(h.config, auth.RoleAdmin, nil))
 }
 
 // mergeConfigUpdate applies a client config update to the server config,
@@ -357,6 +361,7 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		Scale:               c.Scale,
 		Shortcut:            c.Shortcut,
 		MinRole:             c.MinRole,
+		AllowedGroups:       c.AllowedGroups,
 		ForceIconBackground: c.ForceIconBackground,
 		Permissions:         c.Permissions,
 		AllowNotifications:  c.AllowNotifications,
@@ -382,8 +387,8 @@ func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
 	h.mu.RLock()
 	defer h.mu.RUnlock()
 
-	userRole := getUserRole(r)
-	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole))
+	userRole, userGroups := getUserRoleAndGroups(r)
+	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole, userGroups))
 }
 
 // GetGroups returns the list of groups
@@ -694,6 +699,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		Scale:               app.Scale,
 		Shortcut:            app.Shortcut,
 		MinRole:             app.MinRole,
+		AllowedGroups:       app.AllowedGroups,
 		ForceIconBackground: app.ForceIconBackground,
 		Permissions:         app.Permissions,
 		AllowNotifications:  app.AllowNotifications,
@@ -744,31 +750,67 @@ type ClientAppConfig struct {
 	Scale               float64              `json:"scale"`
 	Shortcut            *int                 `json:"shortcut,omitempty"`
 	MinRole             string               `json:"min_role,omitempty"`
+	AllowedGroups       []string             `json:"allowed_groups,omitempty"`
 	ForceIconBackground bool                 `json:"force_icon_background,omitempty"`
 	Permissions         []string             `json:"permissions,omitempty"`
 	AllowNotifications  bool                 `json:"allow_notifications,omitempty"`
 }
 
-// sanitizeApps removes sensitive fields and filters by role.
-// userRole is the requesting user's role; empty string disables filtering
-// AND is treated as admin-level for compatibility with callers that never
-// carried a role (e.g. unauthenticated setup previews).
-func sanitizeApps(apps []config.AppConfig, userRole string) []ClientAppConfig {
+// sanitizeApps removes sensitive fields and filters by role and group
+// membership. userRole is the requesting user's role; empty string
+// disables filtering AND is treated as admin-level for compatibility
+// with callers that never carried a role (e.g. unauthenticated setup
+// previews). userGroups is the requesting user's group memberships
+// from OIDC, forward-auth, or built-in user config; matched against
+// each app's allowed_groups list when set.
+func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string) []ClientAppConfig {
 	isAdmin := userRole == "" || userRole == auth.RoleAdmin
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
 		if !apps[i].Enabled {
 			continue
 		}
-		// Filter by minimum role if a user role is provided
+		// Filter by minimum role if a user role is provided.
 		if userRole != "" && apps[i].MinRole != "" {
 			if !auth.HasMinRole(userRole, apps[i].MinRole) {
+				continue
+			}
+		}
+		// Filter by group membership when the app declares an
+		// allowed_groups list. Empty list = no group gate. Matching is
+		// case-insensitive to mirror the admin-group check elsewhere.
+		// Admins bypass the group gate the same way they bypass min_role
+		// in HasMinRole, so an operator can still see every app even
+		// from a personal account that isn't in any IdP group.
+		// userRole == "" disables the group check too so unauth setup
+		// previews still see every app, matching the role behaviour.
+		if userRole != "" && !isAdmin && len(apps[i].AllowedGroups) > 0 {
+			if !userInAnyAllowedGroup(userGroups, apps[i].AllowedGroups) {
 				continue
 			}
 		}
 		result = append(result, sanitizeAppForRole(&apps[i], isAdmin))
 	}
 	return result
+}
+
+// userInAnyAllowedGroup returns true when at least one of the user's
+// groups matches one of allowed (case-insensitive). Returns false when
+// the user has no groups, regardless of allowed contents.
+func userInAnyAllowedGroup(userGroups, allowed []string) bool {
+	if len(userGroups) == 0 {
+		return false
+	}
+	allowSet := make(map[string]struct{}, len(allowed))
+	for _, g := range allowed {
+		allowSet[strings.ToLower(strings.TrimSpace(g))] = struct{}{}
+	}
+	for _, g := range userGroups {
+		if _, ok := allowSet[strings.ToLower(strings.TrimSpace(g))]; ok {
+			return true
+		}
+	}
+	return false
 }
 
 // Slugify converts a name to a URL-safe slug
@@ -798,12 +840,14 @@ func Slugify(name string) string {
 	return string(result)
 }
 
-// getUserRole extracts the user role from the request context.
-// Returns empty string if no user is present.
-func getUserRole(r *http.Request) string {
+// getUserRoleAndGroups extracts both the role and the group memberships
+// from the request context in one lookup. Used by handlers that need to
+// run sanitizeApps, where role gates min_role and groups gate
+// allowed_groups.
+func getUserRoleAndGroups(r *http.Request) (string, []string) {
 	user := auth.GetUserFromContext(r.Context())
 	if user == nil {
-		return ""
+		return "", nil
 	}
-	return user.Role
+	return user.Role, user.Groups
 }

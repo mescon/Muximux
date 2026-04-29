@@ -193,6 +193,18 @@
     }
   }
 
+  async function handleUpdateUserGroups(username: string, raw: string) {
+    // Comma-separated input, trimmed and de-empty'd; pass [] to clear so
+    // the backend distinguishes "explicitly cleared" from "omitted".
+    const groups = raw.split(',').map(g => g.trim()).filter(g => g.length > 0);
+    try {
+      await updateUser(username, { groups });
+      await loadSecurityUsers();
+    } catch (e) {
+      securityError = e instanceof Error ? e.message : m.error_failedUpdateUser();
+    }
+  }
+
   async function handleDeleteUser(username: string) {
     try {
       await deleteUserAccount(username);
@@ -877,49 +889,70 @@
       {:else}
         <div class="space-y-2">
           {#each securityUsers as user (user.username)}
-            <div class="flex items-center gap-3 p-3 rounded-lg bg-bg-surface border border-border">
-              <div class="w-8 h-8 rounded-full bg-bg-elevated flex items-center justify-center text-sm font-medium text-text-secondary">
-                {user.username.charAt(0).toUpperCase()}
-              </div>
-              <div class="flex-1 min-w-0">
-                <div class="text-sm font-medium text-text-primary">{user.username}</div>
-                {#if user.email}
-                  <div class="text-xs text-text-disabled">{user.email}</div>
+            <div class="p-3 rounded-lg bg-bg-surface border border-border">
+              <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-full bg-bg-elevated flex items-center justify-center text-sm font-medium text-text-secondary">
+                  {user.username.charAt(0).toUpperCase()}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <div class="text-sm font-medium text-text-primary">{user.username}</div>
+                  {#if user.email}
+                    <div class="text-xs text-text-disabled">{user.email}</div>
+                  {/if}
+                </div>
+                <select
+                  value={user.role}
+                  onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
+                  class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
+                         focus:outline-none focus:ring-1 focus:ring-brand-500"
+                >
+                  <option value="admin">{m.common_roleAdmin()}</option>
+                  <option value="power-user">{m.common_rolePowerUser()}</option>
+                  <option value="user">{m.common_roleUser()}</option>
+                </select>
+                {#if confirmDeleteUser === user.username}
+                  <div class="flex items-center gap-1.5">
+                    <button
+                      class="btn btn-danger btn-sm"
+                      onclick={() => handleDeleteUser(user.username)}
+                    >{m.common_delete()}</button>
+                    <button
+                      class="btn btn-secondary btn-sm"
+                      onclick={() => confirmDeleteUser = null}
+                    >{m.common_cancel()}</button>
+                  </div>
+                {:else}
+                  <button
+                    class="p-1.5 text-text-disabled hover:text-red-400 rounded transition-colors"
+                    onclick={() => confirmDeleteUser = user.username}
+                    disabled={user.username === $currentUser?.username}
+                    title={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.security_deleteUser()}
+                  >
+                    <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
                 {/if}
               </div>
-              <select
-                value={user.role}
-                onchange={(e) => handleUpdateUserRole(user.username, e.currentTarget.value)}
-                class="px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
-                       focus:outline-none focus:ring-1 focus:ring-brand-500"
-              >
-                <option value="admin">{m.common_roleAdmin()}</option>
-                <option value="power-user">{m.common_rolePowerUser()}</option>
-                <option value="user">{m.common_roleUser()}</option>
-              </select>
-              {#if confirmDeleteUser === user.username}
-                <div class="flex items-center gap-1.5">
-                  <button
-                    class="btn btn-danger btn-sm"
-                    onclick={() => handleDeleteUser(user.username)}
-                  >{m.common_delete()}</button>
-                  <button
-                    class="btn btn-secondary btn-sm"
-                    onclick={() => confirmDeleteUser = null}
-                  >{m.common_cancel()}</button>
-                </div>
-              {:else}
-                <button
-                  class="p-1.5 text-text-disabled hover:text-red-400 rounded transition-colors"
-                  onclick={() => confirmDeleteUser = user.username}
-                  disabled={user.username === $currentUser?.username}
-                  title={user.username === $currentUser?.username ? m.security_cantDeleteSelf() : m.security_deleteUser()}
-                >
-                  <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                  </svg>
-                </button>
-              {/if}
+              <div class="mt-2 flex items-center gap-2 ms-11">
+                <label for="user-groups-{user.username}" class="text-xs text-text-muted whitespace-nowrap">
+                  Groups
+                </label>
+                <input
+                  id="user-groups-{user.username}"
+                  type="text"
+                  value={(user.groups ?? []).join(', ')}
+                  onblur={(e) => {
+                    const next = (user.groups ?? []).join(', ');
+                    if (e.currentTarget.value !== next) {
+                      handleUpdateUserGroups(user.username, e.currentTarget.value);
+                    }
+                  }}
+                  placeholder="e.g. developers, on-call"
+                  class="flex-1 px-2 py-1 text-xs bg-bg-elevated border border-border-subtle rounded text-text-primary
+                         focus:outline-none focus:ring-1 focus:ring-brand-500"
+                />
+              </div>
             </div>
           {/each}
         </div>

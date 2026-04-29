@@ -985,7 +985,7 @@ func TestMergeClientApp(t *testing.T) {
 func TestBuildClientConfigResponse(t *testing.T) {
 	cfg := createTestConfig()
 
-	resp := buildClientConfigResponse(cfg, "admin")
+	resp := buildClientConfigResponse(cfg, "admin", nil)
 
 	if resp.Title != "Test Dashboard" {
 		t.Errorf("expected title 'Test Dashboard', got %q", resp.Title)
@@ -1011,7 +1011,7 @@ func TestBuildClientConfigResponse(t *testing.T) {
 			"search": {{Key: "k", Ctrl: true}},
 		},
 	}
-	resp = buildClientConfigResponse(cfg, "admin")
+	resp = buildClientConfigResponse(cfg, "admin", nil)
 	if resp.Keybindings == nil {
 		t.Error("expected keybindings to be set")
 	}
@@ -1394,7 +1394,7 @@ func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	}
 
 	t.Run("admin keeps secrets", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin")
+		result := sanitizeApps(apps, "admin", nil)
 		if len(result) != 1 || !strings.Contains(result[0].URL, "adminuser:s3cret@") {
 			t.Errorf("admin URL = %q, want credentials preserved", result[0].URL)
 		}
@@ -1404,7 +1404,7 @@ func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	})
 
 	t.Run("non-admin loses credentials", func(t *testing.T) {
-		result := sanitizeApps(apps, "user")
+		result := sanitizeApps(apps, "user", nil)
 		if len(result) != 1 {
 			t.Fatalf("expected 1 app, got %d", len(result))
 		}
@@ -1424,7 +1424,7 @@ func TestSanitizeApps(t *testing.T) {
 		{Name: "Enabled2", URL: "http://c:8080", Enabled: true, Proxy: true},
 	}
 
-	result := sanitizeApps(apps, "admin")
+	result := sanitizeApps(apps, "admin", nil)
 
 	if len(result) != 2 {
 		t.Errorf("expected 2 enabled apps, got %d", len(result))
@@ -1446,14 +1446,14 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	}
 
 	t.Run("admin sees all", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin")
+		result := sanitizeApps(apps, "admin", nil)
 		if len(result) != 3 {
 			t.Errorf("admin should see 3 apps, got %d", len(result))
 		}
 	})
 
 	t.Run("power-user sees public and power-user", func(t *testing.T) {
-		result := sanitizeApps(apps, "power-user")
+		result := sanitizeApps(apps, "power-user", nil)
 		if len(result) != 2 {
 			t.Errorf("power-user should see 2 apps, got %d", len(result))
 		}
@@ -1465,7 +1465,7 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	})
 
 	t.Run("user sees only public", func(t *testing.T) {
-		result := sanitizeApps(apps, "user")
+		result := sanitizeApps(apps, "user", nil)
 		if len(result) != 1 {
 			t.Errorf("user should see 1 app, got %d", len(result))
 		}
@@ -1475,11 +1475,129 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	})
 
 	t.Run("empty role disables filtering", func(t *testing.T) {
-		result := sanitizeApps(apps, "")
+		result := sanitizeApps(apps, "", nil)
 		if len(result) != 3 {
 			t.Errorf("empty role should see all 3 apps, got %d", len(result))
 		}
 	})
+}
+
+func TestSanitizeAppsGroupFiltering(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Open", URL: "http://a:8080", Enabled: true},
+		{Name: "DevsOnly", URL: "http://b:8080", Enabled: true, AllowedGroups: []string{"developers"}},
+		{Name: "OnCall", URL: "http://c:8080", Enabled: true, AllowedGroups: []string{"sre", "on-call"}},
+		{Name: "AdminAndDevs", URL: "http://d:8080", Enabled: true, MinRole: "admin", AllowedGroups: []string{"developers"}},
+	}
+
+	t.Run("user with no groups only sees open apps", func(t *testing.T) {
+		result := sanitizeApps(apps, "user", nil)
+		if len(result) != 1 {
+			t.Errorf("user with no groups should see 1 app (Open), got %d: %+v", len(result), names(result))
+		}
+		if result[0].Name != "Open" {
+			t.Errorf("expected 'Open', got %q", result[0].Name)
+		}
+	})
+
+	t.Run("user in developers group sees Open and DevsOnly", func(t *testing.T) {
+		result := sanitizeApps(apps, "user", []string{"developers"})
+		if len(result) != 2 {
+			t.Errorf("expected 2 apps, got %d: %+v", len(result), names(result))
+		}
+	})
+
+	t.Run("group matching is case-insensitive", func(t *testing.T) {
+		// User group is uppercase, app's allowed_groups is lowercase.
+		// Mirroring the OIDC admin-group case-insensitive comparison
+		// keeps operators from being bitten by IdP casing variations.
+		result := sanitizeApps(apps, "user", []string{"DEVELOPERS"})
+		if len(result) != 2 {
+			t.Errorf("case-insensitive match failed: got %d, want 2", len(result))
+		}
+	})
+
+	t.Run("user in any of multiple allowed groups passes the gate", func(t *testing.T) {
+		// OnCall app allows ["sre", "on-call"]; user in just "on-call".
+		result := sanitizeApps(apps, "user", []string{"on-call"})
+		if len(result) != 2 {
+			t.Errorf("expected Open + OnCall, got %+v", names(result))
+		}
+		var sawOnCall bool
+		for _, a := range result {
+			if a.Name == "OnCall" {
+				sawOnCall = true
+			}
+		}
+		if !sawOnCall {
+			t.Error("OnCall app should be visible to user in 'on-call' group")
+		}
+	})
+
+	t.Run("admin bypasses group gate", func(t *testing.T) {
+		// Even with no group memberships, admin sees every app the
+		// role allows — including ones with allowed_groups set.
+		result := sanitizeApps(apps, "admin", nil)
+		if len(result) != 4 {
+			t.Errorf("admin should see all 4 apps, got %d: %+v", len(result), names(result))
+		}
+	})
+
+	t.Run("non-admin in matching group still gated by min_role", func(t *testing.T) {
+		// AdminAndDevs requires admin role AND developers group. A
+		// user in developers but not admin should not see it.
+		result := sanitizeApps(apps, "user", []string{"developers"})
+		for _, a := range result {
+			if a.Name == "AdminAndDevs" {
+				t.Error("user role should not pass min_role=admin gate even with matching group")
+			}
+		}
+	})
+
+	t.Run("empty role disables both gates", func(t *testing.T) {
+		// Mirrors the existing role-only behaviour: unauth setup
+		// previews see every app regardless of allowed_groups.
+		result := sanitizeApps(apps, "", nil)
+		if len(result) != 4 {
+			t.Errorf("expected all 4 apps for empty role, got %d", len(result))
+		}
+	})
+}
+
+// names extracts app names from a sanitized result for nicer test
+// output when length-only assertions fail. Indexes rather than ranging
+// so gocritic doesn't flag the per-iteration struct copy.
+func names(apps []ClientAppConfig) []string {
+	out := make([]string, len(apps))
+	for i := range apps {
+		out[i] = apps[i].Name
+	}
+	return out
+}
+
+func TestUserInAnyAllowedGroup(t *testing.T) {
+	cases := []struct {
+		name       string
+		userGroups []string
+		allowed    []string
+		want       bool
+	}{
+		{"empty user groups", nil, []string{"a"}, false},
+		{"empty allowed list", []string{"a"}, nil, false},
+		{"both empty", nil, nil, false},
+		{"single match", []string{"developers"}, []string{"developers"}, true},
+		{"case insensitive", []string{"Developers"}, []string{"DEVELOPERS"}, true},
+		{"whitespace tolerant", []string{"  developers  "}, []string{"developers"}, true},
+		{"no overlap", []string{"a", "b"}, []string{"c", "d"}, false},
+		{"partial overlap", []string{"a", "b", "c"}, []string{"x", "b", "y"}, true},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			if got := userInAnyAllowedGroup(c.userGroups, c.allowed); got != c.want {
+				t.Errorf("userInAnyAllowedGroup(%v, %v) = %v, want %v", c.userGroups, c.allowed, got, c.want)
+			}
+		})
+	}
 }
 
 func TestSetOnConfigSave(t *testing.T) {
@@ -1817,7 +1935,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Auth.Method = "builtin"
 
-		resp := buildClientConfigResponse(cfg, "admin")
+		resp := buildClientConfigResponse(cfg, "admin", nil)
 
 		if resp.Auth == nil {
 			t.Fatal("expected auth to be set")
@@ -1839,7 +1957,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg.Auth.TrustedProxies = []string{"10.0.0.0/8"}
 		cfg.Auth.Headers = map[string]string{"X-User": "username"}
 
-		resp := buildClientConfigResponse(cfg, "admin")
+		resp := buildClientConfigResponse(cfg, "admin", nil)
 
 		if resp.Auth == nil {
 			t.Fatal("expected auth to be set")
@@ -1859,7 +1977,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Auth.Method = ""
 
-		resp := buildClientConfigResponse(cfg, "admin")
+		resp := buildClientConfigResponse(cfg, "admin", nil)
 
 		if resp.Auth != nil {
 			t.Error("expected auth to be nil when method is empty")
@@ -1870,7 +1988,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Health = config.HealthConfig{Enabled: true, Interval: "30s", Timeout: "5s"}
 
-		resp := buildClientConfigResponse(cfg, "admin")
+		resp := buildClientConfigResponse(cfg, "admin", nil)
 
 		if resp.Health == nil {
 			t.Fatal("expected health config to be included")
@@ -1884,7 +2002,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Server.ProxyTimeout = "60s"
 
-		resp := buildClientConfigResponse(cfg, "admin")
+		resp := buildClientConfigResponse(cfg, "admin", nil)
 
 		if resp.ProxyTimeout != "60s" {
 			t.Errorf("expected proxy_timeout '60s', got %q", resp.ProxyTimeout)
@@ -1895,7 +2013,7 @@ func TestBuildClientConfigResponseWithAuth(t *testing.T) {
 		cfg := createTestConfig()
 		cfg.Server.LogLevel = "debug"
 
-		resp := buildClientConfigResponse(cfg, "admin")
+		resp := buildClientConfigResponse(cfg, "admin", nil)
 
 		if resp.LogLevel != "debug" {
 			t.Errorf("expected log_level 'debug', got %q", resp.LogLevel)

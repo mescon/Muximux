@@ -232,6 +232,86 @@ client_secret: ${OIDC_CLIENT_SECRET}
 
 ---
 
+## Per-App Group Filtering
+
+`min_role` gates an app on the user's role tier (admin > power-user > user). For finer slicing, you can also restrict an app to specific **groups** the user belongs to.
+
+```yaml
+apps:
+  - name: Internal Wiki
+    url: http://wiki.internal:8080
+    proxy: true
+    allowed_groups: [staff, contractors]   # only users in one of these groups see the app
+
+  - name: Production Console
+    url: http://prod.internal
+    proxy: true
+    min_role: admin                         # role gate
+    allowed_groups: [sre, on-call]          # AND group gate
+
+  - name: Status Page
+    url: http://status.internal
+    proxy: true
+    # No allowed_groups -> visible to anyone who clears min_role (default behavior)
+```
+
+Rules:
+
+- `allowed_groups` empty or missing -> no group gate. Existing configs keep working.
+- `allowed_groups` set -> the user needs to be in **at least one** of those groups to see and reach the app.
+- `min_role` and `allowed_groups` are additive. If both are set, both must match.
+- Group names are matched **case-insensitive**, so `Developers` and `developers` both work.
+- **Admins always see every app**, regardless of `allowed_groups`. This mirrors how `min_role` is bypassed by the role hierarchy.
+
+### Where users get groups
+
+| Auth method | Source of group memberships |
+|---|---|
+| **Built-in (password)** | The optional `groups: [...]` field on each user in `auth.users[]`, editable via Settings -> Security -> Users. |
+| **OIDC** | The configured `groups_claim` (default `groups`) on each sign-in. Group membership is owned by your IdP. |
+| **Forward auth** | The `Remote-Groups` header (configurable via `auth.headers.groups`). Group membership is owned by your auth proxy. |
+
+For OIDC and forward-auth users, group membership refreshes when they log in again. Mid-session changes on the IdP side don't propagate until the user re-authenticates.
+
+### Configuring built-in users
+
+In `config.yaml`:
+
+```yaml
+auth:
+  method: builtin
+  users:
+    - username: alice
+      password_hash: "$2a$12$..."
+      role: user
+      groups:
+        - developers
+        - on-call
+    - username: bob
+      password_hash: "$2a$12$..."
+      role: user
+      # No groups -> only sees apps with no allowed_groups gate
+```
+
+Or in the UI: **Settings -> Security -> Users**, type a comma-separated list in the **Groups** field next to the user's role. The change saves on blur.
+
+### Configuring OIDC / forward-auth groups
+
+OIDC users inherit groups from their IdP claim, so the work happens on the IdP side. See the per-provider guides for the exact configuration needed:
+
+- [Microsoft Entra ID](oidc-microsoft-entra-id) -- emit Security Group display names in the `groups` claim
+- [Keycloak](oidc-keycloak) -- add a Group Membership mapper, full path off
+- [Authentik](oidc-authentik) -- enable the `groups` scope and property mapping
+- [Pocket ID](oidc-pocket-id) -- assign users to groups in the admin UI
+- [Zitadel](oidc-zitadel) -- create project roles, point `groups_claim` at `urn:zitadel:iam:org:project:roles`
+- [Authelia](forward-auth-authelia) -- groups arrive via `Remote-Groups` (forward auth) or the `groups` claim (OIDC)
+
+### What if a user has no groups?
+
+A user with no groups passes the role gate but fails any non-empty `allowed_groups` gate. So apps without `allowed_groups` stay visible; apps with `allowed_groups` become invisible. This is intentional: it means a misconfigured IdP claim defaults to "no access" rather than "access to everything", which is the safer side to land on.
+
+---
+
 ## API Key Authentication
 
 Muximux supports an instance-wide API key that non-browser integrations (scripts, webhooks, other services) can present in the `X-Api-Key` header instead of a session cookie. The key is what lets a tool like Overseerr or a cron job reach Muximux without having to maintain a logged-in session.

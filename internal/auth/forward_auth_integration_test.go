@@ -53,6 +53,118 @@ func TestForwardAuth_Authelia(t *testing.T) {
 	if capturedUser.Role != RoleAdmin {
 		t.Errorf("Role = %q, want admin (user in 'admins' group)", capturedUser.Role)
 	}
+	// Groups must be retained on the User so per-app allowed_groups
+	// filtering can match against them. The header was "users, admins"
+	// and we expect both items, trimmed.
+	if got := capturedUser.Groups; len(got) != 2 || got[0] != "users" || got[1] != "admins" {
+		t.Errorf("Groups = %v, want [users admins]", got)
+	}
+}
+
+// TestUserFromSession covers the OIDC user-reconstruction path: the
+// session-store layer may serialize Data through encoding/json (which
+// turns []string into []interface{} on the way back), so the helper
+// has to handle both shapes when it rebuilds a User.
+func TestUserFromSession(t *testing.T) {
+	t.Run("groups absent yields nil", func(t *testing.T) {
+		s := &Session{UserID: "u", Username: "u", Role: RoleUser, Data: map[string]interface{}{}}
+		u := userFromSession(s)
+		if len(u.Groups) != 0 {
+			t.Errorf("Groups = %v, want empty", u.Groups)
+		}
+	})
+
+	t.Run("native []string round trip", func(t *testing.T) {
+		s := &Session{
+			UserID:   "u",
+			Username: "u",
+			Role:     RoleUser,
+			Data: map[string]interface{}{
+				"groups": []string{"developers", "on-call"},
+			},
+		}
+		u := userFromSession(s)
+		if len(u.Groups) != 2 || u.Groups[0] != "developers" || u.Groups[1] != "on-call" {
+			t.Errorf("Groups = %v, want [developers on-call]", u.Groups)
+		}
+	})
+
+	t.Run("[]interface{} (post-JSON-decode) round trip", func(t *testing.T) {
+		// What the session store would hand back after a JSON
+		// marshal/unmarshal cycle.
+		s := &Session{
+			UserID:   "u",
+			Username: "u",
+			Role:     RoleUser,
+			Data: map[string]interface{}{
+				"groups": []interface{}{"developers", "on-call", ""},
+			},
+		}
+		u := userFromSession(s)
+		if len(u.Groups) != 2 {
+			t.Errorf("Groups = %v, want [developers on-call] (empty entry dropped)", u.Groups)
+		}
+	})
+
+	t.Run("non-string entries in []interface{} are dropped", func(t *testing.T) {
+		s := &Session{
+			UserID:   "u",
+			Username: "u",
+			Role:     RoleUser,
+			Data: map[string]interface{}{
+				"groups": []interface{}{"developers", 42, true, "ops"},
+			},
+		}
+		u := userFromSession(s)
+		if len(u.Groups) != 2 || u.Groups[0] != "developers" || u.Groups[1] != "ops" {
+			t.Errorf("Groups = %v, want [developers ops]", u.Groups)
+		}
+	})
+
+	t.Run("unexpected type is ignored", func(t *testing.T) {
+		s := &Session{
+			UserID:   "u",
+			Username: "u",
+			Role:     RoleUser,
+			Data: map[string]interface{}{
+				"groups": "developers,on-call", // string, not slice
+			},
+		}
+		u := userFromSession(s)
+		if len(u.Groups) != 0 {
+			t.Errorf("Groups = %v, want nil for unsupported type", u.Groups)
+		}
+	})
+}
+
+// TestSplitGroupsHeader covers the helper that turns Remote-Groups
+// values into a clean []string. Edge cases: empty, single entry,
+// extra whitespace, and trailing commas.
+func TestSplitGroupsHeader(t *testing.T) {
+	cases := []struct {
+		in   string
+		want []string
+	}{
+		{"", nil},
+		{"developers", []string{"developers"}},
+		{"  developers ", []string{"developers"}},
+		{"a,b,c", []string{"a", "b", "c"}},
+		{"a, b , c", []string{"a", "b", "c"}},
+		{"a,,b", []string{"a", "b"}},
+		{",,,", nil},
+	}
+	for _, c := range cases {
+		got := splitGroupsHeader(c.in)
+		if len(got) != len(c.want) {
+			t.Errorf("splitGroupsHeader(%q) = %v, want %v", c.in, got, c.want)
+			continue
+		}
+		for i := range got {
+			if got[i] != c.want[i] {
+				t.Errorf("splitGroupsHeader(%q)[%d] = %q, want %q", c.in, i, got[i], c.want[i])
+			}
+		}
+	}
 }
 
 // TestForwardAuth_Authentik simulates a request from Authentik using custom

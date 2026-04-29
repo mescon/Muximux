@@ -250,6 +250,24 @@ func userFromSession(s *Session) *User {
 	if dn, ok := s.Data["display_name"].(string); ok {
 		u.DisplayName = dn
 	}
+	// Groups can come back as either []string (in-memory case before
+	// any serialization round-trip) or []interface{} (after JSON or
+	// YAML decode); handle both shapes so OIDC's allowed_groups
+	// filtering survives a session-store backend change.
+	switch g := s.Data["groups"].(type) {
+	case []string:
+		u.Groups = append([]string(nil), g...)
+	case []interface{}:
+		out := make([]string, 0, len(g))
+		for _, v := range g {
+			if s, ok := v.(string); ok && s != "" {
+				out = append(out, s)
+			}
+		}
+		if len(out) > 0 {
+			u.Groups = out
+		}
+	}
 	return u
 }
 
@@ -368,19 +386,22 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	displayName := r.Header.Get(nameHeader)
 	groups := r.Header.Get(groupsHeader)
 
+	// Parse the comma-separated Remote-Groups list into a slice.
+	// Stored on the User so per-app allowed_groups filtering can match
+	// against it the same way OIDC's groups claim is matched.
+	groupList := splitGroupsHeader(groups)
+
 	role := RoleUser
-	if groups != "" {
-		for _, g := range strings.Split(groups, ",") {
-			// Case-insensitive compare to match OIDC's behaviour.
-			// Authelia/Authentik etc. tend to preserve the operator's
-			// configured casing ("Admins", "ADMIN"), and a silently
-			// case-sensitive check here was a common misconfig trap
-			// (findings.md M2).
-			g = strings.ToLower(strings.TrimSpace(g))
-			if g == "admin" || g == "admins" || g == "administrators" {
-				role = RoleAdmin
-				break
-			}
+	for _, g := range groupList {
+		// Case-insensitive compare to match OIDC's behaviour.
+		// Authelia/Authentik etc. tend to preserve the operator's
+		// configured casing ("Admins", "ADMIN"), and a silently
+		// case-sensitive check here was a common misconfig trap
+		// (findings.md M2).
+		lower := strings.ToLower(g)
+		if lower == "admin" || lower == "admins" || lower == "administrators" {
+			role = RoleAdmin
+			break
 		}
 	}
 
@@ -390,7 +411,29 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 		Email:       email,
 		DisplayName: displayName,
 		Role:        role,
+		Groups:      groupList,
 	}
+}
+
+// splitGroupsHeader trims and splits a Remote-Groups header value
+// (comma-separated) into a slice. Empty entries are dropped so the
+// resulting slice contains only meaningful group names.
+func splitGroupsHeader(raw string) []string {
+	if raw == "" {
+		return nil
+	}
+	parts := strings.Split(raw, ",")
+	out := make([]string, 0, len(parts))
+	for _, p := range parts {
+		p = strings.TrimSpace(p)
+		if p != "" {
+			out = append(out, p)
+		}
+	}
+	if len(out) == 0 {
+		return nil
+	}
+	return out
 }
 
 func isFromTrustedProxy(r *http.Request, snap *authSnapshot) bool {

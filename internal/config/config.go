@@ -110,11 +110,12 @@ type AuthConfig struct {
 
 // UserConfig holds local user credentials
 type UserConfig struct {
-	Username     string `yaml:"username"`
-	PasswordHash string `yaml:"password_hash"`
-	Role         string `yaml:"role"`
-	Email        string `yaml:"email,omitempty"`
-	DisplayName  string `yaml:"display_name,omitempty"`
+	Username     string   `yaml:"username"`
+	PasswordHash string   `yaml:"password_hash"`
+	Role         string   `yaml:"role"`
+	Email        string   `yaml:"email,omitempty"`
+	DisplayName  string   `yaml:"display_name,omitempty"`
+	Groups       []string `yaml:"groups,omitempty"` // optional group memberships used by app-level allowed_groups filtering
 }
 
 // OIDCConfig holds OIDC provider settings
@@ -195,6 +196,7 @@ type AppConfig struct {
 	Scale               float64           `yaml:"scale"`
 	Shortcut            *int              `yaml:"shortcut,omitempty" json:"shortcut,omitempty"` // 1-9 keyboard shortcut slot
 	MinRole             string            `yaml:"min_role,omitempty"`                           // minimum role to see this app (default: "user")
+	AllowedGroups       []string          `yaml:"allowed_groups,omitempty"`                     // optional group allowlist; user must be in at least one of these groups (empty = no group gate)
 	ForceIconBackground bool              `yaml:"force_icon_background,omitempty"`              // show icon background even when global setting is off
 	AuthBypass          []AuthBypassRule  `yaml:"auth_bypass"`
 	Access              AppAccessConfig   `yaml:"access"`

@@ -499,6 +499,26 @@
         </select>
         <p class="text-xs text-text-muted mt-1">{m.appForm_roleBelowHidden()}</p>
       </div>
+      <div>
+        <label for="{prefix}-app-allowed-groups" class="block text-sm font-medium text-text-secondary mb-1">
+          Allowed groups
+        </label>
+        <input
+          type="text"
+          id="{prefix}-app-allowed-groups"
+          value={(app.allowed_groups ?? []).join(', ')}
+          oninput={(e) => {
+            const raw = (e.currentTarget as HTMLInputElement).value;
+            const parts = raw.split(',').map(g => g.trim()).filter(g => g.length > 0);
+            app.allowed_groups = parts.length > 0 ? parts : undefined;
+          }}
+          placeholder="e.g. developers, on-call"
+          class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <p class="text-xs text-text-muted mt-1">
+          Comma-separated. When set, a user must be in at least one of these groups to see the app. Admins always see every app. Leave empty for no group restriction.
+        </p>
+      </div>
     </div>
   </div>
 
