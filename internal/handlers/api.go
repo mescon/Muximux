@@ -189,6 +189,14 @@ func validateImportedConfig(cfg *config.Config) error {
 		}
 	}
 
+	// Gateway sites use the same rules the YAML loader applies. Without
+	// this check, a backup with a malformed gateway block (bad domain,
+	// http://path, header smuggling) would pass UI preview and break
+	// the next boot when Load() rejects it.
+	if err := config.ValidateGatewaySites(cfg.Server.GatewaySites, cfg); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -237,7 +245,7 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 		Theme:        cfg.Theme,
 		Health:       &cfg.Health,
 		Groups:       cfg.Groups,
-		Apps:         sanitizeApps(cfg.Apps, userRole, userGroups),
+		Apps:         sanitizeApps(cfg.Apps, userRole, userGroups, cfg.Server.GatewaySites),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -388,7 +396,7 @@ func (h *APIHandler) GetApps(w http.ResponseWriter, r *http.Request) {
 	defer h.mu.RUnlock()
 
 	userRole, userGroups := getUserRoleAndGroups(r)
-	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole, userGroups))
+	sendJSON(w, http.StatusOK, sanitizeApps(h.config.Apps, userRole, userGroups, h.config.Server.GatewaySites))
 }
 
 // GetGroups returns the list of groups
@@ -412,6 +420,41 @@ func (h *APIHandler) GetApp(w http.ResponseWriter, r *http.Request, name string)
 	}
 
 	respondError(w, r, http.StatusNotFound, errAppNotFound)
+}
+
+// saveOrRollbackApps persists the live config and, on failure, restores
+// the apps slice from the supplied snapshot so the in-memory and
+// on-disk views never diverge. Caller holds h.mu.
+//
+// Mirrors the rollback pattern the gateway handler pioneered for its
+// own mutations; bringing the existing apps/groups CRUD endpoints
+// into the same shape closes a class of "save failed but in-memory
+// state was already mutated" bugs that otherwise surface as silently
+// persisted writes on the next successful save.
+func (h *APIHandler) saveOrRollbackApps(prior []config.AppConfig, op, name string) error {
+	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Apps = prior
+		logging.Error("Apps "+op+" save failed; in-memory state rolled back",
+			"source", "audit",
+			"app", name,
+			"error", err)
+		return err
+	}
+	return nil
+}
+
+// saveOrRollbackGroups is the groups-slice counterpart of
+// saveOrRollbackApps. Same contract, different field.
+func (h *APIHandler) saveOrRollbackGroups(prior []config.GroupConfig, op, name string) error {
+	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Groups = prior
+		logging.Error("Groups "+op+" save failed; in-memory state rolled back",
+			"source", "audit",
+			"group", name,
+			"error", err)
+		return err
+	}
+	return nil
 }
 
 // CreateApp creates a new app
@@ -442,10 +485,12 @@ func (h *APIHandler) CreateApp(w http.ResponseWriter, r *http.Request) {
 	newApp := clientAppToConfig(&clientApp)
 	newApp.Order = len(h.config.Apps) // Add at end
 
+	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps = append(h.config.Apps, newApp)
 
-	// Save config
-	if err := h.config.Save(h.configPath); err != nil {
+	// Save config (rollback on disk failure so the in-memory state
+	// never diverges from what's on disk).
+	if err := h.saveOrRollbackApps(priorApps, "create", newApp.Name); err != nil {
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "app", newApp.Name, "error", err)
 		return
 	}
@@ -485,10 +530,12 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	updated := clientAppToConfig(&clientApp)
 	updated.AuthBypass = existing.AuthBypass
 	updated.Access = existing.Access
+
+	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps[idx] = updated
 
-	// Save config
-	if err := h.config.Save(h.configPath); err != nil {
+	// Save config (rollback on disk failure).
+	if err := h.saveOrRollbackApps(priorApps, "update", clientApp.Name); err != nil {
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "app", clientApp.Name, "error", err)
 		return
 	}
@@ -517,14 +564,42 @@ func (h *APIHandler) DeleteApp(w http.ResponseWriter, r *http.Request, name stri
 		return
 	}
 
+	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
+	priorSites := append([]config.GatewaySite(nil), h.config.Server.GatewaySites...)
 	h.config.Apps = append(h.config.Apps[:idx], h.config.Apps[idx+1:]...)
 
-	// Save config
+	// Clear AppName on any gateway site that referenced this app, so
+	// the gateway-sites validator's cross-reference check stays
+	// satisfied. Without this cascade, an unrelated config save after
+	// the app deletion would fail validation with a dangling app_name
+	// error.
+	clearedSites := 0
+	for i := range h.config.Server.GatewaySites {
+		if h.config.Server.GatewaySites[i].AppName == name {
+			h.config.Server.GatewaySites[i].AppName = ""
+			clearedSites++
+		}
+	}
+
+	// Save config; on failure roll back both the apps slice and the
+	// gateway-sites slice so the cascading clear is undone too.
 	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Apps = priorApps
+		h.config.Server.GatewaySites = priorSites
+		logging.Error("Apps delete save failed; in-memory state rolled back",
+			"source", "audit",
+			"app", name,
+			"error", err)
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "app", name, "error", err)
 		return
 	}
 
+	if clearedSites > 0 {
+		logging.From(r.Context()).Info("Cleared dangling gateway-site app_name references",
+			"source", "audit",
+			"app", name,
+			"sites", clearedSites)
+	}
 	logging.From(r.Context()).Info("App deleted", "source", "audit", "app", name)
 	h.notifyConfigSaved()
 	w.WriteHeader(http.StatusNoContent)
@@ -570,10 +645,11 @@ func (h *APIHandler) CreateGroup(w http.ResponseWriter, r *http.Request) {
 	}
 
 	group.Order = len(h.config.Groups)
+	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 	h.config.Groups = append(h.config.Groups, group)
 
-	// Save config
-	if err := h.config.Save(h.configPath); err != nil {
+	// Save config (rollback on disk failure).
+	if err := h.saveOrRollbackGroups(priorGroups, "create", group.Name); err != nil {
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}
@@ -607,10 +683,11 @@ func (h *APIHandler) UpdateGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
+	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
 	h.config.Groups[idx] = group
 
-	// Save config
-	if err := h.config.Save(h.configPath); err != nil {
+	// Save config (rollback on disk failure).
+	if err := h.saveOrRollbackGroups(priorGroups, "update", group.Name); err != nil {
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", group.Name, "error", err)
 		return
 	}
@@ -638,6 +715,8 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 		return
 	}
 
+	priorGroups := append([]config.GroupConfig(nil), h.config.Groups...)
+	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Groups = append(h.config.Groups[:idx], h.config.Groups[idx+1:]...)
 
 	for i := range h.config.Apps {
@@ -646,8 +725,15 @@ func (h *APIHandler) DeleteGroup(w http.ResponseWriter, r *http.Request, name st
 		}
 	}
 
-	// Save config
+	// Save config; on failure roll back both the groups slice and the
+	// apps slice so the cascading orphan-clear is undone too.
 	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Groups = priorGroups
+		h.config.Apps = priorApps
+		logging.Error("Groups delete save failed; in-memory state rolled back",
+			"source", "audit",
+			"group", name,
+			"error", err)
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "group", name, "error", err)
 		return
 	}
@@ -754,6 +840,13 @@ type ClientAppConfig struct {
 	ForceIconBackground bool                 `json:"force_icon_background,omitempty"`
 	Permissions         []string             `json:"permissions,omitempty"`
 	AllowNotifications  bool                 `json:"allow_notifications,omitempty"`
+	// GatewayDomain is set when a gateway site references this app via
+	// `app_name`. The frontend uses this to surface a "Hosted by Muximux
+	// gateway at <domain>" badge on the App form so the operator knows
+	// to keep the App's URL aligned with the gateway domain. This is a
+	// hint, not an enforcement: the URL field stays editable and is
+	// what actually drives the dashboard iframe.
+	GatewayDomain string `json:"gateway_domain,omitempty"`
 }
 
 // sanitizeApps removes sensitive fields and filters by role and group
@@ -762,9 +855,13 @@ type ClientAppConfig struct {
 // with callers that never carried a role (e.g. unauthenticated setup
 // previews). userGroups is the requesting user's group memberships
 // from OIDC, forward-auth, or built-in user config; matched against
-// each app's allowed_groups list when set.
-func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string) []ClientAppConfig {
+// each app's allowed_groups list when set. gatewaySites is the
+// configured gateway-sites list; any site whose AppName matches an
+// app surfaces as ClientAppConfig.GatewayDomain so the App form can
+// show the "Hosted by Muximux gateway" badge.
+func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string, gatewaySites []config.GatewaySite) []ClientAppConfig {
 	isAdmin := userRole == "" || userRole == auth.RoleAdmin
+	domains := gatewayDomainsByAppName(gatewaySites)
 	result := make([]ClientAppConfig, 0, len(apps))
 	for i := range apps {
 		if !apps[i].Enabled {
@@ -789,9 +886,32 @@ func sanitizeApps(apps []config.AppConfig, userRole string, userGroups []string)
 				continue
 			}
 		}
-		result = append(result, sanitizeAppForRole(&apps[i], isAdmin))
+		client := sanitizeAppForRole(&apps[i], isAdmin)
+		if d, ok := domains[apps[i].Name]; ok {
+			client.GatewayDomain = d
+		}
+		result = append(result, client)
 	}
 	return result
+}
+
+// gatewayDomainsByAppName builds an app-name → gateway-domain lookup
+// from the configured gateway sites. Used to set GatewayDomain on
+// each ClientAppConfig in O(1) per app instead of an O(N*M) walk.
+// When two sites name the same app (an operator misconfiguration) the
+// last one wins; the App form will still render correctly, and the
+// gateway-sites table will show both entries.
+func gatewayDomainsByAppName(sites []config.GatewaySite) map[string]string {
+	if len(sites) == 0 {
+		return nil
+	}
+	out := make(map[string]string, len(sites))
+	for i := range sites {
+		if sites[i].AppName != "" {
+			out[sites[i].AppName] = sites[i].Domain
+		}
+	}
+	return out
 }
 
 // userInAnyAllowedGroup returns true when at least one of the user's

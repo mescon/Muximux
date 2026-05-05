@@ -67,6 +67,7 @@
   "settings_theme": "Тема",
   "settings_keybindings": "Клавишни комбинации",
   "settings_security": "Сигурност",
+  "settings_gateway": "Шлюз",
   "settings_about": "Относно",
   "settings_unsavedChanges": "Незапазени промени",
   "settings_saveChanges": "Запази промените",

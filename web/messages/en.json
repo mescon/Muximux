@@ -73,6 +73,7 @@
   "settings_theme": "Theme",
   "settings_keybindings": "Keybindings",
   "settings_security": "Security",
+  "settings_gateway": "Gateway",
   "settings_about": "About",
   "settings_unsavedChanges": "Unsaved changes",
   "settings_saveChanges": "Save Changes",

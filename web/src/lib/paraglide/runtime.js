@@ -742,6 +742,10 @@ export function assertIsLocale(input) {
 }
 
 /**
+ * @typedef {object} ExtractLocaleFromRequestOptions
+ * @property {string | URL} [effectiveRequestUrl] - Effective request URL to use for route matching and locale detection with the URL strategy.
+ */
+/**
  * Extracts a locale from a request.
  *
  * Use the function on the server to extract the locale
@@ -758,19 +762,23 @@ export function assertIsLocale(input) {
  *   const locale = extractLocaleFromRequest(request);
  *
  * @param {Request} request
+ * @param {ExtractLocaleFromRequestOptions} [options]
  * @returns {Locale}
  */
-export const extractLocaleFromRequest = (request) => {
-    return extractLocaleFromRequestWithStrategies(request, getStrategyForUrl(request.url));
+export const extractLocaleFromRequest = (request, options = {}) => {
+    const effectiveRequestUrl = resolveEffectiveRequestUrl(request, options.effectiveRequestUrl);
+    return extractLocaleFromRequestWithStrategies(request, getStrategyForUrl(effectiveRequestUrl), effectiveRequestUrl);
 };
 /**
  * Extracts a locale from a request using the provided strategy order.
  *
  * @param {Request} request
  * @param {typeof strategy} strategies
+ * @param {string | URL} [url]
  * @returns {Locale}
  */
-export const extractLocaleFromRequestWithStrategies = (request, strategies) => {
+export const extractLocaleFromRequestWithStrategies = (request, strategies, url = request.url) => {
+    const effectiveRequestUrl = resolveEffectiveRequestUrl(request, url);
     /** @type {string|undefined} */
     let locale;
     for (const strat of strategies) {
@@ -782,7 +790,7 @@ export const extractLocaleFromRequestWithStrategies = (request, strategies) => {
                 ?.split("=")[1];
         }
         else if (TREE_SHAKE_URL_STRATEGY_USED && strat === "url") {
-            locale = extractLocaleFromUrl(request.url);
+            locale = extractLocaleFromUrl(effectiveRequestUrl);
         }
         else if (TREE_SHAKE_PREFERRED_LANGUAGE_STRATEGY_USED &&
             strat === "preferredLanguage") {
@@ -809,6 +817,17 @@ export const extractLocaleFromRequestWithStrategies = (request, strategies) => {
     }
     throw new Error("No locale found. There is an error in your strategy. Try adding 'baseLocale' as the very last strategy. Read more here https://inlang.com/m/gerre34r/library-inlang-paraglideJs/errors#no-locale-found");
 };
+/**
+ * @param {Request} request
+ * @param {string | URL | undefined} effectiveRequestUrl
+ * @returns {URL}
+ */
+function resolveEffectiveRequestUrl(request, effectiveRequestUrl = request.url) {
+    if (effectiveRequestUrl instanceof URL) {
+        return new URL(effectiveRequestUrl.href);
+    }
+    return new URL(effectiveRequestUrl, request.url);
+}
 
 /**
  * Asynchronously extracts a locale from a request.
@@ -838,12 +857,14 @@ export const extractLocaleFromRequestWithStrategies = (request, strategies) => {
  *   const locale = await extractLocaleFromRequestAsync(request);
  *
  * @param {Request} request - The request object to extract the locale from.
+ * @param {{ effectiveRequestUrl?: string | URL }} [options] - Effective request URL to use for route matching and locale detection with the URL strategy.
  * @returns {Promise<Locale>} The extracted locale.
  */
-export const extractLocaleFromRequestAsync = async (request) => {
+export const extractLocaleFromRequestAsync = async (request, options = {}) => {
     /** @type {string|undefined} */
     let locale;
-    const strategy = getStrategyForUrl(request.url);
+    const effectiveRequestUrl = resolveEffectiveRequestUrlFromRequestAsync(request, options.effectiveRequestUrl);
+    const strategy = getStrategyForUrl(effectiveRequestUrl);
     // Process custom strategies first, in order
     for (const strat of strategy) {
         if (isCustomStrategy(strat) && customServerStrategies.has(strat)) {
@@ -860,8 +881,19 @@ export const extractLocaleFromRequestAsync = async (request) => {
         }
     }
     // If no custom strategy provided a valid locale, fall back to sync version
-    return extractLocaleFromRequestWithStrategies(request, strategy);
+    return extractLocaleFromRequestWithStrategies(request, strategy, effectiveRequestUrl);
 };
+/**
+ * @param {Request} request
+ * @param {string | URL | undefined} effectiveRequestUrl
+ * @returns {URL}
+ */
+function resolveEffectiveRequestUrlFromRequestAsync(request, effectiveRequestUrl = request.url) {
+    if (effectiveRequestUrl instanceof URL) {
+        return new URL(effectiveRequestUrl.href);
+    }
+    return new URL(effectiveRequestUrl, request.url);
+}
 
 /**
  * Extracts a cookie from the document.
@@ -1332,7 +1364,7 @@ export function aggregateGroups(match) {
 /**
  * @typedef {object} ShouldRedirectServerInput
  * @property {Request} request
- * @property {string | URL} [url]
+ * @property {string | URL} [effectiveRequestUrl] - Effective request URL to use for route matching, locale detection with the URL strategy, and redirect targets.
  * @property {Locale} [locale]
  *
  * @typedef {object} ShouldRedirectClientInput
@@ -1380,6 +1412,23 @@ export function aggregateGroups(match) {
  *   return render(request, decision.locale);
  * }
  *
+ * @example
+ * // Server side usage behind a proxy where request.url is not public-facing
+ * export async function handle(request) {
+ *   const effectiveRequestUrl = new URL(request.url);
+ *   effectiveRequestUrl.protocol = "https:";
+ *   effectiveRequestUrl.host = "example.com";
+ *
+ *   const decision = await shouldRedirect({
+ *     request,
+ *     effectiveRequestUrl,
+ *   });
+ *
+ *   if (decision.shouldRedirect) {
+ *     return Response.redirect(decision.redirectUrl, 307);
+ *   }
+ * }
+ *
  * @param {ShouldRedirectInput} [input]
  * @returns {Promise<ShouldRedirectResult>}
  */
@@ -1411,9 +1460,11 @@ async function resolveLocale(input, currentUrl) {
         return locale;
     }
     if (input.request) {
-        return extractLocaleFromRequestAsync(input.request);
+        return extractLocaleFromRequestAsync(input.request, {
+            effectiveRequestUrl: currentUrl,
+        });
     }
-    if (typeof input.url !== "undefined") {
+    if ("url" in input && typeof input.url !== "undefined") {
         return getLocaleForUrl(currentUrl.href);
     }
     return getLocale();
@@ -1425,13 +1476,19 @@ async function resolveLocale(input, currentUrl) {
  * @returns {URL}
  */
 function resolveUrl(input) {
+    if ("effectiveRequestUrl" in input && input.effectiveRequestUrl instanceof URL) {
+        return new URL(input.effectiveRequestUrl.href);
+    }
+    if ("effectiveRequestUrl" in input && typeof input.effectiveRequestUrl === "string") {
+        return new URL(input.effectiveRequestUrl, input.request ? input.request.url : getUrlOrigin());
+    }
     if (input.request) {
         return new URL(input.request.url);
     }
-    if (input.url instanceof URL) {
+    if ("url" in input && input.url instanceof URL) {
         return new URL(input.url.href);
     }
-    if (typeof input.url === "string") {
+    if ("url" in input && typeof input.url === "string") {
         return new URL(input.url, getUrlOrigin());
     }
     if (typeof window !== "undefined" && window?.location?.href) {

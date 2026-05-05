@@ -67,6 +67,7 @@
   "settings_theme": "Téma",
   "settings_keybindings": "Billentyűparancsok",
   "settings_security": "Biztonság",
+  "settings_gateway": "Átjáró",
   "settings_about": "Névjegy",
   "settings_unsavedChanges": "Nem mentett változtatások",
   "settings_saveChanges": "Változtatások mentése",

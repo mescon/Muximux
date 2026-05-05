@@ -67,6 +67,7 @@
   "settings_theme": "Tema",
   "settings_keybindings": "Atajos de teclado",
   "settings_security": "Seguridad",
+  "settings_gateway": "Pasarela",
   "settings_about": "Acerca de",
   "settings_unsavedChanges": "Cambios sin guardar",
   "settings_saveChanges": "Guardar cambios",

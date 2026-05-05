@@ -255,41 +255,169 @@ func TestProxy_buildCaddyfile_ManualTLS(t *testing.T) {
 	}
 }
 
-func TestProxy_buildCaddyfile_ManualTLS_WithGateway(t *testing.T) {
+func TestProxy_buildCaddyfile_ManualTLS_WithAutoGatewaySite(t *testing.T) {
 	p := New(&Config{
 		ListenAddr:   ":443",
 		InternalAddr: "127.0.0.1:10443",
 		TLSCert:      "/path/to/cert.pem",
 		TLSKey:       "/path/to/key.pem",
-		Gateway:      "/etc/caddy/gateway.conf",
+		GatewaySites: []GatewaySite{{
+			Domain:     "sonarr.example.com",
+			BackendURL: "http://sonarr:8989",
+			// TLS unset == "auto" → Caddy needs ports 80/443 for the cert
+		}},
 	})
 
 	cf := p.buildCaddyfile()
 
-	// With gateway, should NOT have auto_https off (gateway sites need auto certs)
+	// auto_https must stay enabled so Caddy can issue the LE cert for the site.
 	if strings.Contains(cf, "auto_https off") {
-		t.Error("should not have 'auto_https off' when gateway is set with manual TLS")
+		t.Error("should not have 'auto_https off' when a structured site needs auto-HTTPS")
 	}
-	if !strings.Contains(cf, "import /etc/caddy/gateway.conf") {
-		t.Error("expected gateway import")
+	if !strings.Contains(cf, "sonarr.example.com {") {
+		t.Error("expected the gateway site block to be emitted")
 	}
 }
 
-func TestProxy_buildCaddyfile_HTTPWithGateway(t *testing.T) {
+func TestProxy_buildCaddyfile_HTTPWithAutoGatewaySite(t *testing.T) {
 	p := New(&Config{
 		ListenAddr:   ":8080",
 		InternalAddr: "127.0.0.1:18080",
-		Gateway:      "/etc/caddy/gateway.conf",
+		GatewaySites: []GatewaySite{{
+			Domain:     "grafana.example.com",
+			BackendURL: "http://grafana:3000",
+		}},
 	})
 
 	cf := p.buildCaddyfile()
 
-	// With gateway, should NOT have auto_https off
 	if strings.Contains(cf, "auto_https off") {
-		t.Error("should not have 'auto_https off' when gateway is set")
+		t.Error("should not have 'auto_https off' when a structured site needs auto-HTTPS")
 	}
-	if !strings.Contains(cf, "import /etc/caddy/gateway.conf") {
-		t.Error("expected gateway import")
+	if !strings.Contains(cf, "grafana.example.com {") {
+		t.Error("expected the gateway site block to be emitted")
+	}
+}
+
+func TestProxy_buildCaddyfile_HTTPWithNoneTLSSite(t *testing.T) {
+	// A site with tls=none must not force auto_https on. Caddy only
+	// listens on the listen port; the http:// prefix on the site
+	// selector tells Caddy to serve plaintext.
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{{
+			Domain:     "internal.lan",
+			BackendURL: "http://app:8080",
+			TLS:        "none",
+		}},
+	})
+
+	cf := p.buildCaddyfile()
+
+	if !strings.Contains(cf, "auto_https off") {
+		t.Error("expected 'auto_https off' when no site needs auto-HTTPS")
+	}
+	if !strings.Contains(cf, "http://internal.lan {") {
+		t.Error("expected http:// site selector for tls=none site")
+	}
+}
+
+func TestProxy_buildCaddyfile_GatewaySite_StreamingFlushInterval(t *testing.T) {
+	// Plex / Jellyfin / Grafana use case: long-lived response streams
+	// must not be buffered.
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{{
+			Domain:     "plex.example.com",
+			BackendURL: "http://plex:32400",
+			Streaming:  true,
+		}},
+	})
+
+	cf := p.buildCaddyfile()
+
+	if !strings.Contains(cf, "flush_interval -1") {
+		t.Error("expected 'flush_interval -1' when streaming=true")
+	}
+}
+
+func TestProxy_buildCaddyfile_GatewaySite_StripFrameBlockers(t *testing.T) {
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{{
+			Domain:             "embedded.example.com",
+			BackendURL:         "http://app:8080",
+			StripFrameBlockers: true,
+		}},
+	})
+
+	cf := p.buildCaddyfile()
+
+	if !strings.Contains(cf, "header -X-Frame-Options") {
+		t.Error("expected X-Frame-Options strip directive")
+	}
+	if !strings.Contains(cf, "Content-Security-Policy") {
+		t.Error("expected CSP frame-ancestors directive")
+	}
+	if !strings.Contains(cf, "frame-ancestors 'self'") {
+		t.Error("expected frame-ancestors 'self' value")
+	}
+}
+
+func TestProxy_buildCaddyfile_GatewaySite_ProxyHeaders(t *testing.T) {
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{{
+			Domain:     "sonarr.example.com",
+			BackendURL: "http://sonarr:8989",
+			ProxyHeaders: map[string]string{
+				"X-Api-Key": "abc-123",
+			},
+		}},
+	})
+
+	cf := p.buildCaddyfile()
+
+	if !strings.Contains(cf, "header_up X-Api-Key") {
+		t.Error("expected upstream X-Api-Key header injection")
+	}
+	if !strings.Contains(cf, `"abc-123"`) {
+		t.Error("expected quoted header value")
+	}
+}
+
+func TestProxy_buildCaddyfile_GatewaySite_ForwardedHeadersDisabled(t *testing.T) {
+	off := false
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{{
+			Domain:           "noxff.example.com",
+			BackendURL:       "http://app:8080",
+			ForwardedHeaders: &off,
+		}},
+	})
+
+	cf := p.buildCaddyfile()
+
+	// The site block should not include the X-Forwarded-* headers when explicitly disabled.
+	siteStart := strings.Index(cf, "noxff.example.com {")
+	if siteStart < 0 {
+		t.Fatal("site block missing")
+	}
+	// Slice from the site to find anything in its block; X-Forwarded headers
+	// would still appear in Muximux's own block, so we just check the slice
+	// from the site start onward.
+	suffix := cf[siteStart:]
+	if strings.Contains(suffix, "X-Forwarded-Proto") {
+		t.Error("X-Forwarded-Proto should not appear in this site's block")
+	}
+	if strings.Contains(suffix, "X-Real-IP") {
+		t.Error("X-Real-IP should not appear in this site's block")
 	}
 }
 
@@ -337,4 +465,110 @@ func TestProxy_StartAndStop(t *testing.T) {
 	if err != nil {
 		t.Errorf("second stop should not error: %v", err)
 	}
+}
+
+// TestValidate covers the dry-run linter handlers will call before
+// persisting a candidate change. Catches Caddyfile syntax errors at
+// parse time so the operator sees a useful message before any reload.
+func TestValidate(t *testing.T) {
+	t.Run("clean Caddyfile parses", func(t *testing.T) {
+		caddyfile := `{
+			auto_https off
+			admin off
+		}
+
+		:18081 {
+			reverse_proxy 127.0.0.1:28081
+		}`
+		if err := Validate(caddyfile); err != nil {
+			t.Errorf("expected clean parse, got: %v", err)
+		}
+	})
+
+	t.Run("syntax error surfaces", func(t *testing.T) {
+		// Unclosed brace is a parse error.
+		caddyfile := `:18082 {
+			reverse_proxy 127.0.0.1:28082
+		`
+		err := Validate(caddyfile)
+		if err == nil {
+			t.Fatal("expected an error for unclosed brace")
+		}
+		if !strings.Contains(err.Error(), "caddyfile invalid") {
+			t.Errorf("error should mention caddyfile invalid, got: %v", err)
+		}
+	})
+
+	t.Run("unknown directive surfaces", func(t *testing.T) {
+		caddyfile := `:18083 {
+			definitely_not_a_caddy_directive arg
+		}`
+		err := Validate(caddyfile)
+		if err == nil {
+			t.Fatal("expected an error for unknown directive")
+		}
+	})
+
+	t.Run("empty input is rejected", func(t *testing.T) {
+		// Caddy's adapter rejects an empty Caddyfile with an EOF error.
+		// That's the right behaviour for our purposes too: a caller
+		// asking us to validate emptiness is a caller about to ship a
+		// config that would refuse to load.
+		err := Validate("")
+		if err == nil {
+			t.Fatal("expected empty input to be rejected")
+		}
+		if !strings.Contains(err.Error(), "caddyfile invalid") {
+			t.Errorf("error should mention caddyfile invalid, got: %v", err)
+		}
+	})
+}
+
+// TestProxy_Reload exercises the in-process reload path that the
+// gateway-sites Settings UI will drive. Reload from a not-yet-running
+// state is the cold-start; a follow-up Reload after mutating config
+// is the hot-reload. Both must produce a running Caddy that serves
+// the latest config without leaking state from the prior config.
+func TestProxy_Reload(t *testing.T) {
+	t.Run("cold reload starts caddy from a stopped state", func(t *testing.T) {
+		p := New(&Config{
+			ListenAddr:   ":19880",
+			InternalAddr: "127.0.0.1:29880",
+		})
+
+		if err := p.Reload(); err != nil {
+			t.Fatalf("cold Reload failed: %v", err)
+		}
+		if !p.IsRunning() {
+			t.Error("expected proxy to be running after cold Reload")
+		}
+		if err := p.Stop(); err != nil {
+			t.Errorf("Stop after cold Reload failed: %v", err)
+		}
+	})
+
+	t.Run("hot reload swaps config on a running instance", func(t *testing.T) {
+		p := New(&Config{
+			ListenAddr:   ":19881",
+			InternalAddr: "127.0.0.1:29881",
+		})
+
+		if err := p.Start(); err != nil {
+			t.Fatalf("Start failed: %v", err)
+		}
+		t.Cleanup(func() { _ = p.Stop() })
+
+		// Mutate the config the way a Settings change would. The next
+		// Reload must apply the new internal address. We don't bind the
+		// new addr in this test (no upstream is required to validate
+		// the load); we only assert that Reload returns nil.
+		p.config.InternalAddr = "127.0.0.1:29882"
+
+		if err := p.Reload(); err != nil {
+			t.Fatalf("hot Reload failed: %v", err)
+		}
+		if !p.IsRunning() {
+			t.Error("expected proxy to remain running after hot Reload")
+		}
+	})
 }

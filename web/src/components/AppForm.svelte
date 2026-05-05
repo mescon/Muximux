@@ -171,6 +171,17 @@
       placeholder={m.appForm_placeholderUrl()}
     />
     {#if errors.url}<p class="text-red-400 text-xs mt-1">{errors.url}</p>{/if}
+    {#if app.gateway_domain}
+      <p class="mt-2 text-xs text-text-muted flex items-start gap-1.5">
+        <svg class="w-4 h-4 text-brand-400 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 010 5.656l-3.829 3.829a4 4 0 01-5.656-5.656l1.106-1.106M10.172 13.828a4 4 0 010-5.656l3.829-3.829a4 4 0 015.656 5.656l-1.106 1.106" />
+        </svg>
+        <span>
+          Hosted by Muximux gateway at <code class="text-text-secondary">{app.gateway_domain}</code>.
+          Set this app's URL to <code class="text-text-secondary">https://{app.gateway_domain}</code> if you want the dashboard to load it via that subdomain.
+        </span>
+      </p>
+    {/if}
   </div>
 
   <div>

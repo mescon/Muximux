@@ -1394,7 +1394,7 @@ func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	}
 
 	t.Run("admin keeps secrets", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin", nil)
+		result := sanitizeApps(apps, "admin", nil, nil)
 		if len(result) != 1 || !strings.Contains(result[0].URL, "adminuser:s3cret@") {
 			t.Errorf("admin URL = %q, want credentials preserved", result[0].URL)
 		}
@@ -1404,7 +1404,7 @@ func TestSanitizeAppsHidesCredentialsForNonAdmin(t *testing.T) {
 	})
 
 	t.Run("non-admin loses credentials", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil)
+		result := sanitizeApps(apps, "user", nil, nil)
 		if len(result) != 1 {
 			t.Fatalf("expected 1 app, got %d", len(result))
 		}
@@ -1424,7 +1424,7 @@ func TestSanitizeApps(t *testing.T) {
 		{Name: "Enabled2", URL: "http://c:8080", Enabled: true, Proxy: true},
 	}
 
-	result := sanitizeApps(apps, "admin", nil)
+	result := sanitizeApps(apps, "admin", nil, nil)
 
 	if len(result) != 2 {
 		t.Errorf("expected 2 enabled apps, got %d", len(result))
@@ -1446,14 +1446,14 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	}
 
 	t.Run("admin sees all", func(t *testing.T) {
-		result := sanitizeApps(apps, "admin", nil)
+		result := sanitizeApps(apps, "admin", nil, nil)
 		if len(result) != 3 {
 			t.Errorf("admin should see 3 apps, got %d", len(result))
 		}
 	})
 
 	t.Run("power-user sees public and power-user", func(t *testing.T) {
-		result := sanitizeApps(apps, "power-user", nil)
+		result := sanitizeApps(apps, "power-user", nil, nil)
 		if len(result) != 2 {
 			t.Errorf("power-user should see 2 apps, got %d", len(result))
 		}
@@ -1465,7 +1465,7 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	})
 
 	t.Run("user sees only public", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil)
+		result := sanitizeApps(apps, "user", nil, nil)
 		if len(result) != 1 {
 			t.Errorf("user should see 1 app, got %d", len(result))
 		}
@@ -1475,7 +1475,7 @@ func TestSanitizeAppsRoleFiltering(t *testing.T) {
 	})
 
 	t.Run("empty role disables filtering", func(t *testing.T) {
-		result := sanitizeApps(apps, "", nil)
+		result := sanitizeApps(apps, "", nil, nil)
 		if len(result) != 3 {
 			t.Errorf("empty role should see all 3 apps, got %d", len(result))
 		}
@@ -1491,7 +1491,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	}
 
 	t.Run("user with no groups only sees open apps", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", nil)
+		result := sanitizeApps(apps, "user", nil, nil)
 		if len(result) != 1 {
 			t.Errorf("user with no groups should see 1 app (Open), got %d: %+v", len(result), names(result))
 		}
@@ -1501,7 +1501,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	})
 
 	t.Run("user in developers group sees Open and DevsOnly", func(t *testing.T) {
-		result := sanitizeApps(apps, "user", []string{"developers"})
+		result := sanitizeApps(apps, "user", []string{"developers"}, nil)
 		if len(result) != 2 {
 			t.Errorf("expected 2 apps, got %d: %+v", len(result), names(result))
 		}
@@ -1511,7 +1511,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 		// User group is uppercase, app's allowed_groups is lowercase.
 		// Mirroring the OIDC admin-group case-insensitive comparison
 		// keeps operators from being bitten by IdP casing variations.
-		result := sanitizeApps(apps, "user", []string{"DEVELOPERS"})
+		result := sanitizeApps(apps, "user", []string{"DEVELOPERS"}, nil)
 		if len(result) != 2 {
 			t.Errorf("case-insensitive match failed: got %d, want 2", len(result))
 		}
@@ -1519,7 +1519,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 
 	t.Run("user in any of multiple allowed groups passes the gate", func(t *testing.T) {
 		// OnCall app allows ["sre", "on-call"]; user in just "on-call".
-		result := sanitizeApps(apps, "user", []string{"on-call"})
+		result := sanitizeApps(apps, "user", []string{"on-call"}, nil)
 		if len(result) != 2 {
 			t.Errorf("expected Open + OnCall, got %+v", names(result))
 		}
@@ -1537,7 +1537,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	t.Run("admin bypasses group gate", func(t *testing.T) {
 		// Even with no group memberships, admin sees every app the
 		// role allows — including ones with allowed_groups set.
-		result := sanitizeApps(apps, "admin", nil)
+		result := sanitizeApps(apps, "admin", nil, nil)
 		if len(result) != 4 {
 			t.Errorf("admin should see all 4 apps, got %d: %+v", len(result), names(result))
 		}
@@ -1546,7 +1546,7 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	t.Run("non-admin in matching group still gated by min_role", func(t *testing.T) {
 		// AdminAndDevs requires admin role AND developers group. A
 		// user in developers but not admin should not see it.
-		result := sanitizeApps(apps, "user", []string{"developers"})
+		result := sanitizeApps(apps, "user", []string{"developers"}, nil)
 		for _, a := range result {
 			if a.Name == "AdminAndDevs" {
 				t.Error("user role should not pass min_role=admin gate even with matching group")
@@ -1557,9 +1557,107 @@ func TestSanitizeAppsGroupFiltering(t *testing.T) {
 	t.Run("empty role disables both gates", func(t *testing.T) {
 		// Mirrors the existing role-only behaviour: unauth setup
 		// previews see every app regardless of allowed_groups.
-		result := sanitizeApps(apps, "", nil)
+		result := sanitizeApps(apps, "", nil, nil)
 		if len(result) != 4 {
 			t.Errorf("expected all 4 apps for empty role, got %d", len(result))
+		}
+	})
+}
+
+func TestSanitizeApps_GatewayPairing(t *testing.T) {
+	apps := []config.AppConfig{
+		{Name: "Sonarr", URL: "http://sonarr:8989", Enabled: true},
+		{Name: "Radarr", URL: "http://radarr:7878", Enabled: true},
+		{Name: "Plex", URL: "http://plex:32400", Enabled: true},
+	}
+
+	t.Run("no gateway sites means no GatewayDomain on any app", func(t *testing.T) {
+		got := sanitizeApps(apps, "admin", nil, nil)
+		for _, c := range got {
+			if c.GatewayDomain != "" {
+				t.Errorf("app %q got unexpected GatewayDomain %q", c.Name, c.GatewayDomain)
+			}
+		}
+	})
+
+	t.Run("matching app_name surfaces GatewayDomain", func(t *testing.T) {
+		sites := []config.GatewaySite{
+			{Domain: "sonarr.example.com", BackendURL: "http://sonarr:8989", AppName: "Sonarr"},
+			{Domain: "plex.example.com", BackendURL: "http://plex:32400", AppName: "Plex", Streaming: true},
+		}
+		got := sanitizeApps(apps, "admin", nil, sites)
+
+		byName := map[string]string{}
+		for _, c := range got {
+			byName[c.Name] = c.GatewayDomain
+		}
+		if byName["Sonarr"] != "sonarr.example.com" {
+			t.Errorf("Sonarr.GatewayDomain = %q, want sonarr.example.com", byName["Sonarr"])
+		}
+		if byName["Plex"] != "plex.example.com" {
+			t.Errorf("Plex.GatewayDomain = %q, want plex.example.com", byName["Plex"])
+		}
+		// Radarr has no matching gateway site.
+		if byName["Radarr"] != "" {
+			t.Errorf("Radarr.GatewayDomain = %q, want empty", byName["Radarr"])
+		}
+	})
+
+	t.Run("gateway site without app_name does not pair", func(t *testing.T) {
+		sites := []config.GatewaySite{
+			{Domain: "standalone.example.com", BackendURL: "http://app:80"}, // no AppName
+		}
+		got := sanitizeApps(apps, "admin", nil, sites)
+		for _, c := range got {
+			if c.GatewayDomain != "" {
+				t.Errorf("app %q got unexpected GatewayDomain %q", c.Name, c.GatewayDomain)
+			}
+		}
+	})
+
+	t.Run("app_name pointing at a non-existent app is silently ignored", func(t *testing.T) {
+		// gatewayDomainsByAppName populates the map regardless of
+		// existence; it just never matches an app, so every app gets
+		// empty GatewayDomain. This intentionally keeps the gateway
+		// side authoritative without bidirectional validation.
+		sites := []config.GatewaySite{
+			{Domain: "ghost.example.com", BackendURL: "http://x:80", AppName: "DoesNotExist"},
+		}
+		got := sanitizeApps(apps, "admin", nil, sites)
+		for _, c := range got {
+			if c.GatewayDomain != "" {
+				t.Errorf("app %q should not be paired, got %q", c.Name, c.GatewayDomain)
+			}
+		}
+	})
+}
+
+func TestGatewayDomainsByAppName(t *testing.T) {
+	t.Run("nil input returns nil map", func(t *testing.T) {
+		if got := gatewayDomainsByAppName(nil); got != nil {
+			t.Errorf("expected nil, got %v", got)
+		}
+	})
+
+	t.Run("sites without AppName are skipped", func(t *testing.T) {
+		got := gatewayDomainsByAppName([]config.GatewaySite{
+			{Domain: "a.example.com"},
+			{Domain: "b.example.com", AppName: "BApp"},
+		})
+		if len(got) != 1 || got["BApp"] != "b.example.com" {
+			t.Errorf("got %v, want {BApp: b.example.com}", got)
+		}
+	})
+
+	t.Run("duplicate AppName: last entry wins", func(t *testing.T) {
+		// Operator misconfiguration; sanitizeApps still produces a
+		// usable result (one of the two sites).
+		got := gatewayDomainsByAppName([]config.GatewaySite{
+			{Domain: "first.example.com", AppName: "Same"},
+			{Domain: "second.example.com", AppName: "Same"},
+		})
+		if got["Same"] != "second.example.com" {
+			t.Errorf("got %v, want last entry to win", got)
 		}
 	})
 }

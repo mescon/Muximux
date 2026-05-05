@@ -268,6 +268,41 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		})).ServeHTTP(w, r)
 	})
 
+	// Gateway sites CRUD. All admin-only because adding a public
+	// hostname triggers Let's Encrypt and changes the proxy's listen
+	// posture; we keep the surface tight.
+	gatewayHandler := handlers.NewGatewayHandler(cfg, configPath, &s.configMu, s.proxyServer)
+	mux.HandleFunc("/api/gateway/sites", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case http.MethodGet:
+				requireAdmin(gatewayHandler.ListSites)(w, r)
+			case http.MethodPost:
+				requireAdmin(gatewayHandler.CreateSite)(w, r)
+			default:
+				http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			}
+		})).ServeHTTP(w, r)
+	})
+	// /api/gateway/sites/{domain} — PUT, DELETE
+	mux.HandleFunc("/api/gateway/sites/", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			switch r.Method {
+			case http.MethodPut:
+				requireAdmin(gatewayHandler.UpdateSite)(w, r)
+			case http.MethodDelete:
+				requireAdmin(gatewayHandler.DeleteSite)(w, r)
+			default:
+				http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
+			}
+		})).ServeHTTP(w, r)
+	})
+	mux.HandleFunc("/api/gateway/validate", func(w http.ResponseWriter, r *http.Request) {
+		authMiddleware.RequireAuth(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			requireAdmin(gatewayHandler.ValidateSite)(w, r)
+		})).ServeHTTP(w, r)
+	})
+
 	// Serve embedded frontend files
 	if distErr != nil {
 		// Fallback to serving from web/dist during development
@@ -910,7 +945,7 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 		Email:        cfg.Server.TLS.Email,
 		TLSCert:      cfg.Server.TLS.Cert,
 		TLSKey:       cfg.Server.TLS.Key,
-		Gateway:      cfg.Server.Gateway,
+		GatewaySites: handlers.ConfigGatewaySitesToProxy(cfg.Server.GatewaySites),
 	}
 	s.proxyServer = proxy.New(&proxyConfig)
 

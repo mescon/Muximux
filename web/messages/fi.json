@@ -67,6 +67,7 @@
   "settings_theme": "Teema",
   "settings_keybindings": "Näppäinsidokset",
   "settings_security": "Tietoturva",
+  "settings_gateway": "Yhdyskäytävä",
   "settings_about": "Tietoja",
   "settings_unsavedChanges": "Tallentamattomia muutoksia",
   "settings_saveChanges": "Tallenna muutokset",

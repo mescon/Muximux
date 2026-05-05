@@ -21,6 +21,7 @@ export interface App {
   force_icon_background?: boolean;  // show icon background even when global setting is off
   permissions?: string[];  // browser feature policy: camera, microphone, geolocation, fullscreen, etc.
   allow_notifications?: boolean;  // enable postMessage notification bridge
+  gateway_domain?: string;  // populated by the backend when a gateway site references this app via app_name (Phase 4 pairing)
 }
 
 export function getEffectiveUrl(app: App): string {
@@ -184,6 +185,41 @@ export interface SetupRequest {
 export interface SetupResponse {
   success: boolean;
   method: string;
+  error?: string;
+}
+
+export interface GatewaySite {
+  domain: string;
+  backend_url: string;
+  tls?: '' | 'auto' | 'custom' | 'none';
+  tls_cert?: string;
+  tls_key?: string;
+  strip_frame_blockers?: boolean;
+  streaming?: boolean;
+  proxy_headers?: Record<string, string>;
+  forwarded_headers?: boolean;
+  app_name?: string;
+}
+
+// GatewayMutationResponse covers both the success and failure shapes
+// the server returns for create / update / delete. The server emits
+// the success shape on 2xx responses and the failure shape on the
+// 503 divergence path; other 4xx/5xx errors flow through the generic
+// error response (a `{error: "..."}` JSON body).
+//
+// `mismatch: true` is the divergence signal (Caddy is serving a
+// candidate config but disk has the prior one) — the UI shows a
+// sticky banner asking the operator to restart Muximux.
+export interface GatewayMutationResponse {
+  success: boolean;
+  site?: GatewaySite;
+  restart_required?: boolean;
+  mismatch?: boolean;
+  error?: string;
+}
+
+export interface GatewayValidationResponse {
+  valid: boolean;
   error?: string;
 }
 

@@ -67,6 +67,7 @@
   "settings_theme": "Tema",
   "settings_keybindings": "Tastaturbindinger",
   "settings_security": "Sikkerhet",
+  "settings_gateway": "Gateway",
   "settings_about": "Om",
   "settings_unsavedChanges": "Ulagrede endringer",
   "settings_saveChanges": "Lagre endringer",

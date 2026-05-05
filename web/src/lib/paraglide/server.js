@@ -33,7 +33,10 @@ import * as runtime from "./runtime.js";
  *      If your framework handles URL localization itself (e.g., TanStack Router's `rewrite` option), use the original
  *      request instead to avoid redirect loops.
  *   - `locale`: The determined locale for this request.
- * @param {{ onRedirect:(response: Response) => void }} [callbacks] - Callbacks to handle events from middleware
+ * @param {{
+ *   effectiveRequestUrl?: string | URL | ((request: Request) => string | URL),
+ *   onRedirect?: (response: Response) => void
+ * }} [options] - Options to control middleware behavior. `effectiveRequestUrl` sets the effective request URL used for route matching, URL-based locale detection, redirects, and `getUrlOrigin()`.
  * @returns {Promise<Response>}
  *
  * @example
@@ -88,25 +91,25 @@ import * as runtime from "./runtime.js";
  * }
  * ```
  */
-export async function paraglideMiddleware(request, resolve, callbacks) {
+export async function paraglideMiddleware(request, resolve, options) {
     if (!runtime.disableAsyncLocalStorage && !runtime.serverAsyncLocalStorage) {
       const { AsyncLocalStorage } = await import("async_hooks");
       runtime.overwriteServerAsyncLocalStorage(new AsyncLocalStorage());
     } else if (!runtime.serverAsyncLocalStorage) {
       runtime.overwriteServerAsyncLocalStorage(createMockAsyncLocalStorage());
     }
-    if (runtime.isExcludedByRouteStrategy(request.url)) {
+    const url = resolveMiddlewareUrl(request, options?.effectiveRequestUrl);
+    const origin = url.origin;
+    if (runtime.isExcludedByRouteStrategy(url.href)) {
         const locale = runtime.baseLocale;
-        const origin = new URL(request.url).origin;
-        const newRequest = cloneRequestWithFallback(request);
+        const newRequest = cloneRequestWithFallback(request, url);
         /** @type {Set<string>} */
         const messageCalls = new Set();
         return /** @type {Response} */ (await runtime.serverAsyncLocalStorage?.run({ locale, origin, messageCalls }, () => resolve({ locale, request: newRequest })));
     }
-    const strategy = runtime.getStrategyForUrl(request.url);
-    const decision = await runtime.shouldRedirect({ request });
+    const strategy = runtime.getStrategyForUrl(url.href);
+    const decision = await runtime.shouldRedirect({ request, effectiveRequestUrl: url });
     const locale = decision.locale;
-    const origin = new URL(request.url).origin;
     // if the client makes a request to a URL that doesn't match
     // the localizedUrl, redirect the client to the localized URL
     if (request.headers.get("Sec-Fetch-Dest") === "document" &&
@@ -125,7 +128,7 @@ export async function paraglideMiddleware(request, resolve, callbacks) {
                 ...headers,
             },
         });
-        callbacks?.onRedirect(response);
+        options?.onRedirect?.(response);
         return response;
     }
     // If the strategy includes "url", we need to de-localize the URL
@@ -136,10 +139,10 @@ export async function paraglideMiddleware(request, resolve, callbacks) {
     // the server can't render the correct page.
     let newRequest;
     if (strategy.includes("url")) {
-        newRequest = new Request(runtime.deLocalizeUrl(request.url), request);
+        newRequest = cloneRequestWithFallback(request, runtime.deLocalizeUrl(url));
     }
     else {
-        newRequest = cloneRequestWithFallback(request);
+        newRequest = cloneRequestWithFallback(request, url);
     }
     // the message functions that have been called in this request
     /** @type {Set<string>} */
@@ -158,7 +161,9 @@ export async function paraglideMiddleware(request, resolve, callbacks) {
             messages.push(`${id}: ${compiledBundles[id]?.[locale]}`);
         }
         // Prevent translated content from terminating the inline script tag.
-        const escapedMessages = messages.join(",").replace(/<\/(script)/gi, "<\\/$1");
+        const escapedMessages = messages
+            .join(",")
+            .replace(/<\/(script)/gi, "<\\/$1");
         const script = `<script>globalThis.__paraglide = globalThis.__paraglide ?? {}; globalThis.__paraglide.ssr = { ${escapedMessages} }</script>`;
         // Insert the script before the closing head tag
         const newBody = body.replace("</head>", `${script}</head>`);
@@ -175,6 +180,20 @@ export async function paraglideMiddleware(request, resolve, callbacks) {
     return response;
 }
 /**
+ * @param {Request} request
+ * @param {string | URL | ((request: Request) => string | URL) | undefined} effectiveRequestUrl
+ * @returns {URL}
+ */
+function resolveMiddlewareUrl(request, effectiveRequestUrl) {
+    if (typeof effectiveRequestUrl === "function") {
+        return new URL(effectiveRequestUrl(request), request.url);
+    }
+    if (typeof effectiveRequestUrl === "string" || effectiveRequestUrl instanceof URL) {
+        return new URL(effectiveRequestUrl, request.url);
+    }
+    return new URL(request.url);
+}
+/**
  * Some metaframeworks (NextJS) require a new Request object.
  * https://github.com/opral/inlang-paraglide-js/issues/411
  *
@@ -182,17 +201,36 @@ export async function paraglideMiddleware(request, resolve, callbacks) {
  * implementations that cannot be cloned with `new Request(request)`.
  * https://github.com/opral/paraglide-js/issues/573
  *
+ * Effective request URL overrides behind proxies:
+ * https://github.com/opral/paraglide-js/issues/652
+ *
  * @param {Request} request
+ * @param {string | URL} [url]
  * @returns {Request}
  */
-function cloneRequestWithFallback(request) {
+function cloneRequestWithFallback(request, url = request.url) {
+    const targetUrl = typeof url === "string" ? url : url.href;
+    if (targetUrl === request.url) {
+        try {
+            // Clone first so building a new Request does not consume the original body stream.
+            return new Request(request.clone());
+        }
+        catch {
+            try {
+                return new Request(request);
+            }
+            catch {
+                return request;
+            }
+        }
+    }
     try {
         // Clone first so building a new Request does not consume the original body stream.
-        return new Request(request.clone());
+        return new Request(targetUrl, request.clone());
     }
     catch {
         try {
-            return new Request(request);
+            return new Request(targetUrl, request);
         }
         catch {
             return request;

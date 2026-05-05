@@ -67,6 +67,7 @@
   "settings_theme": "テーマ",
   "settings_keybindings": "キーバインド",
   "settings_security": "セキュリティ",
+  "settings_gateway": "ゲートウェイ",
   "settings_about": "について",
   "settings_unsavedChanges": "未保存の変更",
   "settings_saveChanges": "変更を保存",

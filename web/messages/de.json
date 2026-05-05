@@ -67,6 +67,7 @@
   "settings_theme": "Theme",
   "settings_keybindings": "Tastenkürzel",
   "settings_security": "Sicherheit",
+  "settings_gateway": "Gateway",
   "settings_about": "Über",
   "settings_unsavedChanges": "Ungespeicherte Änderungen",
   "settings_saveChanges": "Änderungen speichern",

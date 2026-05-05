@@ -67,6 +67,7 @@
   "settings_theme": "Thème",
   "settings_keybindings": "Raccourcis clavier",
   "settings_security": "Sécurité",
+  "settings_gateway": "Passerelle",
   "settings_about": "À propos",
   "settings_unsavedChanges": "Modifications non enregistrées",
   "settings_saveChanges": "Enregistrer les modifications",

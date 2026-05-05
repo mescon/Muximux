@@ -316,7 +316,19 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		_ = h.userStore.Update(&prev) // best-effort rollback
+		if rbErr := h.userStore.Update(&prev); rbErr != nil {
+			logging.From(r.Context()).Error("Password change divergence: persist failed and in-memory rollback also failed",
+				"source", "audit",
+				"user", user.Username,
+				"persist_error", err,
+				"rollback_error", rbErr)
+			sendJSON(w, http.StatusServiceUnavailable, map[string]interface{}{
+				"success":  false,
+				"mismatch": true,
+				"message":  "password change could not be persisted and rollback failed; restart Muximux to recover",
+			})
+			return
+		}
 		logging.From(r.Context()).Error("Failed to persist password change; reverted", "source", "auth", "user", user.Username, "error", err)
 		respondError(w, r, http.StatusInternalServerError, "Failed to persist password change")
 		return
@@ -568,7 +580,24 @@ func (h *AuthHandler) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
-		_ = h.userStore.Update(prev) // best-effort rollback
+		// Best-effort rollback: restore the prior user record in the
+		// in-memory store so the live API view matches what's on
+		// disk. If the rollback itself fails, we are in a divergence
+		// state — surface a 503 with mismatch=true so the UI can
+		// pin a sticky banner asking the operator to restart.
+		if rbErr := h.userStore.Update(prev); rbErr != nil {
+			logging.From(r.Context()).Error("User update divergence: persist failed and in-memory rollback also failed",
+				"source", "audit",
+				"user", username,
+				"persist_error", err,
+				"rollback_error", rbErr)
+			sendJSON(w, http.StatusServiceUnavailable, map[string]interface{}{
+				"success":  false,
+				"mismatch": true,
+				"message":  "user update could not be persisted and rollback failed; restart Muximux to recover",
+			})
+			return
+		}
 		logging.From(r.Context()).Error("Failed to persist user update; reverted", "source", "auth", "user", username, "error", err)
 		respondError(w, r, http.StatusInternalServerError, "Failed to persist user update")
 		return
@@ -643,8 +672,22 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := h.syncUsersToConfig(); err != nil {
+		var rbErr error
 		if prev != nil {
-			_ = h.userStore.Add(prev) // best-effort rollback
+			rbErr = h.userStore.Add(prev) // best-effort rollback
+		}
+		if rbErr != nil {
+			logging.From(r.Context()).Error("User deletion divergence: persist failed and in-memory rollback also failed",
+				"source", "audit",
+				"user", username,
+				"persist_error", err,
+				"rollback_error", rbErr)
+			sendJSON(w, http.StatusServiceUnavailable, map[string]interface{}{
+				"success":  false,
+				"mismatch": true,
+				"message":  "user deletion could not be persisted and rollback failed; restart Muximux to recover",
+			})
+			return
 		}
 		logging.From(r.Context()).Error("Failed to persist user deletion; reverted", "source", "auth", "user", username, "error", err)
 		respondError(w, r, http.StatusInternalServerError, "Failed to persist user deletion")
@@ -787,7 +830,15 @@ func (h *AuthHandler) GenerateAPIKey(w http.ResponseWriter, r *http.Request) {
 	if saveErr != nil {
 		// Roll back the in-memory mutation so a failed disk write does
 		// not leave the live config diverged from what is on disk.
+		// Emit an audit log so monitoring can correlate the rotation
+		// attempt with the disk failure; the generic "Failed to save
+		// config" response below would otherwise make the rollback
+		// invisible to ops.
 		h.config.Auth.APIKeyHash = prev
+		logging.From(r.Context()).Error("API key rotation rolled back due to save failure",
+			"source", "audit",
+			"previously_configured", prev != "",
+			"error", saveErr)
 	} else {
 		h.refreshAuthSnapshotLocked()
 	}
@@ -833,6 +884,9 @@ func (h *AuthHandler) DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
 	saveErr := h.config.Save(h.configPath)
 	if saveErr != nil {
 		h.config.Auth.APIKeyHash = prev
+		logging.From(r.Context()).Error("API key deletion rolled back due to save failure",
+			"source", "audit",
+			"error", saveErr)
 	} else {
 		h.refreshAuthSnapshotLocked()
 	}

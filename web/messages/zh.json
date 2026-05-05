@@ -67,6 +67,7 @@
   "settings_theme": "主题",
   "settings_keybindings": "快捷键",
   "settings_security": "安全",
+  "settings_gateway": "网关",
   "settings_about": "关于",
   "settings_unsavedChanges": "未保存的更改",
   "settings_saveChanges": "保存更改",

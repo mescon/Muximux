@@ -2,6 +2,8 @@ package config
 
 import (
 	"fmt"
+	"net"
+	"net/url"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -63,6 +65,90 @@ type TLSConfig struct {
 }
 
 // ServerConfig holds HTTP server settings
+// TLSMode names the four valid values of GatewaySite.TLS. The type is
+// `string` underneath so YAML / JSON round-trip identically to the
+// previous bare-string field, but using the named type at the call
+// site lets readers see the valid range without consulting the
+// validator.
+type TLSMode string
+
+const (
+	// TLSModeDefault is the empty string and means "auto" by virtue
+	// of the default-value rule applied in validateGatewaySite. It
+	// is exposed as a named constant so a switch can compare against
+	// it without sprinkling the literal `""` around.
+	TLSModeDefault TLSMode = ""
+	// TLSModeAuto issues a Let's Encrypt cert for the site.
+	TLSModeAuto TLSMode = "auto"
+	// TLSModeCustom serves the site with the operator-supplied cert
+	// and key paths.
+	TLSModeCustom TLSMode = "custom"
+	// TLSModeNone serves the site over plain HTTP. Typically used
+	// when Muximux is fronted by another reverse proxy that handles
+	// TLS termination upstream.
+	TLSModeNone TLSMode = "none"
+)
+
+// GatewaySite is a single subdomain/host served via Muximux's embedded
+// Caddy. Replaces the legacy server.gateway: <path-to-file> approach
+// with a structured representation editable through the Settings UI.
+//
+// Each site emits a Caddy site block at the public Domain, reverse-
+// proxying to BackendURL. WebSocket upgrades, HTTP/2, and large
+// uploads are inherited from Caddy's defaults — no flags required.
+//
+// The optional remedies (StripFrameBlockers, Streaming, ProxyHeaders)
+// translate to response- and request-header tweaks in the generated
+// Caddyfile so that subdomain-hosted apps can be embedded in
+// Muximux's dashboard without going through the /proxy/{slug}/
+// path-prefix rewriting layer.
+type GatewaySite struct {
+	// Domain is the public hostname Caddy will listen for (e.g.,
+	// "sonarr.example.com"). Required.
+	Domain string `yaml:"domain" json:"domain"`
+
+	// BackendURL is the upstream the site forwards to (e.g.,
+	// "http://sonarr:8989"). Required. Scheme must be http or https;
+	// host must be non-empty; loopback paired with Muximux's own listen
+	// port is rejected to prevent self-loops.
+	BackendURL string `yaml:"backend_url" json:"backend_url"`
+
+	// TLS controls how Caddy serves this site:
+	//   TLSModeAuto    - Let's Encrypt (also the default when empty)
+	//   TLSModeCustom  - serve with TLSCert + TLSKey
+	//   TLSModeNone    - HTTP only (typical when fronted by another proxy)
+	TLS     TLSMode `yaml:"tls,omitempty" json:"tls,omitempty"`
+	TLSCert string  `yaml:"tls_cert,omitempty" json:"tls_cert,omitempty"`
+	TLSKey  string  `yaml:"tls_key,omitempty" json:"tls_key,omitempty"`
+
+	// StripFrameBlockers removes X-Frame-Options on the response and
+	// splices Muximux's origin into a Content-Security-Policy
+	// frame-ancestors directive, so the dashboard can iframe this
+	// subdomain even if the backend serves restrictive headers. Off
+	// by default; only enable for self-hosted backends you trust.
+	StripFrameBlockers bool `yaml:"strip_frame_blockers,omitempty" json:"strip_frame_blockers,omitempty"`
+
+	// Streaming sets `flush_interval -1` on the reverse_proxy so
+	// long-lived response streams (Server-Sent Events, video
+	// transcodes, live dashboards) are flushed continuously. Plex,
+	// Jellyfin, Grafana, Home Assistant: on. Most apps: leave off.
+	Streaming bool `yaml:"streaming,omitempty" json:"streaming,omitempty"`
+
+	// ProxyHeaders are HTTP headers injected on the upstream request.
+	// Use to forward backend API keys, Authorization tokens, etc.
+	ProxyHeaders map[string]string `yaml:"proxy_headers,omitempty" json:"proxy_headers,omitempty"`
+
+	// ForwardedHeaders defaults to true: emit X-Forwarded-Proto,
+	// X-Forwarded-Host, X-Forwarded-For, X-Real-IP. Set false for
+	// backends that reject those headers.
+	ForwardedHeaders *bool `yaml:"forwarded_headers,omitempty" json:"forwarded_headers,omitempty"`
+
+	// AppName, when set, links this site to apps[].name. The paired
+	// App's URL is derived from this site's Domain and locked in
+	// the App form so the two stay in sync.
+	AppName string `yaml:"app_name,omitempty" json:"app_name,omitempty"`
+}
+
 type ServerConfig struct {
 	Listen       string    `yaml:"listen" json:"listen"`
 	BasePath     string    `yaml:"base_path" json:"base_path"` // e.g. "/muximux" — for serving behind a reverse proxy subpath
@@ -72,7 +158,14 @@ type ServerConfig struct {
 	LogFormat    string    `yaml:"log_format" json:"log_format"`       // "text" or "json" (default: "text")
 	ProxyTimeout string    `yaml:"proxy_timeout" json:"proxy_timeout"` // e.g. "30s", "1m" — timeout for proxied requests
 	TLS          TLSConfig `yaml:"tls" json:"tls"`
-	Gateway      string    `yaml:"gateway" json:"gateway"`
+	// Gateway was the path to an operator-written Caddyfile of extra
+	// sites. Removed in v3.1.0; the field is kept on the struct so
+	// strict YAML decode does not reject it with an unhelpful "unknown
+	// field" message. Any non-empty value is rejected at startup with
+	// a migration message pointing at `gateway_sites` and the
+	// `muximux migrate-gateway` CLI helper.
+	Gateway      string        `yaml:"gateway,omitempty" json:"gateway,omitempty"`
+	GatewaySites []GatewaySite `yaml:"gateway_sites,omitempty" json:"gateway_sites,omitempty"`
 }
 
 // NormalizedBasePath returns the base path with a leading slash and no trailing slash.
@@ -88,10 +181,13 @@ func (c *ServerConfig) NormalizedBasePath() string {
 	return p
 }
 
-// NeedsCaddy returns true if TLS or Gateway is configured, meaning Caddy
-// should start to handle the user-facing port.
+// NeedsCaddy returns true if TLS, the legacy gateway file, or any
+// structured gateway site is configured, meaning Caddy should start
+// to handle the user-facing port. The legacy file branch is kept so
+// callers that run before c.validate() (rare) still report correctly;
+// validate() rejects that field separately at startup.
 func (c *ServerConfig) NeedsCaddy() bool {
-	return c.TLS.Domain != "" || c.TLS.Cert != "" || c.Gateway != ""
+	return c.TLS.Domain != "" || c.TLS.Cert != "" || c.Gateway != "" || len(c.GatewaySites) > 0
 }
 
 // AuthConfig holds authentication settings
@@ -311,12 +407,265 @@ func (c *Config) validate() error {
 		return fmt.Errorf("use tls.domain or tls.cert/tls.key, not both")
 	}
 	if c.Server.Gateway != "" {
-		if _, err := os.Stat(c.Server.Gateway); err != nil {
-			return fmt.Errorf("gateway file not found: %s", c.Server.Gateway)
-		}
+		// Removed in v3.1.0: the file-based gateway is no longer
+		// supported. Surface a migration message rather than letting
+		// the operator's instance start with a partial configuration.
+		return fmt.Errorf("server.gateway is no longer supported (removed in v3.1.0).\n\n"+
+			"Migrate your existing Caddyfile to gateway_sites:\n\n"+
+			"  muximux migrate-gateway %s\n\n"+
+			"Then paste the printed YAML under server.gateway_sites: in your\n"+
+			"config.yaml and remove the legacy server.gateway: line.\n\n"+
+			"See https://github.com/mescon/Muximux/wiki/tls-and-gateway#migration",
+			c.Server.Gateway)
+	}
+
+	if err := validateGatewaySites(c.Server.GatewaySites, c); err != nil {
+		return err
 	}
 
 	return nil
+}
+
+// ValidateGatewaySites is the public entry point for the REST handler's
+// dry-run validation path. It re-uses the same rules the YAML loader
+// applies, so a candidate config that passes ValidateGatewaySites is
+// guaranteed to load cleanly when persisted to disk and reloaded.
+//
+// `cfg` provides both the server-level fields (TLS domain collision
+// check) and the apps list (AppName cross-reference); pass the live
+// Config or a synthesized one with at least the relevant fields set.
+// Passing nil disables the cross-app check, which is appropriate for
+// callers that are validating in isolation (e.g. unit tests) but is
+// generally a smell — the loader and the REST handler always have a
+// real Config available.
+func ValidateGatewaySites(sites []GatewaySite, cfg *Config) error {
+	return validateGatewaySites(sites, cfg)
+}
+
+// validateGatewaySites is exported via ValidateGatewaySites; this name
+// is kept for the existing internal callsites in this file.
+func validateGatewaySites(sites []GatewaySite, cfg *Config) error {
+	if len(sites) == 0 {
+		return nil
+	}
+	// Pre-compute the app-name set once so the per-site loop is O(N)
+	// rather than O(N*M).
+	var appNames map[string]struct{}
+	if cfg != nil && len(cfg.Apps) > 0 {
+		appNames = make(map[string]struct{}, len(cfg.Apps))
+		for i := range cfg.Apps {
+			appNames[cfg.Apps[i].Name] = struct{}{}
+		}
+	}
+	// Track app_name use across sites so we can flag duplicate
+	// pairings (two sites both claiming the same app — the type
+	// analyzer's last-write-wins concern).
+	appNameSeen := make(map[string]int, len(sites))
+	seen := make(map[string]struct{}, len(sites))
+	for i, s := range sites {
+		var srv *ServerConfig
+		if cfg != nil {
+			srv = &cfg.Server
+		}
+		if err := validateGatewaySite(&sites[i], srv); err != nil {
+			return fmt.Errorf("gateway_sites[%d] (%q): %w", i, s.Domain, err)
+		}
+		// Domain matching is case-insensitive in DNS land; canonicalise
+		// before the duplicate check so "Sonarr.example.com" and
+		// "sonarr.example.com" are treated as one.
+		key := strings.ToLower(s.Domain)
+		if _, dup := seen[key]; dup {
+			return fmt.Errorf("gateway_sites[%d]: duplicate domain %q", i, s.Domain)
+		}
+		seen[key] = struct{}{}
+
+		if s.AppName != "" {
+			// Cross-reference against the apps list. A dangling
+			// app_name silently desyncs the Settings UI badge; we
+			// reject loudly at validation time. The cleanup path in
+			// DeleteApp / UpdateApp keeps this invariant impossible
+			// to trip during normal use.
+			if appNames != nil {
+				if _, ok := appNames[s.AppName]; !ok {
+					return fmt.Errorf("gateway_sites[%d]: app_name %q does not match any apps[].name", i, s.AppName)
+				}
+			}
+			if firstIdx, dup := appNameSeen[s.AppName]; dup {
+				return fmt.Errorf("gateway_sites[%d]: app_name %q is already used by gateway_sites[%d] (%q)", i, s.AppName, firstIdx, sites[firstIdx].Domain)
+			}
+			appNameSeen[s.AppName] = i
+		}
+	}
+	return nil
+}
+
+// validateGatewaySite enforces the per-site invariants. Validation is
+// intentionally strict so problems are caught at config-load time
+// rather than at Caddy-load time, where the error message is harder
+// to act on.
+func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
+	if s.Domain == "" {
+		return fmt.Errorf("domain is required")
+	}
+	if !isValidGatewayDomain(s.Domain) {
+		return fmt.Errorf("domain %q is not a valid hostname", s.Domain)
+	}
+	if srv != nil && srv.TLS.Domain != "" && strings.EqualFold(s.Domain, srv.TLS.Domain) {
+		return fmt.Errorf("domain %q collides with server.tls.domain; gateway sites must use distinct hostnames", s.Domain)
+	}
+
+	if s.BackendURL == "" {
+		return fmt.Errorf("backend_url is required")
+	}
+	u, err := url.Parse(s.BackendURL)
+	if err != nil {
+		return fmt.Errorf("backend_url %q is not a valid URL: %w", s.BackendURL, err)
+	}
+	if u.Scheme != "http" && u.Scheme != "https" {
+		return fmt.Errorf("backend_url %q must use http or https", s.BackendURL)
+	}
+	if u.Host == "" {
+		return fmt.Errorf("backend_url %q is missing a host", s.BackendURL)
+	}
+	// Caddy's reverse_proxy upstream syntax is scheme://host[:port] only:
+	// path, query, and fragment are not allowed. Catching them here turns
+	// a confusing late-stage Caddy parse error ("invalid upstream") into
+	// a clear validator message at the originating field.
+	if u.Path != "" && u.Path != "/" {
+		return fmt.Errorf("backend_url %q must not include a path; the structured form forwards the inbound request path as-is", s.BackendURL)
+	}
+	if u.RawQuery != "" {
+		return fmt.Errorf("backend_url %q must not include a query string", s.BackendURL)
+	}
+	if u.Fragment != "" {
+		return fmt.Errorf("backend_url %q must not include a fragment", s.BackendURL)
+	}
+	// Reject 0.0.0.0 and IPv4 link-local; never legitimate as upstream
+	// targets and easy to type by mistake. Private IPs (10/8, 172.16/12,
+	// 192.168/16) are explicitly allowed because that is where most
+	// homelab backends live.
+	hostname := u.Hostname()
+	if hostname == "0.0.0.0" {
+		return fmt.Errorf("backend_url %q points at 0.0.0.0; specify a real host or 127.0.0.1", s.BackendURL)
+	}
+	if ip := net.ParseIP(hostname); ip != nil && ip.IsLinkLocalUnicast() {
+		return fmt.Errorf("backend_url %q targets a link-local address; this is rarely intentional", s.BackendURL)
+	}
+
+	// Validate ProxyHeaders entries. Caddy emits these as `header_up
+	// <name> <value>` directives; an unvalidated name would let an
+	// admin-side typo (a space, a newline) corrupt the Caddyfile and
+	// break Caddy's reload silently. RFC 7230 token grammar covers
+	// real-world header names and rejects every shape that would
+	// confuse the Caddyfile parser.
+	for k, v := range s.ProxyHeaders {
+		if !isValidHeaderName(k) {
+			return fmt.Errorf("proxy_headers key %q is not a valid HTTP header name (RFC 7230 token)", k)
+		}
+		if !isValidHeaderValue(v) {
+			return fmt.Errorf("proxy_headers value for %q contains an invalid character (CR / LF / NUL / quote)", k)
+		}
+	}
+
+	switch s.TLS {
+	case TLSModeDefault, TLSModeAuto:
+		if s.TLSCert != "" || s.TLSKey != "" {
+			return fmt.Errorf("tls_cert / tls_key are only valid when tls is %q", TLSModeCustom)
+		}
+	case TLSModeCustom:
+		if s.TLSCert == "" || s.TLSKey == "" {
+			return fmt.Errorf("tls=%q requires both tls_cert and tls_key", TLSModeCustom)
+		}
+		if _, err := os.Stat(s.TLSCert); err != nil {
+			return fmt.Errorf("tls_cert %q not readable: %w", s.TLSCert, err)
+		}
+		if _, err := os.Stat(s.TLSKey); err != nil {
+			return fmt.Errorf("tls_key %q not readable: %w", s.TLSKey, err)
+		}
+	case TLSModeNone:
+		if s.TLSCert != "" || s.TLSKey != "" {
+			return fmt.Errorf("tls_cert / tls_key are only valid when tls is %q", TLSModeCustom)
+		}
+	default:
+		return fmt.Errorf("tls=%q is invalid; expected %q, %q, or %q", s.TLS, TLSModeAuto, TLSModeCustom, TLSModeNone)
+	}
+
+	return nil
+}
+
+// isValidHeaderName checks that the given string is a valid RFC 7230
+// `token` — the grammar HTTP header names must follow. This is the
+// same shape Caddy's Caddyfile parser will accept on a `header_up`
+// directive without quoting; rejecting anything outside it means our
+// generator can write the name unquoted (`header_up X-Foo "value"`)
+// without escape gymnastics.
+//
+// Token = 1*tchar; tchar = "!" / "#" / "$" / "%" / "&" / "'" / "*" /
+// "+" / "-" / "." / "^" / "_" / "`" / "|" / "~" / DIGIT / ALPHA.
+func isValidHeaderName(s string) bool {
+	if s == "" {
+		return false
+	}
+	for _, r := range s {
+		switch {
+		case r >= 'a' && r <= 'z':
+		case r >= 'A' && r <= 'Z':
+		case r >= '0' && r <= '9':
+		case r == '!' || r == '#' || r == '$' || r == '%' || r == '&' || r == '\'':
+		case r == '*' || r == '+' || r == '-' || r == '.' || r == '^' || r == '_':
+		case r == '`' || r == '|' || r == '~':
+		default:
+			return false
+		}
+	}
+	return true
+}
+
+// isValidHeaderValue rejects characters that cannot legitimately
+// appear in an HTTP header value: control characters (which would
+// truncate or smuggle subsequent headers), and the double quote
+// (which our generator uses to delimit the value in the Caddyfile).
+// Tab is allowed because RFC 7230 permits HTAB in header values.
+func isValidHeaderValue(s string) bool {
+	for _, r := range s {
+		if r == '\t' {
+			continue
+		}
+		if r < 0x20 || r == 0x7f {
+			return false
+		}
+		if r == '"' {
+			return false
+		}
+	}
+	return true
+}
+
+// isValidGatewayDomain accepts RFC-1123-ish hostnames: labels of
+// alphanumerics and hyphens, dot-separated, total length <= 253, no
+// leading/trailing hyphens per label, no wildcards (we don't support
+// wildcard certs in v1).
+func isValidGatewayDomain(d string) bool {
+	if d == "" || len(d) > 253 {
+		return false
+	}
+	if strings.Contains(d, "*") {
+		return false
+	}
+	for _, label := range strings.Split(d, ".") {
+		if label == "" || len(label) > 63 {
+			return false
+		}
+		if label[0] == '-' || label[len(label)-1] == '-' {
+			return false
+		}
+		for _, r := range label {
+			if (r < 'a' || r > 'z') && (r < 'A' || r > 'Z') && (r < '0' || r > '9') && r != '-' {
+				return false
+			}
+		}
+	}
+	return true
 }
 
 // CurrentConfigVersion is the config schema version.

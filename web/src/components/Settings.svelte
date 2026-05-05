@@ -8,6 +8,7 @@
   import KeybindingsEditor from './KeybindingsEditor.svelte';
   import AboutTab from './settings/AboutTab.svelte';
   import AppsTab from './settings/AppsTab.svelte';
+  import GatewayTab from './settings/GatewayTab.svelte';
   import GeneralTab from './settings/GeneralTab.svelte';
   import SecurityTab from './settings/SecurityTab.svelte';
   import ThemeTab from './settings/ThemeTab.svelte';
@@ -30,7 +31,7 @@
   }: {
     config: Config;
     apps: App[];
-    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'about';
+    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'gateway' | 'about';
     onclose?: () => void;
     onsave?: (config: Config) => void;
   } = $props();
@@ -498,6 +499,7 @@
         { id: 'theme', get label() { return m.settings_theme(); } },
         { id: 'keybindings', get label() { return m.settings_keybindings(); } },
         { id: 'security', get label() { return m.settings_security(); } },
+        { id: 'gateway', get label() { return m.settings_gateway(); } },
         { id: 'about', get label() { return m.settings_about(); } }
       ] as tab (tab.id)}
         <button
@@ -545,6 +547,10 @@
       <!-- Security Settings -->
       {:else if activeTab === 'security'}
         <SecurityTab {localConfig} />
+
+      <!-- Gateway sites -->
+      {:else if activeTab === 'gateway'}
+        <GatewayTab />
 
       <!-- About -->
       {:else if activeTab === 'about'}

@@ -85,29 +85,41 @@ See the [strategy documentation](https://inlang.com/m/gerre34r/library-inlang-pa
 
 Messages can contain markup tags for bold, links, and other inline elements. Translators control where tags appear; developers control how they render.
 
+Important:
+- Tag names are app-defined. There is no built-in list of HTML tags.
+- `{#b}...{/b}` does not automatically render as `<b>...</b>`.
+- Renderers/snippets are looked up by the same tag name used in the message.
+
 ### Message syntax
 
 ```json
 {
-  "cta": "{#link to=|/docs|}Read the docs{/link}",
-  "bold_text": "This is {#bold}important{/bold}"
+  "cta": "{#link to=|/docs| rel=$relationship @track}Read the docs{/link}",
+  "welcome": "{#b}Hi {name}{/b}{#icon/}"
 }
 ```
 
 - `{#tagName}` opens a tag, `{/tagName}` closes it.
-- Options: `to=|/docs|` (accessed via `options.to`).
-- Attributes: `@track` (boolean, accessed via `attributes.track`).
+- `{#tagName/}` creates a standalone tag.
+- Options: `to=|/docs|` or `rel=$relationship` (accessed via `options.*`).
+- Attributes: `@track` or `@variant=|hero|` (accessed via `attributes.*`).
 
 This is the default inlang message syntax. Paraglide's message format is plugin-based — you can use [ICU MessageFormat 1](https://inlang.com/m/p7c8m1d2/plugin-inlang-icu-messageformat-1), [i18next](https://inlang.com/m/3i8bor92/plugin-inlang-i18next), or other [plugins](https://inlang.com/c/plugins) instead.
 
 ### Rendering markup
 
-Calling `m.cta()` returns **plain text** (markup stripped). To render markup, use the framework adapter or the low-level `parts()` API:
+Calling the message function still returns **plain text** (markup stripped):
 
 ```js
-const parts = m.cta.parts({});
+m.cta({ relationship: "noopener" }); // "Read the docs"
+```
+
+To render markup, use the framework adapter or the low-level `parts()` API:
+
+```js
+const parts = m.cta.parts({ relationship: "noopener" });
 // [
-//   { type: "markup-start", name: "link", options: { to: "/docs" }, attributes: {} },
+//   { type: "markup-start", name: "link", options: { to: "/docs", rel: "noopener" }, attributes: { track: true } },
 //   { type: "text", value: "Read the docs" },
 //   { type: "markup-end", name: "link" }
 // ]
@@ -124,13 +136,16 @@ Framework adapters provide a `<ParaglideMessage>` component that accepts markup 
 import { ParaglideMessage } from "@inlang/paraglide-js-react"; // or -vue, -svelte, -solid
 
 <ParaglideMessage
-  message={m.cta}
-  inputs={{}}
+  message={m.welcome}
+  inputs={{ name: "Ada" }}
   markup={{
-    link: ({ children, options }) => <a href={options.to}>{children}</a>,
+    b: ({ children }) => <b>{children}</b>,
+    icon: () => <span aria-hidden="true" className="icon-wave" />,
   }}
 />
 ```
+
+The available renderer/snippet names come from the message itself. You can inspect them through `message.parts()`, and TypeScript uses the same names to type-check your markup renderers.
 
 See the [markup documentation](https://inlang.com/m/gerre34r/library-inlang-paraglideJs/markup) for details.
 

@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -138,6 +138,29 @@ export async function generateAPIKey(): Promise<{ success: boolean; key: string;
 
 export async function deleteAPIKey(): Promise<void> {
   await deleteJSON('/auth/api-key');
+}
+
+// Gateway sites CRUD. All admin-only on the server side; the UI calls
+// these only from the Gateway settings tab which is itself admin-gated.
+export async function listGatewaySites(): Promise<GatewaySite[]> {
+  const out = await fetchJSON<GatewaySite[] | null>('/gateway/sites');
+  return out ?? [];
+}
+
+export async function createGatewaySite(site: GatewaySite): Promise<GatewayMutationResponse> {
+  return postJSON<GatewaySite, GatewayMutationResponse>('/gateway/sites', site);
+}
+
+export async function updateGatewaySite(domain: string, site: GatewaySite): Promise<GatewayMutationResponse> {
+  return putJSON<GatewaySite, GatewayMutationResponse>(`/gateway/sites/${encodeURIComponent(domain)}`, site);
+}
+
+export async function deleteGatewaySite(domain: string): Promise<void> {
+  await deleteJSON(`/gateway/sites/${encodeURIComponent(domain)}`);
+}
+
+export async function validateGatewaySite(site: GatewaySite): Promise<GatewayValidationResponse> {
+  return postJSON<GatewaySite, GatewayValidationResponse>('/gateway/validate', site);
 }
 
 export async function fetchRecentLogs(limit?: number): Promise<LogEntry[]> {

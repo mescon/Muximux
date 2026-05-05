@@ -101,9 +101,15 @@ func runHash() {
 
 func main() {
 	// Handle subcommands before flag parsing
-	if len(os.Args) > 1 && os.Args[1] == "hash" {
-		runHash()
-		return
+	if len(os.Args) > 1 {
+		switch os.Args[1] {
+		case "hash":
+			runHash()
+			return
+		case "migrate-gateway":
+			runMigrateGateway()
+			return
+		}
 	}
 
 	dataDir := flag.String("data", envOrDefault("MUXIMUX_DATA", "data"), "Data directory for config, themes, icons (env: MUXIMUX_DATA)")

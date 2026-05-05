@@ -67,6 +67,7 @@
   "settings_theme": "Tema",
   "settings_keybindings": "Tuş Atamaları",
   "settings_security": "Güvenlik",
+  "settings_gateway": "Ağ geçidi",
   "settings_about": "Hakkında",
   "settings_unsavedChanges": "Kaydedilmemiş değişiklikler",
   "settings_saveChanges": "Değişiklikleri Kaydet",

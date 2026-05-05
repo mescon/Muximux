@@ -67,6 +67,7 @@
   "settings_theme": "Тема",
   "settings_keybindings": "Сочетания клавиш",
   "settings_security": "Безопасность",
+  "settings_gateway": "Шлюз",
   "settings_about": "О программе",
   "settings_unsavedChanges": "Несохранённые изменения",
   "settings_saveChanges": "Сохранить изменения",

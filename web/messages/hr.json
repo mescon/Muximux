@@ -67,6 +67,7 @@
   "settings_theme": "Tema",
   "settings_keybindings": "Tipkovni prečaci",
   "settings_security": "Sigurnost",
+  "settings_gateway": "Pristupnik",
   "settings_about": "O programu",
   "settings_unsavedChanges": "Nespremljene promjene",
   "settings_saveChanges": "Spremi promjene",
