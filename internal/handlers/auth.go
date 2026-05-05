@@ -158,7 +158,10 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	// Authenticate
 	user, err := h.userStore.Authenticate(req.Username, req.Password)
 	if err != nil {
-		logging.From(r.Context()).Info("Login failed", "source", "audit", "user", req.Username)
+		// Warn (not Info) so default-warn production logging
+		// captures every failed attempt, which is the only signal
+		// for brute-force monitoring.
+		logging.From(r.Context()).Warn("Login failed", "source", "audit", "user", req.Username)
 		sendJSON(w, http.StatusUnauthorized, LoginResponse{
 			Success: false,
 			Message: "Invalid username or password",

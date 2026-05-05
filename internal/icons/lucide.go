@@ -188,6 +188,12 @@ func (c *LucideClient) fetchIconList() ([]LucideIconInfo, error) {
 
 	cr := <-catCh
 	// Categories are optional — if the fetch fails we still have icon names
+	if cr.err != nil {
+		// Surface the failure so a CDN outage / DNS issue is visible
+		// rather than silently producing an icon list with no
+		// category metadata (which looks like a broken filter UI).
+		logging.Warn("Lucide categories fetch failed; serving icon names without category metadata", "source", "icons", "error", cr.err)
+	}
 	categoryMap := cr.categories
 
 	// Invert categories map: category→[]iconName becomes iconName→[]category

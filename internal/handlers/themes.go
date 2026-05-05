@@ -102,6 +102,11 @@ func (h *ThemeHandler) loadBundledThemes(themeMap map[string]ThemeInfo) {
 	}
 	entries, err := fs.ReadDir(h.bundledFS, "themes")
 	if err != nil {
+		// The bundled themes dir is part of the embed; a read failure
+		// here means the binary was built without the embed tag (dev
+		// run) or is corrupt. Either way the operator should see a
+		// log line rather than an empty list.
+		logging.Warn("Failed to read bundled themes dir", "source", "themes", "error", err)
 		return
 	}
 	for _, entry := range entries {
@@ -110,6 +115,7 @@ func (h *ThemeHandler) loadBundledThemes(themeMap map[string]ThemeInfo) {
 		}
 		data, err := fs.ReadFile(h.bundledFS, "themes/"+entry.Name())
 		if err != nil {
+			logging.Warn("Failed to read bundled theme", "source", "themes", "file", entry.Name(), "error", err)
 			continue
 		}
 		theme := parseThemeMetadata(string(data), entry.Name())
@@ -125,14 +131,22 @@ func (h *ThemeHandler) loadBundledThemes(themeMap map[string]ThemeInfo) {
 func (h *ThemeHandler) loadUserThemes(themeMap map[string]ThemeInfo) {
 	entries, err := os.ReadDir(h.themesDir)
 	if err != nil {
+		if !os.IsNotExist(err) {
+			// IsNotExist is fine — operators with no custom themes
+			// will not have created the dir. Other errors (permission,
+			// IO) need a log line.
+			logging.Warn("Failed to read user themes dir", "source", "themes", "dir", h.themesDir, "error", err)
+		}
 		return
 	}
 	for _, entry := range entries {
 		if entry.IsDir() || !strings.HasSuffix(entry.Name(), ".css") {
 			continue
 		}
-		data, err := os.ReadFile(filepath.Join(h.themesDir, entry.Name()))
+		path := filepath.Join(h.themesDir, entry.Name())
+		data, err := os.ReadFile(path) //nolint:gosec // themesDir-rooted file
 		if err != nil {
+			logging.Warn("Failed to read user theme file", "source", "themes", "file", path, "error", err)
 			continue
 		}
 		theme := parseThemeMetadata(string(data), entry.Name())

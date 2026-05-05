@@ -74,19 +74,17 @@ func (m *CustomIconsManager) SaveIcon(name string, data []byte, contentType stri
 func (m *CustomIconsManager) GetIcon(name string) ([]byte, string, error) {
 	name = sanitizeIconName(name)
 
-	// Try each supported extension
+	// Only resolve files with a known extension. SaveIcon always
+	// writes "<name><ext>" using a validated MIME type, so the
+	// extensionless fallback that used to live here could only match
+	// files placed manually outside the upload path; serving those
+	// blind as application/octet-stream forces a download instead of
+	// a render and obscures the underlying mistake.
 	for contentType, ext := range AllowedMimeTypes {
 		path := filepath.Join(m.storageDir, name+ext)
 		if data, err := os.ReadFile(path); err == nil {
 			return data, contentType, nil
 		}
-	}
-
-	// Also try with extension included in name
-	path := filepath.Join(m.storageDir, name)
-	if data, err := os.ReadFile(path); err == nil {
-		contentType := guessContentType(name)
-		return data, contentType, nil
 	}
 
 	return nil, "", fmt.Errorf("custom icon not found: %s", name)

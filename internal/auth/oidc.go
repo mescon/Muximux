@@ -119,7 +119,12 @@ func (p *OIDCProvider) loadDiscovery(ctx context.Context) error {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("discovery endpoint returned %d", resp.StatusCode)
+		// Read a bounded slice of the body so the operator gets the
+		// IdP's own error description instead of a bare status code.
+		// 4 KiB is plenty for a JSON error payload and well under any
+		// realistic memory pressure.
+		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
+		return fmt.Errorf("discovery endpoint returned %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
 	}
 
 	var doc struct {
@@ -273,12 +278,16 @@ func (p *OIDCProvider) HandleCallback(w http.ResponseWriter, r *http.Request) {
 	verifier := provider.Verifier(&gooidc.Config{ClientID: p.config.ClientID})
 	idToken, err := verifier.Verify(ctx, tokens.IDToken)
 	if err != nil {
-		logging.From(r.Context()).Info("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
+		// Warn so monitoring set to warn-and-up notices an IdP that's
+		// been misconfigured or an attacker replaying expired tokens.
+		logging.From(r.Context()).Warn("OIDC: ID token verification failed", "source", "audit", "error", err.Error())
 		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}
 	if idToken.Nonce != entry.nonce {
-		logging.From(r.Context()).Info("OIDC: nonce mismatch", "source", "audit")
+		// Warn — nonce mismatch is a CSRF / replay signal worth
+		// surfacing even at warn-only logging levels.
+		logging.From(r.Context()).Warn("OIDC: nonce mismatch", "source", "audit")
 		http.Error(w, errAuthFailed, http.StatusUnauthorized)
 		return
 	}

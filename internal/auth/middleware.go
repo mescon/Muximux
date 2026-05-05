@@ -343,7 +343,7 @@ func matchAPIKey(r *http.Request, rule BypassRule, snap *authSnapshot) bool {
 		return false
 	}
 	if bcrypt.CompareHashAndPassword([]byte(snap.config.APIKeyHash), []byte(provided)) != nil {
-		logging.From(r.Context()).Info("API key authentication failed", "source", "audit", "path", r.URL.Path)
+		logging.From(r.Context()).Warn("API key authentication failed", "source", "audit", "path", r.URL.Path)
 		return false
 	}
 	return true

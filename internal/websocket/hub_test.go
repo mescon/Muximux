@@ -360,6 +360,35 @@ func TestHub_BroadcastNoClients(t *testing.T) {
 	// If we get here without hanging, the test passes
 }
 
+func TestHub_BroadcastAfterClose_DoesNotBlock(t *testing.T) {
+	// Regression: prior to the post-Close guard a Broadcast firing
+	// after shutdown could fill the 256-event buffer and then block
+	// indefinitely because Run had already exited. We saturate the
+	// buffer first to prove the path is non-blocking even under the
+	// worst case.
+	hub := NewHub()
+	go hub.Run()
+	hub.Close()
+	// Allow Run to observe done and return.
+	time.Sleep(20 * time.Millisecond)
+
+	done := make(chan struct{})
+	go func() {
+		for i := 0; i < 1024; i++ {
+			hub.Broadcast(Event{Type: EventConfigUpdated, Payload: i})
+		}
+		hub.Register(&Client{})
+		hub.Unregister(&Client{})
+		close(done)
+	}()
+
+	select {
+	case <-done:
+	case <-time.After(2 * time.Second):
+		t.Fatal("Broadcast/Register/Unregister blocked after Close")
+	}
+}
+
 func TestEvent_JSONSerialization(t *testing.T) {
 	event := Event{
 		Type:    EventConfigUpdated,

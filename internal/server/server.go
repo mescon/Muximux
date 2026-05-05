@@ -660,7 +660,32 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 			http.NotFound(w, r)
 			return
 		}
-		f, openErr := os.Open(localPath) //nolint:gosec // absPath verified to be inside absThemesDir above
+		// Resolve symlinks before opening: filepath.Abs is purely
+		// lexical, so a symlink at data/themes/evil.css → /etc/passwd
+		// would still pass the HasPrefix check above. EvalSymlinks
+		// returns ErrNotExist for the bundled case (no operator
+		// override on disk); only fall back to the static handler in
+		// that one case so a *broken* or *traversal* symlink fails
+		// closed instead of accidentally serving filesystem contents.
+		realPath, err := filepath.EvalSymlinks(absPath)
+		if err != nil {
+			if os.IsNotExist(err) {
+				(*staticHandler).ServeHTTP(w, r)
+				return
+			}
+			http.NotFound(w, r)
+			return
+		}
+		realThemesDir, err := filepath.EvalSymlinks(absThemesDir)
+		if err != nil {
+			http.NotFound(w, r)
+			return
+		}
+		if !strings.HasPrefix(realPath, realThemesDir+string(filepath.Separator)) {
+			http.NotFound(w, r)
+			return
+		}
+		f, openErr := os.Open(realPath) //nolint:gosec // realPath verified to be inside realThemesDir after symlink resolution
 		if openErr == nil {
 			defer f.Close()
 			stat, _ := f.Stat()
@@ -784,8 +809,19 @@ func resolveThemeID(family, variant string) (string, bool) {
 // Returns an empty slice when no CSS is found (typical for the
 // default dark/light, which live inline in app.css).
 func readThemeCSS(themeID, themesDir string, distFS fs.FS) []byte {
-	if data, err := os.ReadFile(filepath.Join(themesDir, themeID+".css")); err == nil {
+	diskPath := filepath.Join(themesDir, themeID+".css")
+	if data, err := os.ReadFile(diskPath); err == nil { //nolint:gosec // themesDir-rooted theme name
 		return data
+	} else if !os.IsNotExist(err) {
+		// Permission denied / IO error / symlink loop is a real
+		// problem the operator wants to know about; only the
+		// IsNotExist case is "no operator-supplied override, fall
+		// through to the bundled CSS" which is the documented flow.
+		logging.Warn("Failed to read operator theme CSS; falling back to bundled",
+			"source", "themes",
+			"theme", themeID,
+			"path", diskPath,
+			"error", err)
 	}
 	if distFS != nil {
 		if data, err := fs.ReadFile(distFS, "themes/"+themeID+".css"); err == nil {
@@ -1440,7 +1476,15 @@ func (s *Server) Stop() error {
 		s.wsHub.Close()
 	}
 	if s.oidcProvider != nil {
-		_ = s.oidcProvider.Close()
+		if err := s.oidcProvider.Close(); err != nil {
+			logging.Warn("Failed to close OIDC provider", "source", "server", "error", err)
+		}
+	}
+	// SessionStore spawns a per-store cleanup goroutine; without
+	// closing it the goroutine outlives every shutdown, leaking on
+	// repeated restarts.
+	if s.sessionStore != nil {
+		s.sessionStore.Close()
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
@@ -1469,16 +1513,40 @@ func (s *Server) handleServiceWorker(distFS fs.FS) http.HandlerFunc {
 		cacheVersion += "-" + s.commit[:min(8, len(s.commit))]
 	}
 
-	// Read sw.js from embedded FS (production) or dev fallback
-	var swContent []byte
+	// Read sw.js from embedded FS (production) or dev fallback. We
+	// capture the last error so an "all sources failed" outcome
+	// surfaces a single warn line at startup rather than producing
+	// a silent 404 on /sw.js (which leaves the PWA broken with no
+	// boot signal).
+	var (
+		swContent []byte
+		lastErr   error
+	)
 	if distFS != nil {
-		swContent, _ = fs.ReadFile(distFS, "sw.js")
+		var err error
+		swContent, err = fs.ReadFile(distFS, "sw.js")
+		if err != nil {
+			lastErr = err
+		}
 	}
 	if swContent == nil {
-		swContent, _ = os.ReadFile("web/dist/sw.js")
+		var err error
+		swContent, err = os.ReadFile("web/dist/sw.js") //nolint:gosec // dev fallback path
+		if err != nil {
+			lastErr = err
+		}
 	}
 	if swContent == nil {
-		swContent, _ = os.ReadFile("web/public/sw.js")
+		var err error
+		swContent, err = os.ReadFile("web/public/sw.js") //nolint:gosec // dev fallback path
+		if err != nil {
+			lastErr = err
+		}
+	}
+	if swContent == nil && lastErr != nil {
+		logging.Warn("Service worker (sw.js) not found in any source; PWA features will not register",
+			"source", "server",
+			"error", lastErr)
 	}
 
 	if swContent != nil {
@@ -1542,6 +1610,11 @@ func spaHandlerDev(fileServer http.Handler, distDir, basePath string) (http.Hand
 func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http.Handler, string) {
 	indexContent, err := fs.ReadFile(fsys, "index.html")
 	if err != nil {
+		// Falling back to a bare file server with no inline-script
+		// CSP hash means the SPA shell is broken: users see a 404 on
+		// "/" and the operator gets no clue why. Log loudly at
+		// startup so the issue is debuggable.
+		logging.Error("Failed to read embedded index.html; SPA fallback degraded", "source", "server", "error", err)
 		return fileServer, ""
 	}
 

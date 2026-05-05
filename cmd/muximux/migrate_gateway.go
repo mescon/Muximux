@@ -41,7 +41,20 @@ func runMigrateGateway() {
 	}
 	path := os.Args[2]
 
-	src, err := os.ReadFile(path) //nolint:gosec // operator-supplied path; intentionally readable
+	// Cap the input at 10 MiB so a misdirected --file at a giant log
+	// or a deliberately-huge Caddyfile cannot OOM the operator's
+	// host. Real-world Caddyfiles are tens to hundreds of KiB.
+	const maxCaddyfileBytes = 10 * 1024 * 1024
+	info, statErr := os.Stat(path) //nolint:gosec // operator-supplied path from argv; same source as the size-capped ReadFile below
+	if statErr != nil {
+		fmt.Fprintf(os.Stderr, "Error reading %s: %v\n", path, statErr)
+		os.Exit(1)
+	}
+	if info.Size() > maxCaddyfileBytes {
+		fmt.Fprintf(os.Stderr, "Error: %s is %d bytes; refusing to parse files larger than %d bytes\n", path, info.Size(), maxCaddyfileBytes)
+		os.Exit(1)
+	}
+	src, err := os.ReadFile(path) //nolint:gosec // operator-supplied path; size-capped above
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error reading %s: %v\n", path, err)
 		os.Exit(1)

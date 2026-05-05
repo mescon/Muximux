@@ -307,6 +307,16 @@ server:
 			wantErr: "tls.email is required",
 		},
 		{
+			name: "email without domain is rejected",
+			yaml: `
+server:
+  listen: ":8080"
+  tls:
+    email: ops@example.com
+`,
+			wantErr: "tls.email is set but tls.domain is empty",
+		},
+		{
 			name: "cert without key",
 			yaml: `
 server:
@@ -955,6 +965,42 @@ func TestValidateGatewaySite(t *testing.T) {
 				ProxyHeaders: map[string]string{"X-Api-Key!": "value\twith\ttab"},
 			},
 			wantErr: "",
+		},
+		{
+			name:    "self-loop wildcard listen + localhost backend",
+			site:    GatewaySite{Domain: "x.example.com", BackendURL: "http://localhost:8080"},
+			srv:     &ServerConfig{Listen: ":8080"},
+			wantErr: "loop the proxy back",
+		},
+		{
+			name:    "self-loop wildcard listen + 127.0.0.1 backend",
+			site:    GatewaySite{Domain: "x.example.com", BackendURL: "http://127.0.0.1:8080"},
+			srv:     &ServerConfig{Listen: "0.0.0.0:8080"},
+			wantErr: "loop the proxy back",
+		},
+		{
+			name:    "self-loop exact host:port match",
+			site:    GatewaySite{Domain: "x.example.com", BackendURL: "http://192.168.1.10:8080"},
+			srv:     &ServerConfig{Listen: "192.168.1.10:8080"},
+			wantErr: "loop the proxy back",
+		},
+		{
+			name:    "self-loop port mismatch is allowed",
+			site:    GatewaySite{Domain: "x.example.com", BackendURL: "http://localhost:9000"},
+			srv:     &ServerConfig{Listen: ":8080"},
+			wantErr: "",
+		},
+		{
+			name:    "self-loop different host is allowed",
+			site:    GatewaySite{Domain: "x.example.com", BackendURL: "http://10.0.0.5:8080"},
+			srv:     &ServerConfig{Listen: "127.0.0.1:8080"},
+			wantErr: "",
+		},
+		{
+			name:    "self-loop default https port + listener",
+			site:    GatewaySite{Domain: "x.example.com", BackendURL: "https://localhost"},
+			srv:     &ServerConfig{Listen: ":443"},
+			wantErr: "loop the proxy back",
 		},
 	}
 

@@ -30,6 +30,13 @@ type Config struct {
 	Keybindings   KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
 	Groups        []GroupConfig     `yaml:"groups"`
 	Apps          []AppConfig       `yaml:"apps"`
+
+	// MissingEnvVars carries the names of any ${VAR} references the
+	// loader could not resolve. Populated by Load; not serialised to
+	// YAML/JSON. Callers (typically cmd/muximux/main.go after logging
+	// is initialised) surface the list via Warn so a missing env var
+	// doesn't silently leave a literal ${VAR} in a config field.
+	MissingEnvVars []string `yaml:"-" json:"-"`
 }
 
 // KeybindingsConfig holds custom keyboard shortcut overrides
@@ -348,12 +355,23 @@ func Load(path string) (*Config, error) {
 
 	// Expand only ${VAR} (braced) environment variables — bare $VAR is NOT
 	// expanded because bcrypt hashes like $2a$10$... would be corrupted.
-	expanded := expandBracedEnv(string(data))
+	// The list of unresolved names is surfaced through MissingEnvVars
+	// so the caller can warn after logging is initialised.
+	expanded, missingEnv := expandBracedEnv(string(data))
 
 	cfg := defaultConfig()
-	if err := yaml.Unmarshal([]byte(expanded), cfg); err != nil {
+	// Strict decode: reject YAML that contains fields not declared on
+	// our types. Without this, a hand-edited file with a typo'd field
+	// (or a stale field carried over from a prior version) is silently
+	// dropped and the operator wonders why their setting "did
+	// nothing." Mirrors what the import/restore endpoints already
+	// do, so startup and import behave consistently.
+	dec := yaml.NewDecoder(strings.NewReader(expanded))
+	dec.KnownFields(true)
+	if err := dec.Decode(cfg); err != nil {
 		return nil, err
 	}
+	cfg.MissingEnvVars = missingEnv
 
 	// Normalize zero-value fields that have non-zero defaults
 	if cfg.Navigation.IconScale <= 0 {
@@ -383,14 +401,30 @@ func IsBracedEnvRef(s string) bool {
 	return bracedEnvRe.MatchString(s)
 }
 
-func expandBracedEnv(s string) string {
-	return bracedEnvRe.ReplaceAllStringFunc(s, func(match string) string {
+// expandBracedEnv expands ${VAR} references and returns the expanded
+// text plus a deduplicated list of any variables that were referenced
+// but not present in the environment. Callers can surface that list
+// to the operator so a missing env var doesn't silently leave a
+// literal ${VAR} in a config field (which then fails confusingly at
+// the IdP / TLS provisioning layer).
+func expandBracedEnv(s string) (string, []string) {
+	missing := map[string]struct{}{}
+	expanded := bracedEnvRe.ReplaceAllStringFunc(s, func(match string) string {
 		key := match[2 : len(match)-1] // strip ${ and }
 		if val, ok := os.LookupEnv(key); ok {
 			return val
 		}
+		missing[key] = struct{}{}
 		return match // leave ${VAR} literal if env var is not set
 	})
+	if len(missing) == 0 {
+		return expanded, nil
+	}
+	out := make([]string, 0, len(missing))
+	for k := range missing {
+		out = append(out, k)
+	}
+	return expanded, out
 }
 
 // validate checks the configuration for contradictory or incomplete settings.
@@ -399,6 +433,13 @@ func (c *Config) validate() error {
 
 	if tls.Domain != "" && tls.Email == "" {
 		return fmt.Errorf("tls.email is required when tls.domain is set")
+	}
+	// Reject tls.email without tls.domain: there is no flow that
+	// consumes the address (ACME issuance is what would use it, and
+	// that requires tls.domain). Silently accepting it leaves the
+	// operator believing ACME is wired up when nothing has changed.
+	if tls.Email != "" && tls.Domain == "" {
+		return fmt.Errorf("tls.email is set but tls.domain is empty; ACME issuance only runs when tls.domain is configured")
 	}
 	if (tls.Cert != "") != (tls.Key != "") {
 		return fmt.Errorf("tls.cert and tls.key must both be set, or both empty")
@@ -551,6 +592,26 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 	if ip := net.ParseIP(hostname); ip != nil && ip.IsLinkLocalUnicast() {
 		return fmt.Errorf("backend_url %q targets a link-local address; this is rarely intentional", s.BackendURL)
 	}
+	// Reject the obvious self-loop: backend pointing at the Muximux
+	// HTTP listener itself. Letting this through would make every
+	// gateway request bounce back into the Go server, blow stacks
+	// quickly, and leak an unauthenticated proxy hop. We only
+	// recognise the cases we can be *sure* about (wildcard-listen +
+	// loopback-target, and exact host+port match) so a backend on a
+	// different machine that happens to share a port is left alone.
+	if srv != nil {
+		backendPort := u.Port()
+		if backendPort == "" {
+			if u.Scheme == "https" {
+				backendPort = "443"
+			} else {
+				backendPort = "80"
+			}
+		}
+		if isSelfLoop(hostname, backendPort, srv.Listen) {
+			return fmt.Errorf("backend_url %q points at Muximux's own listener %q; this would loop the proxy back on itself", s.BackendURL, srv.Listen)
+		}
+	}
 
 	// Validate ProxyHeaders entries. Caddy emits these as `header_up
 	// <name> <value>` directives; an unvalidated name would let an
@@ -666,6 +727,51 @@ func isValidGatewayDomain(d string) bool {
 		}
 	}
 	return true
+}
+
+// isSelfLoop reports whether a backend at backendHost:backendPort would
+// resolve to the Muximux listener `listen` (e.g. ":8080",
+// "127.0.0.1:8080", "0.0.0.0:8080"). It only returns true for the cases
+// we can be *certain* about so cross-host configs that legitimately
+// share a port are left alone:
+//
+//   - wildcard listener (":port", "0.0.0.0:port", "[::]:port") +
+//     loopback target ("localhost", "127.0.0.1", "::1");
+//   - exact host+port match between listener and backend;
+//   - both sides are loopback in any form.
+//
+// We do not perform DNS lookups -- a transient resolver failure must
+// not turn a config into invalid one.
+func isSelfLoop(backendHost, backendPort, listen string) bool {
+	if listen == "" {
+		return false
+	}
+	listenHost, listenPort, err := net.SplitHostPort(listen)
+	if err != nil {
+		return false
+	}
+	if listenPort != backendPort {
+		return false
+	}
+	listenIP := net.ParseIP(listenHost)
+	backendIP := net.ParseIP(backendHost)
+	listenWildcard := listenHost == "" ||
+		(listenIP != nil && listenIP.IsUnspecified())
+	listenLoopback := strings.EqualFold(listenHost, "localhost") ||
+		(listenIP != nil && listenIP.IsLoopback())
+	backendLoopback := strings.EqualFold(backendHost, "localhost") ||
+		(backendIP != nil && backendIP.IsLoopback())
+
+	if listenWildcard && backendLoopback {
+		return true
+	}
+	if listenLoopback && backendLoopback {
+		return true
+	}
+	if listenHost != "" && strings.EqualFold(listenHost, backendHost) {
+		return true
+	}
+	return false
 }
 
 // CurrentConfigVersion is the config schema version.

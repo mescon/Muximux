@@ -2,9 +2,11 @@ package main
 
 import (
 	"bufio"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -161,6 +163,17 @@ func main() {
 		logging.Warn("OIDC client_secret is stored in plaintext config — consider using ${ENV_VAR} syntax", "source", "config")
 	}
 
+	// Warn about ${VAR} references the loader couldn't resolve. Without
+	// this signal a missing env var leaves a literal "${SECRET}" in
+	// a sensitive field, which then surfaces as a confusing
+	// downstream failure (IdP rejects the wrong secret, Caddy can't
+	// load a non-existent cert path, etc.).
+	if len(cfg.MissingEnvVars) > 0 {
+		logging.Warn("Config references environment variables that are not set; the literal ${VAR} stays in those fields",
+			"source", "config",
+			"missing", strings.Join(cfg.MissingEnvVars, ","))
+	}
+
 	// Create and start server
 	srv, err := server.New(cfg, *configPath, *dataDir, version, commit, buildDate)
 	if err != nil {
@@ -173,7 +186,10 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		if err := srv.Start(); err != nil {
+		// http.ErrServerClosed is the normal return after a graceful
+		// Shutdown; treating it as fatal would short-circuit the
+		// orderly Stop sequence in the main goroutine.
+		if err := srv.Start(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			logging.Error("Server error", "source", "server", "error", err)
 			os.Exit(1)
 		}

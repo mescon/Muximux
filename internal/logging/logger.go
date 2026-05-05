@@ -295,6 +295,7 @@ var (
 	levelVar      slog.LevelVar
 	logFilePath   string
 	logWriter     *rotatingWriter
+	primaryFile   *os.File // when cfg.Output is a file path; closed in Close()
 )
 
 // Init initializes the global logger with a BroadcastHandler that captures
@@ -313,10 +314,12 @@ func Init(cfg Config) error {
 	case "stderr":
 		output = os.Stderr
 	default:
-		file, err := os.OpenFile(cfg.Output, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644)
+		file, err := os.OpenFile(cfg.Output, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0644) //nolint:gosec // operator-supplied output path
 		if err != nil {
 			return err
 		}
+		// Capture for Close() so we don't leak the FD on shutdown.
+		primaryFile = file
 		output = file
 	}
 
@@ -347,11 +350,16 @@ func Init(cfg Config) error {
 	return nil
 }
 
-// Close closes the rotating log writer. Call on shutdown.
+// Close closes the rotating log writer and any primary log file
+// captured at Init time. Call on shutdown.
 func Close() {
 	if logWriter != nil {
 		logWriter.Close()
 		logWriter = nil
+	}
+	if primaryFile != nil {
+		_ = primaryFile.Close()
+		primaryFile = nil
 	}
 }
 

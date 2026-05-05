@@ -1518,6 +1518,47 @@ func TestRegisterThemeRoutes(t *testing.T) {
 	})
 }
 
+func TestRegisterThemeRoutes_SymlinkEscape_Returns404(t *testing.T) {
+	// Regression: filepath.Abs is purely lexical, so without
+	// EvalSymlinks an operator (or anyone with write access to
+	// data/themes) could plant a symlink "leak.css" pointing at
+	// /etc/passwd and have the route happily ServeContent it. The
+	// fix resolves both sides via EvalSymlinks before the
+	// containment check, so a target outside themesDir produces 404.
+	dataRoot := t.TempDir()
+	themesDir := filepath.Join(dataRoot, "themes")
+	if err := os.MkdirAll(themesDir, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	outsideRoot := t.TempDir()
+	secret := filepath.Join(outsideRoot, "secret.css")
+	if err := os.WriteFile(secret, []byte("/* SECRET */"), 0o600); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.Symlink(secret, filepath.Join(themesDir, "leak.css")); err != nil {
+		t.Skipf("symlink unsupported on this platform: %v", err)
+	}
+
+	testFS := fstest.MapFS{}
+	distFS, _ := fs.Sub(testFS, ".")
+	noopAdmin := adminGuard(func(next http.HandlerFunc) http.HandlerFunc { return next })
+	staticHandler := http.FileServer(http.FS(testFS))
+
+	mux := http.NewServeMux()
+	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, themesDir)
+	ts := httptest.NewServer(mux)
+	defer ts.Close()
+
+	resp, err := http.Get(ts.URL + "/themes/leak.css")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusNotFound {
+		t.Errorf("symlink-escaping theme: expected 404, got %d", resp.StatusCode)
+	}
+}
+
 func TestRegisterThemeRoutes_ServeLocalTheme(t *testing.T) {
 	themesDir := t.TempDir()
 	testFile := filepath.Join(themesDir, "local-test-theme.css")

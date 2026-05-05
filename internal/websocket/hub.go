@@ -50,8 +50,10 @@ func NewHub() *Hub {
 
 // Close signals the hub's Run loop to exit. Safe to call multiple times.
 // After Close returns any further Broadcast / Register / Unregister
-// calls simply deliver to channels that nothing reads; callers should
-// arrange to stop those paths themselves (findings.md L16).
+// calls become non-blocking no-ops: each path selects on h.done so a
+// caller racing with shutdown drops the message instead of wedging on
+// an undrained channel (the broadcast buffer is finite, register and
+// unregister are unbuffered).
 func (h *Hub) Close() {
 	h.mu.Lock()
 	defer h.mu.Unlock()
@@ -127,19 +129,46 @@ func (h *Hub) Run() {
 	}
 }
 
-// Register adds a client to the hub
+// Register adds a client to the hub. Becomes a no-op once Close has run.
 func (h *Hub) Register(client *Client) {
-	h.register <- client
+	select {
+	case <-h.done:
+		return
+	default:
+	}
+	select {
+	case h.register <- client:
+	case <-h.done:
+	}
 }
 
-// Unregister removes a client from the hub
+// Unregister removes a client from the hub. Becomes a no-op once Close has run.
 func (h *Hub) Unregister(client *Client) {
-	h.unregister <- client
+	select {
+	case <-h.done:
+		return
+	default:
+	}
+	select {
+	case h.unregister <- client:
+	case <-h.done:
+	}
 }
 
-// Broadcast sends an event to all connected clients
+// Broadcast sends an event to all connected clients. Drops the event if the
+// hub has been closed or the buffer is full at shutdown - blocking would
+// wedge whichever goroutine raced with Close (config save, health poll,
+// log fanout) and stall the surrounding HTTP handler.
 func (h *Hub) Broadcast(event Event) {
-	h.broadcast <- event
+	select {
+	case <-h.done:
+		return
+	default:
+	}
+	select {
+	case h.broadcast <- event:
+	case <-h.done:
+	}
 }
 
 // BroadcastConfigUpdate sends a config update event. Restricted to admin
