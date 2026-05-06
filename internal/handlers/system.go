@@ -365,12 +365,93 @@ func compareVersions(a, b string) int {
 		return 1
 	case aPre != "" && bPre == "":
 		return -1
-	case aPre < bPre:
+	case aPre == bPre:
+		return 0
+	}
+	return comparePrereleaseSegments(aPre, bPre)
+}
+
+// comparePrereleaseSegments compares two SemVer prerelease strings per
+// SemVer 11.4: split on '.', then per-identifier:
+//
+//   - both numeric: compare numerically (so "alpha.10" > "alpha.2");
+//   - numeric vs non-numeric: numeric sorts lower;
+//   - both non-numeric: lexical compare.
+//
+// A shorter prerelease string with all identifiers equal to the
+// other's prefix is older ("1.2.3-rc" < "1.2.3-rc.1"), per 11.4.4.
+func comparePrereleaseSegments(a, b string) int {
+	aSeg := strings.Split(a, ".")
+	bSeg := strings.Split(b, ".")
+	min := len(aSeg)
+	if len(bSeg) < min {
+		min = len(bSeg)
+	}
+	for i := 0; i < min; i++ {
+		if c := compareOnePrereleaseIdentifier(aSeg[i], bSeg[i]); c != 0 {
+			return c
+		}
+	}
+	switch {
+	case len(aSeg) < len(bSeg):
 		return -1
-	case aPre > bPre:
+	case len(aSeg) > len(bSeg):
 		return 1
 	}
 	return 0
+}
+
+// compareOnePrereleaseIdentifier compares a single dot-separated
+// segment of a SemVer prerelease string. "Numeric" means the entire
+// segment parses as a non-negative integer with no leading zeros;
+// SemVer is strict about that (a leading zero makes it alphanumeric).
+func compareOnePrereleaseIdentifier(a, b string) int {
+	aNum, aOK := parseSemverNumeric(a)
+	bNum, bOK := parseSemverNumeric(b)
+	switch {
+	case aOK && bOK:
+		switch {
+		case aNum < bNum:
+			return -1
+		case aNum > bNum:
+			return 1
+		}
+		return 0
+	case aOK && !bOK:
+		// Numeric identifiers always have lower precedence than
+		// non-numeric per SemVer 11.4.3.
+		return -1
+	case !aOK && bOK:
+		return 1
+	}
+	switch {
+	case a < b:
+		return -1
+	case a > b:
+		return 1
+	}
+	return 0
+}
+
+// parseSemverNumeric reports whether s is a SemVer numeric identifier:
+// non-empty, all digits, no leading zero unless the value is "0".
+func parseSemverNumeric(s string) (int, bool) {
+	if s == "" {
+		return 0, false
+	}
+	for i := 0; i < len(s); i++ {
+		if s[i] < '0' || s[i] > '9' {
+			return 0, false
+		}
+	}
+	if len(s) > 1 && s[0] == '0' {
+		return 0, false
+	}
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return 0, false
+	}
+	return n, true
 }
 
 // splitVersionSuffix separates the numeric base from any "-pre"

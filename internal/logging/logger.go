@@ -156,6 +156,7 @@ type LogBuffer struct {
 	droppedSince atomic.Uint64
 	dropTicker   *time.Ticker
 	dropDone     chan struct{}
+	dropOnce     sync.Once
 }
 
 // NewLogBuffer creates a new ring buffer with the given capacity.
@@ -193,18 +194,18 @@ func (b *LogBuffer) dropReporter() {
 	}
 }
 
-// Close stops the drop reporter goroutine. Safe to call multiple times.
+// Close stops the drop reporter goroutine. Safe to call multiple
+// times and from multiple goroutines: the sync.Once guards the
+// close so two concurrent callers don't both observe the `default`
+// branch and both `close(b.dropDone)` (review fix L1).
 func (b *LogBuffer) Close() {
 	if b.dropTicker == nil {
 		return
 	}
-	select {
-	case <-b.dropDone:
-		// already closed
-	default:
+	b.dropOnce.Do(func() {
 		close(b.dropDone)
 		b.dropTicker.Stop()
-	}
+	})
 }
 
 // Add appends an entry to the ring buffer and notifies all subscribers.

@@ -99,6 +99,23 @@ func TestCompareVersions(t *testing.T) {
 		{"prerelease vs older release", "1.2.4-rc1", "1.2.3", 1},
 		{"build metadata ignored vs same base", "1.2.3+sha", "1.2.3+other", 0},
 		{"prerelease against release with v prefix", "v1.2.3-rc1", "1.2.3", -1},
+
+		// Per-identifier numeric compare per SemVer 11.4.1. The
+		// previous shape used lexical compare and returned -1 for
+		// alpha.10 vs alpha.2, which is the bug review H1 caught.
+		{"two-digit numeric prerelease compared numerically", "1.2.3-alpha.10", "1.2.3-alpha.2", 1},
+		{"two-digit rc prerelease compared numerically", "1.2.3-rc.10", "1.2.3-rc.2", 1},
+		{"single-digit rc prerelease still works", "1.2.3-rc.1", "1.2.3-rc.2", -1},
+		// SemVer 11.4.3: numeric identifiers have lower precedence than non-numeric.
+		{"numeric prerelease less than alphanumeric", "1.2.3-1", "1.2.3-alpha", -1},
+		{"alphanumeric prerelease greater than numeric", "1.2.3-alpha", "1.2.3-1", 1},
+		// SemVer 11.4.4: shorter prerelease is older when prefixes match.
+		{"shorter prerelease is older than longer with extra segment", "1.2.3-rc", "1.2.3-rc.1", -1},
+		{"longer prerelease is newer", "1.2.3-rc.1", "1.2.3-rc", 1},
+		// SemVer 9: leading zeros invalidate numeric identifier; treat
+		// as alphanumeric. Per 11.4.3 alphanumeric outranks numeric,
+		// so "rc.01" (alphanumeric) > "rc.10" (numeric).
+		{"leading zero treated alphanumerically", "1.2.3-rc.01", "1.2.3-rc.10", 1},
 	}
 
 	for _, tt := range tests {

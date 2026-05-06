@@ -454,6 +454,17 @@ func TestSessionStore_Close(t *testing.T) {
 	store.Close()
 }
 
+// TestSessionStore_Close_Idempotent covers review fix H2: a second
+// Close must not panic on close-of-closed-channel. Server.Stop now
+// calls Close unconditionally, so any future shutdown path that runs
+// twice (test harness, "second SIGINT" handler, etc.) lights this up.
+func TestSessionStore_Close_Idempotent(t *testing.T) {
+	store := NewSessionStore("test_session", time.Hour, false)
+	store.Close()
+	store.Close() // must not panic
+	store.Close() // and a third for good measure
+}
+
 // TestRefresh_CappedByAbsoluteMaxAge covers findings.md H21. Repeated
 // calls to Refresh must not extend the session past CreatedAt +
 // absoluteMaxAge; otherwise a stolen cookie can be kept alive forever

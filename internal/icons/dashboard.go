@@ -72,12 +72,15 @@ func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, er
 		return cached, contentType, nil
 	}
 
-	// Try downloading the requested variant
-	var firstDownloadErr error
-	if data, contentType, err := c.downloadIcon(name, variant); err == nil {
+	// Try downloading the requested variant. If we reach the
+	// fallback loop, this download failed and its error is what
+	// we surface in the final not-found - the loop's per-variant
+	// errors are also dropped, but they're highly correlated with
+	// this one (same network / DNS / CDN state) and adding them
+	// would just clutter the log line.
+	data, contentType, firstErr := c.downloadIcon(name, variant)
+	if firstErr == nil {
 		return data, contentType, nil
-	} else {
-		firstDownloadErr = err
 	}
 
 	// Fallback: try other variants in preference order
@@ -85,25 +88,20 @@ func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, er
 		if fallback == variant {
 			continue // already tried
 		}
-		if cached, contentType, err := c.getFromCache(name, fallback); err == nil {
-			return cached, contentType, nil
+		if cached, ct, err := c.getFromCache(name, fallback); err == nil {
+			return cached, ct, nil
 		}
-		if data, contentType, err := c.downloadIcon(name, fallback); err == nil {
-			return data, contentType, nil
-		} else if firstDownloadErr == nil {
-			firstDownloadErr = err
+		if data, ct, err := c.downloadIcon(name, fallback); err == nil {
+			return data, ct, nil
 		}
 	}
 
-	if firstDownloadErr != nil {
-		logging.Warn("Dashboard icon fallback exhausted; serving 404",
-			"source", "icons",
-			"icon", name,
-			"variant", variant,
-			"first_error", firstDownloadErr)
-		return nil, "", fmt.Errorf("icon not found: %s (tried all variants; first error: %w)", name, firstDownloadErr)
-	}
-	return nil, "", fmt.Errorf("icon not found: %s (tried all variants)", name)
+	logging.Warn("Dashboard icon fallback exhausted; serving 404",
+		"source", "icons",
+		"icon", name,
+		"variant", variant,
+		"first_error", firstErr)
+	return nil, "", fmt.Errorf("icon not found: %s (tried all variants; first error: %w)", name, firstErr)
 }
 
 // GetIconPath returns the local file path for a cached icon

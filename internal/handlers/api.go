@@ -300,6 +300,19 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	// disk still holds the old one - the same divergence the per-app
 	// and per-group CRUD endpoints already guard against via
 	// saveOrRollback{Apps,Groups} (codebase review C1-shf).
+	//
+	// Invariant: rollback works because mergeConfigUpdate *replaces*
+	// each field wholesale rather than mutating it in place
+	// (cfg.Navigation = update.Navigation, cfg.Apps = newApps,
+	// cfg.Keybindings = *update.Keybindings, etc.). Snapshot copies
+	// here are shallow struct copies; for fields that contain maps
+	// (Keybindings.Bindings, Theme.Colors when present) the snapshot
+	// shares the underlying map header, but the merge code never
+	// touches those map entries directly so the prior reference still
+	// points at the old map contents. If anyone changes
+	// mergeConfigUpdate to mutate map entries in place, this rollback
+	// silently breaks - clone the relevant map here and update both
+	// places together.
 	priorTitle := h.config.Server.Title
 	priorLanguage := h.config.Server.Language
 	priorLogLevel := h.config.Server.LogLevel

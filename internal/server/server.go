@@ -709,6 +709,16 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 		}
 		realThemesDir, err := filepath.EvalSymlinks(absThemesDir)
 		if err != nil {
+			// IsNotExist on the themes dir itself: an operator
+			// removed it at runtime or a fresh deploy never created
+			// it. Bundled themes still live in the embedded FS, so
+			// fall through to the static handler instead of 404ing
+			// every theme request (review fix M1). Other errors
+			// (permission, IO) keep the 404 close.
+			if os.IsNotExist(err) {
+				(*staticHandler).ServeHTTP(w, r)
+				return
+			}
 			http.NotFound(w, r)
 			return
 		}
@@ -1184,12 +1194,13 @@ func (s *Server) validateSetupToken(supplied string) error {
 
 // setupRequest is the JSON body for POST /api/auth/setup
 type setupRequest struct {
-	Method         string            `json:"method"`
-	Username       string            `json:"username"`
-	Password       string            `json:"password"`
-	TrustedProxies []string          `json:"trusted_proxies"`
-	Headers        map[string]string `json:"headers"`
-	LogoutURL      string            `json:"logout_url"`
+	Method                 string            `json:"method"`
+	Username               string            `json:"username"`
+	Password               string            `json:"password"`
+	TrustedProxies         []string          `json:"trusted_proxies"`
+	Headers                map[string]string `json:"headers"`
+	LogoutURL              string            `json:"logout_url"`
+	ForwardAuthAdminGroups []string          `json:"forward_auth_admin_groups"`
 }
 
 func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
@@ -1488,16 +1499,22 @@ func (s *Server) setupForwardAuth(req *setupRequest) error {
 	if req.Headers != nil {
 		s.config.Auth.Headers = req.Headers
 	}
+	// Mirror the field into config + middleware so an operator who
+	// configures a custom admin group during the setup wizard isn't
+	// silently demoted to RoleUser until they re-save through
+	// Settings (review fix H3).
+	s.config.Auth.ForwardAuthAdminGroups = req.ForwardAuthAdminGroups
 	apiKeyHash := s.config.Auth.APIKeyHash
 	s.configMu.Unlock()
 
 	s.authMiddleware.UpdateConfig(&auth.AuthConfig{
-		Method:         auth.AuthMethodForwardAuth,
-		TrustedProxies: req.TrustedProxies,
-		Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
-		BypassRules:    defaultBypassRules,
-		APIKeyHash:     apiKeyHash,
-		BasePath:       s.config.Server.NormalizedBasePath(),
+		Method:                 auth.AuthMethodForwardAuth,
+		TrustedProxies:         req.TrustedProxies,
+		Headers:                auth.ForwardAuthHeadersFromMap(req.Headers),
+		ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
+		BypassRules:            defaultBypassRules,
+		APIKeyHash:             apiKeyHash,
+		BasePath:               s.config.Server.NormalizedBasePath(),
 	})
 
 	logging.Info("Forward auth configured", "source", "auth", "proxies", strings.Join(req.TrustedProxies, ","))
@@ -2095,11 +2112,14 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 // callers, which the SPA's api.ts now sends on every mutating call
 // (codebase review C2).
 //
-// Note: same-origin attacker JS (e.g. a compromised proxied backend)
-// can still send X-Requested-With and the JSON content-type, so this
-// middleware does not close the same-origin XSS branch of the threat
-// model. The same-origin trade-off is documented in
-// docs/wiki/security.md as part of the proxy mount design.
+// Note: same-origin attacker JS (e.g. a compromised proxied backend
+// running inside a /proxy/{slug}/ iframe) can set X-Requested-With
+// or the JSON content-type itself - it has full control of its own
+// fetch calls. This middleware therefore does not close the
+// same-origin XSS branch of the threat model; it only defeats the
+// classic cross-origin browser-form vector. The same-origin
+// trade-off is documented in docs/wiki/security.md as part of the
+// proxy mount design.
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		if !strings.HasPrefix(r.URL.Path, "/api/") {
@@ -2122,9 +2142,11 @@ func csrfMiddleware(next http.Handler) http.Handler {
 			strings.HasPrefix(ct, "multipart/form-data") ||
 			strings.HasPrefix(ct, "application/x-yaml")
 		hasRequestedWith := r.Header.Get("X-Requested-With") != ""
-		// DELETE bodies are unusual, so DELETE often arrives with
-		// no Content-Type at all - that's why X-Requested-With
-		// covers the gap when content-type is empty.
+		// X-Requested-With is the consistent opt-in marker on
+		// every mutating verb; cross-origin pages cannot send it
+		// without a CORS preflight, which we never grant. The
+		// JSON content-type branch is the legacy POST/PUT path
+		// and remains accepted so existing callers don't break.
 		if !hasSafeContentType && !hasRequestedWith {
 			logging.From(r.Context()).Warn("CSRF check failed: missing JSON content-type or X-Requested-With",
 				"source", "server",

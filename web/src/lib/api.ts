@@ -59,14 +59,23 @@ async function request<R>(method: string, path: string, data?: unknown): Promise
   return response.json();
 }
 
+// stripRequestIDSuffix removes the trailing "(request_id: <id>)"
+// fragment that the Go respondError helper appends to 5xx and
+// 401/403 bodies. Keeping the request_id out of toasts makes them
+// readable; users who need the ID can still read X-Request-ID off
+// the response (devtools) or copy it from the Logs tab.
+function stripRequestIDSuffix(s: string): string {
+  return s.replace(/\s*\(request_id:\s*[A-Za-z0-9_-]+\)\s*$/, '').trim();
+}
+
 function extractFriendlyErrorMessage(body: string): string {
   if (!body) return '';
   try {
     const parsed = JSON.parse(body);
     if (parsed && typeof parsed === 'object') {
       const obj = parsed as Record<string, unknown>;
-      if (typeof obj.error === 'string') return obj.error;
-      if (typeof obj.message === 'string') return obj.message;
+      if (typeof obj.error === 'string') return stripRequestIDSuffix(obj.error);
+      if (typeof obj.message === 'string') return stripRequestIDSuffix(obj.message);
     }
   } catch {
     // Not JSON; fall through to plain-text handling.
@@ -77,7 +86,7 @@ function extractFriendlyErrorMessage(body: string): string {
     return '';
   }
   if (trimmed.length > 200) return '';
-  return trimmed;
+  return stripRequestIDSuffix(trimmed);
 }
 
 async function fetchJSON<T>(path: string): Promise<T> {

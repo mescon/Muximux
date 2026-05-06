@@ -245,6 +245,7 @@ func newTestHandler(buf *LogBuffer) *BroadcastHandler {
 
 func TestBroadcastHandler_CapturesAttrs(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	logger := slog.New(newTestHandler(buf))
 
 	logger.Info("App created", "app", "Plex", "source", "config")
@@ -267,6 +268,7 @@ func TestBroadcastHandler_CapturesAttrs(t *testing.T) {
 
 func TestBroadcastHandler_SourceNotInAttrs(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	logger := slog.New(newTestHandler(buf))
 
 	logger.Info("test", "source", "config", "app", "Sonarr")
@@ -282,6 +284,7 @@ func TestBroadcastHandler_SourceNotInAttrs(t *testing.T) {
 
 func TestBroadcastHandler_NoExtraAttrs(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	logger := slog.New(newTestHandler(buf))
 
 	logger.Info("Server started", "source", "server")
@@ -297,6 +300,7 @@ func TestBroadcastHandler_NoExtraAttrs(t *testing.T) {
 
 func TestBroadcastHandler_WithAttrsPreset(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	handler := newTestHandler(buf)
 	// Simulate slog.With("source", "config", "component", "apps")
 	child := handler.WithAttrs([]slog.Attr{
@@ -325,6 +329,7 @@ func TestBroadcastHandler_WithAttrsPreset(t *testing.T) {
 
 func TestBroadcastHandler_RecordOverridesPreset(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	handler := newTestHandler(buf)
 	child := handler.WithAttrs([]slog.Attr{
 		slog.String("env", "staging"),
@@ -349,6 +354,7 @@ func TestBroadcastHandler_RecordOverridesPreset(t *testing.T) {
 
 func TestSubscribe_ReceivesNewEntries(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	ch := buf.Subscribe()
 	defer buf.Unsubscribe(ch)
 
@@ -375,6 +381,7 @@ func TestSubscribe_ReceivesNewEntries(t *testing.T) {
 
 func TestSubscribe_MultipleSubscribers(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	ch1 := buf.Subscribe()
 	ch2 := buf.Subscribe()
 	ch3 := buf.Subscribe()
@@ -403,6 +410,7 @@ func TestSubscribe_MultipleSubscribers(t *testing.T) {
 
 func TestSubscribe_DoesNotReceiveOldEntries(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 
 	// Add entry before subscribing
 	buf.Add(LogEntry{Message: "old entry"})
@@ -470,6 +478,7 @@ func TestSubscribe_DropsAreCounted(t *testing.T) {
 
 func TestSubscribe_ConcurrentAddAndSubscribe(t *testing.T) {
 	buf := NewLogBuffer(1000)
+	t.Cleanup(buf.Close)
 
 	var wg sync.WaitGroup
 
@@ -502,6 +511,7 @@ func TestSubscribe_ConcurrentAddAndSubscribe(t *testing.T) {
 
 func TestUnsubscribe_ClosesChannel(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	ch := buf.Subscribe()
 
 	buf.Unsubscribe(ch)
@@ -515,6 +525,7 @@ func TestUnsubscribe_ClosesChannel(t *testing.T) {
 
 func TestUnsubscribe_StopsReceiving(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	ch := buf.Subscribe()
 	buf.Unsubscribe(ch)
 
@@ -534,6 +545,7 @@ func TestUnsubscribe_StopsReceiving(t *testing.T) {
 
 func TestUnsubscribe_OnlyAffectsTarget(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	ch1 := buf.Subscribe()
 	ch2 := buf.Subscribe()
 
@@ -558,6 +570,7 @@ func TestUnsubscribe_OnlyAffectsTarget(t *testing.T) {
 
 func TestUnsubscribe_MultipleSubscribers_AllRemoved(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 
 	channels := make([]chan LogEntry, 5)
 	for i := range channels {
@@ -586,6 +599,7 @@ func TestUnsubscribe_MultipleSubscribers_AllRemoved(t *testing.T) {
 
 func TestBroadcastHandler_WithGroup_ReturnsNewHandler(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	handler := newTestHandler(buf)
 
 	grouped := handler.WithGroup("mygroup")
@@ -606,6 +620,7 @@ func TestBroadcastHandler_WithGroup_ReturnsNewHandler(t *testing.T) {
 
 func TestBroadcastHandler_WithGroup_SharesBuffer(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	handler := newTestHandler(buf)
 
 	grouped := handler.WithGroup("group1")
@@ -624,6 +639,7 @@ func TestBroadcastHandler_WithGroup_SharesBuffer(t *testing.T) {
 
 func TestBroadcastHandler_WithGroup_PreservesAttrs(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	handler := newTestHandler(buf)
 
 	// Set attrs first, then group
@@ -655,6 +671,7 @@ func TestBroadcastHandler_WithGroup_PreservesAttrs(t *testing.T) {
 
 func TestBroadcastHandler_WithGroup_InnerHandlerGrouped(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 
 	// Use a real text handler writing to a buffer so we can verify grouping
 	var logOutput strings.Builder
@@ -675,6 +692,7 @@ func TestBroadcastHandler_WithGroup_InnerHandlerGrouped(t *testing.T) {
 
 func TestBroadcastHandler_WithGroup_Enabled(t *testing.T) {
 	buf := NewLogBuffer(100)
+	t.Cleanup(buf.Close)
 	handler := newTestHandler(buf)
 
 	grouped := handler.WithGroup("test")

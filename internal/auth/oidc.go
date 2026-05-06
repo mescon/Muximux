@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	mathrand "math/rand"
 	"net/http"
 	"net/url"
 	"strings"
@@ -130,10 +131,12 @@ func (p *OIDCProvider) loadDiscovery(ctx context.Context) error {
 	if resp.StatusCode != http.StatusOK {
 		// Read a bounded slice of the body so the operator gets the
 		// IdP's own error description instead of a bare status code.
-		// 4 KiB is plenty for a JSON error payload and well under any
-		// realistic memory pressure.
+		// 4 KiB is plenty for a JSON error payload, but a misconfigured
+		// IdP can return a multi-KiB HTML error page that uglifies the
+		// resulting log line; squeeze whitespace and cap to ~256 bytes
+		// for the embedded message (review fix N1).
 		body, _ := io.ReadAll(io.LimitReader(resp.Body, 4096))
-		return fmt.Errorf("discovery endpoint returned %d: %s", resp.StatusCode, strings.TrimSpace(string(body)))
+		return fmt.Errorf("discovery endpoint returned %d: %s", resp.StatusCode, sanitizeRemoteErrorBody(body, 256))
 	}
 
 	var doc struct {
@@ -200,16 +203,25 @@ func (p *OIDCProvider) GetAuthorizationURL(ctx context.Context, redirectAfterLog
 	// so this only ever drops attacker spam.
 	p.statesMu.Lock()
 	if len(p.states) >= maxOIDCStates {
-		var oldestKey string
-		var oldestT time.Time
-		for k, v := range p.states {
-			if oldestKey == "" || v.createdAt.Before(oldestT) {
-				oldestKey = k
-				oldestT = v.createdAt
-			}
+		// Eviction is biased toward old entries (legitimate flows
+		// complete in seconds; anything more than a few seconds
+		// old is almost always attacker spam) but randomises among
+		// the oldest quartile so an attacker who knows when a
+		// legitimate user kicked off OIDC cannot deterministically
+		// target that user's state by racing fills (review fix M4).
+		// We don't sort the whole map; we collect the oldest N keys
+		// in a single pass and pick uniformly among them.
+		const minCandidates = 8
+		k := len(p.states) / 4
+		if k < minCandidates {
+			k = minCandidates
 		}
-		if oldestKey != "" {
-			delete(p.states, oldestKey)
+		victims := pickOldestN(p.states, k)
+		if len(victims) > 0 {
+			//nolint:gosec // not security-sensitive: this picks a random
+			// eviction candidate, the bias toward old is the security
+			// property; rand.Intn here is a tiebreaker only.
+			delete(p.states, victims[mathrand.Intn(len(victims))])
 		}
 	}
 	p.states[state] = stateEntry{
@@ -483,6 +495,80 @@ func (p *OIDCProvider) cleanupStates() {
 			p.statesMu.Unlock()
 		}
 	}
+}
+
+// sanitizeRemoteErrorBody collapses CR/LF runs to single spaces and
+// truncates to maxLen bytes. Used when embedding a remote service's
+// error response into a log line so a 4 KiB HTML error page doesn't
+// produce an unreadable multi-line audit entry.
+func sanitizeRemoteErrorBody(body []byte, maxLen int) string {
+	s := strings.TrimSpace(string(body))
+	if s == "" {
+		return ""
+	}
+	// Collapse any CR / LF / tab into a single space.
+	s = strings.Map(func(r rune) rune {
+		if r == '\n' || r == '\r' || r == '\t' {
+			return ' '
+		}
+		return r
+	}, s)
+	// Squeeze runs of spaces.
+	for strings.Contains(s, "  ") {
+		s = strings.ReplaceAll(s, "  ", " ")
+	}
+	if len(s) > maxLen {
+		s = s[:maxLen] + "…"
+	}
+	return s
+}
+
+// pickOldestN returns up to n keys from `m`, preferring the entries
+// with the smallest createdAt. The implementation is a single-pass
+// O(len(m) + n*log n) maintenance of an n-slot bucket: insert if the
+// bucket isn't full or if the candidate is older than the current
+// max-of-bucket. Used by the OIDC state-cap eviction so the eviction
+// pool is "oldest quartile" rather than a single deterministic
+// victim. Caller holds p.statesMu.
+func pickOldestN(m map[string]stateEntry, n int) []string {
+	if n <= 0 || len(m) == 0 {
+		return nil
+	}
+	if n > len(m) {
+		n = len(m)
+	}
+	type aged struct {
+		key string
+		t   time.Time
+	}
+	bucket := make([]aged, 0, n)
+	maxIdx := 0
+	for k, v := range m {
+		if len(bucket) < n {
+			bucket = append(bucket, aged{key: k, t: v.createdAt})
+			if v.createdAt.After(bucket[maxIdx].t) {
+				maxIdx = len(bucket) - 1
+			}
+			continue
+		}
+		// Bucket is full: replace the bucket's youngest entry if
+		// the candidate is older.
+		if v.createdAt.Before(bucket[maxIdx].t) {
+			bucket[maxIdx] = aged{key: k, t: v.createdAt}
+			// Recompute max.
+			maxIdx = 0
+			for i := 1; i < len(bucket); i++ {
+				if bucket[i].t.After(bucket[maxIdx].t) {
+					maxIdx = i
+				}
+			}
+		}
+	}
+	out := make([]string, len(bucket))
+	for i, a := range bucket {
+		out[i] = a.key
+	}
+	return out
 }
 
 // generateRandomString generates a cryptographically secure random string of length 32.

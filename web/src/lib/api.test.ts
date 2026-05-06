@@ -217,6 +217,25 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       globalThis.fetch = mockFetchError(400, 'Bad Request', 'Validation failed');
       await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 400 Validation failed');
     });
+
+    // Review fix M2: the Go respondError helper appends
+    // "(request_id: <id>)" to 5xx and 401/403 bodies; the SPA's
+    // toast shouldn't surface that, the request_id stays in the
+    // X-Request-ID response header for devtools.
+    it('strips trailing (request_id: ...) suffix from error messages', async () => {
+      globalThis.fetch = mockFetchError(500, 'Internal Server Error', 'Failed to save config (request_id: a1b2c3d4)');
+      await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 500 Failed to save config');
+    });
+
+    it('strips request_id suffix from JSON {error} bodies too', async () => {
+      globalThis.fetch = vi.fn().mockResolvedValue({
+        ok: false,
+        status: 500,
+        statusText: 'Internal Server Error',
+        text: () => Promise.resolve(JSON.stringify({ error: 'Internal failure (request_id: zyx987)' })),
+      });
+      await expect(saveConfig(makeConfig())).rejects.toThrow('API error: 500 Internal failure');
+    });
   });
 
   describe('fetchApps', () => {

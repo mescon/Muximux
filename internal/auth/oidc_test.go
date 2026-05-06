@@ -408,6 +408,90 @@ func TestGetAuthorizationURL_StateCapEvictsOldest(t *testing.T) {
 	}
 }
 
+// TestGetAuthorizationURL_EvictionPrefersOlderEntries pins the
+// review fix M4 invariant: eviction is biased toward the oldest
+// quartile, so a freshly-created legitimate entry must survive a
+// flood of older attacker spam (with overwhelming probability across
+// many trials). Repeats are needed because the eviction picks
+// randomly among the oldest N candidates.
+func TestGetAuthorizationURL_EvictionPrefersOlderEntries(t *testing.T) {
+	userinfo := map[string]interface{}{"sub": "user1"}
+	srv := mockOIDCServer(t, userinfo)
+	defer srv.Close()
+
+	p, _ := newTestOIDCProvider(t, srv.URL)
+
+	// Pre-load up to the cap with old synthetic entries.
+	p.statesMu.Lock()
+	for i := 0; i < maxOIDCStates; i++ {
+		p.states[fmt.Sprintf("synthetic-%d", i)] = stateEntry{
+			createdAt:    time.Now().Add(-time.Hour),
+			redirectURL:  "/old",
+			nonce:        "n",
+			codeVerifier: "v",
+		}
+	}
+	// Drop in one "freshly-created" legit entry - much newer than
+	// the others. It must NOT be evicted by subsequent fills.
+	p.states["fresh-legit"] = stateEntry{
+		createdAt:    time.Now(),
+		redirectURL:  "/legit",
+		nonce:        "n",
+		codeVerifier: "v",
+	}
+	p.statesMu.Unlock()
+
+	// We have maxOIDCStates+1 entries. Each new GetAuthorizationURL
+	// will trigger one eviction; perform many to give the random
+	// branch many chances to mis-target the legit entry.
+	const trials = 200
+	for i := 0; i < trials; i++ {
+		if _, err := p.GetAuthorizationURL(context.Background(), "/new"); err != nil {
+			t.Fatalf("trial %d: %v", i, err)
+		}
+	}
+
+	p.statesMu.Lock()
+	_, stillThere := p.states["fresh-legit"]
+	p.statesMu.Unlock()
+	if !stillThere {
+		t.Errorf("legit fresh entry was evicted across %d trials; eviction is biased away from old", trials)
+	}
+}
+
+// TestPickOldestN verifies the helper independently of the OIDC flow.
+func TestPickOldestN(t *testing.T) {
+	now := time.Now()
+	entries := map[string]stateEntry{
+		"old-a":   {createdAt: now.Add(-30 * time.Second)},
+		"old-b":   {createdAt: now.Add(-25 * time.Second)},
+		"mid":     {createdAt: now.Add(-10 * time.Second)},
+		"fresh-a": {createdAt: now},
+		"fresh-b": {createdAt: now.Add(-1 * time.Second)},
+	}
+	got := pickOldestN(entries, 2)
+	if len(got) != 2 {
+		t.Fatalf("expected 2 picks, got %d", len(got))
+	}
+	wantSet := map[string]bool{"old-a": true, "old-b": true}
+	for _, k := range got {
+		if !wantSet[k] {
+			t.Errorf("pickOldestN returned %q which is not in the oldest 2", k)
+		}
+	}
+	// Edge cases.
+	if pickOldestN(nil, 5) != nil {
+		t.Error("pickOldestN(nil, 5) should be nil")
+	}
+	if pickOldestN(entries, 0) != nil {
+		t.Error("pickOldestN(_, 0) should be nil")
+	}
+	all := pickOldestN(entries, 10)
+	if len(all) != len(entries) {
+		t.Errorf("pickOldestN with n>len should return all %d, got %d", len(entries), len(all))
+	}
+}
+
 // TestPKCE_VerifierSentOnExchange covers findings.md L2. The verifier
 // stored in the state entry must be sent with the token exchange.
 func TestPKCE_VerifierSentOnExchange(t *testing.T) {
@@ -1311,5 +1395,33 @@ func TestHandleCallback_FallbackToSub(t *testing.T) {
 
 	if ss.Count() != 1 {
 		t.Fatalf("expected 1 session, got %d", ss.Count())
+	}
+}
+
+// TestSanitizeRemoteErrorBody covers review fix N1: OIDC discovery
+// errors that come back as multi-line HTML must be flattened and
+// capped before they land in the audit log.
+func TestSanitizeRemoteErrorBody(t *testing.T) {
+	cases := []struct {
+		name string
+		in   string
+		max  int
+		want string
+	}{
+		{"empty", "", 256, ""},
+		{"whitespace only", "   \t\n  ", 256, ""},
+		{"single line passes through", "issuer mismatch", 256, "issuer mismatch"},
+		{"newlines collapse to space", "first\nsecond\rthird", 256, "first second third"},
+		{"runs of whitespace squeezed", "a   b\t\tc", 256, "a b c"},
+		{"long body truncated with ellipsis", strings.Repeat("x", 500), 50, strings.Repeat("x", 50) + "…"},
+		{"length cap kicks in after sanitize", "aaa\n\n\n" + strings.Repeat("b", 100), 10, "aaa bbbbbb…"},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			got := sanitizeRemoteErrorBody([]byte(c.in), c.max)
+			if got != c.want {
+				t.Errorf("sanitizeRemoteErrorBody(%q, %d) = %q, want %q", c.in, c.max, got, c.want)
+			}
+		})
 	}
 }

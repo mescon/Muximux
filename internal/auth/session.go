@@ -189,9 +189,19 @@ func (s *SessionStore) ClearCookie(w http.ResponseWriter) {
 	})
 }
 
-// Close stops the cleanup goroutine
+// Close stops the cleanup goroutine. Safe to call multiple times -
+// guards close(s.done) with a select on its already-closed shape so a
+// double-Stop (test harnesses, future "stop on second SIGINT" paths)
+// does not panic. Mirrors websocket.Hub.Close.
 func (s *SessionStore) Close() {
-	close(s.done)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	select {
+	case <-s.done:
+		// already closed
+	default:
+		close(s.done)
+	}
 }
 
 // cleanup periodically removes expired sessions

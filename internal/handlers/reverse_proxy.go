@@ -1669,6 +1669,12 @@ func (route *proxyRoute) forwardUpgradeResponse(clientConn net.Conn, resp *http.
 		}
 	}
 
+	logging.From(r.Context()).Debug("Forwarding upgrade response",
+		"source", "proxy",
+		"app", route.name,
+		"secure", secure,
+		"set_cookie_count", len(resp.Header.Values(headerSetCookie)))
+
 	var respBuf bytes.Buffer
 	fmt.Fprintf(&respBuf, "HTTP/1.1 101 Switching Protocols\r\n")
 	for k, vs := range resp.Header {
@@ -1680,6 +1686,15 @@ func (route *proxyRoute) forwardUpgradeResponse(clientConn net.Conn, resp *http.
 			out := v
 			if isSetCookie && route.rewriter != nil {
 				out = route.rewriter.rewriteCookie(v, secure)
+				// Re-validate after rewrite: rewriteCookie does
+				// not introduce CR/LF today, but if a future
+				// change ever produces them on output, we must
+				// not write the result to the hijacked conn -
+				// CR/LF in a header value is the request-
+				// smuggling primitive (review fix L3).
+				if containsCRLF(out) {
+					continue
+				}
 			}
 			fmt.Fprintf(&respBuf, "%s: %s\r\n", k, out)
 		}
