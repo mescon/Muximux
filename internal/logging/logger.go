@@ -10,6 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -145,14 +146,64 @@ type LogBuffer struct {
 
 	subMu       sync.Mutex
 	subscribers map[chan LogEntry]struct{}
+
+	// Per-broadcast drop counter. Incremented under subMu when a
+	// subscriber's channel is full so we can periodically surface
+	// "log viewer is missing entries" instead of letting silent gaps
+	// accumulate (codebase review B1). A separate ticker reads &
+	// resets this and emits a single Warn so the slow path stays
+	// off the Add hot path.
+	droppedSince atomic.Uint64
+	dropTicker   *time.Ticker
+	dropDone     chan struct{}
 }
 
 // NewLogBuffer creates a new ring buffer with the given capacity.
 func NewLogBuffer(size int) *LogBuffer {
-	return &LogBuffer{
+	b := &LogBuffer{
 		entries:     make([]LogEntry, size),
 		size:        size,
 		subscribers: make(map[chan LogEntry]struct{}),
+		dropDone:    make(chan struct{}),
+	}
+	b.dropTicker = time.NewTicker(30 * time.Second)
+	go b.dropReporter()
+	return b
+}
+
+// dropReporter periodically reports the count of broadcasts dropped
+// since the last tick. Runs until Close is called.
+func (b *LogBuffer) dropReporter() {
+	for {
+		select {
+		case <-b.dropDone:
+			return
+		case <-b.dropTicker.C:
+			n := b.droppedSince.Swap(0)
+			if n > 0 {
+				// Warn via slog so the entry itself becomes part of
+				// the ring buffer (and the live log view if any
+				// subscriber is reading). subMu is not held here, so
+				// the slog path can re-enter Add safely.
+				Warn("Log broadcast dropped entries to slow subscribers",
+					"source", "logging",
+					"dropped_since_last_report", n)
+			}
+		}
+	}
+}
+
+// Close stops the drop reporter goroutine. Safe to call multiple times.
+func (b *LogBuffer) Close() {
+	if b.dropTicker == nil {
+		return
+	}
+	select {
+	case <-b.dropDone:
+		// already closed
+	default:
+		close(b.dropDone)
+		b.dropTicker.Stop()
 	}
 }
 
@@ -166,13 +217,16 @@ func (b *LogBuffer) Add(entry LogEntry) { //nolint:gocritic // value receiver is
 	}
 	b.mu.Unlock()
 
-	// Notify subscribers (non-blocking send)
+	// Notify subscribers (non-blocking send). Drops are counted on
+	// b.droppedSince and reported by the dropReporter goroutine so a
+	// slow WebSocket bridge silently swallowing entries shows up as a
+	// Warn line instead of a phantom gap in the live log view.
 	b.subMu.Lock()
 	for ch := range b.subscribers {
 		select {
 		case ch <- entry:
 		default:
-			// Drop entry if subscriber is too slow
+			b.droppedSince.Add(1)
 		}
 	}
 	b.subMu.Unlock()
@@ -353,6 +407,9 @@ func Init(cfg Config) error {
 // Close closes the rotating log writer and any primary log file
 // captured at Init time. Call on shutdown.
 func Close() {
+	if buffer != nil {
+		buffer.Close()
+	}
 	if logWriter != nil {
 		logWriter.Close()
 		logWriter = nil

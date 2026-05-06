@@ -204,11 +204,19 @@ type AuthConfig struct {
 	TrustedProxies []string          `yaml:"trusted_proxies"`
 	Headers        map[string]string `yaml:"headers"`
 	LogoutURL      string            `yaml:"logout_url"` // External auth provider logout URL (forward_auth)
-	OIDC           OIDCConfig        `yaml:"oidc"`
-	SessionMaxAge  string            `yaml:"session_max_age"` // e.g., "24h", "7d"
-	SecureCookies  bool              `yaml:"secure_cookies"`
-	APIKeyHash     string            `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
-	SetupComplete  bool              `yaml:"setup_complete"`
+	// ForwardAuthAdminGroups names the upstream groups that elevate a
+	// forward-auth user to admin. Empty falls back to the
+	// case-insensitive ["admin", "admins", "administrators"] default,
+	// which preserves prior behaviour. Mirrors auth.oidc.admin_groups
+	// so an operator running Authelia / Authentik with a custom
+	// admin-group name (e.g. "dashboard-admins") can grant admin
+	// without renaming their IdP groups.
+	ForwardAuthAdminGroups []string   `yaml:"forward_auth_admin_groups,omitempty"`
+	OIDC                   OIDCConfig `yaml:"oidc"`
+	SessionMaxAge          string     `yaml:"session_max_age"` // e.g., "24h", "7d"
+	SecureCookies          bool       `yaml:"secure_cookies"`
+	APIKeyHash             string     `yaml:"api_key_hash,omitempty"` // bcrypt hash of API key
+	SetupComplete          bool       `yaml:"setup_complete"`
 }
 
 // UserConfig holds local user credentials

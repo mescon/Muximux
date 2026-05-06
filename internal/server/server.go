@@ -154,12 +154,24 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// System info endpoints (no auth required — non-sensitive)
 	systemHandler := handlers.NewSystemHandler(version, commit, buildDate, dataDir)
+	// /api/system/info: every authenticated session calls this to render
+	// the version label, so it stays accessible to all auth users; the
+	// handler itself scrubs admin-only fields (data_dir, environment,
+	// uptime) when the caller is non-admin.
 	mux.HandleFunc("/api/system/info", systemHandler.GetInfo)
-	mux.HandleFunc("/api/system/updates", systemHandler.CheckUpdate)
+	// /api/system/updates: each call is a fresh outbound GitHub fetch.
+	// Admin-only - non-admins should not be able to drain the
+	// 60 req/hour/IP unauthenticated GitHub rate limit, and the
+	// in-handler 1h cache further bounds outbound calls.
+	mux.HandleFunc("/api/system/updates", requireAdmin(systemHandler.CheckUpdate))
 
 	// Logs endpoint
 	logsHandler := handlers.NewLogsHandler()
-	mux.HandleFunc("/api/logs/recent", logsHandler.GetRecent)
+	// Admin-only: the ring buffer carries audit entries (login records,
+	// password / role changes, gateway changes), recovered panic stacks,
+	// full client IPs, and User-Agents. The WebSocket fan-out gates the
+	// same data via Event.adminOnly; the pull endpoint must match.
+	mux.HandleFunc("/api/logs/recent", requireAdmin(logsHandler.GetRecent))
 
 	// Forward-declare so /themes/ handler closure can reference it
 	var staticHandler http.Handler
@@ -199,7 +211,9 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 
 	// Proxy API routes (always registered so the endpoint responds gracefully)
 	proxyHandler := handlers.NewProxyHandler(s.proxyServer, &cfg.Server)
-	mux.HandleFunc("/api/proxy/status", proxyHandler.GetStatus)
+	// Admin-only: leaks the configured TLS domain and the legacy
+	// gateway path. No production frontend caller; only admin tooling.
+	mux.HandleFunc("/api/proxy/status", requireAdmin(proxyHandler.GetStatus))
 
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {
@@ -403,12 +417,13 @@ func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.M
 
 	// Create auth middleware with default bypass rules
 	authConfig := auth.AuthConfig{
-		Method:         auth.AuthMethod(cfg.Auth.Method),
-		TrustedProxies: cfg.Auth.TrustedProxies,
-		APIKeyHash:     cfg.Auth.APIKeyHash,
-		BasePath:       cfg.Server.NormalizedBasePath(),
-		Headers:        auth.ForwardAuthHeadersFromMap(cfg.Auth.Headers),
-		BypassRules:    defaultBypassRules,
+		Method:                 auth.AuthMethod(cfg.Auth.Method),
+		TrustedProxies:         cfg.Auth.TrustedProxies,
+		APIKeyHash:             cfg.Auth.APIKeyHash,
+		BasePath:               cfg.Server.NormalizedBasePath(),
+		Headers:                auth.ForwardAuthHeadersFromMap(cfg.Auth.Headers),
+		ForwardAuthAdminGroups: cfg.Auth.ForwardAuthAdminGroups,
+		BypassRules:            defaultBypassRules,
 	}
 	authMiddleware := auth.NewMiddleware(&authConfig, sessionStore, userStore)
 
@@ -465,7 +480,12 @@ func registerAuthRoutes(mux *http.ServeMux, authHandler *handlers.AuthHandler, w
 	mux.HandleFunc("/api/auth/login", loginLimiter.wrap(authHandler.Login))
 	mux.HandleFunc("/api/auth/logout", authHandler.Logout)
 	mux.HandleFunc("/api/auth/status", authHandler.AuthStatus)
-	mux.HandleFunc("/api/auth/oidc/login", authHandler.OIDCLogin)
+	// /api/auth/oidc/login is unauthenticated by design (no session
+	// exists yet), but each call inserts an entry into the OIDC state
+	// map. The map itself is now size-capped, but a separate per-IP
+	// rate limit blunts the cost of even getting that far - especially
+	// the discovery fetch the first hit triggers.
+	mux.HandleFunc("/api/auth/oidc/login", loginLimiter.wrap(authHandler.OIDCLogin))
 	mux.HandleFunc("/api/auth/oidc/callback", authHandler.OIDCCallback)
 
 	// WebSocket endpoint. The top-level RequireAuth middleware guarantees a

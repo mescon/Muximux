@@ -68,6 +68,19 @@ type UserConfig struct {
 type UserStore struct {
 	users map[string]*User
 	mu    sync.RWMutex
+
+	// Timing-dummy hash cache, sized to the *minimum* bcrypt cost
+	// across the live user store (or bcryptTargetCost when the store
+	// is empty). Without this, the unknown-user path always runs at
+	// bcryptTargetCost (12) while the wrong-password path runs at
+	// whatever the user's stored cost is - so a measurable wall-clock
+	// gap distinguishes "user does not exist" from "user exists,
+	// wrong password" against any pre-rehash account (findings
+	// codebase-review H6). Recomputed under dummyMu when the
+	// minimum cost shifts.
+	dummyMu      sync.Mutex
+	dummyCost    int
+	dummyHashRaw []byte
 }
 
 // NewUserStore creates a new user store
@@ -137,17 +150,70 @@ func (s *UserStore) copyUser(u *User) *User {
 // accounts migrate forward without operator action (findings.md M4).
 const bcryptTargetCost = 12
 
-// timingDummyHash is a pre-computed bcrypt hash used to absorb the
-// bcrypt compare cost when the supplied username does not match any
-// user. It is generated at bcryptTargetCost so the unknown-user and
-// wrong-password paths take the same wall-clock time (findings.md H2).
-var timingDummyHash = func() []byte {
+// fallbackTimingDummyHash is the at-target-cost dummy used when the
+// user store is empty (no hashes to read a min cost from). Tests and
+// fresh installs land here before any users are added.
+var fallbackTimingDummyHash = func() []byte {
 	h, err := bcrypt.GenerateFromPassword([]byte("muximux-timing-dummy-not-a-real-password"), bcryptTargetCost)
 	if err != nil {
 		panic("auth: failed to pre-compute timing dummy hash: " + err.Error())
 	}
 	return h
 }()
+
+// minHashCostLocked returns the lowest bcrypt cost present across all
+// stored hashes. Caller must hold s.mu (read or write). Returns
+// bcryptTargetCost when the store is empty or contains only hashes
+// whose cost cannot be parsed.
+func (s *UserStore) minHashCostLocked() int {
+	min := 0
+	for _, u := range s.users {
+		c, err := bcrypt.Cost([]byte(u.PasswordHash))
+		if err != nil {
+			continue
+		}
+		if min == 0 || c < min {
+			min = c
+		}
+	}
+	if min == 0 {
+		return bcryptTargetCost
+	}
+	return min
+}
+
+// timingDummy returns a bcrypt hash sized to the lowest stored hash
+// cost so the unknown-user compare takes roughly the same wall time
+// as a real wrong-password compare against any user. Cached and
+// re-computed lazily when the floor shifts.
+func (s *UserStore) timingDummy() []byte {
+	s.mu.RLock()
+	cost := s.minHashCostLocked()
+	s.mu.RUnlock()
+
+	s.dummyMu.Lock()
+	defer s.dummyMu.Unlock()
+	if s.dummyHashRaw != nil && s.dummyCost == cost {
+		return s.dummyHashRaw
+	}
+	if cost == bcryptTargetCost {
+		// Reuse the package-level fallback at target cost.
+		s.dummyHashRaw = fallbackTimingDummyHash
+		s.dummyCost = bcryptTargetCost
+		return s.dummyHashRaw
+	}
+	h, err := bcrypt.GenerateFromPassword([]byte("muximux-timing-dummy-not-a-real-password"), cost)
+	if err != nil {
+		// Rare: bcrypt only errors on cost out of range, which
+		// minHashCostLocked has already filtered. Fall back to the
+		// at-target-cost dummy rather than skipping the compare.
+		logging.Warn("Failed to compute timing dummy hash; using fallback", "source", "auth", "cost", cost, "error", err)
+		return fallbackTimingDummyHash
+	}
+	s.dummyHashRaw = h
+	s.dummyCost = cost
+	return s.dummyHashRaw
+}
 
 // Authenticate verifies username and password. Three failure modes are
 // distinguished in the logs so an operator can tell an unknown user
@@ -160,10 +226,13 @@ var timingDummyHash = func() []byte {
 func (s *UserStore) Authenticate(username, password string) (*User, error) {
 	user := s.Get(username)
 	if user == nil {
-		// Perform a throwaway bcrypt compare so the failure path takes
-		// roughly as long as a real mismatch. Err is ignored; we always
-		// return the same error shape as a real bad-password case.
-		_ = bcrypt.CompareHashAndPassword(timingDummyHash, []byte(password))
+		// Perform a throwaway bcrypt compare against a dummy hash sized
+		// to the *minimum* cost in the user store. If we always used
+		// bcryptTargetCost here while users still had cost-10 hashes,
+		// the wall-clock gap (250 ms vs 70 ms) would distinguish
+		// unknown-user from wrong-password against pre-rehash accounts
+		// (codebase review H6).
+		_ = bcrypt.CompareHashAndPassword(s.timingDummy(), []byte(password))
 		logging.Debug("Auth attempt for unknown user", "source", "auth", "username", username)
 		return nil, errors.New(errUserNotFound)
 	}

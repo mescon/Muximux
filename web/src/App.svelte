@@ -199,7 +199,13 @@
       startHealthPolling(intervalMs);
     }
     connectWs();
-    initLogStore();
+    // /api/logs/recent is admin-only because the ring buffer carries
+    // audit lines, panic stacks, and full client IPs. Only init the
+    // log store when the current user is an admin so non-admin
+    // sessions don't get a noisy 403 in their console.
+    if (get(isAdmin)) {
+      initLogStore();
+    }
   }
 
   // Swipe gesture handlers for app switching on mobile

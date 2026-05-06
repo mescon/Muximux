@@ -1,14 +1,27 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"runtime"
+	"sync/atomic"
 	"testing"
 	"time"
+
+	"github.com/mescon/muximux/v3/internal/auth"
 )
+
+func adminCtxRequest(method, path string) *http.Request {
+	req := httptest.NewRequest(method, path, nil)
+	ctx := context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{
+		Username: "admin",
+		Role:     "admin",
+	})
+	return req.WithContext(ctx)
+}
 
 // ---------------------------------------------------------------------------
 // NewSystemHandler
@@ -232,7 +245,11 @@ func TestGetInfo(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		h := NewSystemHandler("1.2.3", "abc1234", "2025-06-15", "/tmp/data")
 
-		req := httptest.NewRequest(http.MethodGet, "/api/system/info", nil)
+		// GetInfo only returns the runtime / dataDir / uptime fields when
+		// the caller is an admin; this test seeds an admin user in the
+		// context so the full payload is exercised. The "non-admin
+		// scrubbed" subtest below covers the alternate branch.
+		req := adminCtxRequest(http.MethodGet, "/api/system/info")
 		w := httptest.NewRecorder()
 
 		h.GetInfo(w, req)
@@ -323,6 +340,33 @@ func TestGetInfo(t *testing.T) {
 
 		if w.Code != http.StatusMethodNotAllowed {
 			t.Errorf("expected status 405, got %d", w.Code)
+		}
+	})
+
+	t.Run("non-admin scrubbed", func(t *testing.T) {
+		// A request without an admin user in the context (the SPA
+		// shell needs the version to render the "About" link, but
+		// only admins should see data_dir, environment, uptime, etc.)
+		h := NewSystemHandler("1.2.3", "abc1234", "2025-06-15", "/tmp/data")
+		req := httptest.NewRequest(http.MethodGet, "/api/system/info", nil)
+		w := httptest.NewRecorder()
+		h.GetInfo(w, req)
+
+		if w.Code != http.StatusOK {
+			t.Fatalf("expected 200, got %d", w.Code)
+		}
+		var resp SystemInfoResponse
+		if err := json.NewDecoder(w.Body).Decode(&resp); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if resp.Version != "1.2.3" || resp.Commit != "abc1234" || resp.BuildDate != "2025-06-15" {
+			t.Errorf("public fields missing: %+v", resp)
+		}
+		if resp.DataDir != "" || resp.Environment != "" || resp.GoVersion != "" || resp.OS != "" || resp.Arch != "" {
+			t.Errorf("non-admin response leaked private fields: %+v", resp)
+		}
+		if resp.UptimeSecs != 0 || resp.Uptime != "" || resp.StartedAt != "" {
+			t.Errorf("non-admin response leaked uptime info: %+v", resp)
 		}
 	})
 }
@@ -505,6 +549,42 @@ func TestCheckUpdate(t *testing.T) {
 			t.Errorf("expected status 500 for invalid JSON, got %d", w.Code)
 		}
 	})
+
+	t.Run("response is cached for cacheTTL", func(t *testing.T) {
+		// Regression: CheckUpdate must serve from in-process cache so a
+		// busy Settings page does not exhaust GitHub's 60-req/hour
+		// unauthenticated rate limit. We count fetches against the mock.
+		var fetches int32
+		ghServer := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			atomic.AddInt32(&fetches, 1)
+			release := gitHubRelease{TagName: "v2.0.0", HTMLURL: "x", Body: "y", PublishedAt: "z", Assets: nil}
+			w.Header().Set("Content-Type", "application/json")
+			_ = json.NewEncoder(w).Encode(release)
+		}))
+		defer ghServer.Close()
+
+		h := NewSystemHandler("1.0.0", "", "", "")
+		h.releaseAPIURL = ghServer.URL
+		h.cacheTTL = time.Hour
+
+		// First call: cache miss, must hit upstream.
+		req := httptest.NewRequest(http.MethodGet, "/api/system/updates", nil)
+		h.CheckUpdate(httptest.NewRecorder(), req)
+		// Second + third calls: cache hits, must NOT hit upstream.
+		h.CheckUpdate(httptest.NewRecorder(), req)
+		h.CheckUpdate(httptest.NewRecorder(), req)
+
+		if got := atomic.LoadInt32(&fetches); got != 1 {
+			t.Errorf("expected 1 outbound fetch with cache hot, got %d", got)
+		}
+
+		// Force expiry: next call should re-fetch.
+		h.cachedAt = time.Now().Add(-2 * time.Hour)
+		h.CheckUpdate(httptest.NewRecorder(), req)
+		if got := atomic.LoadInt32(&fetches); got != 2 {
+			t.Errorf("expected 2 outbound fetches after cache expiry, got %d", got)
+		}
+	})
 }
 
 // checkUpdateWithMockGitHub is a test helper that exercises the CheckUpdate logic
@@ -513,83 +593,15 @@ func TestCheckUpdate(t *testing.T) {
 func checkUpdateWithMockGitHub(t *testing.T, h *SystemHandler, mockURL string) (*httptest.ResponseRecorder, UpdateCheckResponse) {
 	t.Helper()
 
-	// Build a handler that fetches from our mock server instead of real GitHub.
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet {
-			http.Error(w, errMethodNotAllowed, http.StatusMethodNotAllowed)
-			return
-		}
-
-		client := &http.Client{Timeout: 5 * time.Second}
-		ghReq, err := http.NewRequestWithContext(r.Context(), http.MethodGet, mockURL, nil)
-		if err != nil {
-			http.Error(w, "Failed to create request", http.StatusInternalServerError)
-			return
-		}
-		ghReq.Header.Set("User-Agent", "Muximux/"+h.version)
-		ghReq.Header.Set("Accept", "application/vnd.github.v3+json")
-
-		ghResp, err := client.Do(ghReq) //nolint:gosec // test-only: URL comes from httptest mock server
-		if err != nil {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			w.WriteHeader(http.StatusServiceUnavailable)
-			_ = json.NewEncoder(w).Encode(map[string]string{"error": "Failed to check for updates: " + err.Error()})
-			return
-		}
-		defer ghResp.Body.Close()
-
-		if ghResp.StatusCode == http.StatusNotFound {
-			w.Header().Set(headerContentType, contentTypeJSON)
-			_ = json.NewEncoder(w).Encode(UpdateCheckResponse{
-				CurrentVersion:  h.version,
-				LatestVersion:   h.version,
-				UpdateAvailable: false,
-				DownloadURLs:    map[string]string{},
-			})
-			return
-		}
-
-		if ghResp.StatusCode != http.StatusOK {
-			body := make([]byte, 1024)
-			n, _ := ghResp.Body.Read(body)
-			w.Header().Set(headerContentType, contentTypeJSON)
-			w.WriteHeader(http.StatusServiceUnavailable)
-			_ = json.NewEncoder(w).Encode(map[string]string{"error": fmt.Sprintf("GitHub API error %d: %s", ghResp.StatusCode, string(body[:n]))})
-			return
-		}
-
-		var release gitHubRelease
-		if err := json.NewDecoder(ghResp.Body).Decode(&release); err != nil {
-			http.Error(w, "Failed to parse GitHub response", http.StatusInternalServerError)
-			return
-		}
-
-		latestVersion := ""
-		if len(release.TagName) > 0 && release.TagName[0] == 'v' {
-			latestVersion = release.TagName[1:]
-		} else {
-			latestVersion = release.TagName
-		}
-		downloads := buildDownloadURLs(release.Assets)
-
-		updateAvailable := compareVersions(h.version, latestVersion) < 0
-		resp := UpdateCheckResponse{
-			CurrentVersion:  h.version,
-			LatestVersion:   latestVersion,
-			UpdateAvailable: updateAvailable,
-			ReleaseURL:      release.HTMLURL,
-			Changelog:       release.Body,
-			PublishedAt:     release.PublishedAt,
-			DownloadURLs:    downloads,
-		}
-
-		w.Header().Set(headerContentType, contentTypeJSON)
-		_ = json.NewEncoder(w).Encode(resp)
-	})
+	// Point the handler at the mock GitHub server and reset its cache
+	// so each test sees a fresh fetch.
+	h.releaseAPIURL = mockURL
+	h.cachedUpdate = nil
+	h.cachedAt = time.Time{}
 
 	req := httptest.NewRequest(http.MethodGet, "/api/system/updates", nil)
 	w := httptest.NewRecorder()
-	handler.ServeHTTP(w, req)
+	h.CheckUpdate(w, req)
 
 	var resp UpdateCheckResponse
 	_ = json.NewDecoder(w.Body).Decode(&resp)

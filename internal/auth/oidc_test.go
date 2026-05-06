@@ -8,6 +8,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"fmt"
 	"math/big"
 	"net/http"
 	"net/http/httptest"
@@ -356,6 +357,54 @@ func TestGetAuthorizationURL(t *testing.T) {
 	}
 	if !strings.Contains(authURL, "code_challenge_method=S256") {
 		t.Error("expected code_challenge_method=S256 in auth URL")
+	}
+}
+
+// TestGetAuthorizationURL_StateCapEvictsOldest pins the size cap that
+// keeps unauthenticated /api/auth/oidc/login traffic from driving
+// memory growth. We push past the cap and assert (a) the map size
+// never exceeds maxOIDCStates and (b) the oldest entry is the one
+// evicted - legitimate flows complete in seconds, attacker spam
+// piles up at the front.
+func TestGetAuthorizationURL_StateCapEvictsOldest(t *testing.T) {
+	userinfo := map[string]interface{}{"sub": "user1"}
+	srv := mockOIDCServer(t, userinfo)
+	defer srv.Close()
+
+	p, _ := newTestOIDCProvider(t, srv.URL)
+
+	// Pre-load the map up to the cap with synthetic ancient entries
+	// so the eviction path picks them off first.
+	p.statesMu.Lock()
+	for i := 0; i < maxOIDCStates; i++ {
+		p.states[fmt.Sprintf("synthetic-%d", i)] = stateEntry{
+			createdAt:    time.Now().Add(-time.Hour),
+			redirectURL:  "/old",
+			nonce:        "n",
+			codeVerifier: "v",
+		}
+	}
+	p.statesMu.Unlock()
+
+	// One more login: must evict an oldest synthetic and stay at the cap.
+	if _, err := p.GetAuthorizationURL(context.Background(), "/new"); err != nil {
+		t.Fatalf("GetAuthorizationURL failed: %v", err)
+	}
+
+	p.statesMu.Lock()
+	defer p.statesMu.Unlock()
+	if len(p.states) > maxOIDCStates {
+		t.Fatalf("state map exceeded cap: %d > %d", len(p.states), maxOIDCStates)
+	}
+	// At least one synthetic must have been evicted.
+	syntheticCount := 0
+	for k := range p.states {
+		if strings.HasPrefix(k, "synthetic-") {
+			syntheticCount++
+		}
+	}
+	if syntheticCount != maxOIDCStates-1 {
+		t.Errorf("expected %d synthetic entries after eviction, got %d", maxOIDCStates-1, syntheticCount)
 	}
 }
 

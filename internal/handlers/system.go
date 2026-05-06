@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -9,8 +10,10 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
@@ -21,16 +24,29 @@ type SystemHandler struct {
 	buildDate string
 	dataDir   string
 	startedAt time.Time
+
+	// Update-check cache. GitHub's unauthenticated API rate limit is
+	// 60 req/hour/IP, so a refresh interval of 1h keeps us comfortably
+	// inside that even if every Settings page load triggers a check.
+	updateMu      sync.Mutex
+	cachedUpdate  *UpdateCheckResponse
+	cachedAt      time.Time
+	cacheTTL      time.Duration
+	httpClient    *http.Client
+	releaseAPIURL string // overridable for tests
 }
 
 // NewSystemHandler creates a new system handler.
 func NewSystemHandler(version, commit, buildDate, dataDir string) *SystemHandler {
 	return &SystemHandler{
-		version:   version,
-		commit:    commit,
-		buildDate: buildDate,
-		dataDir:   dataDir,
-		startedAt: time.Now(),
+		version:       version,
+		commit:        commit,
+		buildDate:     buildDate,
+		dataDir:       dataDir,
+		startedAt:     time.Now(),
+		cacheTTL:      time.Hour,
+		httpClient:    &http.Client{Timeout: 10 * time.Second},
+		releaseAPIURL: fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", githubRepo),
 	}
 }
 
@@ -94,102 +110,131 @@ var projectLinks = SystemLinks{
 	Wiki:     githubBaseURL + "/wiki",
 }
 
-// GetInfo returns system information.
+// GetInfo returns system information. The full payload (data dir,
+// runtime, environment, uptime) is restricted to admin callers because
+// it gives an attacker plotting next-step exploits a free map of the
+// instance. Non-admin callers get the small subset the SPA shell needs
+// to render the version label, with everything else stripped.
 func (h *SystemHandler) GetInfo(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
-	uptime := time.Since(h.startedAt)
 	resp := SystemInfoResponse{
-		Version:     h.version,
-		Commit:      h.commit,
-		BuildDate:   h.buildDate,
-		GoVersion:   runtime.Version(),
-		OS:          runtime.GOOS,
-		Arch:        runtime.GOARCH,
-		Environment: detectEnvironment(),
-		Uptime:      formatUptime(uptime),
-		UptimeSecs:  int64(uptime.Seconds()),
-		StartedAt:   h.startedAt.UTC().Format(time.RFC3339),
-		DataDir:     h.dataDir,
-		Links:       projectLinks,
+		Version:   h.version,
+		Commit:    h.commit,
+		BuildDate: h.buildDate,
+		Links:     projectLinks,
+	}
+	if user := auth.GetUserFromContext(r.Context()); user != nil && user.Role == "admin" {
+		uptime := time.Since(h.startedAt)
+		resp.GoVersion = runtime.Version()
+		resp.OS = runtime.GOOS
+		resp.Arch = runtime.GOARCH
+		resp.Environment = detectEnvironment()
+		resp.Uptime = formatUptime(uptime)
+		resp.UptimeSecs = int64(uptime.Seconds())
+		resp.StartedAt = h.startedAt.UTC().Format(time.RFC3339)
+		resp.DataDir = h.dataDir
 	}
 
 	sendJSON(w, http.StatusOK, resp)
 }
 
 // CheckUpdate checks GitHub for the latest release.
+//
+// Result is cached for cacheTTL (1h by default) so a Settings page that
+// every admin opens repeatedly does not exhaust GitHub's unauthenticated
+// 60-req/hour rate limit. The cache is process-local; restarts re-fetch.
+// Admin-only at registration: the response is innocuous, but unauth'd
+// users hammering this endpoint were the practical DoS vector.
 func (h *SystemHandler) CheckUpdate(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
 
-	client := &http.Client{Timeout: 10 * time.Second}
-	apiURL := fmt.Sprintf("https://api.github.com/repos/%s/releases/latest", githubRepo)
-
-	req, err := http.NewRequestWithContext(r.Context(), http.MethodGet, apiURL, nil)
-	if err != nil {
-		respondError(w, r, http.StatusInternalServerError, "Failed to create request")
+	// Serve from cache if fresh.
+	h.updateMu.Lock()
+	if h.cachedUpdate != nil && time.Since(h.cachedAt) < h.cacheTTL {
+		cached := *h.cachedUpdate
+		h.updateMu.Unlock()
+		sendJSON(w, http.StatusOK, cached)
 		return
 	}
-	req.Header.Set("User-Agent", "Muximux/"+h.version)
-	req.Header.Set("Accept", "application/vnd.github.v3+json")
+	h.updateMu.Unlock()
 
-	ghResp, err := client.Do(req)
+	resp, status, err := h.fetchLatestRelease(r.Context())
 	if err != nil {
 		logging.From(r.Context()).Warn("Update check failed", "source", "system", "error", err)
-		sendJSON(w, http.StatusServiceUnavailable, map[string]string{"error": "Failed to check for updates: " + err.Error()})
-		return
-	}
-	defer ghResp.Body.Close()
-
-	if ghResp.StatusCode == http.StatusNotFound {
-		// No releases yet
-		sendJSON(w, http.StatusOK, UpdateCheckResponse{
-			CurrentVersion:  h.version,
-			LatestVersion:   h.version,
-			UpdateAvailable: false,
-			DownloadURLs:    map[string]string{},
-		})
+		sendJSON(w, status, map[string]string{"error": err.Error()})
 		return
 	}
 
-	if ghResp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(io.LimitReader(ghResp.Body, 1024))
-		sendJSON(w, http.StatusServiceUnavailable, map[string]string{"error": fmt.Sprintf("GitHub API error %d: %s", ghResp.StatusCode, string(body))})
-		return
-	}
+	// Cache successful responses (including the "no releases" 404 path,
+	// which still produces a valid resp).
+	h.updateMu.Lock()
+	cachedCopy := resp
+	h.cachedUpdate = &cachedCopy
+	h.cachedAt = time.Now()
+	h.updateMu.Unlock()
 
-	var release gitHubRelease
-	if err := json.NewDecoder(ghResp.Body).Decode(&release); err != nil {
-		respondError(w, r, http.StatusInternalServerError, "Failed to parse GitHub response")
-		return
-	}
-
-	latestVersion := strings.TrimPrefix(release.TagName, "v")
-	downloads := buildDownloadURLs(release.Assets)
-
-	updateAvailable := compareVersions(h.version, latestVersion) < 0
-	resp := UpdateCheckResponse{
-		CurrentVersion:  h.version,
-		LatestVersion:   latestVersion,
-		UpdateAvailable: updateAvailable,
-		ReleaseURL:      release.HTMLURL,
-		Changelog:       release.Body,
-		PublishedAt:     release.PublishedAt,
-		DownloadURLs:    downloads,
-	}
-
-	if updateAvailable {
-		logging.From(r.Context()).Info("Update available", "source", "system", "current", h.version, "latest", latestVersion)
+	if resp.UpdateAvailable {
+		logging.From(r.Context()).Info("Update available", "source", "system", "current", h.version, "latest", resp.LatestVersion)
 	} else {
 		logging.From(r.Context()).Debug("Update check: up to date", "source", "system", "version", h.version)
 	}
 
 	sendJSON(w, http.StatusOK, resp)
+}
+
+// fetchLatestRelease performs the GitHub API call. Returns the response
+// shape, the HTTP status to surface to the client on error, and the
+// error itself. Split out so CheckUpdate can short-circuit on cache hits.
+func (h *SystemHandler) fetchLatestRelease(ctx context.Context) (UpdateCheckResponse, int, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, h.releaseAPIURL, nil)
+	if err != nil {
+		return UpdateCheckResponse{}, http.StatusInternalServerError, fmt.Errorf("failed to build request: %w", err)
+	}
+	req.Header.Set("User-Agent", "Muximux/"+h.version)
+	req.Header.Set("Accept", "application/vnd.github.v3+json")
+
+	ghResp, err := h.httpClient.Do(req)
+	if err != nil {
+		return UpdateCheckResponse{}, http.StatusServiceUnavailable, fmt.Errorf("failed to check for updates: %w", err)
+	}
+	defer ghResp.Body.Close()
+
+	if ghResp.StatusCode == http.StatusNotFound {
+		return UpdateCheckResponse{
+			CurrentVersion:  h.version,
+			LatestVersion:   h.version,
+			UpdateAvailable: false,
+			DownloadURLs:    map[string]string{},
+		}, http.StatusOK, nil
+	}
+
+	if ghResp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(io.LimitReader(ghResp.Body, 1024))
+		return UpdateCheckResponse{}, http.StatusServiceUnavailable, fmt.Errorf("GitHub API error %d: %s", ghResp.StatusCode, string(body))
+	}
+
+	var release gitHubRelease
+	if err := json.NewDecoder(ghResp.Body).Decode(&release); err != nil {
+		return UpdateCheckResponse{}, http.StatusInternalServerError, fmt.Errorf("failed to parse GitHub response: %w", err)
+	}
+
+	latestVersion := strings.TrimPrefix(release.TagName, "v")
+	return UpdateCheckResponse{
+		CurrentVersion:  h.version,
+		LatestVersion:   latestVersion,
+		UpdateAvailable: compareVersions(h.version, latestVersion) < 0,
+		ReleaseURL:      release.HTMLURL,
+		Changelog:       release.Body,
+		PublishedAt:     release.PublishedAt,
+		DownloadURLs:    buildDownloadURLs(release.Assets),
+	}, http.StatusOK, nil
 }
 
 // detectEnvironment returns "docker" if running inside a container, "native" otherwise.

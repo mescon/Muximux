@@ -443,6 +443,57 @@ func TestAuthenticate_EqualTimingForUnknownUser(t *testing.T) {
 	}
 }
 
+// TestAuthenticate_TimingDummyMatchesMinStoredCost covers the codebase
+// review H6. When stored hashes are at a cost lower than
+// bcryptTargetCost (the dummy used to be hardcoded at the target cost,
+// 12), the unknown-user path ran orders of magnitude slower than the
+// real wrong-password compare against a cost-6 hash, leaking
+// existence. The fix sizes the dummy to the *minimum* stored cost.
+func TestAuthenticate_TimingDummyMatchesMinStoredCost(t *testing.T) {
+	// Seed a user with a deliberately weak hash so the wrong-password
+	// path is fast.
+	weakHash, err := bcrypt.GenerateFromPassword([]byte("correct"), 6)
+	if err != nil {
+		t.Fatalf("seed hash: %v", err)
+	}
+	store := NewUserStore()
+	store.LoadFromConfig([]UserConfig{
+		{Username: "alice", PasswordHash: string(weakHash), Role: RoleUser},
+	})
+
+	// Warm the bcrypt path.
+	_, _ = store.Authenticate("alice", "warmup")
+
+	timeIt := func(user, pass string) time.Duration {
+		start := time.Now()
+		_, _ = store.Authenticate(user, pass)
+		return time.Since(start)
+	}
+
+	// Several iterations to dampen scheduling jitter on busy CI hosts.
+	const iters = 5
+	var sumKnown, sumUnknown time.Duration
+	for i := 0; i < iters; i++ {
+		sumKnown += timeIt("alice", "wrong-password")
+		sumUnknown += timeIt("mallory", "anything")
+	}
+	avgKnown := sumKnown / iters
+	avgUnknown := sumUnknown / iters
+
+	// Unknown-user path used to take ~bcryptTargetCost time (~250ms)
+	// while the known path against a cost-6 hash takes ~5-10ms - a
+	// 25-40x gap. Post-fix the dummy is generated at cost 6 and the
+	// gap closes to within ~3x. We assert "within 5x" so the test is
+	// robust on slow CI but still catches a regression to the old
+	// fixed-target-cost shape.
+	if avgUnknown > 5*avgKnown {
+		t.Errorf("unknown-user path much slower than known path (known=%v, unknown=%v) - timing oracle reopened", avgKnown, avgUnknown)
+	}
+	if avgKnown > 5*avgUnknown {
+		t.Errorf("known-user path much slower than unknown path (known=%v, unknown=%v) - inverted timing gap", avgKnown, avgUnknown)
+	}
+}
+
 // TestUpdateIfNotLastAdminDemotion covers findings.md H11. Demoting the
 // only remaining admin must fail; demoting any non-last admin, demoting
 // a non-admin, or editing non-role fields must succeed.

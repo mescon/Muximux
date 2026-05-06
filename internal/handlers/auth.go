@@ -704,10 +704,11 @@ func (h *AuthHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 // UpdateAuthMethod handles PUT /api/auth/method
 func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 	var req struct {
-		Method         string            `json:"method"`
-		TrustedProxies []string          `json:"trusted_proxies"`
-		Headers        map[string]string `json:"headers"`
-		LogoutURL      string            `json:"logout_url"`
+		Method                 string            `json:"method"`
+		TrustedProxies         []string          `json:"trusted_proxies"`
+		Headers                map[string]string `json:"headers"`
+		LogoutURL              string            `json:"logout_url"`
+		ForwardAuthAdminGroups []string          `json:"forward_auth_admin_groups"`
 	}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		respondError(w, r, http.StatusBadRequest, errInvalidBody)
@@ -730,9 +731,10 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		authCfg = auth.AuthConfig{
-			Method:         auth.AuthMethodForwardAuth,
-			TrustedProxies: req.TrustedProxies,
-			Headers:        auth.ForwardAuthHeadersFromMap(req.Headers),
+			Method:                 auth.AuthMethodForwardAuth,
+			TrustedProxies:         req.TrustedProxies,
+			Headers:                auth.ForwardAuthHeadersFromMap(req.Headers),
+			ForwardAuthAdminGroups: req.ForwardAuthAdminGroups,
 		}
 
 	case "none":
@@ -758,11 +760,13 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			if req.Headers != nil {
 				h.config.Auth.Headers = req.Headers
 			}
+			h.config.Auth.ForwardAuthAdminGroups = req.ForwardAuthAdminGroups
 		} else {
 			// Clear forward-auth fields so stale values don't linger in YAML
 			h.config.Auth.TrustedProxies = nil
 			h.config.Auth.Headers = nil
 			h.config.Auth.LogoutURL = ""
+			h.config.Auth.ForwardAuthAdminGroups = nil
 		}
 		h.authMiddleware.UpdateConfig(&authCfg)
 		return h.config.Save(h.configPath)
@@ -912,12 +916,13 @@ func (h *AuthHandler) DeleteAPIKey(w http.ResponseWriter, r *http.Request) {
 // write lock.
 func (h *AuthHandler) refreshAuthSnapshotLocked() {
 	authCfg := auth.AuthConfig{
-		Method:         auth.AuthMethod(h.config.Auth.Method),
-		BypassRules:    h.bypassRules,
-		APIKeyHash:     h.config.Auth.APIKeyHash,
-		BasePath:       h.config.Server.NormalizedBasePath(),
-		TrustedProxies: h.config.Auth.TrustedProxies,
-		Headers:        auth.ForwardAuthHeadersFromMap(h.config.Auth.Headers),
+		Method:                 auth.AuthMethod(h.config.Auth.Method),
+		BypassRules:            h.bypassRules,
+		APIKeyHash:             h.config.Auth.APIKeyHash,
+		BasePath:               h.config.Server.NormalizedBasePath(),
+		TrustedProxies:         h.config.Auth.TrustedProxies,
+		Headers:                auth.ForwardAuthHeadersFromMap(h.config.Auth.Headers),
+		ForwardAuthAdminGroups: h.config.Auth.ForwardAuthAdminGroups,
 	}
 	h.authMiddleware.UpdateConfig(&authCfg)
 }

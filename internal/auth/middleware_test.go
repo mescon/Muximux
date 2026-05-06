@@ -870,6 +870,40 @@ func TestAuthenticateRequest(t *testing.T) {
 		}
 	})
 
+	// Custom forward-auth admin-group list overrides the default
+	// (admin/admins/administrators) so an operator running an IdP that
+	// names their admin group differently (e.g. Authelia "dashboard-admins")
+	// can grant admin without renaming groups upstream.
+	t.Run("forward_auth uses configured admin groups", func(t *testing.T) {
+		cfg := &AuthConfig{
+			Method:                 AuthMethodForwardAuth,
+			TrustedProxies:         []string{"10.0.0.0/8"},
+			ForwardAuthAdminGroups: []string{"dashboard-admins"},
+		}
+		m, _, _ := newTestMiddleware(cfg)
+
+		// "admins" is the historical default but should NOT elevate
+		// here, because the configured list explicitly excludes it.
+		reqDefault := httptest.NewRequest(http.MethodGet, "/", nil)
+		reqDefault.RemoteAddr = "10.0.0.1:80"
+		reqDefault.Header.Set("Remote-User", "alice")
+		reqDefault.Header.Set("Remote-Groups", "admins")
+		userDefault, _ := m.authenticateRequest(reqDefault, m.snapshot())
+		if userDefault == nil || userDefault.Role != RoleUser {
+			t.Errorf("expected non-admin role for legacy 'admins' when override set, got %+v", userDefault)
+		}
+
+		// The configured group elevates as expected, case-insensitive.
+		reqCustom := httptest.NewRequest(http.MethodGet, "/", nil)
+		reqCustom.RemoteAddr = "10.0.0.1:80"
+		reqCustom.Header.Set("Remote-User", "bob")
+		reqCustom.Header.Set("Remote-Groups", "Dashboard-Admins")
+		userCustom, _ := m.authenticateRequest(reqCustom, m.snapshot())
+		if userCustom == nil || userCustom.Role != RoleAdmin {
+			t.Errorf("expected admin role for configured group, got %+v", userCustom)
+		}
+	})
+
 	t.Run("unknown auth method returns nil", func(t *testing.T) {
 		cfg := &AuthConfig{Method: "something_unknown"}
 		m, _, _ := newTestMiddleware(cfg)

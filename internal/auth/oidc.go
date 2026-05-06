@@ -20,6 +20,15 @@ import (
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
+// maxOIDCStates caps the in-flight authorization-state map. The
+// /api/auth/oidc/login path is unauthenticated by design (a user has
+// to be able to start a login before they have a session), so without
+// a cap an attacker can drive memory growth at ~200 B/entry until the
+// 1-minute cleanup tick fires. Sized for ~1000 concurrent logins,
+// which is far above any realistic operator workload but still
+// orders of magnitude below where we'd OOM.
+const maxOIDCStates = 1024
+
 // OIDCProvider handles OIDC authentication
 type OIDCProvider struct {
 	config       config.OIDCConfig
@@ -183,8 +192,26 @@ func (p *OIDCProvider) GetAuthorizationURL(ctx context.Context, redirectAfterLog
 	}
 	codeChallenge := pkceS256Challenge(codeVerifier)
 
-	// Store state
+	// Store state, but cap the map so an unauthenticated attacker who
+	// pounds /api/auth/oidc/login cannot drive memory growth (each
+	// entry pins ~200 bytes plus the verifier/nonce strings, and the
+	// cleanup goroutine only fires every minute). When we hit the cap
+	// we evict the oldest entry; legitimate flows complete in seconds
+	// so this only ever drops attacker spam.
 	p.statesMu.Lock()
+	if len(p.states) >= maxOIDCStates {
+		var oldestKey string
+		var oldestT time.Time
+		for k, v := range p.states {
+			if oldestKey == "" || v.createdAt.Before(oldestT) {
+				oldestKey = k
+				oldestT = v.createdAt
+			}
+		}
+		if oldestKey != "" {
+			delete(p.states, oldestKey)
+		}
+	}
 	p.states[state] = stateEntry{
 		createdAt:    time.Now(),
 		redirectURL:  redirectAfterLogin,

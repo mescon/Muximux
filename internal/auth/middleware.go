@@ -44,9 +44,13 @@ type AuthConfig struct {
 	Method         AuthMethod
 	TrustedProxies []string
 	Headers        ForwardAuthHeaders
-	BypassRules    []BypassRule
-	APIKeyHash     string // bcrypt hash of API key
-	BasePath       string // e.g. "/muximux" — prepended to login redirect
+	// ForwardAuthAdminGroups names the upstream groups that elevate
+	// a forward-auth user to admin. Empty -> the hardcoded default
+	// (admin / admins / administrators, all case-insensitive).
+	ForwardAuthAdminGroups []string
+	BypassRules            []BypassRule
+	APIKeyHash             string // bcrypt hash of API key
+	BasePath               string // e.g. "/muximux" — prepended to login redirect
 }
 
 // ForwardAuthHeaders defines the header names for forward auth
@@ -392,15 +396,26 @@ func authenticateForwardAuth(r *http.Request, snap *authSnapshot) *User {
 	groupList := splitGroupsHeader(groups)
 
 	role := RoleUser
+	// Determine the admin-group set. Custom config wins over the
+	// default; an empty config keeps the old hardcoded list so
+	// existing deployments don't suddenly demote everyone.
+	adminGroups := snap.config.ForwardAuthAdminGroups
+	if len(adminGroups) == 0 {
+		adminGroups = []string{"admin", "admins", "administrators"}
+	}
 	for _, g := range groupList {
 		// Case-insensitive compare to match OIDC's behaviour.
 		// Authelia/Authentik etc. tend to preserve the operator's
 		// configured casing ("Admins", "ADMIN"), and a silently
 		// case-sensitive check here was a common misconfig trap
 		// (findings.md M2).
-		lower := strings.ToLower(g)
-		if lower == "admin" || lower == "admins" || lower == "administrators" {
-			role = RoleAdmin
+		for _, ag := range adminGroups {
+			if strings.EqualFold(g, ag) {
+				role = RoleAdmin
+				break
+			}
+		}
+		if role == RoleAdmin {
 			break
 		}
 	}

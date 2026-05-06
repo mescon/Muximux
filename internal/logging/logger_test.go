@@ -421,6 +421,7 @@ func TestSubscribe_DoesNotReceiveOldEntries(t *testing.T) {
 
 func TestSubscribe_DropsWhenFull(t *testing.T) {
 	buf := NewLogBuffer(100)
+	defer buf.Close()
 	ch := buf.Subscribe() // buffered channel with capacity 64
 	defer buf.Unsubscribe(ch)
 
@@ -442,6 +443,28 @@ func TestSubscribe_DropsWhenFull(t *testing.T) {
 done:
 	if received != 64 {
 		t.Errorf("expected 64 buffered entries (channel capacity), got %d", received)
+	}
+}
+
+// TestSubscribe_DropsAreCounted covers the codebase review B1: silent
+// drops to slow subscribers must increment the buffer's drop counter so
+// the periodic reporter can surface a Warn instead of letting gaps in
+// the live log view go unexplained.
+func TestSubscribe_DropsAreCounted(t *testing.T) {
+	buf := NewLogBuffer(100)
+	defer buf.Close()
+	ch := buf.Subscribe()
+	defer buf.Unsubscribe(ch)
+
+	// Saturate the 64-entry subscriber channel with 200 entries so 136
+	// drops are guaranteed.
+	for i := 0; i < 200; i++ {
+		buf.Add(LogEntry{Message: "flood"})
+	}
+
+	got := buf.droppedSince.Load()
+	if got < 100 {
+		t.Errorf("expected at least 100 dropped entries counted, got %d", got)
 	}
 }
 
