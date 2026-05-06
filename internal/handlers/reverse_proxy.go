@@ -101,6 +101,15 @@ type proxyRoute struct {
 	rewriter          *contentRewriter
 	customHeaders     map[string]string
 	sessionCookieName string
+
+	// Access controls mirrored from the source AppConfig. ServeHTTP
+	// enforces both before forwarding so a non-admin user who has
+	// guessed (or learned) the slug of an admin-only app cannot
+	// reach it via /proxy/{slug}/. The pre-Phase-6 build only
+	// filtered apps in sanitizeApps, which gates the UI but not the
+	// data path - the actual proxy was wide open. (codebase review C1)
+	minRole       string
+	allowedGroups []string
 }
 
 // contentRewriter handles URL rewriting in response content
@@ -715,6 +724,8 @@ func buildSingleProxyRoute(app *config.AppConfig, timeout time.Duration, session
 		rewriter:          rewriter,
 		customHeaders:     app.ProxyHeaders,
 		sessionCookieName: sessionCookieName,
+		minRole:           app.MinRole,
+		allowedGroups:     append([]string(nil), app.AllowedGroups...),
 	}
 }
 
@@ -1634,12 +1645,43 @@ func containsCRLF(s string) bool {
 }
 
 // forwardUpgradeResponse writes the 101 Switching Protocols response to the client.
-func (route *proxyRoute) forwardUpgradeResponse(clientConn net.Conn, resp *http.Response) error {
+//
+// Set-Cookie headers from the backend are run through the same path /
+// domain / Secure / SameSite rewriter that the HTTP path uses. Without
+// this, a backend that sets a cookie on its 101 response (uncommon but
+// legal) would land verbatim in the browser, scoped to the Muximux
+// origin: it could shadow Muximux session cookies, set Domain values
+// that escape the proxy mount, or set Secure=false on an HTTPS-wrapped
+// origin (codebase review H3).
+//
+// Header values that contain CR / LF / NUL are dropped rather than
+// emitted, matching the buildUpgradeRequest defence: this is the
+// hijacked-conn path, so any unvalidated input becomes part of the
+// HTTP byte stream.
+func (route *proxyRoute) forwardUpgradeResponse(clientConn net.Conn, resp *http.Response, r *http.Request) error {
+	secure := false
+	if r != nil {
+		switch {
+		case r.TLS != nil:
+			secure = true
+		case auth.ClientSchemeFromContext(r.Context()) == "https":
+			secure = true
+		}
+	}
+
 	var respBuf bytes.Buffer
 	fmt.Fprintf(&respBuf, "HTTP/1.1 101 Switching Protocols\r\n")
 	for k, vs := range resp.Header {
+		isSetCookie := strings.EqualFold(k, headerSetCookie)
 		for _, v := range vs {
-			fmt.Fprintf(&respBuf, "%s: %s\r\n", k, v)
+			if containsCRLF(k) || containsCRLF(v) {
+				continue
+			}
+			out := v
+			if isSetCookie && route.rewriter != nil {
+				out = route.rewriter.rewriteCookie(v, secure)
+			}
+			fmt.Fprintf(&respBuf, "%s: %s\r\n", k, out)
 		}
 	}
 	respBuf.WriteString("\r\n")
@@ -1755,7 +1797,7 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	defer clientConn.Close()
 
 	// Forward the 101 response to the client
-	if err = route.forwardUpgradeResponse(clientConn, resp); err != nil {
+	if err = route.forwardUpgradeResponse(clientConn, resp, r); err != nil {
 		logging.From(r.Context()).Error("Failed to write upgrade response to client", "source", "proxy", "app", route.name, "error", err)
 		return
 	}
@@ -1764,6 +1806,47 @@ func (route *proxyRoute) handleWebSocket(w http.ResponseWriter, r *http.Request)
 	// If the backend's bufio reader has buffered data (e.g. a frame sent
 	// immediately after the handshake), flush it to the client first.
 	route.bridgeConnections(clientConn, clientBuf, backendConn, backendBuf)
+}
+
+// userMayAccess checks whether the request's authenticated user passes
+// the per-app min_role and allowed_groups gates. Admins always pass.
+// Unauthenticated requests (auth.method=none) are admitted because the
+// route filter cannot enforce a policy without a user; that case is
+// the operator's responsibility.
+func (route *proxyRoute) userMayAccess(r *http.Request) bool {
+	user := auth.GetUserFromContext(r.Context())
+	if user == nil {
+		// auth.method=none, or middleware short-circuited. The
+		// outer middleware decides whether to allow this; if it
+		// reached us, we honor that.
+		return true
+	}
+	if user.Role == auth.RoleAdmin {
+		return true
+	}
+	if route.minRole != "" && !auth.HasMinRole(user.Role, route.minRole) {
+		return false
+	}
+	if len(route.allowedGroups) > 0 {
+		if !userInAnyGroup(user.Groups, route.allowedGroups) {
+			return false
+		}
+	}
+	return true
+}
+
+// userInAnyGroup reports whether any of the user's groups is in the
+// allowed-groups list, case-insensitively (mirrors the OIDC and
+// forward-auth admin-group matching style).
+func userInAnyGroup(userGroups, allowed []string) bool {
+	for _, ug := range userGroups {
+		for _, ag := range allowed {
+			if strings.EqualFold(ug, ag) {
+				return true
+			}
+		}
+	}
+	return false
 }
 
 // ServeHTTP handles proxy requests
@@ -1783,6 +1866,19 @@ func (h *ReverseProxyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) 
 
 	if !exists {
 		respondError(w, r, http.StatusNotFound, "App not found: "+slug)
+		return
+	}
+
+	// Access control: the apps list returned to non-admin users is
+	// already filtered by min_role and allowed_groups in the API
+	// layer, but the proxy data path is what actually serves the
+	// backend. Without this gate, a non-admin who learns the slug of
+	// an admin-only app could reach it via /proxy/{slug}/, with
+	// session cookies and any configured proxy_headers attached.
+	// Admins bypass both gates by role; the API layer's sanitiser
+	// and this proxy gate must agree. (codebase review C1)
+	if !route.userMayAccess(r) {
+		respondError(w, r, http.StatusForbidden, "Forbidden", "source", "proxy", "app", slug, "path", r.URL.Path)
 		return
 	}
 

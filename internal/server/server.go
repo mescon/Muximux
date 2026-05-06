@@ -2048,19 +2048,64 @@ func securityHeadersMiddleware(next http.Handler, inlineScriptHash string) http.
 	})
 }
 
-// csrfMiddleware protects state-changing API requests from cross-origin attacks.
-// POST requests are the main CSRF vector (browsers can send cross-origin POSTs via forms).
-// We require JSON Content-Type on POST/PUT, which triggers CORS preflight from cross-origin.
-// DELETE/PATCH are not "simple" HTTP methods, so browsers always preflight them.
+// csrfMiddleware protects state-changing API requests from
+// cross-origin attacks. Every /api/ request that mutates state
+// (POST / PUT / DELETE / PATCH) must carry either:
+//
+//   - a JSON-style Content-Type (or multipart for icon uploads, or
+//     application/x-yaml for the import path), OR
+//   - the `X-Requested-With` header.
+//
+// Cross-origin pages cannot send either without a CORS preflight that
+// we never grant, so this is enough to defeat browser-form CSRF.
+//
+// The earlier shape only checked POST / PUT and trusted the
+// browser's "non-simple method" preflight rule for DELETE / PATCH.
+// That assumption breaks under same-origin (proxied apps run inside
+// /proxy/{slug}/ iframes that share Muximux's origin); requiring an
+// X-Requested-With header on every state-changing method tightens
+// the cross-origin gap without breaking legitimate same-origin
+// callers, which the SPA's api.ts now sends on every mutating call
+// (codebase review C2).
+//
+// Note: same-origin attacker JS (e.g. a compromised proxied backend)
+// can still send X-Requested-With and the JSON content-type, so this
+// middleware does not close the same-origin XSS branch of the threat
+// model. The same-origin trade-off is documented in
+// docs/wiki/security.md as part of the proxy mount design.
 func csrfMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if strings.HasPrefix(r.URL.Path, "/api/") && (r.Method == http.MethodPost || r.Method == http.MethodPut) {
-			ct := r.Header.Get(headerContentType)
-			if !strings.HasPrefix(ct, contentTypeJSON) && !strings.HasPrefix(ct, "multipart/form-data") && !strings.HasPrefix(ct, "application/x-yaml") {
-				logging.From(r.Context()).Warn("CSRF check failed: invalid content-type", "source", "server", "path", r.URL.Path, "method", r.Method, "content_type", ct)
-				http.Error(w, "Forbidden: JSON Content-Type required", http.StatusForbidden)
-				return
-			}
+		if !strings.HasPrefix(r.URL.Path, "/api/") {
+			next.ServeHTTP(w, r)
+			return
+		}
+		isMutation := r.Method == http.MethodPost ||
+			r.Method == http.MethodPut ||
+			r.Method == http.MethodDelete ||
+			r.Method == http.MethodPatch
+		if !isMutation {
+			next.ServeHTTP(w, r)
+			return
+		}
+		// Accept either a CSRF-safe content-type OR the
+		// X-Requested-With header. Either alone defeats the
+		// cross-origin browser-form vector.
+		ct := r.Header.Get(headerContentType)
+		hasSafeContentType := strings.HasPrefix(ct, contentTypeJSON) ||
+			strings.HasPrefix(ct, "multipart/form-data") ||
+			strings.HasPrefix(ct, "application/x-yaml")
+		hasRequestedWith := r.Header.Get("X-Requested-With") != ""
+		// DELETE bodies are unusual, so DELETE often arrives with
+		// no Content-Type at all - that's why X-Requested-With
+		// covers the gap when content-type is empty.
+		if !hasSafeContentType && !hasRequestedWith {
+			logging.From(r.Context()).Warn("CSRF check failed: missing JSON content-type or X-Requested-With",
+				"source", "server",
+				"path", r.URL.Path,
+				"method", r.Method,
+				"content_type", ct)
+			http.Error(w, "Forbidden: JSON Content-Type or X-Requested-With required", http.StatusForbidden)
+			return
 		}
 		next.ServeHTTP(w, r)
 	})

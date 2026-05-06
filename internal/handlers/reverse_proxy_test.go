@@ -1211,6 +1211,93 @@ func TestWebSocketProxy(t *testing.T) {
 	}
 }
 
+// TestWebSocketProxy_RewritesSetCookie covers codebase review H3:
+// Set-Cookie headers on the 101 Switching Protocols response must be
+// run through the same rewriter as the HTTP path. Without this a
+// backend could set a cookie scoped to / on the Muximux origin that
+// shadows session state, or set Domain values that escape the proxy
+// mount.
+func TestWebSocketProxy_RewritesSetCookie(t *testing.T) {
+	wsBackend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		key := r.Header.Get("Sec-WebSocket-Key")
+		accept := computeWebSocketAccept(key)
+		hj, ok := w.(http.Hijacker)
+		if !ok {
+			t.Fatal("hijack not supported")
+		}
+		conn, buf, err := hj.Hijack()
+		if err != nil {
+			t.Fatalf("hijack: %v", err)
+		}
+		defer conn.Close()
+		fmt.Fprintf(buf, "HTTP/1.1 101 Switching Protocols\r\n")
+		fmt.Fprintf(buf, "Upgrade: websocket\r\n")
+		fmt.Fprintf(buf, "Connection: Upgrade\r\n")
+		fmt.Fprintf(buf, "Sec-WebSocket-Accept: %s\r\n", accept)
+		// Backend sets a cookie scoped to / with no Path attribute and
+		// a Domain that does not match the proxy. The rewriter should
+		// rewrite path to the proxy mount and strip the Domain.
+		fmt.Fprintf(buf, "Set-Cookie: backend_session=abc; Path=/; Domain=internal.local\r\n")
+		fmt.Fprintf(buf, "\r\n")
+		_ = buf.Flush()
+	}))
+	defer wsBackend.Close()
+
+	apps := []config.AppConfig{
+		{Name: "WsCookie", URL: wsBackend.URL, Enabled: true, Proxy: true},
+	}
+	handler := NewReverseProxyHandler(apps, "30s")
+	proxyServer := httptest.NewServer(handler)
+	defer proxyServer.Close()
+
+	proxyURL, _ := url.Parse(proxyServer.URL)
+	conn, err := net.Dial("tcp", proxyURL.Host)
+	if err != nil {
+		t.Fatalf("dial proxy: %v", err)
+	}
+	defer conn.Close()
+
+	upgrade := fmt.Sprintf(
+		"GET /proxy/wscookie/ws HTTP/1.1\r\n"+
+			"Host: %s\r\n"+
+			"Connection: upgrade\r\n"+
+			"Upgrade: websocket\r\n"+
+			"Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n"+
+			"Sec-WebSocket-Version: 13\r\n"+
+			"\r\n",
+		proxyURL.Host)
+	if _, err := conn.Write([]byte(upgrade)); err != nil {
+		t.Fatalf("send upgrade: %v", err)
+	}
+
+	reader := bufio.NewReader(conn)
+	resp, err := http.ReadResponse(reader, nil)
+	if err != nil {
+		t.Fatalf("read response: %v", err)
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusSwitchingProtocols {
+		t.Fatalf("expected 101, got %d", resp.StatusCode)
+	}
+
+	cookies := resp.Header.Values("Set-Cookie")
+	if len(cookies) != 1 {
+		t.Fatalf("expected 1 Set-Cookie, got %d (%v)", len(cookies), cookies)
+	}
+	got := cookies[0]
+	if !strings.Contains(got, "backend_session=abc") {
+		t.Errorf("cookie name lost: %q", got)
+	}
+	// Path should be rewritten to the proxy mount.
+	if !strings.Contains(got, "Path=/proxy/wscookie") {
+		t.Errorf("Path was not rewritten to /proxy/wscookie: %q", got)
+	}
+	// Domain should be stripped (does not match proxy origin).
+	if strings.Contains(strings.ToLower(got), "domain=internal.local") {
+		t.Errorf("Domain attribute leaked through: %q", got)
+	}
+}
+
 func TestWebSocketNon101Response(t *testing.T) {
 	// Backend that rejects WebSocket upgrades
 	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -2019,6 +2106,66 @@ func TestSetProxyHeaders(t *testing.T) {
 
 		if got := req.Header.Get("X-Forwarded-Proto"); got != "https" {
 			t.Errorf("X-Forwarded-Proto = %q, want 'https'", got)
+		}
+	})
+}
+
+// TestReverseProxy_EnforcesMinRoleAndAllowedGroups covers codebase
+// review C1: a non-admin user must not reach /proxy/{slug}/ for an
+// app whose min_role excludes them, even if they know the slug.
+// Admins always pass; allowed_groups is enforced case-insensitively.
+func TestReverseProxy_EnforcesMinRoleAndAllowedGroups(t *testing.T) {
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write([]byte("OK"))
+	}))
+	defer backend.Close()
+
+	apps := []config.AppConfig{
+		{Name: "AdminOnly", URL: backend.URL, Enabled: true, Proxy: true, MinRole: auth.RoleAdmin},
+		{Name: "Restricted", URL: backend.URL, Enabled: true, Proxy: true, AllowedGroups: []string{"ops"}},
+	}
+	handler := NewReverseProxyHandler(apps, "30s")
+
+	requestAs := func(slug string, role string, groups []string) int {
+		req := httptest.NewRequest(http.MethodGet, "/proxy/"+slug+"/", nil)
+		ctx := context.WithValue(req.Context(), auth.ContextKeyUser, &auth.User{
+			Username: "tester",
+			Role:     role,
+			Groups:   groups,
+		})
+		w := httptest.NewRecorder()
+		handler.ServeHTTP(w, req.WithContext(ctx))
+		return w.Code
+	}
+
+	t.Run("non-admin denied on min_role=admin", func(t *testing.T) {
+		if got := requestAs("adminonly", auth.RoleUser, nil); got != http.StatusForbidden {
+			t.Errorf("expected 403 for non-admin on admin-only proxy, got %d", got)
+		}
+	})
+
+	t.Run("admin allowed on min_role=admin", func(t *testing.T) {
+		if got := requestAs("adminonly", auth.RoleAdmin, nil); got != http.StatusOK {
+			t.Errorf("expected 200 for admin, got %d", got)
+		}
+	})
+
+	t.Run("user not in allowed_groups denied", func(t *testing.T) {
+		if got := requestAs("restricted", auth.RoleUser, []string{"viewers"}); got != http.StatusForbidden {
+			t.Errorf("expected 403 for user not in allowed_groups, got %d", got)
+		}
+	})
+
+	t.Run("user in allowed_groups admitted (case-insensitive)", func(t *testing.T) {
+		if got := requestAs("restricted", auth.RoleUser, []string{"OPS"}); got != http.StatusOK {
+			t.Errorf("expected 200 for user in 'ops' (case-insensitive), got %d", got)
+		}
+	})
+
+	t.Run("admin bypasses allowed_groups", func(t *testing.T) {
+		if got := requestAs("restricted", auth.RoleAdmin, nil); got != http.StatusOK {
+			t.Errorf("expected 200 for admin bypassing allowed_groups, got %d", got)
 		}
 	})
 }

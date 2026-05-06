@@ -433,22 +433,29 @@ func TestCSRFMiddleware(t *testing.T) {
 	handler := csrfMiddleware(inner)
 
 	tests := []struct {
-		name        string
-		method      string
-		path        string
-		contentType string
-		wantCode    int
+		name          string
+		method        string
+		path          string
+		contentType   string
+		requestedWith string
+		wantCode      int
 	}{
-		{"GET API passes through", "GET", "/api/config", "", http.StatusOK},
-		{"POST API with JSON passes", "POST", "/api/config", "application/json", http.StatusOK},
-		{"POST API with multipart passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", http.StatusOK},
-		{"POST API with x-yaml passes", "POST", "/api/config/import", "application/x-yaml", http.StatusOK},
-		{"POST API without content-type blocked", "POST", "/api/config", "", http.StatusForbidden},
-		{"POST API with text/plain blocked", "POST", "/api/config", "text/plain", http.StatusForbidden},
-		{"PUT API with JSON passes", "PUT", "/api/config", "application/json", http.StatusOK},
-		{"PUT API without content-type blocked", "PUT", "/api/config", "", http.StatusForbidden},
-		{"DELETE API passes (not simple method)", "DELETE", "/api/app/test", "", http.StatusOK},
-		{"POST non-API passes", "POST", "/login", "", http.StatusOK},
+		{"GET API passes through", "GET", "/api/config", "", "", http.StatusOK},
+		{"POST API with JSON passes", "POST", "/api/config", "application/json", "", http.StatusOK},
+		{"POST API with multipart passes", "POST", "/api/icons/custom", "multipart/form-data; boundary=abc", "", http.StatusOK},
+		{"POST API with x-yaml passes", "POST", "/api/config/import", "application/x-yaml", "", http.StatusOK},
+		{"POST API without content-type blocked", "POST", "/api/config", "", "", http.StatusForbidden},
+		{"POST API with text/plain blocked", "POST", "/api/config", "text/plain", "", http.StatusForbidden},
+		{"POST API with X-Requested-With passes", "POST", "/api/config", "", "XMLHttpRequest", http.StatusOK},
+		{"PUT API with JSON passes", "PUT", "/api/config", "application/json", "", http.StatusOK},
+		{"PUT API without content-type blocked", "PUT", "/api/config", "", "", http.StatusForbidden},
+		// Codebase review C2: DELETE without any CSRF marker is now blocked.
+		{"DELETE API without content-type and no XRW blocked", "DELETE", "/api/app/test", "", "", http.StatusForbidden},
+		{"DELETE API with X-Requested-With passes", "DELETE", "/api/app/test", "", "XMLHttpRequest", http.StatusOK},
+		{"DELETE API with JSON content-type passes", "DELETE", "/api/app/test", "application/json", "", http.StatusOK},
+		{"PATCH API without marker blocked", "PATCH", "/api/app/test", "", "", http.StatusForbidden},
+		{"PATCH API with X-Requested-With passes", "PATCH", "/api/app/test", "", "XMLHttpRequest", http.StatusOK},
+		{"POST non-API passes", "POST", "/login", "", "", http.StatusOK},
 	}
 
 	for _, tt := range tests {
@@ -456,6 +463,9 @@ func TestCSRFMiddleware(t *testing.T) {
 			req := httptest.NewRequest(tt.method, tt.path, nil)
 			if tt.contentType != "" {
 				req.Header.Set("Content-Type", tt.contentType)
+			}
+			if tt.requestedWith != "" {
+				req.Header.Set("X-Requested-With", tt.requestedWith)
 			}
 			rec := httptest.NewRecorder()
 			handler.ServeHTTP(rec, req)

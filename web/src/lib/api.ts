@@ -23,9 +23,22 @@ export class ApiError extends Error {
 
 async function request<R>(method: string, path: string, data?: unknown): Promise<R> {
   const opts: RequestInit = { method };
+  // X-Requested-With on every state-changing call. The server's CSRF
+  // middleware admits POST/PUT/DELETE/PATCH only when the request
+  // carries either a JSON Content-Type or this header. Cross-origin
+  // pages cannot send a custom header without a CORS preflight that
+  // we don't grant, which closes the browser-form CSRF surface for
+  // verbs that previously slipped through (codebase review C2).
+  const headers: Record<string, string> = {};
+  if (method !== 'GET') {
+    headers['X-Requested-With'] = 'XMLHttpRequest';
+  }
   if (data !== undefined) {
-    opts.headers = { 'Content-Type': 'application/json' };
+    headers['Content-Type'] = 'application/json';
     opts.body = JSON.stringify(data);
+  }
+  if (Object.keys(headers).length > 0) {
+    opts.headers = headers;
   }
   const response = await fetch(`${API_BASE}${path}`, opts);
   if (!response.ok) {
@@ -89,7 +102,10 @@ async function deleteJSON(path: string): Promise<void> {
  * the instance is in the pre-setup state (findings.md C1).
  */
 export async function submitSetup(data: SetupRequest, setupToken?: string): Promise<SetupResponse> {
-  const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+  };
   if (setupToken) {
     headers['X-Setup-Token'] = setupToken;
   }
@@ -200,6 +216,7 @@ export async function updateApp(name: string, app: Partial<App>): Promise<App> {
 export async function deleteApp(name: string): Promise<void> {
   const response = await fetch(`${API_BASE}/app/${encodeURIComponent(name)}`, {
     method: 'DELETE',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
   });
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
@@ -222,6 +239,7 @@ export async function updateGroup(name: string, group: Partial<Group>): Promise<
 export async function deleteGroup(name: string): Promise<void> {
   const response = await fetch(`${API_BASE}/group/${encodeURIComponent(name)}`, {
     method: 'DELETE',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
   });
   if (!response.ok) {
     throw new Error(`API error: ${response.status}`);
@@ -312,6 +330,7 @@ export async function uploadCustomIcon(file: File, name?: string): Promise<{ nam
 
   const response = await fetch(`${API_BASE}/icons/custom`, {
     method: 'POST',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
     body: formData,
   });
 
@@ -330,6 +349,7 @@ export async function fetchCustomIconFromUrl(url: string, name?: string): Promis
 export async function deleteCustomIcon(name: string): Promise<void> {
   const response = await fetch(`${API_BASE}/icons/custom/${encodeURIComponent(name)}`, {
     method: 'DELETE',
+    headers: { 'X-Requested-With': 'XMLHttpRequest' },
   });
 
   if (!response.ok) {
@@ -409,7 +429,7 @@ export interface ImportedConfig {
 export async function parseImportedConfig(yamlContent: string): Promise<ImportedConfig> {
   const resp = await fetch(`${API_BASE}/config/import`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/x-yaml' },
+    headers: { 'Content-Type': 'application/x-yaml', 'X-Requested-With': 'XMLHttpRequest' },
     body: yamlContent,
   });
   if (!resp.ok) {

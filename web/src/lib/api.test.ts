@@ -151,7 +151,7 @@ describe('parseImportedConfig', () => {
     expect(result.title).toBe('Test Config');
     expect(globalThis.fetch).toHaveBeenCalledWith('/api/config/import', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-yaml' },
+      headers: { 'Content-Type': 'application/x-yaml', 'X-Requested-With': 'XMLHttpRequest' },
       body: 'server:\n  title: Test Config\n',
     });
   });
@@ -208,7 +208,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(config);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/config', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(config),
       });
     });
@@ -263,7 +263,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(app);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(app),
       });
     });
@@ -277,7 +277,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(app);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/MyApp', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(app),
       });
     });
@@ -287,7 +287,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('sends DELETE to /app/:name', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
       await deleteApp('MyApp');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/MyApp', { method: 'DELETE' });
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/app/MyApp', { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
 
     it('throws on non-OK response', async () => {
@@ -314,7 +314,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(group);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/groups', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(group),
       });
     });
@@ -328,7 +328,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(group);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/group/MyGroup', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(group),
       });
     });
@@ -338,7 +338,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('sends DELETE to /group/:name', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue({ ok: true, status: 200 });
       await deleteGroup('MyGroup');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/group/MyGroup', { method: 'DELETE' });
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/group/MyGroup', { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
 
     it('throws on non-OK response', async () => {
@@ -469,7 +469,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('sends DELETE request', async () => {
       globalThis.fetch = vi.fn().mockResolvedValue({ ok: true });
       await deleteCustomIcon('icon.png');
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/custom/icon.png', { method: 'DELETE' });
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/icons/custom/icon.png', { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
 
     it('throws on failure', async () => {
@@ -507,7 +507,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       await triggerHealthCheck('app1');
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/apps/app1/health/check', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
       });
     });
@@ -555,7 +555,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(response);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(request),
       });
     });
@@ -576,7 +576,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(response);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/testuser', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
     });
@@ -588,7 +588,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       await updateUser('user name/special', data);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/user%20name%2Fspecial', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
     });
@@ -611,6 +611,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       await deleteUserAccount('testuser');
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/testuser', {
         method: 'DELETE',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
     });
 
@@ -624,6 +625,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       await deleteUserAccount('user name/special');
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/users/user%20name%2Fspecial', {
         method: 'DELETE',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
       });
     });
 
@@ -647,7 +649,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(response);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/method', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
     });
@@ -664,7 +666,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       expect(result).toEqual(response);
       expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/method', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
       });
     });
@@ -697,7 +699,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       const result = await generateAPIKey();
       expect(result).toEqual(response);
       // postJSON called with `undefined` body sets no Content-Type and no body.
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'POST' });
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'POST', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
 
     it('throws when the server reports failure', async () => {
@@ -711,7 +713,7 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
       // The endpoint returns JSON, but the helper discards bodies on DELETE.
       globalThis.fetch = mockFetchOk({ success: true, configured: false });
       await expect(deleteAPIKey()).resolves.toBeUndefined();
-      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'DELETE' });
+      expect(globalThis.fetch).toHaveBeenCalledWith('/api/auth/api-key', { method: 'DELETE', headers: { 'X-Requested-With': 'XMLHttpRequest' } });
     });
 
     it('throws on a non-OK response', async () => {
