@@ -147,7 +147,7 @@ func TestSanitizeThemeID(t *testing.T) {
 func TestListThemes(t *testing.T) {
 	t.Run("empty", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/themes", nil)
 		w := httptest.NewRecorder()
@@ -177,7 +177,7 @@ func TestListThemes(t *testing.T) {
 				Data: []byte(`/* @theme-name: Dracula */`),
 			},
 		}
-		handler := NewThemeHandler(dir, bundledFS)
+		handler, _ := NewThemeHandler(dir, bundledFS)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/themes", nil)
 		w := httptest.NewRecorder()
@@ -205,7 +205,7 @@ func TestListThemes(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/themes", nil)
 		w := httptest.NewRecorder()
@@ -237,7 +237,7 @@ func TestListThemes(t *testing.T) {
 				Data: []byte(`/* @theme-name: Nord Dark */`),
 			},
 		}
-		handler := NewThemeHandler(dir, bundledFS)
+		handler, _ := NewThemeHandler(dir, bundledFS)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/themes", nil)
 		w := httptest.NewRecorder()
@@ -263,7 +263,7 @@ func TestListThemes(t *testing.T) {
 func TestSaveTheme(t *testing.T) {
 	t.Run("valid", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		body, _ := json.Marshal(ThemeSaveRequest{
 			Name:      "My Custom Theme",
@@ -292,7 +292,7 @@ func TestSaveTheme(t *testing.T) {
 
 	t.Run("CSS injection blocked", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		body, _ := json.Marshal(ThemeSaveRequest{
 			Name:   "Evil Theme",
@@ -313,7 +313,7 @@ func TestSaveTheme(t *testing.T) {
 
 	t.Run("invalid variable name", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		body, _ := json.Marshal(ThemeSaveRequest{
 			Name:   "Bad Vars",
@@ -334,7 +334,7 @@ func TestSaveTheme(t *testing.T) {
 
 	t.Run("missing name", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		body, _ := json.Marshal(ThemeSaveRequest{
 			Name:   "",
@@ -352,7 +352,7 @@ func TestSaveTheme(t *testing.T) {
 
 	t.Run("wrong method", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/themes", nil)
 		w := httptest.NewRecorder()
@@ -366,7 +366,7 @@ func TestSaveTheme(t *testing.T) {
 
 	t.Run("overwrite builtin rejected", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		body, _ := json.Marshal(ThemeSaveRequest{
 			Name:   "dark",
@@ -384,7 +384,7 @@ func TestSaveTheme(t *testing.T) {
 
 	t.Run("value with braces blocked", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		body, _ := json.Marshal(ThemeSaveRequest{
 			Name:   "Brace Theme",
@@ -412,7 +412,7 @@ func TestDeleteTheme(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/themes/my-theme", nil)
 		w := httptest.NewRecorder()
@@ -431,7 +431,7 @@ func TestDeleteTheme(t *testing.T) {
 
 	t.Run("protect builtin dark", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/themes/dark", nil)
 		w := httptest.NewRecorder()
@@ -445,7 +445,7 @@ func TestDeleteTheme(t *testing.T) {
 
 	t.Run("protect builtin light", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/themes/light", nil)
 		w := httptest.NewRecorder()
@@ -464,7 +464,7 @@ func TestDeleteTheme(t *testing.T) {
 				Data: []byte(`/* @theme-name: Nord Dark */`),
 			},
 		}
-		handler := NewThemeHandler(dir, bundledFS)
+		handler, _ := NewThemeHandler(dir, bundledFS)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/themes/nord-dark", nil)
 		w := httptest.NewRecorder()
@@ -478,7 +478,7 @@ func TestDeleteTheme(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/themes/nonexistent", nil)
 		w := httptest.NewRecorder()
@@ -492,7 +492,7 @@ func TestDeleteTheme(t *testing.T) {
 
 	t.Run("wrong method", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/themes/test", nil)
 		w := httptest.NewRecorder()
@@ -506,7 +506,7 @@ func TestDeleteTheme(t *testing.T) {
 
 	t.Run("empty name", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewThemeHandler(dir, nil)
+		handler, _ := NewThemeHandler(dir, nil)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/themes/", nil)
 		w := httptest.NewRecorder()

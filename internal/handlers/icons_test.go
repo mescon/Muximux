@@ -41,7 +41,7 @@ func TestGetDashboardIcon(t *testing.T) {
 	t.Run("empty name", func(t *testing.T) {
 		cacheDir := t.TempDir()
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/", nil)
 		w := httptest.NewRecorder()
@@ -61,7 +61,7 @@ func TestGetDashboardIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/plex", nil)
 		w := httptest.NewRecorder()
@@ -89,7 +89,7 @@ func TestGetDashboardIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/plex?variant=png", nil)
 		w := httptest.NewRecorder()
@@ -111,7 +111,7 @@ func TestGetDashboardIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		// No variant query param - should default to svg
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard/radarr", nil)
@@ -129,7 +129,7 @@ func TestGetLucideIcon(t *testing.T) {
 	t.Run("empty name", func(t *testing.T) {
 		cacheDir := t.TempDir()
 		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+		handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide/", nil)
 		w := httptest.NewRecorder()
@@ -148,7 +148,7 @@ func TestGetLucideIcon(t *testing.T) {
 		}
 
 		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+		handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide/home", nil)
 		w := httptest.NewRecorder()
@@ -176,7 +176,7 @@ func TestGetLucideIcon(t *testing.T) {
 		}
 
 		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+		handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 		// GetIcon strips .svg extension, so the path should still work
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide/star.svg", nil)
@@ -193,7 +193,7 @@ func TestGetLucideIcon(t *testing.T) {
 func TestListCustomIcons(t *testing.T) {
 	t.Run("empty directory", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/custom", nil)
 		w := httptest.NewRecorder()
@@ -224,7 +224,7 @@ func TestListCustomIcons(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/custom", nil)
 		w := httptest.NewRecorder()
@@ -248,7 +248,7 @@ func TestListCustomIcons(t *testing.T) {
 func TestUploadCustomIcon(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		var buf bytes.Buffer
 		writer := multipart.NewWriter(&buf)
@@ -292,7 +292,7 @@ func TestUploadCustomIcon(t *testing.T) {
 
 	t.Run("wrong method", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/custom", nil)
 		w := httptest.NewRecorder()
@@ -306,7 +306,7 @@ func TestUploadCustomIcon(t *testing.T) {
 
 	t.Run("no file", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		var buf bytes.Buffer
 		writer := multipart.NewWriter(&buf)
@@ -325,7 +325,7 @@ func TestUploadCustomIcon(t *testing.T) {
 
 	t.Run("content type detection for octet-stream", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		var buf bytes.Buffer
 		writer := multipart.NewWriter(&buf)
@@ -362,7 +362,7 @@ func TestUploadCustomIcon(t *testing.T) {
 
 	t.Run("unsupported file type", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		var buf bytes.Buffer
 		writer := multipart.NewWriter(&buf)
@@ -396,7 +396,7 @@ func TestUploadCustomIcon(t *testing.T) {
 
 	t.Run("name from filename", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		var buf bytes.Buffer
 		writer := multipart.NewWriter(&buf)
@@ -445,7 +445,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -486,7 +486,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.svg", "name": "my-custom-name"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -510,7 +510,7 @@ func TestFetchCustomIcon(t *testing.T) {
 
 	t.Run("missing URL", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -526,7 +526,7 @@ func TestFetchCustomIcon(t *testing.T) {
 
 	t.Run("invalid URL scheme", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": "ftp://evil.com/icon.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -549,7 +549,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/page.html"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -574,7 +574,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/big.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -596,7 +596,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/missing.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -612,7 +612,7 @@ func TestFetchCustomIcon(t *testing.T) {
 
 	t.Run("invalid JSON body", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader([]byte("not json")))
 		req.Header.Set("Content-Type", "application/json")
@@ -635,7 +635,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/icon.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -659,7 +659,7 @@ func TestFetchCustomIcon(t *testing.T) {
 		defer ts.Close()
 
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": ts.URL + "/images/my-app-icon.svg"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -684,7 +684,7 @@ func TestFetchCustomIcon(t *testing.T) {
 	// SSRF protection tests (these do NOT disable SSRF validation)
 	t.Run("rejects loopback address", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": "http://127.0.0.1:9999/icon.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -700,7 +700,7 @@ func TestFetchCustomIcon(t *testing.T) {
 
 	t.Run("rejects private IP", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		// Use a hostname that resolves to a private IP
 		body, _ := json.Marshal(map[string]string{"url": "http://10.0.0.1/icon.png"})
@@ -717,7 +717,7 @@ func TestFetchCustomIcon(t *testing.T) {
 
 	t.Run("rejects localhost hostname", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		body, _ := json.Marshal(map[string]string{"url": "http://localhost/icon.png"})
 		req := httptest.NewRequest(http.MethodPost, "/api/icons/custom/fetch", bytes.NewReader(body))
@@ -743,7 +743,7 @@ func TestServeIcon_CustomHardenedHeaders(t *testing.T) {
 		0o600); err != nil {
 		t.Fatalf("seed icon: %v", err)
 	}
-	h := NewIconHandler(nil, nil, dir)
+	h, _ := NewIconHandler(nil, nil, dir)
 
 	req := httptest.NewRequest(http.MethodGet, "/icons/custom/icon.svg", nil)
 	rec := httptest.NewRecorder()
@@ -889,7 +889,7 @@ func TestFetchCustomIcon_RejectsRedirectToLoopback(t *testing.T) {
 	defer ts.Close()
 
 	dir := t.TempDir()
-	handler := NewIconHandler(nil, nil, dir)
+	handler, _ := NewIconHandler(nil, nil, dir)
 
 	// Allow the initial hop by overriding the validator for the test
 	// server's host only.
@@ -920,7 +920,7 @@ func TestDeleteCustomIcon(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/icons/custom/myicon", nil)
 		w := httptest.NewRecorder()
@@ -934,7 +934,7 @@ func TestDeleteCustomIcon(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/icons/custom/nonexistent", nil)
 		w := httptest.NewRecorder()
@@ -948,7 +948,7 @@ func TestDeleteCustomIcon(t *testing.T) {
 
 	t.Run("wrong method", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodGet, "/api/icons/custom/myicon", nil)
 		w := httptest.NewRecorder()
@@ -962,7 +962,7 @@ func TestDeleteCustomIcon(t *testing.T) {
 
 	t.Run("empty name", func(t *testing.T) {
 		dir := t.TempDir()
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodDelete, "/api/icons/custom/", nil)
 		w := httptest.NewRecorder()
@@ -977,7 +977,7 @@ func TestDeleteCustomIcon(t *testing.T) {
 
 func TestServeIcon(t *testing.T) {
 	t.Run("invalid path", func(t *testing.T) {
-		handler := NewIconHandler(nil, nil, t.TempDir())
+		handler, _ := NewIconHandler(nil, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/notype", nil)
 		w := httptest.NewRecorder()
@@ -990,7 +990,7 @@ func TestServeIcon(t *testing.T) {
 	})
 
 	t.Run("unknown icon type", func(t *testing.T) {
-		handler := NewIconHandler(nil, nil, t.TempDir())
+		handler, _ := NewIconHandler(nil, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/unknown/test", nil)
 		w := httptest.NewRecorder()
@@ -1009,7 +1009,7 @@ func TestServeIcon(t *testing.T) {
 			t.Fatal(err)
 		}
 
-		handler := NewIconHandler(nil, nil, dir)
+		handler, _ := NewIconHandler(nil, nil, dir)
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/custom/myicon", nil)
 		w := httptest.NewRecorder()
@@ -1022,7 +1022,7 @@ func TestServeIcon(t *testing.T) {
 	})
 
 	t.Run("custom icon not found", func(t *testing.T) {
-		handler := NewIconHandler(nil, nil, t.TempDir())
+		handler, _ := NewIconHandler(nil, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/custom/nonexistent", nil)
 		w := httptest.NewRecorder()
@@ -1041,7 +1041,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr", nil)
 		w := httptest.NewRecorder()
@@ -1063,7 +1063,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr?variant=png", nil)
 		w := httptest.NewRecorder()
@@ -1085,7 +1085,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		// Extension in URL path, no variant query param
 		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr.png", nil)
@@ -1108,7 +1108,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(client, nil, t.TempDir())
+		handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 		// No extension and no variant query - should default to svg
 		req := httptest.NewRequest(http.MethodGet, "/icons/dashboard/sonarr", nil)
@@ -1128,7 +1128,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+		handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/lucide/star", nil)
 		w := httptest.NewRecorder()
@@ -1150,7 +1150,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+		handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 		req := httptest.NewRequest(http.MethodGet, "/icons/lucide/star.svg", nil)
 		w := httptest.NewRecorder()
@@ -1169,7 +1169,7 @@ func TestServeIcon(t *testing.T) {
 		}
 
 		lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-		handler := NewIconHandler(nil, lucideClient, t.TempDir())
+		handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 		// Without .svg extension
 		req := httptest.NewRequest(http.MethodGet, "/icons/lucide/home", nil)
@@ -1186,7 +1186,7 @@ func TestServeIcon(t *testing.T) {
 func TestListDashboardIcons(t *testing.T) {
 	cacheDir := t.TempDir()
 	client := icons.NewDashboardIconsClient(cacheDir, 1*time.Hour)
-	handler := NewIconHandler(client, nil, t.TempDir())
+	handler, _ := NewIconHandler(client, nil, t.TempDir())
 
 	req := httptest.NewRequest(http.MethodGet, "/api/icons/dashboard", nil)
 	w := httptest.NewRecorder()
@@ -1202,7 +1202,7 @@ func TestListDashboardIcons(t *testing.T) {
 func TestListLucideIcons(t *testing.T) {
 	cacheDir := t.TempDir()
 	lucideClient := icons.NewLucideClient(cacheDir, 1*time.Hour)
-	handler := NewIconHandler(nil, lucideClient, t.TempDir())
+	handler, _ := NewIconHandler(nil, lucideClient, t.TempDir())
 
 	req := httptest.NewRequest(http.MethodGet, "/api/icons/lucide", nil)
 	w := httptest.NewRecorder()

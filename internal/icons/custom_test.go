@@ -11,7 +11,7 @@ func TestNewCustomIconsManager(t *testing.T) {
 	dir := t.TempDir()
 	subDir := filepath.Join(dir, "custom-icons")
 
-	mgr := NewCustomIconsManager(subDir)
+	mgr, _ := NewCustomIconsManager(subDir)
 
 	if mgr.storageDir != subDir {
 		t.Errorf("expected storageDir %q, got %q", subDir, mgr.storageDir)
@@ -30,7 +30,7 @@ func TestNewCustomIconsManager(t *testing.T) {
 func TestCustomIconsManager_SaveIcon(t *testing.T) {
 	t.Run("SVG", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("myicon", []byte("<svg>test</svg>"), "image/svg+xml")
 		if err != nil {
@@ -48,7 +48,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("PNG", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("icon", []byte("PNG_DATA"), "image/png")
 		if err != nil {
@@ -63,7 +63,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("JPEG", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("photo", []byte("JPEG_DATA"), "image/jpeg")
 		if err != nil {
@@ -78,7 +78,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("WebP", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("webpicon", []byte("WEBP_DATA"), "image/webp")
 		if err != nil {
@@ -93,7 +93,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("GIF", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("animated", []byte("GIF_DATA"), "image/gif")
 		if err != nil {
@@ -108,7 +108,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("unsupported content type", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("bad", []byte("data"), "application/pdf")
 		if err == nil {
@@ -121,7 +121,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("file too large", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		// Create data larger than MaxIconSize (2MB)
 		bigData := make([]byte, MaxIconSize+1)
@@ -136,7 +136,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("invalid name", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("!@#$%", []byte("<svg/>"), "image/svg+xml")
 		if err == nil {
@@ -149,7 +149,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("name with extension stripped", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("icon.svg", []byte("<svg/>"), "image/svg+xml")
 		if err != nil {
@@ -165,7 +165,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 
 	t.Run("name sanitization", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.SaveIcon("My Icon Name", []byte("<svg/>"), "image/svg+xml")
 		if err != nil {
@@ -183,7 +183,7 @@ func TestCustomIconsManager_SaveIcon(t *testing.T) {
 func TestCustomIconsManager_GetIcon(t *testing.T) {
 	t.Run("found SVG", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		content := "<svg>found</svg>"
 		if err := os.WriteFile(filepath.Join(dir, "found.svg"), []byte(content), 0600); err != nil {
@@ -204,7 +204,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 
 	t.Run("found PNG", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		if err := os.WriteFile(filepath.Join(dir, "photo.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
@@ -224,7 +224,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 
 	t.Run("found with extension in name", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		content := "<svg>ext</svg>"
 		if err := os.WriteFile(filepath.Join(dir, "withext.svg"), []byte(content), 0600); err != nil {
@@ -242,7 +242,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		_, _, err := mgr.GetIcon("nonexistent")
 		if err == nil {
@@ -257,7 +257,7 @@ func TestCustomIconsManager_GetIcon(t *testing.T) {
 func TestCustomIconsManager_ListIcons(t *testing.T) {
 	t.Run("empty directory", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		icons, err := mgr.ListIcons()
 		if err != nil {
@@ -270,7 +270,7 @@ func TestCustomIconsManager_ListIcons(t *testing.T) {
 
 	t.Run("with files", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		if err := os.WriteFile(filepath.Join(dir, "icon1.svg"), []byte("<svg/>"), 0600); err != nil {
 			t.Fatal(err)
@@ -302,7 +302,7 @@ func TestCustomIconsManager_ListIcons(t *testing.T) {
 
 	t.Run("skips directories", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		if err := os.WriteFile(filepath.Join(dir, "icon.svg"), []byte("<svg/>"), 0600); err != nil {
 			t.Fatal(err)
@@ -336,7 +336,7 @@ func TestCustomIconsManager_ListIcons(t *testing.T) {
 func TestCustomIconsManager_DeleteIcon(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		if err := os.WriteFile(filepath.Join(dir, "todelete.svg"), []byte("<svg/>"), 0600); err != nil {
 			t.Fatal(err)
@@ -355,7 +355,7 @@ func TestCustomIconsManager_DeleteIcon(t *testing.T) {
 
 	t.Run("delete PNG", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		if err := os.WriteFile(filepath.Join(dir, "topng.png"), []byte("PNG"), 0600); err != nil {
 			t.Fatal(err)
@@ -369,7 +369,7 @@ func TestCustomIconsManager_DeleteIcon(t *testing.T) {
 
 	t.Run("not found", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		err := mgr.DeleteIcon("nonexistent")
 		if err == nil {
@@ -384,7 +384,7 @@ func TestCustomIconsManager_DeleteIcon(t *testing.T) {
 func TestCustomIconsManager_SaveIconFromReader(t *testing.T) {
 	t.Run("success", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		reader := strings.NewReader("<svg>from-reader</svg>")
 		err := mgr.SaveIconFromReader("reader-icon", reader, "image/svg+xml")
@@ -403,7 +403,7 @@ func TestCustomIconsManager_SaveIconFromReader(t *testing.T) {
 
 	t.Run("too large", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		// Create a reader with data larger than MaxIconSize
 		bigData := strings.Repeat("x", MaxIconSize+1)
@@ -420,7 +420,7 @@ func TestCustomIconsManager_SaveIconFromReader(t *testing.T) {
 
 	t.Run("invalid content type", func(t *testing.T) {
 		dir := t.TempDir()
-		mgr := NewCustomIconsManager(dir)
+		mgr, _ := NewCustomIconsManager(dir)
 
 		reader := strings.NewReader("data")
 		err := mgr.SaveIconFromReader("bad", reader, "text/plain")

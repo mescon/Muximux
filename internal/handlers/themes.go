@@ -36,11 +36,16 @@ type ThemeHandler struct {
 
 // NewThemeHandler creates a new theme handler.
 // bundledFS should be the embedded dist filesystem (or nil if unavailable).
-func NewThemeHandler(themesDir string, bundledFS fs.FS) *ThemeHandler {
+//
+// Returns an error when the themes directory can't be created so
+// callers can fail fast at boot rather than serving a working-looking
+// handler whose SaveTheme will fail per-request later (codebase
+// review E6).
+func NewThemeHandler(themesDir string, bundledFS fs.FS) (*ThemeHandler, error) {
 	if err := os.MkdirAll(themesDir, 0755); err != nil {
-		logging.Error("Failed to create themes directory", "source", "themes", "path", themesDir, "error", err)
+		return nil, fmt.Errorf("create themes directory %q: %w", themesDir, err)
 	}
-	return &ThemeHandler{themesDir: themesDir, bundledFS: bundledFS}
+	return &ThemeHandler{themesDir: themesDir, bundledFS: bundledFS}, nil
 }
 
 // ThemeInfo represents theme metadata for the API

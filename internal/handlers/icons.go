@@ -187,13 +187,20 @@ type IconHandler struct {
 	customManager   *icons.CustomIconsManager
 }
 
-// NewIconHandler creates a new icon handler
-func NewIconHandler(dashboardClient *icons.DashboardIconsClient, lucideClient *icons.LucideClient, customIconsDir string) *IconHandler {
+// NewIconHandler creates a new icon handler. Returns an error when
+// the custom-icons storage directory can't be created so the caller
+// can fail fast at boot rather than discovering the misconfig at the
+// first icon save (codebase review E6).
+func NewIconHandler(dashboardClient *icons.DashboardIconsClient, lucideClient *icons.LucideClient, customIconsDir string) (*IconHandler, error) {
+	customManager, err := icons.NewCustomIconsManager(customIconsDir)
+	if err != nil {
+		return nil, err
+	}
 	return &IconHandler{
 		dashboardClient: dashboardClient,
 		lucideClient:    lucideClient,
-		customManager:   icons.NewCustomIconsManager(customIconsDir),
-	}
+		customManager:   customManager,
+	}, nil
 }
 
 // GetDashboardIcon serves a dashboard icon

@@ -1438,7 +1438,9 @@ func TestRegisterThemeRoutes(t *testing.T) {
 	staticHandler := http.FileServer(http.FS(testFS))
 
 	mux := http.NewServeMux()
-	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, t.TempDir())
+	if err := registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, t.TempDir()); err != nil {
+		t.Fatalf("registerThemeRoutes: %v", err)
+	}
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -1555,7 +1557,9 @@ func TestRegisterThemeRoutes_SymlinkEscape_Returns404(t *testing.T) {
 	staticHandler := http.FileServer(http.FS(testFS))
 
 	mux := http.NewServeMux()
-	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, themesDir)
+	if err := registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, themesDir); err != nil {
+		t.Fatalf("registerThemeRoutes: %v", err)
+	}
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
 
@@ -1582,7 +1586,9 @@ func TestRegisterThemeRoutes_ServeLocalTheme(t *testing.T) {
 	staticHandler := http.FileServer(http.FS(testFS))
 
 	mux := http.NewServeMux()
-	registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, themesDir)
+	if err := registerThemeRoutes(mux, distFS, noopAdmin, &staticHandler, themesDir); err != nil {
+		t.Fatalf("registerThemeRoutes: %v", err)
+	}
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()
@@ -1613,7 +1619,9 @@ func TestRegisterIconRoutes(t *testing.T) {
 	})
 
 	mux := http.NewServeMux()
-	registerIconRoutes(mux, cfg, noopAdmin, t.TempDir())
+	if _, _, err := registerIconRoutes(mux, cfg, noopAdmin, t.TempDir()); err != nil {
+		t.Fatalf("registerIconRoutes: %v", err)
+	}
 
 	ts := httptest.NewServer(mux)
 	defer ts.Close()

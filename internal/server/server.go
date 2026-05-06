@@ -187,9 +187,15 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	}
 
 	themesDir := filepath.Join(dataDir, "themes")
-	registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler, themesDir)
+	if err := registerThemeRoutes(mux, distFS, requireAdmin, &staticHandler, themesDir); err != nil {
+		return nil, fmt.Errorf("init theme routes: %w", err)
+	}
 	registerAppearanceRoute(mux, s, distFS, themesDir)
-	s.iconCacheDirs, s.iconCacheTTL = registerIconRoutes(mux, cfg, requireAdmin, dataDir)
+	iconDirs, iconTTL, err := registerIconRoutes(mux, cfg, requireAdmin, dataDir)
+	if err != nil {
+		return nil, fmt.Errorf("init icon routes: %w", err)
+	}
+	s.iconCacheDirs, s.iconCacheTTL = iconDirs, iconTTL
 
 	// Integrated reverse proxy on main server (handles /proxy/{slug}/*)
 	// Always registered so routes added at runtime (via Settings) work without restart.
@@ -639,8 +645,13 @@ func (s *Server) setupHealthRoutes(mux *http.ServeMux, cfg *config.Config, wsHub
 // registerThemeRoutes registers theme API and CSS serving routes.
 // staticHandler is a pointer so the /themes/ closure can reference the handler
 // that gets assigned later (forward declaration pattern).
-func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler, themesDir string) {
-	themeHandler := handlers.NewThemeHandler(themesDir, distFS)
+// Returns an error when the theme handler can't be constructed
+// (e.g. themesDir is unwritable) so the caller can fail fast.
+func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGuard, staticHandler *http.Handler, themesDir string) error {
+	themeHandler, err := handlers.NewThemeHandler(themesDir, distFS)
+	if err != nil {
+		return err
+	}
 	mux.HandleFunc(apiThemesPath, func(w http.ResponseWriter, r *http.Request) {
 		switch r.Method {
 		case http.MethodGet:
@@ -715,6 +726,7 @@ func registerThemeRoutes(mux *http.ServeMux, distFS fs.FS, requireAdmin adminGua
 		// Fall through to static handler (web/dist/themes/ or embedded)
 		(*staticHandler).ServeHTTP(w, r)
 	})
+	return nil
 }
 
 // appearanceResponse is the payload of GET /api/appearance. Embedded
@@ -946,7 +958,10 @@ func findCSSBlocks(css []byte, themeID string) []string {
 
 // registerIconRoutes registers icon API and serving routes.
 // Returns the resolved cache dirs and TTL for use by the cache cleanup goroutine.
-func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard, dataDir string) ([]string, time.Duration) {
+// Returns an error when the icon handler can't be constructed (e.g.
+// the custom-icons directory is unwritable) so the caller can fail
+// fast (codebase review E6).
+func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adminGuard, dataDir string) ([]string, time.Duration, error) {
 	cacheTTL := parseDuration(cfg.Icons.DashboardIcons.CacheTTL, 7*24*time.Hour)
 	// Resolve CacheDir relative to dataDir unless it's an absolute path
 	cacheDir := cfg.Icons.DashboardIcons.CacheDir
@@ -956,7 +971,10 @@ func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adm
 	lucideDir := filepath.Join(dataDir, "icons", "lucide")
 	dashboardClient := icons.NewDashboardIconsClient(cacheDir, cacheTTL)
 	lucideClient := icons.NewLucideClient(lucideDir, cacheTTL)
-	iconHandler := handlers.NewIconHandler(dashboardClient, lucideClient, filepath.Join(dataDir, "icons", "custom"))
+	iconHandler, err := handlers.NewIconHandler(dashboardClient, lucideClient, filepath.Join(dataDir, "icons", "custom"))
+	if err != nil {
+		return nil, 0, err
+	}
 
 	mux.HandleFunc("/api/icons/dashboard", iconHandler.ListDashboardIcons)
 	mux.HandleFunc("/api/icons/dashboard/", iconHandler.GetDashboardIcon)
@@ -982,7 +1000,7 @@ func registerIconRoutes(mux *http.ServeMux, cfg *config.Config, requireAdmin adm
 	mux.HandleFunc("/api/icons/custom/", requireAdmin(iconHandler.DeleteCustomIcon))
 	mux.HandleFunc("/icons/", iconHandler.ServeIcon)
 
-	return []string{cacheDir, lucideDir}, cacheTTL
+	return []string{cacheDir, lucideDir}, cacheTTL, nil
 }
 
 // setupCaddy configures the Caddy reverse proxy when TLS or Gateway is active.

@@ -6,8 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-
-	"github.com/mescon/muximux/v3/internal/logging"
 )
 
 // CustomIconInfo represents a custom uploaded icon
@@ -34,14 +32,18 @@ var AllowedMimeTypes = map[string]string{
 // MaxIconSize is the maximum allowed icon file size (2MB)
 const MaxIconSize = 2 * 1024 * 1024
 
-// NewCustomIconsManager creates a new custom icons manager
-func NewCustomIconsManager(storageDir string) *CustomIconsManager {
+// NewCustomIconsManager creates a new custom icons manager. Returns
+// an error when the storage directory can't be created so callers
+// can fail fast at boot rather than serving a working-looking
+// manager whose SaveIcon will fail per-request later (codebase
+// review E6).
+func NewCustomIconsManager(storageDir string) (*CustomIconsManager, error) {
 	if err := os.MkdirAll(storageDir, 0755); err != nil {
-		logging.Error("Failed to create custom icons directory", "source", "icons", "path", storageDir, "error", err)
+		return nil, fmt.Errorf("create custom icons directory %q: %w", storageDir, err)
 	}
 	return &CustomIconsManager{
 		storageDir: storageDir,
-	}
+	}, nil
 }
 
 // SaveIcon saves an uploaded icon file
