@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -89,6 +90,14 @@ const (
 // respondError sends an HTTP error response and logs at the appropriate level.
 // 5xx → Error, 401/403 → Warn, other 4xx → Debug.
 // Optional attrs are appended as slog-style key-value pairs for structured context.
+//
+// The X-Request-ID header is already set on every response by the
+// outer middleware. For 5xx (and 401/403) we also append the
+// request_id to the response body in a parser-friendly trailing
+// "(request_id: <id>)" form so a user filing a bug can quote the ID
+// without opening devtools (codebase review F3). The SPA's
+// extractFriendlyErrorMessage handles both the bare and the suffixed
+// shape, so this is a no-op for browser callers.
 func respondError(w http.ResponseWriter, r *http.Request, status int, msg string, attrs ...any) {
 	all := make([]any, 0, 4+len(attrs))
 	all = append(all, "status", status, "response", msg)
@@ -103,5 +112,11 @@ func respondError(w http.ResponseWriter, r *http.Request, status int, msg string
 		logging.From(r.Context()).Debug("HTTP error", all...)
 	}
 
-	http.Error(w, msg, status)
+	out := msg
+	if status >= 500 || status == http.StatusUnauthorized || status == http.StatusForbidden {
+		if rid := w.Header().Get("X-Request-ID"); rid != "" {
+			out = fmt.Sprintf("%s (request_id: %s)", msg, rid)
+		}
+	}
+	http.Error(w, out, status)
 }

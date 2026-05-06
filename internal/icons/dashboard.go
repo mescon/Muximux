@@ -56,6 +56,12 @@ var variantPreference = []string{"svg", "webp", "png"}
 // GetIcon returns the icon data for the given name and variant.
 // If the requested variant is not available, it falls back through
 // svg → webp → png until one succeeds.
+//
+// Capture the first download error so the final not-found includes
+// it: previously every download failure was discarded with `if err
+// == nil { return ... }` and the caller saw a generic 404 with no
+// hint whether the icon truly didn't exist or the CDN was down /
+// rate-limited / DNS-stuck (codebase review E1).
 func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, error) {
 	if variant == "" {
 		variant = "svg"
@@ -67,8 +73,11 @@ func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, er
 	}
 
 	// Try downloading the requested variant
+	var firstDownloadErr error
 	if data, contentType, err := c.downloadIcon(name, variant); err == nil {
 		return data, contentType, nil
+	} else {
+		firstDownloadErr = err
 	}
 
 	// Fallback: try other variants in preference order
@@ -81,9 +90,19 @@ func (c *DashboardIconsClient) GetIcon(name, variant string) ([]byte, string, er
 		}
 		if data, contentType, err := c.downloadIcon(name, fallback); err == nil {
 			return data, contentType, nil
+		} else if firstDownloadErr == nil {
+			firstDownloadErr = err
 		}
 	}
 
+	if firstDownloadErr != nil {
+		logging.Warn("Dashboard icon fallback exhausted; serving 404",
+			"source", "icons",
+			"icon", name,
+			"variant", variant,
+			"first_error", firstDownloadErr)
+		return nil, "", fmt.Errorf("icon not found: %s (tried all variants; first error: %w)", name, firstDownloadErr)
+	}
 	return nil, "", fmt.Errorf("icon not found: %s (tried all variants)", name)
 }
 

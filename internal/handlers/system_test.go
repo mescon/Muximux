@@ -89,6 +89,16 @@ func TestCompareVersions(t *testing.T) {
 		{"single-part", "3", "2", 1},
 		{"zero versions", "0.0.0", "0.0.0", 0},
 		{"large numbers", "10.20.30", "10.20.29", 1},
+
+		// SemVer prerelease handling (codebase review E7).
+		// 1.2.3-rc1 is older than 1.2.3 per SemVer 11. The previous
+		// shape silently treated "3-rc1" as 0 and reported equality.
+		{"prerelease less than release", "1.2.3-rc1", "1.2.3", -1},
+		{"release greater than prerelease", "1.2.3", "1.2.3-rc1", 1},
+		{"two prereleases compared lexically", "1.2.3-alpha", "1.2.3-beta", -1},
+		{"prerelease vs older release", "1.2.4-rc1", "1.2.3", 1},
+		{"build metadata ignored vs same base", "1.2.3+sha", "1.2.3+other", 0},
+		{"prerelease against release with v prefix", "v1.2.3-rc1", "1.2.3", -1},
 	}
 
 	for _, tt := range tests {

@@ -1879,9 +1879,18 @@ func (sr *statusRecorder) Write(b []byte) (int, error) {
 
 // Hijack implements http.Hijacker so WebSocket upgrades work through the
 // logging middleware. Delegates to the underlying ResponseWriter.
+//
+// Marks the recorder as written so the panic-recovery middleware
+// does not try to write a 500 response after a hijacked WS handler
+// panics: that path would call http.Error against a connection that
+// has already been taken over for raw byte writes (codebase review F2).
 func (sr *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	if hj, ok := sr.ResponseWriter.(http.Hijacker); ok {
-		return hj.Hijack()
+		c, rw, err := hj.Hijack()
+		if err == nil {
+			sr.written = true
+		}
+		return c, rw, err
 	}
 	return nil, nil, fmt.Errorf("underlying ResponseWriter does not implement http.Hijacker")
 }

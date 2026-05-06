@@ -306,6 +306,16 @@ func buildDownloadURLs(assets []gitHubAsset) map[string]string {
 // compareVersions compares two semver-ish version strings.
 // Returns -1 if a < b, 0 if equal, 1 if a > b.
 // "dev" is always considered older than any release version.
+//
+// Pre-release suffixes ("-rc1", "-beta", "+build") are split off
+// before the numeric compare. Per SemVer 11, a pre-release is
+// considered older than its release base ("1.2.3-rc1" < "1.2.3"),
+// so when the numeric prefixes match, the side carrying a
+// pre-release suffix sorts lower. The previous shape ran every part
+// through strconv.Atoi and silently treated "3-rc1" as 0 - which
+// flipped the comparison and made the update banner report
+// "up to date" while the user was actually on a pre-release of an
+// older base (codebase review E7).
 func compareVersions(a, b string) int {
 	a = strings.TrimPrefix(a, "v")
 	b = strings.TrimPrefix(b, "v")
@@ -321,8 +331,11 @@ func compareVersions(a, b string) int {
 		return 1
 	}
 
-	aParts := strings.Split(a, ".")
-	bParts := strings.Split(b, ".")
+	aBase, aPre := splitVersionSuffix(a)
+	bBase, bPre := splitVersionSuffix(b)
+
+	aParts := strings.Split(aBase, ".")
+	bParts := strings.Split(bBase, ".")
 
 	maxLen := len(aParts)
 	if len(bParts) > maxLen {
@@ -332,10 +345,10 @@ func compareVersions(a, b string) int {
 	for i := 0; i < maxLen; i++ {
 		var aNum, bNum int
 		if i < len(aParts) {
-			aNum, _ = strconv.Atoi(aParts[i])
+			aNum = parseLeadingNumber(aParts[i])
 		}
 		if i < len(bParts) {
-			bNum, _ = strconv.Atoi(bParts[i])
+			bNum = parseLeadingNumber(bParts[i])
 		}
 		if aNum < bNum {
 			return -1
@@ -344,5 +357,47 @@ func compareVersions(a, b string) int {
 			return 1
 		}
 	}
+
+	// Numeric prefixes equal - a side with a pre-release suffix is
+	// older than the side without one.
+	switch {
+	case aPre == "" && bPre != "":
+		return 1
+	case aPre != "" && bPre == "":
+		return -1
+	case aPre < bPre:
+		return -1
+	case aPre > bPre:
+		return 1
+	}
 	return 0
+}
+
+// splitVersionSuffix separates the numeric base from any "-pre"
+// suffix. Per SemVer 10, build metadata ("+...") is ignored for
+// ordering, so we strip it before looking for the prerelease
+// delimiter and never include it in the returned `pre`.
+func splitVersionSuffix(v string) (base, pre string) {
+	if plus := strings.IndexByte(v, '+'); plus >= 0 {
+		v = v[:plus]
+	}
+	if dash := strings.IndexByte(v, '-'); dash >= 0 {
+		return v[:dash], v[dash+1:]
+	}
+	return v, ""
+}
+
+// parseLeadingNumber returns the numeric prefix of s, or 0 if there
+// is none. Used to be lenient about "3rc1"-style components without
+// throwing the whole compare off.
+func parseLeadingNumber(s string) int {
+	end := 0
+	for end < len(s) && s[end] >= '0' && s[end] <= '9' {
+		end++
+	}
+	if end == 0 {
+		return 0
+	}
+	n, _ := strconv.Atoi(s[:end])
+	return n
 }

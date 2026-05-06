@@ -167,10 +167,17 @@ func (p *Proxy) Start() error {
 }
 
 // Reload regenerates the Caddyfile from current proxy state and applies
-// it in-process via Caddy's library API. The reload is non-disruptive:
-// if validation passes, Caddy swaps the new config atomically without
-// dropping in-flight connections. If validation or load fails, the
-// previous config keeps running and the error is returned.
+// it in-process via Caddy's library API.
+//
+// Transactionality is *only* guaranteed at the parse step. If the
+// adapter rejects the candidate Caddyfile, no state change happens.
+// Once parse succeeds and caddy.Load is invoked, post-parse failures
+// (a listener that races with another process, an async ACME cert
+// provisioning hiccup, a goroutine panic in a Caddy module) can leave
+// the previous config partially torn down. The gateway handler
+// calling this is aware and re-asserts the prior config via a second
+// Reload on candidate-load failure; other callers should plan for the
+// same. (codebase review G1)
 //
 // Callers should regenerate p.config (and any structured site list)
 // before calling Reload so the freshly-built Caddyfile reflects the
@@ -200,10 +207,12 @@ func (p *Proxy) Reload() error {
 	logging.Debug("Caddy configuration regenerated", "source", "caddy", "config", caddyfileText)
 
 	if err := loadCaddyfile(caddyfileText); err != nil {
-		// caddy.Load is transactional: on failure the previous config
-		// keeps running. Surface the error so callers can return 4xx/5xx
-		// to the operator without rebuilding any state.
-		return fmt.Errorf("caddy reload failed (previous config still active): %w", err)
+		// Adapt-step rejection: previous config is untouched. Post-
+		// parse rejections (listener collision, async cert failure,
+		// module panic) can leave Caddy in a degraded state; callers
+		// that need a hard guarantee re-assert the prior config via
+		// a second Reload. See the doc-comment above.
+		return fmt.Errorf("caddy reload failed: %w", err)
 	}
 
 	logging.Info("Caddy reloaded", "source", "caddy")
