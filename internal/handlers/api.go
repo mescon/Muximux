@@ -294,10 +294,40 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	h.mu.Lock()
 	defer h.mu.Unlock()
 
+	// Snapshot every field mergeConfigUpdate mutates so we can restore
+	// the in-memory config if the disk Save fails. Without this the
+	// live process would see the new shape (next GET returns it) while
+	// disk still holds the old one - the same divergence the per-app
+	// and per-group CRUD endpoints already guard against via
+	// saveOrRollback{Apps,Groups} (codebase review C1-shf).
+	priorTitle := h.config.Server.Title
+	priorLanguage := h.config.Server.Language
+	priorLogLevel := h.config.Server.LogLevel
+	priorProxyTimeout := h.config.Server.ProxyTimeout
+	priorNavigation := h.config.Navigation
+	priorTheme := h.config.Theme
+	priorHealth := h.config.Health
+	priorKeybindings := h.config.Keybindings
+	priorGroups := h.config.Groups
+	priorApps := h.config.Apps
+
 	mergeConfigUpdate(h.config, &update)
 
 	// Save to file
 	if err := h.config.Save(h.configPath); err != nil {
+		h.config.Server.Title = priorTitle
+		h.config.Server.Language = priorLanguage
+		h.config.Server.LogLevel = priorLogLevel
+		h.config.Server.ProxyTimeout = priorProxyTimeout
+		h.config.Navigation = priorNavigation
+		h.config.Theme = priorTheme
+		h.config.Health = priorHealth
+		h.config.Keybindings = priorKeybindings
+		h.config.Groups = priorGroups
+		h.config.Apps = priorApps
+		logging.Error("SaveConfig failed; in-memory state rolled back",
+			"source", "audit",
+			"error", err)
 		respondError(w, r, http.StatusInternalServerError, errFailedSaveConfig, "source", "config", "error", err)
 		return
 	}

@@ -45,7 +45,7 @@ func TestUserStore(t *testing.T) {
 	store.LoadFromConfig(configs)
 
 	t.Run("authenticate valid user", func(t *testing.T) {
-		user, err := store.Authenticate("admin", "adminpass")
+		user, _, err := store.Authenticate("admin", "adminpass")
 		if err != nil {
 			t.Fatalf("Authenticate failed: %v", err)
 		}
@@ -58,14 +58,14 @@ func TestUserStore(t *testing.T) {
 	})
 
 	t.Run("authenticate wrong password", func(t *testing.T) {
-		_, err := store.Authenticate("admin", "wrongpass")
+		_, _, err := store.Authenticate("admin", "wrongpass")
 		if err == nil {
 			t.Error("Expected error for wrong password")
 		}
 	})
 
 	t.Run("authenticate nonexistent user", func(t *testing.T) {
-		_, err := store.Authenticate("nobody", "password")
+		_, _, err := store.Authenticate("nobody", "password")
 		if err == nil {
 			t.Error("Expected error for nonexistent user")
 		}
@@ -424,11 +424,11 @@ func TestAuthenticate_EqualTimingForUnknownUser(t *testing.T) {
 
 	// Warm the bcrypt library's internal state so the first call doesn't
 	// skew the measurement.
-	_, _ = store.Authenticate("alice", "warmup")
+	_, _, _ = store.Authenticate("alice", "warmup")
 
 	timeIt := func(user, pass string) time.Duration {
 		start := time.Now()
-		_, _ = store.Authenticate(user, pass)
+		_, _, _ = store.Authenticate(user, pass)
 		return time.Since(start)
 	}
 
@@ -462,11 +462,11 @@ func TestAuthenticate_TimingDummyMatchesMinStoredCost(t *testing.T) {
 	})
 
 	// Warm the bcrypt path.
-	_, _ = store.Authenticate("alice", "warmup")
+	_, _, _ = store.Authenticate("alice", "warmup")
 
 	timeIt := func(user, pass string) time.Duration {
 		start := time.Now()
-		_, _ = store.Authenticate(user, pass)
+		_, _, _ = store.Authenticate(user, pass)
 		return time.Since(start)
 	}
 
@@ -541,7 +541,7 @@ func TestAuthenticate_CorruptHashRejected(t *testing.T) {
 		{Username: "broken", PasswordHash: "this-is-not-a-valid-bcrypt-hash", Role: RoleUser},
 	})
 
-	if _, err := store.Authenticate("broken", "anything"); err == nil {
+	if _, _, err := store.Authenticate("broken", "anything"); err == nil {
 		t.Error("expected corrupt hash to fail Authenticate")
 	}
 }
@@ -559,8 +559,17 @@ func TestAuthenticate_RehashesWeakHash(t *testing.T) {
 		{Username: "alice", PasswordHash: string(oldHash), Role: RoleUser},
 	})
 
-	if _, err := store.Authenticate("alice", "s3cret"); err != nil {
+	user, rehashed, err := store.Authenticate("alice", "s3cret")
+	if err != nil {
 		t.Fatalf("unexpected auth failure: %v", err)
+	}
+	// Codebase review C4-shf: Authenticate must signal that an upgrade
+	// happened so the caller (Login handler) can persist the new hash.
+	if !rehashed {
+		t.Error("expected rehashed=true after upgrading a cost-6 hash")
+	}
+	if user == nil {
+		t.Fatal("expected user from Authenticate")
 	}
 
 	updated := store.Get("alice")
@@ -578,7 +587,7 @@ func TestAuthenticate_RehashesWeakHash(t *testing.T) {
 		t.Errorf("rehash cost = %d, want >= %d", gotCost, bcryptTargetCost)
 	}
 	// And the upgraded hash still verifies the original password.
-	if _, err := store.Authenticate("alice", "s3cret"); err != nil {
+	if _, _, err := store.Authenticate("alice", "s3cret"); err != nil {
 		t.Errorf("upgraded hash failed to verify password: %v", err)
 	}
 }

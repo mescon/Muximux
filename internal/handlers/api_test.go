@@ -1190,6 +1190,8 @@ func TestDeleteGroupSaveFails(t *testing.T) {
 
 func TestSaveConfigSaveFails(t *testing.T) {
 	cfg := createTestConfig()
+	priorTitle := cfg.Server.Title
+	priorAppCount := len(cfg.Apps)
 	handler := NewAPIHandler(cfg, "/dev/null/impossible/config.yaml", &sync.RWMutex{})
 
 	update := ClientConfigUpdate{
@@ -1205,6 +1207,15 @@ func TestSaveConfigSaveFails(t *testing.T) {
 
 	if w.Code != http.StatusInternalServerError {
 		t.Errorf("expected status 500, got %d", w.Code)
+	}
+	// Regression for codebase review C1-shf: in-memory state must be
+	// rolled back when Save fails, otherwise next GET returns the new
+	// shape while disk still holds the old one.
+	if cfg.Server.Title != priorTitle {
+		t.Errorf("Server.Title not rolled back: got %q, want %q", cfg.Server.Title, priorTitle)
+	}
+	if len(cfg.Apps) != priorAppCount {
+		t.Errorf("Apps length not rolled back: got %d, want %d", len(cfg.Apps), priorAppCount)
 	}
 }
 

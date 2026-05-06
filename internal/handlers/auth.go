@@ -156,7 +156,7 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Authenticate
-	user, err := h.userStore.Authenticate(req.Username, req.Password)
+	user, rehashed, err := h.userStore.Authenticate(req.Username, req.Password)
 	if err != nil {
 		// Warn (not Info) so default-warn production logging
 		// captures every failed attempt, which is the only signal
@@ -167,6 +167,19 @@ func (h *AuthHandler) Login(w http.ResponseWriter, r *http.Request) {
 			Message: "Invalid username or password",
 		})
 		return
+	}
+
+	// If Authenticate upgraded the user's bcrypt hash, persist it now
+	// so the upgrade survives a restart. A persist failure here is
+	// non-fatal - the operator gets a Warn, the user still logs in,
+	// and the next successful login retries the upgrade.
+	if rehashed {
+		if err := h.syncUsersToConfig(); err != nil {
+			logging.From(r.Context()).Warn("Failed to persist upgraded password hash; will retry on next login",
+				"source", "audit",
+				"user", user.Username,
+				"error", err)
+		}
 	}
 
 	// Create session
@@ -288,7 +301,7 @@ func (h *AuthHandler) ChangePassword(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Verify current password
-	_, err := h.userStore.Authenticate(user.Username, req.CurrentPassword)
+	_, _, err := h.userStore.Authenticate(user.Username, req.CurrentPassword)
 	if err != nil {
 		sendJSON(w, http.StatusBadRequest, map[string]interface{}{
 			"success": false,
@@ -745,14 +758,38 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Apply shared fields and persist
 	authCfg.BypassRules = h.bypassRules
-	authCfg.APIKeyHash = h.config.Auth.APIKeyHash
-	authCfg.BasePath = h.config.Server.NormalizedBasePath()
 
+	// Mutate, save, then push to middleware - all under one lock
+	// scope. Two bugs the old ordering had:
+	//   - APIKeyHash and BasePath were read off h.config *outside*
+	//     h.configMu, so a concurrent GenerateAPIKey/DeleteAPIKey
+	//     could rotate the hash between the read and the
+	//     UpdateConfig call (codebase review H4);
+	//   - UpdateConfig fired *before* Save, so a save failure left
+	//     the live middleware running the new auth method (e.g.
+	//     "none" - which exposes every API to anyone) while disk
+	//     still said "builtin", a silent security downgrade until
+	//     restart (codebase review C3-shf).
 	if err := func() error {
 		h.configMu.Lock()
 		defer h.configMu.Unlock()
+
+		// Capture priors so we can roll back the in-memory shape on
+		// save failure.
+		priorMethod := h.config.Auth.Method
+		priorTrustedProxies := append([]string(nil), h.config.Auth.TrustedProxies...)
+		priorHeaders := h.config.Auth.Headers
+		priorLogoutURL := h.config.Auth.LogoutURL
+		priorFwAdminGroups := append([]string(nil), h.config.Auth.ForwardAuthAdminGroups...)
+
+		// Reads of APIKeyHash and BasePath happen here, under the
+		// lock, so a concurrent rotation can't slip a stale hash
+		// into authCfg.
+		authCfg.APIKeyHash = h.config.Auth.APIKeyHash
+		authCfg.BasePath = h.config.Server.NormalizedBasePath()
+
+		// Apply the new config in memory.
 		h.config.Auth.Method = req.Method
 		if req.Method == "forward_auth" {
 			h.config.Auth.TrustedProxies = req.TrustedProxies
@@ -768,8 +805,19 @@ func (h *AuthHandler) UpdateAuthMethod(w http.ResponseWriter, r *http.Request) {
 			h.config.Auth.LogoutURL = ""
 			h.config.Auth.ForwardAuthAdminGroups = nil
 		}
+
+		// Persist BEFORE pushing to middleware. If Save fails the
+		// running auth method has not changed yet.
+		if err := h.config.Save(h.configPath); err != nil {
+			h.config.Auth.Method = priorMethod
+			h.config.Auth.TrustedProxies = priorTrustedProxies
+			h.config.Auth.Headers = priorHeaders
+			h.config.Auth.LogoutURL = priorLogoutURL
+			h.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+			return err
+		}
 		h.authMiddleware.UpdateConfig(&authCfg)
-		return h.config.Save(h.configPath)
+		return nil
 	}(); err != nil {
 		respondError(w, r, http.StatusInternalServerError, "Failed to save config", "source", "auth", "method", req.Method, "error", err)
 		return

@@ -222,8 +222,11 @@ func (s *UserStore) timingDummy() []byte {
 // (findings.md M3). A successful login silently re-hashes the
 // password if the stored hash is below bcryptTargetCost
 // (findings.md M4); the rehash is best-effort and does not fail the
-// login if it cannot be persisted.
-func (s *UserStore) Authenticate(username, password string) (*User, error) {
+// login if it cannot be persisted. Returns rehashed=true so the
+// caller can sync the user store to disk after a successful upgrade
+// (codebase review C4-shf) - prior callers used `_, _, err :=` which
+// is fine; new callers can pin the upgrade-on-disk flow.
+func (s *UserStore) Authenticate(username, password string) (*User, bool, error) {
 	user := s.Get(username)
 	if user == nil {
 		// Perform a throwaway bcrypt compare against a dummy hash sized
@@ -234,7 +237,7 @@ func (s *UserStore) Authenticate(username, password string) (*User, error) {
 		// (codebase review H6).
 		_ = bcrypt.CompareHashAndPassword(s.timingDummy(), []byte(password))
 		logging.Debug("Auth attempt for unknown user", "source", "auth", "username", username)
-		return nil, errors.New(errUserNotFound)
+		return nil, false, errors.New(errUserNotFound)
 	}
 
 	// Pre-check hash validity so a corrupt stored hash does not masquerade
@@ -242,39 +245,47 @@ func (s *UserStore) Authenticate(username, password string) (*User, error) {
 	// malformed input; a valid hash at any cost returns nil here.
 	if _, err := bcrypt.Cost([]byte(user.PasswordHash)); err != nil {
 		logging.Warn("Auth attempt against corrupt password hash", "source", "audit", "username", username)
-		return nil, errors.New("invalid password")
+		return nil, false, errors.New("invalid password")
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(user.PasswordHash), []byte(password)); err != nil {
 		logging.Debug("Auth attempt: wrong password", "source", "auth", "username", username)
-		return nil, errors.New("invalid password")
+		return nil, false, errors.New("invalid password")
 	}
 
-	s.maybeUpgradeHash(user.Username, user.PasswordHash, password)
-	return user, nil
+	rehashed := s.maybeUpgradeHash(user.Username, user.PasswordHash, password)
+	return user, rehashed, nil
 }
 
 // maybeUpgradeHash rehashes the password at bcryptTargetCost in place
-// when the stored hash is below the target. Silent: a failure to
-// compute or store the new hash does not break the current login.
-// Callers are expected to persist the UserStore to disk shortly after
-// (syncUsersToConfig runs on password change and user update paths;
-// login alone currently does not sync, so the upgraded hash survives
-// in memory until the next config save).
-func (s *UserStore) maybeUpgradeHash(username, oldHash, password string) {
+// when the stored hash is below the target. Returns true when an
+// upgrade actually happened so the caller can trigger a persist
+// (codebase review C4-shf): without that, a successful rehash lives
+// only in memory until the next config save and is lost on restart.
+// A bcrypt failure now logs Warn instead of silently swallowing the
+// error - a degraded crypto runtime is something the operator should
+// see.
+func (s *UserStore) maybeUpgradeHash(username, oldHash, password string) bool {
 	cost, err := bcrypt.Cost([]byte(oldHash))
 	if err != nil || cost >= bcryptTargetCost {
-		return
+		return false
 	}
 	newHash, err := bcrypt.GenerateFromPassword([]byte(password), bcryptTargetCost)
 	if err != nil {
-		return
+		logging.Warn("Failed to upgrade bcrypt hash on login; running at degraded cost",
+			"source", "audit",
+			"user", username,
+			"target_cost", bcryptTargetCost,
+			"error", err)
+		return false
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if u, ok := s.users[username]; ok && u.PasswordHash == oldHash {
 		u.PasswordHash = string(newHash)
+		return true
 	}
+	return false
 }
 
 // HashPassword creates a bcrypt hash of a password at the current

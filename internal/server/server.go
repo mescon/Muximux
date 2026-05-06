@@ -1201,11 +1201,44 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// Validate method shape first, before snapshotting any state, so
+	// the unit tests that exercise rejection paths with a bare Server
+	// fixture (no config / userStore) still pass.
+	switch req.Method {
+	case "builtin", "forward_auth", "none":
+		// fall through to mutation below
+	default:
+		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid method. Must be builtin, forward_auth, or none"})
+		return
+	}
+
+	// Snapshot the auth state we are about to mutate so we can put
+	// the running instance back the way we found it if the disk save
+	// at the end of this handler fails (codebase review C2-shf).
+	// Without this, a setup attempt that fails to persist leaves the
+	// operator with a fully-configured running instance, while a
+	// restart would land back in setup-wizard mode with a fresh
+	// token. Snapshot fields the setup* helpers touch:
+	s.configMu.Lock()
+	priorMethod := s.config.Auth.Method
+	priorUsers := append([]config.UserConfig(nil), s.config.Auth.Users...)
+	priorTrustedProxies := append([]string(nil), s.config.Auth.TrustedProxies...)
+	priorHeaders := s.config.Auth.Headers
+	priorLogoutURL := s.config.Auth.LogoutURL
+	priorFwAdminGroups := append([]string(nil), s.config.Auth.ForwardAuthAdminGroups...)
+	priorAPIKeyHash := s.config.Auth.APIKeyHash
+	priorBasePath := s.config.Server.NormalizedBasePath()
+	s.configMu.Unlock()
+	priorUserStore := s.userStore.ListWithHashes()
+
+	var newSession *auth.Session
 	switch req.Method {
 	case "builtin":
-		if err := s.setupBuiltin(w, &req); err != nil {
+		sess, err := s.setupBuiltin(w, &req)
+		if err != nil {
 			return // error already written
 		}
+		newSession = sess
 	case "forward_auth":
 		if err := s.setupForwardAuth(&req); err != nil {
 			writeJSON(w, http.StatusBadRequest, map[string]string{"error": err.Error()})
@@ -1213,9 +1246,6 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		}
 	case "none":
 		s.setupNone()
-	default:
-		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Invalid method. Must be builtin, forward_auth, or none"})
-		return
 	}
 
 	if err := func() error {
@@ -1224,9 +1254,53 @@ func (s *Server) handleSetup(w http.ResponseWriter, r *http.Request) {
 		s.config.Auth.SetupComplete = true
 		return s.config.Save(s.configPath)
 	}(); err != nil {
-		logging.From(r.Context()).Error("Failed to save config after setup", "source", "server", "error", err)
+		// Disk save failed. Roll back every piece of live state we
+		// touched so a restart finds disk and memory describing the
+		// same instance.
+		s.configMu.Lock()
+		s.config.Auth.Method = priorMethod
+		s.config.Auth.Users = priorUsers
+		s.config.Auth.TrustedProxies = priorTrustedProxies
+		s.config.Auth.Headers = priorHeaders
+		s.config.Auth.LogoutURL = priorLogoutURL
+		s.config.Auth.ForwardAuthAdminGroups = priorFwAdminGroups
+		s.configMu.Unlock()
+		// Rebuild the user store from the prior snapshot.
+		priorUsersForStore := make([]auth.UserConfig, 0, len(priorUserStore))
+		for _, u := range priorUserStore {
+			priorUsersForStore = append(priorUsersForStore, auth.UserConfig{
+				Username:     u.Username,
+				PasswordHash: u.PasswordHash,
+				Role:         u.Role,
+				Email:        u.Email,
+				DisplayName:  u.DisplayName,
+				Groups:       u.Groups,
+			})
+		}
+		s.userStore.LoadFromConfig(priorUsersForStore)
+		// Restore the prior auth-middleware snapshot.
+		s.authMiddleware.UpdateConfig(&auth.AuthConfig{
+			Method:                 auth.AuthMethod(priorMethod),
+			TrustedProxies:         priorTrustedProxies,
+			Headers:                auth.ForwardAuthHeadersFromMap(priorHeaders),
+			ForwardAuthAdminGroups: priorFwAdminGroups,
+			BypassRules:            defaultBypassRules,
+			APIKeyHash:             priorAPIKeyHash,
+			BasePath:               priorBasePath,
+		})
+		// Discard any session we created on the way in - it points
+		// at a user-store entry that no longer exists.
+		if newSession != nil {
+			s.sessionStore.Delete(newSession.ID)
+		}
+		logging.From(r.Context()).Error("Failed to save config after setup; live state rolled back", "source", "audit", "error", err)
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to save configuration"})
 		return
+	}
+
+	// Save succeeded - now safe to set the cookie for the new admin.
+	if newSession != nil {
+		s.sessionStore.SetCookie(w, newSession)
 	}
 
 	logging.From(r.Context()).Info("Setup completed", "source", "config", "method", req.Method)
@@ -1316,20 +1390,28 @@ func (s *Server) handleConfigRestore(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"success": "true"})
 }
 
-func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
+// setupBuiltin mutates live auth state and returns the session that
+// should be set on the response after the surrounding handleSetup
+// has persisted the config. Returning the session instead of writing
+// the cookie inline lets handleSetup discard it (and roll back the
+// other live state) when the persist step fails - otherwise the
+// instance ends up "configured in memory, not on disk", and a restart
+// triggers another setup wizard while the in-memory admin still has a
+// valid session (codebase review C2-shf).
+func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) (*auth.Session, error) {
 	if strings.TrimSpace(req.Username) == "" {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Username is required"})
-		return fmt.Errorf("username required")
+		return nil, fmt.Errorf("username required")
 	}
 	if len(req.Password) < 8 {
 		writeJSON(w, http.StatusBadRequest, map[string]string{"error": "Password must be at least 8 characters"})
-		return fmt.Errorf("password too short")
+		return nil, fmt.Errorf("password too short")
 	}
 
 	hash, err := auth.HashPassword(req.Password)
 	if err != nil {
 		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "Failed to hash password"})
-		return err
+		return nil, err
 	}
 
 	s.configMu.Lock()
@@ -1362,16 +1444,18 @@ func (s *Server) setupBuiltin(w http.ResponseWriter, req *setupRequest) error {
 
 	logging.Audit("Admin user created", "user", req.Username)
 
-	// Create session so user is immediately logged in
+	// Create session so user is immediately logged in. We do not call
+	// SetCookie here - the caller does that only after the config save
+	// succeeds, so a failed persist does not leave the operator with a
+	// session that points at a user-store entry we are about to roll
+	// back.
 	session, err := s.sessionStore.Create(req.Username, req.Username, "admin")
 	if err != nil {
 		logging.Warn("Failed to create session after setup", "source", "server", "error", err)
-		// Non-fatal — setup still succeeds, user just needs to log in manually
-		return nil
+		// Non-fatal -- setup still succeeds, user just needs to log in manually
+		return nil, nil
 	}
-	s.sessionStore.SetCookie(w, session)
-
-	return nil
+	return session, nil
 }
 
 func (s *Server) setupForwardAuth(req *setupRequest) error {
