@@ -70,6 +70,12 @@ type Proxy struct {
 	routes  map[string]AppRoute
 	mu      sync.RWMutex
 	running bool
+	// testReloadHook, when non-nil, replaces the Reload primitive in
+	// helpers that go through reloadHookOrDefault (currently only
+	// ApplyGatewaySites). Used by unit tests to exercise the
+	// rollback / divergence decision paths without booting a real
+	// Caddy. Production code never sets this.
+	testReloadHook func() error
 }
 
 // New creates a new proxy instance

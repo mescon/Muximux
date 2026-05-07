@@ -35,6 +35,24 @@ type Service struct {
 	selfInfo    *SelfInfo
 	selfErr     error
 	selfChecked bool
+
+	// Refresh-state telemetry. Populated by the poller via
+	// RecordRefreshTick / RecordDivergence. In-memory only - resets
+	// on restart. The durable record of a divergence is the audit log
+	// line emitted by the poller, captured in data/muximux.log.
+	refreshMu            sync.Mutex
+	divergences          int
+	lastDivergenceAt     time.Time
+	recoveredAt          time.Time
+	lastRefreshSuccessAt time.Time
+
+	// LastSeenAt tracks when each docker_key was last successfully
+	// resolved against the daemon. Used to render "last refresh"
+	// timestamps on tracked-app rows (Phase F). Keyed on docker key
+	// (e.g. "label:sonarr-prod"). DELETE /track/{key} clears the
+	// matching entry to avoid an unbounded leak as operators track
+	// and detach over time (review fix NEW-V3-4).
+	lastSeenAt sync.Map // map[string]time.Time
 }
 
 const statusCacheTTL = 30 * time.Second
@@ -120,9 +138,84 @@ func (s *Service) Status(ctx context.Context) StatusResult {
 		return cached
 	}
 	if time.Since(cachedAt) < statusCacheTTL && cached.Endpoint != "" {
+		// Cache covers the expensive probes (ping, version, self-
+		// detect). Divergence + refresh-success timestamps are cheap
+		// to read; keep them current on every call so the banner
+		// transitions promptly when a new divergence fires inside the
+		// cache window.
+		s.fillRefreshTelemetry(&cached)
 		return cached
 	}
 	return s.refreshStatus(ctx)
+}
+
+// fillRefreshTelemetry stamps the live divergence + refresh-success
+// fields onto the given StatusResult.
+func (s *Service) fillRefreshTelemetry(r *StatusResult) {
+	s.refreshMu.Lock()
+	defer s.refreshMu.Unlock()
+	r.Divergences = s.divergences
+	r.LastDivergenceAt = ""
+	r.RecoveredAt = ""
+	r.LastRefreshSuccessAt = ""
+	if !s.lastDivergenceAt.IsZero() {
+		r.LastDivergenceAt = s.lastDivergenceAt.Format(time.RFC3339)
+	}
+	if !s.recoveredAt.IsZero() {
+		r.RecoveredAt = s.recoveredAt.Format(time.RFC3339)
+	}
+	if !s.lastRefreshSuccessAt.IsZero() {
+		r.LastRefreshSuccessAt = s.lastRefreshSuccessAt.Format(time.RFC3339)
+	}
+}
+
+// RecordRefreshTickSuccess marks now as the most recent successful
+// refresh. The poller calls this at the end of every clean tick.
+func (s *Service) RecordRefreshTickSuccess() {
+	s.refreshMu.Lock()
+	defer s.refreshMu.Unlock()
+	s.lastRefreshSuccessAt = time.Now()
+	if !s.lastDivergenceAt.IsZero() && s.recoveredAt.IsZero() {
+		// First clean tick after a divergence - record recovery so
+		// the banner can transition from active to recovered state.
+		s.recoveredAt = time.Now()
+	}
+}
+
+// RecordDivergence increments the in-memory counter and stamps the
+// timestamp. Called by the poller when proxy.ApplyGatewaySites
+// returns ErrDiverged.
+func (s *Service) RecordDivergence() {
+	s.refreshMu.Lock()
+	defer s.refreshMu.Unlock()
+	s.divergences++
+	s.lastDivergenceAt = time.Now()
+	// New divergence wipes the recovered marker so the banner
+	// transitions back to "active".
+	s.recoveredAt = time.Time{}
+}
+
+// RecordSeen stamps a tracked key as last-resolved at now. Poller
+// calls this for every container it successfully looks up.
+func (s *Service) RecordSeen(key string) {
+	s.lastSeenAt.Store(key, time.Now())
+}
+
+// ForgetTrackedKey removes the LastSeenAt entry for a detached key.
+// Called from the DELETE /track handler to keep the map bounded.
+func (s *Service) ForgetTrackedKey(key string) {
+	s.lastSeenAt.Delete(key)
+}
+
+// LastSeen returns the most recent time the given key was resolved,
+// or zero if never seen.
+func (s *Service) LastSeen(key string) time.Time {
+	if v, ok := s.lastSeenAt.Load(key); ok {
+		if t, ok := v.(time.Time); ok {
+			return t
+		}
+	}
+	return time.Time{}
 }
 
 // refreshStatus does the actual probe + selfDetect + TLS-hygiene
@@ -187,6 +280,20 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 		r.StrategyOK = false
 		r.LastError = "unknown network_strategy: " + s.cfg.NetworkStrategy
 	}
+
+	// Refresh-state telemetry (in-memory; resets on restart).
+	s.refreshMu.Lock()
+	r.Divergences = s.divergences
+	if !s.lastDivergenceAt.IsZero() {
+		r.LastDivergenceAt = s.lastDivergenceAt.Format(time.RFC3339)
+	}
+	if !s.recoveredAt.IsZero() {
+		r.RecoveredAt = s.recoveredAt.Format(time.RFC3339)
+	}
+	if !s.lastRefreshSuccessAt.IsZero() {
+		r.LastRefreshSuccessAt = s.lastRefreshSuccessAt.Format(time.RFC3339)
+	}
+	s.refreshMu.Unlock()
 
 	s.cacheStatus(&r)
 	return r

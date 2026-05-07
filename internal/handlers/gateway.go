@@ -463,37 +463,18 @@ func (h *GatewayHandler) applyAndPersist(candidate []config.GatewaySite) (restar
 	return restartRequired, http.StatusOK, nil
 }
 
-// ConfigGatewaySitesToProxy copies the config-package site list into
-// the proxy package's mirror type. The two structs are deliberately
-// duplicated to keep the proxy package free of a config import; this
-// helper is the single bridge between them. Both setupCaddy in
-// internal/server and the handler's apply path call into here so a
-// new field added to one struct must be propagated through one place
-// only.
+// ConfigGatewaySitesToProxy is re-exported here for backwards
+// compatibility with callers (server.setupCaddy, etc.) that imported
+// it from this package. The actual implementation moved to the proxy
+// package in Phase E so the discovery poller could call it without
+// importing handlers (which would be a circular dependency:
+// handlers -> discovery -> handlers).
 func ConfigGatewaySitesToProxy(sites []config.GatewaySite) []proxy.GatewaySite {
-	if len(sites) == 0 {
-		return nil
-	}
-	out := make([]proxy.GatewaySite, len(sites))
-	for i := range sites {
-		s := &sites[i]
-		out[i] = proxy.GatewaySite{
-			Domain:             s.Domain,
-			BackendURL:         s.BackendURL,
-			TLS:                string(s.TLS),
-			TLSCert:            s.TLSCert,
-			TLSKey:             s.TLSKey,
-			StripFrameBlockers: s.StripFrameBlockers,
-			Streaming:          s.Streaming,
-			ProxyHeaders:       s.ProxyHeaders,
-			ForwardedHeaders:   s.ForwardedHeaders,
-		}
-	}
-	return out
+	return proxy.ConfigGatewaySitesToProxy(sites)
 }
 
 // toProxyGatewaySites is kept as the unexported alias used by the
 // gateway handler so the in-file call sites stay short.
 func toProxyGatewaySites(sites []config.GatewaySite) []proxy.GatewaySite {
-	return ConfigGatewaySitesToProxy(sites)
+	return proxy.ConfigGatewaySitesToProxy(sites)
 }

@@ -113,6 +113,32 @@
   let statusVisual = $derived(statusBadge(status));
   let testVisual = $derived(testResult ? statusBadge(testResult) : null);
 
+  // Divergence banner state. Three shapes:
+  //  - hidden when the running counter is 0
+  //  - red 'active' when a divergence happened and we have not yet
+  //    seen a clean refresh tick after it
+  //  - amber 'recovered' when the most recent transition was
+  //    divergence -> clean tick (recovered_at populated)
+  //
+  // The backend bumps the counter on caddy rollback failure and
+  // stamps recovered_at on the first clean tick after that. The
+  // banner stays sticky in the recovered state until either a new
+  // divergence (back to red) or, in a future phase, an operator
+  // acknowledgement clears it.
+  let divergenceBanner = $derived.by((): { tone: 'red' | 'amber'; text: string } | null => {
+    if (!status || !status.refresh_divergences || status.refresh_divergences <= 0) return null;
+    if (status.recovered_at) {
+      return {
+        tone: 'amber',
+        text: `Caddy diverged earlier (${status.refresh_divergences} time(s)). Last divergence at ${status.last_divergence_at || 'unknown'}, recovered at ${status.recovered_at}.`,
+      };
+    }
+    return {
+      tone: 'red',
+      text: `Docker refresh diverged: a Caddy reload failed and the rollback also failed. Last divergence at ${status.last_divergence_at || 'unknown'}. Gateway state may be inconsistent until the next clean refresh tick.`,
+    };
+  });
+
   // tcp:// endpoint enables the TLS section. We hide it for unix://
   // sockets since cert-based auth is not meaningful there.
   let tlsRelevant = $derived(form.endpoint.startsWith('tcp://'));
@@ -133,6 +159,17 @@
   {#if loading}
     <div class="text-text-muted text-sm">Loading…</div>
   {:else}
+    <!-- Divergence banner: sticky, only when the counter > 0. Sits
+         above the live status banner so an operator who checks the
+         page sees the divergence first. -->
+    {#if divergenceBanner}
+      <div class="p-3 rounded-md border text-sm
+                  {divergenceBanner.tone === 'red' ? 'border-red-500/40 bg-red-500/10 text-red-300' : 'border-amber-500/40 bg-amber-500/10 text-amber-300'}">
+        <strong class="font-semibold">{divergenceBanner.tone === 'red' ? 'Gateway divergence detected' : 'Gateway recovered'}</strong>
+        <div class="mt-1 text-xs">{divergenceBanner.text}</div>
+      </div>
+    {/if}
+
     <!-- Live status banner -->
     <div class="p-3 rounded-md border text-sm
                 {statusVisual.tone === 'red' ? 'border-red-500/40 bg-red-500/10 text-red-300' : ''}

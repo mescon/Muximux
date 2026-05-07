@@ -57,6 +57,7 @@ type Server struct {
 	proxyServer      *proxy.Proxy
 	oidcProvider     *auth.OIDCProvider
 	discoveryService *discovery.Service
+	discoveryPoller  *discovery.Poller
 	needsSetup       atomic.Bool
 	setupMu          sync.Mutex // serializes setup requests
 	setupToken       string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
@@ -1581,6 +1582,24 @@ func (s *Server) Start() error {
 		logging.Info("Muximux started", "source", "server", "version", s.version, "listen", s.config.Server.Listen)
 	}
 
+	// Start the discovery refresh poller. The poller checks
+	// Discovery.Docker.Enabled on every tick, so an operator who
+	// toggles discovery off mid-session gets quiet behaviour without
+	// us having to start/stop the goroutine here. Spawning it
+	// unconditionally also means an operator who turns discovery on
+	// later doesn't need a server restart for the poller to begin
+	// working.
+	if s.discoveryService != nil && s.proxyServer != nil {
+		s.discoveryPoller = discovery.NewPoller(discovery.PollerDeps{
+			Service:    s.discoveryService,
+			Config:     s.config,
+			ConfigPath: s.configPath,
+			ConfigMu:   &s.configMu,
+			Proxy:      s.proxyServer,
+		})
+		go s.discoveryPoller.Run(context.Background())
+	}
+
 	return s.httpServer.ListenAndServe()
 }
 
@@ -1595,6 +1614,13 @@ func (s *Server) Stop() error {
 	// Stop health monitoring
 	if s.healthMonitor != nil {
 		s.healthMonitor.Stop()
+	}
+
+	// Stop discovery poller before Caddy: the poller may issue a
+	// Caddy reload mid-tick and we'd rather drain that than race a
+	// shutdown against an in-flight reload.
+	if s.discoveryPoller != nil {
+		s.discoveryPoller.Stop()
 	}
 
 	// Stop Caddy
