@@ -1,13 +1,15 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
-  import type { GatewaySite } from '$lib/types';
+  import type { App, GatewaySite } from '$lib/types';
   import {
     listGatewaySites,
     createGatewaySite,
     updateGatewaySite,
     deleteGatewaySite,
     validateGatewaySite,
+    fetchApps,
+    createApp,
   } from '$lib/api';
   import { isAdmin } from '$lib/authStore';
 
@@ -19,6 +21,21 @@
   let topLevelError = $state<string | null>(null);
   let restartBanner = $state(false);
   let mismatchBanner = $state(false);
+
+  // Apps list, used to drive the "Linked app" dropdown so the
+  // operator picks an existing app instead of typing a name they
+  // have to remember exactly. Loaded once on mount; refreshed after
+  // we create a new app from inside the gateway form.
+  let apps = $state<App[]>([]);
+  // appLinkChoice drives the dropdown's three modes:
+  //   ""           - keep gateway site standalone (no nav menu entry)
+  //   "<app name>" - link to an existing app (form.app_name = this)
+  //   "__create__" - inline-create a new app from the gateway domain
+  let appLinkChoice = $state<string>('');
+  // newAppName backs the inline "create new app" input. Defaults to
+  // a derived name from the domain so the operator only has to tweak
+  // capitalisation if they care.
+  let newAppName = $state<string>('');
 
   // Modal state. We use one modal for both create and edit; `editing`
   // tracks the prior domain for the update path so a rename works.
@@ -40,8 +57,15 @@
     loading = true;
     topLevelError = null;
     try {
-      sites = await listGatewaySites();
+      // Load gateway sites and apps in parallel so the form is
+      // immediately ready with a populated dropdown.
+      const [siteList, appList] = await Promise.all([
+        listGatewaySites(),
+        loadApps(),
+      ]);
+      sites = siteList;
       sites.sort((a, b) => a.domain.localeCompare(b.domain));
+      apps = appList;
     } catch (e) {
       topLevelError = e instanceof Error ? e.message : 'Failed to load gateway sites';
     } finally {
@@ -49,10 +73,35 @@
     }
   }
 
+  // Wrapped so a failed apps fetch doesn't take the whole tab down.
+  async function loadApps(): Promise<App[]> {
+    try {
+      const list = await fetchApps();
+      list.sort((a, b) => a.name.localeCompare(b.name));
+      return list;
+    } catch {
+      // Apps list is a UX nicety here; if it fails we just render
+      // the dropdown with no existing-app entries and the operator
+      // can still pick "create new app" or leave it standalone.
+      return [];
+    }
+  }
+
+  // deriveAppNameFromDomain turns "sonarr.example.com" into "Sonarr"
+  // so the create-new-app input is pre-filled with a sensible default.
+  function deriveAppNameFromDomain(domain: string): string {
+    if (!domain) return '';
+    const first = domain.split('.')[0] ?? '';
+    if (!first) return '';
+    return first.charAt(0).toUpperCase() + first.slice(1);
+  }
+
   function openCreate() {
     editing = null;
     form = blankSite();
     proxyHeadersRaw = '';
+    appLinkChoice = '';
+    newAppName = '';
     formError = null;
     validationError = null;
     showForm = true;
@@ -62,6 +111,15 @@
     editing = site.domain;
     form = { ...site, proxy_headers: { ...(site.proxy_headers ?? {}) } };
     proxyHeadersRaw = serializeHeaders(site.proxy_headers ?? {});
+    // If the site is linked to an app that still exists, pin that
+    // selection. If app_name was set but the app has since been
+    // deleted, fall back to standalone so the operator notices.
+    if (site.app_name && apps.some(a => a.name === site.app_name)) {
+      appLinkChoice = site.app_name;
+    } else {
+      appLinkChoice = '';
+    }
+    newAppName = '';
     formError = null;
     validationError = null;
     showForm = true;
@@ -99,6 +157,43 @@
       if (!candidate.domain || !candidate.backend_url) {
         formError = 'Domain and backend URL are required.';
         return;
+      }
+
+      // Resolve the app-link choice to a concrete app_name.
+      //
+      //   ""           - no link, leave app_name empty
+      //   "<existing>" - link directly
+      //   "__create__" - create the app first, then link
+      //
+      // If create-new-app fails we abort the gateway save so we don't
+      // end up with a gateway site that points at a non-existent app
+      // (the cross-reference validator on the server would reject it
+      // anyway, but failing early gives a clearer error).
+      if (appLinkChoice === '__create__') {
+        const wantedName = newAppName.trim() || deriveAppNameFromDomain(candidate.domain);
+        if (!wantedName) {
+          formError = 'Pick a name for the new app.';
+          return;
+        }
+        // The new app derives its URL from the gateway domain so the
+        // operator doesn't have to type it twice. We default to the
+        // public-facing scheme implied by the gateway TLS mode.
+        const scheme = candidate.tls === 'none' ? 'http' : 'https';
+        try {
+          const created = await createApp({
+            name: wantedName,
+            url: `${scheme}://${candidate.domain}`,
+            enabled: true,
+          });
+          candidate.app_name = created.name;
+          // Refresh apps so the next open of the form sees the new entry.
+          apps = await loadApps();
+        } catch (e) {
+          formError = e instanceof Error ? `Could not create app: ${e.message}` : 'Could not create app.';
+          return;
+        }
+      } else {
+        candidate.app_name = appLinkChoice || undefined;
       }
 
       const result = editing
@@ -449,17 +544,41 @@
         </div>
 
         <div>
-          <label for="gw-app" class="block text-sm font-medium text-text-secondary mb-1">Linked app (optional)</label>
-          <input
+          <label for="gw-app" class="block text-sm font-medium text-text-secondary mb-1">Show in navigation menu</label>
+          <select
             id="gw-app"
-            type="text"
-            bind:value={form.app_name}
-            placeholder="Sonarr"
+            bind:value={appLinkChoice}
             class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
-          />
-          <p class="text-xs text-text-muted mt-1">
-            Name of an existing app whose URL should be derived from this site. Leave empty to keep the gateway site standalone.
-          </p>
+          >
+            <option value="">Don't add to menu (standalone gateway)</option>
+            <option value="__create__">Add to menu - create new app</option>
+            {#if apps.length > 0}
+              <optgroup label="Link to existing app">
+                {#each apps as a (a.name)}
+                  <option value={a.name}>{a.name}</option>
+                {/each}
+              </optgroup>
+            {/if}
+          </select>
+          {#if appLinkChoice === '__create__'}
+            <div class="mt-2">
+              <label for="gw-new-app-name" class="block text-xs text-text-secondary mb-1">New app name</label>
+              <input
+                id="gw-new-app-name"
+                type="text"
+                bind:value={newAppName}
+                placeholder={deriveAppNameFromDomain(form.domain) || 'Sonarr'}
+                class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+              />
+              <p class="text-xs text-text-muted mt-1">
+                A new app pointing at <code>{form.tls === 'none' ? 'http' : 'https'}://{form.domain || 'your-domain'}</code> will be created and added to the menu when you save.
+              </p>
+            </div>
+          {:else}
+            <p class="text-xs text-text-muted mt-1">
+              Standalone keeps this gateway site in Caddy only - no entry in the dashboard's navigation. Linking to an app makes it appear there with the app's icon and group.
+            </p>
+          {/if}
         </div>
       </div>
 
