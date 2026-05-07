@@ -30,6 +30,7 @@ import (
 
 	"github.com/mescon/muximux/v3/internal/auth"
 	"github.com/mescon/muximux/v3/internal/config"
+	"github.com/mescon/muximux/v3/internal/discovery"
 	"github.com/mescon/muximux/v3/internal/handlers"
 	"github.com/mescon/muximux/v3/internal/health"
 	"github.com/mescon/muximux/v3/internal/icons"
@@ -43,30 +44,31 @@ var validThemeName = regexp.MustCompile(`^[a-zA-Z0-9][a-zA-Z0-9._-]*\.css$`)
 
 // Server holds the HTTP server and related components
 type Server struct {
-	config         *config.Config
-	configMu       sync.RWMutex // protects config reads/writes
-	configPath     string
-	dataDir        string
-	httpServer     *http.Server
-	healthMonitor  *health.Monitor
-	wsHub          *websocket.Hub
-	sessionStore   *auth.SessionStore
-	userStore      *auth.UserStore
-	authMiddleware *auth.Middleware
-	proxyServer    *proxy.Proxy
-	oidcProvider   *auth.OIDCProvider
-	needsSetup     atomic.Bool
-	setupMu        sync.Mutex // serializes setup requests
-	setupToken     string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
-	loginLimiter   *rateLimiter
-	setupLimiter   *rateLimiter
-	logCh          chan logging.LogEntry
-	cleanupDone    chan struct{}
-	iconCacheDirs  []string
-	iconCacheTTL   time.Duration
-	version        string
-	commit         string
-	buildDate      string
+	config           *config.Config
+	configMu         sync.RWMutex // protects config reads/writes
+	configPath       string
+	dataDir          string
+	httpServer       *http.Server
+	healthMonitor    *health.Monitor
+	wsHub            *websocket.Hub
+	sessionStore     *auth.SessionStore
+	userStore        *auth.UserStore
+	authMiddleware   *auth.Middleware
+	proxyServer      *proxy.Proxy
+	oidcProvider     *auth.OIDCProvider
+	discoveryService *discovery.Service
+	needsSetup       atomic.Bool
+	setupMu          sync.Mutex // serializes setup requests
+	setupToken       string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
+	loginLimiter     *rateLimiter
+	setupLimiter     *rateLimiter
+	logCh            chan logging.LogEntry
+	cleanupDone      chan struct{}
+	iconCacheDirs    []string
+	iconCacheTTL     time.Duration
+	version          string
+	commit           string
+	buildDate        string
 }
 
 // adminGuard is a function that wraps a handler to require admin role.
@@ -220,6 +222,15 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Admin-only: leaks the configured TLS domain and the legacy
 	// gateway path. No production frontend caller; only admin tooling.
 	mux.HandleFunc("/api/proxy/status", requireAdmin(proxyHandler.GetStatus))
+
+	// Discovery API. Always registered so the frontend can hit
+	// /status and learn whether discovery is configured (the four-state
+	// UI gating ladder needs the endpoint to respond even when disabled).
+	// Admin-only because the response leaks daemon endpoint, API
+	// version, and the operator's TLS-hygiene state.
+	s.discoveryService = discovery.NewService(&cfg.Discovery.Docker)
+	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService)
+	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
 
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {

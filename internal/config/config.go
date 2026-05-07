@@ -28,6 +28,7 @@ type Config struct {
 	Icons         IconsConfig       `yaml:"icons"`
 	Health        HealthConfig      `yaml:"health"`
 	Keybindings   KeybindingsConfig `yaml:"keybindings" json:"keybindings"`
+	Discovery     DiscoveryConfig   `yaml:"discovery"`
 	Groups        []GroupConfig     `yaml:"groups"`
 	Apps          []AppConfig       `yaml:"apps"`
 
@@ -61,6 +62,37 @@ type HealthConfig struct {
 	Enabled  bool   `yaml:"enabled"`
 	Interval string `yaml:"interval"` // Check interval, e.g., "30s", "1m"
 	Timeout  string `yaml:"timeout"`  // Request timeout, e.g., "5s"
+}
+
+// DiscoveryConfig is the top-level container for service-discovery
+// integrations. Today it carries Docker; future entries (Podman,
+// nerdctl, ...) would sit alongside under their own sub-key.
+type DiscoveryConfig struct {
+	Docker DiscoveryDockerConfig `yaml:"docker"`
+}
+
+// DiscoveryDockerConfig configures the Docker engine API connection
+// used by the discovery service to enumerate containers and refresh
+// tracked-app URLs. Off by default; opt-in because it requires a
+// privileged socket / network endpoint.
+type DiscoveryDockerConfig struct {
+	Enabled         bool               `yaml:"enabled"`
+	Endpoint        string             `yaml:"endpoint"` // unix:///... or tcp://host:port
+	TLS             DiscoveryTLSConfig `yaml:"tls"`
+	NetworkStrategy string             `yaml:"network_strategy"` // container_ip | container_dns | host_port | host_docker_internal
+	HostIP          string             `yaml:"host_ip,omitempty"`
+	NetworkFilter   string             `yaml:"network_filter,omitempty"`
+	RefreshInterval string             `yaml:"refresh_interval"` // e.g. "60s"
+}
+
+// DiscoveryTLSConfig is the mTLS configuration used when the Docker
+// endpoint is a tcp:// address requiring certificate authentication.
+// Empty paths are tolerated only when Enabled is false.
+type DiscoveryTLSConfig struct {
+	Enabled    bool   `yaml:"enabled"`
+	CACert     string `yaml:"ca_cert,omitempty"`
+	ClientCert string `yaml:"client_cert,omitempty"`
+	ClientKey  string `yaml:"client_key,omitempty"`
 }
 
 // TLSConfig holds TLS/HTTPS settings
@@ -390,6 +422,22 @@ func Load(path string) (*Config, error) {
 	// otherwise the user has no way to get back to the overview.
 	if !cfg.Navigation.ShowHomeButton {
 		cfg.Navigation.ShowSplashOnStart = false
+	}
+
+	// Discovery defaults: when the operator enables Docker discovery
+	// without spelling out an endpoint or a network strategy we pick
+	// the most common safe values (unix socket, container_ip). When
+	// disabled, the zero values are fine and we don't touch them.
+	if cfg.Discovery.Docker.Enabled {
+		if cfg.Discovery.Docker.Endpoint == "" {
+			cfg.Discovery.Docker.Endpoint = "unix:///var/run/docker.sock"
+		}
+		if cfg.Discovery.Docker.NetworkStrategy == "" {
+			cfg.Discovery.Docker.NetworkStrategy = "container_ip"
+		}
+		if cfg.Discovery.Docker.RefreshInterval == "" {
+			cfg.Discovery.Docker.RefreshInterval = "60s"
+		}
 	}
 
 	if err := cfg.validate(); err != nil {
