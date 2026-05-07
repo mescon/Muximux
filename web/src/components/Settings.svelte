@@ -10,6 +10,7 @@
   import AppsTab from './settings/AppsTab.svelte';
   import GatewayTab from './settings/GatewayTab.svelte';
   import DiscoveryTab from './settings/DiscoveryTab.svelte';
+  import DiscoverModal from './settings/DiscoverModal.svelte';
   import GeneralTab from './settings/GeneralTab.svelte';
   import SecurityTab from './settings/SecurityTab.svelte';
   import ThemeTab from './settings/ThemeTab.svelte';
@@ -91,6 +92,21 @@
   let addAppSearch = $state('');
   let addAppSearchLower = $derived(addAppSearch.toLowerCase());
   let showAddGroup = $state(false);
+
+  // Discover modal state. mode tracks whether the modal was opened
+  // from the Apps tab (defaults to creating apps) or the Gateway tab
+  // (defaults to creating gateway sites). Closed when both falsy.
+  let showDiscoverModal = $state(false);
+  let discoverMode = $state<'apps' | 'gateway'>('apps');
+
+  function openDiscoverFromApps() {
+    discoverMode = 'apps';
+    showDiscoverModal = true;
+  }
+  function openDiscoverFromGateway() {
+    discoverMode = 'gateway';
+    showDiscoverModal = true;
+  }
 
   // Import/export state
   let showImportConfirm = $state(false);
@@ -536,7 +552,8 @@
           onshowAddGroup={() => { groupErrors = {}; showAddGroup = true; }}
           onsyncGroupOrder={syncGroupOrder}
           onsyncAppOrder={syncAppOrder}
-          ondiscoveryclick={() => { activeTab = 'discovery'; }}
+          ondiscoveryconfigure={() => { activeTab = 'discovery'; }}
+          ondiscoveryscan={openDiscoverFromApps}
         />
 
       <!-- Theme Settings -->
@@ -553,7 +570,10 @@
 
       <!-- Gateway sites -->
       {:else if activeTab === 'gateway'}
-        <GatewayTab />
+        <GatewayTab
+          ondiscoveryconfigure={() => { activeTab = 'discovery'; }}
+          ondiscoveryscan={openDiscoverFromGateway}
+        />
 
       <!-- Discovery (Docker auto-discovery) -->
       {:else if activeTab === 'discovery'}
@@ -566,6 +586,11 @@
     </div>
   </div>
 </div>
+
+<!-- Discover-from-Docker modal. Lives outside the tabs so it can be
+     opened from either the Apps tab or the Gateway tab without
+     re-mounting. -->
+<DiscoverModal bind:open={showDiscoverModal} mode={discoverMode} onclose={() => { showDiscoverModal = false; }} />
 
 <!-- Add App Modal -->
 {#if showAddApp}

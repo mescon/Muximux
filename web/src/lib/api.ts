@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig, DiscoveryScanResult } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -467,4 +467,8 @@ export async function updateDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): P
 
 export async function testDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): Promise<DiscoveryDockerStatus> {
   return postJSON<DiscoveryDockerConfig, DiscoveryDockerStatus>('/discovery/docker/test', cfg);
+}
+
+export async function scanDockerContainers(): Promise<DiscoveryScanResult> {
+  return fetchJSON<DiscoveryScanResult>('/discovery/docker/scan');
 }

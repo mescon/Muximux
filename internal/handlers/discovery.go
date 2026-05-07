@@ -129,6 +129,35 @@ func (h *DiscoveryHandler) UpdateDockerConfig(w http.ResponseWriter, r *http.Req
 	sendJSON(w, http.StatusOK, newService.Status(r.Context()))
 }
 
+// ScanDocker handles GET /api/discovery/docker/scan. Walks the
+// configured daemon's running containers and returns a Suggestion per
+// container. Refuses to enumerate when the strategy needs network
+// membership and self-detect failed (see ScanResult.ScanBlocked).
+func (h *DiscoveryHandler) ScanDocker(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+		return
+	}
+	svc := h.Service()
+	if svc == nil {
+		sendJSON(w, http.StatusOK, discovery.ScanResult{
+			ScanBlocked: "Docker discovery is not configured. Enable it in Settings → Discovery.",
+		})
+		return
+	}
+	// Read the configured tls.domain under configMu so the
+	// suggested-gateway-domain default is consistent with the
+	// running config (the operator may change it concurrently).
+	h.configMu.RLock()
+	dashboardDomain := h.config.Server.TLS.Domain
+	h.configMu.RUnlock()
+	// Apply a request-scoped timeout so a wedged daemon doesn't park
+	// the connection until net/http's idle timeout.
+	ctx, cancel := context.WithTimeout(r.Context(), 30*time.Second)
+	defer cancel()
+	sendJSON(w, http.StatusOK, svc.Scan(ctx, dashboardDomain))
+}
+
 // TestDockerConfig handles POST /api/discovery/docker/test. The body
 // is a candidate config.DiscoveryDockerConfig that we probe WITHOUT
 // persisting. Lets the operator click "Test connection" before

@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { fly } from 'svelte/transition';
-  import type { App, GatewaySite } from '$lib/types';
+  import type { App, GatewaySite, DiscoveryDockerStatus } from '$lib/types';
   import {
     listGatewaySites,
     createGatewaySite,
@@ -10,8 +10,17 @@
     validateGatewaySite,
     fetchApps,
     createApp,
+    fetchDiscoveryDockerStatus,
   } from '$lib/api';
   import { isAdmin } from '$lib/authStore';
+
+  let {
+    ondiscoveryconfigure,
+    ondiscoveryscan,
+  }: {
+    ondiscoveryconfigure?: () => void;
+    ondiscoveryscan?: () => void;
+  } = $props();
 
   // Sites loaded from /api/gateway/sites. The list view is sorted by
   // domain so the order stays predictable as operators add and remove
@@ -298,9 +307,32 @@
     }
   }
 
-  onMount(() => {
+  // Discovery capability state for the "Discover from Docker" button
+  // mirrored from the Apps tab. The same four-state ladder applies:
+  // hidden / cta / unreachable / strategy_blocked / active.
+  let discoveryStatus = $state<DiscoveryDockerStatus | null>(null);
+  let discoveryButtonState = $derived.by(() => {
+    if (!discoveryStatus) return 'hidden' as const;
+    if (!discoveryStatus.configured) return 'cta' as const;
+    if (!discoveryStatus.reachable) return 'unreachable' as const;
+    if (!discoveryStatus.strategy_ok) return 'strategy_blocked' as const;
+    return 'active' as const;
+  });
+  let discoveryTooltip = $derived.by(() => {
+    if (!discoveryStatus) return '';
+    switch (discoveryButtonState) {
+      case 'cta':              return 'Configure a Docker daemon endpoint in Settings → Discovery to enable.';
+      case 'unreachable':      return `Docker daemon unreachable: ${discoveryStatus.last_error ?? 'see Settings → Discovery'}`;
+      case 'strategy_blocked': return `Strategy "${discoveryStatus.strategy}" cannot identify Muximux's container. Set network_filter or switch to host_port in Settings → Discovery.`;
+      case 'active':           return 'Scan the configured Docker daemon and add containers as gateway sites (and optionally as apps).';
+      default:                 return '';
+    }
+  });
+
+  onMount(async () => {
     if ($isAdmin) {
       load();
+      try { discoveryStatus = await fetchDiscoveryDockerStatus(); } catch { /* ignore */ }
     }
   });
 </script>
@@ -336,9 +368,38 @@
       <div class="text-sm text-text-muted">
         {sites.length} {sites.length === 1 ? 'site' : 'sites'} configured
       </div>
-      <button class="btn btn-primary btn-sm" onclick={openCreate} type="button">
-        Add gateway site
-      </button>
+      <div class="flex gap-2">
+        {#if discoveryButtonState !== 'hidden'}
+          <button
+            class="btn btn-sm flex items-center gap-1
+                   {discoveryButtonState === 'active' || discoveryButtonState === 'cta' ? 'btn-secondary' : ''}
+                   {discoveryButtonState === 'unreachable' || discoveryButtonState === 'strategy_blocked' ? 'btn-secondary opacity-50 cursor-not-allowed' : ''}"
+            onclick={() => {
+              if (discoveryButtonState === 'active') ondiscoveryscan?.();
+              else ondiscoveryconfigure?.();
+            }}
+            disabled={discoveryButtonState === 'unreachable' || discoveryButtonState === 'strategy_blocked'}
+            title={discoveryTooltip}
+            type="button"
+          >
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M22.6 8.5h-3.7v-3h-3v3h-3v-3h-3v3h-3v-3h-3v3H1.4v3h.7c.7 1 1.6 1.7 2.7 2.1.5.2 1 .3 1.5.3h12.4c2.2 0 4.1-1 5.5-2.7-.6-.2-1.1-.3-1.6-.3z"/>
+            </svg>
+            {#if discoveryButtonState === 'cta'}
+              Set up Docker discovery →
+            {:else if discoveryButtonState === 'unreachable'}
+              Docker discovery unreachable
+            {:else if discoveryButtonState === 'strategy_blocked'}
+              Docker discovery: configure strategy
+            {:else}
+              Discover from Docker
+            {/if}
+          </button>
+        {/if}
+        <button class="btn btn-primary btn-sm" onclick={openCreate} type="button">
+          Add gateway site
+        </button>
+      </div>
     </div>
 
     {#if loading}

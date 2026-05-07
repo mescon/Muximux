@@ -18,7 +18,8 @@
     onshowAddGroup,
     onsyncGroupOrder,
     onsyncAppOrder,
-    ondiscoveryclick,
+    ondiscoveryconfigure,
+    ondiscoveryscan,
   }: {
     dndGroups: Group[];
     dndGroupedApps: Record<string, App[]>;
@@ -30,7 +31,12 @@
     onshowAddGroup: () => void;
     onsyncGroupOrder: (groups: Group[]) => void;
     onsyncAppOrder: (groupName: string, items: App[]) => void;
-    ondiscoveryclick?: () => void;
+    /** Called when the operator clicks the Discover button while it's in
+     *  CTA / disabled state — navigates them to Settings → Discovery. */
+    ondiscoveryconfigure?: () => void;
+    /** Called when the button is active and clicked — opens the
+     *  Discover modal in 'apps' mode. */
+    ondiscoveryscan?: () => void;
   } = $props();
 
   // Capability state for the "Discover from Docker" button. Loaded
@@ -215,7 +221,10 @@
                  {discoveryButtonState === 'active' ? 'btn-secondary' : ''}
                  {discoveryButtonState === 'cta' ? 'btn-secondary' : ''}
                  {discoveryButtonState === 'unreachable' || discoveryButtonState === 'strategy_blocked' ? 'btn-secondary opacity-50 cursor-not-allowed' : ''}"
-          onclick={() => ondiscoveryclick?.()}
+          onclick={() => {
+            if (discoveryButtonState === 'active') ondiscoveryscan?.();
+            else ondiscoveryconfigure?.();
+          }}
           disabled={discoveryButtonState === 'unreachable' || discoveryButtonState === 'strategy_blocked'}
           title={discoveryTooltip}
           type="button"

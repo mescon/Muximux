@@ -324,3 +324,30 @@ export interface DiscoveryTLSConfig {
   client_cert?: string;
   client_key?: string;
 }
+
+// DiscoverySuggestion mirrors discovery.Suggestion on the backend.
+// Returned by /api/discovery/docker/scan; consumed by the Discover
+// modal which lets the operator edit fields and pick which to import.
+export interface DiscoverySuggestion {
+  key: string;
+  stability: 'stable' | 'recreate-fragile' | 'task-fragile';
+  name: string;
+  icon?: string;
+  group?: string;
+  url: string;
+  health_url?: string;
+  effective_strategy: string;
+  container_id: string;
+  container_name?: string;
+  image_ref: string;
+  confidence: 'high' | 'medium' | 'low';
+  requires_input?: boolean;
+  notes?: string[];
+  suggested_domain?: string;
+}
+
+export interface DiscoveryScanResult {
+  suggestions?: DiscoverySuggestion[];
+  scan_blocked?: string;
+  error?: string;
+}

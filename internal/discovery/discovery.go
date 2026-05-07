@@ -199,6 +199,94 @@ func (s *Service) cacheStatus(r *StatusResult) {
 	s.mu.Unlock()
 }
 
+// ScanResult is the body returned by GET /api/discovery/docker/scan.
+//
+// Two shapes:
+//
+//   - When the daemon is reachable and the strategy is satisfied,
+//     Suggestions is populated and ScanBlocked is empty.
+//   - When the strategy needs network membership (container_ip /
+//     container_dns) and self-detect failed AND no NetworkFilter is
+//     set, Suggestions is nil and ScanBlocked carries an actionable
+//     message. The frontend renders that message inline rather than
+//     showing an empty list.
+type ScanResult struct {
+	Suggestions []Suggestion `json:"suggestions,omitempty"`
+	ScanBlocked string       `json:"scan_blocked,omitempty"`
+	Error       string       `json:"error,omitempty"`
+}
+
+// Scan enumerates the daemon's running containers and produces a
+// suggestion per container. Honors the discovery config's
+// NetworkFilter (limits to containers attached to that docker
+// network) and refuses to enumerate when network strategy + self-
+// detect failure would expose containers across trust boundaries.
+//
+// dashboardDomain is read from the calling Server's configured
+// server.tls.domain so the modal can prefill suggested gateway-site
+// domains as "<container>.<dashboard-domain>" without us reaching
+// into the wider config from inside this package.
+func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
+	if !s.cfg.Enabled {
+		return ScanResult{ScanBlocked: "Docker discovery is disabled. Enable it in Settings → Discovery."}
+	}
+	s.mu.RLock()
+	client := s.client
+	s.mu.RUnlock()
+	if client == nil {
+		return ScanResult{Error: "discovery client not initialised; check Settings → Discovery"}
+	}
+
+	// Strategy gating: container_ip / container_dns need either a
+	// successful self-detect OR an explicit network_filter. Without
+	// either, we'd be enumerating containers across every network
+	// visible to the daemon - a scope we don't control.
+	switch s.cfg.NetworkStrategy {
+	case "", "container_ip", "container_dns":
+		if s.cfg.NetworkFilter == "" {
+			s.mu.RLock()
+			info := s.selfInfo
+			selfErr := s.selfErr
+			checked := s.selfChecked
+			s.mu.RUnlock()
+			if !checked {
+				info, selfErr = client.InspectSelf(ctx)
+				s.mu.Lock()
+				s.selfChecked = true
+				s.selfInfo = info
+				s.selfErr = selfErr
+				s.mu.Unlock()
+			}
+			if selfErr != nil || info == nil {
+				return ScanResult{ScanBlocked: "Could not identify the container Muximux is running in. " +
+					"This usually means: (1) cgroups v2 without a recognisable container ID in /proc/self/cgroup, " +
+					"or (2) the container was started with --hostname overriding the default. " +
+					"To proceed: set discovery.docker.network_filter to scope discovery to a specific docker network, " +
+					"or switch network_strategy to host_port."}
+			}
+		}
+	}
+
+	containers, err := client.ListContainers(ctx, ListContainersOpts{
+		All:     false,
+		Network: s.cfg.NetworkFilter,
+	})
+	if err != nil {
+		return ScanResult{Error: err.Error()}
+	}
+
+	out := ScanResult{Suggestions: make([]Suggestion, 0, len(containers))}
+	for i := range containers {
+		out.Suggestions = append(out.Suggestions, suggestForContainer(
+			&containers[i],
+			s.cfg.NetworkStrategy,
+			s.cfg.HostIP,
+			dashboardDomain,
+		))
+	}
+	return out
+}
+
 // tlsHygieneWarning reads file modes for the configured client_key
 // and returns a non-empty warning string when the key is world-readable.
 // Other file errors (missing, unparseable) surface via NewClient and

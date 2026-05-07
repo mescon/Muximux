@@ -1,0 +1,239 @@
+<script lang="ts">
+  import { onMount } from 'svelte';
+  import type { DiscoverySuggestion } from '$lib/types';
+  import { scanDockerContainers } from '$lib/api';
+
+  // mode controls per-row default behaviour. Same modal opens from
+  // either the Apps tab (operator wants apps in the menu) or the
+  // Gateway tab (operator wants subdomains, no menu entry):
+  //   'apps'     - default each row to "create app", gateway off
+  //   'gateway'  - default each row to "no app", gateway on
+  // The operator can flip both per row regardless of opener.
+  type Mode = 'apps' | 'gateway';
+
+  let { open = $bindable(false), mode = 'apps' as Mode, onclose }: {
+    open: boolean;
+    mode?: Mode;
+    onclose: () => void;
+  } = $props();
+
+  // Scan state.
+  type RowState = {
+    s: DiscoverySuggestion;
+    selected: boolean;
+    createApp: boolean;
+    createGateway: boolean;
+    gatewayDomain: string;
+    nameOverride: string;
+  };
+
+  let scanning = $state(false);
+  let scanError = $state<string | null>(null);
+  let scanBlocked = $state<string | null>(null);
+  let rows = $state<RowState[]>([]);
+
+  // Re-scan when the modal opens; reset state every time so the
+  // operator gets fresh suggestions and can't accidentally import
+  // stale data after the daemon state changed.
+  $effect(() => {
+    if (open) load();
+  });
+
+  async function load() {
+    scanning = true;
+    scanError = null;
+    scanBlocked = null;
+    rows = [];
+    try {
+      const r = await scanDockerContainers();
+      if (r.scan_blocked) {
+        scanBlocked = r.scan_blocked;
+        return;
+      }
+      if (r.error) {
+        scanError = r.error;
+        return;
+      }
+      rows = (r.suggestions ?? []).map((s) => ({
+        s,
+        selected: false,
+        // Per-mode defaults documented above.
+        createApp: mode === 'apps',
+        createGateway: mode === 'gateway' && !!s.suggested_domain,
+        gatewayDomain: s.suggested_domain ?? '',
+        nameOverride: s.name,
+      }));
+    } catch (e) {
+      scanError = e instanceof Error ? e.message : 'Scan failed';
+    } finally {
+      scanning = false;
+    }
+  }
+
+  // Selection helpers. The "Select all" checkbox toggles every row's
+  // `selected` flag; the visible counter at the bottom uses these.
+  let selectedCount = $derived(rows.filter(r => r.selected).length);
+  let allSelected = $derived(rows.length > 0 && rows.every(r => r.selected));
+
+  function toggleAll() {
+    const v = !allSelected;
+    rows = rows.map(r => ({ ...r, selected: v }));
+  }
+
+  function stabilityHint(s: DiscoverySuggestion): { tone: 'gray' | 'amber' | 'red'; tip: string } {
+    switch (s.stability) {
+      case 'recreate-fragile':
+        return { tone: 'amber', tip: 'This container name will change on docker-compose --force-recreate. Add label muximux.discovery.id=<stable-key> for reliable tracking.' };
+      case 'task-fragile':
+        return { tone: 'red', tip: 'Swarm task name; reschedule will break tracking. Strongly recommend a muximux.discovery.id label.' };
+      default:
+        return { tone: 'gray', tip: 'Stable identifier.' };
+    }
+  }
+
+  // Phase D wires the actual import; for now the button explains that.
+  let importNotImplementedYet = true;
+</script>
+
+{#if open}
+  <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true">
+    <div class="bg-bg-base border border-border rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <header class="px-5 py-4 border-b border-border flex items-center justify-between">
+        <div>
+          <h2 class="text-lg font-semibold text-text-primary">Discover from Docker</h2>
+          <p class="text-xs text-text-muted mt-0.5">
+            {#if mode === 'apps'}
+              Each container becomes an app in your menu by default. Toggle "Gateway" to also expose it on a subdomain.
+            {:else}
+              Each container becomes a gateway-only subdomain by default. Toggle "App" to also add it to the dashboard menu.
+            {/if}
+          </p>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick={onclose} type="button">Close</button>
+      </header>
+
+      <div class="flex-1 overflow-y-auto p-5">
+        {#if scanning}
+          <div class="text-text-muted text-sm">Scanning Docker daemon…</div>
+        {:else if scanBlocked}
+          <div class="p-3 rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-300 text-sm">
+            <div class="font-medium mb-1">Scan blocked</div>
+            <div>{scanBlocked}</div>
+          </div>
+        {:else if scanError}
+          <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 text-sm">
+            <div class="font-medium mb-1">Scan failed</div>
+            <div>{scanError}</div>
+          </div>
+        {:else if rows.length === 0}
+          <div class="text-text-muted text-sm">
+            No running containers found on the configured daemon. Containers must be running and (when network_strategy is container_ip) attached to a network Muximux can reach.
+          </div>
+        {:else}
+          <div class="mb-3 flex items-center gap-2 text-sm">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" checked={allSelected} onchange={toggleAll} />
+              <span class="text-text-secondary">Select all</span>
+            </label>
+            <span class="text-text-muted">·</span>
+            <span class="text-text-muted">{selectedCount} of {rows.length} selected</span>
+          </div>
+
+          <div class="space-y-2">
+            {#each rows as row (row.s.key)}
+              {@const sh = stabilityHint(row.s)}
+              <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
+                          {row.selected ? 'ring-1 ring-brand-500/50' : ''}">
+                <div class="flex items-start gap-3">
+                  <input type="checkbox" bind:checked={row.selected} class="mt-1" />
+
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 flex-wrap">
+                      <input
+                        type="text"
+                        bind:value={row.nameOverride}
+                        class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle focus:border-brand-500 focus:outline-none px-1"
+                      />
+                      <span class="text-xs px-1.5 py-0.5 rounded
+                                   {row.s.confidence === 'high' ? 'bg-green-500/15 text-green-300' : ''}
+                                   {row.s.confidence === 'medium' ? 'bg-blue-500/15 text-blue-300' : ''}
+                                   {row.s.confidence === 'low' ? 'bg-gray-500/15 text-gray-300' : ''}">
+                        {row.s.confidence}
+                      </span>
+                      {#if sh.tone !== 'gray'}
+                        <span class="text-xs px-1.5 py-0.5 rounded
+                                     {sh.tone === 'amber' ? 'bg-amber-500/15 text-amber-300' : ''}
+                                     {sh.tone === 'red' ? 'bg-red-500/15 text-red-300' : ''}"
+                              title={sh.tip}>
+                          {row.s.stability}
+                        </span>
+                      {/if}
+                    </div>
+
+                    <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-text-muted">
+                      <span><span class="text-text-secondary">image:</span> {row.s.image_ref}</span>
+                      <span><span class="text-text-secondary">key:</span> <code>{row.s.key}</code></span>
+                      <span><span class="text-text-secondary">strategy:</span> {row.s.effective_strategy}</span>
+                    </div>
+
+                    {#if row.s.url}
+                      <div class="mt-1 text-xs text-text-secondary">
+                        <span class="text-text-muted">URL:</span> <code>{row.s.url}</code>
+                      </div>
+                    {:else}
+                      <div class="mt-1 text-xs text-amber-300">
+                        ⚠ No URL could be built — fix port / strategy in Settings → Discovery before importing.
+                      </div>
+                    {/if}
+
+                    {#if row.s.notes && row.s.notes.length > 0}
+                      <details class="mt-1 text-xs text-text-muted">
+                        <summary class="cursor-pointer">Notes ({row.s.notes.length})</summary>
+                        <ul class="mt-1 ml-4 list-disc">
+                          {#each row.s.notes as n}<li>{n}</li>{/each}
+                        </ul>
+                      </details>
+                    {/if}
+
+                    <div class="mt-3 flex flex-wrap gap-4 text-xs">
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" bind:checked={row.createApp} disabled={row.s.requires_input} />
+                        <span class="text-text-primary">Add to menu</span>
+                      </label>
+                      <label class="flex items-center gap-1.5 cursor-pointer">
+                        <input type="checkbox" bind:checked={row.createGateway} />
+                        <span class="text-text-primary">Add gateway site</span>
+                      </label>
+                      {#if row.createGateway}
+                        <input
+                          type="text"
+                          bind:value={row.gatewayDomain}
+                          placeholder="sonarr.example.com"
+                          class="text-xs px-2 py-0.5 bg-bg-base border border-border-subtle rounded text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-500"
+                        />
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
+      <footer class="px-5 py-3 border-t border-border flex items-center justify-between gap-2">
+        <span class="text-xs text-text-muted">
+          {#if importNotImplementedYet}
+            Import flow lands in Phase D — for now the modal lets you preview suggestions and verify the scan works.
+          {/if}
+        </span>
+        <div class="flex gap-2">
+          <button class="btn btn-secondary btn-sm" onclick={load} disabled={scanning} type="button">Re-scan</button>
+          <button class="btn btn-primary btn-sm" disabled={importNotImplementedYet || selectedCount === 0} type="button">
+            Import {selectedCount} selected
+          </button>
+        </div>
+      </footer>
+    </div>
+  </div>
+{/if}

@@ -196,6 +196,45 @@ func TestUpdateDockerConfig_RejectsBadShape(t *testing.T) {
 	}
 }
 
+func TestScanDocker_NilService(t *testing.T) {
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan")
+	w := httptest.NewRecorder()
+	h.ScanDocker(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	var got discovery.ScanResult
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.ScanBlocked == "" {
+		t.Errorf("ScanBlocked empty, want a hint about enabling discovery")
+	}
+}
+
+func TestScanDocker_DisabledServiceBlocks(t *testing.T) {
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan")
+	w := httptest.NewRecorder()
+	h.ScanDocker(w, req)
+	var got discovery.ScanResult
+	_ = json.NewDecoder(w.Body).Decode(&got)
+	if got.ScanBlocked == "" {
+		t.Errorf("ScanBlocked empty, want a hint")
+	}
+}
+
+func TestScanDocker_RejectsNonGet(t *testing.T) {
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	req := adminCtxRequest(http.MethodPost, "/api/discovery/docker/scan")
+	w := httptest.NewRecorder()
+	h.ScanDocker(w, req)
+	if w.Code != http.StatusMethodNotAllowed {
+		t.Errorf("status = %d, want 405", w.Code)
+	}
+}
+
 func TestTestDockerConfig_RoundtripsCandidateWithoutPersisting(t *testing.T) {
 	h, cfg, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
 
