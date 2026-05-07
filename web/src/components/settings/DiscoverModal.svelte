@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { DiscoverySuggestion } from '$lib/types';
-  import { scanDockerContainers } from '$lib/api';
+  import type { DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult } from '$lib/types';
+  import { scanDockerContainers, importDockerSuggestions } from '$lib/api';
 
   // mode controls per-row default behaviour. Same modal opens from
   // either the Apps tab (operator wants apps in the menu) or the
@@ -11,10 +11,13 @@
   // The operator can flip both per row regardless of opener.
   type Mode = 'apps' | 'gateway';
 
-  let { open = $bindable(false), mode = 'apps' as Mode, onclose }: {
+  let { open = $bindable(false), mode = 'apps' as Mode, onclose, onimported }: {
     open: boolean;
     mode?: Mode;
     onclose: () => void;
+    /** Fired after a successful import so the parent can refresh
+     *  the apps / gateway lists. */
+    onimported?: () => void;
   } = $props();
 
   // Scan state.
@@ -91,8 +94,64 @@
     }
   }
 
-  // Phase D wires the actual import; for now the button explains that.
-  let importNotImplementedYet = true;
+  // Import state. importing tracks the in-flight POST; importResult
+  // holds the per-item statuses so we can render badges on each row
+  // after the response. importTopError is for transport-level
+  // failures (network, 500); per-item errors live in importResult.
+  let importing = $state(false);
+  let importResult = $state<DiscoveryImportResult | null>(null);
+  let importTopError = $state<string | null>(null);
+
+  async function runImport() {
+    importing = true;
+    importResult = null;
+    importTopError = null;
+    try {
+      const items: DiscoveryImportItem[] = rows
+        .filter(r => r.selected && (r.createApp || r.createGateway))
+        .map(r => {
+          const item: DiscoveryImportItem = {
+            key: r.s.key,
+            strategy: r.s.effective_strategy,
+          };
+          if (r.createApp) {
+            item.app = {
+              name: r.nameOverride.trim() || r.s.name,
+              url: r.s.url,
+              icon: { type: 'dashboard', name: r.s.icon ?? '' },
+              group: r.s.group ?? '',
+              health_url: r.s.health_url,
+              enabled: true,
+            };
+          }
+          if (r.createGateway) {
+            item.gateway = {
+              domain: r.gatewayDomain.trim(),
+              backend_url: r.s.url,
+              tls: 'auto',
+            };
+          }
+          return item;
+        });
+      if (items.length === 0) return;
+
+      const res = await importDockerSuggestions({ items });
+      importResult = res;
+      if (res.success) {
+        onimported?.();
+      }
+    } catch (e) {
+      importTopError = e instanceof Error ? e.message : 'Import failed';
+    } finally {
+      importing = false;
+    }
+  }
+
+  // Per-row status lookup for badge rendering. Keyed on suggestion.key
+  // because that's the stable identifier the import endpoint preserves.
+  function statusFor(key: string) {
+    return importResult?.items.find(i => i.key === key);
+  }
 </script>
 
 {#if open}
@@ -168,6 +227,18 @@
                           {row.s.stability}
                         </span>
                       {/if}
+                      {#if statusFor(row.s.key)}
+                        {@const st = statusFor(row.s.key)!}
+                        <span class="text-xs px-1.5 py-0.5 rounded font-medium
+                                     {st.status === 'created' ? 'bg-green-500/15 text-green-300' : ''}
+                                     {st.status === 'skipped_exists' ? 'bg-blue-500/15 text-blue-300' : ''}
+                                     {st.status === 'validation_failed' ? 'bg-red-500/15 text-red-300' : ''}
+                                     {st.status === 'name_collision_in_batch' ? 'bg-red-500/15 text-red-300' : ''}
+                                     {st.status === 'aborted_by_batch_failure' ? 'bg-amber-500/15 text-amber-300' : ''}"
+                              title={st.error || st.status}>
+                          {st.status.replace(/_/g, ' ')}
+                        </span>
+                      {/if}
                     </div>
 
                     <div class="mt-1 flex flex-wrap gap-x-3 gap-y-0.5 text-xs text-text-muted">
@@ -222,15 +293,21 @@
       </div>
 
       <footer class="px-5 py-3 border-t border-border flex items-center justify-between gap-2">
-        <span class="text-xs text-text-muted">
-          {#if importNotImplementedYet}
-            Import flow lands in Phase D — for now the modal lets you preview suggestions and verify the scan works.
+        <span class="text-xs">
+          {#if importTopError}
+            <span class="text-red-300">{importTopError}</span>
+          {:else if importResult && importResult.success}
+            <span class="text-green-300">Import succeeded ({importResult.items.length} items)</span>
+          {:else if importResult && !importResult.success}
+            <span class="text-red-300">{importResult.error || 'Import failed - see per-row status'}</span>
+          {:else}
+            <span class="text-text-muted">{selectedCount} of {rows.length} selected</span>
           {/if}
         </span>
         <div class="flex gap-2">
-          <button class="btn btn-secondary btn-sm" onclick={load} disabled={scanning} type="button">Re-scan</button>
-          <button class="btn btn-primary btn-sm" disabled={importNotImplementedYet || selectedCount === 0} type="button">
-            Import {selectedCount} selected
+          <button class="btn btn-secondary btn-sm" onclick={load} disabled={scanning || importing} type="button">Re-scan</button>
+          <button class="btn btn-primary btn-sm" onclick={runImport} disabled={importing || selectedCount === 0} type="button">
+            {importing ? 'Importing…' : `Import ${selectedCount} selected`}
           </button>
         </div>
       </footer>

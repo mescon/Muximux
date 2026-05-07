@@ -475,7 +475,8 @@ func ConfigGatewaySitesToProxy(sites []config.GatewaySite) []proxy.GatewaySite {
 		return nil
 	}
 	out := make([]proxy.GatewaySite, len(sites))
-	for i, s := range sites {
+	for i := range sites {
+		s := &sites[i]
 		out[i] = proxy.GatewaySite{
 			Domain:             s.Domain,
 			BackendURL:         s.BackendURL,

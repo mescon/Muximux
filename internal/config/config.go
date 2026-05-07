@@ -186,6 +186,12 @@ type GatewaySite struct {
 	// App's URL is derived from this site's Domain and locked in
 	// the App form so the two stay in sync.
 	AppName string `yaml:"app_name,omitempty" json:"app_name,omitempty"`
+
+	// Docker auto-management. Same semantics as AppConfig: BackendURL
+	// is refreshed by the discovery poller while DockerKey is set.
+	DockerKey      string `yaml:"docker_key,omitempty" json:"docker_key,omitempty"`
+	DockerEndpoint string `yaml:"docker_endpoint,omitempty" json:"docker_endpoint,omitempty"`
+	DockerStrategy string `yaml:"docker_strategy,omitempty" json:"docker_strategy,omitempty"`
 }
 
 type ServerConfig struct {
@@ -352,6 +358,16 @@ type AppConfig struct {
 	// the embedded iframe can postMessage {type: 'muximux:notify', title, body, tag}
 	// to request a browser notification via Muximux's top-level origin.
 	AllowNotifications bool `yaml:"allow_notifications,omitempty" json:"allow_notifications,omitempty"`
+
+	// Docker auto-management. When DockerKey is non-empty, the URL of
+	// this app is updated by the discovery poller from the current
+	// state of the matching container. Editing the URL through the
+	// API or YAML detaches the app via the dedicated DELETE endpoint
+	// (the SaveConfig path preserves these fields when omitted, so a
+	// frontend bug or scripted PUT cannot accidentally clear tracking).
+	DockerKey      string `yaml:"docker_key,omitempty" json:"docker_key,omitempty"`
+	DockerEndpoint string `yaml:"docker_endpoint,omitempty" json:"docker_endpoint,omitempty"`
+	DockerStrategy string `yaml:"docker_strategy,omitempty" json:"docker_strategy,omitempty"`
 }
 
 // AppIconConfig holds app icon settings
@@ -559,12 +575,13 @@ func validateGatewaySites(sites []GatewaySite, cfg *Config) error {
 	// analyzer's last-write-wins concern).
 	appNameSeen := make(map[string]int, len(sites))
 	seen := make(map[string]struct{}, len(sites))
-	for i, s := range sites {
+	for i := range sites {
+		s := &sites[i]
 		var srv *ServerConfig
 		if cfg != nil {
 			srv = &cfg.Server
 		}
-		if err := validateGatewaySite(&sites[i], srv); err != nil {
+		if err := validateGatewaySite(s, srv); err != nil {
 			return fmt.Errorf("gateway_sites[%d] (%q): %w", i, s.Domain, err)
 		}
 		// Domain matching is case-insensitive in DNS land; canonicalise

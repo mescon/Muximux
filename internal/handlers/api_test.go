@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -1216,6 +1217,57 @@ func TestSaveConfigSaveFails(t *testing.T) {
 	}
 	if len(cfg.Apps) != priorAppCount {
 		t.Errorf("Apps length not rolled back: got %d, want %d", len(cfg.Apps), priorAppCount)
+	}
+}
+
+// TestSaveConfig_PreservesDockerTrackingFields covers the codebase
+// review fix #1 from the docker-discovery plan: when the frontend
+// sends a SaveConfig payload that omits the docker_key field, we
+// must NOT clear the existing tracking. Otherwise a stale frontend
+// (or a scripted PUT) silently detaches the app from auto-management.
+func TestSaveConfig_PreservesDockerTrackingFields(t *testing.T) {
+	cfg := createTestConfig()
+	// Mark App1 as docker-tracked.
+	cfg.Apps[0].DockerKey = "name:sonarr"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+
+	// Send a SaveConfig payload that's missing docker_key entirely on App1.
+	// The bulk-merge code path must restore it from the existing entry.
+	update := ClientConfigUpdate{
+		Title:      "Same",
+		Navigation: cfg.Navigation,
+		Groups:     cfg.Groups,
+		Apps: []ClientAppConfig{
+			{Name: "App1", URL: "http://localhost:8080", Group: "Media", Enabled: true},
+			{Name: "App2", URL: "http://localhost:8081", Group: "Tools", Enabled: true, Proxy: true},
+			{Name: "DisabledApp", URL: "http://localhost:8082", Group: "Media"},
+		},
+	}
+	body, _ := json.Marshal(update)
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+
+	// App1's docker tracking must survive the bulk save.
+	if cfg.Apps[0].DockerKey != "name:sonarr" {
+		t.Errorf("DockerKey was cleared: %+v", cfg.Apps[0])
+	}
+	if cfg.Apps[0].DockerEndpoint != "unix:///var/run/docker.sock" {
+		t.Errorf("DockerEndpoint was cleared: %+v", cfg.Apps[0])
+	}
+	if cfg.Apps[0].DockerStrategy != "container_ip" {
+		t.Errorf("DockerStrategy was cleared: %+v", cfg.Apps[0])
 	}
 }
 

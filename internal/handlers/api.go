@@ -416,6 +416,9 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 		ForceIconBackground: c.ForceIconBackground,
 		Permissions:         c.Permissions,
 		AllowNotifications:  c.AllowNotifications,
+		DockerKey:           c.DockerKey,
+		DockerEndpoint:      c.DockerEndpoint,
+		DockerStrategy:      c.DockerStrategy,
 	}
 }
 
@@ -428,6 +431,19 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 	if existing, ok := existingApps[clientApp.Name]; ok {
 		app.AuthBypass = existing.AuthBypass
 		app.Access = existing.Access
+		// Docker tracking fields are preserved when the incoming
+		// payload omits them. The frontend echoes them back as
+		// read-only, but a buggy or scripted PUT without them would
+		// otherwise zero the tracking and silently detach the app
+		// from auto-management. Empty-string treated as "no change",
+		// not "explicit clear" - the only sanctioned detach path is
+		// DELETE /api/discovery/docker/track/{key} (Phase F), which
+		// emits a distinct audit log entry. (codebase review fix #1)
+		if clientApp.DockerKey == "" {
+			app.DockerKey = existing.DockerKey
+			app.DockerEndpoint = existing.DockerEndpoint
+			app.DockerStrategy = existing.DockerStrategy
+		}
 	}
 
 	return app
@@ -809,7 +825,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 	} else {
 		url = stripURLCredentials(url)
 	}
-	return ClientAppConfig{
+	out := ClientAppConfig{
 		Name:                app.Name,
 		URL:                 url,
 		HealthURL:           stripURLCredentialsIf(!isAdmin, app.HealthURL),
@@ -833,6 +849,16 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 		Permissions:         app.Permissions,
 		AllowNotifications:  app.AllowNotifications,
 	}
+	// Docker tracking fields go to admins only - they reference a
+	// privileged daemon endpoint and a tracking key that's not useful
+	// to non-admin users. Admins need them so the App form can show
+	// the docker badge + lock-on-edit prompt (Phase F).
+	if isAdmin {
+		out.DockerKey = app.DockerKey
+		out.DockerEndpoint = app.DockerEndpoint
+		out.DockerStrategy = app.DockerStrategy
+	}
+	return out
 }
 
 // stripURLCredentials removes any userinfo component (user / user:pass)
@@ -890,6 +916,16 @@ type ClientAppConfig struct {
 	// hint, not an enforcement: the URL field stays editable and is
 	// what actually drives the dashboard iframe.
 	GatewayDomain string `json:"gateway_domain,omitempty"`
+
+	// Docker tracking fields. The frontend treats these as read-only
+	// echo: it sends back what the server sent. mergeClientApp also
+	// preserves them when the incoming payload omits them entirely,
+	// so a buggy or scripted PUT cannot accidentally clear tracking
+	// (the only sanctioned detach path is DELETE
+	// /api/discovery/docker/track/{key} - landing in Phase F).
+	DockerKey      string `json:"docker_key,omitempty"`
+	DockerEndpoint string `json:"docker_endpoint,omitempty"`
+	DockerStrategy string `json:"docker_strategy,omitempty"`
 }
 
 // sanitizeApps removes sensitive fields and filters by role and group

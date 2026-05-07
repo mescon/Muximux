@@ -351,3 +351,30 @@ export interface DiscoveryScanResult {
   scan_blocked?: string;
   error?: string;
 }
+
+// Discovery import. Mirrors handlers.ImportRequest / ImportResult.
+export interface DiscoveryImportItem {
+  key: string;
+  strategy: string;
+  app?: Partial<App> | null;
+  gateway?: GatewaySite | null;
+  skip_if_exists?: boolean;
+}
+
+export interface DiscoveryImportRequest {
+  items: DiscoveryImportItem[];
+}
+
+export interface DiscoveryImportItemResult {
+  key: string;
+  status: 'created' | 'skipped_exists' | 'validation_failed' | 'name_collision_in_batch' | 'aborted_by_batch_failure';
+  error?: string;
+  app_name?: string;
+  domain?: string;
+}
+
+export interface DiscoveryImportResult {
+  success: boolean;
+  error?: string;
+  items: DiscoveryImportItemResult[];
+}

@@ -234,6 +234,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.UpdateDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/scan", requireAdmin(discoveryHandler.ScanDocker))
+	mux.HandleFunc("/api/discovery/docker/import", requireAdmin(discoveryHandler.ImportDocker))
 
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {

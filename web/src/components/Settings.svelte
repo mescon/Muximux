@@ -17,7 +17,7 @@
   import { get } from 'svelte/store';
   import { selectedFamily, variantMode, setThemeFamily, setVariantMode } from '$lib/themeStore';
   import { isMobileViewport } from '$lib/useSwipe';
-  import { exportConfig, parseImportedConfig, type ImportedConfig } from '$lib/api';
+  import { exportConfig, parseImportedConfig, fetchConfig, type ImportedConfig } from '$lib/api';
   import { toasts } from '$lib/toastStore';
   import { getKeybindingsForConfig } from '$lib/keybindingsStore';
   import { appSchema, groupSchema, extractErrors } from '$lib/schemas';
@@ -590,7 +590,35 @@
 <!-- Discover-from-Docker modal. Lives outside the tabs so it can be
      opened from either the Apps tab or the Gateway tab without
      re-mounting. -->
-<DiscoverModal bind:open={showDiscoverModal} mode={discoverMode} onclose={() => { showDiscoverModal = false; }} />
+<DiscoverModal
+  bind:open={showDiscoverModal}
+  mode={discoverMode}
+  onclose={() => { showDiscoverModal = false; }}
+  onimported={async () => {
+    // Reload the freshly-imported apps + groups so the operator
+    // sees them in the underlying tabs without a manual refresh.
+    // Gateway sites are reloaded inside GatewayTab when the modal
+    // closes (it has its own load() in onMount + we trigger via a
+    // re-mount on tab switch).
+    try {
+      const fresh = await fetchConfig();
+      localConfig = fresh;
+      localApps = (fresh.apps as App[]).map(a => makeApp(JSON.parse(JSON.stringify(a))));
+      localApps.forEach(stampAppId);
+      dndGroups = [...localConfig.groups];
+      dndGroupedApps = (() => {
+        const grouped: Record<string, App[]> = {};
+        for (const g of localConfig.groups) grouped[g.name] = [];
+        for (const app of localApps) {
+          const g = app.group || (localConfig.groups[0]?.name || 'Default');
+          if (!grouped[g]) grouped[g] = [];
+          grouped[g].push(app);
+        }
+        return grouped;
+      })();
+    } catch { /* ignore - operator can refresh manually */ }
+  }}
+/>
 
 <!-- Add App Modal -->
 {#if showAddApp}
