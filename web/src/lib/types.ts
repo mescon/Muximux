@@ -285,3 +285,42 @@ export interface UpdateInfo {
   published_at: string;
   download_urls: Record<string, string>;
 }
+
+// DiscoveryDockerStatus mirrors discovery.StatusResult on the backend.
+// The four-state UI gating ladder (CTA / disabled-unreachable /
+// disabled-strategy / active) reads Configured + Reachable +
+// StrategyOK in combination.
+export interface DiscoveryDockerStatus {
+  configured: boolean;
+  reachable: boolean;
+  strategy_ok: boolean;
+  endpoint?: string;
+  api_version?: string;
+  strategy?: string;
+  self_detect_method?: string;
+  last_error?: string;
+  refresh_divergences?: number;
+  last_divergence_at?: string;
+  recovered_at?: string;
+  last_refresh_at?: string;
+  tls_warning?: string;
+}
+
+// DiscoveryDockerConfig mirrors config.DiscoveryDockerConfig. Sent to
+// PUT /api/discovery/docker/config and POST /api/discovery/docker/test.
+export interface DiscoveryDockerConfig {
+  enabled: boolean;
+  endpoint: string;
+  tls: DiscoveryTLSConfig;
+  network_strategy: 'container_ip' | 'container_dns' | 'host_port' | 'host_docker_internal' | '';
+  host_ip?: string;
+  network_filter?: string;
+  refresh_interval: string;
+}
+
+export interface DiscoveryTLSConfig {
+  enabled: boolean;
+  ca_cert?: string;
+  client_cert?: string;
+  client_key?: string;
+}

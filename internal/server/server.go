@@ -229,8 +229,10 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Admin-only because the response leaks daemon endpoint, API
 	// version, and the operator's TLS-hygiene state.
 	s.discoveryService = discovery.NewService(&cfg.Discovery.Docker)
-	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService)
+	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
+	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.UpdateDockerConfig))
+	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
 
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {

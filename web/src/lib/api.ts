@@ -1,4 +1,4 @@
-import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse } from './types';
+import type { Config, App, Group, SetupRequest, SetupResponse, UserInfo, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest, SystemInfo, UpdateInfo, LogEntry, GatewaySite, GatewayMutationResponse, GatewayValidationResponse, DiscoveryDockerStatus, DiscoveryDockerConfig } from './types';
 
 /** Returns the configured base path (e.g. "/muximux") or "" if none. */
 export function getBase(): string {
@@ -454,4 +454,17 @@ export async function fetchSystemInfo(): Promise<SystemInfo> {
 
 export async function checkForUpdates(): Promise<UpdateInfo> {
   return fetchJSON<UpdateInfo>('/system/updates');
+}
+
+// Discovery (Docker auto-discovery). Phase B endpoints.
+export async function fetchDiscoveryDockerStatus(): Promise<DiscoveryDockerStatus> {
+  return fetchJSON<DiscoveryDockerStatus>('/discovery/docker/status');
+}
+
+export async function updateDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): Promise<DiscoveryDockerStatus> {
+  return putJSON<DiscoveryDockerConfig, DiscoveryDockerStatus>('/discovery/docker/config', cfg);
+}
+
+export async function testDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): Promise<DiscoveryDockerStatus> {
+  return postJSON<DiscoveryDockerConfig, DiscoveryDockerStatus>('/discovery/docker/test', cfg);
 }

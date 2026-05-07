@@ -9,6 +9,7 @@
   import AboutTab from './settings/AboutTab.svelte';
   import AppsTab from './settings/AppsTab.svelte';
   import GatewayTab from './settings/GatewayTab.svelte';
+  import DiscoveryTab from './settings/DiscoveryTab.svelte';
   import GeneralTab from './settings/GeneralTab.svelte';
   import SecurityTab from './settings/SecurityTab.svelte';
   import ThemeTab from './settings/ThemeTab.svelte';
@@ -31,7 +32,7 @@
   }: {
     config: Config;
     apps: App[];
-    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'gateway' | 'about';
+    initialTab?: 'general' | 'apps' | 'theme' | 'keybindings' | 'security' | 'gateway' | 'discovery' | 'about';
     onclose?: () => void;
     onsave?: (config: Config) => void;
   } = $props();
@@ -500,6 +501,7 @@
         { id: 'keybindings', get label() { return m.settings_keybindings(); } },
         { id: 'security', get label() { return m.settings_security(); } },
         { id: 'gateway', get label() { return m.settings_gateway(); } },
+        { id: 'discovery', get label() { return 'Discovery'; } },
         { id: 'about', get label() { return m.settings_about(); } }
       ] as tab (tab.id)}
         <button
@@ -534,6 +536,7 @@
           onshowAddGroup={() => { groupErrors = {}; showAddGroup = true; }}
           onsyncGroupOrder={syncGroupOrder}
           onsyncAppOrder={syncAppOrder}
+          ondiscoveryclick={() => { activeTab = 'discovery'; }}
         />
 
       <!-- Theme Settings -->
@@ -551,6 +554,10 @@
       <!-- Gateway sites -->
       {:else if activeTab === 'gateway'}
         <GatewayTab />
+
+      <!-- Discovery (Docker auto-discovery) -->
+      {:else if activeTab === 'discovery'}
+        <DiscoveryTab />
 
       <!-- About -->
       {:else if activeTab === 'about'}

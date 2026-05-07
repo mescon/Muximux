@@ -1,9 +1,11 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { flip } from 'svelte/animate';
-  import { type App, type Group, stampAppId } from '$lib/types';
+  import { type App, type Group, type DiscoveryDockerStatus, stampAppId } from '$lib/types';
   import AppIcon from '../AppIcon.svelte';
   import { dndzone, type DndEvent } from 'svelte-dnd-action';
   import * as m from '$lib/paraglide/messages.js';
+  import { fetchDiscoveryDockerStatus } from '$lib/api';
 
   let {
     dndGroups = $bindable(),
@@ -16,6 +18,7 @@
     onshowAddGroup,
     onsyncGroupOrder,
     onsyncAppOrder,
+    ondiscoveryclick,
   }: {
     dndGroups: Group[];
     dndGroupedApps: Record<string, App[]>;
@@ -27,7 +30,40 @@
     onshowAddGroup: () => void;
     onsyncGroupOrder: (groups: Group[]) => void;
     onsyncAppOrder: (groupName: string, items: App[]) => void;
+    ondiscoveryclick?: () => void;
   } = $props();
+
+  // Capability state for the "Discover from Docker" button. Loaded
+  // once on mount; the button stays mounted with one of four
+  // appearances per the docker-discovery plan's gating ladder:
+  //   - !configured       -> CTA: "Set up Docker discovery →" (link)
+  //   - !reachable        -> disabled with tooltip
+  //   - !strategy_ok      -> disabled with tooltip
+  //   - configured + reachable + strategy_ok -> active (Phase C wires
+  //     the click to the Discover modal; until then click does nothing)
+  let discoveryStatus = $state<DiscoveryDockerStatus | null>(null);
+  onMount(async () => {
+    try { discoveryStatus = await fetchDiscoveryDockerStatus(); } catch { /* admin-only; ignore for non-admins */ }
+  });
+
+  let discoveryButtonState = $derived.by(() => {
+    if (!discoveryStatus) return 'hidden' as const;
+    if (!discoveryStatus.configured) return 'cta' as const;
+    if (!discoveryStatus.reachable) return 'unreachable' as const;
+    if (!discoveryStatus.strategy_ok) return 'strategy_blocked' as const;
+    return 'active' as const;
+  });
+
+  let discoveryTooltip = $derived.by(() => {
+    if (!discoveryStatus) return '';
+    switch (discoveryButtonState) {
+      case 'cta':              return 'Configure a Docker daemon endpoint in Settings → Discovery to enable.';
+      case 'unreachable':      return `Docker daemon unreachable: ${discoveryStatus.last_error ?? 'see Settings → Discovery'}`;
+      case 'strategy_blocked': return `Strategy "${discoveryStatus.strategy}" cannot identify Muximux's container. Set network_filter or switch to host_port in Settings → Discovery.`;
+      case 'active':           return 'Scan the configured Docker daemon for containers and add them as apps.';
+      default:                 return '';
+    }
+  });
 
   // Drag and drop config
   const flipDurationMs = 200;
@@ -173,6 +209,32 @@
   <div class="flex justify-between items-center">
     <h3 class="text-sm font-medium text-text-secondary">{m.apps_heading()}</h3>
     <div class="flex gap-2">
+      {#if discoveryButtonState !== 'hidden'}
+        <button
+          class="btn btn-sm flex items-center gap-1
+                 {discoveryButtonState === 'active' ? 'btn-secondary' : ''}
+                 {discoveryButtonState === 'cta' ? 'btn-secondary' : ''}
+                 {discoveryButtonState === 'unreachable' || discoveryButtonState === 'strategy_blocked' ? 'btn-secondary opacity-50 cursor-not-allowed' : ''}"
+          onclick={() => ondiscoveryclick?.()}
+          disabled={discoveryButtonState === 'unreachable' || discoveryButtonState === 'strategy_blocked'}
+          title={discoveryTooltip}
+          type="button"
+        >
+          <!-- Docker whale (simplified) -->
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M22.6 8.5h-3.7v-3h-3v3h-3v-3h-3v3h-3v-3h-3v3H1.4v3h.7c.7 1 1.6 1.7 2.7 2.1.5.2 1 .3 1.5.3h12.4c2.2 0 4.1-1 5.5-2.7-.6-.2-1.1-.3-1.6-.3z"/>
+          </svg>
+          {#if discoveryButtonState === 'cta'}
+            Set up Docker discovery →
+          {:else if discoveryButtonState === 'unreachable'}
+            Docker discovery unreachable
+          {:else if discoveryButtonState === 'strategy_blocked'}
+            Docker discovery: configure strategy
+          {:else}
+            Discover from Docker
+          {/if}
+        </button>
+      {/if}
       <button
         class="btn btn-secondary btn-sm flex items-center gap-1"
         onclick={onshowAddGroup}
