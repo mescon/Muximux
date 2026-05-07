@@ -180,6 +180,21 @@
           {Math.round(app.scale * 100)}%
         </span>
       {/if}
+      {#if app.docker_key}
+        <span
+          class="app-indicator text-blue-400"
+          title="Auto-managed by Docker discovery. URL refreshes from container {app.docker_key}. Detach via Settings → Discovery → Currently tracked."
+          data-testid="docker-managed-badge"
+          aria-label="Docker-managed"
+        >
+          <!-- Docker whale glyph (simplified). The shape distinguishes
+               docker-managed apps at a glance without competing with
+               the Lucide icon set used elsewhere. -->
+          <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M22.5 11.5h-2.7c-.1-1.4-1.2-2.5-2.6-2.5-.4 0-.8.1-1.2.3V6.4c0-.2-.2-.4-.4-.4h-2.4c-.2 0-.4.2-.4.4v2.9h-1V4.4c0-.2-.2-.4-.4-.4H8.9c-.2 0-.4.2-.4.4v4.9h-1V6.4c0-.2-.2-.4-.4-.4H4.7c-.2 0-.4.2-.4.4v2.9H1.5c-.3 0-.5.2-.5.5 0 1.6.4 3.1 1.1 4.4.7 1.4 1.7 2.4 2.9 3 .3.1.6.3.9.4 1.4.5 2.9.7 4.4.7 1.7 0 3.4-.3 5-.9 1.6-.6 2.9-1.5 3.9-2.7.6-.7 1.1-1.5 1.5-2.4h.3c1 0 1.8-.7 2-1.6.1-.3.1-.5.1-.8 0-.1-.1-.2-.2-.3-.1 0-.2-.1-.3-.1z"/>
+          </svg>
+        </span>
+      {/if}
     </div>
     <span class="text-xs text-text-muted truncate block">{app.url}</span>
   </div>

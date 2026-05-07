@@ -22,6 +22,12 @@ export interface App {
   permissions?: string[];  // browser feature policy: camera, microphone, geolocation, fullscreen, etc.
   allow_notifications?: boolean;  // enable postMessage notification bridge
   gateway_domain?: string;  // populated by the backend when a gateway site references this app via app_name (Phase 4 pairing)
+  // Docker auto-management tracking. When docker_key is set, the
+  // refresh poller is the source of truth for `url` and the Apps
+  // form locks the URL field with a "Detach to edit" prompt.
+  docker_key?: string;
+  docker_endpoint?: string;
+  docker_strategy?: string;
 }
 
 export function getEffectiveUrl(app: App): string {
@@ -199,6 +205,12 @@ export interface GatewaySite {
   proxy_headers?: Record<string, string>;
   forwarded_headers?: boolean;
   app_name?: string;
+  // Docker tracking, mirroring App.docker_key. The poller updates
+  // backend_url every refresh tick when set; the UI locks the
+  // BackendURL field with a Detach prompt.
+  docker_key?: string;
+  docker_endpoint?: string;
+  docker_strategy?: string;
 }
 
 // GatewayMutationResponse covers both the success and failure shapes
@@ -377,4 +389,51 @@ export interface DiscoveryImportResult {
   success: boolean;
   error?: string;
   items: DiscoveryImportItemResult[];
+}
+
+// DiscoveryTrackedEntry mirrors handlers.TrackedEntry. Used by the
+// Currently-tracked subsection in Settings -> Discovery.
+export interface DiscoveryTrackedEntry {
+  kind: 'app' | 'gateway';
+  name: string;
+  key: string;
+  strategy: string;
+  endpoint: string;
+  url: string;
+  last_seen_at?: string;
+  endpoint_matches: boolean;
+}
+
+export interface DiscoveryTrackedListResult {
+  entries: DiscoveryTrackedEntry[];
+  current_endpoint: string;
+}
+
+// Re-link probe: handlers.RelinkProbeResult. Either `container` is
+// set (the tracked key was found on the current endpoint and the
+// frontend just needs a Confirm) or `candidates` lists every running
+// container (the operator must pick one). `error` is set when the
+// daemon refused the list call - rendered inline in the picker.
+export interface DiscoveryRelinkCandidate {
+  key: string;
+  name: string;
+  image: string;
+}
+
+export interface DiscoveryRelinkProbeResult {
+  found: boolean;
+  container?: DiscoveryRelinkCandidate;
+  candidates?: DiscoveryRelinkCandidate[];
+  error?: string;
+}
+
+export interface DiscoveryRelinkConfirmRequest {
+  old_key: string;
+  new_key: string;
+  strategy?: string;
+}
+
+export interface DiscoveryRelinkConfirmResult {
+  updated_apps: string[];
+  updated_sites: string[];
 }

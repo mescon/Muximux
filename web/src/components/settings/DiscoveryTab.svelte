@@ -6,6 +6,12 @@
     updateDiscoveryDockerConfig,
     testDiscoveryDockerConfig,
   } from '$lib/api';
+  import DiscoveryTrackedEntries from './DiscoveryTrackedEntries.svelte';
+
+  // Bumped after a save so the tracked-entries panel reloads (a
+  // newly-changed endpoint may strand existing tracking and we want
+  // the Re-link button to show up immediately).
+  let trackedRefreshKey = $state(0);
 
   // Live status from /api/discovery/docker/status. Populated on mount
   // and after every save / test.
@@ -56,6 +62,9 @@
       const updated = await updateDiscoveryDockerConfig(form);
       status = updated;
       testResult = null;
+      // Endpoint may have changed; tracked entries' endpoint_matches
+      // flag could flip - reload the panel.
+      trackedRefreshKey += 1;
     } catch (e) {
       lastSaveError = e instanceof Error ? e.message : 'Save failed';
     } finally {
@@ -181,6 +190,16 @@
         <div class="mt-1 text-xs text-amber-300">⚠ {status.tls_warning}</div>
       {/if}
     </div>
+
+    <!-- Currently tracked: lists every app + gateway site with a
+         DockerKey; per-row Detach + (when endpoint mismatches)
+         Re-link buttons. Hidden when discovery is disabled because
+         the listing endpoint requires the capability cache to have
+         loaded - the underlying API returns an empty entries
+         array though, so showing it on disabled is also fine. We
+         show it always so an operator can detach orphaned tracking
+         even after disabling discovery. -->
+    <DiscoveryTrackedEntries refreshKey={trackedRefreshKey} />
 
     <!-- Form -->
     <div class="space-y-4">

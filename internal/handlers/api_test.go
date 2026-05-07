@@ -918,7 +918,7 @@ func TestMergeClientApp(t *testing.T) {
 			Color:   "#ff0000",
 		}
 
-		result := mergeClientApp(&clientApp, existing)
+		result, _ := mergeClientApp(&clientApp, existing)
 
 		if result.Name != "NewApp" {
 			t.Errorf("expected name 'NewApp', got %q", result.Name)
@@ -947,7 +947,7 @@ func TestMergeClientApp(t *testing.T) {
 			Enabled: true,
 		}
 
-		result := mergeClientApp(&clientApp, existing)
+		result, _ := mergeClientApp(&clientApp, existing)
 
 		// URL should be updated to the new value
 		if result.URL != "http://new-internal:9090" {
@@ -975,7 +975,7 @@ func TestMergeClientApp(t *testing.T) {
 			Enabled: true,
 		}
 
-		result := mergeClientApp(&clientApp, existing)
+		result, _ := mergeClientApp(&clientApp, existing)
 
 		if result.URL != "http://new:9090" {
 			t.Errorf("expected new URL 'http://new:9090', got %q", result.URL)
@@ -1268,6 +1268,113 @@ func TestSaveConfig_PreservesDockerTrackingFields(t *testing.T) {
 	}
 	if cfg.Apps[0].DockerStrategy != "container_ip" {
 		t.Errorf("DockerStrategy was cleared: %+v", cfg.Apps[0])
+	}
+}
+
+// TestSaveConfig_AutoDetachesOnURLChange covers the plan v4
+// "Manual URL edit on a docker-tracked app via SaveConfig is rejected
+// or auto-detaches (pick: auto-detach, document)" line. When the
+// payload echoes back the docker_key but with a NEW URL, the merge
+// must clear all three tracking fields so the next refresh tick
+// doesn't clobber the operator's manual edit.
+func TestSaveConfig_AutoDetachesOnURLChange(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].URL = "http://10.0.0.1:80"
+	cfg.Apps[0].DockerKey = "label:sonarr-stable"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+
+	update := ClientConfigUpdate{
+		Title:      "Same",
+		Navigation: cfg.Navigation,
+		Groups:     cfg.Groups,
+		Apps: []ClientAppConfig{
+			{Name: "App1", URL: "http://manual:9999", Group: "Media", Enabled: true,
+				DockerKey: "label:sonarr-stable", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"},
+			{Name: "App2", URL: "http://localhost:8081", Group: "Tools", Enabled: true, Proxy: true},
+			{Name: "DisabledApp", URL: "http://localhost:8082", Group: "Media"},
+		},
+	}
+	body, _ := json.Marshal(update)
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+
+	if cfg.Apps[0].URL != "http://manual:9999" {
+		t.Errorf("expected URL to be updated to manual value, got %q", cfg.Apps[0].URL)
+	}
+	if cfg.Apps[0].DockerKey != "" || cfg.Apps[0].DockerEndpoint != "" || cfg.Apps[0].DockerStrategy != "" {
+		t.Errorf("expected auto-detach to clear tracking fields, got %+v", cfg.Apps[0])
+	}
+}
+
+// TestUpdateApp_AutoDetachesOnURLChange covers the same auto-detach
+// rule for the per-app PUT path. UpdateApp doesn't go through
+// mergeClientApp; both paths must apply the same rule via
+// applyDockerTrackingPreservation so the operator gets consistent
+// behavior regardless of which endpoint the frontend uses.
+func TestUpdateApp_AutoDetachesOnURLChange(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].URL = "http://10.0.0.1:80"
+	cfg.Apps[0].DockerKey = "label:sonarr-stable"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+
+	body, _ := json.Marshal(ClientAppConfig{
+		Name: "App1", URL: "http://manual:9999",
+		DockerKey: "label:sonarr-stable", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip",
+	})
+	req := httptest.NewRequest(http.MethodPut, "/api/app/App1", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, req, "App1")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Apps[0].URL != "http://manual:9999" {
+		t.Errorf("URL not updated: %q", cfg.Apps[0].URL)
+	}
+	if cfg.Apps[0].DockerKey != "" {
+		t.Errorf("expected DockerKey cleared by auto-detach; got %q", cfg.Apps[0].DockerKey)
+	}
+}
+
+// TestApplyDockerTrackingPreservation_RetainsTrackingOnNonURLEdits
+// pins the rule that purely cosmetic edits (rename, icon swap) on
+// a tracked app must NOT trigger auto-detach. Only a URL change
+// is treated as "operator took manual control".
+func TestApplyDockerTrackingPreservation_RetainsTrackingOnNonURLEdits(t *testing.T) {
+	existing := config.AppConfig{
+		Name: "App1", URL: "http://10.0.0.1:80",
+		DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+	}
+	updated := config.AppConfig{
+		Name: "App1", URL: "http://10.0.0.1:80", // same URL
+		DockerKey: "label:foo", DockerEndpoint: "unix:///x.sock", DockerStrategy: "container_ip",
+		Color: "#abcdef", // cosmetic-only edit
+	}
+	reason := applyDockerTrackingPreservation(&updated, &existing)
+	if reason != "" {
+		t.Errorf("non-URL edit unexpectedly triggered detach with reason %q", reason)
+	}
+	if updated.DockerKey != "label:foo" {
+		t.Errorf("DockerKey was cleared by non-URL edit: %+v", updated)
 	}
 }
 

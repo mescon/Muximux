@@ -2,6 +2,7 @@ package discovery
 
 import (
 	"context"
+	"errors"
 	"os"
 	"sync"
 	"time"
@@ -217,6 +218,28 @@ func (s *Service) LastSeen(key string) time.Time {
 	}
 	return time.Time{}
 }
+
+// ListLiveContainers proxies to the underlying daemon client. Used by
+// the Re-link probe handler so the handlers package can list
+// containers without reaching for the unexported client field. The
+// returned error is the daemon's, surfaced verbatim by the probe
+// handler so the operator sees the actual cause inline.
+func (s *Service) ListLiveContainers(ctx context.Context) ([]ContainerSummary, error) {
+	s.mu.RLock()
+	c := s.client
+	s.mu.RUnlock()
+	if c == nil {
+		return nil, errClientNotInitialised
+	}
+	return c.ListContainers(ctx, ListContainersOpts{All: false})
+}
+
+// errClientNotInitialised is the static error returned by
+// ListLiveContainers when the discovery service has no client yet
+// (e.g., discovery is enabled but the configured endpoint failed to
+// parse). Stable error so handlers can errors.Is-match without
+// depending on the message text.
+var errClientNotInitialised = errors.New("discovery client not initialised; check Settings → Discovery")
 
 // refreshStatus does the actual probe + selfDetect + TLS-hygiene
 // check, then caches the result.

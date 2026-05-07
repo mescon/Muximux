@@ -386,7 +386,17 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 
 	newApps := make([]config.AppConfig, 0, len(update.Apps))
 	for i := range update.Apps {
-		app := mergeClientApp(&update.Apps[i], existingApps)
+		app, detachKey := mergeClientApp(&update.Apps[i], existingApps)
+		if detachKey != "" {
+			// Plan v4: manual URL edit on a tracked app auto-detaches.
+			// Logged at audit so operators can see exactly which apps
+			// fell out of auto-management as a result of a SaveConfig
+			// round-trip. The frontend should normally surface the
+			// edit-lock prompt before this fires.
+			logging.Audit("Docker tracking auto-detached on URL change",
+				"kind", "app", "name", app.Name,
+				"previous_key", detachKey)
+		}
 		newApps = append(newApps, app)
 	}
 	cfg.Apps = newApps
@@ -424,29 +434,61 @@ func clientAppToConfig(c *ClientAppConfig) config.AppConfig {
 
 // mergeClientApp converts a client app config back to a full app config,
 // preserving sensitive fields from the existing app if it was previously configured.
-func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) config.AppConfig {
+// The second return is the detach event when the call auto-detaches a
+// previously-tracked app due to an explicit URL change (see
+// applyDockerTrackingPreservation); "" when no detach happened.
+func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.AppConfig) (config.AppConfig, string) {
 	app := clientAppToConfig(clientApp)
+	var detachReason string
 
-	// Preserve auth bypass and access rules if app existed before
 	if existing, ok := existingApps[clientApp.Name]; ok {
 		app.AuthBypass = existing.AuthBypass
 		app.Access = existing.Access
-		// Docker tracking fields are preserved when the incoming
-		// payload omits them. The frontend echoes them back as
-		// read-only, but a buggy or scripted PUT without them would
-		// otherwise zero the tracking and silently detach the app
-		// from auto-management. Empty-string treated as "no change",
-		// not "explicit clear" - the only sanctioned detach path is
-		// DELETE /api/discovery/docker/track/{key} (Phase F), which
-		// emits a distinct audit log entry. (codebase review fix #1)
-		if clientApp.DockerKey == "" {
-			app.DockerKey = existing.DockerKey
-			app.DockerEndpoint = existing.DockerEndpoint
-			app.DockerStrategy = existing.DockerStrategy
-		}
+		detachReason = applyDockerTrackingPreservation(&app, &existing)
 	}
 
-	return app
+	return app, detachReason
+}
+
+// applyDockerTrackingPreservation reconciles tracking fields between
+// an incoming PUT payload and the previously-stored app, preventing
+// silent detach via two safety nets:
+//
+//  1. **Empty-payload preservation**: when the incoming payload
+//     omits DockerKey entirely (clientApp.DockerKey == ""), copy the
+//     existing tracking fields back. This stops a buggy frontend or
+//     scripted PUT that doesn't echo the read-only tracking fields
+//     from accidentally wiping them. The only sanctioned forget path
+//     is DELETE /api/discovery/docker/track/{key} (Phase F).
+//
+//  2. **URL-change auto-detach**: when the existing app was tracked
+//     AND the incoming URL differs from existing.URL, clear all three
+//     tracking fields. The operator explicitly took manual control of
+//     the URL, so further refresh-poller writes would clobber that
+//     change every tick. The plan v4 "Manual URL edit on a docker-
+//     tracked app via SaveConfig is rejected or auto-detaches (pick:
+//     auto-detach, document)" line motivates this branch. Returns a
+//     non-empty reason string so the caller can emit one audit log
+//     entry per detached app.
+//
+// Other tracking fields (Strategy / Endpoint) being changed without
+// a URL change still go through, since the frontend's Re-link flow
+// is allowed to swap those without detaching.
+func applyDockerTrackingPreservation(updated *config.AppConfig, existing *config.AppConfig) string {
+	if updated.DockerKey == "" {
+		updated.DockerKey = existing.DockerKey
+		updated.DockerEndpoint = existing.DockerEndpoint
+		updated.DockerStrategy = existing.DockerStrategy
+		return ""
+	}
+	if existing.DockerKey != "" && existing.URL != "" && updated.URL != existing.URL {
+		reason := existing.DockerKey
+		updated.DockerKey = ""
+		updated.DockerEndpoint = ""
+		updated.DockerStrategy = ""
+		return reason
+	}
+	return ""
 }
 
 // GetApps returns the list of apps
@@ -589,6 +631,12 @@ func (h *APIHandler) UpdateApp(w http.ResponseWriter, r *http.Request, name stri
 	updated := clientAppToConfig(&clientApp)
 	updated.AuthBypass = existing.AuthBypass
 	updated.Access = existing.Access
+	detachKey := applyDockerTrackingPreservation(&updated, &existing)
+	if detachKey != "" {
+		logging.Audit("Docker tracking auto-detached on URL change",
+			"kind", "app", "name", updated.Name,
+			"previous_key", detachKey)
+	}
 
 	priorApps := append([]config.AppConfig(nil), h.config.Apps...)
 	h.config.Apps[idx] = updated

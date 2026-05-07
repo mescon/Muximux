@@ -167,9 +167,21 @@
       type="url"
       bind:value={app.url}
       oninput={() => clearError('url')}
-      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {errors.url ? 'border-red-500' : 'border-border-subtle'}"
+      readonly={!!app.docker_key}
+      class="w-full px-3 py-2 bg-bg-elevated border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-brand-500 {errors.url ? 'border-red-500' : 'border-border-subtle'} {app.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
       placeholder={m.appForm_placeholderUrl()}
+      data-testid="app-form-url"
     />
+    {#if app.docker_key}
+      <p class="mt-2 text-xs text-amber-300 flex items-start gap-1.5" data-testid="app-form-docker-locked">
+        <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v2m0 4h.01M5 11V7a7 7 0 0114 0v4M5 11h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
+        </svg>
+        <span>
+          Docker-managed: the URL refreshes from container <code class="font-mono text-text-secondary">{app.docker_key}</code>. Detach via Settings → Discovery → Currently tracked to take manual control.
+        </span>
+      </p>
+    {/if}
     {#if errors.url}<p class="text-red-400 text-xs mt-1">{errors.url}</p>{/if}
     {#if app.gateway_domain}
       <p class="mt-2 text-xs text-text-muted flex items-start gap-1.5">

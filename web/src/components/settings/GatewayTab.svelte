@@ -516,12 +516,23 @@
             type="text"
             bind:value={form.backend_url}
             oninput={scheduleLint}
+            readonly={!!form.docker_key}
             placeholder="http://sonarr:8989"
-            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+            class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 {form.docker_key ? 'opacity-70 cursor-not-allowed' : ''}"
+            data-testid="gw-form-backend-url"
           />
-          <p class="text-xs text-text-muted mt-1">
-            Where Muximux forwards requests. Private IPs (10.x, 192.168.x, Docker hostnames) are fine.
-          </p>
+          {#if form.docker_key}
+            <p class="text-xs text-amber-300 mt-1 flex items-start gap-1.5" data-testid="gw-form-docker-locked">
+              <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 11v2m0 4h.01M5 11V7a7 7 0 0114 0v4M5 11h14a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2z" />
+              </svg>
+              <span>Docker-managed: Backend URL refreshes from container <code class="font-mono text-text-secondary">{form.docker_key}</code>. Detach via Settings → Discovery → Currently tracked.</span>
+            </p>
+          {:else}
+            <p class="text-xs text-text-muted mt-1">
+              Where Muximux forwards requests. Private IPs (10.x, 192.168.x, Docker hostnames) are fine.
+            </p>
+          {/if}
         </div>
 
         <div>

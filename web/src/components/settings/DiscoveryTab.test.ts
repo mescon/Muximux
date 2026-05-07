@@ -8,6 +8,10 @@ const mockApi = vi.hoisted(() => ({
   testDiscoveryDockerConfig: vi.fn(),
   scanDockerContainers: vi.fn(),
   importDockerSuggestions: vi.fn(),
+  listDockerTracked: vi.fn(),
+  detachDockerTracked: vi.fn(),
+  probeDockerRelink: vi.fn(),
+  confirmDockerRelink: vi.fn(),
 }));
 
 vi.mock('$lib/api', () => mockApi);
@@ -31,6 +35,9 @@ describe('DiscoveryTab divergence banner', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    // Stub the tracked-entries call so the embedded sub-component
+    // doesn't throw under render.
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///var/run/docker.sock' });
   });
 
   it('hides the divergence banner when refresh_divergences is zero or missing', async () => {
@@ -69,5 +76,55 @@ describe('DiscoveryTab divergence banner', () => {
       expect(screen.getByText(/Gateway recovered/i)).toBeInTheDocument();
     });
     expect(screen.getByText(/recovered at 2026-05-06T10:01:30Z/i)).toBeInTheDocument();
+  });
+});
+
+describe('DiscoveryTab currently-tracked panel', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+  });
+
+  it('renders the empty state when there are no tracked entries', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///var/run/docker.sock' });
+    render(DiscoveryTab);
+    await waitFor(() => {
+      expect(screen.getByText(/No apps or gateway sites are linked to Docker yet/i)).toBeInTheDocument();
+    });
+  });
+
+  it('renders tracked rows and surfaces a Re-link button when the endpoint mismatches', async () => {
+    mockApi.listDockerTracked.mockResolvedValue({
+      entries: [
+        {
+          kind: 'app',
+          name: 'sonarr',
+          key: 'label:sonarr-stable',
+          strategy: 'container_ip',
+          endpoint: 'unix:///var/run/docker.sock',
+          url: 'http://10.0.0.42:8989',
+          last_seen_at: '2026-05-08T01:00:00Z',
+          endpoint_matches: true,
+        },
+        {
+          kind: 'gateway',
+          name: 'stranded.example.com',
+          key: 'label:stranded',
+          strategy: 'container_dns',
+          endpoint: 'tcp://old:2375',
+          url: 'http://10.0.0.50:80',
+          endpoint_matches: false,
+        },
+      ],
+      current_endpoint: 'unix:///var/run/docker.sock',
+    });
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText('sonarr')).toBeInTheDocument());
+    expect(screen.getByText('stranded.example.com')).toBeInTheDocument();
+    // Endpoint mismatch -> Re-link button visible for the stranded row
+    const relinkButtons = screen.queryAllByTestId('tracked-relink-btn');
+    expect(relinkButtons).toHaveLength(1);
+    // Both rows still get a Detach button
+    expect(screen.queryAllByTestId('tracked-detach-btn')).toHaveLength(2);
   });
 });

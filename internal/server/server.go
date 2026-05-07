@@ -236,6 +236,12 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/scan", requireAdmin(discoveryHandler.ScanDocker))
 	mux.HandleFunc("/api/discovery/docker/import", requireAdmin(discoveryHandler.ImportDocker))
+	mux.HandleFunc("/api/discovery/docker/tracked", requireAdmin(discoveryHandler.ListTracked))
+	// /track/{key}: Go's net/http mux uses prefix matching with a
+	// trailing slash; the handler reads the suffix via TrimPrefix.
+	mux.HandleFunc("/api/discovery/docker/track/", requireAdmin(discoveryHandler.DetachTracked))
+	mux.HandleFunc("/api/discovery/docker/relink/probe", requireAdmin(discoveryHandler.RelinkProbe))
+	mux.HandleFunc("/api/discovery/docker/relink/confirm", requireAdmin(discoveryHandler.RelinkConfirm))
 
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {
