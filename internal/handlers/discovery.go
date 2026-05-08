@@ -11,6 +11,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
 	"github.com/mescon/muximux/v3/internal/logging"
+	"github.com/mescon/muximux/v3/internal/proxy"
 )
 
 // DiscoveryHandler exposes discovery-related HTTP endpoints.
@@ -31,18 +32,27 @@ type DiscoveryHandler struct {
 	// Status / Scan / etc. calls always see a consistent service.
 	serviceMu sync.RWMutex
 	service   *discovery.Service
+
+	// proxyServer is the live Caddy controller. Non-nil when Muximux
+	// booted with a proxy configured. Discovery import calls
+	// ApplyGatewaySites on this to push newly-imported gateway sites
+	// to Caddy without waiting for a restart.
+	proxyServer *proxy.Proxy
 }
 
 // NewDiscoveryHandler binds the handler to its initial Service plus
 // the config + lock it needs to persist updates. The service may be
 // nil when discovery isn't enabled at startup; the handler surfaces
-// Configured=false in that case.
-func NewDiscoveryHandler(svc *discovery.Service, cfg *config.Config, configPath string, configMu *sync.RWMutex) *DiscoveryHandler {
+// Configured=false in that case. proxyServer may also be nil (no-
+// proxy boot); import then skips the Caddy reload step and the
+// gateway sites land on disk only.
+func NewDiscoveryHandler(svc *discovery.Service, cfg *config.Config, configPath string, configMu *sync.RWMutex, proxyServer *proxy.Proxy) *DiscoveryHandler {
 	return &DiscoveryHandler{
-		config:     cfg,
-		configPath: configPath,
-		configMu:   configMu,
-		service:    svc,
+		config:      cfg,
+		configPath:  configPath,
+		configMu:    configMu,
+		service:     svc,
+		proxyServer: proxyServer,
 	}
 }
 

@@ -1129,3 +1129,29 @@ func TestIsValidGatewayDomain(t *testing.T) {
 		})
 	}
 }
+
+func TestValidateGatewayListen(t *testing.T) {
+	cases := []struct {
+		in      string
+		wantErr bool
+	}{
+		{"", false},               // empty = use default 80/443
+		{":8443", false},          // port-only
+		{"0.0.0.0:8443", false},   // explicit all-interfaces
+		{"127.0.0.1:8443", false}, // localhost-only
+		{"[::]:8443", false},      // IPv6 all-interfaces
+		{":80", false},            // privileged but well-formed
+		{"8443", true},            // missing port separator
+		{":notaport", true},       // non-numeric port
+		{":99999", true},          // out-of-range port
+		{"host:", true},           // bare colon, no port
+	}
+	for _, c := range cases {
+		t.Run(c.in, func(t *testing.T) {
+			err := validateGatewayListen(c.in)
+			if (err != nil) != c.wantErr {
+				t.Errorf("validateGatewayListen(%q) err=%v wantErr=%v", c.in, err, c.wantErr)
+			}
+		})
+	}
+}

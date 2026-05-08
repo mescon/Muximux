@@ -61,7 +61,7 @@ func seedLifecycleHandler(t *testing.T, apps []config.AppConfig, sites []config.
 		t.Fatalf("seed config: %v", err)
 	}
 	svc := discovery.NewService(&cfg.Discovery.Docker)
-	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}), cfg
+	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, nil), cfg
 }
 
 func TestListTracked_FiltersUnlinkedAndFlagsEndpointMismatch(t *testing.T) {
@@ -245,7 +245,7 @@ func TestRelinkProbe_EmptyKey(t *testing.T) {
 }
 
 func TestRelinkProbe_ServiceNil(t *testing.T) {
-	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	body, _ := json.Marshal(RelinkProbeRequest{Key: "label:foo"})
 	req := httptest.NewRequest(http.MethodPost, "/api/discovery/docker/relink/probe", bytes.NewReader(body))
 	w := httptest.NewRecorder()
@@ -267,7 +267,7 @@ func TestRelinkProbe_DaemonError_SurfacedInBody(t *testing.T) {
 	configPath := filepath.Join(t.TempDir(), "config.yaml")
 	_ = cfg.Save(configPath)
 	svc := discovery.NewService(&cfg.Discovery.Docker)
-	h := NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{})
+	h := NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, nil)
 
 	body, _ := json.Marshal(RelinkProbeRequest{Key: "label:foo"})
 	req := httptest.NewRequest(http.MethodPost, "/api/discovery/docker/relink/probe", bytes.NewReader(body))
@@ -409,6 +409,8 @@ func TestMatchByKey_Variants(t *testing.T) {
 // mustReqJSON builds an *http.Request whose body is the JSON-encoded
 // payload. Eliminates the bytes.NewReader / json.Marshal boilerplate
 // across the lifecycle tests.
+//
+//nolint:unparam // method is always POST today but the helper signature is general so future tests can pass PUT/PATCH without refactoring callers.
 func mustReqJSON(t *testing.T, method, target string, body any) *http.Request {
 	t.Helper()
 	b, err := json.Marshal(body)
@@ -443,7 +445,7 @@ func TestRelinkProbe_FoundOnLiveDaemon(t *testing.T) {
 	configPath := filepath.Join(t.TempDir(), "config.yaml")
 	_ = cfg.Save(configPath)
 	svc := discovery.NewService(&cfg.Discovery.Docker)
-	h := NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{})
+	h := NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, nil)
 
 	req := mustReqJSON(t, http.MethodPost, "/api/discovery/docker/relink/probe",
 		RelinkProbeRequest{Key: "label:sonarr-prod"})
@@ -490,7 +492,7 @@ func TestRelinkProbe_NotFoundReturnsCandidates(t *testing.T) {
 	configPath := filepath.Join(t.TempDir(), "config.yaml")
 	_ = cfg.Save(configPath)
 	svc := discovery.NewService(&cfg.Discovery.Docker)
-	h := NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{})
+	h := NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, nil)
 
 	req := mustReqJSON(t, http.MethodPost, "/api/discovery/docker/relink/probe",
 		RelinkProbeRequest{Key: "label:absent"})

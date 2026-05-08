@@ -28,6 +28,12 @@
     createGateway: boolean;
     gatewayDomain: string;
     nameOverride: string;
+    // Routing radio per row, only meaningful when createApp is true.
+    // - 'direct':  App.URL = container URL
+    // - 'proxy':   App.proxy = true; menu links to /proxy/<slug>
+    // - 'gateway': App.URL = https://<gatewayDomain>; auto-checks
+    //              createGateway since it's a hard requirement
+    routing: 'direct' | 'proxy' | 'gateway';
   };
 
   let scanning = $state(false);
@@ -65,6 +71,7 @@
         createGateway: mode === 'gateway' && !!s.suggested_domain,
         gatewayDomain: s.suggested_domain ?? '',
         nameOverride: s.name,
+        routing: 'direct' as const,
       }));
     } catch (e) {
       scanError = e instanceof Error ? e.message : 'Scan failed';
@@ -123,6 +130,10 @@
               health_url: r.s.health_url,
               enabled: true,
             };
+            // Routing only matters when an app is being created;
+            // omit when the row is gateway-only to keep the wire
+            // payload tight.
+            item.routing = r.routing;
           }
           if (r.createGateway) {
             item.gateway = {
@@ -266,22 +277,56 @@
                       </details>
                     {/if}
 
-                    <div class="mt-3 flex flex-wrap gap-4 text-xs">
-                      <label class="flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" bind:checked={row.createApp} disabled={row.s.requires_input} />
-                        <span class="text-text-primary">Add to menu</span>
-                      </label>
-                      <label class="flex items-center gap-1.5 cursor-pointer">
-                        <input type="checkbox" bind:checked={row.createGateway} />
-                        <span class="text-text-primary">Add gateway site</span>
-                      </label>
-                      {#if row.createGateway}
-                        <input
-                          type="text"
-                          bind:value={row.gatewayDomain}
-                          placeholder="sonarr.example.com"
-                          class="text-xs px-2 py-0.5 bg-bg-base border border-border-subtle rounded text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-500"
-                        />
+                    <div class="mt-3 space-y-2 text-xs">
+                      <div class="flex flex-wrap gap-4">
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                          <input type="checkbox" bind:checked={row.createApp} disabled={row.s.requires_input} />
+                          <span class="text-text-primary">Add to menu</span>
+                        </label>
+                        <label class="flex items-center gap-1.5 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            bind:checked={row.createGateway}
+                            disabled={row.routing === 'gateway' && row.createApp}
+                          />
+                          <span class="text-text-primary">Add gateway site</span>
+                          {#if row.routing === 'gateway' && row.createApp}
+                            <span class="text-text-muted">(required by routing)</span>
+                          {/if}
+                        </label>
+                        {#if row.createGateway}
+                          <input
+                            type="text"
+                            bind:value={row.gatewayDomain}
+                            placeholder="sonarr.example.com"
+                            class="text-xs px-2 py-0.5 bg-bg-base border border-border-subtle rounded text-text-primary focus:outline-none focus:ring-1 focus:ring-brand-500"
+                          />
+                        {/if}
+                      </div>
+                      {#if row.createApp}
+                        <fieldset class="flex flex-wrap items-center gap-3 pl-6 text-text-secondary"
+                                  data-testid="row-routing">
+                          <legend class="text-text-muted">Menu link:</legend>
+                          <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="radio" bind:group={row.routing} value="direct" />
+                            <span title="Menu links straight to the container's URL. Requires the dashboard machine to reach the container's IP.">Direct</span>
+                          </label>
+                          <label class="flex items-center gap-1 cursor-pointer">
+                            <input type="radio" bind:group={row.routing} value="proxy" />
+                            <span title="Menu links to /proxy/<slug>; Muximux reverse-proxies to the container.">Proxy</span>
+                          </label>
+                          <label class="flex items-center gap-1 cursor-pointer"
+                                 title={row.gatewayDomain ? '' : 'Set a gateway domain to enable this option.'}>
+                            <input
+                              type="radio"
+                              bind:group={row.routing}
+                              value="gateway"
+                              disabled={!row.gatewayDomain.trim()}
+                              onchange={() => { if (row.routing === 'gateway') row.createGateway = true; }}
+                            />
+                            <span>Gateway domain</span>
+                          </label>
+                        </fieldset>
                       {/if}
                     </div>
                   </div>

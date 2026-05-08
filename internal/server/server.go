@@ -230,7 +230,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// Admin-only because the response leaks daemon endpoint, API
 	// version, and the operator's TLS-hygiene state.
 	s.discoveryService = discovery.NewService(&cfg.Discovery.Docker)
-	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu)
+	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu, s.proxyServer)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
 	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.UpdateDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
@@ -1045,13 +1045,14 @@ func setupCaddy(s *Server, cfg *config.Config) string {
 
 	internalAddr := proxy.ComputeInternalAddr(cfg.Server.Listen)
 	proxyConfig := proxy.Config{
-		ListenAddr:   cfg.Server.Listen,
-		InternalAddr: internalAddr,
-		Domain:       cfg.Server.TLS.Domain,
-		Email:        cfg.Server.TLS.Email,
-		TLSCert:      cfg.Server.TLS.Cert,
-		TLSKey:       cfg.Server.TLS.Key,
-		GatewaySites: handlers.ConfigGatewaySitesToProxy(cfg.Server.GatewaySites),
+		ListenAddr:    cfg.Server.Listen,
+		InternalAddr:  internalAddr,
+		Domain:        cfg.Server.TLS.Domain,
+		Email:         cfg.Server.TLS.Email,
+		TLSCert:       cfg.Server.TLS.Cert,
+		TLSKey:        cfg.Server.TLS.Key,
+		GatewaySites:  handlers.ConfigGatewaySitesToProxy(cfg.Server.GatewaySites),
+		GatewayListen: cfg.Server.GatewayListen,
 	}
 	s.proxyServer = proxy.New(&proxyConfig)
 

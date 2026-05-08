@@ -19,6 +19,8 @@ Caddy starts automatically when **either** `tls` or `gateway` is configured. If 
 
 The internal port is computed automatically: listen port + 10000 (e.g., `:8080` becomes `127.0.0.1:18080`). It is never user-configured.
 
+For deployments behind another reverse proxy, set `server.gateway_listen` to bind gateway sites on a non-privileged port — see [Running Behind Another Reverse Proxy](#running-behind-another-reverse-proxy-gateway_listen) below.
+
 ---
 
 ## Auto-HTTPS (Let's Encrypt)
@@ -79,6 +81,50 @@ This lets you reverse proxy other sites and services on your network that don't 
 When the gateway Caddyfile contains domain-based site blocks (like `grafana.example.com`), Caddy automatically provisions TLS certificates and listens on ports 80 and 443 for those domains. Make sure those ports are accessible -- in Docker, add `-p 80:80 -p 443:443` to your port mappings.
 
 > **Note:** The gateway file must exist when Muximux starts, or it will fail with an error.
+
+---
+
+## Running Behind Another Reverse Proxy (`gateway_listen`)
+
+By default Caddy binds ports 80 and 443 directly so it can serve gateway sites with automatic HTTPS. That requires either running Muximux as root, granting the binary `CAP_NET_BIND_SERVICE`, or letting systemd hand it those sockets. None of those are required when Muximux runs **behind** another reverse proxy that already terminates TLS (Traefik, nginx, Cloudflare Tunnel, a router-level Caddy, etc.).
+
+For that topology, set `server.gateway_listen` to a non-privileged address. Caddy will bind that address instead of 80/443, all gateway sites are served as plain HTTP, and the upstream proxy handles TLS:
+
+```yaml
+server:
+  listen: ":8080"          # Muximux dashboard
+  gateway_listen: ":8443"  # Gateway sites, served as plain HTTP
+
+  gateway_sites:
+    - domain: "sonarr.example.com"
+      backend_url: "http://10.0.0.5:8989"
+      tls: auto    # ignored when gateway_listen is set; site is HTTP-only
+    - domain: "radarr.example.com"
+      backend_url: "http://10.0.0.6:7878"
+      tls: none    # explicit HTTP
+```
+
+Your upstream proxy then forwards both the dashboard and the gateway hosts to Muximux:
+
+```
+sonarr.example.com           -> https terminated upstream -> http://muximux-host:8443
+radarr.example.com           -> https terminated upstream -> http://muximux-host:8443
+muximux.example.com          -> https terminated upstream -> http://muximux-host:8080
+```
+
+**Behaviour rules with `gateway_listen` set:**
+
+| Per-site `tls` | Gateway port serves | Notes |
+|---|---|---|
+| `auto` | Plain HTTP | Cert issuance via HTTP-01 needs port 80, which we don't bind here. The site still works but the operator is expected to terminate TLS upstream. |
+| `none` | Plain HTTP | Same outcome as `auto` in this mode. |
+| `custom` | HTTPS with operator-supplied cert | Useful for split-DNS where some clients hit Muximux directly. The cert must be valid for the gateway domain. |
+
+The dashboard (`server.listen`) is independent: it always binds whatever port you set there, with whatever TLS shape `server.tls.*` describes.
+
+**Format**: `gateway_listen` accepts anything `net.Listen` does — `":8443"` (all interfaces), `"127.0.0.1:8443"` (loopback only), `"[::]:8443"` (IPv6 all). Empty (the default) restores the auto-binding behaviour.
+
+If Caddy can't bind the port you choose, Muximux exits at startup with a one-line remediation hint listing the three concrete fixes (run as root, `setcap`, or `gateway_listen`).
 
 ---
 

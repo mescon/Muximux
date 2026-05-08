@@ -370,6 +370,13 @@ export interface DiscoveryImportItem {
   strategy: string;
   app?: Partial<App> | null;
   gateway?: GatewaySite | null;
+  // Per-row routing decision when `app` is set:
+  //   'direct'  -> menu links to the discovered container URL
+  //   'proxy'   -> menu links via /proxy/<slug> (sets app.proxy=true)
+  //   'gateway' -> menu links to https://<gateway.domain>; app is
+  //                NOT auto-managed, the gateway site is instead
+  // Optional; '' or omitted = 'direct' for backward compat.
+  routing?: 'direct' | 'proxy' | 'gateway';
   skip_if_exists?: boolean;
 }
 

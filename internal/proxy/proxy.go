@@ -37,6 +37,13 @@ type Config struct {
 	TLSCert      string        // Manual TLS
 	TLSKey       string        // Manual TLS
 	GatewaySites []GatewaySite // Structured per-site gateway entries (replaces the legacy file-import)
+	// GatewayListen overrides the default Caddy gateway-site bind.
+	// Empty (""): legacy behavior - sites listen on 80/443 with auto-
+	// HTTPS. Non-empty (e.g. ":8443"): all gateway sites listen on
+	// that address as plain HTTP unless they have TLS=custom (which
+	// keeps Caddy doing TLS on the operator-supplied cert+key). Use
+	// when running behind another reverse proxy that handles TLS.
+	GatewayListen string
 }
 
 // GatewaySite mirrors config.GatewaySite. Duplicated rather than
@@ -252,6 +259,28 @@ func (p *Proxy) CaddyfilePreview(sites []GatewaySite) string {
 // We also log the fall-through so a future caller bypassing
 // validation does not silently produce a malformed Caddyfile that
 // the operator then has to debug from a Caddy parser error message.
+// portOnly normalises a bind address ("0.0.0.0:8443", ":8443", or
+// "[::]:8443") down to ":<port>" so the gateway-site selector can
+// emit "domain.example.com:8443" without dragging the bind host
+// into the site name. Returns the input verbatim if it already
+// starts with ":" and contains no other colons.
+func portOnly(addr string) string {
+	if addr == "" {
+		return ""
+	}
+	if strings.HasPrefix(addr, ":") && !strings.ContainsAny(addr[1:], ":") {
+		return addr
+	}
+	_, port, err := net.SplitHostPort(addr)
+	if err != nil || port == "" {
+		// Pre-validated upstream; if SplitHostPort fails here just
+		// leave the bind alone - Caddy will reject it loudly which
+		// is better than silently mangling.
+		return addr
+	}
+	return ":" + port
+}
+
 func normalizeUpstream(raw string) string {
 	u, err := url.Parse(strings.TrimSpace(raw))
 	if err != nil || u.Host == "" {
@@ -301,9 +330,52 @@ func loadCaddyfile(caddyfileText string) error {
 		return fmt.Errorf("caddyfile error: %w", err)
 	}
 	if err := caddy.Load(cfgJSON, true); err != nil {
-		return fmt.Errorf("caddy load failed: %w", err)
+		return remapCaddyLoadError(err)
 	}
 	return nil
+}
+
+// remapCaddyLoadError translates the deeply-nested error caddy.Load
+// returns for common operator-actionable failures into something the
+// admin can act on without parsing five layers of wrapping.
+//
+// The big one is "permission denied" when binding 80 or 443 without
+// CAP_NET_BIND_SERVICE: the raw error is "loading new config: http
+// app module: start: listening on :443: listen tcp :443: bind:
+// permission denied". We surface a remediation hint pointing at the
+// three concrete fixes (setcap, run as root, or set
+// server.gateway_listen).
+func remapCaddyLoadError(err error) error {
+	msg := err.Error()
+	low := strings.ToLower(msg)
+	if strings.Contains(low, "permission denied") && strings.Contains(low, "listen tcp") {
+		// Try to extract the offending port for a more pointed
+		// hint. Pattern: "listening on :443" or "listening on
+		// 0.0.0.0:443"; fall back to "a privileged port" if it
+		// doesn't match cleanly.
+		port := "a privileged port (likely :80 or :443)"
+		if idx := strings.Index(msg, "listen tcp "); idx >= 0 {
+			tail := msg[idx+len("listen tcp "):]
+			if end := strings.Index(tail, ":"); end >= 0 {
+				rest := tail[end+1:]
+				if space := strings.IndexAny(rest, ": \t\n\r"); space >= 0 {
+					rest = rest[:space]
+				}
+				if rest != "" {
+					port = ":" + rest
+				}
+			}
+		}
+		return fmt.Errorf("caddy cannot bind %s without privileges. Three fixes:\n"+
+			"  1. Run as root (or via systemd with the right user/cap)\n"+
+			"  2. Grant the binary CAP_NET_BIND_SERVICE:\n"+
+			"     sudo setcap 'cap_net_bind_service=+ep' <muximux-binary>\n"+
+			"  3. Configure server.gateway_listen to a non-privileged port\n"+
+			"     (e.g. \":8443\") and run Muximux behind another reverse\n"+
+			"     proxy that handles ports 80/443 + TLS termination.\n"+
+			"original caddy error: %w", port, err)
+	}
+	return fmt.Errorf("caddy load failed: %w", err)
 }
 
 // Stop stops the proxy server
@@ -344,12 +416,20 @@ func (p *Proxy) buildCaddyfile() string {
 		header_up X-Real-IP {remote_host}
 	}`, p.config.InternalAddr)
 
+	// auto-HTTPS is needed only when at least one gateway site uses
+	// TLS=auto AND we're binding the default ports (no GatewayListen
+	// override). When GatewayListen is set, the listen port is high
+	// and the Caddyfile generator emits explicit http:// blocks per
+	// site, so auto-HTTPS would just spin up needless HTTP-01
+	// challenge listeners.
 	gatewayNeedsAutoHTTPS := false
-	for i := range p.config.GatewaySites {
-		tls := p.config.GatewaySites[i].TLS
-		if tls == "" || tls == "auto" {
-			gatewayNeedsAutoHTTPS = true
-			break
+	if p.config.GatewayListen == "" {
+		for i := range p.config.GatewaySites {
+			tls := p.config.GatewaySites[i].TLS
+			if tls == "" || tls == "auto" {
+				gatewayNeedsAutoHTTPS = true
+				break
+			}
 		}
 	}
 
@@ -380,7 +460,7 @@ func (p *Proxy) buildCaddyfile() string {
 
 	// Emit each structured gateway site as its own Caddy site block.
 	for i := range p.config.GatewaySites {
-		writeGatewaySiteBlock(&b, &p.config.GatewaySites[i])
+		writeGatewaySiteBlock(&b, &p.config.GatewaySites[i], p.config.GatewayListen)
 	}
 
 	return b.String()
@@ -389,21 +469,51 @@ func (p *Proxy) buildCaddyfile() string {
 // writeGatewaySiteBlock emits one Caddy site block for the given site.
 // WebSocket upgrades, HTTP/2, and large request bodies inherit Caddy's
 // defaults — we deliberately do not add directives that would limit them.
-func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite) {
+//
+// gatewayListen, when non-empty, overrides the address Caddy binds for
+// this site. Empty: legacy 80/443 with auto-HTTPS. Non-empty (e.g.
+// ":8443"): the site is served on that address as plain HTTP unless
+// TLS=custom (which keeps the operator-supplied cert).
+func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen string) {
 	b.WriteString("\n")
 
-	// Site selector. For tls=none we prefix with "http://" so Caddy
-	// serves plain HTTP on port 80 instead of trying auto-HTTPS.
-	switch s.TLS {
-	case "none":
-		fmt.Fprintf(b, "http://%s {\n", s.Domain)
-	default:
-		fmt.Fprintf(b, "%s {\n", s.Domain)
-	}
-
-	// TLS directive only for the custom case; auto-HTTPS is implicit.
-	if s.TLS == "custom" {
-		fmt.Fprintf(b, "\ttls %s %s\n", s.TLSCert, s.TLSKey)
+	// Site selector. Three shapes:
+	//   1) gatewayListen empty + tls=none           -> http://domain (port 80)
+	//   2) gatewayListen empty + tls=auto/custom    -> domain (auto 80/443)
+	//   3) gatewayListen set                        -> http(s)://domain:port
+	//
+	// In case 3 we force the explicit scheme + port. tls=auto on a
+	// non-default port is downgraded to plain HTTP because Caddy's
+	// HTTP-01 challenge cannot reach the operator's box on a high
+	// port; the operator should switch to TLS=custom or remove
+	// gateway_listen if they want managed certs.
+	if gatewayListen != "" {
+		// portOnly reduces "0.0.0.0:8443" / ":8443" / "[::]:8443"
+		// to ":8443" so we never drag the bind host into the site
+		// selector (Caddy treats the host part of a site selector
+		// as a Host-header match, which would break things).
+		listenSuffix := portOnly(gatewayListen)
+		switch s.TLS {
+		case "custom":
+			fmt.Fprintf(b, "https://%s%s {\n", s.Domain, listenSuffix)
+			fmt.Fprintf(b, "\ttls %s %s\n", s.TLSCert, s.TLSKey)
+		default:
+			// "auto" silently downgrades to HTTP here; the global
+			// auto_https=off in the prefix block prevents Caddy
+			// from issuing certs.
+			fmt.Fprintf(b, "http://%s%s {\n", s.Domain, listenSuffix)
+		}
+	} else {
+		switch s.TLS {
+		case "none":
+			fmt.Fprintf(b, "http://%s {\n", s.Domain)
+		default:
+			fmt.Fprintf(b, "%s {\n", s.Domain)
+		}
+		// TLS directive only for the custom case; auto-HTTPS is implicit.
+		if s.TLS == "custom" {
+			fmt.Fprintf(b, "\ttls %s %s\n", s.TLSCert, s.TLSKey)
+		}
 	}
 
 	// reverse_proxy block. Per-site directives go inside the braces

@@ -30,14 +30,14 @@ func newTestDiscoveryHandler(t *testing.T, initial *config.DiscoveryDockerConfig
 	if initial != nil {
 		svc = discovery.NewService(initial)
 	}
-	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}), cfg, configPath
+	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, nil), cfg, configPath
 }
 
 func TestGetDockerStatus_NilService(t *testing.T) {
 	// On first boot before discovery is wired, service is nil. The
 	// handler must not panic and must return Configured=false so the
 	// frontend's CTA-mode kicks in.
-	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/status")
 	w := httptest.NewRecorder()
 	h.GetDockerStatus(w, req)
@@ -67,7 +67,7 @@ func TestGetDockerStatus_DisabledConfig(t *testing.T) {
 }
 
 func TestGetDockerStatus_RejectsNonGet(t *testing.T) {
-	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodDelete} {
 		req := adminCtxRequest(method, "/api/discovery/docker/status")
 		w := httptest.NewRecorder()
@@ -179,6 +179,47 @@ func TestUpdateDockerConfig_PersistsAndRebuildsService(t *testing.T) {
 	}
 }
 
+// TestUpdateDockerConfig_AcceptsSnakeCaseBody mirrors what the
+// frontend sends. Before the json struct tags were added, fields
+// like network_strategy / network_filter / refresh_interval silently
+// dropped because Go's encoding/json case-insensitive match doesn't
+// span underscores - "network_strategy" never matched the
+// "NetworkStrategy" field name. Operators saw their saved strategy
+// reset to "" with every save through the UI. This test pins the
+// snake_case wire shape so a regression is caught locally.
+func TestUpdateDockerConfig_AcceptsSnakeCaseBody(t *testing.T) {
+	h, cfg, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
+
+	// Hand-built snake_case body matching what the SvelteKit form
+	// actually sends. Do NOT use json.Marshal on the Go struct -
+	// that would round-trip through Go field names and bypass the
+	// regression we're guarding against.
+	body := []byte(`{
+		"enabled": true,
+		"endpoint": "unix:///tmp/x.sock",
+		"tls": {"enabled": false},
+		"network_strategy": "container_ip",
+		"network_filter": "muximux-test",
+		"refresh_interval": "60s"
+	}`)
+	req := adminCtxRequest(http.MethodPut, "/api/discovery/docker/config")
+	req.Body = httpBody(body)
+	w := httptest.NewRecorder()
+	h.UpdateDockerConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Discovery.Docker.NetworkStrategy != "container_ip" {
+		t.Errorf("network_strategy = %q, want container_ip (json tag missing?)", cfg.Discovery.Docker.NetworkStrategy)
+	}
+	if cfg.Discovery.Docker.NetworkFilter != "muximux-test" {
+		t.Errorf("network_filter = %q, want muximux-test", cfg.Discovery.Docker.NetworkFilter)
+	}
+	if cfg.Discovery.Docker.RefreshInterval != "60s" {
+		t.Errorf("refresh_interval = %q, want 60s", cfg.Discovery.Docker.RefreshInterval)
+	}
+}
+
 func TestUpdateDockerConfig_RejectsBadShape(t *testing.T) {
 	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{Enabled: false})
 
@@ -197,7 +238,7 @@ func TestUpdateDockerConfig_RejectsBadShape(t *testing.T) {
 }
 
 func TestScanDocker_NilService(t *testing.T) {
-	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/scan")
 	w := httptest.NewRecorder()
 	h.ScanDocker(w, req)
@@ -226,7 +267,7 @@ func TestScanDocker_DisabledServiceBlocks(t *testing.T) {
 }
 
 func TestScanDocker_RejectsNonGet(t *testing.T) {
-	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{})
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
 	req := adminCtxRequest(http.MethodPost, "/api/discovery/docker/scan")
 	w := httptest.NewRecorder()
 	h.ScanDocker(w, req)

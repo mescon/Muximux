@@ -25,7 +25,7 @@ func newTestImportHandler(t *testing.T, seedApps []config.AppConfig) (*Discovery
 		t.Fatalf("seed config: %v", err)
 	}
 	svc := discovery.NewService(&cfg.Discovery.Docker)
-	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}), cfg
+	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, nil), cfg
 }
 
 func postImport(t *testing.T, h *DiscoveryHandler, body any) (*ImportResult, int) {
@@ -261,6 +261,170 @@ func TestImportDocker_RejectsItemWithNoAppOrGateway(t *testing.T) {
 	res, _ := postImport(t, h, ImportRequest{
 		Items: []ImportItem{{Key: "name:x", Strategy: "container_ip"}},
 	})
+	if res.Items[0].Status != "validation_failed" {
+		t.Errorf("status = %q", res.Items[0].Status)
+	}
+}
+
+// Routing-mode tests cover the per-row "Direct / Proxy / Gateway"
+// radio added in Phase G. Each mode shapes App.URL, App.Proxy, and
+// the App's tracking fields differently. The default ("" or
+// "direct") matches the pre-Phase-G behavior so existing imports
+// stay backward compatible.
+
+func TestImportDocker_Routing_DirectIsDefault(t *testing.T) {
+	h, cfg := newTestImportHandler(t, nil)
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:sonarr",
+			Strategy: "container_ip",
+			App: &ClientAppConfig{
+				Name:    "Sonarr",
+				URL:     "http://10.0.0.5:8989",
+				Enabled: true,
+			},
+			// Routing intentionally omitted -> defaults to "direct".
+		}},
+	})
+	if !res.Success {
+		t.Fatalf("Success=false: %+v", res)
+	}
+	app := cfg.Apps[0]
+	if app.URL != "http://10.0.0.5:8989" {
+		t.Errorf("default routing should leave URL untouched; got %q", app.URL)
+	}
+	if app.Proxy {
+		t.Errorf("default routing should not enable proxy")
+	}
+	if app.DockerKey != "name:sonarr" {
+		t.Errorf("default routing should keep tracking; got DockerKey=%q", app.DockerKey)
+	}
+}
+
+func TestImportDocker_Routing_ProxySetsProxyFlag(t *testing.T) {
+	h, cfg := newTestImportHandler(t, nil)
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:sonarr",
+			Strategy: "container_ip",
+			Routing:  "proxy",
+			App: &ClientAppConfig{
+				Name:    "Sonarr",
+				URL:     "http://10.0.0.5:8989",
+				Enabled: true,
+			},
+		}},
+	})
+	if !res.Success {
+		t.Fatalf("Success=false: %+v", res)
+	}
+	app := cfg.Apps[0]
+	if !app.Proxy {
+		t.Errorf("routing=proxy should set App.Proxy=true; got %+v", app)
+	}
+	if app.URL != "http://10.0.0.5:8989" {
+		t.Errorf("routing=proxy should keep URL as upstream; got %q", app.URL)
+	}
+	if app.DockerKey != "name:sonarr" {
+		t.Errorf("routing=proxy still tracks the app; got DockerKey=%q", app.DockerKey)
+	}
+}
+
+func TestImportDocker_Routing_GatewayPointsAppAtDomain(t *testing.T) {
+	h, cfg := newTestImportHandler(t, nil)
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:sonarr",
+			Strategy: "container_ip",
+			Routing:  "gateway",
+			App: &ClientAppConfig{
+				Name:    "Sonarr",
+				URL:     "http://10.0.0.5:8989",
+				Enabled: true,
+			},
+			Gateway: &config.GatewaySite{
+				Domain:     "sonarr.example.com",
+				BackendURL: "http://10.0.0.5:8989",
+				TLS:        "auto",
+			},
+		}},
+	})
+	if !res.Success {
+		t.Fatalf("Success=false: %+v", res)
+	}
+	app := cfg.Apps[0]
+	if app.URL != "https://sonarr.example.com" {
+		t.Errorf("routing=gateway should rewrite URL to gateway domain; got %q", app.URL)
+	}
+	if app.Proxy {
+		t.Errorf("routing=gateway should not set Proxy")
+	}
+	// App is NOT tracked - the gateway is the docker-managed entry.
+	if app.DockerKey != "" || app.DockerEndpoint != "" || app.DockerStrategy != "" {
+		t.Errorf("routing=gateway should leave app un-tracked; got %+v", app)
+	}
+	site := cfg.Server.GatewaySites[0]
+	if site.DockerKey != "name:sonarr" {
+		t.Errorf("gateway should be tracked instead; got DockerKey=%q", site.DockerKey)
+	}
+	if site.AppName != "Sonarr" {
+		t.Errorf("gateway -> app linkage should auto-fill AppName; got %q", site.AppName)
+	}
+}
+
+func TestImportDocker_Routing_GatewayWithTLSNoneUsesHTTP(t *testing.T) {
+	// TLS=none on the gateway means Caddy serves plain HTTP, so
+	// the menu URL should also be http:// not https://.
+	h, cfg := newTestImportHandler(t, nil)
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:foo",
+			Strategy: "container_ip",
+			Routing:  "gateway",
+			App:      &ClientAppConfig{Name: "Foo", URL: "http://10.0.0.5:80", Enabled: true},
+			Gateway:  &config.GatewaySite{Domain: "foo.local", BackendURL: "http://10.0.0.5:80", TLS: "none"},
+		}},
+	})
+	if !res.Success {
+		t.Fatalf("Success=false: %+v", res)
+	}
+	if cfg.Apps[0].URL != "http://foo.local" {
+		t.Errorf("TLS=none should produce http://; got %q", cfg.Apps[0].URL)
+	}
+}
+
+func TestImportDocker_Routing_GatewayWithoutGatewaySiteFails(t *testing.T) {
+	h, _ := newTestImportHandler(t, nil)
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:foo",
+			Strategy: "container_ip",
+			Routing:  "gateway",
+			App:      &ClientAppConfig{Name: "Foo", URL: "http://10.0.0.5:80", Enabled: true},
+			// no Gateway field - the routing decision is contradictory
+		}},
+	})
+	if res.Success {
+		t.Fatalf("expected failure; got success")
+	}
+	if res.Items[0].Status != "validation_failed" {
+		t.Errorf("status = %q, want validation_failed", res.Items[0].Status)
+	}
+}
+
+func TestImportDocker_Routing_UnknownValueIsRejected(t *testing.T) {
+	h, _ := newTestImportHandler(t, nil)
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:foo",
+			Strategy: "container_ip",
+			Routing:  "magic",
+			App:      &ClientAppConfig{Name: "Foo", URL: "http://10.0.0.5:80", Enabled: true},
+		}},
+	})
+	if res.Success {
+		t.Fatalf("expected failure; got success")
+	}
 	if res.Items[0].Status != "validation_failed" {
 		t.Errorf("status = %q", res.Items[0].Status)
 	}

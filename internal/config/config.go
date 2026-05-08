@@ -76,23 +76,23 @@ type DiscoveryConfig struct {
 // tracked-app URLs. Off by default; opt-in because it requires a
 // privileged socket / network endpoint.
 type DiscoveryDockerConfig struct {
-	Enabled         bool               `yaml:"enabled"`
-	Endpoint        string             `yaml:"endpoint"` // unix:///... or tcp://host:port
-	TLS             DiscoveryTLSConfig `yaml:"tls"`
-	NetworkStrategy string             `yaml:"network_strategy"` // container_ip | container_dns | host_port | host_docker_internal
-	HostIP          string             `yaml:"host_ip,omitempty"`
-	NetworkFilter   string             `yaml:"network_filter,omitempty"`
-	RefreshInterval string             `yaml:"refresh_interval"` // e.g. "60s"
+	Enabled         bool               `yaml:"enabled" json:"enabled"`
+	Endpoint        string             `yaml:"endpoint" json:"endpoint"` // unix:///... or tcp://host:port
+	TLS             DiscoveryTLSConfig `yaml:"tls" json:"tls"`
+	NetworkStrategy string             `yaml:"network_strategy" json:"network_strategy"` // container_ip | container_dns | host_port | host_docker_internal
+	HostIP          string             `yaml:"host_ip,omitempty" json:"host_ip,omitempty"`
+	NetworkFilter   string             `yaml:"network_filter,omitempty" json:"network_filter,omitempty"`
+	RefreshInterval string             `yaml:"refresh_interval" json:"refresh_interval"` // e.g. "60s"
 }
 
 // DiscoveryTLSConfig is the mTLS configuration used when the Docker
 // endpoint is a tcp:// address requiring certificate authentication.
 // Empty paths are tolerated only when Enabled is false.
 type DiscoveryTLSConfig struct {
-	Enabled    bool   `yaml:"enabled"`
-	CACert     string `yaml:"ca_cert,omitempty"`
-	ClientCert string `yaml:"client_cert,omitempty"`
-	ClientKey  string `yaml:"client_key,omitempty"`
+	Enabled    bool   `yaml:"enabled" json:"enabled"`
+	CACert     string `yaml:"ca_cert,omitempty" json:"ca_cert,omitempty"`
+	ClientCert string `yaml:"client_cert,omitempty" json:"client_cert,omitempty"`
+	ClientKey  string `yaml:"client_key,omitempty" json:"client_key,omitempty"`
 }
 
 // TLSConfig holds TLS/HTTPS settings
@@ -211,6 +211,19 @@ type ServerConfig struct {
 	// `muximux migrate-gateway` CLI helper.
 	Gateway      string        `yaml:"gateway,omitempty" json:"gateway,omitempty"`
 	GatewaySites []GatewaySite `yaml:"gateway_sites,omitempty" json:"gateway_sites,omitempty"`
+	// GatewayListen overrides the default Caddy bind for gateway
+	// sites. Empty (default) means Caddy binds the privileged ports
+	// 80 + 443 with auto-HTTPS - the standard topology for hosts that
+	// own the public IP. Non-empty (e.g. ":8443") binds that address
+	// instead and serves all gateway sites as plain HTTP unless the
+	// site has TLS=custom (operator-supplied cert). Use this when
+	// Muximux runs behind another reverse proxy that handles TLS
+	// termination, or when you don't want to grant the binary
+	// CAP_NET_BIND_SERVICE / run it as root.
+	//
+	// Format: ":<port>" or "<host>:<port>" (anything net.Listen
+	// accepts). Validated at config load.
+	GatewayListen string `yaml:"gateway_listen,omitempty" json:"gateway_listen,omitempty"`
 }
 
 // NormalizedBasePath returns the base path with a leading slash and no trailing slash.
@@ -532,10 +545,40 @@ func (c *Config) validate() error {
 			c.Server.Gateway)
 	}
 
+	if err := validateGatewayListen(c.Server.GatewayListen); err != nil {
+		return err
+	}
+
 	if err := validateGatewaySites(c.Server.GatewaySites, c); err != nil {
 		return err
 	}
 
+	return nil
+}
+
+// validateGatewayListen accepts an empty string (use defaults) or any
+// address that net.Listen would accept. Rejects malformed values up
+// front so the operator gets a clear error before Caddy is asked to
+// bind something it cannot parse.
+func validateGatewayListen(addr string) error {
+	if addr == "" {
+		return nil
+	}
+	// Accept ":port" or "host:port"; net.SplitHostPort handles both.
+	host, port, err := net.SplitHostPort(addr)
+	if err != nil {
+		return fmt.Errorf("server.gateway_listen %q is not a valid bind address (want \":port\" or \"host:port\"): %w", addr, err)
+	}
+	if port == "" {
+		return fmt.Errorf("server.gateway_listen %q must include a port number", addr)
+	}
+	if _, perr := net.LookupPort("tcp", port); perr != nil {
+		return fmt.Errorf("server.gateway_listen %q has an invalid port %q: %w", addr, port, perr)
+	}
+	// Empty host is fine - means "all interfaces". Reject only
+	// obviously broken non-numeric ports above; literal IPv6
+	// addresses are caller's responsibility.
+	_ = host
 	return nil
 }
 

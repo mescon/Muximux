@@ -4,11 +4,23 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"strings"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/logging"
+	"github.com/mescon/muximux/v3/internal/proxy"
 )
+
+// sameGatewaySlice returns true when a and b describe the same set
+// of gateway sites in the same order with the same field values.
+// Used to skip a needless Caddy reload when the import touched only
+// app entries (proxy-mode and direct-mode without a gateway).
+// reflect.DeepEqual handles GatewaySite's embedded map cleanly; the
+// slice is small (one row per imported gateway) so the cost is fine.
+func sameGatewaySlice(a, b []config.GatewaySite) bool {
+	return reflect.DeepEqual(a, b)
+}
 
 // ImportRequest is the body of POST /api/discovery/docker/import.
 // The frontend sends one item per checked row in the Discover modal.
@@ -21,11 +33,29 @@ type ImportRequest struct {
 // "skip this side". Every committed item gets DockerKey /
 // DockerEndpoint / DockerStrategy stamped on it from Item.Key etc.
 type ImportItem struct {
-	Key          string              `json:"key"`                      // discovery key, e.g. "label:sonarr-prod"
-	Strategy     string              `json:"strategy"`                 // EffectiveStrategy from the suggestion
-	App          *ClientAppConfig    `json:"app,omitempty"`            // when set, create an App with these fields
-	Gateway      *config.GatewaySite `json:"gateway,omitempty"`        // when set, create a GatewaySite
-	SkipIfExists *bool               `json:"skip_if_exists,omitempty"` // wire-default true when nil
+	Key      string              `json:"key"`               // discovery key, e.g. "label:sonarr-prod"
+	Strategy string              `json:"strategy"`          // EffectiveStrategy from the suggestion
+	App      *ClientAppConfig    `json:"app,omitempty"`     // when set, create an App with these fields
+	Gateway  *config.GatewaySite `json:"gateway,omitempty"` // when set, create a GatewaySite
+	// Routing controls how the App's menu link is wired when App is
+	// non-nil. Three modes:
+	//   ""       - same as "direct"; default for backward compat
+	//   "direct" - menu links to the discovered container URL; the
+	//              poller refreshes App.URL every tick. App.proxy stays
+	//              false. Suitable when the dashboard machine can
+	//              reach the container's IP+port directly.
+	//   "proxy"  - menu links to /proxy/<slug> (Muximux's built-in
+	//              path-prefix reverse proxy). App.proxy = true; the
+	//              container URL is the upstream the proxy hits. Same
+	//              tracking semantics as direct (poller refreshes
+	//              App.URL).
+	//   "gateway" - menu links to https://<gateway.domain>. App.URL is
+	//               STATIC at the gateway domain; the gateway site's
+	//               BackendURL is what the poller refreshes (so the
+	//               gateway is the docker-managed entry, not the App).
+	//               Requires Gateway to be non-nil.
+	Routing      string `json:"routing,omitempty"`
+	SkipIfExists *bool  `json:"skip_if_exists,omitempty"` // wire-default true when nil
 }
 
 // ImportItemResult carries the per-item outcome. Status values:
@@ -158,6 +188,30 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 			break
 		}
 
+		// Validate routing up front so the operator gets an actionable
+		// error before we touch anything else. Empty string normalises
+		// to "direct" for backward compat with pre-Phase-G clients.
+		// Unknown values fail the whole batch; using `if` (not switch)
+		// so `break` exits the outer for loop on failure.
+		routing := item.Routing
+		if routing == "" {
+			routing = "direct"
+		}
+		if routing != "direct" && routing != "proxy" && routing != "gateway" {
+			results[i].Status = "validation_failed"
+			results[i].Error = fmt.Sprintf("unknown routing %q (want direct|proxy|gateway)", routing)
+			failingIdx = i
+			failingKey = item.Key
+			break
+		}
+		if routing == "gateway" && item.Gateway == nil {
+			results[i].Status = "validation_failed"
+			results[i].Error = "routing=gateway requires a gateway site to be created in the same item"
+			failingIdx = i
+			failingKey = item.Key
+			break
+		}
+
 		// App side.
 		var addedApp *config.AppConfig
 		if item.App != nil {
@@ -200,9 +254,42 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 				break
 			} else {
 				newApp := clientAppToConfig(item.App)
-				newApp.DockerKey = item.Key
-				newApp.DockerEndpoint = currentEndpoint
-				newApp.DockerStrategy = item.Strategy
+				// Apply the routing decision. The discovered URL
+				// (item.App.URL) lives in newApp.URL by default; for
+				// gateway-routed apps we override it with the public
+				// domain and detach the App from auto-management
+				// (the gateway site becomes the docker-managed entry).
+				switch routing {
+				case "proxy":
+					newApp.Proxy = true
+					newApp.DockerKey = item.Key
+					newApp.DockerEndpoint = currentEndpoint
+					newApp.DockerStrategy = item.Strategy
+				case "gateway":
+					// Replace App.URL with the gateway domain so the
+					// menu loads via the public hostname. https:// is
+					// the default since Caddy handles cert issuance
+					// for managed sites; an operator with TLS=none
+					// can post-edit later.
+					scheme := "https"
+					if item.Gateway.TLS == "none" {
+						scheme = "http"
+					}
+					newApp.URL = scheme + "://" + item.Gateway.Domain
+					newApp.Proxy = false
+					// App is NOT tracked - the gateway is. This
+					// avoids a tug-of-war where the poller would
+					// rewrite App.URL away from the operator-chosen
+					// gateway domain on every tick.
+					newApp.DockerKey = ""
+					newApp.DockerEndpoint = ""
+					newApp.DockerStrategy = ""
+				default: // "direct"
+					newApp.Proxy = false
+					newApp.DockerKey = item.Key
+					newApp.DockerEndpoint = currentEndpoint
+					newApp.DockerStrategy = item.Strategy
+				}
 				apps = append(apps, newApp)
 				addedApp = &apps[len(apps)-1]
 				batchAppNames[newApp.Name] = i
@@ -314,12 +401,49 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
-	// Commit: swap the slices in, save, rollback on save failure.
+	// Commit in-memory first so any subsequent failure has a clean
+	// rollback target.
 	h.config.Apps = apps
 	h.config.Server.GatewaySites = sites
+
+	// Push gateway sites to Caddy so https://imported.example.com
+	// actually serves something. Without this the import lands on
+	// disk only and Caddy ignores the new site until restart - the
+	// bug discovered during Phase G live testing. Skip when no proxy
+	// was started (CLI-only / tests).
+	gatewayChanged := !sameGatewaySlice(priorSites, sites)
+	if gatewayChanged && h.proxyServer != nil && h.proxyServer.IsRunning() {
+		newProxy := proxy.ConfigGatewaySitesToProxy(sites)
+		priorProxy := proxy.ConfigGatewaySitesToProxy(priorSites)
+		if err := h.proxyServer.ApplyGatewaySites(newProxy, priorProxy); err != nil {
+			h.config.Apps = priorApps
+			h.config.Server.GatewaySites = priorSites
+			for i := range results {
+				if results[i].Status == "created" {
+					results[i].Status = "aborted_by_batch_failure"
+					results[i].Error = "rolled back: caddy reload rejected the candidate gateway sites"
+				}
+			}
+			logging.From(r.Context()).Error("Discovery import caddy reload failed; in-memory rolled back",
+				"source", "audit",
+				"error", err)
+			sendJSON(w, http.StatusOK, ImportResult{Success: false, Error: err.Error(), Items: results})
+			return
+		}
+	}
+
 	if err := h.config.Save(h.configPath); err != nil {
+		// Save failed - revert in-memory AND ask Caddy to re-assert
+		// the prior gateway shape so the running proxy doesn't drift
+		// past disk.
 		h.config.Apps = priorApps
 		h.config.Server.GatewaySites = priorSites
+		if gatewayChanged && h.proxyServer != nil && h.proxyServer.IsRunning() {
+			_ = h.proxyServer.ApplyGatewaySites(
+				proxy.ConfigGatewaySitesToProxy(priorSites),
+				proxy.ConfigGatewaySitesToProxy(sites),
+			)
+		}
 		for i := range results {
 			if results[i].Status == "created" {
 				results[i].Status = "aborted_by_batch_failure"
