@@ -3,6 +3,28 @@ package discovery
 import (
 	"fmt"
 	"strings"
+
+	"github.com/mescon/muximux/v3/internal/config"
+)
+
+// Confidence rates how trustworthy a Suggestion's auto-filled
+// fields are. The frontend renders a coloured chip per row so
+// operators can scan a batch and focus review on the low-
+// confidence rows.
+type Confidence string
+
+const (
+	// ConfidenceHigh: operator-supplied muximux.app.* labels on
+	// the container drove every field. No guessing.
+	ConfidenceHigh Confidence = "high"
+	// ConfidenceMedium: the image matches a catalog entry, so
+	// name/icon/port came from a curated source. Still worth a
+	// glance before importing.
+	ConfidenceMedium Confidence = "medium"
+	// ConfidenceLow: no labels, no catalog match - all fields
+	// fell through to heuristics (titleized container name,
+	// first exposed port). Operator review strongly recommended.
+	ConfidenceLow Confidence = "low"
 )
 
 // Suggestion is one row in the Discover modal. The frontend treats
@@ -22,15 +44,15 @@ type Suggestion struct {
 	HealthURL string `json:"health_url,omitempty"`
 
 	// Network
-	EffectiveStrategy string `json:"effective_strategy"` // strategy used to build URL
+	EffectiveStrategy config.NetworkStrategy `json:"effective_strategy"` // strategy used to build URL
 
 	// Diagnostic / display
-	ContainerID   string   `json:"container_id"`
-	ContainerName string   `json:"container_name,omitempty"`
-	ImageRef      string   `json:"image_ref"`
-	Confidence    string   `json:"confidence"`               // "high" | "medium" | "low"
-	RequiresInput bool     `json:"requires_input,omitempty"` // true when scan can't pick a port etc.
-	Notes         []string `json:"notes,omitempty"`
+	ContainerID   string     `json:"container_id"`
+	ContainerName string     `json:"container_name,omitempty"`
+	ImageRef      string     `json:"image_ref"`
+	Confidence    Confidence `json:"confidence"`               // see Confidence constants
+	RequiresInput bool       `json:"requires_input,omitempty"` // true when scan can't pick a port etc.
+	Notes         []string   `json:"notes,omitempty"`
 
 	// Suggested gateway-site fields, used when the modal's
 	// "Add gateway site" toggle is on.
@@ -44,7 +66,7 @@ type Suggestion struct {
 // globalStrategy + hostIP come from the discovery config; they're
 // passed in rather than read from the Service so this function stays
 // pure and easy to test.
-func suggestForContainer(c *ContainerSummary, globalStrategy, hostIP, dashboardDomain string) Suggestion {
+func suggestForContainer(c *ContainerSummary, globalStrategy config.NetworkStrategy, hostIP, dashboardDomain string) Suggestion {
 	labels := ParseAppLabels(c.Labels)
 	catalog, hasCatalog := MatchImage(c.Image)
 	key, stability := KeyForContainer(c)
@@ -55,7 +77,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy, hostIP, dashboardD
 		ContainerID:   c.ID,
 		ContainerName: c.PrimaryName(),
 		ImageRef:      c.Image,
-		Confidence:    "low",
+		Confidence:    ConfidenceLow,
 		Notes:         []string{},
 	}
 
@@ -63,11 +85,11 @@ func suggestForContainer(c *ContainerSummary, globalStrategy, hostIP, dashboardD
 	switch {
 	case labels.Name != "":
 		s.Name = labels.Name
-		s.Confidence = "high"
+		s.Confidence = ConfidenceHigh
 		s.Notes = append(s.Notes, "Name from label muximux.app.name")
 	case hasCatalog && catalog.Name != "":
 		s.Name = catalog.Name
-		s.Confidence = "medium"
+		s.Confidence = ConfidenceMedium
 		s.Notes = append(s.Notes, fmt.Sprintf("Name suggested from catalog: %s", catalog.Image))
 	default:
 		s.Name = titleizeName(c.PrimaryName())
@@ -125,7 +147,7 @@ func suggestForContainer(c *ContainerSummary, globalStrategy, hostIP, dashboardD
 
 	// URL.
 	if port != 0 {
-		urlStr, err := buildURLForSuggestion(strategy, c, port, scheme, hostIP)
+		urlStr, err := buildURLForSuggestion(string(strategy), c, port, scheme, hostIP)
 		if err != nil {
 			s.RequiresInput = true
 			s.Notes = append(s.Notes, fmt.Sprintf("Cannot build URL: %s", err.Error()))

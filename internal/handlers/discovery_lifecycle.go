@@ -27,15 +27,25 @@ import (
 // what the Discovery tab needs to render: identity, key, last seen,
 // and the endpoint-mismatch flag that drives the Re-link button.
 type TrackedEntry struct {
-	Kind            string `json:"kind"`     // "app" | "gateway"
-	Name            string `json:"name"`     // app name or gateway domain
-	Key             string `json:"key"`      // tracking key (e.g. "label:foo")
-	Strategy        string `json:"strategy"` // saved DockerStrategy
-	Endpoint        string `json:"endpoint"` // saved DockerEndpoint
-	URL             string `json:"url"`      // current URL (BackendURL for gateway)
-	LastSeenAt      string `json:"last_seen_at,omitempty"`
-	EndpointMatches bool   `json:"endpoint_matches"` // false -> show Re-link
+	Kind            EntryKind `json:"kind"`
+	Name            string    `json:"name"`     // app name or gateway domain
+	Key             string    `json:"key"`      // tracking key (e.g. "label:foo")
+	Strategy        string    `json:"strategy"` // saved DockerStrategy
+	Endpoint        string    `json:"endpoint"` // saved DockerEndpoint
+	URL             string    `json:"url"`      // current URL (BackendURL for gateway)
+	LastSeenAt      string    `json:"last_seen_at,omitempty"`
+	EndpointMatches bool      `json:"endpoint_matches"` // false -> show Re-link
 }
+
+// EntryKind names the two kinds of tracked entries the Currently-
+// tracked panel renders. The audit-log paths also stamp this string
+// verbatim, so the wire form has to match across handler + log.
+type EntryKind string
+
+const (
+	EntryKindApp     EntryKind = "app"
+	EntryKindGateway EntryKind = "gateway"
+)
 
 // TrackedListResult is what GET /tracked returns.
 type TrackedListResult struct {
@@ -69,7 +79,7 @@ func (h *DiscoveryHandler) ListTracked(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		out.Entries = append(out.Entries, TrackedEntry{
-			Kind:            "app",
+			Kind:            EntryKindApp,
 			Name:            a.Name,
 			Key:             a.DockerKey,
 			Strategy:        a.DockerStrategy,
@@ -85,7 +95,7 @@ func (h *DiscoveryHandler) ListTracked(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		out.Entries = append(out.Entries, TrackedEntry{
-			Kind:            "gateway",
+			Kind:            EntryKindGateway,
 			Name:            s.Domain,
 			Key:             s.DockerKey,
 			Strategy:        s.DockerStrategy,

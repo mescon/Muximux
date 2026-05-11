@@ -79,11 +79,35 @@ type DiscoveryDockerConfig struct {
 	Enabled         bool               `yaml:"enabled" json:"enabled"`
 	Endpoint        string             `yaml:"endpoint" json:"endpoint"` // unix:///... or tcp://host:port
 	TLS             DiscoveryTLSConfig `yaml:"tls" json:"tls"`
-	NetworkStrategy string             `yaml:"network_strategy" json:"network_strategy"` // container_ip | container_dns | host_port | host_docker_internal
+	NetworkStrategy NetworkStrategy    `yaml:"network_strategy" json:"network_strategy"` // see NetworkStrategy constants
 	HostIP          string             `yaml:"host_ip,omitempty" json:"host_ip,omitempty"`
 	NetworkFilter   string             `yaml:"network_filter,omitempty" json:"network_filter,omitempty"`
 	RefreshInterval string             `yaml:"refresh_interval" json:"refresh_interval"` // e.g. "60s"
 }
+
+// NetworkStrategy picks how a container's URL is constructed when
+// the discovery scan + refresh poller resolve it. The defined type
+// catches typos at the dozen-plus comparison sites across discovery/
+// and config/ that would otherwise compile silently.
+type NetworkStrategy string
+
+const (
+	// StrategyContainerIP: read the IP off the docker-network the
+	// container is attached to; reachable from Muximux when it
+	// runs on the same network or self-detect succeeds.
+	StrategyContainerIP NetworkStrategy = "container_ip"
+	// StrategyContainerDNS: hit the container by name through
+	// docker's internal DNS; needs Muximux on a shared network
+	// where docker dns resolves.
+	StrategyContainerDNS NetworkStrategy = "container_dns"
+	// StrategyHostPort: use the published host port mapping;
+	// works from anywhere with reachability to the host IP.
+	StrategyHostPort NetworkStrategy = "host_port"
+	// StrategyHostDockerInternal: address the host via the
+	// special docker DNS name; useful when Muximux itself runs
+	// in a Desktop / WSL container.
+	StrategyHostDockerInternal NetworkStrategy = "host_docker_internal"
+)
 
 // DiscoveryTLSConfig is the mTLS configuration used when the Docker
 // endpoint is a tcp:// address requiring certificate authentication.
@@ -462,7 +486,7 @@ func Load(path string) (*Config, error) {
 			cfg.Discovery.Docker.Endpoint = "unix:///var/run/docker.sock"
 		}
 		if cfg.Discovery.Docker.NetworkStrategy == "" {
-			cfg.Discovery.Docker.NetworkStrategy = "container_ip"
+			cfg.Discovery.Docker.NetworkStrategy = StrategyContainerIP
 		}
 		if cfg.Discovery.Docker.RefreshInterval == "" {
 			cfg.Discovery.Docker.RefreshInterval = "60s"

@@ -236,8 +236,13 @@ func validateDiscoveryDockerConfig(c *config.DiscoveryDockerConfig) error {
 		return errBadDiscoveryEndpointScheme
 	}
 	switch c.NetworkStrategy {
-	case "", "container_ip", "container_dns", "host_port", "host_docker_internal":
-		// "" is allowed because config.Load defaults it to container_ip.
+	case "",
+		config.StrategyContainerIP,
+		config.StrategyContainerDNS,
+		config.StrategyHostPort,
+		config.StrategyHostDockerInternal:
+		// "" is allowed because config.Load defaults it to
+		// StrategyContainerIP.
 	default:
 		return errBadDiscoveryNetworkStrategy
 	}

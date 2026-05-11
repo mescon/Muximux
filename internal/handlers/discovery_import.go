@@ -13,6 +13,35 @@ import (
 	"github.com/mescon/muximux/v3/internal/proxy"
 )
 
+// Routing picks how a freshly imported App's menu link is wired.
+// The wire format is a plain string so a defined type costs nothing
+// at the JSON boundary while still preventing a typo at any of the
+// dozen+ call sites that compare or assign these values.
+type Routing string
+
+const (
+	RoutingDirect  Routing = "direct"  // menu links to container URL; App.proxy=false
+	RoutingProxy   Routing = "proxy"   // menu links to /proxy/<slug>; App.proxy=true
+	RoutingGateway Routing = "gateway" // menu links to https://<gateway.domain>; App is not tracked, gateway is
+)
+
+// Normalize folds the legacy "" payload into "direct" (the wire
+// default) so handler code can compare against the three valid
+// values without re-checking the empty string each time.
+func (r Routing) Normalize() Routing {
+	if r == "" {
+		return RoutingDirect
+	}
+	return r
+}
+
+// Valid reports whether r is one of the three known modes. Called
+// once at the validation boundary; everywhere downstream of
+// Normalize can rely on the result.
+func (r Routing) Valid() bool {
+	return r == RoutingDirect || r == RoutingProxy || r == RoutingGateway
+}
+
 // sameGatewaySlice returns true when a and b describe the same set
 // of gateway sites in the same order with the same field values.
 // Used to skip a needless Caddy reload when the import touched only
@@ -55,27 +84,43 @@ type ImportItem struct {
 	//               BackendURL is what the poller refreshes (so the
 	//               gateway is the docker-managed entry, not the App).
 	//               Requires Gateway to be non-nil.
-	Routing      string `json:"routing,omitempty"`
-	SkipIfExists *bool  `json:"skip_if_exists,omitempty"` // wire-default true when nil
+	Routing      Routing `json:"routing,omitempty"`
+	SkipIfExists *bool   `json:"skip_if_exists,omitempty"` // wire-default true when nil
 }
 
-// ImportItemResult carries the per-item outcome. Status values:
-//   - "created"                  - app + (optional) gateway site committed
-//   - "skipped_exists"           - already tracked or duplicate name in
-//     store; no-op (default for re-import)
-//   - "validation_failed"        - this item failed validation; Error explains
-//   - "name_collision_in_batch"  - this item's name duplicates an earlier
-//     item in the same submit
-//   - "aborted_by_batch_failure" - this item passed validation but the
-//     batch was rolled back because another
-//     item failed. Error names the failing
-//     item's key.
+// ImportStatus is the per-item outcome of a single batch import.
+// The wire form is a plain JSON string; the defined type catches
+// typos at the 23 assignment sites and the equal-number comparison
+// sites that would otherwise compile silently.
+type ImportStatus string
+
+const (
+	// StatusCreated: app and/or gateway-site committed cleanly.
+	StatusCreated ImportStatus = "created"
+	// StatusSkippedExists: an entry with this key or name already
+	// existed; the import skipped this row to keep re-imports
+	// idempotent.
+	StatusSkippedExists ImportStatus = "skipped_exists"
+	// StatusValidationFailed: this item's payload failed a
+	// structural check; Error explains. The batch is rolled back.
+	StatusValidationFailed ImportStatus = "validation_failed"
+	// StatusNameCollisionInBatch: the same name or domain appeared
+	// twice in this submission; Error names the earlier item.
+	StatusNameCollisionInBatch ImportStatus = "name_collision_in_batch"
+	// StatusAbortedByBatchFailure: this item passed validation but
+	// the batch was rolled back because another item failed. Error
+	// names the failing item's key so the operator knows where to
+	// look.
+	StatusAbortedByBatchFailure ImportStatus = "aborted_by_batch_failure"
+)
+
+// ImportItemResult carries the per-item outcome.
 type ImportItemResult struct {
-	Key     string `json:"key"`
-	Status  string `json:"status"`
-	Error   string `json:"error,omitempty"`
-	AppName string `json:"app_name,omitempty"`
-	Domain  string `json:"domain,omitempty"`
+	Key     string       `json:"key"`
+	Status  ImportStatus `json:"status"`
+	Error   string       `json:"error,omitempty"`
+	AppName string       `json:"app_name,omitempty"`
+	Domain  string       `json:"domain,omitempty"`
 }
 
 // ImportResult is what the handler returns. Success is true iff
@@ -154,7 +199,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		results[i] = ImportItemResult{Key: item.Key}
 
 		if item.Key == "" {
-			results[i].Status = "validation_failed"
+			results[i].Status = StatusValidationFailed
 			results[i].Error = "key is required"
 			failingIdx = i
 			failingKey = "(empty key)"
@@ -171,10 +216,10 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		// Already tracked? Treat as no-op so a re-import is idempotent.
 		if existingDockerKeys[item.Key] {
 			if skipIfExists {
-				results[i].Status = "skipped_exists"
+				results[i].Status = StatusSkippedExists
 				continue
 			}
-			results[i].Status = "validation_failed"
+			results[i].Status = StatusValidationFailed
 			results[i].Error = fmt.Sprintf("docker key %q is already tracked; set skip_if_exists=false only when you mean to overwrite", item.Key)
 			failingIdx = i
 			failingKey = item.Key
@@ -182,7 +227,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		}
 
 		if item.App == nil && item.Gateway == nil {
-			results[i].Status = "validation_failed"
+			results[i].Status = StatusValidationFailed
 			results[i].Error = "must set at least one of app or gateway"
 			failingIdx = i
 			failingKey = item.Key
@@ -191,22 +236,19 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 
 		// Validate routing up front so the operator gets an actionable
 		// error before we touch anything else. Empty string normalises
-		// to "direct" for backward compat with pre-Phase-G clients.
-		// Unknown values fail the whole batch; using `if` (not switch)
-		// so `break` exits the outer for loop on failure.
-		routing := item.Routing
-		if routing == "" {
-			routing = "direct"
-		}
-		if routing != "direct" && routing != "proxy" && routing != "gateway" {
-			results[i].Status = "validation_failed"
+		// to "direct" for legacy clients. Unknown values fail the
+		// whole batch; using `if` (not switch) so `break` exits the
+		// outer for loop on failure.
+		routing := item.Routing.Normalize()
+		if !routing.Valid() {
+			results[i].Status = StatusValidationFailed
 			results[i].Error = fmt.Sprintf("unknown routing %q (want direct|proxy|gateway)", routing)
 			failingIdx = i
 			failingKey = item.Key
 			break
 		}
-		if routing == "gateway" && item.Gateway == nil {
-			results[i].Status = "validation_failed"
+		if routing == RoutingGateway && item.Gateway == nil {
+			results[i].Status = StatusValidationFailed
 			results[i].Error = "routing=gateway requires a gateway site to be created in the same item"
 			failingIdx = i
 			failingKey = item.Key
@@ -217,14 +259,14 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		var addedApp *config.AppConfig
 		if item.App != nil {
 			if strings.TrimSpace(item.App.Name) == "" {
-				results[i].Status = "validation_failed"
+				results[i].Status = StatusValidationFailed
 				results[i].Error = "app.name is required"
 				failingIdx = i
 				failingKey = item.Key
 				break
 			}
 			if strings.TrimSpace(item.App.URL) == "" {
-				results[i].Status = "validation_failed"
+				results[i].Status = StatusValidationFailed
 				results[i].Error = "app.url is required"
 				failingIdx = i
 				failingKey = item.Key
@@ -232,7 +274,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 			}
 			if existingAppNames[item.App.Name] {
 				if skipIfExists {
-					results[i].Status = "skipped_exists"
+					results[i].Status = StatusSkippedExists
 					results[i].AppName = item.App.Name
 					// If a gateway site is also requested, still try
 					// to create it but link to the existing app.
@@ -241,14 +283,14 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 					}
 					// fall through to gateway creation
 				} else {
-					results[i].Status = "validation_failed"
+					results[i].Status = StatusValidationFailed
 					results[i].Error = fmt.Sprintf("app named %q already exists", item.App.Name)
 					failingIdx = i
 					failingKey = item.Key
 					break
 				}
 			} else if firstIdx, dup := batchAppNames[item.App.Name]; dup {
-				results[i].Status = "name_collision_in_batch"
+				results[i].Status = StatusNameCollisionInBatch
 				results[i].Error = fmt.Sprintf("app name %q already used by item %d in this batch", item.App.Name, firstIdx)
 				failingIdx = i
 				failingKey = item.Key
@@ -261,12 +303,12 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 				// domain and detach the App from auto-management
 				// (the gateway site becomes the docker-managed entry).
 				switch routing {
-				case "proxy":
+				case RoutingProxy:
 					newApp.Proxy = true
 					newApp.DockerKey = item.Key
 					newApp.DockerEndpoint = currentEndpoint
 					newApp.DockerStrategy = item.Strategy
-				case "gateway":
+				case RoutingGateway:
 					// Replace App.URL with the gateway domain so the
 					// menu loads via the public hostname. https:// is
 					// the default since Caddy handles cert issuance
@@ -285,7 +327,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 					newApp.DockerKey = ""
 					newApp.DockerEndpoint = ""
 					newApp.DockerStrategy = ""
-				default: // "direct"
+				default: // RoutingDirect (covers normalized default)
 					newApp.Proxy = false
 					newApp.DockerKey = item.Key
 					newApp.DockerEndpoint = currentEndpoint
@@ -301,14 +343,14 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		// Gateway side.
 		if item.Gateway != nil {
 			if strings.TrimSpace(item.Gateway.Domain) == "" {
-				results[i].Status = "validation_failed"
+				results[i].Status = StatusValidationFailed
 				results[i].Error = "gateway.domain is required"
 				failingIdx = i
 				failingKey = item.Key
 				break
 			}
 			if strings.TrimSpace(item.Gateway.BackendURL) == "" {
-				results[i].Status = "validation_failed"
+				results[i].Status = StatusValidationFailed
 				results[i].Error = "gateway.backend_url is required"
 				failingIdx = i
 				failingKey = item.Key
@@ -317,7 +359,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 			domLower := strings.ToLower(item.Gateway.Domain)
 			if existingDomains[domLower] {
 				if !skipIfExists {
-					results[i].Status = "validation_failed"
+					results[i].Status = StatusValidationFailed
 					results[i].Error = fmt.Sprintf("gateway domain %q already exists", item.Gateway.Domain)
 					failingIdx = i
 					failingKey = item.Key
@@ -325,7 +367,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 				}
 				// skipping
 			} else if firstIdx, dup := batchSiteDomains[domLower]; dup {
-				results[i].Status = "name_collision_in_batch"
+				results[i].Status = StatusNameCollisionInBatch
 				results[i].Error = fmt.Sprintf("gateway domain %q already used by item %d in this batch", item.Gateway.Domain, firstIdx)
 				failingIdx = i
 				failingKey = item.Key
@@ -348,7 +390,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		// created at least one of {app, gateway}, mark "created";
 		// pure-skip rows already have "skipped_exists" set.
 		if results[i].Status == "" {
-			results[i].Status = "created"
+			results[i].Status = StatusCreated
 		}
 	}
 
@@ -357,14 +399,14 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// statuses untouched for the failing item.
 	if failingIdx >= 0 {
 		for i := 0; i < failingIdx; i++ {
-			if results[i].Status == "created" {
-				results[i].Status = "aborted_by_batch_failure"
+			if results[i].Status == StatusCreated {
+				results[i].Status = StatusAbortedByBatchFailure
 				results[i].Error = fmt.Sprintf("rolled back because item %d (%s) failed validation", failingIdx, failingKey)
 			}
 		}
 		for i := failingIdx + 1; i < len(results); i++ {
 			results[i].Key = req.Items[i].Key
-			results[i].Status = "aborted_by_batch_failure"
+			results[i].Status = StatusAbortedByBatchFailure
 			results[i].Error = fmt.Sprintf("rolled back because item %d (%s) failed validation", failingIdx, failingKey)
 		}
 		sendJSON(w, http.StatusOK, ImportResult{Success: false, Items: results})
@@ -385,7 +427,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		failKey := ""
 		for i, item := range req.Items {
 			if item.Gateway != nil && strings.Contains(err.Error(), item.Gateway.Domain) {
-				results[i].Status = "validation_failed"
+				results[i].Status = StatusValidationFailed
 				results[i].Error = err.Error()
 				failKey = item.Key
 				failingIdx = i
@@ -393,8 +435,8 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 		for i := range results {
-			if i != failingIdx && results[i].Status == "created" {
-				results[i].Status = "aborted_by_batch_failure"
+			if i != failingIdx && results[i].Status == StatusCreated {
+				results[i].Status = StatusAbortedByBatchFailure
 				results[i].Error = fmt.Sprintf("rolled back because gateway-site validation failed (%s)", failKey)
 			}
 		}
@@ -439,8 +481,8 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 					"error", err)
 			}
 			for i := range results {
-				if results[i].Status == "created" {
-					results[i].Status = "aborted_by_batch_failure"
+				if results[i].Status == StatusCreated {
+					results[i].Status = StatusAbortedByBatchFailure
 					results[i].Error = divergenceMsg
 				}
 			}
@@ -487,8 +529,8 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 						"reassert_error", reassertErr.Error())
 				}
 				for i := range results {
-					if results[i].Status == "created" {
-						results[i].Status = "aborted_by_batch_failure"
+					if results[i].Status == StatusCreated {
+						results[i].Status = StatusAbortedByBatchFailure
 						results[i].Error = statusErr
 					}
 				}
@@ -497,8 +539,8 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 			}
 		}
 		for i := range results {
-			if results[i].Status == "created" {
-				results[i].Status = "aborted_by_batch_failure"
+			if results[i].Status == StatusCreated {
+				results[i].Status = StatusAbortedByBatchFailure
 				results[i].Error = statusErr
 			}
 		}

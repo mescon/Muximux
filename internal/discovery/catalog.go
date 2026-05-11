@@ -1,6 +1,10 @@
 package discovery
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/mescon/muximux/v3/internal/config"
+)
 
 // CatalogEntry is one row of the hand-curated image-to-app catalog.
 // Operators see these suggestions in the Discover modal; they can
@@ -25,7 +29,7 @@ type CatalogEntry struct {
 	// network_strategy for suggestions matching this image. Useful
 	// for frontdoor apps (swag, nginx-proxy-manager) that typically
 	// sit on host_port even when other services use container_ip.
-	PrefersStrategy string
+	PrefersStrategy config.NetworkStrategy
 }
 
 // builtinCatalog is the hand-curated list. Order matters: when two

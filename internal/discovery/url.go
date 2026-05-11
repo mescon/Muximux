@@ -3,6 +3,8 @@ package discovery
 import (
 	"fmt"
 	"strconv"
+
+	"github.com/mescon/muximux/v3/internal/config"
 )
 
 // buildURLForSuggestion constructs the App URL / Gateway BackendURL
@@ -20,22 +22,22 @@ func buildURLForSuggestion(strategy string, c *ContainerSummary, port int, schem
 	if scheme == "" {
 		scheme = "http"
 	}
-	switch strategy {
-	case "", "container_ip":
+	switch config.NetworkStrategy(strategy) {
+	case "", config.StrategyContainerIP:
 		ip := primaryContainerIP(c)
 		if ip == "" {
 			return "", fmt.Errorf("container has no network IP for container_ip strategy")
 		}
 		return fmt.Sprintf("%s://%s:%d", scheme, ip, port), nil
 
-	case "container_dns":
+	case config.StrategyContainerDNS:
 		name := c.PrimaryName()
 		if name == "" {
 			return "", fmt.Errorf("container has no name for container_dns strategy")
 		}
 		return fmt.Sprintf("%s://%s:%d", scheme, name, port), nil
 
-	case "host_port":
+	case config.StrategyHostPort:
 		hostPort := hostBindingForPort(c, port)
 		if hostPort == 0 {
 			return "", fmt.Errorf("container does not publish container port %d on host", port)
@@ -46,7 +48,7 @@ func buildURLForSuggestion(strategy string, c *ContainerSummary, port int, schem
 		}
 		return fmt.Sprintf("%s://%s:%d", scheme, host, hostPort), nil
 
-	case "host_docker_internal":
+	case config.StrategyHostDockerInternal:
 		hostPort := hostBindingForPort(c, port)
 		if hostPort == 0 {
 			return "", fmt.Errorf("container does not publish container port %d on host", port)

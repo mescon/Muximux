@@ -70,14 +70,14 @@ const statusCacheTTL = 30 * time.Second
 // All boolean fields default to false; the JSON omitempty pattern is
 // avoided so the frontend can rely on field presence.
 type StatusResult struct {
-	Configured bool   `json:"configured"`                   // discovery.docker.enabled
-	Reachable  bool   `json:"reachable"`                    // last Ping succeeded
-	StrategyOK bool   `json:"strategy_ok"`                  // selfDetect succeeded for network strategies
-	Endpoint   string `json:"endpoint,omitempty"`           // configured endpoint string
-	APIVersion string `json:"api_version,omitempty"`        // from /version
-	Strategy   string `json:"strategy,omitempty"`           // configured network strategy
-	SelfDetect string `json:"self_detect_method,omitempty"` // see SelfDetectMethod
-	LastError  string `json:"last_error,omitempty"`         // human-readable cause when !Reachable
+	Configured bool                   `json:"configured"`                   // discovery.docker.enabled
+	Reachable  bool                   `json:"reachable"`                    // last Ping succeeded
+	StrategyOK bool                   `json:"strategy_ok"`                  // selfDetect succeeded for network strategies
+	Endpoint   string                 `json:"endpoint,omitempty"`           // configured endpoint string
+	APIVersion string                 `json:"api_version,omitempty"`        // from /version
+	Strategy   config.NetworkStrategy `json:"strategy,omitempty"`           // configured network strategy
+	SelfDetect string                 `json:"self_detect_method,omitempty"` // see SelfDetectMethod
+	LastError  string                 `json:"last_error,omitempty"`         // human-readable cause when !Reachable
 
 	// Refresh state surfaced for the Settings banner.
 	Divergences          int    `json:"refresh_divergences,omitempty"`
@@ -269,7 +269,7 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 
 	// Strategy probe: only network-membership strategies need self-detect.
 	switch s.cfg.NetworkStrategy {
-	case "container_ip", "container_dns":
+	case config.StrategyContainerIP, config.StrategyContainerDNS:
 		s.mu.RLock()
 		checked := s.selfChecked
 		info := s.selfInfo
@@ -296,12 +296,12 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 			r.StrategyOK = false
 			r.SelfDetect = string(SelfDetectNone)
 		}
-	case "host_port", "host_docker_internal":
+	case config.StrategyHostPort, config.StrategyHostDockerInternal:
 		// These strategies don't need self-detect.
 		r.StrategyOK = true
 	default:
 		r.StrategyOK = false
-		r.LastError = "unknown network_strategy: " + s.cfg.NetworkStrategy
+		r.LastError = "unknown network_strategy: " + string(s.cfg.NetworkStrategy)
 	}
 
 	// Refresh-state telemetry (in-memory; resets on restart). Single
@@ -364,7 +364,7 @@ func (s *Service) Scan(ctx context.Context, dashboardDomain string) ScanResult {
 	// either, we'd be enumerating containers across every network
 	// visible to the daemon - a scope we don't control.
 	switch s.cfg.NetworkStrategy {
-	case "", "container_ip", "container_dns":
+	case "", config.StrategyContainerIP, config.StrategyContainerDNS:
 		if s.cfg.NetworkFilter == "" {
 			s.mu.RLock()
 			info := s.selfInfo
