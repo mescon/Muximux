@@ -63,6 +63,25 @@ jellyfin.example.com {
 
 Each domain gets its own certificate. Caddy handles renewals automatically.
 
+### Faster: Import from Docker
+
+If those backends run as Docker containers, **Apps tab → Discover from Docker** (or **Gateway tab → Discover from Docker**) builds the same site list in one click. Pick "Gateway" routing per row and supply the public domain; the gateway site is created and Caddy reloads in the same transaction. URLs auto-refresh as container IPs shift. See [Docker Discovery](docker-discovery.md).
+
+Labels on your compose file pre-fill name, icon, port, and a stable tracking key:
+
+```yaml
+# docker-compose.yml
+services:
+  sonarr:
+    image: linuxserver/sonarr
+    labels:
+      - muximux.discovery.id=sonarr-stable   # survives docker-compose --force-recreate
+      - muximux.app.name=Sonarr
+      - muximux.app.icon=sonarr
+      - muximux.app.group=Media
+      # port + scheme auto-detected from the catalog for known images
+```
+
 ---
 
 ## WebSocket Support

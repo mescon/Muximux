@@ -238,6 +238,7 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
 | **Gateway** | Reverse proxy other sites and services on your network -- things that don't need to be in the Muximux menu -- via a standard Caddyfile |
+| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. A background poller keeps URLs current as container IPs shift across restarts. Opt-in; off by default |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), draggable FAB, auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |

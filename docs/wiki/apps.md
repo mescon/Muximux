@@ -52,6 +52,10 @@ apps:
     url: http://sonarr:8989
 ```
 
+### Adding apps from Docker
+
+If your apps run as Docker containers, **Apps tab → Discover from Docker** scans your daemon and proposes ready-to-import entries (name, icon, port pre-filled for known images). Imported apps are auto-managed: Muximux refreshes their URL whenever the container's IP changes. See [Docker Discovery](docker-discovery.md) for the full flow.
+
 ---
 
 ## Open Modes

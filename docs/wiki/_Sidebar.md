@@ -10,6 +10,7 @@
 **Features**
 - [Apps](apps)
 - [Reverse Proxy](reverse-proxy)
+- [Docker Discovery](docker-discovery)
 - [Navigation](navigation)
 - [Split View](split-view)
 - [Themes](themes)

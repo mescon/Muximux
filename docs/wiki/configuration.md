@@ -112,6 +112,18 @@ health:
   interval: 30s
   timeout: 5s
 
+# ─── Docker Discovery (optional, opt-in) ───────
+# Connect to a Docker daemon to discover running
+# containers and keep their URLs current. See the
+# Docker Discovery wiki page for the full guide.
+discovery:
+  docker:
+    enabled: false                               # opt-in; requires socket access
+    endpoint: unix:///var/run/docker.sock        # or tcp://host:2376
+    network_strategy: container_ip               # container_ip | container_dns | host_port | host_docker_internal
+    network_filter: ""                           # scope scans to one docker network when set
+    refresh_interval: 60s                        # poller cadence
+
 # ─── Keyboard Shortcuts ────────────────────────
 keybindings:
   bindings: {}                 # Custom overrides only; defaults managed client-side
