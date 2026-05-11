@@ -158,6 +158,20 @@
     }
   }
 
+  // Reactive invariant: routing=gateway requires createGateway. The
+  // radio's onchange auto-checks createGateway when the operator
+  // picks Gateway, but a separate uncheck of "Add gateway site"
+  // (toggled in this component) would leave routing=gateway with
+  // createGateway=false. This effect forces createGateway back
+  // on, so submit-time validation can't be reached in that state.
+  $effect(() => {
+    for (const r of rows) {
+      if (r.createApp && r.routing === 'gateway' && !r.createGateway) {
+        r.createGateway = true;
+      }
+    }
+  });
+
   // Per-row status lookup for badge rendering. Keyed on suggestion.key
   // because that's the stable identifier the import endpoint preserves.
   function statusFor(key: string) {

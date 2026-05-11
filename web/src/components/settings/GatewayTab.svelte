@@ -28,6 +28,13 @@
   let sites = $state<GatewaySite[]>([]);
   let loading = $state(false);
   let topLevelError = $state<string | null>(null);
+  // appsLoadError is set when fetchApps() failed on the most recent
+  // tab load. Surfaced as a non-blocking banner so the operator
+  // knows the app-link dropdown is incomplete BEFORE they edit a
+  // site (without this, an edit-and-save sequence would silently
+  // unlink the gateway from its existing app because the dropdown
+  // appears empty).
+  let appsLoadError = $state<string | null>(null);
   let restartBanner = $state(false);
   let mismatchBanner = $state(false);
 
@@ -82,16 +89,20 @@
     }
   }
 
-  // Wrapped so a failed apps fetch doesn't take the whole tab down.
+  // Wrapped so a failed apps fetch doesn't take the whole tab down,
+  // but the error must be visible: silently returning [] would let
+  // the operator open the edit form on a linked site, see an empty
+  // dropdown, and Save would write app_name="" -- silently unlinking
+  // a working gateway-to-app pair. Surface the failure to the top-
+  // level error banner so the operator sees it before editing.
   async function loadApps(): Promise<App[]> {
     try {
       const list = await fetchApps();
       list.sort((a, b) => a.name.localeCompare(b.name));
+      appsLoadError = null;
       return list;
-    } catch {
-      // Apps list is a UX nicety here; if it fails we just render
-      // the dropdown with no existing-app entries and the operator
-      // can still pick "create new app" or leave it standalone.
+    } catch (e) {
+      appsLoadError = e instanceof Error ? e.message : 'Failed to load apps list';
       return [];
     }
   }
@@ -332,7 +343,16 @@
   onMount(async () => {
     if ($isAdmin) {
       load();
-      try { discoveryStatus = await fetchDiscoveryDockerStatus(); } catch { /* ignore */ }
+      try {
+        discoveryStatus = await fetchDiscoveryDockerStatus();
+      } catch (e) {
+        // GatewayTab only renders when $isAdmin, so this can't be
+        // a permissions-related 403. Surface to the console - the
+        // alternative (silent hide of the Discover button) makes
+        // the feature appear broken to an admin who knows
+        // discovery is configured.
+        console.warn('discovery status fetch failed in GatewayTab:', e);
+      }
     }
   });
 </script>
@@ -349,6 +369,12 @@
     {#if topLevelError}
       <div class="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-400 text-sm">
         {topLevelError}
+      </div>
+    {/if}
+
+    {#if appsLoadError}
+      <div class="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300 text-sm">
+        Could not load the apps list: {appsLoadError}. The "Linked app" dropdown will be empty; editing a site that was previously linked to an app and saving without re-selecting it will unlink the pair. Reload the page or wait for the apps API to recover.
       </div>
     {/if}
 

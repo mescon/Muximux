@@ -1610,13 +1610,20 @@ func (s *Server) Start() error {
 	// unconditionally also means an operator who turns discovery on
 	// later doesn't need a server restart for the poller to begin
 	// working.
-	if s.discoveryService != nil && s.proxyServer != nil {
+	//
+	// Run even when no proxy was started: app-only tracked entries
+	// (routing=direct or routing=proxy that bypasses Caddy) still
+	// benefit from URL refresh as container IPs shift. The poller's
+	// applyRefreshBatch already gates Caddy-touching code on a non-
+	// nil Proxy dep, so a nil here just means gateway-site changes
+	// land on disk only.
+	if s.discoveryService != nil {
 		s.discoveryPoller = discovery.NewPoller(discovery.PollerDeps{
 			Service:       s.discoveryService,
 			Config:        s.config,
 			ConfigPath:    s.configPath,
 			ConfigMu:      &s.configMu,
-			Proxy:         s.proxyServer,
+			Proxy:         s.proxyServer, // may be nil; poller handles
 			OnConfigSaved: s.rebuildProxyRoutes,
 		})
 		go s.discoveryPoller.Run(context.Background())

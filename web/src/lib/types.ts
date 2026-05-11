@@ -431,7 +431,6 @@ export interface DiscoveryRelinkProbeResult {
   found: boolean;
   container?: DiscoveryRelinkCandidate;
   candidates?: DiscoveryRelinkCandidate[];
-  error?: string;
 }
 
 export interface DiscoveryRelinkConfirmRequest {

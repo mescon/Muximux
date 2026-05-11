@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
+	"net/url"
 	"sort"
 	"strings"
 	"time"
@@ -122,9 +123,27 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
 		return
 	}
-	key := strings.TrimPrefix(r.URL.Path, "/api/discovery/docker/track/")
-	if key == "" {
+	rawKey := strings.TrimPrefix(r.URL.Path, "/api/discovery/docker/track/")
+	if rawKey == "" {
 		respondError(w, r, http.StatusBadRequest, "tracking key required")
+		return
+	}
+	// Reject paths with embedded slashes: the mux registers
+	// "/api/discovery/docker/track/" as a prefix, so a URL like
+	// /api/discovery/docker/track/relink/probe would hit this
+	// handler with key="relink/probe" and quietly attempt a
+	// detach against a key the operator never typed. Valid keys
+	// are "label:foo", "name:bar", "id:hex" - none contain a /.
+	if strings.Contains(rawKey, "/") {
+		respondError(w, r, http.StatusBadRequest, "tracking key must not contain /")
+		return
+	}
+	// URL-decode so a label key containing %-encoded characters
+	// (uncommon but legal per Docker's label syntax) matches what
+	// the operator-supplied DockerKey actually holds.
+	key, err := url.PathUnescape(rawKey)
+	if err != nil {
+		respondError(w, r, http.StatusBadRequest, "tracking key url-decode failed: "+err.Error())
 		return
 	}
 
@@ -216,11 +235,13 @@ type RelinkCandidate struct {
 }
 
 // RelinkProbeResult is the body of POST /relink/probe's response.
+// Daemon-unreachable / refused / TLS errors are surfaced via HTTP 502
+// instead of a sidecar Error field on a 200; the frontend's normal
+// catch path handles them.
 type RelinkProbeResult struct {
 	Found      bool              `json:"found"`
 	Container  *RelinkCandidate  `json:"container,omitempty"`
 	Candidates []RelinkCandidate `json:"candidates,omitempty"`
-	Error      string            `json:"error,omitempty"`
 }
 
 // RelinkProbe handles POST /api/discovery/docker/relink/probe. The
@@ -242,6 +263,15 @@ func (h *DiscoveryHandler) RelinkProbe(w http.ResponseWriter, r *http.Request) {
 		respondError(w, r, http.StatusBadRequest, "key is required")
 		return
 	}
+	// Tracking keys always carry a "<source>:<value>" prefix
+	// (label / name / id). Reject a malformed key here so the
+	// operator gets a 400 with a clear message instead of an
+	// empty-candidate response that looks like a valid "no match"
+	// outcome.
+	if !strings.Contains(req.Key, ":") {
+		respondError(w, r, http.StatusBadRequest, "key must be in source:value format (label, name, or id)")
+		return
+	}
 
 	svc := h.Service()
 	if svc == nil {
@@ -250,7 +280,15 @@ func (h *DiscoveryHandler) RelinkProbe(w http.ResponseWriter, r *http.Request) {
 	}
 	containers, err := svc.ListLiveContainers(r.Context())
 	if err != nil {
-		sendJSON(w, http.StatusOK, RelinkProbeResult{Error: err.Error()})
+		// Daemon unreachable / refused / TLS handshake failed.
+		// Return 502 (bad gateway upstream from us) so HTTP-aware
+		// callers (scripts, fetch wrappers) treat this as a
+		// genuine error rather than a successful probe with an
+		// "error" sidecar field. The frontend's existing
+		// ApiError-based catch in DiscoveryRelinkModal surfaces
+		// the message in the same inline banner that the prior
+		// shape used.
+		respondError(w, r, http.StatusBadGateway, err.Error())
 		return
 	}
 

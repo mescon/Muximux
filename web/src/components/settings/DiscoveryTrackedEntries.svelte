@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import type { DiscoveryTrackedEntry, DiscoveryTrackedListResult } from '$lib/types';
-  import { listDockerTracked, detachDockerTracked } from '$lib/api';
+  import { listDockerTracked, detachDockerTracked, ApiError } from '$lib/api';
   import DiscoveryRelinkModal from './DiscoveryRelinkModal.svelte';
 
   // Refresh signal: parent bumps refreshKey to force a reload after a
@@ -43,12 +43,17 @@
       await load();
     } catch (e) {
       // Treat 404 (already detached by a concurrent caller) as
-      // success since the desired state was reached.
-      const msg = e instanceof Error ? e.message : String(e);
-      if (!/no tracked entries match key/i.test(msg)) {
-        alert(`Detach failed: ${msg}`);
+      // success since the desired state was reached. Branch on the
+      // HTTP status, not the server's error message string -
+      // matching message text would silently break the moment the
+      // backend rewrites the error copy.
+      if (e instanceof ApiError && e.status === 404) {
+        // idempotent re-detach; reload to refresh the panel
+        await load();
+      } else {
+        alert(`Detach failed: ${e instanceof Error ? e.message : String(e)}`);
+        await load();
       }
-      await load();
     } finally {
       detachInFlight = null;
     }

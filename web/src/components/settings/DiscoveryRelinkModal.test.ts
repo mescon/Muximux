@@ -86,19 +86,19 @@ describe('DiscoveryRelinkModal probe outcomes', () => {
     await waitFor(() => expect(closed).toBe(true));
   });
 
-  it('renders the daemon-error path inline', async () => {
-    mockApi.probeDockerRelink.mockResolvedValue({
-      found: false,
-      error: 'cannot reach docker daemon: connection refused',
-    });
+  it('renders the daemon-error path inline (HTTP 502 -> ApiError catch)', async () => {
+    // Backend now returns 502 on daemon-unreachable; the helper
+    // rejects with ApiError and the modal's catch sets
+    // probeError. No sidecar Error field on a 200 anymore.
+    mockApi.probeDockerRelink.mockRejectedValue(
+      new Error('API error: 502 cannot reach docker daemon: connection refused'),
+    );
 
     render(DiscoveryRelinkModal, { trackingKey: 'name:x', onClose: () => {} });
 
     await waitFor(() => {
       expect(screen.getByText(/connection refused/i)).toBeInTheDocument();
     });
-    // Daemon-error mode must NOT show the candidate picker or
-    // the confirm button (no valid action available)
     expect(screen.queryByTestId('relink-confirm-btn')).not.toBeInTheDocument();
     expect(screen.queryByTestId('relink-pick-btn')).not.toBeInTheDocument();
   });

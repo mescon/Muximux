@@ -86,10 +86,6 @@
         <div class="text-text-muted">Probing the current Docker endpoint…</div>
       {:else if probeError}
         <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300">{probeError}</div>
-      {:else if probeResult?.error}
-        <div class="p-3 rounded-md border border-red-500/40 bg-red-500/10 text-red-300">
-          The Docker daemon refused the list call: {probeResult.error}
-        </div>
       {:else if probeResult?.found && probeResult.container}
         {@const c = probeResult.container}
         <div class="p-3 rounded-md border border-green-500/40 bg-green-500/10 text-green-300">

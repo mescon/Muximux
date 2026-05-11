@@ -3,6 +3,7 @@ package discovery
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 	"sync"
 	"time"
@@ -43,6 +44,10 @@ type Poller struct {
 	stop  context.CancelFunc
 	doneM sync.Mutex
 	done  chan struct{}
+	// lastBadInterval dedupes the "invalid refresh_interval"
+	// warning - we want to surface a config typo once when it
+	// happens (or on the first tick after edit), not every tick.
+	lastBadInterval string
 }
 
 // NewPoller returns a configured Poller. It does NOT start the
@@ -119,6 +124,18 @@ func (p *Poller) interval() time.Duration {
 	}
 	d, err := time.ParseDuration(raw)
 	if err != nil || d <= 0 {
+		// Surface the fallback. The API endpoint's validator
+		// catches bad durations on PUT, but a config.yaml edited
+		// directly with a typo (e.g. "5minute") bypasses that and
+		// would silently run at 60s. The Warn-once dedup is via
+		// the lastBadInterval check so we don't spam every tick.
+		if raw != p.lastBadInterval {
+			p.lastBadInterval = raw
+			logging.Warn("Refresh interval is invalid; falling back to 60s default",
+				"source", "discovery",
+				"value", raw,
+				"parse_error", fmt.Sprintf("%v", err))
+		}
 		return defaultInterval
 	}
 	if d < minInterval {

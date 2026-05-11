@@ -49,7 +49,20 @@
   //     opens the Discover modal)
   let discoveryStatus = $state<DiscoveryDockerStatus | null>(null);
   onMount(async () => {
-    try { discoveryStatus = await fetchDiscoveryDockerStatus(); } catch { /* admin-only; ignore for non-admins */ }
+    try {
+      discoveryStatus = await fetchDiscoveryDockerStatus();
+    } catch (e) {
+      // The discovery status endpoint is admin-only, so a 403 here
+      // is expected for non-admin sessions and shouldn't surface
+      // anywhere. Other failures (5xx, network) DO matter - they
+      // silently hide the "Discover from Docker" button without
+      // any signal to the admin. Log to the console so the operator
+      // can find the cause; non-admin 403s stay quiet.
+      const msg = e instanceof Error ? e.message : String(e);
+      if (!/403|forbidden|unauthor/i.test(msg)) {
+        console.warn('discovery status fetch failed:', msg);
+      }
+    }
   });
 
   let discoveryButtonState = $derived.by(() => {

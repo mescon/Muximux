@@ -222,6 +222,59 @@ func TestDetachTracked_EmptyKeyIs400(t *testing.T) {
 	}
 }
 
+// TestDetachTracked_PathWithSlashRejected guards against the mux's
+// greedy prefix match. /api/discovery/docker/track/ is registered as
+// a prefix so a request like /api/discovery/docker/track/relink/probe
+// would otherwise reach this handler with key="relink/probe". Valid
+// tracking keys never contain a /; reject with 400.
+func TestDetachTracked_PathWithSlashRejected(t *testing.T) {
+	h, _ := seedLifecycleHandler(t, nil, nil)
+	req := httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/relink/probe", nil)
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("status %d, want 400 for slash-containing key", w.Code)
+	}
+}
+
+// TestDetachTracked_URLEncodedKeyDecodes pins that a key containing
+// %-encoded characters (legal per Docker's label syntax) URL-decodes
+// before matching against the stored DockerKey.
+func TestDetachTracked_URLEncodedKeyDecodes(t *testing.T) {
+	h, cfg := seedLifecycleHandler(t,
+		[]config.AppConfig{
+			{Name: "x", URL: "http://10.0.0.1:80",
+				DockerKey: "label:value with space", DockerEndpoint: "unix:///var/run/docker.sock"},
+		},
+		nil,
+	)
+	// "label:value with space" URL-encoded is "label%3Avalue%20with%20space"
+	req := httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label%3Avalue%20with%20space", nil)
+	w := httptest.NewRecorder()
+	h.DetachTracked(w, req)
+	if w.Code != http.StatusNoContent {
+		t.Fatalf("status %d, want 204; body=%s", w.Code, w.Body.String())
+	}
+	if cfg.Apps[0].DockerKey != "" {
+		t.Errorf("URL-encoded key didn't match stored key after decode")
+	}
+}
+
+// TestRelinkProbe_MalformedKeyIs400 guards the new validation that
+// rejects keys missing the source:value separator. Without it,
+// MatchByKey returned nil and the operator saw an "no match"
+// candidate picker that misled them about the input.
+func TestRelinkProbe_MalformedKeyIs400(t *testing.T) {
+	h, _ := seedLifecycleHandler(t, nil, nil)
+	body, _ := json.Marshal(RelinkProbeRequest{Key: "no-colon-here"})
+	req := httptest.NewRequest(http.MethodPost, "/api/discovery/docker/relink/probe", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	h.RelinkProbe(w, req)
+	if w.Code != http.StatusBadRequest {
+		t.Errorf("status %d, want 400 for malformed key", w.Code)
+	}
+}
+
 func TestRelinkProbe_RejectsNonPost(t *testing.T) {
 	h, _ := seedLifecycleHandler(t, nil, nil)
 	req := httptest.NewRequest(http.MethodGet, "/api/discovery/docker/relink/probe", nil)
@@ -264,10 +317,12 @@ func TestRelinkProbe_ServiceNil(t *testing.T) {
 	}
 }
 
-func TestRelinkProbe_DaemonError_SurfacedInBody(t *testing.T) {
+func TestRelinkProbe_DaemonError_ReturnsBadGateway(t *testing.T) {
 	// Service has a client pointed at a non-existent socket; the
-	// daemon list call fails. The handler returns 200 with the
-	// error embedded so the modal can render it inline.
+	// daemon list call fails. The handler now returns 502 (Bad
+	// Gateway) instead of 200-with-error so HTTP-aware callers
+	// treat it as a genuine failure. The frontend's ApiError catch
+	// surfaces the message verbatim.
 	cfg := &config.Config{
 		Discovery: config.DiscoveryConfig{Docker: config.DiscoveryDockerConfig{
 			Enabled: true, Endpoint: "unix:///nonexistent.sock",
@@ -282,15 +337,11 @@ func TestRelinkProbe_DaemonError_SurfacedInBody(t *testing.T) {
 	req := httptest.NewRequest(http.MethodPost, "/api/discovery/docker/relink/probe", bytes.NewReader(body))
 	w := httptest.NewRecorder()
 	h.RelinkProbe(w, req)
-	if w.Code != http.StatusOK {
-		t.Fatalf("status %d, want 200; body=%s", w.Code, w.Body.String())
+	if w.Code != http.StatusBadGateway {
+		t.Fatalf("status %d, want 502; body=%s", w.Code, w.Body.String())
 	}
-	var got RelinkProbeResult
-	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
-		t.Fatalf("decode: %v", err)
-	}
-	if got.Error == "" {
-		t.Errorf("expected error in body; got %+v", got)
+	if w.Body.Len() == 0 {
+		t.Errorf("expected non-empty body with the daemon error")
 	}
 }
 
