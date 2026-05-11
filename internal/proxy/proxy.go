@@ -246,19 +246,6 @@ func (p *Proxy) CaddyfilePreview(sites []GatewaySite) string {
 	return tmp.buildCaddyfile()
 }
 
-// normalizeUpstream re-renders a backend URL from its parsed scheme +
-// host. Validation upstream has already enforced that the URL has no
-// path/query/fragment and uses http or https; this helper is the
-// last-mile guarantee that the string we hand to Caddy is canonical
-// (no stray percent-encoded characters smuggled through url.Parse,
-// no surrounding whitespace).
-//
-// On parse failure (which validation should have already rejected),
-// the original string is returned unchanged so the caller still gets
-// a Caddyfile and Caddy's own parser surfaces the error consistently.
-// We also log the fall-through so a future caller bypassing
-// validation does not silently produce a malformed Caddyfile that
-// the operator then has to debug from a Caddy parser error message.
 // portOnly normalises a bind address ("0.0.0.0:8443", ":8443", or
 // "[::]:8443") down to ":<port>" so the gateway-site selector can
 // emit "domain.example.com:8443" without dragging the bind host
@@ -273,14 +260,27 @@ func portOnly(addr string) string {
 	}
 	_, port, err := net.SplitHostPort(addr)
 	if err != nil || port == "" {
-		// Pre-validated upstream; if SplitHostPort fails here just
-		// leave the bind alone - Caddy will reject it loudly which
-		// is better than silently mangling.
+		// Pre-validated bind address; if SplitHostPort fails here
+		// just leave the value alone - Caddy will reject it loudly
+		// which is better than silently mangling.
 		return addr
 	}
 	return ":" + port
 }
 
+// normalizeUpstream re-renders a backend URL from its parsed scheme +
+// host. Validation upstream has already enforced that the URL has no
+// path/query/fragment and uses http or https; this helper is the
+// last-mile guarantee that the string we hand to Caddy is canonical
+// (no stray percent-encoded characters smuggled through url.Parse,
+// no surrounding whitespace).
+//
+// On parse failure (which validation should have already rejected),
+// the original string is returned unchanged so the caller still gets
+// a Caddyfile and Caddy's own parser surfaces the error consistently.
+// We also log the fall-through so a future caller bypassing
+// validation does not silently produce a malformed Caddyfile that
+// the operator then has to debug from a Caddy parser error message.
 func normalizeUpstream(raw string) string {
 	u, err := url.Parse(strings.TrimSpace(raw))
 	if err != nil || u.Host == "" {

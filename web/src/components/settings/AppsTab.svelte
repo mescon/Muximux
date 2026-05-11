@@ -45,8 +45,8 @@
   //   - !configured       -> CTA: "Set up Docker discovery →" (link)
   //   - !reachable        -> disabled with tooltip
   //   - !strategy_ok      -> disabled with tooltip
-  //   - configured + reachable + strategy_ok -> active (Phase C wires
-  //     the click to the Discover modal; until then click does nothing)
+  //   - configured + reachable + strategy_ok -> active (clicking
+  //     opens the Discover modal)
   let discoveryStatus = $state<DiscoveryDockerStatus | null>(null);
   onMount(async () => {
     try { discoveryStatus = await fetchDiscoveryDockerStatus(); } catch { /* admin-only; ignore for non-admins */ }

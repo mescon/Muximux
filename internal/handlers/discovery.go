@@ -14,14 +14,17 @@ import (
 	"github.com/mescon/muximux/v3/internal/proxy"
 )
 
-// DiscoveryHandler exposes discovery-related HTTP endpoints.
+// DiscoveryHandler exposes discovery-related HTTP endpoints:
 //
-// Phase B ships:
-//   - GET    /api/discovery/docker/status         capability + cache
-//   - PUT    /api/discovery/docker/config         persist + rebuild service
-//   - POST   /api/discovery/docker/test           probe a candidate config without persisting
-//
-// Subsequent phases add /scan, /import, /track/{key}, /refresh, /relink/probe.
+//   - GET    /api/discovery/docker/status          capability + cache
+//   - PUT    /api/discovery/docker/config          persist + rebuild service
+//   - POST   /api/discovery/docker/test            probe a candidate config without persisting
+//   - GET    /api/discovery/docker/scan            list current containers as Suggestions
+//   - POST   /api/discovery/docker/import          atomic batch import
+//   - GET    /api/discovery/docker/tracked         current tracked apps + sites
+//   - DELETE /api/discovery/docker/track/{key}     detach tracking for matching entries
+//   - POST   /api/discovery/docker/relink/probe    re-link target probe
+//   - POST   /api/discovery/docker/relink/confirm  apply re-link
 type DiscoveryHandler struct {
 	config     *config.Config
 	configPath string

@@ -167,6 +167,12 @@ func (p *Poller) tick(ctx context.Context) {
 			continue
 		}
 		if err != nil {
+			// Daemon disconnect, malformed key, no-port-on-container,
+			// URL-builder failure - all silent before, all surfaced now.
+			// Operator sees the cause without correlating stale URLs.
+			logging.Warn("Tracked docker resolve failed",
+				"source", "discovery", "kind", "app", "name", t.name, "key", t.key,
+				"error", err.Error())
 			continue
 		}
 		svc.RecordSeen(t.key)
@@ -186,6 +192,9 @@ func (p *Poller) tick(ctx context.Context) {
 			continue
 		}
 		if err != nil {
+			logging.Warn("Tracked docker resolve failed",
+				"source", "discovery", "kind", "gateway", "domain", t.domain, "key", t.key,
+				"error", err.Error())
 			continue
 		}
 		svc.RecordSeen(t.key)
@@ -421,13 +430,44 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 	// re-assert the prior shape so the running gateway converges
 	// with what's on disk.
 	if err := p.save(); err != nil {
+		// Snapshot the candidate shape BEFORE reverting in-memory so
+		// the Caddy re-assert call can name what Caddy is currently
+		// running. After the next two lines, Config.Server.GatewaySites
+		// == priorSites, so reading it for the second argument would
+		// pass priorSites twice and rollback would be a no-op.
+		var candidateProxy []proxy.GatewaySite
+		if batch.touchesGateway() && p.deps.Proxy != nil {
+			candidateProxy = proxy.ConfigGatewaySitesToProxy(p.deps.Config.Server.GatewaySites)
+		}
 		p.deps.Config.Apps = priorApps
 		p.deps.Config.Server.GatewaySites = priorSites
 		if batch.touchesGateway() && p.deps.Proxy != nil {
-			_ = p.deps.Proxy.ApplyGatewaySites(
+			reassertErr := p.deps.Proxy.ApplyGatewaySites(
 				proxy.ConfigGatewaySitesToProxy(priorSites),
-				proxy.ConfigGatewaySitesToProxy(p.deps.Config.Server.GatewaySites),
+				candidateProxy,
 			)
+			if reassertErr != nil {
+				// Re-assert reload itself failed. If it returned
+				// ErrDiverged the previous successful candidate
+				// reload AND the rollback reload both failed - we
+				// genuinely don't know what Caddy is serving. Mark
+				// divergence so the operator sees the banner; the
+				// next clean tick clears it.
+				if errors.Is(reassertErr, proxy.ErrDiverged) {
+					p.deps.Service.RecordDivergence()
+					logging.Error("Save failed during refresh tick AND Caddy re-assert diverged",
+						"source", "audit",
+						"divergence_detected", true,
+						"save_error", err.Error(),
+						"reassert_error", reassertErr.Error())
+					return
+				}
+				logging.Error("Save failed during refresh tick AND Caddy re-assert errored",
+					"source", "audit",
+					"save_error", err.Error(),
+					"reassert_error", reassertErr.Error())
+				return
+			}
 		}
 		logging.Error("Save failed during refresh tick; in-memory rolled back",
 			"source", "audit",

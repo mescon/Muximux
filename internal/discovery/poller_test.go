@@ -657,3 +657,159 @@ func TestPoller_ContainerPortAndScheme_Refresh(t *testing.T) {
 		t.Errorf("containerSchemeForRefresh fallback = %q, want http", got)
 	}
 }
+
+// TestApplyRefreshBatch_SaveFailureWithGateway_ReassertSucceeds covers
+// the path where Caddy initially applies the candidate, the in-memory
+// + disk save then fails, and the re-assert Reload that walks Caddy
+// back to prior shape succeeds. The fix in commit "review-fix 1"
+// makes this branch capture the candidate shape BEFORE reverting
+// in-memory so the second ApplyGatewaySites argument names the
+// shape Caddy was running (not priorSites twice). The reload hook
+// snapshots p.GatewaySites() at each call so the test can verify
+// the second call really saw the prior shape.
+func TestApplyRefreshBatch_SaveFailureWithGateway_ReassertSucceeds(t *testing.T) {
+	cfg := &config.Config{
+		Server: config.ServerConfig{
+			GatewaySites: []config.GatewaySite{
+				{Domain: "x.example.com", BackendURL: "http://10.0.0.1:8080", DockerKey: "label:x", TLS: "auto"},
+			},
+		},
+	}
+	var mu sync.RWMutex
+	svc := NewService(&config.DiscoveryDockerConfig{})
+
+	priorProxy := []proxy.GatewaySite{{Domain: "x.example.com", BackendURL: "http://10.0.0.1:8080", TLS: "auto"}}
+	var reloadSnapshots [][]proxy.GatewaySite
+	var pxy *proxy.Proxy
+	pxy = newProxyForBatchTest(priorProxy, func() error {
+		reloadSnapshots = append(reloadSnapshots, append([]proxy.GatewaySite(nil), pxy.GatewaySites()...))
+		return nil
+	})
+
+	saveErr := errors.New("synthetic save failure")
+	p := &Poller{deps: PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return saveErr },
+	}}
+	batch := newRefreshBatch()
+	batch.siteURLChanges["x.example.com"] = "http://10.0.0.99:8080"
+
+	p.applyRefreshBatch(batch)
+
+	// Two reload calls: 1) candidate applied, 2) re-assert prior.
+	if len(reloadSnapshots) != 2 {
+		t.Fatalf("expected 2 reload calls (candidate + reassert), got %d", len(reloadSnapshots))
+	}
+	if reloadSnapshots[0][0].BackendURL != "http://10.0.0.99:8080" {
+		t.Errorf("first reload saw %q, want candidate", reloadSnapshots[0][0].BackendURL)
+	}
+	if reloadSnapshots[1][0].BackendURL != "http://10.0.0.1:8080" {
+		t.Errorf("re-assert reload saw %q, want priorSites (regression: was passing priorSites twice on the wire)", reloadSnapshots[1][0].BackendURL)
+	}
+	if cfg.Server.GatewaySites[0].BackendURL != "http://10.0.0.1:8080" {
+		t.Errorf("in-memory not rolled back: %q", cfg.Server.GatewaySites[0].BackendURL)
+	}
+	if svc.divergences != 0 {
+		t.Errorf("save failure with successful re-assert should NOT mark divergence; got %d", svc.divergences)
+	}
+}
+
+// TestApplyRefreshBatch_SaveFailureWithGateway_ReassertDiverges
+// covers the worst-case path: save fails AND the re-assert Reload
+// also fails. Before commit "review-fix 1" this path silently
+// discarded the re-assert error with `_ = ` and never called
+// RecordDivergence, leaving the Settings banner green while Caddy
+// was running an unknown shape.
+func TestApplyRefreshBatch_SaveFailureWithGateway_ReassertDiverges(t *testing.T) {
+	cfg := &config.Config{
+		Server: config.ServerConfig{
+			GatewaySites: []config.GatewaySite{
+				{Domain: "x.example.com", BackendURL: "http://10.0.0.1:8080", DockerKey: "label:x", TLS: "auto"},
+			},
+		},
+	}
+	var mu sync.RWMutex
+	svc := NewService(&config.DiscoveryDockerConfig{})
+
+	priorProxy := []proxy.GatewaySite{{Domain: "x.example.com", BackendURL: "http://10.0.0.1:8080", TLS: "auto"}}
+	calls := 0
+	pxy := newProxyForBatchTest(priorProxy, func() error {
+		calls++
+		// First call succeeds (candidate applied), second + third
+		// fail (re-assert candidate fails, re-assert rollback also
+		// fails -> ErrDiverged inside ApplyGatewaySites).
+		if calls == 1 {
+			return nil
+		}
+		return errors.New("synthetic reload failure")
+	})
+
+	saveErr := errors.New("synthetic save failure")
+	p := &Poller{deps: PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave: func() error { return saveErr },
+	}}
+	batch := newRefreshBatch()
+	batch.siteURLChanges["x.example.com"] = "http://10.0.0.99:8080"
+
+	p.applyRefreshBatch(batch)
+
+	if svc.divergences != 1 {
+		t.Errorf("re-assert diverged path should call RecordDivergence; divergences=%d", svc.divergences)
+	}
+	if !svc.lastRefreshSuccessAt.IsZero() {
+		t.Errorf("RecordRefreshTickSuccess wrongly called on divergence")
+	}
+	if cfg.Server.GatewaySites[0].BackendURL != "http://10.0.0.1:8080" {
+		t.Errorf("in-memory not rolled back: %q", cfg.Server.GatewaySites[0].BackendURL)
+	}
+}
+
+// TestTick_LogsResolveErrors_NotJustNotFound pins the fix for the
+// silent-continue regression in `tick()`. Before commit "review-fix
+// 1", every non-NotFound resolveURL error (daemon disconnect,
+// malformed key, no exposed ports) was swallowed with bare
+// `continue`. The fix adds a Warn log; this test exercises the
+// malformed-key branch which is the cheapest non-NotFound error to
+// trigger.
+func TestTick_LogsResolveErrors_NotJustNotFound(t *testing.T) {
+	// Pre-populate one tracked app with a malformed DockerKey
+	// (missing source prefix). resolveURL will fail with the
+	// "malformed tracking key" error - NOT ErrContainerNotFound -
+	// hitting the previously-silent continue branch.
+	socket, cleanup := fakeDaemonForPoller(t, []ContainerSummary{
+		{ID: "abc", Names: []string{"/foo"}},
+	})
+	defer cleanup()
+
+	cfg := &config.Config{
+		Discovery: config.DiscoveryConfig{Docker: config.DiscoveryDockerConfig{
+			Enabled: true, Endpoint: "unix://" + socket,
+		}},
+		Apps: []config.AppConfig{
+			{
+				Name: "x", URL: "http://10.0.0.1:8080",
+				DockerKey:      "no-colon-here", // malformed -> non-NotFound err
+				DockerEndpoint: "unix://" + socket,
+				DockerStrategy: "container_ip",
+			},
+		},
+	}
+	var mu sync.RWMutex
+	svc := NewService(&cfg.Discovery.Docker)
+	p := NewPoller(PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc,
+		OnSave: func() error { return nil },
+	})
+
+	// The test asserts behaviour: the malformed-key entry is skipped
+	// (no save, no panic, no batch entry) but the tick completes.
+	// The log line itself is hard to assert in-process without
+	// hijacking slog; we settle for "no save fired, no panic, no
+	// stale entry stuck in batch".
+	p.tick(context.Background())
+
+	if !svc.LastSeen("no-colon-here").IsZero() {
+		t.Errorf("RecordSeen wrongly fired for a key that failed to resolve")
+	}
+}

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"net/http"
 	"reflect"
@@ -418,36 +419,88 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		if err := h.proxyServer.ApplyGatewaySites(newProxy, priorProxy); err != nil {
 			h.config.Apps = priorApps
 			h.config.Server.GatewaySites = priorSites
+			// ErrDiverged signals BOTH the candidate AND the internal
+			// rollback Reload failed - Caddy's running state is
+			// unknown. Surface that to the operator via the
+			// divergence banner; the next clean refresh tick will
+			// clear it.
+			divergenceMsg := "rolled back: caddy reload rejected the candidate gateway sites"
+			if errors.Is(err, proxy.ErrDiverged) {
+				if svc := h.Service(); svc != nil {
+					svc.RecordDivergence()
+				}
+				divergenceMsg = "diverged: caddy candidate AND rollback both failed - running gateway may not match config"
+				logging.From(r.Context()).Error("Discovery import caddy diverged",
+					"source", "audit",
+					"divergence_detected", true,
+					"error", err)
+			} else {
+				logging.From(r.Context()).Error("Discovery import caddy reload failed; in-memory rolled back",
+					"source", "audit",
+					"error", err)
+			}
 			for i := range results {
 				if results[i].Status == "created" {
 					results[i].Status = "aborted_by_batch_failure"
-					results[i].Error = "rolled back: caddy reload rejected the candidate gateway sites"
+					results[i].Error = divergenceMsg
 				}
 			}
-			logging.From(r.Context()).Error("Discovery import caddy reload failed; in-memory rolled back",
-				"source", "audit",
-				"error", err)
 			sendJSON(w, http.StatusOK, ImportResult{Success: false, Error: err.Error(), Items: results})
 			return
 		}
 	}
 
 	if err := h.config.Save(h.configPath); err != nil {
-		// Save failed - revert in-memory AND ask Caddy to re-assert
-		// the prior gateway shape so the running proxy doesn't drift
-		// past disk.
+		// Save failed AFTER a successful Caddy candidate apply.
+		// Revert in-memory and ask Caddy to re-assert the prior
+		// shape so config + Caddy + disk converge. Capture the
+		// candidate shape before reverting so the re-assert call
+		// can name what Caddy is currently running (passing
+		// priorSites twice would be a no-op rollback).
+		var candidateForCaddy []proxy.GatewaySite
+		if gatewayChanged && h.proxyServer != nil && h.proxyServer.IsRunning() {
+			candidateForCaddy = proxy.ConfigGatewaySitesToProxy(sites)
+		}
 		h.config.Apps = priorApps
 		h.config.Server.GatewaySites = priorSites
+		statusErr := "rolled back: failed to save config to disk"
 		if gatewayChanged && h.proxyServer != nil && h.proxyServer.IsRunning() {
-			_ = h.proxyServer.ApplyGatewaySites(
+			reassertErr := h.proxyServer.ApplyGatewaySites(
 				proxy.ConfigGatewaySitesToProxy(priorSites),
-				proxy.ConfigGatewaySitesToProxy(sites),
+				candidateForCaddy,
 			)
+			if reassertErr != nil {
+				if errors.Is(reassertErr, proxy.ErrDiverged) {
+					if svc := h.Service(); svc != nil {
+						svc.RecordDivergence()
+					}
+					statusErr = "diverged: save failed and caddy re-assert also failed - running gateway may not match config"
+					logging.From(r.Context()).Error("Discovery import save failed AND Caddy re-assert diverged",
+						"source", "audit",
+						"divergence_detected", true,
+						"save_error", err.Error(),
+						"reassert_error", reassertErr.Error())
+				} else {
+					statusErr = "rolled back: save failed and caddy re-assert errored - check audit log"
+					logging.From(r.Context()).Error("Discovery import save failed AND Caddy re-assert errored",
+						"source", "audit",
+						"save_error", err.Error(),
+						"reassert_error", reassertErr.Error())
+				}
+				for i := range results {
+					if results[i].Status == "created" {
+						results[i].Status = "aborted_by_batch_failure"
+						results[i].Error = statusErr
+					}
+				}
+				sendJSON(w, http.StatusOK, ImportResult{Success: false, Error: err.Error(), Items: results})
+				return
+			}
 		}
 		for i := range results {
 			if results[i].Status == "created" {
 				results[i].Status = "aborted_by_batch_failure"
-				results[i].Error = "rolled back: failed to save config to disk"
+				results[i].Error = statusErr
 			}
 		}
 		logging.From(r.Context()).Error("Discovery import save failed; in-memory rolled back",
