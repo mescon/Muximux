@@ -49,10 +49,10 @@ type Service struct {
 
 	// LastSeenAt tracks when each docker_key was last successfully
 	// resolved against the daemon. Used to render "last refresh"
-	// timestamps on tracked-app rows (Phase F). Keyed on docker key
+	// timestamps in the Currently-tracked panel. Keyed on docker key
 	// (e.g. "label:sonarr-prod"). DELETE /track/{key} clears the
-	// matching entry to avoid an unbounded leak as operators track
-	// and detach over time (review fix NEW-V3-4).
+	// matching entry to keep the map bounded as operators track
+	// and detach over time.
 	lastSeenAt sync.Map // map[string]time.Time
 }
 
@@ -304,19 +304,11 @@ func (s *Service) refreshStatus(ctx context.Context) StatusResult {
 		r.LastError = "unknown network_strategy: " + s.cfg.NetworkStrategy
 	}
 
-	// Refresh-state telemetry (in-memory; resets on restart).
-	s.refreshMu.Lock()
-	r.Divergences = s.divergences
-	if !s.lastDivergenceAt.IsZero() {
-		r.LastDivergenceAt = s.lastDivergenceAt.Format(time.RFC3339)
-	}
-	if !s.recoveredAt.IsZero() {
-		r.RecoveredAt = s.recoveredAt.Format(time.RFC3339)
-	}
-	if !s.lastRefreshSuccessAt.IsZero() {
-		r.LastRefreshSuccessAt = s.lastRefreshSuccessAt.Format(time.RFC3339)
-	}
-	s.refreshMu.Unlock()
+	// Refresh-state telemetry (in-memory; resets on restart). Single
+	// source of truth lives in fillRefreshTelemetry so a regression
+	// like adding a field here but not on the cache-hit path can't
+	// diverge the two callers.
+	s.fillRefreshTelemetry(&r)
 
 	s.cacheStatus(&r)
 	return r

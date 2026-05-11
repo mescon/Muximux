@@ -465,10 +465,9 @@ func (h *GatewayHandler) applyAndPersist(candidate []config.GatewaySite) (restar
 
 // ConfigGatewaySitesToProxy is re-exported here for backwards
 // compatibility with callers (server.setupCaddy, etc.) that imported
-// it from this package. The actual implementation moved to the proxy
-// package in Phase E so the discovery poller could call it without
-// importing handlers (which would be a circular dependency:
-// handlers -> discovery -> handlers).
+// it from this package. The actual implementation lives in the proxy
+// package so the discovery poller can call it without creating a
+// circular dependency (handlers -> discovery -> handlers).
 func ConfigGatewaySitesToProxy(sites []config.GatewaySite) []proxy.GatewaySite {
 	return proxy.ConfigGatewaySitesToProxy(sites)
 }

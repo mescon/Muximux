@@ -110,7 +110,7 @@
     if (!s.strategy_ok) {
       return {
         tone: 'amber',
-        text: `Connected to Docker ${s.api_version || ''} but the network strategy "${s.strategy}" cannot identify Muximux's container — set network_filter or switch to host_port.`,
+        text: `Connected to Docker ${s.api_version || ''} but the network strategy "${s.strategy}" cannot identify Muximux's container - set network_filter or switch to host_port.`,
       };
     }
     return {
@@ -131,9 +131,8 @@
   //
   // The backend bumps the counter on caddy rollback failure and
   // stamps recovered_at on the first clean tick after that. The
-  // banner stays sticky in the recovered state until either a new
-  // divergence (back to red) or, in a future phase, an operator
-  // acknowledgement clears it.
+  // banner stays sticky in the recovered state until a new
+  // divergence flips it back to red.
   let divergenceBanner = $derived.by((): { tone: 'red' | 'amber'; text: string } | null => {
     if (!status || !status.refresh_divergences || status.refresh_divergences <= 0) return null;
     if (status.recovered_at) {
@@ -157,7 +156,7 @@
   <header>
     <h2 class="text-lg font-semibold text-text-primary">Docker discovery</h2>
     <p class="text-sm text-text-muted mt-1">
-      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default — see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">the docs</a> for the full label / strategy reference.
+      Connect Muximux to a Docker daemon to discover running containers and offer them as apps. Auto-managed apps update their URL when the container restarts. Off by default - see <a href="https://github.com/mescon/Muximux/wiki/docker-discovery" target="_blank" rel="noopener noreferrer" class="text-brand-400 hover:underline">the docs</a> for the full label / strategy reference.
     </p>
   </header>
 
@@ -234,13 +233,13 @@
           bind:value={form.network_strategy}
           class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
         >
-          <option value="container_ip">container_ip — use the container's docker-network IP (Muximux must share a network)</option>
-          <option value="container_dns">container_dns — use the container name (resolves via docker DNS in shared network)</option>
-          <option value="host_port">host_port — use the host IP and the published port (works from anywhere)</option>
-          <option value="host_docker_internal">host_docker_internal — use host.docker.internal (Mac/Win Desktop, modern Linux)</option>
+          <option value="container_ip">container_ip - use the container's docker-network IP (Muximux must share a network)</option>
+          <option value="container_dns">container_dns - use the container name (resolves via docker DNS in shared network)</option>
+          <option value="host_port">host_port - use the host IP and the published port (works from anywhere)</option>
+          <option value="host_docker_internal">host_docker_internal - use host.docker.internal (Mac/Win Desktop, modern Linux)</option>
         </select>
         <p class="text-xs text-text-muted mt-1">
-          How URLs for discovered apps are constructed. <code>container_ip</code> needs Muximux to run in a container that shares a docker network with the targets — the status above tells you whether self-detection succeeded.
+          How URLs for discovered apps are constructed. <code>container_ip</code> needs Muximux to run in a container that shares a docker network with the targets - the status above tells you whether self-detection succeeded.
         </p>
       </div>
 

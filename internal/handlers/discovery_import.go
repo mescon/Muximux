@@ -410,8 +410,7 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 	// Push gateway sites to Caddy so https://imported.example.com
 	// actually serves something. Without this the import lands on
 	// disk only and Caddy ignores the new site until restart - the
-	// bug discovered during Phase G live testing. Skip when no proxy
-	// was started (CLI-only / tests).
+	// Skip when no proxy was started (CLI-only / tests).
 	gatewayChanged := !sameGatewaySlice(priorSites, sites)
 	if gatewayChanged && h.proxyServer != nil && h.proxyServer.IsRunning() {
 		newProxy := proxy.ConfigGatewaySitesToProxy(sites)

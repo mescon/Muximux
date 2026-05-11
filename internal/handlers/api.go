@@ -388,7 +388,9 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	for i := range update.Apps {
 		app, detachKey := mergeClientApp(&update.Apps[i], existingApps)
 		if detachKey != "" {
-			// Plan v4: manual URL edit on a tracked app auto-detaches.
+			// Manual URL edit on a tracked app auto-detaches: the
+			// operator took manual control of the URL, so further
+			// poller refreshes would clobber that change.
 			// Logged at audit so operators can see exactly which apps
 			// fell out of auto-management as a result of a SaveConfig
 			// round-trip. The frontend should normally surface the
@@ -459,7 +461,7 @@ func mergeClientApp(clientApp *ClientAppConfig, existingApps map[string]config.A
 //     existing tracking fields back. This stops a buggy frontend or
 //     scripted PUT that doesn't echo the read-only tracking fields
 //     from accidentally wiping them. The only sanctioned forget path
-//     is DELETE /api/discovery/docker/track/{key} (Phase F).
+//     is DELETE /api/discovery/docker/track/{key}.
 //
 //  2. **URL-change auto-detach**: when the existing app was tracked
 //     AND the incoming URL differs from existing.URL, clear all three
@@ -900,7 +902,7 @@ func sanitizeAppForRole(app *config.AppConfig, isAdmin bool) ClientAppConfig {
 	// Docker tracking fields go to admins only - they reference a
 	// privileged daemon endpoint and a tracking key that's not useful
 	// to non-admin users. Admins need them so the App form can show
-	// the docker badge + lock-on-edit prompt (Phase F).
+	// the docker badge + lock-on-edit prompt.
 	if isAdmin {
 		out.DockerKey = app.DockerKey
 		out.DockerEndpoint = app.DockerEndpoint
@@ -970,7 +972,7 @@ type ClientAppConfig struct {
 	// preserves them when the incoming payload omits them entirely,
 	// so a buggy or scripted PUT cannot accidentally clear tracking
 	// (the only sanctioned detach path is DELETE
-	// /api/discovery/docker/track/{key} - landing in Phase F).
+	// /api/discovery/docker/track/{key}).
 	DockerKey      string `json:"docker_key,omitempty"`
 	DockerEndpoint string `json:"docker_endpoint,omitempty"`
 	DockerStrategy string `json:"docker_strategy,omitempty"`

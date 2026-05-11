@@ -13,7 +13,7 @@ import (
 	"github.com/mescon/muximux/v3/internal/logging"
 )
 
-// Discovery-lifecycle endpoints (Phase F):
+// Discovery-lifecycle endpoints (detach + re-link):
 //
 //   - GET    /api/discovery/docker/tracked          list tracked apps + sites
 //   - DELETE /api/discovery/docker/track/{key}      detach all matching entries

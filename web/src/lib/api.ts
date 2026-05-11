@@ -456,7 +456,7 @@ export async function checkForUpdates(): Promise<UpdateInfo> {
   return fetchJSON<UpdateInfo>('/system/updates');
 }
 
-// Discovery (Docker auto-discovery). Phase B endpoints.
+// Discovery (Docker auto-discovery).
 export async function fetchDiscoveryDockerStatus(): Promise<DiscoveryDockerStatus> {
   return fetchJSON<DiscoveryDockerStatus>('/discovery/docker/status');
 }

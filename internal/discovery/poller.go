@@ -175,9 +175,9 @@ func (p *Poller) tick(ctx context.Context) {
 
 	// Resolve each tracked entry's container -> new URL. Skips
 	// entries whose DockerEndpoint differs from the live endpoint
-	// (operator changed daemons; Phase F's re-link flow handles
-	// that). Skips containers that disappeared with a Warn; the
-	// next tick may find them again.
+	// (operator changed daemons; the re-link flow handles that
+	// case interactively). Skips containers that disappeared with
+	// a Warn; the next tick may find them again.
 	batch := newRefreshBatch()
 	for i := range tracked.apps {
 		t := &tracked.apps[i]
@@ -427,8 +427,8 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 		if err != nil {
 			// On ErrDiverged: restore in-memory snapshot before
 			// exiting so config + Caddy + disk converge on what was
-			// running before the candidate. (Plan v4 NEW-V3-2: do
-			// not leave in-memory drifting from disk.)
+			// running before the candidate. Never leave in-memory
+			// drifting from disk: subsequent reads would lie.
 			if errors.Is(err, proxy.ErrDiverged) {
 				p.deps.Config.Apps = priorApps
 				p.deps.Config.Server.GatewaySites = priorSites

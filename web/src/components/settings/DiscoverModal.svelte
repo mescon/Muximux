@@ -278,7 +278,7 @@
                       </div>
                     {:else}
                       <div class="mt-1 text-xs text-amber-300">
-                        ⚠ No URL could be built — fix port / strategy in Settings → Discovery before importing.
+                        ⚠ No URL could be built - fix port / strategy in Settings → Discovery before importing.
                       </div>
                     {/if}
 
