@@ -36,6 +36,12 @@ import {
   getAPIKeyStatus,
   generateAPIKey,
   deleteAPIKey,
+  scanDockerContainers,
+  importDockerSuggestions,
+  listDockerTracked,
+  detachDockerTracked,
+  probeDockerRelink,
+  confirmDockerRelink,
 } from './api';
 import type { Config, CreateUserRequest, UpdateUserRequest, ChangeAuthMethodRequest } from './types';
 
@@ -738,6 +744,77 @@ describe('fetchJSON / postJSON / putJSON wrappers', () => {
     it('throws on a non-OK response', async () => {
       globalThis.fetch = mockFetchError(500, 'Internal Server Error', 'disk write failed');
       await expect(deleteAPIKey()).rejects.toThrow('API error: 500 disk write failed');
+    });
+  });
+});
+
+// Discovery API wire contract. These tests don't exercise the full
+// modal flows (those live in DiscoverModal.test.ts and
+// DiscoveryRelinkModal.test.ts); they only assert that each helper
+// hits the right URL with the right method + body, so a typo in
+// the helper layer won't quietly diverge from the backend.
+describe('discovery api functions', () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('scanDockerContainers GETs /discovery/docker/scan', async () => {
+    globalThis.fetch = mockFetchOk({ suggestions: [] });
+    await scanDockerContainers();
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      '/api/discovery/docker/scan',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('importDockerSuggestions POSTs the items payload as JSON', async () => {
+    globalThis.fetch = mockFetchOk({ success: true, items: [] });
+    await importDockerSuggestions({ items: [{ key: 'name:c', strategy: 'container_ip', routing: 'proxy' }] });
+    const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call[0]).toBe('/api/discovery/docker/import');
+    expect(call[1].method).toBe('POST');
+    expect(JSON.parse(call[1].body)).toEqual({
+      items: [{ key: 'name:c', strategy: 'container_ip', routing: 'proxy' }],
+    });
+  });
+
+  it('listDockerTracked GETs /discovery/docker/tracked', async () => {
+    globalThis.fetch = mockFetchOk({ entries: [], current_endpoint: 'unix:///x' });
+    await listDockerTracked();
+    expect(globalThis.fetch).toHaveBeenCalledWith(
+      '/api/discovery/docker/tracked',
+      expect.objectContaining({ method: 'GET' }),
+    );
+  });
+
+  it('detachDockerTracked DELETEs /discovery/docker/track/{key} with URL-encoded key', async () => {
+    globalThis.fetch = mockFetchOk({});
+    await detachDockerTracked('label:foo/bar');
+    const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    // encodeURIComponent of "label:foo/bar" = "label%3Afoo%2Fbar"
+    expect(call[0]).toBe('/api/discovery/docker/track/label%3Afoo%2Fbar');
+    expect(call[1].method).toBe('DELETE');
+  });
+
+  it('probeDockerRelink POSTs the key payload', async () => {
+    globalThis.fetch = mockFetchOk({ found: false, candidates: [] });
+    await probeDockerRelink('name:sonarr');
+    const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call[0]).toBe('/api/discovery/docker/relink/probe');
+    expect(call[1].method).toBe('POST');
+    expect(JSON.parse(call[1].body)).toEqual({ key: 'name:sonarr' });
+  });
+
+  it('confirmDockerRelink POSTs the full re-link payload', async () => {
+    globalThis.fetch = mockFetchOk({ updated_apps: [], updated_sites: [] });
+    await confirmDockerRelink({ old_key: 'name:old', new_key: 'name:new', strategy: 'host_port' });
+    const call = (globalThis.fetch as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(call[0]).toBe('/api/discovery/docker/relink/confirm');
+    expect(call[1].method).toBe('POST');
+    expect(JSON.parse(call[1].body)).toEqual({
+      old_key: 'name:old',
+      new_key: 'name:new',
+      strategy: 'host_port',
     });
   });
 });

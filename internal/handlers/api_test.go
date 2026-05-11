@@ -1271,6 +1271,57 @@ func TestSaveConfig_PreservesDockerTrackingFields(t *testing.T) {
 	}
 }
 
+// TestUpdateApp_PreservesDockerTrackingFieldsOnEmptyPayload covers
+// the per-app PUT path - the previously-untested twin of
+// TestSaveConfig_PreservesDockerTrackingFields. Without this guard,
+// the AppForm in the SPA (which has no docker_key input on its
+// edit form) would send a PUT that wipes tracking on every cosmetic
+// edit (color, icon, group). The fix in applyDockerTrackingPreserva-
+// tion checks updated.DockerKey == "" and copies the existing
+// tracking back; this test pins both that the helper runs AND that
+// it runs on the per-app PUT route specifically.
+func TestUpdateApp_PreservesDockerTrackingFieldsOnEmptyPayload(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].DockerKey = "name:sonarr"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+
+	// Payload omits the three docker_* fields entirely - exactly
+	// what AppForm sends today when the operator edits the icon or
+	// color but not the URL.
+	body, _ := json.Marshal(ClientAppConfig{
+		Name:    "App1",
+		URL:     cfg.Apps[0].URL, // same URL -> no auto-detach
+		Color:   "#new-color",
+		Enabled: true,
+	})
+	req := httptest.NewRequest(http.MethodPut, "/api/app/App1", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.UpdateApp(w, req, "App1")
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+	if cfg.Apps[0].DockerKey != "name:sonarr" {
+		t.Errorf("DockerKey was wiped by per-app PUT: %+v", cfg.Apps[0])
+	}
+	if cfg.Apps[0].DockerEndpoint != "unix:///var/run/docker.sock" {
+		t.Errorf("DockerEndpoint was wiped: %+v", cfg.Apps[0])
+	}
+	if cfg.Apps[0].DockerStrategy != "container_ip" {
+		t.Errorf("DockerStrategy was wiped: %+v", cfg.Apps[0])
+	}
+	if cfg.Apps[0].Color != "#new-color" {
+		t.Errorf("Color edit was not applied: %+v", cfg.Apps[0])
+	}
+}
+
 // TestSaveConfig_AutoDetachesOnURLChange covers the plan v4
 // "Manual URL edit on a docker-tracked app via SaveConfig is rejected
 // or auto-detaches (pick: auto-detach, document)" line. When the
@@ -1352,6 +1403,59 @@ func TestUpdateApp_AutoDetachesOnURLChange(t *testing.T) {
 	}
 	if cfg.Apps[0].DockerKey != "" {
 		t.Errorf("expected DockerKey cleared by auto-detach; got %q", cfg.Apps[0].DockerKey)
+	}
+}
+
+// TestSaveConfig_AutoDetachPersistsToDisk verifies the auto-detach
+// outcome survives a config round-trip through disk. The existing
+// in-memory tests would pass if a regression mutated cfg.Apps in
+// memory but wrote the pre-mutation slice to YAML; this test fails
+// that scenario because we re-Load from configPath after the request.
+func TestSaveConfig_AutoDetachPersistsToDisk(t *testing.T) {
+	cfg := createTestConfig()
+	cfg.Apps[0].URL = "http://10.0.0.1:80"
+	cfg.Apps[0].DockerKey = "label:sonarr-stable"
+	cfg.Apps[0].DockerEndpoint = "unix:///var/run/docker.sock"
+	cfg.Apps[0].DockerStrategy = "container_ip"
+
+	tmpDir := t.TempDir()
+	configPath := filepath.Join(tmpDir, "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatal(err)
+	}
+	handler := NewAPIHandler(cfg, configPath, &sync.RWMutex{})
+
+	update := ClientConfigUpdate{
+		Title:      "Same",
+		Navigation: cfg.Navigation,
+		Groups:     cfg.Groups,
+		Apps: []ClientAppConfig{
+			{Name: "App1", URL: "http://manual:9999", Group: "Media", Enabled: true,
+				DockerKey: "label:sonarr-stable", DockerEndpoint: "unix:///var/run/docker.sock", DockerStrategy: "container_ip"},
+			{Name: "App2", URL: "http://localhost:8081", Group: "Tools", Enabled: true, Proxy: true},
+			{Name: "DisabledApp", URL: "http://localhost:8082", Group: "Media"},
+		},
+	}
+	body, _ := json.Marshal(update)
+	req := httptest.NewRequest(http.MethodPut, "/api/config", bytes.NewReader(body))
+	w := httptest.NewRecorder()
+	handler.SaveConfig(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, body = %q", w.Code, w.Body.String())
+	}
+
+	// Re-load the YAML. Without this step a regression that mutates
+	// in-memory but writes priorApps to disk would silently pass the
+	// existing tests.
+	reloaded, err := config.Load(configPath)
+	if err != nil {
+		t.Fatalf("reload: %v", err)
+	}
+	if reloaded.Apps[0].URL != "http://manual:9999" {
+		t.Errorf("URL not persisted; got %q", reloaded.Apps[0].URL)
+	}
+	if reloaded.Apps[0].DockerKey != "" {
+		t.Errorf("auto-detach did not persist; on-disk DockerKey = %q", reloaded.Apps[0].DockerKey)
 	}
 }
 

@@ -182,6 +182,12 @@ func TestDetachTracked_StaleEndpointDoesNotMatch(t *testing.T) {
 		},
 		nil,
 	)
+	// Pre-stamp LastSeen so we can verify the 404 path leaves it
+	// intact. A regression where the 404 path also dropped LastSeen
+	// would break the re-link flow's "last seen X ago" UI for any
+	// stranded entry whose detach attempt got rejected.
+	h.Service().RecordSeen("label:foo")
+
 	req := httptest.NewRequest(http.MethodDelete, "/api/discovery/docker/track/label:foo", nil)
 	w := httptest.NewRecorder()
 	h.DetachTracked(w, req)
@@ -190,6 +196,9 @@ func TestDetachTracked_StaleEndpointDoesNotMatch(t *testing.T) {
 	}
 	if cfg.Apps[0].DockerKey != "label:foo" {
 		t.Errorf("stale app should still be tracked: %+v", cfg.Apps[0])
+	}
+	if h.Service().LastSeen("label:foo").IsZero() {
+		t.Errorf("404 path should NOT call ForgetTrackedKey; LastSeen got dropped")
 	}
 }
 

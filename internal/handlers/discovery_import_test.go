@@ -2,15 +2,19 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"sync"
 	"testing"
 
 	"github.com/mescon/muximux/v3/internal/config"
 	"github.com/mescon/muximux/v3/internal/discovery"
+	"github.com/mescon/muximux/v3/internal/proxy"
 )
 
 // newTestImportHandler builds a DiscoveryHandler with an in-memory
@@ -427,6 +431,85 @@ func TestImportDocker_Routing_UnknownValueIsRejected(t *testing.T) {
 	}
 	if res.Items[0].Status != "validation_failed" {
 		t.Errorf("status = %q", res.Items[0].Status)
+	}
+}
+
+// newImportHandlerWithProxy constructs an import handler whose
+// proxy is a real (started) proxy.Proxy with a reload hook the
+// test controls. Lets the rollback paths in ImportDocker fire
+// against an actually-running proxy rather than the nil-proxy
+// shortcut newTestImportHandler uses.
+func newImportHandlerWithProxy(t *testing.T, seedApps []config.AppConfig, seedSites []config.GatewaySite, reload func() error) (*DiscoveryHandler, *config.Config, *proxy.Proxy) {
+	t.Helper()
+	cfg := &config.Config{}
+	cfg.Apps = seedApps
+	cfg.Server.GatewaySites = seedSites
+	// Enabled=true is required for Status() to populate the
+	// divergence telemetry; without it Status returns a fresh
+	// disabled-shape result that ignores the divergence counter.
+	cfg.Discovery.Docker.Enabled = true
+	cfg.Discovery.Docker.Endpoint = "unix:///var/run/docker.sock"
+	configPath := filepath.Join(t.TempDir(), "config.yaml")
+	if err := cfg.Save(configPath); err != nil {
+		t.Fatalf("seed config: %v", err)
+	}
+	svc := discovery.NewService(&cfg.Discovery.Docker)
+	pxy := proxy.New(&proxy.Config{ListenAddr: ":18099", InternalAddr: "127.0.0.1:28099"})
+	pxy.SetGatewaySites(proxy.ConfigGatewaySitesToProxy(seedSites))
+	pxy.SetTestReloadHook(reload)
+	// We need the proxy to register as "running" so the import
+	// handler's `IsRunning()` gate opens. Start with a reload hook
+	// that always succeeds for setup, then swap to the test reload
+	// after Start returns.
+	if err := pxy.Start(); err != nil {
+		t.Fatalf("proxy Start: %v", err)
+	}
+	t.Cleanup(func() { _ = pxy.Stop() })
+	// Swap to the test-controlled hook only after Start. Start
+	// itself triggers a Reload internally.
+	pxy.SetTestReloadHook(reload)
+	return NewDiscoveryHandler(svc, cfg, configPath, &sync.RWMutex{}, pxy), cfg, pxy
+}
+
+// TestImportDocker_CaddyReloadFailure_RollsBackInMemoryAndReports
+// covers the path where Caddy rejects the candidate gateway sites
+// on import. Without this test the rollback assumption (in-memory
+// + per-row status revert when ApplyGatewaySites returns an error)
+// is asserted only by reading the code. newTestImportHandler
+// passes nil for proxyServer so the rollback branch never fired.
+func TestImportDocker_CaddyReloadFailure_RollsBackInMemoryAndReports(t *testing.T) {
+	calls := 0
+	reload := func() error {
+		calls++
+		// Fail every reload so candidate fails AND rollback fails ->
+		// ApplyGatewaySites returns ErrDiverged.
+		return errors.New("synthetic reload failure")
+	}
+	h, cfg, _ := newImportHandlerWithProxy(t, nil, nil, reload)
+
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:      "name:c",
+			Strategy: "container_ip",
+			Routing:  "direct",
+			App:      &ClientAppConfig{Name: "C", URL: "http://10.0.0.5:80", Enabled: true},
+			Gateway:  &config.GatewaySite{Domain: "c.example.com", BackendURL: "http://10.0.0.5:80", TLS: "auto"},
+		}},
+	})
+	if res.Success {
+		t.Fatalf("expected failure on Caddy reload error; got success")
+	}
+	if len(cfg.Apps) != 0 || len(cfg.Server.GatewaySites) != 0 {
+		t.Errorf("in-memory not rolled back: apps=%d sites=%d", len(cfg.Apps), len(cfg.Server.GatewaySites))
+	}
+	if res.Items[0].Status != "aborted_by_batch_failure" {
+		t.Errorf("expected aborted_by_batch_failure; got %q", res.Items[0].Status)
+	}
+	if !strings.Contains(res.Items[0].Error, "diverged") {
+		t.Errorf("expected per-row error to mention divergence; got %q", res.Items[0].Error)
+	}
+	if h.Service().Status(context.Background()).Divergences == 0 {
+		t.Errorf("Service should have recorded divergence; got 0")
 	}
 }
 
