@@ -41,6 +41,27 @@ type DiscoveryHandler struct {
 	// ApplyGatewaySites on this to push newly-imported gateway sites
 	// to Caddy without waiting for a restart.
 	proxyServer *proxy.Proxy
+
+	// onConfigSave is invoked after every successful config write
+	// driven by this handler (currently: ImportDocker, DetachTracked,
+	// RelinkConfirm). Wired to the same rebuild-reverse-proxy-routes
+	// callback the APIHandler uses, so a freshly imported App.Proxy
+	// entry's /proxy/<slug>/ route starts working without a restart.
+	onConfigSave func()
+}
+
+// SetOnConfigSave installs the post-save callback. server.go calls
+// this with the same closure the APIHandler uses (rebuild the
+// reverse-proxy route table) so all three mutation paths converge
+// on the same hook.
+func (h *DiscoveryHandler) SetOnConfigSave(fn func()) {
+	h.onConfigSave = fn
+}
+
+func (h *DiscoveryHandler) notifyConfigSaved() {
+	if h.onConfigSave != nil {
+		h.onConfigSave()
+	}
 }
 
 // NewDiscoveryHandler binds the handler to its initial Service plus

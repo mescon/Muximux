@@ -510,6 +510,14 @@ func (h *DiscoveryHandler) ImportDocker(w http.ResponseWriter, r *http.Request) 
 		return
 	}
 
+	// Notify the post-save hook so the reverse-proxy route table
+	// picks up newly-imported App.Proxy=true entries. Without this,
+	// a freshly imported Proxy-routed app shows up in the menu but
+	// /proxy/<slug>/ returns 404 until the next restart or the next
+	// SaveConfig call. server.go wires this to the same callback
+	// APIHandler uses.
+	h.notifyConfigSaved()
+
 	// Audit log per committed entry. Single line per item so a search
 	// for the docker_key gives full provenance.
 	for i := range results {

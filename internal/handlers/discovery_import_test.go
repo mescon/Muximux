@@ -430,5 +430,49 @@ func TestImportDocker_Routing_UnknownValueIsRejected(t *testing.T) {
 	}
 }
 
+// TestImportDocker_FiresOnConfigSavedAfterSuccess pins the
+// reverse-proxy route-rebuild hook the import flow exposes via
+// SetOnConfigSave. Without this callback firing, a freshly-imported
+// App.Proxy=true entry shows up in /api/apps but /proxy/<slug>/
+// returns 404 until the next restart. The test counts callback
+// invocations after a successful import + after a validation-failed
+// import (should only fire on success).
+func TestImportDocker_FiresOnConfigSavedAfterSuccess(t *testing.T) {
+	h, _ := newTestImportHandler(t, nil)
+	fired := 0
+	h.SetOnConfigSave(func() { fired++ })
+
+	// Success path -> callback should fire exactly once.
+	res, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key: "name:c", Strategy: "container_ip", Routing: "proxy",
+			App: &ClientAppConfig{Name: "C", URL: "http://10.0.0.5:80", Enabled: true},
+		}},
+	})
+	if !res.Success {
+		t.Fatalf("import failed unexpectedly: %+v", res)
+	}
+	if fired != 1 {
+		t.Errorf("expected callback to fire once after successful import; got %d", fired)
+	}
+
+	// Validation failure -> callback must NOT fire (no config was
+	// saved). A regression that moves the call to before the Save
+	// would trigger spurious rebuilds and surface as a false success.
+	res2, _ := postImport(t, h, ImportRequest{
+		Items: []ImportItem{{
+			Key:     "name:bad",
+			Routing: "magic-not-a-real-mode",
+			App:     &ClientAppConfig{Name: "Bad", URL: "http://10.0.0.6:80", Enabled: true},
+		}},
+	})
+	if res2.Success {
+		t.Fatalf("expected validation failure; got success")
+	}
+	if fired != 1 {
+		t.Errorf("callback should not fire on validation failure; total fires=%d", fired)
+	}
+}
+
 // httpBody is defined in discovery_test.go in this package; reused.
 var _ = bytes.NewBuffer

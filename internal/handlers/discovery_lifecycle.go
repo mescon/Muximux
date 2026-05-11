@@ -173,16 +173,23 @@ func (h *DiscoveryHandler) DetachTracked(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	// Now that disk is clean, drop the LastSeenAt entry so the map
-	// stays bounded. Plan v4 NEW-V3-4. Forget BEFORE the audit so a
-	// scripted caller observing the map sees the cleanup.
+	// Drop the LastSeenAt entry so the map stays bounded as operators
+	// detach over time. Done BEFORE the audit so a scripted caller
+	// observing the map sees the cleanup before the log line.
 	if svc := h.Service(); svc != nil {
 		svc.ForgetTrackedKey(key)
 	}
 
+	// Rebuild the reverse-proxy route table so a detached App.Proxy
+	// entry stops routing through /proxy/<slug>/ (or, more commonly,
+	// keeps routing - detach clears docker_key but leaves proxy/url
+	// intact, so the route just becomes stable rather than auto-
+	// refreshed).
+	h.notifyConfigSaved()
+
 	for _, name := range affectedApps {
-		// logging.Audit prepends source=audit; do NOT pass it again
-		// (NEW-V3-5).
+		// logging.Audit already stamps source=audit; do not pass it
+		// again or the slog handler emits a duplicate attribute.
 		logging.Audit("Docker tracking detached",
 			"kind", "app", "name", name,
 			"previous_key", key, "previous_endpoint", currentEndpoint)
@@ -410,6 +417,12 @@ func (h *DiscoveryHandler) RelinkConfirm(w http.ResponseWriter, r *http.Request)
 	if svc := h.Service(); svc != nil {
 		svc.ForgetTrackedKey(req.OldKey)
 	}
+
+	// Rebuild the reverse-proxy route table. Re-link may have moved
+	// a docker_key onto a different App (or, more commonly, the same
+	// App with a different docker_key); either way the URL fields
+	// the route table reads from could have changed.
+	h.notifyConfigSaved()
 
 	for _, name := range out.UpdatedApps {
 		logging.Audit("Docker tracking re-linked",

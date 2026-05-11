@@ -22,6 +22,13 @@ type PollerDeps struct {
 	ConfigMu   *sync.RWMutex
 	Proxy      *proxy.Proxy // ApplyGatewaySites + ErrDiverged
 	OnSave     func() error // optional: defaults to Config.Save(ConfigPath)
+	// OnConfigSaved is invoked after every successful refresh-batch
+	// commit so the reverse-proxy route table picks up new URLs for
+	// App.Proxy=true entries. Wired by server.go to the same
+	// rebuild closure APIHandler + DiscoveryHandler use. Optional
+	// (no-op when nil) so unit tests can construct PollerDeps
+	// without dragging in the route-table dependency.
+	OnConfigSaved func()
 }
 
 // Poller refreshes URLs on tracked Apps + GatewaySites at a fixed
@@ -477,6 +484,15 @@ func (p *Poller) applyRefreshBatch(batch *refreshBatch) {
 
 	// Successful tick.
 	p.deps.Service.RecordRefreshTickSuccess()
+	// Rebuild the reverse-proxy route table if any tracked app's URL
+	// changed - App.Proxy=true entries route through /proxy/<slug>/
+	// and the route table caches each route's upstream URL, so a
+	// silent IP shift would otherwise leave the proxy hitting the
+	// stale address. Skip when no apps changed (gateway-only batches
+	// don't touch the route table).
+	if len(batch.appURLChanges) > 0 && p.deps.OnConfigSaved != nil {
+		p.deps.OnConfigSaved()
+	}
 	for name, url := range batch.appURLChanges {
 		logging.Info("Docker app URL refreshed",
 			"source", "discovery", "app", name, "new_url", url)

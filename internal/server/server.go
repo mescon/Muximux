@@ -58,18 +58,24 @@ type Server struct {
 	oidcProvider     *auth.OIDCProvider
 	discoveryService *discovery.Service
 	discoveryPoller  *discovery.Poller
-	needsSetup       atomic.Bool
-	setupMu          sync.Mutex // serializes setup requests
-	setupToken       string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
-	loginLimiter     *rateLimiter
-	setupLimiter     *rateLimiter
-	logCh            chan logging.LogEntry
-	cleanupDone      chan struct{}
-	iconCacheDirs    []string
-	iconCacheTTL     time.Duration
-	version          string
-	commit           string
-	buildDate        string
+	// rebuildProxyRoutes is the shared closure that asks the
+	// reverse-proxy handler to rebuild its route table from
+	// cfg.Apps. Set in New, called from APIHandler, DiscoveryHandler,
+	// and the discovery poller so all three mutation paths converge
+	// on the same trigger. Nil only before New finishes setup.
+	rebuildProxyRoutes func()
+	needsSetup         atomic.Bool
+	setupMu            sync.Mutex // serializes setup requests
+	setupToken         string     // proof-of-ownership for unauthenticated setup/restore; empty after setup completes
+	loginLimiter       *rateLimiter
+	setupLimiter       *rateLimiter
+	logCh              chan logging.LogEntry
+	cleanupDone        chan struct{}
+	iconCacheDirs      []string
+	iconCacheTTL       time.Duration
+	version            string
+	commit             string
+	buildDate          string
 }
 
 // adminGuard is a function that wraps a handler to require admin role.
@@ -210,10 +216,17 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 		logging.Info("Integrated reverse proxy enabled", "source", "server", "routes", reverseProxyHandler.GetRoutes())
 	}
 
-	// Rebuild proxy routes whenever config is saved
-	api.SetOnConfigSave(func() {
+	// Rebuild proxy routes whenever config is saved. Shared closure
+	// stored on the Server so APIHandler, DiscoveryHandler, and the
+	// discovery poller all converge on the same rebuild trigger.
+	// Without this on the discovery paths, a freshly imported or
+	// refreshed App.Proxy=true entry would surface in the menu but
+	// /proxy/<slug>/ would 404 until the next restart or SaveConfig
+	// call.
+	s.rebuildProxyRoutes = func() {
 		reverseProxyHandler.RebuildRoutes(cfg.Apps)
-	})
+	}
+	api.SetOnConfigSave(s.rebuildProxyRoutes)
 
 	// Caddy setup
 	goListenAddr := setupCaddy(s, cfg)
@@ -231,6 +244,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	// version, and the operator's TLS-hygiene state.
 	s.discoveryService = discovery.NewService(&cfg.Discovery.Docker)
 	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu, s.proxyServer)
+	discoveryHandler.SetOnConfigSave(s.rebuildProxyRoutes)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
 	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.UpdateDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
@@ -1598,11 +1612,12 @@ func (s *Server) Start() error {
 	// working.
 	if s.discoveryService != nil && s.proxyServer != nil {
 		s.discoveryPoller = discovery.NewPoller(discovery.PollerDeps{
-			Service:    s.discoveryService,
-			Config:     s.config,
-			ConfigPath: s.configPath,
-			ConfigMu:   &s.configMu,
-			Proxy:      s.proxyServer,
+			Service:       s.discoveryService,
+			Config:        s.config,
+			ConfigPath:    s.configPath,
+			ConfigMu:      &s.configMu,
+			Proxy:         s.proxyServer,
+			OnConfigSaved: s.rebuildProxyRoutes,
 		})
 		go s.discoveryPoller.Run(context.Background())
 	}

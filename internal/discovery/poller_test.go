@@ -765,6 +765,72 @@ func TestApplyRefreshBatch_SaveFailureWithGateway_ReassertDiverges(t *testing.T)
 	}
 }
 
+// TestApplyRefreshBatch_FiresOnConfigSavedForAppChanges pins the
+// reverse-proxy route-rebuild hook the poller exposes via
+// PollerDeps.OnConfigSaved. Without this callback firing, an
+// App.Proxy=true entry whose IP shifted would have its config
+// updated on disk but the route table would still point at the
+// stale URL.
+func TestApplyRefreshBatch_FiresOnConfigSavedForAppChanges(t *testing.T) {
+	cfg := &config.Config{
+		Apps: []config.AppConfig{
+			{Name: "alpha", URL: "http://10.0.0.1:8080", DockerKey: "label:alpha", Proxy: true},
+		},
+	}
+	var mu sync.RWMutex
+	svc := NewService(&config.DiscoveryDockerConfig{})
+
+	fired := 0
+	p := &Poller{deps: PollerDeps{
+		Config:        cfg,
+		ConfigMu:      &mu,
+		Service:       svc,
+		OnSave:        func() error { return nil },
+		OnConfigSaved: func() { fired++ },
+	}}
+	batch := newRefreshBatch()
+	batch.appURLChanges["alpha"] = "http://10.0.0.99:8080"
+
+	p.applyRefreshBatch(batch)
+	if fired != 1 {
+		t.Errorf("OnConfigSaved should fire once when an app URL changes; got %d", fired)
+	}
+}
+
+// TestApplyRefreshBatch_DoesNotFireOnConfigSavedForGatewayOnlyChange
+// guards the optimisation: gateway-only batches don't touch the
+// reverse-proxy route table (App.Proxy entries aren't involved), so
+// the callback would be a no-op rebuild. Skipping it cheaply avoids
+// a useless map walk every gateway-IP-drift tick.
+func TestApplyRefreshBatch_DoesNotFireOnConfigSavedForGatewayOnlyChange(t *testing.T) {
+	cfg := &config.Config{
+		Server: config.ServerConfig{
+			GatewaySites: []config.GatewaySite{
+				{Domain: "x.example.com", BackendURL: "http://10.0.0.1:8080", DockerKey: "label:x", TLS: "auto"},
+			},
+		},
+	}
+	var mu sync.RWMutex
+	svc := NewService(&config.DiscoveryDockerConfig{})
+
+	priorProxy := []proxy.GatewaySite{{Domain: "x.example.com", BackendURL: "http://10.0.0.1:8080", TLS: "auto"}}
+	pxy := newProxyForBatchTest(priorProxy, func() error { return nil })
+
+	fired := 0
+	p := &Poller{deps: PollerDeps{
+		Config: cfg, ConfigMu: &mu, Service: svc, Proxy: pxy,
+		OnSave:        func() error { return nil },
+		OnConfigSaved: func() { fired++ },
+	}}
+	batch := newRefreshBatch()
+	batch.siteURLChanges["x.example.com"] = "http://10.0.0.99:8080"
+
+	p.applyRefreshBatch(batch)
+	if fired != 0 {
+		t.Errorf("gateway-only changes should not trigger route-table rebuild; got %d fires", fired)
+	}
+}
+
 // TestTick_LogsResolveErrors_NotJustNotFound pins the fix for the
 // silent-continue regression in `tick()`. Before commit "review-fix
 // 1", every non-NotFound resolveURL error (daemon disconnect,
