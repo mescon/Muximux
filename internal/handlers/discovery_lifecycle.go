@@ -324,31 +324,15 @@ func (h *DiscoveryHandler) RelinkProbe(w http.ResponseWriter, r *http.Request) {
 }
 
 // matchByKey resolves a tracking key to a single ContainerSummary,
-// or nil when none matches. Mirror of the poller's resolution
-// priority: label > name > id-prefix.
+// or nil when none matches or the key is malformed. Thin wrapper
+// around discovery.ParseTrackingKey + FindContainer so the handler
+// shares one definition with the poller's refresh loop.
 func matchByKey(containers []discovery.ContainerSummary, key string) *discovery.ContainerSummary {
-	source, value, ok := strings.Cut(key, ":")
-	if !ok {
+	tk, err := discovery.ParseTrackingKey(key)
+	if err != nil {
 		return nil
 	}
-	for i := range containers {
-		c := &containers[i]
-		switch source {
-		case "label":
-			if c.Labels[discovery.LabelDiscoveryID] == value {
-				return c
-			}
-		case "name":
-			if c.PrimaryName() == value {
-				return c
-			}
-		case "id":
-			if c.ID == value || strings.HasPrefix(c.ID, value) {
-				return c
-			}
-		}
-	}
-	return nil
+	return tk.FindContainer(containers)
 }
 
 // candidateFromContainer builds a RelinkCandidate. The candidate's

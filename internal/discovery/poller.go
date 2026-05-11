@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"strings"
 	"sync"
 	"time"
 
@@ -303,33 +302,11 @@ func (p *Poller) resolveURL(ctx context.Context, key, strategy, hostIP string) (
 		return "", err
 	}
 
-	// key shape is "<source>:<value>"; resolve per source.
-	source, value, ok := strings.Cut(key, ":")
-	if !ok {
-		return "", errors.New("malformed tracking key (no source prefix)")
+	tk, err := ParseTrackingKey(key)
+	if err != nil {
+		return "", err
 	}
-
-	var matched *ContainerSummary
-	for i := range containers {
-		c := &containers[i]
-		switch source {
-		case "label":
-			if c.Labels[LabelDiscoveryID] == value {
-				matched = c
-			}
-		case "name":
-			if c.PrimaryName() == value {
-				matched = c
-			}
-		case "id":
-			if c.ID == value || strings.HasPrefix(c.ID, value) {
-				matched = c
-			}
-		}
-		if matched != nil {
-			break
-		}
-	}
+	matched := tk.FindContainer(containers)
 	if matched == nil {
 		return "", ErrContainerNotFound
 	}
