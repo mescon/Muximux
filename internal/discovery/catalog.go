@@ -48,7 +48,7 @@ var builtinCatalog = []CatalogEntry{
 	{Image: "linuxserver/bazarr", Name: "Bazarr", Icon: "bazarr", Group: "Media", Port: 6767},
 	{Image: "linuxserver/prowlarr", Name: "Prowlarr", Icon: "prowlarr", Group: "Media", Port: 9696},
 	{Image: "linuxserver/lidarr", Name: "Lidarr", Icon: "lidarr", Group: "Media", Port: 8686},
-	{Image: "linuxserver/readarr", Name: "Readarr", Icon: "readarr", Group: "Media", Port: 8787},
+	{Image: "linuxserver/readarr", Name: "Readarr", Icon: "readarr", Group: "Media", Port: 8787, Description: "Upstream Readarr was archived/retired in 2026. No new releases. Consider migrating to an active alternative."},
 
 	// Media servers
 	{Image: "linuxserver/jellyfin", Name: "Jellyfin", Icon: "jellyfin", Group: "Media", Port: 8096},
@@ -66,8 +66,13 @@ var builtinCatalog = []CatalogEntry{
 	{Image: "linuxserver/nzbget", Name: "NZBGet", Icon: "nzbget", Group: "Downloads", Port: 6789},
 
 	// Request managers
-	{Image: "linuxserver/overseerr", Name: "Overseerr", Icon: "overseerr", Group: "Media", Port: 5055},
-	{Image: "fallenbagel/jellyseerr", Name: "Jellyseerr", Icon: "jellyseerr", Group: "Media", Port: 5055},
+	// Overseerr + Jellyseerr have announced they are merging
+	// codebases under "Seerr"; see https://docs.seerr.dev/blog/
+	// seerr-release. The original images keep working for now,
+	// but operators should plan a migration as security patches
+	// will land on the merged project.
+	{Image: "linuxserver/overseerr", Name: "Overseerr", Icon: "overseerr", Group: "Media", Port: 5055, Description: "Overseerr is merging into Seerr (docs.seerr.dev). Plan a migration; the original image keeps working for now."},
+	{Image: "fallenbagel/jellyseerr", Name: "Jellyseerr", Icon: "jellyseerr", Group: "Media", Port: 5055, Description: "Jellyseerr is merging into Seerr (docs.seerr.dev). Plan a migration; the original image keeps working for now."},
 
 	// Smart home / monitoring
 	{Image: "homeassistant/home-assistant", Name: "Home Assistant", Icon: "home-assistant", Group: "Smart Home", Port: 8123},
