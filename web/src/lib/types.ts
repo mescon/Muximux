@@ -211,6 +211,13 @@ export interface GatewaySite {
   docker_key?: string;
   docker_endpoint?: string;
   docker_strategy?: string;
+  // Gateway auth gate. When require_auth is true, requests to
+  // this site go through Muximux's session check via Caddy's
+  // forward_auth before reaching the backend. min_role +
+  // allowed_groups mirror App access rules.
+  require_auth?: boolean;
+  min_role?: string;
+  allowed_groups?: string[];
 }
 
 // GatewayMutationResponse covers both the success and failure shapes

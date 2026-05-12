@@ -65,6 +65,7 @@
   // svelte's $state proxy is happy with a concrete object on mount.
   let form = $state<GatewaySite>(blankSite());
   let proxyHeadersRaw = $state(''); // serialized form for the textarea: "key: value" per line
+  let allowedGroupsRaw = $state(''); // comma-separated form of GatewaySite.allowed_groups
 
   // Per-row delete confirm.
   let confirmDelete = $state<string | null>(null);
@@ -120,6 +121,7 @@
     editing = null;
     form = blankSite();
     proxyHeadersRaw = '';
+    allowedGroupsRaw = '';
     appLinkChoice = '';
     newAppName = '';
     formError = null;
@@ -131,6 +133,7 @@
     editing = site.domain;
     form = { ...site, proxy_headers: { ...(site.proxy_headers ?? {}) } };
     proxyHeadersRaw = serializeHeaders(site.proxy_headers ?? {});
+    allowedGroupsRaw = (site.allowed_groups ?? []).join(', ');
     // If the site is linked to an app that still exists, pin that
     // selection. If app_name was set but the app has since been
     // deleted, fall back to standalone so the operator notices.
@@ -253,9 +256,18 @@
   }
 
   function formToSite(): GatewaySite {
+    // Parse the comma-separated groups input. Empty entries are
+    // dropped so "family, , admins" collapses cleanly to two
+    // groups. Trim whitespace per entry so operators can space
+    // for legibility.
+    const groups = allowedGroupsRaw
+      .split(',')
+      .map(s => s.trim())
+      .filter(s => s !== '');
     return {
       ...form,
       proxy_headers: parseHeaders(proxyHeadersRaw),
+      allowed_groups: groups.length ? groups : undefined,
     };
   }
 
@@ -625,6 +637,51 @@
               <span class="block text-xs text-text-muted">Send X-Forwarded-Proto, X-Forwarded-Host, X-Real-IP. On by default; turn off for backends that reject those headers.</span>
             </span>
           </label>
+
+          <label class="flex items-start gap-2 cursor-pointer text-sm" data-testid="gw-require-auth">
+            <input type="checkbox" bind:checked={form.require_auth} />
+            <span>
+              <span class="text-text-primary">Require Muximux login</span>
+              <span class="block text-xs text-text-muted">
+                Gate this subdomain behind the Muximux session.
+                Anonymous visitors are redirected to the login page;
+                authenticated visitors are forwarded to the backend.
+                Requires <code>server.session_cookie_domain</code> in
+                config.yaml so the session cookie crosses subdomain
+                boundaries.
+              </span>
+            </span>
+          </label>
+
+          {#if form.require_auth}
+            <div class="ml-6 mt-1 space-y-2 border-l border-border-subtle pl-3">
+              <div>
+                <label for="gw-min-role" class="block text-xs text-text-secondary mb-1">Minimum role</label>
+                <select
+                  id="gw-min-role"
+                  bind:value={form.min_role}
+                  class="w-full px-2 py-1 bg-bg-elevated border border-border-subtle rounded text-text-primary text-xs"
+                >
+                  <option value="">Any authenticated user</option>
+                  <option value="user">user</option>
+                  <option value="power-user">power-user</option>
+                  <option value="admin">admin</option>
+                </select>
+                <p class="text-xs text-text-muted mt-1">Admins always pass; this raises the bar for non-admin users.</p>
+              </div>
+              <div>
+                <label for="gw-allowed-groups" class="block text-xs text-text-secondary mb-1">Allowed groups</label>
+                <input
+                  id="gw-allowed-groups"
+                  type="text"
+                  bind:value={allowedGroupsRaw}
+                  placeholder="family, admins"
+                  class="w-full px-2 py-1 bg-bg-elevated border border-border-subtle rounded text-text-primary text-xs"
+                />
+                <p class="text-xs text-text-muted mt-1">Comma-separated, case-insensitive. Leave empty to skip the group check. Admins bypass.</p>
+              </div>
+            </div>
+          {/if}
         </div>
 
         <div>
