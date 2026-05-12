@@ -29,7 +29,7 @@ paraglide/
 ├── messages.js      # Message exports (import this)
 ├── messages/        # Individual message functions
 ├── runtime.js       # Locale detection & configuration
-├── registry.js      # Formatting utilities (plural, number, datetime)
+├── registry.js      # Formatting utilities (plural, number, datetime, relativetime)
 ├── server.js        # Server-side middleware
 └── .gitignore       # Marks folder as generated
 ```

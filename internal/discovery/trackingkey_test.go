@@ -15,12 +15,12 @@ func TestParseTrackingKey(t *testing.T) {
 		{"name:mxtest-foo", TrackingKey{Source: KeySourceName, Value: "mxtest-foo"}, false},
 		{"id:deadbeef", TrackingKey{Source: KeySourceID, Value: "deadbeef"}, false},
 		// Edge cases the parser must reject:
-		{"", TrackingKey{}, true},                // empty input
-		{"foo", TrackingKey{}, true},             // missing colon
-		{":foo", TrackingKey{}, true},            // empty source
-		{"label:", TrackingKey{}, true},          // empty value
-		{"magic:foo", TrackingKey{}, true},       // unknown source
-		{"Label:foo", TrackingKey{}, true},       // case-sensitive
+		{"", TrackingKey{}, true},          // empty input
+		{"foo", TrackingKey{}, true},       // missing colon
+		{":foo", TrackingKey{}, true},      // empty source
+		{"label:", TrackingKey{}, true},    // empty value
+		{"magic:foo", TrackingKey{}, true}, // unknown source
+		{"Label:foo", TrackingKey{}, true}, // case-sensitive
 		{"label:foo:bar", TrackingKey{Source: KeySourceLabel, Value: "foo:bar"}, false}, // multi-colon: only first split matters
 	}
 	for _, c := range cases {

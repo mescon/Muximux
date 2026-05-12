@@ -65,6 +65,39 @@ else
 fi
 rm -f "$GO_COVER_FILE"
 
+# ─── golangci-lint ────────────────────────────────────────────────
+info "Running golangci-lint..."
+if command -v golangci-lint >/dev/null 2>&1; then
+    if golangci-lint run ./... >/dev/null 2>&1; then
+        pass "golangci-lint clean"
+    else
+        # Re-run with output so the operator sees what failed.
+        golangci-lint run ./... 2>&1 | tail -30
+        fail "golangci-lint reported issues"
+        errors=$((errors + 1))
+    fi
+else
+    warn "golangci-lint not installed; skipping (install with: go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest)"
+fi
+
+# ─── govulncheck ──────────────────────────────────────────────────
+info "Running govulncheck..."
+GOBIN_PATH="$(go env GOPATH)/bin"
+if [ -x "$GOBIN_PATH/govulncheck" ] || command -v govulncheck >/dev/null 2>&1; then
+    PATH="$GOBIN_PATH:$PATH" govulncheck ./... > /tmp/govulncheck.out 2>&1
+    GOVULN_EXIT=$?
+    if [ "$GOVULN_EXIT" -eq 0 ]; then
+        pass "govulncheck found no vulnerabilities"
+    else
+        cat /tmp/govulncheck.out
+        fail "govulncheck reported vulnerabilities"
+        errors=$((errors + 1))
+    fi
+    rm -f /tmp/govulncheck.out
+else
+    warn "govulncheck not installed; skipping (install with: go install golang.org/x/vuln/cmd/govulncheck@latest)"
+fi
+
 # ─── Frontend tests with coverage ─────────────────────────────────
 info "Running frontend tests with coverage..."
 
