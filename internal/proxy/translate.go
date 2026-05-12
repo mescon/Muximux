@@ -30,6 +30,7 @@ func ConfigGatewaySitesToProxy(sites []config.GatewaySite) []GatewaySite {
 			Streaming:          s.Streaming,
 			ProxyHeaders:       s.ProxyHeaders,
 			ForwardedHeaders:   s.ForwardedHeaders,
+			RequireAuth:        s.RequireAuth,
 		}
 	}
 	return out

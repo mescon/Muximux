@@ -216,6 +216,27 @@ type GatewaySite struct {
 	DockerKey      string `yaml:"docker_key,omitempty" json:"docker_key,omitempty"`
 	DockerEndpoint string `yaml:"docker_endpoint,omitempty" json:"docker_endpoint,omitempty"`
 	DockerStrategy string `yaml:"docker_strategy,omitempty" json:"docker_strategy,omitempty"`
+
+	// Gateway auth gate. When RequireAuth is true, Caddy's
+	// forward_auth directive routes every request to this site
+	// through Muximux's session check before forwarding to the
+	// backend. Anonymous clients are redirected to /login;
+	// authenticated clients are checked against MinRole + AllowedGroups
+	// using the same rules AppConfig uses for dashboard access.
+	//
+	// Requires server.session_cookie_domain to be set so the
+	// session cookie crosses subdomain boundaries. Validated at
+	// config load.
+	RequireAuth bool `yaml:"require_auth,omitempty" json:"require_auth,omitempty"`
+	// MinRole is one of "user", "power-user", "admin". Empty means
+	// any authenticated user passes. Ignored when RequireAuth is
+	// false. Same semantics as AppConfig.MinRole.
+	MinRole string `yaml:"min_role,omitempty" json:"min_role,omitempty"`
+	// AllowedGroups limits gate access to users in at least one of
+	// these groups (case-insensitive). Admins bypass the check.
+	// Empty means no group restriction. Ignored when RequireAuth is
+	// false. Same semantics as AppConfig.AllowedGroups.
+	AllowedGroups []string `yaml:"allowed_groups,omitempty" json:"allowed_groups,omitempty"`
 }
 
 type ServerConfig struct {
@@ -248,6 +269,19 @@ type ServerConfig struct {
 	// Format: ":<port>" or "<host>:<port>" (anything net.Listen
 	// accepts). Validated at config load.
 	GatewayListen string `yaml:"gateway_listen,omitempty" json:"gateway_listen,omitempty"`
+
+	// SessionCookieDomain, when non-empty, sets the Domain attribute
+	// on the Muximux session cookie so it crosses subdomain
+	// boundaries. Required when any gateway site has require_auth=true
+	// because the gate uses the Muximux session as the auth source
+	// and the session cookie must be visible at both the dashboard
+	// host AND each gated site.
+	//
+	// Format: ".example.com" (leading dot, browser-canonical) or
+	// "example.com" (browser normalises). The dashboard host and
+	// every gateway site with require_auth=true must be a subdomain
+	// of this value. Validated at config load.
+	SessionCookieDomain string `yaml:"session_cookie_domain,omitempty" json:"session_cookie_domain,omitempty"`
 }
 
 // NormalizedBasePath returns the base path with a leading slash and no trailing slash.
@@ -573,11 +607,81 @@ func (c *Config) validate() error {
 		return err
 	}
 
+	if err := validateSessionCookieDomain(c); err != nil {
+		return err
+	}
+
 	if err := validateGatewaySites(c.Server.GatewaySites, c); err != nil {
 		return err
 	}
 
 	return nil
+}
+
+// validateSessionCookieDomain enforces the cross-subdomain cookie
+// rules required by the gateway auth gate. The dashboard host and
+// every gateway site with require_auth=true must be a subdomain of
+// the configured value, so the session cookie reaches all of them.
+//
+// Empty SessionCookieDomain is allowed for deployments that don't
+// use the auth gate; in that case any gateway site with require_auth
+// would still need to be rejected (handled here too).
+func validateSessionCookieDomain(c *Config) error {
+	gateAuthSites := []string{}
+	for i := range c.Server.GatewaySites {
+		if c.Server.GatewaySites[i].RequireAuth {
+			gateAuthSites = append(gateAuthSites, c.Server.GatewaySites[i].Domain)
+		}
+	}
+
+	if c.Server.SessionCookieDomain == "" {
+		if len(gateAuthSites) > 0 {
+			return fmt.Errorf("server.session_cookie_domain is required when any gateway site has require_auth=true (gated sites: %v)", gateAuthSites)
+		}
+		return nil
+	}
+
+	// Normalise: trim leading dot for the subdomain check so
+	// ".example.com" and "example.com" both compare against
+	// "sonarr.example.com" the same way.
+	parent := strings.TrimPrefix(c.Server.SessionCookieDomain, ".")
+	if parent == "" {
+		return fmt.Errorf("server.session_cookie_domain %q is invalid (empty after trimming dot)", c.Server.SessionCookieDomain)
+	}
+	// The TLS domain (or each gateway site) must end with the
+	// parent. Use a labelled-suffix match so "evil-example.com"
+	// does not satisfy parent="example.com".
+	mustBeUnder := func(host, label string) error {
+		if host == "" {
+			return nil
+		}
+		if !hostIsUnderParent(host, parent) {
+			return fmt.Errorf("%s %q is not under server.session_cookie_domain %q; either change %s or unset session_cookie_domain", label, host, c.Server.SessionCookieDomain, label)
+		}
+		return nil
+	}
+
+	if err := mustBeUnder(c.Server.TLS.Domain, "server.tls.domain"); err != nil {
+		return err
+	}
+	for _, dom := range gateAuthSites {
+		if err := mustBeUnder(dom, "gateway site "+dom); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// hostIsUnderParent returns true when host == parent OR host ends
+// with ".parent". Avoids the substring trap where "evil-example.com"
+// would otherwise pass a naive HasSuffix("example.com") check.
+func hostIsUnderParent(host, parent string) bool {
+	host = strings.ToLower(host)
+	parent = strings.ToLower(parent)
+	if host == parent {
+		return true
+	}
+	return strings.HasSuffix(host, "."+parent)
 }
 
 // validateGatewayListen accepts an empty string (use defaults) or any
@@ -789,6 +893,23 @@ func validateGatewaySite(s *GatewaySite, srv *ServerConfig) error {
 		}
 	default:
 		return fmt.Errorf("tls=%q is invalid; expected %q, %q, or %q", s.TLS, TLSModeAuto, TLSModeCustom, TLSModeNone)
+	}
+
+	// Gateway auth-gate fields. Skip the checks entirely when
+	// require_auth is false - min_role and allowed_groups are
+	// silently inert in that case (already documented on the
+	// struct). When require_auth is true, min_role must be one
+	// of the known role names so a typo doesn't silently grant
+	// access. The three valid values are duplicated here from
+	// internal/auth/users.go because config cannot import auth
+	// (auth -> config).
+	if s.RequireAuth {
+		switch s.MinRole {
+		case "", "user", "power-user", "admin":
+			// ok
+		default:
+			return fmt.Errorf("min_role=%q is invalid; expected %q, %q, or %q (empty = any authenticated user)", s.MinRole, "user", "power-user", "admin")
+		}
 	}
 
 	return nil

@@ -257,6 +257,15 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	mux.HandleFunc("/api/discovery/docker/relink/probe", requireAdmin(discoveryHandler.RelinkProbe))
 	mux.HandleFunc("/api/discovery/docker/relink/confirm", requireAdmin(discoveryHandler.RelinkConfirm))
 
+	// Gateway auth gate (Caddy forward_auth target). Not behind
+	// requireAuth - the handler IS the auth check. Lookups are
+	// guarded by the X-Forwarded-Host header which only Caddy
+	// (running on the operator's perimeter) sets on its forward_auth
+	// calls; a direct browser hit to /api/auth/forward gets 400.
+	dashboardURL := computeDashboardURL(cfg)
+	gatewayAuthHandler := handlers.NewGatewayAuthHandler(sessionStore, cfg, &s.configMu, dashboardURL)
+	mux.HandleFunc("/api/auth/forward", gatewayAuthHandler.Forward)
+
 	// Auth-protected endpoints
 	mux.HandleFunc("/api/auth/me", func(w http.ResponseWriter, r *http.Request) {
 		authMiddleware.RequireAuth(http.HandlerFunc(authHandler.Me)).ServeHTTP(w, r)
@@ -441,6 +450,13 @@ var defaultBypassRules = []auth.BypassRule{
 func setupAuth(cfg *config.Config) (*auth.SessionStore, *auth.UserStore, *auth.Middleware) {
 	sessionMaxAge := parseDuration(cfg.Auth.SessionMaxAge, 24*time.Hour)
 	sessionStore := auth.NewSessionStore(sessionCookieName, sessionMaxAge, cfg.Auth.SecureCookies)
+	// Cross-subdomain cookie scope - required when gateway sites
+	// have require_auth=true so the Muximux session cookie travels
+	// to gated subdomains. validateSessionCookieDomain ensures the
+	// value is consistent with TLS domain + gateway hostnames.
+	if cfg.Server.SessionCookieDomain != "" {
+		sessionStore.SetCookieDomain(cfg.Server.SessionCookieDomain)
+	}
 	userStore := auth.NewUserStore()
 
 	// Load users from config
@@ -1861,6 +1877,20 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 		}
 		fileServer.ServeHTTP(w, r)
 	}), scriptHash
+}
+
+// computeDashboardURL returns the absolute URL the operator's browser
+// uses to reach the Muximux dashboard. The auth gate uses it as the
+// destination of the login redirect when an anonymous client hits a
+// gated site. Falls back to "" when neither tls.domain nor a clearly
+// inferrable URL is available; the handler then 503s with an
+// operator-actionable error rather than building a relative redirect
+// that would point at the wrong host.
+func computeDashboardURL(cfg *config.Config) string {
+	if cfg.Server.TLS.Domain != "" {
+		return "https://" + cfg.Server.TLS.Domain
+	}
+	return ""
 }
 
 // parseDuration parses a duration string like "7d", "24h", "30m"

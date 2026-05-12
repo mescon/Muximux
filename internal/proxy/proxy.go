@@ -60,6 +60,11 @@ type GatewaySite struct {
 	Streaming          bool
 	ProxyHeaders       map[string]string
 	ForwardedHeaders   *bool
+	// RequireAuth, when true, makes the generator emit a
+	// forward_auth directive ahead of reverse_proxy that calls
+	// back to Muximux's GatewayAuthHandler on the internal port.
+	// The site is gated behind the Muximux session.
+	RequireAuth bool
 }
 
 // ForwardedOrDefault returns the operator's chosen value for the
@@ -460,7 +465,7 @@ func (p *Proxy) buildCaddyfile() string {
 
 	// Emit each structured gateway site as its own Caddy site block.
 	for i := range p.config.GatewaySites {
-		writeGatewaySiteBlock(&b, &p.config.GatewaySites[i], p.config.GatewayListen)
+		writeGatewaySiteBlock(&b, &p.config.GatewaySites[i], p.config.GatewayListen, p.config.InternalAddr)
 	}
 
 	return b.String()
@@ -474,7 +479,7 @@ func (p *Proxy) buildCaddyfile() string {
 // this site. Empty: legacy 80/443 with auto-HTTPS. Non-empty (e.g.
 // ":8443"): the site is served on that address as plain HTTP unless
 // TLS=custom (which keeps the operator-supplied cert).
-func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen string) {
+func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen, internalAddr string) {
 	b.WriteString("\n")
 
 	// Site selector. Three shapes:
@@ -523,6 +528,21 @@ func writeGatewaySiteBlock(b *strings.Builder, s *GatewaySite, gatewayListen str
 	// cannot reach Caddy's parser unchanged. Validation upstream has
 	// already rejected paths/queries/fragments and confirmed the
 	// scheme is http or https; this is defence in depth.
+
+	// forward_auth gate. When require_auth is set, Caddy calls
+	// /api/auth/forward on the internal Muximux port before
+	// forwarding to the backend. 200 -> forward, 302 -> follow
+	// to /login, 403 -> serve forbidden page. The X-Muximux-User
+	// + X-Muximux-Role headers are copied from the auth response
+	// onto the upstream request so backends that care can read
+	// the authenticated identity.
+	if s.RequireAuth {
+		fmt.Fprintf(b, "\tforward_auth %s {\n", internalAddr)
+		b.WriteString("\t\turi /api/auth/forward\n")
+		b.WriteString("\t\tcopy_headers X-Muximux-User X-Muximux-Role\n")
+		b.WriteString("\t}\n")
+	}
+
 	fmt.Fprintf(b, "\treverse_proxy %s {\n", normalizeUpstream(s.BackendURL))
 
 	// Streaming flushes every write — needed for SSE, video transcodes,

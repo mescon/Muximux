@@ -31,10 +31,26 @@ type SessionStore struct {
 	sessions       map[string]*Session
 	mu             sync.RWMutex
 	cookieName     string
+	cookieDomain   string // empty = host-scoped; non-empty applies Domain= attribute so the cookie crosses subdomains
 	maxAge         time.Duration
 	absoluteMaxAge time.Duration // hard cap on total session lifetime; 0 disables the cap
 	secure         bool
 	done           chan struct{}
+}
+
+// SetCookieDomain configures the Domain attribute applied to every
+// session cookie this store issues from now on. Empty (the default)
+// keeps cookies host-scoped to the dashboard, which is correct for
+// single-domain deployments. Set to ".example.com" (or "example.com",
+// browser normalises) when the gateway auth gate is in use so the
+// session cookie is visible at all gated subdomains.
+//
+// Existing in-flight cookies are unaffected; the change takes effect
+// on the next Create / SetCookie call.
+func (s *SessionStore) SetCookieDomain(domain string) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.cookieDomain = domain
 }
 
 // defaultSessionAbsoluteMaxAge is the wall-clock maximum lifetime of any
@@ -165,10 +181,14 @@ func (s *SessionStore) GetFromRequest(r *http.Request) *Session {
 
 // SetCookie sets the session cookie on the response
 func (s *SessionStore) SetCookie(w http.ResponseWriter, session *Session) {
+	s.mu.RLock()
+	domain := s.cookieDomain
+	s.mu.RUnlock()
 	http.SetCookie(w, &http.Cookie{
 		Name:     s.cookieName,
 		Value:    session.ID,
 		Path:     "/",
+		Domain:   domain,
 		HttpOnly: true,
 		Secure:   s.secure,
 		SameSite: http.SameSiteLaxMode,
@@ -176,12 +196,19 @@ func (s *SessionStore) SetCookie(w http.ResponseWriter, session *Session) {
 	})
 }
 
-// ClearCookie removes the session cookie
+// ClearCookie removes the session cookie. Must mirror SetCookie's
+// Domain attribute exactly or browsers will refuse to clear the
+// original cookie (host-scoped clear of a domain-scoped cookie is
+// silently ignored).
 func (s *SessionStore) ClearCookie(w http.ResponseWriter) {
+	s.mu.RLock()
+	domain := s.cookieDomain
+	s.mu.RUnlock()
 	http.SetCookie(w, &http.Cookie{
 		Name:     s.cookieName,
 		Value:    "",
 		Path:     "/",
+		Domain:   domain,
 		HttpOnly: true,
 		Secure:   s.secure,
 		SameSite: http.SameSiteLaxMode,
