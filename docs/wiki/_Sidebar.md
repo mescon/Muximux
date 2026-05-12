@@ -24,6 +24,7 @@
 - [Authentication](authentication)
 - [TLS & HTTPS](tls-and-gateway)
 - [Gateway Examples](gateway-examples)
+- [Gateway Auth Gate](gateway-auth)
 
 **Identity provider guides**
 - [Microsoft Entra ID](oidc-microsoft-entra-id)

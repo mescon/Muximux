@@ -1155,3 +1155,147 @@ func TestValidateGatewayListen(t *testing.T) {
 		})
 	}
 }
+
+// TestValidateSessionCookieDomain covers the cross-subdomain cookie
+// rules required by the gateway auth gate.
+func TestValidateSessionCookieDomain(t *testing.T) {
+	cases := []struct {
+		name    string
+		cfg     Config
+		wantErr bool
+	}{
+		{
+			name: "empty + no gated sites is fine",
+			cfg:  Config{},
+		},
+		{
+			name: "empty + gated site is rejected",
+			cfg: Config{
+				Server: ServerConfig{
+					GatewaySites: []GatewaySite{{Domain: "x.example.com", RequireAuth: true}},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "leading-dot domain accepted",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: ".example.com",
+					TLS:                 TLSConfig{Domain: "muximux.example.com"},
+					GatewaySites:        []GatewaySite{{Domain: "sonarr.example.com", RequireAuth: true}},
+				},
+			},
+		},
+		{
+			name: "no-dot domain accepted (browser normalises)",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: "example.com",
+					GatewaySites:        []GatewaySite{{Domain: "sonarr.example.com", RequireAuth: true}},
+				},
+			},
+		},
+		{
+			name: "site outside the cookie domain is rejected",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: ".example.com",
+					GatewaySites:        []GatewaySite{{Domain: "sonarr.other.org", RequireAuth: true}},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "tls.domain outside cookie domain is rejected",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: ".example.com",
+					TLS:                 TLSConfig{Domain: "muximux.elsewhere.com"},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "substring trap: evil-example.com must not satisfy parent=example.com",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: ".example.com",
+					GatewaySites:        []GatewaySite{{Domain: "evil-example.com", RequireAuth: true}},
+				},
+			},
+			wantErr: true,
+		},
+		{
+			name: "ungated sites are not subject to the subdomain check",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: ".example.com",
+					GatewaySites:        []GatewaySite{{Domain: "anywhere.org", RequireAuth: false}},
+				},
+			},
+		},
+		{
+			name: "only-dot domain rejected",
+			cfg: Config{
+				Server: ServerConfig{
+					SessionCookieDomain: ".",
+				},
+			},
+			wantErr: true,
+		},
+	}
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			err := validateSessionCookieDomain(&c.cfg)
+			if (err != nil) != c.wantErr {
+				t.Errorf("err=%v wantErr=%v", err, c.wantErr)
+			}
+		})
+	}
+}
+
+func TestValidateGatewaySite_MinRoleWhenRequireAuth(t *testing.T) {
+	cases := []struct {
+		role    string
+		wantErr bool
+	}{
+		{"", false},
+		{"user", false},
+		{"power-user", false},
+		{"admin", false},
+		{"superadmin", true}, // unknown role
+		{"User", true},       // case-sensitive
+	}
+	for _, c := range cases {
+		t.Run("role="+c.role, func(t *testing.T) {
+			s := &GatewaySite{
+				Domain:      "x.example.com",
+				BackendURL:  "http://10.0.0.5:80",
+				TLS:         TLSModeAuto,
+				RequireAuth: true,
+				MinRole:     c.role,
+			}
+			err := validateGatewaySite(s, nil)
+			if (err != nil) != c.wantErr {
+				t.Errorf("MinRole=%q err=%v wantErr=%v", c.role, err, c.wantErr)
+			}
+		})
+	}
+}
+
+func TestValidateGatewaySite_MinRoleIgnoredWhenRequireAuthFalse(t *testing.T) {
+	// MinRole="garbage" is dead config when RequireAuth is false; do
+	// not surface an error for the sake of operators experimenting
+	// with the flag.
+	s := &GatewaySite{
+		Domain:      "x.example.com",
+		BackendURL:  "http://10.0.0.5:80",
+		TLS:         TLSModeAuto,
+		RequireAuth: false,
+		MinRole:     "garbage",
+	}
+	if err := validateGatewaySite(s, nil); err != nil {
+		t.Errorf("MinRole should be ignored when RequireAuth=false; got err=%v", err)
+	}
+}

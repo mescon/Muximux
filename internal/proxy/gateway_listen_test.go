@@ -151,3 +151,53 @@ func TestPortOnly_VariousInputs(t *testing.T) {
 		}
 	}
 }
+
+// TestBuildCaddyfile_RequireAuth_EmitsForwardAuth pins the
+// forward_auth directive emission when a site has RequireAuth=true.
+// The directive's address is the proxy's InternalAddr so Caddy calls
+// back into Muximux's Go server (not the public dashboard URL).
+func TestBuildCaddyfile_RequireAuth_EmitsForwardAuth(t *testing.T) {
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{
+			{Domain: "sonarr.example.com", BackendURL: "http://10.0.0.5:8989", TLS: "auto", RequireAuth: true},
+			{Domain: "ungated.example.com", BackendURL: "http://10.0.0.6:80", TLS: "auto", RequireAuth: false},
+		},
+	})
+	out := p.buildCaddyfile()
+
+	if !strings.Contains(out, "forward_auth 127.0.0.1:18080 {") {
+		t.Errorf("expected forward_auth pointing at InternalAddr; got:\n%s", out)
+	}
+	if !strings.Contains(out, "uri /api/auth/forward") {
+		t.Errorf("expected uri directive in forward_auth block; got:\n%s", out)
+	}
+	if !strings.Contains(out, "copy_headers X-Muximux-User X-Muximux-Role") {
+		t.Errorf("expected copy_headers in forward_auth block; got:\n%s", out)
+	}
+	// The ungated site must NOT have a forward_auth directive of
+	// its own. We look for the second site's block specifically.
+	ungatedBlockStart := strings.Index(out, "ungated.example.com")
+	if ungatedBlockStart < 0 {
+		t.Fatalf("ungated site not in output:\n%s", out)
+	}
+	ungatedBlock := out[ungatedBlockStart:]
+	if strings.Contains(ungatedBlock, "forward_auth") {
+		t.Errorf("ungated site should not have forward_auth; got:\n%s", ungatedBlock)
+	}
+}
+
+func TestBuildCaddyfile_NoRequireAuth_OmitsForwardAuth(t *testing.T) {
+	p := New(&Config{
+		ListenAddr:   ":8080",
+		InternalAddr: "127.0.0.1:18080",
+		GatewaySites: []GatewaySite{
+			{Domain: "x.example.com", BackendURL: "http://10.0.0.5:80", TLS: "auto"},
+		},
+	})
+	out := p.buildCaddyfile()
+	if strings.Contains(out, "forward_auth") {
+		t.Errorf("forward_auth should not appear when no site has RequireAuth; got:\n%s", out)
+	}
+}
