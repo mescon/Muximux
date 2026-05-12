@@ -14,9 +14,14 @@ vi.mock('svelte-dnd-action', () => ({
   SOURCES: { POINTER: 'pointer' },
 }));
 
-// Mock AppIcon dependencies so it renders without error
+// Mock AppIcon dependencies so it renders without error. Stub
+// fetchDiscoveryDockerStatus too: AppsTab fires it on mount to drive
+// the per-state Discover button rendering (cta / unreachable /
+// strategy_blocked / active / hidden).
+const mockFetchDiscoveryDockerStatus = vi.fn();
 vi.mock('$lib/api', () => ({
   getBase: vi.fn(() => ''),
+  fetchDiscoveryDockerStatus: (...args: unknown[]) => mockFetchDiscoveryDockerStatus(...args),
 }));
 
 vi.mock('$lib/debug', () => ({
@@ -76,6 +81,10 @@ describe('AppsTab', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Most tests don't care about discovery; default to a rejection so
+    // discoveryStatus stays null and the button hides itself, keeping
+    // existing test assertions stable.
+    mockFetchDiscoveryDockerStatus.mockRejectedValue(new Error('not configured'));
   });
 
   // ===== Basic rendering =====
@@ -909,5 +918,159 @@ describe('AppsTab', () => {
     });
 
     expect(screen.getByText('0 apps')).toBeInTheDocument();
+  });
+
+  // ===========================================================================
+  // 3.1.0 additions: Discover-from-Docker button state branches + per-app
+  // docker_key badge. Each maps to a derived state arm that wasn't exercised.
+  // ===========================================================================
+
+  describe('Discover-from-Docker button', () => {
+    function renderEmptyTab() {
+      return render(AppsTab, {
+        props: {
+          dndGroups: [],
+          dndGroupedApps: {},
+          localAppsCount: 0,
+          localGroupsCount: 0,
+          ...defaultHandlers,
+          ondiscoveryconfigure: vi.fn(),
+          ondiscoveryscan: vi.fn(),
+        },
+      });
+    }
+
+    it('renders the "Discover from Docker" button when discovery is active (reachable+strategy_ok)', async () => {
+      mockFetchDiscoveryDockerStatus.mockResolvedValue({
+        configured: true,
+        reachable: true,
+        strategy_ok: true,
+      });
+      renderEmptyTab();
+      // Wait for the onMount → fetchDiscoveryDockerStatus → state
+      // update → button render chain to settle.
+      await new Promise(r => setTimeout(r, 0));
+      expect(await screen.findByRole('button', { name: /Discover from Docker/i })).toBeInTheDocument();
+    });
+
+    it('renders the "Set up Docker discovery" CTA when configured=false', async () => {
+      mockFetchDiscoveryDockerStatus.mockResolvedValue({
+        configured: false,
+        reachable: false,
+        strategy_ok: false,
+      });
+      renderEmptyTab();
+      await new Promise(r => setTimeout(r, 0));
+      expect(await screen.findByRole('button', { name: /Set up Docker discovery/i })).toBeInTheDocument();
+    });
+
+    it('renders the "Docker discovery unreachable" disabled button on daemon-down state', async () => {
+      mockFetchDiscoveryDockerStatus.mockResolvedValue({
+        configured: true,
+        reachable: false,
+        strategy_ok: false,
+        last_error: 'connection refused',
+      });
+      renderEmptyTab();
+      await new Promise(r => setTimeout(r, 0));
+      const btn = await screen.findByRole('button', { name: /unreachable/i });
+      expect(btn).toBeInTheDocument();
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('renders the "configure strategy" disabled button when reachable but strategy_ok=false', async () => {
+      mockFetchDiscoveryDockerStatus.mockResolvedValue({
+        configured: true,
+        reachable: true,
+        strategy_ok: false,
+      });
+      renderEmptyTab();
+      await new Promise(r => setTimeout(r, 0));
+      const btn = await screen.findByRole('button', { name: /configure strategy/i });
+      expect(btn).toBeInTheDocument();
+      expect((btn as HTMLButtonElement).disabled).toBe(true);
+    });
+
+    it('fires ondiscoveryscan when the active button is clicked', async () => {
+      mockFetchDiscoveryDockerStatus.mockResolvedValue({
+        configured: true,
+        reachable: true,
+        strategy_ok: true,
+      });
+      const ondiscoveryscan = vi.fn();
+      const ondiscoveryconfigure = vi.fn();
+      render(AppsTab, {
+        props: {
+          dndGroups: [],
+          dndGroupedApps: {},
+          localAppsCount: 0,
+          localGroupsCount: 0,
+          ...defaultHandlers,
+          ondiscoveryconfigure,
+          ondiscoveryscan,
+        },
+      });
+      const btn = await screen.findByRole('button', { name: /Discover from Docker/i });
+      await fireEvent.click(btn);
+      expect(ondiscoveryscan).toHaveBeenCalled();
+      expect(ondiscoveryconfigure).not.toHaveBeenCalled();
+    });
+
+    it('fires ondiscoveryconfigure on the CTA path (not yet configured)', async () => {
+      mockFetchDiscoveryDockerStatus.mockResolvedValue({
+        configured: false,
+        reachable: false,
+        strategy_ok: false,
+      });
+      const ondiscoveryscan = vi.fn();
+      const ondiscoveryconfigure = vi.fn();
+      render(AppsTab, {
+        props: {
+          dndGroups: [],
+          dndGroupedApps: {},
+          localAppsCount: 0,
+          localGroupsCount: 0,
+          ...defaultHandlers,
+          ondiscoveryconfigure,
+          ondiscoveryscan,
+        },
+      });
+      const btn = await screen.findByRole('button', { name: /Set up Docker discovery/i });
+      await fireEvent.click(btn);
+      expect(ondiscoveryconfigure).toHaveBeenCalled();
+      expect(ondiscoveryscan).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Per-app docker_key badge', () => {
+    it('does not render the Docker-managed badge for hand-configured apps', () => {
+      const app = withId(makeApp({ name: 'manual', docker_key: undefined }));
+      const group = withId(makeGroup());
+      render(AppsTab, {
+        props: {
+          dndGroups: [group],
+          dndGroupedApps: { Default: [app] },
+          localAppsCount: 1,
+          localGroupsCount: 1,
+          ...defaultHandlers,
+        },
+      });
+      expect(screen.queryByTestId('docker-managed-badge')).not.toBeInTheDocument();
+    });
+
+    it('renders the Docker-managed badge for discovery-imported apps', () => {
+      const app = withId(makeApp({ name: 'auto', docker_key: 'label:sonarr-stable' }));
+      const group = withId(makeGroup());
+      render(AppsTab, {
+        props: {
+          dndGroups: [group],
+          dndGroupedApps: { Default: [app] },
+          localAppsCount: 1,
+          localGroupsCount: 1,
+          ...defaultHandlers,
+        },
+      });
+      expect(screen.getByTestId('docker-managed-badge')).toBeInTheDocument();
+    });
   });
 });

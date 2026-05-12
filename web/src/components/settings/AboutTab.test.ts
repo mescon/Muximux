@@ -197,4 +197,50 @@ describe('AboutTab', () => {
 
     expect(screen.getByText('go1.22.0')).toBeInTheDocument();
   });
+
+  // Each "Your platform" badge is gated behind a per-OS conditional in
+  // the install-instructions panel. Without these, three branches in
+  // a row stay unexercised even on the happy path.
+  it('marks Linux as "your platform" on a native+linux install', async () => {
+    mockApi.fetchSystemInfo.mockResolvedValue(makeSystemInfo({ environment: 'native', os: 'linux' }));
+    mockApi.checkForUpdates.mockResolvedValue(
+      makeUpdateInfo({
+        download_urls: {
+          linux_amd64: 'https://example/linux',
+          darwin_amd64: 'https://example/mac',
+          windows_amd64: 'https://example/windows',
+        },
+      }),
+    );
+    render(AboutTab);
+    await waitFor(() => expect(screen.getByText('3.2.0')).toBeInTheDocument());
+    // The Linux native instructions card carries the "your platform"
+    // chip. Other OS cards do not.
+    const badges = screen.getAllByText(/your platform/i);
+    expect(badges.length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('marks macOS as "your platform" on a native+darwin install', async () => {
+    mockApi.fetchSystemInfo.mockResolvedValue(makeSystemInfo({ environment: 'native', os: 'darwin' }));
+    mockApi.checkForUpdates.mockResolvedValue(
+      makeUpdateInfo({
+        download_urls: { darwin_amd64: 'https://example/mac' },
+      }),
+    );
+    render(AboutTab);
+    await waitFor(() => expect(screen.getByText('3.2.0')).toBeInTheDocument());
+    expect(screen.getAllByText(/your platform/i).length).toBeGreaterThanOrEqual(1);
+  });
+
+  it('marks Windows as "your platform" on a native+windows install', async () => {
+    mockApi.fetchSystemInfo.mockResolvedValue(makeSystemInfo({ environment: 'native', os: 'windows' }));
+    mockApi.checkForUpdates.mockResolvedValue(
+      makeUpdateInfo({
+        download_urls: { windows_amd64: 'https://example/windows' },
+      }),
+    );
+    render(AboutTab);
+    await waitFor(() => expect(screen.getByText('3.2.0')).toBeInTheDocument());
+    expect(screen.getAllByText(/your platform/i).length).toBeGreaterThanOrEqual(1);
+  });
 });

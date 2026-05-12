@@ -2,6 +2,111 @@
 
 All notable changes to Muximux are documented in this file.
 
+## [3.1.0] - 2026-05-12
+
+The big one. Two new features that probably matter more than any single 3.0.x point release: Muximux can now **discover Docker containers** and import them as apps with one click, and it can act as a **single-sign-on gate** in front of gateway-hosted subdomains. Plus a healthy round of catalog updates, hardening, and dependency bumps.
+
+### Stop hand-typing your homelab into config.yaml
+
+If you run your apps in Docker (and let's be honest, you do), v3.1.0 will read your daemon and offer to do the boring part for you.
+
+Open **Settings -> Discovery**, hit "Discover apps", and Muximux enumerates every running container, matches them against a curated catalog of ~30 self-hosted apps (Sonarr, Radarr, Plex, Jellyfin, qBittorrent, SABnzbd, Grafana, Portainer, Uptime Kuma, Seerr, the works), and shows you a list with sensible defaults: name, icon, port, URL. Tick the ones you want, hit Import, done.
+
+Containers that *aren't* in the catalog still show up. They land with a "low confidence" chip, a name auto-derived from the container's name, and a per-row icon picker so you can finish the job without leaving the modal. No more "what did I name that thing again" while flipping between `docker ps` and the settings panel.
+
+Each row lets you pick **how** the app gets exposed:
+
+- **Direct** -- the menu link goes straight to the container's URL. Works when the dashboard machine can reach the container's IP and the app doesn't set `X-Frame-Options`.
+- **Proxy** -- Muximux's built-in reverse proxy serves the app at `/proxy/<slug>`, rewriting paths and stripping iframe-busting headers. The "it just works" option for stubborn apps.
+- **Gateway** -- registered as a Caddy gateway site on a subdomain (e.g. `sonarr.example.com`), with automatic Let's Encrypt. Useful when you also want the app reachable from outside Muximux.
+
+A background **refresh poller** keeps imported URLs current. If your container's IP shifts (compose restart, network rotation, ESXi migration), Muximux re-resolves and rewrites `config.yaml` -- transactionally. If Caddy refuses the new shape, the in-memory config rolls back and a divergence banner surfaces in the UI with the actual error. No more "where did my Sonarr go?"
+
+```yaml
+# Minimal opt-in (Docker socket mounted into the muximux container):
+discovery:
+  docker:
+    enabled: true
+    socket: /var/run/docker.sock       # default
+    network_strategy: container_ip     # or "container_dns" / "host_port"
+    refresh_interval: 60s
+```
+
+Apps that ship a `muximux.app.*` label on the container (`muximux.app.name`, `muximux.app.icon`, `muximux.app.port`, `muximux.app.path`, `muximux.app.health`, `muximux.app.gateway_domain`, `muximux.discovery.id`) get a green "high confidence" badge -- the operator gets the final say but the row needs no editing. Set `muximux.discovery.id=<stable-key>` on swarm tasks and `--force-recreate` flows to keep tracking stable across restarts.
+
+Discovered entries show up with a "managed by discovery" badge on the App / Gateway-site edit forms. The source-of-truth fields (URL, container ID, image) are read-only by default -- click **Detach** to take ownership manually. The next scan offers a one-click re-link if you change your mind.
+
+Resolves #316 (Docker auto-discovery).
+
+### Single sign-on across all your gateway subdomains
+
+Until now, gateway sites in Muximux were a pure reverse proxy: open `sonarr.example.com` and you hit Sonarr directly. v3.1.0 lets you optionally put **Muximux's login** in front of any gateway site, turning Muximux into a forward-auth gate.
+
+Useful when:
+
+- You're exposing apps that lack their own auth (Plex's web admin, Grafana with anonymous access, a custom Flask thing).
+- You want one login to authorise access to N gated subdomains -- Muximux's session cookie does the SSO.
+- You want defence in depth in front of an app that *has* auth but you'd rather not test that surface from the public internet.
+
+Enable per site with two new fields:
+
+```yaml
+server:
+  session_cookie_domain: ".example.com"   # required for cookie scope across subdomains
+  tls:
+    domain: "muximux.example.com"
+
+gateway_sites:
+  - domain: sonarr.example.com
+    backend_url: http://10.0.0.5:8989
+    tls: auto
+    require_auth: true                    # gate this site
+    min_role: user                        # optional; "user" / "power-user" / "admin"
+    allowed_groups: [family, admins]      # optional; case-insensitive; admins bypass
+```
+
+The flow: a request hits `sonarr.example.com`, Caddy calls Muximux's `/api/auth/forward`, Muximux checks the session cookie and the per-site permission rules. 200 means Caddy proxies through with `X-Muximux-User` / `X-Muximux-Role` headers attached (your backend can use them if it wants). 302 sends the visitor to the Muximux login page with a `next=<original-url>` parameter so they land back where they started after signing in. 403 renders a "you're signed in but lack permission" page naming whether they failed `role_insufficient` or `group_mismatch`. Every result is recorded via `logging.Audit()` with `source=audit` for post-incident review.
+
+Logout (`/logout` on Muximux) invalidates the cookie across **all** gated subdomains at once -- domain-scoped logout is now properly honoured.
+
+Topology requirement: every gated site needs to be a subdomain of `session_cookie_domain`, otherwise the cookie won't reach it. Muximux's config validator enforces this at startup and refuses to start with a specific error pointing at the offending site (using a real host-suffix check, not `strings.HasSuffix` -- `evilexample.com` does not slip past a parent of `example.com`).
+
+Full topology, troubleshooting matrix, and audit log format on the new [Gateway Auth Gate](https://github.com/mescon/Muximux/wiki/gateway-auth) wiki page.
+
+### One more thing: running on :80 / :443 without sudo
+
+If you've been wanting to drop Muximux directly onto the public internet without `setcap` gymnastics or a separate reverse proxy, two paths now work cleanly:
+
+- `setcap CAP_NET_BIND_SERVICE+eip /path/to/muximux` (recommended -- least privilege).
+- New `server.gateway_listen: ":8443"` (or any unprivileged port). Muximux's Caddyfile generator switches every gateway site to an explicit `http://<domain>:<port>` selector, disables auto-HTTPS globally (since HTTP-01 challenges can't reach a high port), and you front it with an upstream proxy that terminates TLS. The custom-cert path keeps HTTPS on the high port if you want to terminate at Caddy.
+
+If you still try to bind a privileged port without permission, Muximux exits with a remediation message naming the three fixes by name, no fishing through error wrappers.
+
+### Catalog updates
+
+- **Readarr** -- now annotated as EOL. The upstream project was archived; the catalog entry points users at active alternatives (Calibre-Web, Kavita) so new imports don't land on a dead app. Existing apps keep working; the annotation is informational. Resolves part of #333.
+- **Seerr** -- `sct/overseerr-telegram-bot`, `sct/overseerr`, `linuxserver/overseerr`, and `fallenbagel/jellyseerr` are now merged under a single **Seerr** catalog entry, reflecting the upstream project merger. One icon, one name, one set of defaults regardless of which image you're running. Resolves the rest of #333.
+
+### Added
+- Per-row **icon picker** in the Discover modal. Click the icon thumbnail on any row to override the suggested icon -- works for low-confidence rows (catalog miss) as well as high-confidence rows where you just prefer a different icon.
+- `govulncheck` and `golangci-lint` are now invoked by `.githooks/pre-push`. Both gracefully skip with an install hint when not present so contributors aren't forced to install them, but they gate push on dirty results when they are.
+
+### Changed
+- All Go modules and npm dependencies bumped to current latest. Dependabot PRs #331 (CodeQL action), #332 (npm group), and #334 (kysely) were applied locally rather than after the fact, so the post-tag inbox should be quiet. Kysely held at 0.28.17 because paraglide pins `^0.28.12`; 0.29 would create a peer-dep mismatch.
+- Five enum-shaped string parameters across the discovery and proxy packages promoted from raw `string` to defined types (`ImportStatus`, `RoutingMode`, `TLSMode`, `TrackingState`, `RefreshResult`). Each ships with a `Valid()` method and exhaustive switch coverage; `golangci-lint`'s `exhaustive` checker keeps new branches honest.
+- Container tracking keys promoted from raw strings to a `TrackingKey` value type so "container ID" and "image name" can't accidentally swap places at the call site.
+- Reverse-proxy route rebuild now fires from every discovery mutation path (import, refresh, detach, re-link), not just the App API. Closes a stale-route class of bug where a freshly imported app would 404 until the next config save.
+
+### Fixed
+- Discovery `POST /api/discovery/import` payloads no longer silently drop unknown fields. The Go config structs gained `json:"..."` tags so a snake_case frontend payload round-trips correctly; missed tags previously caused `discovery_docker.enabled` and friends to revert to zero values on save.
+- Caddy reload failures during refresh now surface to the UI divergence banner instead of getting swallowed. The previous code path used `_ = reassert(...)`, which discarded the rollback error -- now we capture it and call `RecordDivergence` on `ErrDiverged`.
+- Forbidden response page (403 from the auth gate) escapes user/role names via `htmlEscape` before rendering. The lint warning that flagged the constant template as XSS-prone (gosec G705) is annotated as a false positive at the line.
+
+### Security
+- Forward-auth endpoint enforces a strict method allowlist (GET/HEAD only), rejects missing/malformed `X-Forwarded-Host` headers with a 400, and never falls through to the dashboard on a malformed request.
+- Session cookie's `Domain` attribute is now honoured by both `SetCookie` and `ClearCookie`, so logout cleanly clears the cookie across every gated subdomain at once. Previously, clearing a domain-scoped cookie left it set on subdomains -- a logout-doesn't-actually-log-you-out bug that v3.1.0's gate would have made very visible.
+- Gateway-site validator rejects `require_auth: true` without `session_cookie_domain`, and rejects sites that aren't actually subdomains of the cookie domain (real host-suffix check via `hostIsUnderParent`, not naive `strings.HasSuffix`).
+
 ## [3.0.32] - 2026-04-30
 
 Per-app group-based access control. Apps can now declare an `allowed_groups: [...]` allowlist; only users in at least one of those groups see and reach the app. Resolves #326.

@@ -332,4 +332,52 @@ describe('AppForm', () => {
       expect(screen.getByText('Advanced')).toBeInTheDocument();
     });
   });
+
+  // ===========================================================================
+  // 3.1.0 additions: Docker-managed lock + gateway-domain notice. Both
+  // hang off optional App fields and render only when present. Without
+  // tests they're dead branches in the coverage report.
+  // ===========================================================================
+  describe('Docker-managed lock notice', () => {
+    it('hides the lock notice when the app is not managed by discovery', () => {
+      render(AppForm, { props: { app: makeApp(), mode: 'edit', groups: defaultGroups, allApps: [] } });
+      expect(screen.queryByTestId('app-form-docker-locked')).not.toBeInTheDocument();
+    });
+
+    it('renders the lock notice and marks URL readonly when docker_key is set', () => {
+      const app = makeApp({ docker_key: 'label:sonarr-stable' });
+      render(AppForm, { props: { app, mode: 'edit', groups: defaultGroups, allApps: [] } });
+
+      // Notice visible.
+      expect(screen.getByTestId('app-form-docker-locked')).toBeInTheDocument();
+      // The notice references the source tracking key.
+      expect(screen.getByText(/label:sonarr-stable/)).toBeInTheDocument();
+      // URL field is readonly while Docker-managed - prevents the
+      // operator from drifting the URL out of sync with refresh ticks.
+      const url = screen.getByTestId('app-form-url') as HTMLInputElement;
+      expect(url.readOnly).toBe(true);
+    });
+  });
+
+  describe('Gateway-domain notice', () => {
+    it('hides the gateway hint when the app has no gateway_domain', () => {
+      render(AppForm, { props: { app: makeApp(), mode: 'edit', groups: defaultGroups, allApps: [] } });
+      expect(screen.queryByText(/Hosted by Muximux gateway/i)).not.toBeInTheDocument();
+    });
+
+    it('renders the gateway hint with the configured subdomain and suggested URL', () => {
+      const app = makeApp({ gateway_domain: 'sonarr.example.com' });
+      render(AppForm, { props: { app, mode: 'edit', groups: defaultGroups, allApps: [] } });
+
+      // Both the domain name and the canonical https://<domain>
+      // suggestion appear so the operator can copy the right URL in.
+      // The "Set this app's URL to ..." sentence references the same
+      // domain - we anchor on the unique copy.
+      expect(screen.getByText(/Hosted by Muximux gateway/i)).toBeInTheDocument();
+      // The domain appears in both the "Hosted by" line and the
+      // "Set this app's URL to https://<domain>" suggestion.
+      const occurrences = screen.getAllByText(/sonarr\.example\.com/);
+      expect(occurrences.length).toBeGreaterThanOrEqual(2);
+    });
+  });
 });

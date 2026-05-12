@@ -1,7 +1,9 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import type { DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult } from '$lib/types';
+  import type { DiscoverySuggestion, DiscoveryImportItem, DiscoveryImportResult, AppIcon as AppIconType } from '$lib/types';
   import { scanDockerContainers, importDockerSuggestions } from '$lib/api';
+  import AppIcon from '../AppIcon.svelte';
+  import IconBrowser from '../IconBrowser.svelte';
 
   // mode controls per-row default behaviour. Same modal opens from
   // either the Apps tab (operator wants apps in the menu) or the
@@ -28,6 +30,11 @@
     createGateway: boolean;
     gatewayDomain: string;
     nameOverride: string;
+    // Operator-picked icon override. Lets the user choose any icon
+    // (dashboard / lucide / custom) per row before import, which
+    // matters most for low-confidence rows where the catalog gave us
+    // nothing to start from.
+    iconOverride: AppIconType | null;
     // Routing radio per row, only meaningful when createApp is true.
     // - 'direct':  App.URL = container URL
     // - 'proxy':   App.proxy = true; menu links to /proxy/<slug>
@@ -71,6 +78,7 @@
         createGateway: mode === 'gateway' && !!s.suggested_domain,
         gatewayDomain: s.suggested_domain ?? '',
         nameOverride: s.name,
+        iconOverride: null,
         routing: 'direct' as const,
       }));
     } catch (e) {
@@ -125,7 +133,7 @@
             item.app = {
               name: r.nameOverride.trim() || r.s.name,
               url: r.s.url,
-              icon: { type: 'dashboard', name: r.s.icon ?? '' },
+              icon: r.iconOverride ?? { type: 'dashboard', name: r.s.icon ?? '' },
               group: r.s.group ?? '',
               health_url: r.s.health_url,
               enabled: true,
@@ -176,6 +184,39 @@
   // because that's the stable identifier the import endpoint preserves.
   function statusFor(key: string) {
     return importResult?.items.find(i => i.key === key);
+  }
+
+  // Inline icon-picker state. We mount IconBrowser inside this modal
+  // rather than bubble events to the parent because (a) the parent's
+  // picker is bound to its own targets ('newApp', 'editApp', ...) and
+  // adding a 'discoverRow' target would leak modal state across
+  // unrelated components, and (b) the import flow needs the icon to
+  // round-trip through this component's row state regardless.
+  let iconPickerForKey = $state<string | null>(null);
+
+  // Effective icon for the row's preview: explicit override > catalog
+  // suggestion > empty placeholder.
+  function effectiveIcon(r: RowState): AppIconType {
+    return r.iconOverride ?? { type: 'dashboard', name: r.s.icon ?? '' };
+  }
+
+  function openIconPicker(key: string) {
+    iconPickerForKey = key;
+  }
+
+  function closeIconPicker() {
+    iconPickerForKey = null;
+  }
+
+  function handleIconSelect(detail: { name: string; variant: string; type: string }) {
+    if (!iconPickerForKey) return;
+    const idx = rows.findIndex(r => r.s.key === iconPickerForKey);
+    if (idx < 0) return;
+    const t = detail.type;
+    if (t === 'dashboard' || t === 'lucide' || t === 'custom' || t === 'url') {
+      rows[idx].iconOverride = { type: t, name: detail.name, variant: detail.variant };
+    }
+    iconPickerForKey = null;
   }
 </script>
 
@@ -230,6 +271,16 @@
                           {row.selected ? 'ring-1 ring-brand-500/50' : ''}">
                 <div class="flex items-start gap-3">
                   <input type="checkbox" bind:checked={row.selected} class="mt-1" />
+
+                  <button
+                    type="button"
+                    class="shrink-0 cursor-pointer rounded hover:ring-2 hover:ring-brand-500 transition-all"
+                    onclick={() => openIconPicker(row.s.key)}
+                    title="Pick an icon for this app"
+                    aria-label="Pick icon for {row.nameOverride || row.s.name}"
+                  >
+                    <AppIcon icon={effectiveIcon(row)} name={row.nameOverride || row.s.name || 'App'} size="md" />
+                  </button>
 
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 flex-wrap">
@@ -372,4 +423,37 @@
       </footer>
     </div>
   </div>
+
+  {#if iconPickerForKey}
+    {@const pickingRow = rows.find(r => r.s.key === iconPickerForKey)}
+    {#if pickingRow}
+      {@const eff = effectiveIcon(pickingRow)}
+      <div
+        class="fixed inset-0 z-[60] flex items-center justify-center bg-black/60 p-4"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Pick icon"
+      >
+        <div class="bg-bg-surface rounded-xl shadow-2xl w-full max-w-3xl max-h-[85vh] flex flex-col border border-border">
+          <div class="flex items-center justify-between p-4 border-b border-border">
+            <h3 class="text-lg font-semibold text-text-primary">
+              Pick an icon for {pickingRow.nameOverride || pickingRow.s.name}
+            </h3>
+            <button class="btn btn-ghost btn-icon" onclick={closeIconPicker} aria-label="Close" type="button">
+              <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <IconBrowser
+            selectedIcon={eff.type === 'dashboard' || eff.type === 'lucide' ? (eff.name ?? '') : ''}
+            selectedVariant={eff.variant ?? 'svg'}
+            selectedType={eff.type === 'dashboard' || eff.type === 'lucide' || eff.type === 'custom' ? eff.type : 'dashboard'}
+            onselect={handleIconSelect}
+            onclose={closeIconPicker}
+          />
+        </div>
+      </div>
+    {/if}
+  {/if}
 {/if}
