@@ -34,6 +34,46 @@ server:
   # Optional: Serve additional sites via Caddy
   gateway: ""                  # Path to Caddyfile
 
+  # Optional: Override the bind address for the embedded Caddy that
+  # serves gateway sites. Useful when (a) you don't want to grant
+  # CAP_NET_BIND_SERVICE / run as root, or (b) an upstream proxy
+  # terminates TLS and you want Caddy on a high port behind it.
+  # When set, gateway sites are emitted with http://<domain>:<port>
+  # and auto-https is disabled. Empty = legacy behaviour (:80/:443).
+  gateway_listen: ""           # e.g. ":8443"
+
+  # Optional: cookie scope for cross-subdomain session sharing.
+  # Required when any entry in gateway_sites has require_auth=true,
+  # otherwise the session cookie won't reach the gated subdomain.
+  # Leading dot is optional (browsers normalise).
+  session_cookie_domain: ""    # e.g. ".example.com"
+
+  # Optional: declarative gateway sites served by the embedded Caddy.
+  # See the Gateway Examples and Gateway Auth Gate wiki pages for the
+  # full reference. Each entry can optionally gate access behind the
+  # Muximux session via require_auth + min_role + allowed_groups.
+  gateway_sites:
+    - domain: sonarr.example.com         # required
+      backend_url: http://10.0.0.5:8989  # required
+      tls: auto                          # auto | none | custom
+      tls_cert: ""                       # required when tls=custom
+      tls_key: ""                        # required when tls=custom
+      streaming: false                   # disable Caddy response buffering for live data
+      strip_frame_blockers: true         # strip X-Frame-Options for iframe embedding
+      forwarded_headers: true            # forward X-Forwarded-Proto/Host/Real-IP
+      proxy_headers: {}                  # extra headers injected on upstream requests
+      # Optional: also surface this site in the dashboard menu
+      app_name: ""                       # link to an existing app by name
+      # Gateway auth gate (3.1.0+) -- gate this subdomain behind Muximux login
+      require_auth: false                # 302 anonymous visitors to /login first
+      min_role: ""                       # "user" / "power-user" / "admin"; empty = any signed-in user
+      allowed_groups: []                 # case-insensitive; admins bypass
+      # Auto-populated by Docker discovery on import; do not hand-edit.
+      # Presence of docker_key locks backend_url to the refresh poller.
+      docker_key: ""
+      docker_endpoint: ""
+      docker_strategy: ""
+
 # ─── Authentication ─────────────────────────────
 auth:
   method: none                 # none, builtin, forward_auth, oidc
@@ -122,7 +162,13 @@ discovery:
     endpoint: unix:///var/run/docker.sock        # or tcp://host:2376
     network_strategy: container_ip               # container_ip | container_dns | host_port | host_docker_internal
     network_filter: ""                           # scope scans to one docker network when set
+    host_ip: ""                                  # required by host_port strategy
     refresh_interval: 60s                        # poller cadence
+    tls:                                         # only needed for tcp:// with mTLS
+      enabled: false
+      ca_cert: ""                                # CA bundle that signed the daemon cert
+      client_cert: ""                            # client certificate (PEM)
+      client_key: ""                             # client key (PEM, chmod 600)
 
 # ─── Keyboard Shortcuts ────────────────────────
 keybindings:
@@ -224,6 +270,9 @@ Muximux validates the configuration on startup and will refuse to start if the c
 - `tls.cert` and `tls.key` must both be set or both empty. You cannot provide only one.
 - `tls.domain` and `tls.cert` are mutually exclusive. Use either auto-HTTPS or manual certificates, not both.
 - If `gateway` is set, the referenced Caddyfile must exist on disk.
+- If any `gateway_sites[]` entry has `require_auth: true`, `server.session_cookie_domain` is required and every gated site must be a subdomain of it (real host-suffix check: `evilexample.com` is not a subdomain of `example.com`).
+- `gateway_sites[].min_role` must be one of `user`, `power-user`, `admin` when set (empty means "any authenticated user").
+- `server.gateway_listen` must be a valid bind address (e.g., `:8443` or `127.0.0.1:8443`).
 
 ## Live Configuration
 
@@ -234,6 +283,8 @@ The following settings **require a restart** to take effect:
 - `server.base_path` (subpath prefix)
 - `server.tls.*` (all TLS settings)
 - `server.gateway` (Caddyfile path)
+- `server.gateway_listen` (overrides the bind port for the embedded Caddy)
+- `server.session_cookie_domain` (cookie scope; takes effect on next login)
 
 Everything else -- navigation, themes, apps, groups, icons, keybindings, health monitoring, log level, log format -- is applied immediately.
 

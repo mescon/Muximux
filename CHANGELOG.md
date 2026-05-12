@@ -27,12 +27,12 @@ A background **refresh poller** keeps imported URLs current. If your container's
 discovery:
   docker:
     enabled: true
-    socket: /var/run/docker.sock       # default
-    network_strategy: container_ip     # or "container_dns" / "host_port"
+    endpoint: unix:///var/run/docker.sock   # or tcp://host:2376 for remote daemon
+    network_strategy: container_ip          # or "container_dns" / "host_port" / "host_docker_internal"
     refresh_interval: 60s
 ```
 
-Apps that ship a `muximux.app.*` label on the container (`muximux.app.name`, `muximux.app.icon`, `muximux.app.port`, `muximux.app.path`, `muximux.app.health`, `muximux.app.gateway_domain`, `muximux.discovery.id`) get a green "high confidence" badge -- the operator gets the final say but the row needs no editing. Set `muximux.discovery.id=<stable-key>` on swarm tasks and `--force-recreate` flows to keep tracking stable across restarts.
+Apps that ship a `muximux.app.*` label on the container (`muximux.app.name`, `muximux.app.icon`, `muximux.app.port`, `muximux.app.scheme`, `muximux.app.group`, `muximux.app.path`, `muximux.app.health`, `muximux.app.gateway.domain`, `muximux.discovery.id`) get a green "high confidence" badge -- the operator gets the final say but the row needs no editing. Set `muximux.discovery.id=<stable-key>` on swarm tasks and `--force-recreate` flows to keep tracking stable across restarts.
 
 Discovered entries show up with a "managed by discovery" badge on the App / Gateway-site edit forms. The source-of-truth fields (URL, container ID, image) are read-only by default -- click **Detach** to take ownership manually. The next scan offers a one-click re-link if you change your mind.
 
@@ -55,14 +55,13 @@ server:
   session_cookie_domain: ".example.com"   # required for cookie scope across subdomains
   tls:
     domain: "muximux.example.com"
-
-gateway_sites:
-  - domain: sonarr.example.com
-    backend_url: http://10.0.0.5:8989
-    tls: auto
-    require_auth: true                    # gate this site
-    min_role: user                        # optional; "user" / "power-user" / "admin"
-    allowed_groups: [family, admins]      # optional; case-insensitive; admins bypass
+  gateway_sites:
+    - domain: sonarr.example.com
+      backend_url: http://10.0.0.5:8989
+      tls: auto
+      require_auth: true                  # gate this site
+      min_role: user                      # optional; "user" / "power-user" / "admin"
+      allowed_groups: [family, admins]    # optional; case-insensitive; admins bypass
 ```
 
 The flow: a request hits `sonarr.example.com`, Caddy calls Muximux's `/api/auth/forward`, Muximux checks the session cookie and the per-site permission rules. 200 means Caddy proxies through with `X-Muximux-User` / `X-Muximux-Role` headers attached (your backend can use them if it wants). 302 sends the visitor to the Muximux login page with a `next=<original-url>` parameter so they land back where they started after signing in. 403 renders a "you're signed in but lack permission" page naming whether they failed `role_insufficient` or `group_mismatch`. Every result is recorded via `logging.Audit()` with `source=audit` for post-incident review.

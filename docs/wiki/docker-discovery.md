@@ -53,6 +53,9 @@ discovery:
     endpoint: unix:///var/run/docker.sock   # or tcp://host:2376
     tls:                                    # only needed for tcp:// with mTLS
       enabled: false
+      ca_cert: ""                           # path to CA bundle that signed the daemon cert
+      client_cert: ""                       # path to client cert (PEM)
+      client_key: ""                        # path to client key (PEM, chmod 600)
     network_strategy: container_ip          # see "Strategies" below
     network_filter: ""                      # optional: scope scans to one network
     host_ip: ""                             # required by host_port strategy
@@ -77,11 +80,15 @@ Add these labels to any container to override Muximux's defaults:
 ```yaml
 labels:
   - muximux.discovery.id=sonarr-stable      # stable tracking key across recreates
+  - muximux.app.enabled=true                # opt-out via "false" even if catalog matches
   - muximux.app.name=Sonarr
   - muximux.app.port=8989
   - muximux.app.scheme=https                # default: http
   - muximux.app.icon=sonarr                 # any dashboard-icons name
   - muximux.app.group=Media
+  - muximux.app.path=/                      # appended to URL on import; useful for backends behind a sub-path
+  - muximux.app.health=/api/v3/health       # backend health endpoint (overrides catalog default)
+  - muximux.app.gateway.domain=sonarr.example.com  # seed the Discover modal's gateway-domain input
 ```
 
 `muximux.discovery.id` is the most important — without it, Muximux falls back to the container *name* as the tracking key, which breaks on `docker-compose --force-recreate` (Compose appends a numeric suffix that bumps every recreate).

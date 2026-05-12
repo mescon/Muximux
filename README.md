@@ -237,8 +237,8 @@ For the full configuration reference, authentication options, TLS setup, and mor
 | **Real-Time Log Viewer** | In-app log viewer with level/source filtering, search, auto-scroll, pause/resume, and download. Debug level exposes detailed request tracing |
 | **Authentication** | Built-in users (bcrypt), forward auth (Authelia/Authentik), or OIDC - with user management and roles |
 | **TLS / HTTPS** | Automatic Let's Encrypt certificates or manual cert/key, powered by embedded Caddy |
-| **Gateway** | Reverse proxy other sites and services on your network -- things that don't need to be in the Muximux menu -- via a standard Caddyfile |
-| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. A background poller keeps URLs current as container IPs shift across restarts. Opt-in; off by default |
+| **Gateway** | Reverse proxy other sites and services on your network on their own subdomains -- as declarative YAML `gateway_sites` (with automatic Let's Encrypt) or a hand-written Caddyfile. Optionally gate each subdomain behind the Muximux login (`require_auth`) so one sign-in covers your whole homelab |
+| **Docker Discovery** | Connect Muximux to the Docker daemon and one click imports running containers as apps with auto-filled name, icon, and URL. Pick per-row how each app is exposed -- direct, proxy, or its own gateway subdomain. A background poller keeps URLs current as container IPs shift across restarts. Opt-in; off by default |
 | **Split View** | Display two apps side by side or stacked with a draggable divider, panel selector for targeting left/right or top/bottom, and URL hash routing (`#app1+app2`) for bookmarking layouts |
 | **Navigation** | 5 positions (top, left, right, bottom, floating), draggable FAB, auto-hide, customizable width |
 | **Icons** | 1,600+ Lucide icons, thousands of Dashboard Icons, URL icons, custom uploads |

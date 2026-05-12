@@ -64,15 +64,16 @@ The leading dot is the browser-canonical form but optional - browsers treat both
 In Settings → Gateway, edit a site and tick **Require Muximux login**:
 
 ```yaml
-gateway_sites:
-  - domain: sonarr.example.com
-    backend_url: http://10.0.0.5:8989
-    tls: auto
-    require_auth: true            # gate this site
-    min_role: user                # optional; "user" / "power-user" / "admin"
-    allowed_groups:               # optional; case-insensitive; admins bypass
-      - family
-      - admins
+server:
+  gateway_sites:
+    - domain: sonarr.example.com
+      backend_url: http://10.0.0.5:8989
+      tls: auto
+      require_auth: true          # gate this site
+      min_role: user              # optional; "user" / "power-user" / "admin"
+      allowed_groups:             # optional; case-insensitive; admins bypass
+        - family
+        - admins
 ```
 
 ### 3. Reload
