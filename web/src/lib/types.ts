@@ -168,6 +168,13 @@ export interface Config {
   language?: string;
   log_level?: string;
   proxy_timeout?: string;
+  /**
+   * Mirrors server.session_cookie_domain. Surfaced read-only to the UI so
+   * the Gateway tab can pre-warn when an operator ticks require_auth on a
+   * site but no cookie domain is configured — gating that subdomain
+   * without a cookie scope would loop the visitor between gate and login.
+   */
+  session_cookie_domain?: string;
   navigation: NavigationConfig;
   theme?: ThemeConfig;
   health?: HealthConfig;

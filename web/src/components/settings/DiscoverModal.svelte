@@ -109,6 +109,31 @@
     }
   }
 
+  // Map the backend's confidence enum to a self-explanatory chip
+  // label + tooltip. The raw values ("high"/"medium"/"low") are
+  // accurate but unhelpful on first read - the chip should answer
+  // "what does this confidence mean for me?" at a glance.
+  function confidenceHint(s: DiscoverySuggestion): { label: string; tip: string } {
+    switch (s.confidence) {
+      case 'high':
+        return {
+          label: 'label match',
+          tip: 'High confidence: this container carries muximux.app.* labels, so name/icon/port were taken from them directly. No guessing.',
+        };
+      case 'medium':
+        return {
+          label: 'catalog match',
+          tip: "Medium confidence: this container's image matches Muximux's curated catalog (Sonarr, Plex, etc.) so name, icon and default port come from a known-good source. Review before importing.",
+        };
+      case 'low':
+      default:
+        return {
+          label: 'guessed',
+          tip: "Low confidence: no muximux.app.* labels and no catalog match. Name was titleized from the container name, icon is blank, and port was picked from the first exposed port. Review and pick an icon before importing.",
+        };
+    }
+  }
+
   // Import state. importing tracks the in-flight POST; importResult
   // holds the per-item statuses so we can render badges on each row
   // after the response. importTopError is for transport-level
@@ -267,6 +292,7 @@
           <div class="space-y-2">
             {#each rows as row (row.s.key)}
               {@const sh = stabilityHint(row.s)}
+              {@const ch = confidenceHint(row.s)}
               <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
                           {row.selected ? 'ring-1 ring-brand-500/50' : ''}">
                 <div class="flex items-start gap-3">
@@ -289,11 +315,12 @@
                         bind:value={row.nameOverride}
                         class="font-medium text-text-primary bg-transparent border-b border-transparent hover:border-border-subtle focus:border-brand-500 focus:outline-none px-1"
                       />
-                      <span class="text-xs px-1.5 py-0.5 rounded
+                      <span class="text-xs px-1.5 py-0.5 rounded cursor-help
                                    {row.s.confidence === 'high' ? 'bg-green-500/15 text-green-300' : ''}
                                    {row.s.confidence === 'medium' ? 'bg-blue-500/15 text-blue-300' : ''}
-                                   {row.s.confidence === 'low' ? 'bg-gray-500/15 text-gray-300' : ''}">
-                        {row.s.confidence}
+                                   {row.s.confidence === 'low' ? 'bg-gray-500/15 text-gray-300' : ''}"
+                            title={ch.tip}>
+                        {ch.label}
                       </span>
                       {#if sh.tone !== 'gray'}
                         <span class="text-xs px-1.5 py-0.5 rounded
@@ -387,7 +414,7 @@
                               bind:group={row.routing}
                               value="gateway"
                               disabled={!row.gatewayDomain.trim()}
-                              onchange={() => { if (row.routing === 'gateway') row.createGateway = true; }}
+                              onchange={(e) => { if ((e.currentTarget as HTMLInputElement).value === 'gateway') row.createGateway = true; }}
                             />
                             <span>Gateway domain</span>
                           </label>

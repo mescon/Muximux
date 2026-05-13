@@ -1018,6 +1018,28 @@ func TestBuildClientConfigResponse(t *testing.T) {
 	}
 }
 
+// session_cookie_domain is surfaced to the frontend so the Gateway
+// tab can pre-warn when an operator ticks require_auth on a site
+// while the cookie domain is unset. Empty must remain empty (omitted
+// from the JSON payload via the omitempty tag); a configured value
+// must round-trip verbatim.
+func TestBuildClientConfigResponse_SessionCookieDomain(t *testing.T) {
+	cfg := createTestConfig()
+
+	// Default: unset.
+	resp := buildClientConfigResponse(cfg, "admin", nil)
+	if resp.SessionCookieDomain != "" {
+		t.Errorf("expected empty SessionCookieDomain by default, got %q", resp.SessionCookieDomain)
+	}
+
+	// Explicit value flows through.
+	cfg.Server.SessionCookieDomain = ".example.com"
+	resp = buildClientConfigResponse(cfg, "admin", nil)
+	if resp.SessionCookieDomain != ".example.com" {
+		t.Errorf("expected SessionCookieDomain '.example.com', got %q", resp.SessionCookieDomain)
+	}
+}
+
 func TestSaveConfigSuccess(t *testing.T) {
 	cfg := createTestConfig()
 	tmpFile, err := os.CreateTemp("", "config-*.yaml")

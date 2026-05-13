@@ -210,13 +210,18 @@ type clientConfigResponse struct {
 	Language     string                    `json:"language"`
 	LogLevel     string                    `json:"log_level"`
 	ProxyTimeout string                    `json:"proxy_timeout,omitempty"`
-	Navigation   config.NavigationConfig   `json:"navigation"`
-	Theme        config.ThemeConfig        `json:"theme"`
-	Health       *config.HealthConfig      `json:"health,omitempty"`
-	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
-	Auth         *clientAuthConfig         `json:"auth,omitempty"`
-	Groups       []config.GroupConfig      `json:"groups"`
-	Apps         []ClientAppConfig         `json:"apps"`
+	// SessionCookieDomain mirrors server.session_cookie_domain so the
+	// Settings UI can pre-warn operators ticking require_auth on a
+	// gateway site that the cookie won't reach the gated subdomain.
+	// Empty when unset. Not sensitive.
+	SessionCookieDomain string                    `json:"session_cookie_domain,omitempty"`
+	Navigation          config.NavigationConfig   `json:"navigation"`
+	Theme               config.ThemeConfig        `json:"theme"`
+	Health              *config.HealthConfig      `json:"health,omitempty"`
+	Keybindings         *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Auth                *clientAuthConfig         `json:"auth,omitempty"`
+	Groups              []config.GroupConfig      `json:"groups"`
+	Apps                []ClientAppConfig         `json:"apps"`
 }
 
 // clientAuthConfig is the sanitized auth config sent to the frontend.
@@ -237,15 +242,16 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 		language = "en"
 	}
 	resp := clientConfigResponse{
-		Title:        cfg.Server.Title,
-		Language:     language,
-		LogLevel:     cfg.Server.LogLevel,
-		ProxyTimeout: cfg.Server.ProxyTimeout,
-		Navigation:   cfg.Navigation,
-		Theme:        cfg.Theme,
-		Health:       &cfg.Health,
-		Groups:       cfg.Groups,
-		Apps:         sanitizeApps(cfg.Apps, userRole, userGroups, cfg.Server.GatewaySites),
+		Title:               cfg.Server.Title,
+		Language:            language,
+		LogLevel:            cfg.Server.LogLevel,
+		ProxyTimeout:        cfg.Server.ProxyTimeout,
+		SessionCookieDomain: cfg.Server.SessionCookieDomain,
+		Navigation:          cfg.Navigation,
+		Theme:               cfg.Theme,
+		Health:              &cfg.Health,
+		Groups:              cfg.Groups,
+		Apps:                sanitizeApps(cfg.Apps, userRole, userGroups, cfg.Server.GatewaySites),
 	}
 	if len(cfg.Keybindings.Bindings) > 0 {
 		resp.Keybindings = &cfg.Keybindings
@@ -270,12 +276,17 @@ type ClientConfigUpdate struct {
 	Language     string                    `json:"language"`
 	LogLevel     string                    `json:"log_level"`
 	ProxyTimeout string                    `json:"proxy_timeout"`
-	Navigation   config.NavigationConfig   `json:"navigation"`
-	Theme        config.ThemeConfig        `json:"theme"`
-	Health       *config.HealthConfig      `json:"health,omitempty"`
-	Keybindings  *config.KeybindingsConfig `json:"keybindings,omitempty"`
-	Groups       []config.GroupConfig      `json:"groups"`
-	Apps         []ClientAppConfig         `json:"apps"`
+	// SessionCookieDomain controls the Domain attribute on the session
+	// cookie. Required when any gateway site has require_auth=true.
+	// Editable from the UI so operators don't have to drop into
+	// config.yaml + restart to enable the gateway auth gate.
+	SessionCookieDomain string                    `json:"session_cookie_domain"`
+	Navigation          config.NavigationConfig   `json:"navigation"`
+	Theme               config.ThemeConfig        `json:"theme"`
+	Health              *config.HealthConfig      `json:"health,omitempty"`
+	Keybindings         *config.KeybindingsConfig `json:"keybindings,omitempty"`
+	Groups              []config.GroupConfig      `json:"groups"`
+	Apps                []ClientAppConfig         `json:"apps"`
 }
 
 // SaveConfig updates and saves the configuration
@@ -317,6 +328,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 	priorLanguage := h.config.Server.Language
 	priorLogLevel := h.config.Server.LogLevel
 	priorProxyTimeout := h.config.Server.ProxyTimeout
+	priorSessionCookieDomain := h.config.Server.SessionCookieDomain
 	priorNavigation := h.config.Navigation
 	priorTheme := h.config.Theme
 	priorHealth := h.config.Health
@@ -332,6 +344,7 @@ func (h *APIHandler) SaveConfig(w http.ResponseWriter, r *http.Request) {
 		h.config.Server.Language = priorLanguage
 		h.config.Server.LogLevel = priorLogLevel
 		h.config.Server.ProxyTimeout = priorProxyTimeout
+		h.config.Server.SessionCookieDomain = priorSessionCookieDomain
 		h.config.Navigation = priorNavigation
 		h.config.Theme = priorTheme
 		h.config.Health = priorHealth
@@ -368,6 +381,12 @@ func mergeConfigUpdate(cfg *config.Config, update *ClientConfigUpdate) {
 	if update.ProxyTimeout != "" {
 		cfg.Server.ProxyTimeout = update.ProxyTimeout
 	}
+	// SessionCookieDomain is a server-level setting that gates the
+	// gateway auth feature; persist explicit edits so the operator
+	// can flip it from Settings without restarting first. The cookie
+	// manager re-reads it on startup, so a restart is still required
+	// before the new scope takes effect on issued cookies.
+	cfg.Server.SessionCookieDomain = update.SessionCookieDomain
 	cfg.Navigation = update.Navigation
 	cfg.Theme = update.Theme
 	if update.Health != nil {

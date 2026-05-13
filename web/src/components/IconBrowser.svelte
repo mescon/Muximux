@@ -64,16 +64,21 @@
   // File input ref
   let fileInput = $state<HTMLInputElement | undefined>(undefined);
 
-  // Infinite scroll
-  const BATCH_SIZE = 100;
-  let displayCount = $state(BATCH_SIZE);
+  // Infinite scroll. INITIAL_BATCH is small so the first paint is
+  // snappy even when each icon resolves through a slow proxy chain
+  // (homelab Caddy -> muximux -> jsdelivr cold-cache, which can
+  // 502/504 when ~100 requests fire concurrently). SUBSEQUENT_BATCH
+  // is larger so scrolling expands smoothly once the cache warms up.
+  const INITIAL_BATCH = 40;
+  const SUBSEQUENT_BATCH = 100;
+  let displayCount = $state(INITIAL_BATCH);
   let observer: IntersectionObserver;
 
   function observeSentinel(node: HTMLElement) {
     observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && displayCount < allCurrentIcons.length) {
-          displayCount += BATCH_SIZE;
+          displayCount = Math.min(allCurrentIcons.length, displayCount + SUBSEQUENT_BATCH);
         }
       },
       { rootMargin: '200px' }
@@ -241,7 +246,7 @@
   $effect(() => {
     searchQuery;
     activeTab;
-    displayCount = BATCH_SIZE;
+    displayCount = INITIAL_BATCH;
   });
 </script>
 
@@ -413,7 +418,9 @@
                   src={getIconUrl(icon.name, activeTab)}
                   alt={icon.name}
                   class="w-full h-full object-contain"
-                  loading="lazy"
+                  loading={idx < 20 ? 'eager' : 'lazy'}
+                  fetchpriority={idx < 10 ? 'high' : 'auto'}
+                  decoding="async"
                 />
               {/if}
             </button>

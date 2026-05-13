@@ -9,6 +9,8 @@
     deleteGatewaySite,
     validateGatewaySite,
     fetchApps,
+    fetchConfig,
+    saveConfig,
     createApp,
     fetchDiscoveryDockerStatus,
   } from '$lib/api';
@@ -70,23 +72,75 @@
   // Per-row delete confirm.
   let confirmDelete = $state<string | null>(null);
 
+  // server.session_cookie_domain mirror. Loaded once on mount so the
+  // form can pre-warn when an operator ticks Require Muximux login
+  // but the cookie domain isn't set - that combination would loop
+  // visitors between gate and login on the gated subdomain. Empty
+  // string means unset; null means we haven't checked yet (the
+  // warning stays hidden during that window to avoid a flash).
+  let sessionCookieDomain = $state<string | null>(null);
+
+  // Inline cookie-scope editor state. cookieScopeDraft backs the
+  // text input inside the warning; cookieScopeSaving guards the
+  // button while the /api/config PUT is in flight; cookieScopeError
+  // surfaces a save failure inline so the operator doesn't lose the
+  // draft. cookieScopeSaved is a one-shot success flag that flips
+  // false on the next edit.
+  let cookieScopeDraft = $state('');
+  let cookieScopeSaving = $state(false);
+  let cookieScopeError = $state<string | null>(null);
+  let cookieScopeSaved = $state(false);
+
   async function load() {
     loading = true;
     topLevelError = null;
     try {
-      // Load gateway sites and apps in parallel so the form is
-      // immediately ready with a populated dropdown.
-      const [siteList, appList] = await Promise.all([
+      // Load gateway sites, apps, and server config in parallel so
+      // the form is immediately ready with a populated dropdown and
+      // the cookie-domain pre-warning has a value to compare against.
+      // Config-load failures are tolerated separately: we can still
+      // edit gateway sites without it, the warning just won't fire.
+      const [siteList, appList, cfg] = await Promise.all([
         listGatewaySites(),
         loadApps(),
+        fetchConfig().catch(() => null),
       ]);
       sites = siteList;
       sites.sort((a, b) => a.domain.localeCompare(b.domain));
       apps = appList;
+      sessionCookieDomain = cfg?.session_cookie_domain ?? '';
     } catch (e) {
       topLevelError = e instanceof Error ? e.message : 'Failed to load gateway sites';
     } finally {
       loading = false;
+    }
+  }
+
+  // Save server.session_cookie_domain via /api/config without
+  // disturbing whatever else the operator is editing in this tab.
+  // We fetch the current full config, patch just our field, and PUT
+  // it back. Other settings tabs follow the same load-mutate-save
+  // pattern, so concurrent edits across tabs don't get reordered.
+  async function saveSessionCookieDomain() {
+    const trimmed = cookieScopeDraft.trim();
+    if (trimmed === '') {
+      cookieScopeError = 'Cookie scope cannot be empty. Use the parent domain shared by all gated subdomains, e.g. ".example.com".';
+      return;
+    }
+    cookieScopeSaving = true;
+    cookieScopeError = null;
+    cookieScopeSaved = false;
+    try {
+      const current = await fetchConfig();
+      const updated = { ...current, session_cookie_domain: trimmed };
+      const saved = await saveConfig(updated);
+      sessionCookieDomain = saved.session_cookie_domain ?? trimmed;
+      cookieScopeSaved = true;
+      cookieScopeDraft = '';
+    } catch (e) {
+      cookieScopeError = e instanceof Error ? e.message : 'Failed to save cookie scope';
+    } finally {
+      cookieScopeSaving = false;
     }
   }
 
@@ -653,6 +707,54 @@
             </span>
           </label>
 
+          {#if form.require_auth && sessionCookieDomain === ''}
+            <div class="p-3 rounded-md border border-amber-500/40 bg-amber-500/10 text-amber-300 text-xs space-y-2"
+                 data-testid="gw-require-auth-cookie-warning">
+              <p>
+                <strong class="font-medium">server.session_cookie_domain is not set.</strong>
+                The gate needs a cookie scope so the Muximux session reaches
+                the gated subdomain - otherwise visitors loop between the
+                login page and this site. Set it once for the whole deployment:
+              </p>
+              <div class="flex flex-wrap items-center gap-2">
+                <label for="gw-cookie-scope" class="sr-only">Cookie scope</label>
+                <input
+                  id="gw-cookie-scope"
+                  type="text"
+                  bind:value={cookieScopeDraft}
+                  placeholder={form.domain ? '.' + form.domain.split('.').slice(-2).join('.') : '.example.com'}
+                  disabled={cookieScopeSaving}
+                  class="flex-1 min-w-[200px] px-2 py-1 bg-bg-base border border-amber-500/40 rounded text-text-primary text-xs focus:outline-none focus:ring-2 focus:ring-amber-500/40"
+                  data-testid="gw-cookie-scope-input"
+                />
+                <button
+                  type="button"
+                  onclick={saveSessionCookieDomain}
+                  disabled={cookieScopeSaving || cookieScopeDraft.trim() === ''}
+                  class="px-3 py-1 bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 rounded text-amber-200 text-xs disabled:opacity-50 disabled:cursor-not-allowed"
+                  data-testid="gw-cookie-scope-save"
+                >
+                  {cookieScopeSaving ? 'Saving…' : 'Set cookie scope'}
+                </button>
+              </div>
+              {#if cookieScopeError}
+                <p class="text-red-300" data-testid="gw-cookie-scope-error">{cookieScopeError}</p>
+              {/if}
+              <p class="text-text-muted">
+                Restart Muximux after saving so the cookie issuer picks up
+                the new scope. Every gated subdomain must be a sub of this
+                value (the validator will reject mismatches on save).
+              </p>
+            </div>
+          {/if}
+          {#if form.require_auth && cookieScopeSaved && sessionCookieDomain !== ''}
+            <div class="p-2 rounded-md border border-green-500/40 bg-green-500/10 text-green-300 text-xs"
+                 data-testid="gw-require-auth-cookie-saved">
+              Cookie scope saved as <code>{sessionCookieDomain}</code>.
+              <strong class="font-medium">Restart Muximux</strong> for the
+              new scope to take effect on issued cookies.
+            </div>
+          {/if}
           {#if form.require_auth}
             <div class="ml-6 mt-1 space-y-2 border-l border-border-subtle pl-3">
               <div>

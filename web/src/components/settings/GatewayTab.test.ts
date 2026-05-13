@@ -10,6 +10,7 @@ const mockDeleteGatewaySite = vi.fn();
 const mockValidateGatewaySite = vi.fn();
 
 const mockFetchApps = vi.fn();
+const mockFetchConfig = vi.fn();
 
 vi.mock('$lib/api', () => ({
   listGatewaySites: (...args: unknown[]) => mockListGatewaySites(...args),
@@ -18,6 +19,7 @@ vi.mock('$lib/api', () => ({
   deleteGatewaySite: (...args: unknown[]) => mockDeleteGatewaySite(...args),
   validateGatewaySite: (...args: unknown[]) => mockValidateGatewaySite(...args),
   fetchApps: (...args: unknown[]) => mockFetchApps(...args),
+  fetchConfig: (...args: unknown[]) => mockFetchConfig(...args),
 }));
 
 vi.mock('$lib/authStore', async () => {
@@ -45,6 +47,10 @@ describe('GatewayTab', () => {
     mockDeleteGatewaySite.mockResolvedValue(undefined);
     mockValidateGatewaySite.mockResolvedValue({ valid: true });
     mockFetchApps.mockResolvedValue([]);
+    // Default: session_cookie_domain is configured. Individual tests
+    // that exercise the warning override this to "" so the inline
+    // hint renders.
+    mockFetchConfig.mockResolvedValue({ session_cookie_domain: '.example.com' });
   });
 
   it('renders the empty state when no sites are configured', async () => {
@@ -243,6 +249,10 @@ describe('GatewayTab Require Muximux login (auth gate)', () => {
     mockListGatewaySites.mockResolvedValue([]);
     mockCreateGatewaySite.mockResolvedValue({ success: true, restart_required: false });
     mockFetchApps.mockResolvedValue([]);
+    // Default: session_cookie_domain is configured. Individual tests
+    // that exercise the warning override this to "" so the inline
+    // hint renders.
+    mockFetchConfig.mockResolvedValue({ session_cookie_domain: '.example.com' });
   });
 
   it('hides the min_role + allowed_groups sub-fields until Require Muximux login is checked', async () => {
@@ -337,6 +347,66 @@ describe('GatewayTab Require Muximux login (auth gate)', () => {
     expect(role.value).toBe('user');
     const groups = screen.getByLabelText(/Allowed groups/i) as HTMLInputElement;
     expect(groups.value).toBe('family, admins');
+  });
+});
+
+describe('GatewayTab inline cookie-scope editor (require_auth pre-condition)', () => {
+  // Helper for tests that need a fully-stubbed saveConfig surface.
+  const mockSaveConfig = vi.fn();
+
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockListGatewaySites.mockResolvedValue([]);
+    mockCreateGatewaySite.mockResolvedValue({ success: true, restart_required: false });
+    mockFetchApps.mockResolvedValue([]);
+    mockSaveConfig.mockReset();
+    // Re-mount the api module mock with saveConfig included for the
+    // tests below. vi.mock at the top of file already covers other
+    // surfaces; we use vi.doMock to layer this in per-describe.
+    vi.doMock('$lib/api', () => ({
+      listGatewaySites: (...args: unknown[]) => mockListGatewaySites(...args),
+      createGatewaySite: (...args: unknown[]) => mockCreateGatewaySite(...args),
+      updateGatewaySite: (...args: unknown[]) => mockUpdateGatewaySite(...args),
+      deleteGatewaySite: (...args: unknown[]) => mockDeleteGatewaySite(...args),
+      validateGatewaySite: (...args: unknown[]) => mockValidateGatewaySite(...args),
+      fetchApps: (...args: unknown[]) => mockFetchApps(...args),
+      fetchConfig: (...args: unknown[]) => mockFetchConfig(...args),
+      saveConfig: (...args: unknown[]) => mockSaveConfig(...args),
+    }));
+  });
+
+  it('hides the cookie-scope warning when session_cookie_domain is already set', async () => {
+    // Default mock for fetchConfig returns ".example.com"; the warning
+    // should NOT appear when the operator ticks require_auth.
+    mockFetchConfig.mockResolvedValue({ session_cookie_domain: '.example.com' });
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByRole('button', { name: /add gateway site/i })).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+
+    const requireAuth = screen.getByTestId('gw-require-auth').querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await fireEvent.click(requireAuth);
+
+    expect(screen.queryByTestId('gw-require-auth-cookie-warning')).not.toBeInTheDocument();
+  });
+
+  it('shows the inline cookie-scope editor when session_cookie_domain is unset and require_auth is ticked', async () => {
+    mockFetchConfig.mockResolvedValue({ session_cookie_domain: '' });
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByRole('button', { name: /add gateway site/i })).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+
+    // Warning is hidden until the box is checked.
+    expect(screen.queryByTestId('gw-require-auth-cookie-warning')).not.toBeInTheDocument();
+    const requireAuth = screen.getByTestId('gw-require-auth').querySelector('input[type="checkbox"]') as HTMLInputElement;
+    await fireEvent.click(requireAuth);
+
+    // Now the inline editor is in the DOM with both the input and the
+    // save button.
+    expect(screen.getByTestId('gw-require-auth-cookie-warning')).toBeInTheDocument();
+    expect(screen.getByTestId('gw-cookie-scope-input')).toBeInTheDocument();
+    const saveBtn = screen.getByTestId('gw-cookie-scope-save') as HTMLButtonElement;
+    // Empty draft means the button starts disabled.
+    expect(saveBtn.disabled).toBe(true);
   });
 });
 
