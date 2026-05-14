@@ -241,6 +241,40 @@ describe('GatewayTab', () => {
       expect(screen.getByLabelText('TLS key path')).toBeInTheDocument();
     });
   });
+
+  it('does not lint the form while required fields are empty', async () => {
+    // Live linter posts the candidate to /api/gateway/validate on
+    // every onchange/oninput. If we let it run with domain="" the
+    // server returns "domain is required", which we'd surface as
+    // validationError -- noise the operator was about to fix
+    // anyway by typing the domain. The fix: short-circuit the
+    // linter when either of the two hard requirements is unset.
+    mockListGatewaySites.mockResolvedValue([]);
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByRole('button', { name: /add gateway site/i })).toBeInTheDocument());
+    await fireEvent.click(screen.getByRole('button', { name: /add gateway site/i }));
+
+    // Drain any debounced timers prior tests in this describe may
+    // have left queued in the event loop (scheduleLint uses a
+    // 300ms setTimeout; the component instance that armed it is
+    // gone but the callback is still pending). Then clear the
+    // mock so the assertion below speaks for THIS test only.
+    await new Promise(r => setTimeout(r, 350));
+    mockValidateGatewaySite.mockClear();
+
+    // Flip the TLS dropdown -- this used to trigger validate before
+    // the operator typed a domain.
+    const tls = screen.getByLabelText('TLS') as HTMLSelectElement;
+    await fireEvent.change(tls, { target: { value: 'custom' } });
+
+    // Give the debounced linter time to fire (300ms in the source).
+    await new Promise(r => setTimeout(r, 400));
+
+    // The validator endpoint should never have been called.
+    expect(mockValidateGatewaySite).not.toHaveBeenCalled();
+    // No stray validation error in the DOM either.
+    expect(screen.queryByText(/domain is required/i)).not.toBeInTheDocument();
+  });
 });
 
 describe('GatewayTab Require Muximux login (auth gate)', () => {

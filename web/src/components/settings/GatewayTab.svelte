@@ -217,6 +217,15 @@
     // operator knows the live linter is offline and the visible
     // green is not authoritative.
     const candidate = formToSite();
+    // Skip lint until both required fields are populated. Otherwise
+    // operating on a half-finished form (e.g. flipping the TLS
+    // dropdown before typing the domain) surfaces server messages
+    // like "domain is required" that the operator was about to fix
+    // anyway. The submit path enforces the same prereq locally.
+    if (!candidate.domain || !candidate.backend_url) {
+      validationError = null;
+      return;
+    }
     try {
       const result = await validateGatewaySite(candidate);
       validationError = result.valid ? null : (result.error ?? 'Invalid site configuration');
