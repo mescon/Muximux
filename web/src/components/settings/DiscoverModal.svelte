@@ -437,7 +437,7 @@
                           </label>
                           {@render helpTip(
                             'More info about the menu option',
-                            'Adds this container as an app in the dashboard\'s navigation menu. Visitors click it to open the app inside Muximux (or in a new tab, depending on the open mode). The Menu link radio below picks HOW the menu link reaches the container: Direct (straight to the container URL), Proxy (via Muximux\'s reverse proxy at /proxy/<slug>), or Gateway (via a public subdomain you also define here).'
+                            'Creates an entry for this container in the dashboard\'s navigation menu, so you can click it from inside Muximux to open the app. The "Menu link" radio below chooses how that click reaches the container: Direct (the dashboard loads the container URL directly), Proxy (Muximux\'s reverse proxy serves the app at /proxy/<slug> under the dashboard\'s own hostname), or Gateway (the menu link points at a public subdomain you also set up via "Add gateway site").'
                           )}
                         </span>
                         <span class="flex items-center gap-1.5">
@@ -454,7 +454,7 @@
                           </label>
                           {@render helpTip(
                             'More info about the gateway option',
-                            'Registers this container as a Caddy gateway site at its own public subdomain (e.g. sonarr.example.com). Muximux\'s embedded Caddy reverse-proxies that subdomain to the container with optional auto-HTTPS (Let\'s Encrypt). Independent of "Add to menu" -- you can host a subdomain without a dashboard entry, OR menu it from inside Muximux while also exposing it externally.'
+                            'Publishes this container at its own public subdomain (e.g. sonarr.example.com) via Muximux\'s embedded Caddy, with optional automatic HTTPS through Let\'s Encrypt. Gateway sites are subdomain-based because Caddy routes by hostname; if you want path-based access at /proxy/<slug> under the dashboard\'s own URL instead, leave this unchecked and pick the "Proxy" routing mode under "Add to menu". The two checkboxes combine freely: subdomain only (headless), dashboard entry only (no subdomain), or both at once.'
                           )}
                         </span>
                         {#if row.createGateway}
