@@ -89,6 +89,8 @@
         alt={name}
         class="w-full h-full object-contain {showBackground ? 'p-1.5' : 'p-1'}"
         style={icon?.invert ? 'filter: invert(1);' : ''}
+        loading="lazy"
+        decoding="async"
         onerror={handleImageError}
       />
     {/if}

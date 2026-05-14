@@ -1,6 +1,5 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { marked } from 'marked';
   import type { SystemInfo, UpdateInfo } from '$lib/types';
   import { fetchSystemInfo, checkForUpdates } from '$lib/api';
   import * as m from '$lib/paraglide/messages.js';
@@ -11,6 +10,11 @@
   let aboutError = $state<string | null>(null);
   let updateInstructionsExpanded = $state(false);
   let changelogExpanded = $state(false);
+  // Pre-rendered changelog HTML. We dynamic-import `marked` only
+  // when a changelog actually arrives so the ~50KB markdown parser
+  // stays out of the Settings chunk for the (common) case where no
+  // update is available or the operator never opens the About tab.
+  let parsedChangelog = $state<string>('');
 
   async function loadAboutData() {
     aboutLoading = true;
@@ -22,7 +26,19 @@
       ]);
       systemInfo = sysInfo;
       updateInfo = updInfo;
-      if (updInfo?.changelog) changelogExpanded = true;
+      if (updInfo?.changelog) {
+        changelogExpanded = true;
+        // Pull marked off the main bundle. Failure here is silent on
+        // purpose: a missing parser just leaves parsedChangelog
+        // empty, which the template already handles via a
+        // truthy-check around the {@html ...} block.
+        try {
+          const { marked } = await import('marked');
+          parsedChangelog = String(marked.parse(updInfo.changelog));
+        } catch {
+          parsedChangelog = '';
+        }
+      }
       if (updInfo?.update_available) updateInstructionsExpanded = true;
     } catch (e) {
       aboutError = e instanceof Error ? e.message : m.error_failedLoad();
@@ -122,11 +138,11 @@
             <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </button>
-        {#if changelogExpanded}
+        {#if changelogExpanded && parsedChangelog}
           <div class="px-4 pb-4 border-t border-border">
             <div class="mt-3 text-sm text-text-secondary leading-relaxed max-h-64 overflow-y-auto changelog-content">
               <!-- eslint-disable-next-line svelte/no-at-html-tags -- changelog from GitHub release notes, sanitized by marked -->
-              {@html marked.parse(updateInfo.changelog)}
+              {@html parsedChangelog}
             </div>
           </div>
         {/if}

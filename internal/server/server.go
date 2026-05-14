@@ -1823,7 +1823,12 @@ func spaHandlerDev(fileServer http.Handler, distDir, basePath string) (http.Hand
 			w.Write(content)
 			return
 		}
-		if !strings.HasPrefix(r.URL.Path, "/assets/") {
+		// See spaHandlerEmbed for the rationale on /assets vs the
+		// rest. Content-hashed Vite assets are safe to ship as
+		// immutable; everything else must revalidate.
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
 			w.Header().Set("Cache-Control", "no-cache")
 		}
 		fileServer.ServeHTTP(w, r)
@@ -1871,9 +1876,18 @@ func spaHandlerEmbed(fileServer http.Handler, fsys fs.FS, basePath string) (http
 			w.Write(indexContent)
 			return
 		}
-		// Root-level static files (icons, manifest, browserconfig) must
-		// revalidate so PWA icon updates are picked up promptly.
-		if !strings.HasPrefix(r.URL.Path, "/assets/") {
+		// /assets/* paths are emitted by Vite with content-hashed
+		// filenames (assets/index-DEBuH9mI.js etc.), so a given URL
+		// always returns the same bytes - safe to ship as immutable.
+		// One year + immutable saves the browser from issuing a
+		// conditional GET per asset on every page load.
+		//
+		// Root-level static files (icons, manifest, browserconfig)
+		// are NOT content-hashed and must revalidate so PWA icon
+		// updates are picked up promptly.
+		if strings.HasPrefix(r.URL.Path, "/assets/") {
+			w.Header().Set("Cache-Control", "public, max-age=31536000, immutable")
+		} else {
 			w.Header().Set("Cache-Control", "no-cache")
 		}
 		fileServer.ServeHTTP(w, r)

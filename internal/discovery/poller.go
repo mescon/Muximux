@@ -172,6 +172,21 @@ func (p *Poller) tick(ctx context.Context) {
 		return
 	}
 
+	// Fetch the daemon's container list once for the entire tick.
+	// Previously resolveURL called ListContainers itself, which
+	// fanned out into N+M HTTP round-trips per tick (one per
+	// tracked app and gateway site). The list is small and the
+	// resolve loop is fast enough that a single snapshot is fine
+	// for the full tick. A daemon listing failure aborts the tick
+	// cleanly - we don't want to half-resolve and possibly mark
+	// containers as "not found" because the daemon was unreachable.
+	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: false})
+	if err != nil {
+		logging.Warn("Discovery refresh skipped: ListContainers failed",
+			"source", "discovery", "error", err.Error())
+		return
+	}
+
 	// Resolve each tracked entry's container -> new URL. Skips
 	// entries whose DockerEndpoint differs from the live endpoint
 	// (operator changed daemons; the re-link flow handles that
@@ -183,7 +198,7 @@ func (p *Poller) tick(ctx context.Context) {
 		if t.endpoint != endpoint {
 			continue
 		}
-		newURL, err := p.resolveURL(ctx, t.key, t.strategy, hostIP)
+		newURL, err := p.resolveURLFrom(containers, t.key, t.strategy, hostIP)
 		if errors.Is(err, ErrContainerNotFound) {
 			logging.Warn("Tracked docker container not found",
 				"source", "discovery", "kind", "app", "name", t.name, "key", t.key)
@@ -208,7 +223,7 @@ func (p *Poller) tick(ctx context.Context) {
 		if t.endpoint != endpoint {
 			continue
 		}
-		newURL, err := p.resolveURL(ctx, t.key, t.strategy, hostIP)
+		newURL, err := p.resolveURLFrom(containers, t.key, t.strategy, hostIP)
 		if errors.Is(err, ErrContainerNotFound) {
 			logging.Warn("Tracked docker container not found",
 				"source", "discovery", "kind", "gateway", "domain", t.domain, "key", t.key)
@@ -290,18 +305,18 @@ func (p *Poller) collectTracked() trackedSet {
 	return out
 }
 
-// resolveURL looks up a container by tracking key and rebuilds its
-// URL with the recorded strategy. Returns ErrContainerNotFound when
-// the daemon no longer has a matching container (deleted or
-// renamed). Other errors (timeout, daemon down) bubble up so the
-// caller can skip the entry and try again next tick.
-func (p *Poller) resolveURL(ctx context.Context, key, strategy, hostIP string) (string, error) {
-	svc := p.deps.Service
-	containers, err := svc.client.ListContainers(ctx, ListContainersOpts{All: false})
-	if err != nil {
-		return "", err
-	}
-
+// resolveURLFrom looks up a container by tracking key in a
+// pre-fetched container list and rebuilds its URL with the recorded
+// strategy. The caller is expected to fetch the list once per tick
+// rather than once per tracked entry - that was the original shape
+// and it produced N+1 Docker round-trips for N tracked items. Now
+// it's one round-trip per tick.
+//
+// Returns ErrContainerNotFound when no container in the list
+// matches the tracking key (deleted, renamed, or filtered out).
+// Other errors are derivative - a malformed key, no port on the
+// matched container, or a URL-builder failure.
+func (p *Poller) resolveURLFrom(containers []ContainerSummary, key, strategy, hostIP string) (string, error) {
 	tk, err := ParseTrackingKey(key)
 	if err != nil {
 		return "", err

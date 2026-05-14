@@ -352,6 +352,7 @@
             {#each rows as row (row.s.key)}
               {@const sh = stabilityHint(row.s)}
               {@const ch = confidenceHint(row.s)}
+              {@const st = statusFor(row.s.key)}
               <div class="p-3 rounded-md border border-border-subtle bg-bg-elevated
                           {row.selected ? 'ring-1 ring-brand-500/50' : ''}">
                 <div class="flex items-start gap-3">
@@ -389,8 +390,7 @@
                           {row.s.stability}
                         </span>
                       {/if}
-                      {#if statusFor(row.s.key)}
-                        {@const st = statusFor(row.s.key)!}
+                      {#if st}
                         <span class="text-xs px-1.5 py-0.5 rounded font-medium
                                      {st.status === 'created' ? 'bg-green-500/15 text-green-300' : ''}
                                      {st.status === 'skipped_exists' ? 'bg-blue-500/15 text-blue-300' : ''}

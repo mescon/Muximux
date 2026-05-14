@@ -1262,7 +1262,19 @@ func (r *contentRewriter) interceptorScript() []byte {
 // scripts/app.js) resolve against the stripped "/" instead of the proxy prefix,
 // causing 404s for apps like qBittorrent that use relative paths throughout.
 func (r *contentRewriter) injectInterceptor(content []byte) []byte {
-	lower := bytes.ToLower(content)
+	// Lowercasing the whole body just to find <head> is a body-sized
+	// allocation per proxied HTML response. <head> always lives at
+	// the top of valid HTML (and the spec requires <base> to live
+	// inside <head> too), so a 4KB scan window covers every real
+	// document. Pages that bury <head> past 4KB are malformed
+	// enough that we'd rather fail-closed by returning the content
+	// unmodified than pay the full ToLower cost.
+	const headSearchBound = 4096
+	bound := len(content)
+	if bound > headSearchBound {
+		bound = headSearchBound
+	}
+	lower := bytes.ToLower(content[:bound])
 	searchFrom := 0
 	for {
 		idx := bytes.Index(lower[searchFrom:], []byte("<head"))

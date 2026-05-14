@@ -25,6 +25,21 @@ export default defineConfig({
     outDir: '../internal/server/dist',
     emptyOutDir: true,
     chunkSizeWarningLimit: 1600,
+    rollupOptions: {
+      output: {
+        // Pull heavy third-party libs into a stable "vendor" chunk
+        // so they stay cached across deploys (filename hash only
+        // changes when their own versions bump, not on every
+        // application code change). Returning users skip
+        // re-downloading them entirely.
+        manualChunks: {
+          'vendor-dnd': ['svelte-dnd-action'],
+          'vendor-toast': ['svelte-sonner'],
+          'vendor-marked': ['marked'],
+          'vendor-zod': ['zod'],
+        },
+      },
+    },
   },
   server: {
     proxy: {

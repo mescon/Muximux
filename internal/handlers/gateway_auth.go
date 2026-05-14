@@ -261,11 +261,24 @@ does not have permission to access <strong>` + htmlEscape(host) + `</strong>
 	_, _ = w.Write([]byte(body)) //nolint:gosec // values pre-escaped, see htmlEscape
 }
 
+// htmlEscaper is a package-level Replacer reused for every
+// htmlEscape call. NewReplacer is cheap individually but allocates
+// each time it runs, and the forbidden page fires htmlEscape three
+// times per 403 response - so the hot path is "every gated request
+// that ends up rejected". Promoting to package scope makes the
+// escaper a constant.
+var htmlEscaper = strings.NewReplacer(
+	"&", "&amp;",
+	"<", "&lt;",
+	">", "&gt;",
+	`"`, "&quot;",
+	"'", "&#39;",
+)
+
 // htmlEscape is a tiny inline escaper for the four characters that
 // can break HTML when interpolated naively. The forbidden page only
 // interpolates server-controlled values (username from session,
 // host from config), but defence in depth is cheap here.
 func htmlEscape(s string) string {
-	r := strings.NewReplacer("&", "&amp;", "<", "&lt;", ">", "&gt;", `"`, "&quot;", "'", "&#39;")
-	return r.Replace(s)
+	return htmlEscaper.Replace(s)
 }
