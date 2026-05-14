@@ -275,6 +275,34 @@ describe('GatewayTab', () => {
     // No stray validation error in the DOM either.
     expect(screen.queryByText(/domain is required/i)).not.toBeInTheDocument();
   });
+
+  it('does not lint when switching to TLS=custom on an existing site before cert/key are filled', async () => {
+    // Open the edit modal on a site that's already saved (so domain
+    // and backend_url are populated, the prior precondition is
+    // satisfied). Flipping TLS to "custom" used to fire the lint
+    // and surface 'tls="custom" requires both tls_cert and tls_key'
+    // before the operator could paste the paths.
+    mockListGatewaySites.mockResolvedValue([
+      makeSite({ domain: 'upk.example.com', backend_url: 'http://upk:3001', tls: 'auto' }),
+    ]);
+    render(GatewayTab);
+    await waitFor(() => expect(screen.getByText('upk.example.com')).toBeInTheDocument());
+
+    await fireEvent.click(screen.getByRole('button', { name: /^edit$/i }));
+
+    // Drain any prior debounced lint timers and clear the mock so
+    // we measure only what happens after the dropdown change.
+    await new Promise(r => setTimeout(r, 350));
+    mockValidateGatewaySite.mockClear();
+
+    const tls = screen.getByLabelText('TLS') as HTMLSelectElement;
+    await fireEvent.change(tls, { target: { value: 'custom' } });
+
+    await new Promise(r => setTimeout(r, 400));
+
+    expect(mockValidateGatewaySite).not.toHaveBeenCalled();
+    expect(screen.queryByText(/requires both tls_cert and tls_key/i)).not.toBeInTheDocument();
+  });
 });
 
 describe('GatewayTab Require Muximux login (auth gate)', () => {

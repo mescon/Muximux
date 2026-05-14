@@ -217,12 +217,24 @@
     // operator knows the live linter is offline and the visible
     // green is not authoritative.
     const candidate = formToSite();
-    // Skip lint until both required fields are populated. Otherwise
-    // operating on a half-finished form (e.g. flipping the TLS
-    // dropdown before typing the domain) surfaces server messages
-    // like "domain is required" that the operator was about to fix
-    // anyway. The submit path enforces the same prereq locally.
+    // Skip lint while the operator is mid-form. Pre-conditions that
+    // the operator is *clearly about to fill* surface from the
+    // server-side validator as "X is required" messages -- noise
+    // that just teaches operators to mistrust the live linter.
+    // The submit path enforces the same prereqs locally, and any
+    // server-side check that fires here will fire again as soon as
+    // the missing piece is supplied. Two cases today:
+    //   - empty domain or backend_url: covers the "flipped a setting
+    //     before typing the URL" path on a fresh form.
+    //   - tls=custom with no cert or no key: covers the "switched
+    //     to custom and haven't pasted paths yet" path on edit, where
+    //     the validator would otherwise yell "tls_cert/tls_key
+    //     required" the moment the dropdown changes.
     if (!candidate.domain || !candidate.backend_url) {
+      validationError = null;
+      return;
+    }
+    if (candidate.tls === 'custom' && (!candidate.tls_cert || !candidate.tls_key)) {
       validationError = null;
       return;
     }

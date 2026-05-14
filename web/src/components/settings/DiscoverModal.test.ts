@@ -410,8 +410,8 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     // assert on visibility (that's CSS-driven) but we do confirm the
     // explanatory copy is present in the DOM so screen readers and
     // hover-tooltips both have something to surface.
-    expect(screen.getByText(/Creates an entry for this container in the dashboard's navigation menu/i)).toBeInTheDocument();
-    expect(screen.getByText(/Publishes this container at its own public subdomain/i)).toBeInTheDocument();
+    expect(screen.getByText(/Shows this app in Muximux's navigation menu/i)).toBeInTheDocument();
+    expect(screen.getByText(/Publishes this app on its own subdomain/i)).toBeInTheDocument();
   });
 
   it('honours the operator-edited name in the icon-picker heading', async () => {
