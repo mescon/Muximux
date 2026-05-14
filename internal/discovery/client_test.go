@@ -215,6 +215,45 @@ func TestClient_ListContainers_FilterByNetwork(t *testing.T) {
 	}
 }
 
+func TestClient_ListNetworks_ReturnsNamesOnly(t *testing.T) {
+	// Docker's GET /networks returns rich objects (IPAM, driver, labels
+	// etc.). We only need the names for the Settings UI's
+	// network_filter autocomplete; the test pins that contract so we
+	// don't accidentally start leaking the rest into the wire payload.
+	mux := http.NewServeMux()
+	mux.HandleFunc("/v1.41/networks", func(w http.ResponseWriter, _ *http.Request) {
+		// Mix of well-formed entries, an empty-name entry (Docker has
+		// been seen to return these mid-network-create), and an entry
+		// with extra fields we expect to ignore.
+		_, _ = w.Write([]byte(`[
+			{"Name":"bridge","Driver":"bridge"},
+			{"Name":"host","Driver":"host"},
+			{"Name":"media","Driver":"bridge","Labels":{"com.docker.compose.project":"arr"}},
+			{"Name":""}
+		]`))
+	})
+	socket, cleanup := fakeDockerOverUnix(t, mux)
+	defer cleanup()
+
+	c, err := NewClient(&config.DiscoveryDockerConfig{Endpoint: "unix://" + socket})
+	if err != nil {
+		t.Fatalf("NewClient: %v", err)
+	}
+	names, err := c.ListNetworks(context.Background())
+	if err != nil {
+		t.Fatalf("ListNetworks: %v", err)
+	}
+	want := []string{"bridge", "host", "media"}
+	if len(names) != len(want) {
+		t.Fatalf("want %d names %v, got %d %v", len(want), want, len(names), names)
+	}
+	for i, n := range want {
+		if names[i] != n {
+			t.Errorf("position %d: want %q, got %q", i, n, names[i])
+		}
+	}
+}
+
 func TestClient_InspectContainer_NotFound(t *testing.T) {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1.41/containers/", func(w http.ResponseWriter, _ *http.Request) {

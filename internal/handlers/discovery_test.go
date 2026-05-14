@@ -78,6 +78,58 @@ func TestGetDockerStatus_RejectsNonGet(t *testing.T) {
 	}
 }
 
+func TestListDockerNetworks_NilServiceReturnsEmpty(t *testing.T) {
+	// On first boot or with discovery off the service is nil. We must
+	// not panic and we must return an empty array so the UI degrades
+	// to a free-text input without rendering broken autocomplete.
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
+	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/networks")
+	w := httptest.NewRecorder()
+	h.ListDockerNetworks(w, req)
+	if w.Code != http.StatusOK {
+		t.Fatalf("status = %d, want 200", w.Code)
+	}
+	var got struct {
+		Networks []string `json:"networks"`
+	}
+	if err := json.NewDecoder(w.Body).Decode(&got); err != nil {
+		t.Fatalf("decode: %v", err)
+	}
+	if got.Networks == nil || len(got.Networks) != 0 {
+		t.Errorf("Networks = %v, want non-nil empty slice", got.Networks)
+	}
+}
+
+func TestListDockerNetworks_RejectsNonGet(t *testing.T) {
+	h := NewDiscoveryHandler(nil, &config.Config{}, "", &sync.RWMutex{}, nil)
+	for _, method := range []string{http.MethodPost, http.MethodPut, http.MethodDelete} {
+		req := adminCtxRequest(method, "/api/discovery/docker/networks")
+		w := httptest.NewRecorder()
+		h.ListDockerNetworks(w, req)
+		if w.Code != http.StatusMethodNotAllowed {
+			t.Errorf("%s -> status %d, want 405", method, w.Code)
+		}
+	}
+}
+
+func TestListDockerNetworks_DaemonUnreachableSurfaces502(t *testing.T) {
+	// When the daemon is unreachable (or our client wasn't initialised
+	// at all), the underlying service returns an error. The handler
+	// must propagate that as 502 so the frontend can fall back to a
+	// free-text input rather than rendering a stale or misleading
+	// autocomplete list.
+	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{
+		Enabled:  true,
+		Endpoint: "ssh://nope", // invalid scheme keeps the client uninitialised
+	})
+	req := adminCtxRequest(http.MethodGet, "/api/discovery/docker/networks")
+	w := httptest.NewRecorder()
+	h.ListDockerNetworks(w, req)
+	if w.Code != http.StatusBadGateway {
+		t.Errorf("status = %d, want 502", w.Code)
+	}
+}
+
 func TestGetDockerStatus_BadEndpointSurfacesLastError(t *testing.T) {
 	h, _, _ := newTestDiscoveryHandler(t, &config.DiscoveryDockerConfig{
 		Enabled:  true,

@@ -12,6 +12,7 @@ const mockApi = vi.hoisted(() => ({
   detachDockerTracked: vi.fn(),
   probeDockerRelink: vi.fn(),
   confirmDockerRelink: vi.fn(),
+  listDockerNetworks: vi.fn(),
 }));
 
 vi.mock('$lib/api', () => mockApi);
@@ -38,6 +39,7 @@ describe('DiscoveryTab divergence banner', () => {
     // Stub the tracked-entries call so the embedded sub-component
     // doesn't throw under render.
     mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///var/run/docker.sock' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
   });
 
   it('hides the divergence banner when refresh_divergences is zero or missing', async () => {
@@ -87,6 +89,7 @@ describe('DiscoveryTab currently-tracked panel', () => {
 
   it('renders the empty state when there are no tracked entries', async () => {
     mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: 'unix:///var/run/docker.sock' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
     render(DiscoveryTab);
     await waitFor(() => {
       expect(screen.getByText(/No apps or gateway sites are linked to Docker yet/i)).toBeInTheDocument();
@@ -133,6 +136,7 @@ describe('DiscoveryTab live status banner branches', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
   });
 
   it('shows the gray "disabled" banner when configured=false', async () => {
@@ -179,6 +183,7 @@ describe('DiscoveryTab form: TLS section + host_ip gating', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
   });
 
   it('hides the TLS section by default (unix:// endpoint)', async () => {
@@ -222,6 +227,7 @@ describe('DiscoveryTab save + test connection wiring', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: [] });
   });
 
   it('POSTs the current form to updateDiscoveryDockerConfig on Save and reflects the new status', async () => {
@@ -296,5 +302,93 @@ describe('DiscoveryTab save + test connection wiring', () => {
     await waitFor(() =>
       expect(screen.getByText(/404 not configured/i)).toBeInTheDocument(),
     );
+  });
+});
+
+describe('DiscoveryTab network-filter autocomplete', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockApi.fetchDiscoveryDockerStatus.mockResolvedValue(makeStatus());
+    mockApi.listDockerTracked.mockResolvedValue({ entries: [], current_endpoint: '' });
+  });
+
+  it('renders a chip strip of available networks once /api/discovery/docker/networks responds', async () => {
+    mockApi.listDockerNetworks.mockResolvedValue({
+      networks: ['bridge', 'host', 'media', 'arr_default'],
+    });
+    render(DiscoveryTab);
+
+    // Chip strip is rendered with a "Available on this daemon:" label
+    // and one clickable button per network name. We pin both: the
+    // label exists, and every network appears as its own role=button
+    // inside the strip's data-testid scope.
+    await waitFor(() =>
+      expect(screen.getByText(/Available on this daemon:/i)).toBeInTheDocument(),
+    );
+    const strip = screen.getByTestId('dd-filter-chips');
+    for (const name of ['bridge', 'host', 'media', 'arr_default']) {
+      expect(strip.querySelector(`button[title="Use Docker network ${name}"]`)).toBeTruthy();
+    }
+  });
+
+  it('clicking a chip fills the network_filter input with that network name', async () => {
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: ['media', 'monitoring'] });
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Available on this daemon:/i)).toBeInTheDocument());
+
+    const filter = document.getElementById('dd-filter') as HTMLInputElement;
+    expect(filter.value).toBe('');
+    const mediaChip = screen.getByTitle('Use Docker network media');
+    await fireEvent.click(mediaChip);
+    expect(filter.value).toBe('media');
+  });
+
+  it('hides the chip strip when no networks are available (daemon unreachable / discovery off)', async () => {
+    // listDockerNetworks rejecting is the "daemon unreachable" path;
+    // returning an empty array is the "discovery off" path. Both
+    // collapse to "no chips" in the UI, which is what we want -
+    // there's nothing useful to show and the input falls back to a
+    // plain text field.
+    mockApi.listDockerNetworks.mockRejectedValue(new Error('502'));
+    render(DiscoveryTab);
+    // Wait for the initial load to settle.
+    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    // The label only renders when there is at least one network.
+    expect(screen.queryByText(/Available on this daemon:/i)).not.toBeInTheDocument();
+    expect(screen.queryByTestId('dd-filter-chips')).not.toBeInTheDocument();
+    // Plain text input still exists.
+    expect(document.getElementById('dd-filter')).toBeTruthy();
+  });
+
+  it('renders a datalist mirroring the chip names so native autocomplete also works', async () => {
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: ['bridge', 'media'] });
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Available on this daemon:/i)).toBeInTheDocument());
+
+    const list = document.getElementById('dd-filter-networks');
+    expect(list).toBeTruthy();
+    const options = list?.querySelectorAll('option') ?? [];
+    expect(options.length).toBe(2);
+    expect(options[0].getAttribute('value')).toBe('bridge');
+    expect(options[1].getAttribute('value')).toBe('media');
+    // The input is wired to the datalist via list=.
+    const input = document.getElementById('dd-filter') as HTMLInputElement;
+    expect(input.getAttribute('list')).toBe('dd-filter-networks');
+  });
+
+  it('the chip strip shows a "clear" affordance once a network is selected', async () => {
+    mockApi.listDockerNetworks.mockResolvedValue({ networks: ['media'] });
+    render(DiscoveryTab);
+    await waitFor(() => expect(screen.getByText(/Available on this daemon:/i)).toBeInTheDocument());
+
+    // No clear affordance until a value is picked.
+    expect(screen.queryByText(/^clear$/i)).not.toBeInTheDocument();
+    await fireEvent.click(screen.getByTitle('Use Docker network media'));
+
+    // Now the clear button is in the strip.
+    expect(screen.getByText(/^clear$/i)).toBeInTheDocument();
+    await fireEvent.click(screen.getByText(/^clear$/i));
+    const input = document.getElementById('dd-filter') as HTMLInputElement;
+    expect(input.value).toBe('');
   });
 });

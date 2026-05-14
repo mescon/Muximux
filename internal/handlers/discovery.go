@@ -89,6 +89,35 @@ func (h *DiscoveryHandler) Service() *discovery.Service {
 	return h.service
 }
 
+// ListDockerNetworks handles GET /api/discovery/docker/networks.
+// Returns the names of every Docker network the configured daemon
+// exposes, used by the Settings UI to power the network_filter
+// input's autocomplete. Returns an empty array (not an error) when
+// discovery is off so the UI can hide the affordance gracefully;
+// daemon-reachability failures bubble up as 502 so the frontend can
+// fall back to a free-text input.
+func (h *DiscoveryHandler) ListDockerNetworks(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		respondError(w, r, http.StatusMethodNotAllowed, errMethodNotAllowed)
+		return
+	}
+	svc := h.Service()
+	if svc == nil {
+		sendJSON(w, http.StatusOK, struct {
+			Networks []string `json:"networks"`
+		}{Networks: []string{}})
+		return
+	}
+	names, err := svc.ListNetworks(r.Context())
+	if err != nil {
+		respondError(w, r, http.StatusBadGateway, "list networks: "+err.Error())
+		return
+	}
+	sendJSON(w, http.StatusOK, struct {
+		Networks []string `json:"networks"`
+	}{Networks: names})
+}
+
 // GetDockerStatus handles GET /api/discovery/docker/status. Admin-only
 // at registration. The body is the StatusResult struct directly so
 // the frontend gets the four-state UI gating ladder (Configured,

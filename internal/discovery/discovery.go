@@ -234,6 +234,22 @@ func (s *Service) ListLiveContainers(ctx context.Context) ([]ContainerSummary, e
 	return c.ListContainers(ctx, ListContainersOpts{All: false})
 }
 
+// ListNetworks returns the names of every Docker network the
+// configured daemon exposes. Powers the network_filter autocomplete
+// in the Settings UI so operators pick from real choices instead of
+// guessing. Errors are passed through verbatim: if the daemon is
+// unreachable the caller already surfaces that elsewhere via Status,
+// and a silent empty list here would mask the actual root cause.
+func (s *Service) ListNetworks(ctx context.Context) ([]string, error) {
+	s.mu.RLock()
+	c := s.client
+	s.mu.RUnlock()
+	if c == nil {
+		return nil, errClientNotInitialised
+	}
+	return c.ListNetworks(ctx)
+}
+
 // errClientNotInitialised is the static error returned by
 // ListLiveContainers when the discovery service has no client yet
 // (e.g., discovery is enabled but the configured endpoint failed to

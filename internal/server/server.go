@@ -246,6 +246,7 @@ func New(cfg *config.Config, configPath string, dataDir string, version, commit,
 	discoveryHandler := handlers.NewDiscoveryHandler(s.discoveryService, cfg, configPath, &s.configMu, s.proxyServer)
 	discoveryHandler.SetOnConfigSave(s.rebuildProxyRoutes)
 	mux.HandleFunc("/api/discovery/docker/status", requireAdmin(discoveryHandler.GetDockerStatus))
+	mux.HandleFunc("/api/discovery/docker/networks", requireAdmin(discoveryHandler.ListDockerNetworks))
 	mux.HandleFunc("/api/discovery/docker/config", requireAdmin(discoveryHandler.UpdateDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/test", requireAdmin(discoveryHandler.TestDockerConfig))
 	mux.HandleFunc("/api/discovery/docker/scan", requireAdmin(discoveryHandler.ScanDocker))

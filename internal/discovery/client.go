@@ -317,6 +317,36 @@ func (c *Client) InspectContainer(ctx context.Context, id string) (json.RawMessa
 	return io.ReadAll(io.LimitReader(resp.Body, 1<<20)) // 1 MiB cap on inspect payload
 }
 
+// networkSummary is the shape we extract from Docker's GET /networks
+// response. The endpoint returns a lot more (driver, IPAM config,
+// labels, etc.) but the Settings UI only needs the name. Worth
+// keeping the type narrow so changes to the upstream payload don't
+// invalidate cached decodes.
+type networkSummary struct {
+	Name string `json:"Name"`
+}
+
+// ListNetworks returns the names of every Docker network visible
+// to this daemon. Used by the Settings UI to drive the
+// network_filter input's autocomplete -- without it the operator
+// has to guess at network names. Empty names (Docker has been
+// observed to return empty entries for in-flight networks) are
+// filtered out so the UI never offers an unhelpful choice.
+func (c *Client) ListNetworks(ctx context.Context) ([]string, error) {
+	var nets []networkSummary
+	if err := c.getJSON(ctx, "/"+dockerAPIVersion+"/networks", &nets); err != nil {
+		return nil, err
+	}
+	out := make([]string, 0, len(nets))
+	for _, n := range nets {
+		if n.Name == "" {
+			continue
+		}
+		out = append(out, n.Name)
+	}
+	return out, nil
+}
+
 // getJSON does GET + JSON decode with the standard error envelope.
 // Used by the small endpoints; large endpoints (inspect) read raw.
 func (c *Client) getJSON(ctx context.Context, path string, out any) error {

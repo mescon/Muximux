@@ -5,6 +5,7 @@
     fetchDiscoveryDockerStatus,
     updateDiscoveryDockerConfig,
     testDiscoveryDockerConfig,
+    listDockerNetworks,
   } from '$lib/api';
   import DiscoveryTrackedEntries from './DiscoveryTrackedEntries.svelte';
 
@@ -18,6 +19,14 @@
   let status = $state<DiscoveryDockerStatus | null>(null);
   let loading = $state(false);
   let topLevelError = $state<string | null>(null);
+
+  // Available Docker networks, surfaced as a chip strip + datalist
+  // beneath the network_filter input so operators pick from real
+  // values instead of guessing at network names. Empty array means
+  // "not loaded" or "daemon unreachable" -- in both cases we degrade
+  // to a plain text input. Refreshed after every save so flipping the
+  // endpoint to a different daemon picks up that daemon's networks.
+  let availableNetworks = $state<string[]>([]);
 
   // Form state. Initialised from status.endpoint etc. on first load,
   // tracked separately so the operator can edit without losing the
@@ -48,11 +57,37 @@
         network_filter: '',
         refresh_interval: '60s',
       };
+      // Refresh the available-networks list in the background. We
+      // intentionally don't await this on the main path so a slow
+      // daemon doesn't delay the form rendering. Failures are
+      // silenced -- the form still works without the chip strip.
+      void refreshAvailableNetworks();
     } catch (e) {
       topLevelError = e instanceof Error ? e.message : 'Failed to load discovery status';
     } finally {
       loading = false;
     }
+  }
+
+  // Pull the network list without blocking the form. Called on
+  // load() and after a successful save so the chip strip reflects
+  // whichever daemon the operator just pointed Muximux at.
+  async function refreshAvailableNetworks() {
+    try {
+      const r = await listDockerNetworks();
+      availableNetworks = r.networks ?? [];
+    } catch {
+      // Daemon unreachable or discovery off -- keep the chip strip
+      // empty so the input falls back to plain text. The live
+      // status banner already surfaces the underlying error.
+      availableNetworks = [];
+    }
+  }
+
+  // Click a chip → fill the input. Doesn't lint/save; the operator
+  // still has to hit Save like any other field change.
+  function pickNetwork(name: string) {
+    form.network_filter = name;
   }
 
   async function save() {
@@ -63,8 +98,12 @@
       status = updated;
       testResult = null;
       // Endpoint may have changed; tracked entries' endpoint_matches
-      // flag could flip - reload the panel.
+      // flag could flip - reload the panel. Same reasoning for the
+      // available-networks chip strip: a new daemon has a different
+      // set of networks, and showing the old daemon's chips would be
+      // wrong.
       trackedRefreshKey += 1;
+      void refreshAvailableNetworks();
     } catch (e) {
       lastSaveError = e instanceof Error ? e.message : 'Save failed';
     } finally {
@@ -262,12 +301,52 @@
         <input
           id="dd-filter"
           type="text"
+          list="dd-filter-networks"
           bind:value={form.network_filter}
-          placeholder="e.g. media"
+          placeholder={availableNetworks.length > 0
+            ? availableNetworks[0]
+            : 'e.g. media (name of a Docker network)'}
           class="w-full px-3 py-2 bg-bg-elevated border border-border-subtle rounded-md text-text-primary text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+          data-testid="dd-filter"
         />
-        <p class="text-xs text-text-muted mt-1">
-          When set, only containers attached to this docker network appear in scans. Substitutes for self-detection when Muximux runs on the host.
+        {#if availableNetworks.length > 0}
+          <datalist id="dd-filter-networks">
+            {#each availableNetworks as net (net)}
+              <option value={net}></option>
+            {/each}
+          </datalist>
+          <div class="mt-2 flex flex-wrap items-center gap-1.5 text-xs" data-testid="dd-filter-chips">
+            <span class="text-text-muted">Available on this daemon:</span>
+            {#each availableNetworks as net (net)}
+              <button
+                type="button"
+                onclick={() => pickNetwork(net)}
+                class="px-2 py-0.5 rounded border text-xs transition-colors
+                       {form.network_filter === net
+                         ? 'bg-brand-500/20 border-brand-500/50 text-brand-200'
+                         : 'bg-bg-elevated border-border-subtle text-text-secondary hover:bg-bg-hover'}"
+                title="Use Docker network {net}"
+              >
+                {net}
+              </button>
+            {/each}
+            {#if form.network_filter}
+              <button
+                type="button"
+                onclick={() => pickNetwork('')}
+                class="text-text-muted hover:text-text-primary underline-offset-2 hover:underline"
+                title="Clear network filter"
+              >
+                clear
+              </button>
+            {/if}
+          </div>
+        {/if}
+        <p class="text-xs text-text-muted mt-2">
+          When set, only containers attached to this Docker network appear in scans.
+          Required for <code>container_ip</code> / <code>container_dns</code> when Muximux runs
+          on the host (not in a container). Pick a network you can see your target containers
+          on - typically the same one your <code>docker compose</code> stack creates.
         </p>
       </div>
 

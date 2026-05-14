@@ -461,6 +461,19 @@ export async function fetchDiscoveryDockerStatus(): Promise<DiscoveryDockerStatu
   return fetchJSON<DiscoveryDockerStatus>('/discovery/docker/status');
 }
 
+/**
+ * Returns the names of every Docker network the configured daemon
+ * exposes. Used by the Discovery settings tab to power both an
+ * autocomplete datalist and an inline chip list for the
+ * network_filter input, so operators pick from real values instead
+ * of guessing at network names. Errors (e.g. daemon unreachable)
+ * surface as a 502 from the handler; callers should fall back to a
+ * plain text input rather than blocking the form.
+ */
+export async function listDockerNetworks(): Promise<{ networks: string[] }> {
+  return fetchJSON<{ networks: string[] }>('/discovery/docker/networks');
+}
+
 export async function updateDiscoveryDockerConfig(cfg: DiscoveryDockerConfig): Promise<DiscoveryDockerStatus> {
   return putJSON<DiscoveryDockerConfig, DiscoveryDockerStatus>('/discovery/docker/config', cfg);
 }
