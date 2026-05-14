@@ -62,6 +62,26 @@ discovery:
     refresh_interval: 60s                   # poller cadence, [10s, 1h]
 ```
 
+### Make the daemon socket reachable from Muximux
+
+Setting `endpoint: unix:///var/run/docker.sock` in `config.yaml` is only half the story. When Muximux itself runs in a container, the socket also has to be mounted into that container - otherwise the path resolves to nothing and the Discovery tab shows "daemon unreachable" with `connect: no such file or directory`.
+
+Add this to your `docker-compose.yml` (or a `-v` flag if you run `docker run` directly):
+
+```yaml
+services:
+  muximux:
+    image: ghcr.io/mescon/muximux:latest
+    # ... usual ports / volumes / env ...
+    volumes:
+      - ./data:/app/data
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+```
+
+The trailing `:ro` is intentional. Muximux only **reads** container metadata - it never starts, stops, or builds anything. Marking the mount read-only means a compromised Muximux can't be used to pivot to full daemon control. The Docker engine API still exposes enough surface to enumerate every container on the host, so treat this mount as "effective host root for read" and gate the dashboard accordingly with auth.
+
+For a **remote daemon over TCP**, you don't need a socket mount at all - point `endpoint:` at `tcp://your-daemon:2376` and ship the mTLS cert paths through the `tls:` block. The remote daemon must expose its API with TLS (Docker's `dockerd --tlsverify`), and your client cert/key paths must be readable by the Muximux process.
+
 ### Network strategies
 
 | Strategy | URL shape | Requires |

@@ -19,13 +19,32 @@ services:
       - ALL
     ports:
       - "8080:8080"
-      # Uncomment if using tls.domain or gateway with domain-based sites:
+      # Uncomment if using tls.domain or gateway_sites (the embedded
+      # Caddy binds 80 and 443 by default for auto-HTTPS via ACME):
       # - "80:80"    # HTTP→HTTPS redirect + ACME challenges
       # - "443:443"  # HTTPS
+      #
+      # Alternative for unprivileged-port-only setups: set
+      # server.gateway_listen: ":8443" in config.yaml and expose
+      # that port instead. Useful when fronting Muximux with another
+      # reverse proxy (Cloudflare Tunnel, an upstream Traefik, etc.)
+      # that terminates TLS and forwards plain HTTP.
+      # - "8443:8443"
     volumes:
       - ./data:/app/data
-      # Uncomment to mount a custom gateway Caddyfile:
+      # Uncomment to mount a custom gateway Caddyfile (legacy
+      # operator-written sites file; the declarative
+      # server.gateway_sites: YAML in config.yaml is the preferred
+      # path from 3.1.0+):
       # - ./sites.Caddyfile:/app/data/sites.Caddyfile:ro
+      #
+      # Uncomment to expose the Docker socket so Muximux can scan
+      # the daemon for running containers (Settings → Discovery in
+      # 3.1.0+). Read-only is enough; Muximux only reads container
+      # metadata, it never starts/stops/builds anything. Mount this
+      # only if you trust the dashboard's auth posture — the socket
+      # grants effective root on the host.
+      # - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
       # ── User/Group ───────────────────────────────────────────────
       - PUID=1000
@@ -85,5 +104,5 @@ services:
 #       context: .
 #       dockerfile: Dockerfile
 #       args:
-#         VERSION: "3.0.0"
+#         VERSION: "3.1.0"
 #     ...

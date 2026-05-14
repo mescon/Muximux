@@ -376,6 +376,19 @@ describe('DiscoveryTab network-filter autocomplete', () => {
     expect(input.getAttribute('list')).toBe('dd-filter-networks');
   });
 
+  it('handles a malformed listDockerNetworks response (networks=undefined) without crashing', async () => {
+    // The frontend nullish-coalesces `r.networks ?? []` to defend
+    // against backend payloads that omit the field (older releases,
+    // a broken proxy, a future schema change). Cover that arm so a
+    // regression in the helper doesn't silently throw at mount.
+    mockApi.listDockerNetworks.mockResolvedValue({} as { networks: string[] });
+    render(DiscoveryTab);
+    await waitFor(() => expect(mockApi.fetchDiscoveryDockerStatus).toHaveBeenCalled());
+    // No chip strip should render, but the form must still mount.
+    expect(screen.queryByTestId('dd-filter-chips')).not.toBeInTheDocument();
+    expect(document.getElementById('dd-filter')).toBeTruthy();
+  });
+
   it('the chip strip shows a "clear" affordance once a network is selected', async () => {
     mockApi.listDockerNetworks.mockResolvedValue({ networks: ['media'] });
     render(DiscoveryTab);

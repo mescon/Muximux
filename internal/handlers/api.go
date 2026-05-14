@@ -206,10 +206,10 @@ func parseURL(raw string) (*url.URL, error) {
 
 // clientConfigResponse is the sanitized config structure sent to the frontend.
 type clientConfigResponse struct {
-	Title        string                    `json:"title"`
-	Language     string                    `json:"language"`
-	LogLevel     string                    `json:"log_level"`
-	ProxyTimeout string                    `json:"proxy_timeout,omitempty"`
+	Title        string `json:"title"`
+	Language     string `json:"language"`
+	LogLevel     string `json:"log_level"`
+	ProxyTimeout string `json:"proxy_timeout,omitempty"`
 	// SessionCookieDomain mirrors server.session_cookie_domain so the
 	// Settings UI can pre-warn operators ticking require_auth on a
 	// gateway site that the cookie won't reach the gated subdomain.
@@ -272,10 +272,10 @@ func buildClientConfigResponse(cfg *config.Config, userRole string, userGroups [
 
 // ClientConfigUpdate represents the configuration update from the frontend
 type ClientConfigUpdate struct {
-	Title        string                    `json:"title"`
-	Language     string                    `json:"language"`
-	LogLevel     string                    `json:"log_level"`
-	ProxyTimeout string                    `json:"proxy_timeout"`
+	Title        string `json:"title"`
+	Language     string `json:"language"`
+	LogLevel     string `json:"log_level"`
+	ProxyTimeout string `json:"proxy_timeout"`
 	// SessionCookieDomain controls the Domain attribute on the session
 	// cookie. Required when any gateway site has require_auth=true.
 	// Editable from the UI so operators don't have to drop into
