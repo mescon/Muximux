@@ -384,6 +384,36 @@ describe('DiscoverModal routing radio + gateway interactions', () => {
     expect(gatewayRadio.checked).toBe(true);
   });
 
+  it('renders a help icon + tooltip next to both "Add to menu" and "Add gateway site"', async () => {
+    // The user couldn't tell the two checkboxes apart -- "Add to
+    // menu" maps to the in-dashboard nav entry, "Add gateway site"
+    // maps to a public subdomain. The fix is a per-checkbox help
+    // icon with a hover tooltip. This test pins the icons exist
+    // (one per checkbox) and that the tooltip <span> renders with
+    // the expected explanatory copy alongside each.
+    mockApi.scanDockerContainers.mockResolvedValue({
+      suggestions: [makeSuggestion()],
+    });
+    render(DiscoverModal, { open: true, mode: 'apps', onclose: () => {} });
+    await waitFor(() => expect(screen.getByDisplayValue('C1')).toBeInTheDocument());
+
+    // Both help SVGs are rendered with distinct aria-labels. The
+    // labels deliberately avoid the checkbox text so getByLabelText
+    // queries scoped to the actual checkbox labels remain
+    // unambiguous (this caught us once during implementation when
+    // 'What does "Add gateway site" do?' shadowed the checkbox
+    // label in a regex search).
+    expect(screen.getByLabelText('More info about the menu option')).toBeInTheDocument();
+    expect(screen.getByLabelText('More info about the gateway option')).toBeInTheDocument();
+
+    // The tooltip <span>s mount alongside their triggers; we don't
+    // assert on visibility (that's CSS-driven) but we do confirm the
+    // explanatory copy is present in the DOM so screen readers and
+    // hover-tooltips both have something to surface.
+    expect(screen.getByText(/Adds this container as an app in the dashboard/i)).toBeInTheDocument();
+    expect(screen.getByText(/Registers this container as a Caddy gateway site/i)).toBeInTheDocument();
+  });
+
   it('honours the operator-edited name in the icon-picker heading', async () => {
     // The heading reads from nameOverride first, falling back to the
     // catalog name. This proves the picker reflects in-flight edits

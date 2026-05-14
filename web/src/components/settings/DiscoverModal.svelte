@@ -243,7 +243,66 @@
     }
     iconPickerForKey = null;
   }
+
+  // Hover-help tooltip positioning. The DiscoverModal is itself a
+  // scrollable overlay so a naively-positioned tooltip clips off the
+  // bottom edge when the trigger is in a row near the footer; we flip
+  // it above on the fly. Same pattern as AppForm.svelte; lifting to a
+  // shared component is a future cleanup that touches multiple call
+  // sites and isn't worth blocking 3.1.0 on.
+  function positionTooltip(trigger: HTMLElement) {
+    const tooltip = trigger.querySelector('.help-tooltip') as HTMLElement | null;
+    if (!tooltip) return;
+    const triggerRect = trigger.getBoundingClientRect();
+    const scrollParent = findScrollParent(trigger);
+    const containerRect = scrollParent
+      ? scrollParent.getBoundingClientRect()
+      : { bottom: window.innerHeight, right: window.innerWidth, left: 0 } as DOMRect;
+    const prev = tooltip.style.cssText;
+    tooltip.style.cssText = 'display: block; visibility: hidden;';
+    const tooltipHeight = tooltip.offsetHeight;
+    const tooltipWidth = tooltip.offsetWidth;
+    tooltip.style.cssText = prev;
+    const roomBelow = containerRect.bottom - triggerRect.bottom;
+    tooltip.classList.toggle('tooltip-above', roomBelow < tooltipHeight + 12);
+    const wouldOverflowRight = triggerRect.left + tooltipWidth > containerRect.right - 8;
+    tooltip.classList.toggle('tooltip-right-anchored', wouldOverflowRight);
+  }
+
+  function findScrollParent(el: HTMLElement): HTMLElement | null {
+    let node: HTMLElement | null = el.parentElement;
+    while (node && node !== document.body) {
+      const style = getComputedStyle(node);
+      if (style.overflowY === 'auto' || style.overflowY === 'scroll' ||
+          style.overflowX === 'auto' || style.overflowX === 'scroll') return node;
+      node = node.parentElement;
+    }
+    return null;
+  }
 </script>
+
+{#snippet helpTip(label: string, body: string)}
+  <!-- svelte-ignore a11y_no_static_element_interactions -->
+  <span
+    class="help-trigger relative ms-1 inline-block align-middle"
+    onmouseenter={(e) => positionTooltip(e.currentTarget as HTMLElement)}
+  >
+    <svg
+      class="w-3.5 h-3.5 text-text-disabled cursor-help"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      stroke-width="2"
+      aria-label={label}
+      role="img"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+    <span class="help-tooltip">{body}</span>
+  </span>
+{/snippet}
 
 {#if open}
   <div class="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4" role="dialog" aria-modal="true">
@@ -370,22 +429,34 @@
                     {/if}
 
                     <div class="mt-3 space-y-2 text-xs">
-                      <div class="flex flex-wrap gap-4">
-                        <label class="flex items-center gap-1.5 cursor-pointer">
-                          <input type="checkbox" bind:checked={row.createApp} disabled={row.s.requires_input} />
-                          <span class="text-text-primary">Add to menu</span>
-                        </label>
-                        <label class="flex items-center gap-1.5 cursor-pointer">
-                          <input
-                            type="checkbox"
-                            bind:checked={row.createGateway}
-                            disabled={row.routing === 'gateway' && row.createApp}
-                          />
-                          <span class="text-text-primary">Add gateway site</span>
-                          {#if row.routing === 'gateway' && row.createApp}
-                            <span class="text-text-muted">(required by routing)</span>
-                          {/if}
-                        </label>
+                      <div class="flex flex-wrap items-center gap-4">
+                        <span class="flex items-center gap-1.5">
+                          <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input type="checkbox" bind:checked={row.createApp} disabled={row.s.requires_input} />
+                            <span class="text-text-primary">Add to menu</span>
+                          </label>
+                          {@render helpTip(
+                            'More info about the menu option',
+                            'Adds this container as an app in the dashboard\'s navigation menu. Visitors click it to open the app inside Muximux (or in a new tab, depending on the open mode). The Menu link radio below picks HOW the menu link reaches the container: Direct (straight to the container URL), Proxy (via Muximux\'s reverse proxy at /proxy/<slug>), or Gateway (via a public subdomain you also define here).'
+                          )}
+                        </span>
+                        <span class="flex items-center gap-1.5">
+                          <label class="flex items-center gap-1.5 cursor-pointer">
+                            <input
+                              type="checkbox"
+                              bind:checked={row.createGateway}
+                              disabled={row.routing === 'gateway' && row.createApp}
+                            />
+                            <span class="text-text-primary">Add gateway site</span>
+                            {#if row.routing === 'gateway' && row.createApp}
+                              <span class="text-text-muted">(required by routing)</span>
+                            {/if}
+                          </label>
+                          {@render helpTip(
+                            'More info about the gateway option',
+                            'Registers this container as a Caddy gateway site at its own public subdomain (e.g. sonarr.example.com). Muximux\'s embedded Caddy reverse-proxies that subdomain to the container with optional auto-HTTPS (Let\'s Encrypt). Independent of "Add to menu" -- you can host a subdomain without a dashboard entry, OR menu it from inside Muximux while also exposing it externally.'
+                          )}
+                        </span>
                         {#if row.createGateway}
                           <input
                             type="text"
@@ -484,3 +555,42 @@
     {/if}
   {/if}
 {/if}
+
+<style>
+  /* Hover-help tooltip shown next to the per-row Add to menu / Add
+     gateway site checkboxes. Mirrors AppForm.svelte; the flip
+     classes are toggled imperatively by positionTooltip() so we need
+     :global() to defeat Svelte's CSS scoping. */
+  .help-tooltip {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    inset-inline-start: 0;
+    width: 280px;
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: var(--bg-overlay, #1f2937);
+    border: 1px solid var(--border-default, #374151);
+    color: var(--text-secondary, #d1d5db);
+    font-size: 11px;
+    line-height: 1.4;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 70;
+    pointer-events: none;
+  }
+
+  .help-trigger:hover > .help-tooltip,
+  .help-trigger:focus-within > .help-tooltip {
+    display: block;
+  }
+
+  .help-tooltip:global(.tooltip-above) {
+    top: auto;
+    bottom: calc(100% + 6px);
+  }
+
+  .help-tooltip:global(.tooltip-right-anchored) {
+    inset-inline-start: auto;
+    inset-inline-end: 0;
+  }
+</style>
