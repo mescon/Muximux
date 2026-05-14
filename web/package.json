@@ -27,7 +27,7 @@
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
     "kysely": "^0.28.17",
-    "svelte": "^5.55.4",
+    "svelte": "^5.55.7",
     "svelte-check": "^4.4.8",
     "tailwindcss": "^4.3.0",
     "tslib": "^2.8.1",
