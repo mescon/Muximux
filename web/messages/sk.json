@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Predchádzajúca aplikácia",
   "keybindings_prevAppDesc": "Prepnúť na predchádzajúcu aplikáciu",
   "keybindings_appLabel": "Aplikácia {number}",
-  "keybindings_appDesc": "Prepnúť na aplikáciu #{number}"
+  "keybindings_appDesc": "Prepnúť na aplikáciu #{number}",
+  "appForm_allowNotifications": "Povoliť upozornenia",
+  "appForm_allowNotificationsDesc": "Povoliť most upozornení Muximux pre túto aplikáciu",
+  "appForm_helpAllowNotifications": "Prehliadače blokujú Notifications API v iframe s odlišným pôvodom (cross-origin). Keď je povolené, táto aplikácia môže poslať správu Muximuxu, aby zobrazil upozornenie pod pôvodom Muximuxu. Kliknutím na upozornenie sa prepnete do tejto aplikácie.",
+  "appForm_permissionsAll": "Povoliť všetky oprávnenia",
+  "appForm_permissionsDesc": "Delegujte funkcie prehliadača do vloženého iframe. Bez nich moderné prehliadače blokujú kameru, mikrofón, geolocation a podobné API pre obsah s odlišným pôvodom (cross-origin).",
+  "appForm_sectionPermissions": "Oprávnenia",
+  "common_readMore": "Čítať viac",
+  "general_collapsibleToolbar": "Zbaliteľný panel nástrojov",
+  "general_collapsibleToolbarDesc": "Skryť tlačidlá nástrojov za ozubené koleso, ktoré sa odkryje po nabehnutí",
+  "general_overviewButton": "Tlačidlo prehľadu",
+  "general_overviewButtonDesc": "Zvoľte, ako sa tlačidlo prehľadu zobrazí v navigačnej lište",
+  "general_overviewCustom": "Vlastné",
+  "general_overviewHidden": "Skryté",
+  "general_overviewHouse": "Ikona domu",
+  "general_overviewLogo": "Logo"
 }

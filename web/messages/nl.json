@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Vorige app",
   "keybindings_prevAppDesc": "Schakel naar de vorige app",
   "keybindings_appLabel": "App {number}",
-  "keybindings_appDesc": "Schakel naar app #{number}"
+  "keybindings_appDesc": "Schakel naar app #{number}",
+  "appForm_allowNotifications": "Notificaties toestaan",
+  "appForm_allowNotificationsDesc": "De notificatiebrug van Muximux inschakelen voor deze app",
+  "appForm_helpAllowNotifications": "Browsers blokkeren de Notifications API in iframes met een andere origin. Wanneer dit is ingeschakeld, kan deze app een bericht naar Muximux sturen om een notificatie te tonen onder de origin van Muximux. Klikken op de notificatie schakelt over naar deze app.",
+  "appForm_permissionsAll": "Alle permissies toestaan",
+  "appForm_permissionsDesc": "Browserfuncties delegeren aan het ingebedde iframe. Zonder deze blokkeren moderne browsers camera, microfoon, geolocation en vergelijkbare API's voor content met een andere origin.",
+  "appForm_sectionPermissions": "Permissies",
+  "common_readMore": "Meer lezen",
+  "general_collapsibleToolbar": "Inklapbare werkbalk",
+  "general_collapsibleToolbarDesc": "Hulpknoppen verbergen achter een tandwiel dat verschijnt bij hover",
+  "general_overviewButton": "Overzichtsknop",
+  "general_overviewButtonDesc": "Kies hoe de overzichtsknop in de navigatiebalk verschijnt",
+  "general_overviewCustom": "Aangepast",
+  "general_overviewHidden": "Verborgen",
+  "general_overviewHouse": "Huispictogram",
+  "general_overviewLogo": "Logo"
 }

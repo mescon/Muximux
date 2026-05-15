@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Application précédente",
   "keybindings_prevAppDesc": "Passer à l'application précédente",
   "keybindings_appLabel": "Application {number}",
-  "keybindings_appDesc": "Passer à l'application #{number}"
+  "keybindings_appDesc": "Passer à l'application #{number}",
+  "appForm_allowNotifications": "Autoriser les notifications",
+  "appForm_allowNotificationsDesc": "Activer le pont de notifications Muximux pour cette app",
+  "appForm_helpAllowNotifications": "Les navigateurs bloquent l'API Notifications dans les iframes cross-origin. Quand activé, cette app peut envoyer un message à Muximux pour afficher une notification depuis l'origine de Muximux. Cliquer sur la notification bascule vers cette app.",
+  "appForm_permissionsAll": "Autoriser toutes les permissions",
+  "appForm_permissionsDesc": "Délègue les fonctionnalités du navigateur à l'iframe intégré. Sans cela, les navigateurs modernes bloquent la caméra, le microphone, la géolocalisation et autres API similaires pour le contenu cross-origin.",
+  "appForm_sectionPermissions": "Permissions",
+  "common_readMore": "Lire plus",
+  "general_collapsibleToolbar": "Barre d'outils rétractable",
+  "general_collapsibleToolbarDesc": "Masquer les boutons utilitaires derrière un engrenage qui apparaît au survol",
+  "general_overviewButton": "Bouton de vue d'ensemble",
+  "general_overviewButtonDesc": "Choisis comment le bouton de vue d'ensemble apparaît dans la barre de navigation",
+  "general_overviewCustom": "Personnalisé",
+  "general_overviewHidden": "Masqué",
+  "general_overviewHouse": "Icône maison",
+  "general_overviewLogo": "Logo"
 }

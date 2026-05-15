@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "上一个应用",
   "keybindings_prevAppDesc": "切换到上一个应用",
   "keybindings_appLabel": "应用 {number}",
-  "keybindings_appDesc": "切换到应用 #{number}"
+  "keybindings_appDesc": "切换到应用 #{number}",
+  "appForm_allowNotifications": "允许通知",
+  "appForm_allowNotificationsDesc": "为此应用启用 Muximux 通知桥",
+  "appForm_helpAllowNotifications": "浏览器会挡掉跨域 iframe 里个 Notifications API。开了之后，此应用可以发消息给 Muximux，让 Muximux 用自己个来源显示通知。点通知就切到此应用。",
+  "appForm_permissionsAll": "允许所有权限",
+  "appForm_permissionsDesc": "把浏览器功能授权给嵌入个 iframe。不开个话，现代浏览器会挡掉跨域内容个摄像头、麦克风、geolocation 等等 API。",
+  "appForm_sectionPermissions": "权限",
+  "common_readMore": "看更多",
+  "general_collapsibleToolbar": "可折叠工具栏",
+  "general_collapsibleToolbarDesc": "把工具按钮藏在齿轮后面，鼠标悬上去就出来",
+  "general_overviewButton": "总览按钮",
+  "general_overviewButtonDesc": "选择总览按钮在导航栏里如何显示",
+  "general_overviewCustom": "自定义",
+  "general_overviewHidden": "隐藏",
+  "general_overviewHouse": "房子图标",
+  "general_overviewLogo": "Logo"
 }

@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Előző alkalmazás",
   "keybindings_prevAppDesc": "Váltás az előző alkalmazásra",
   "keybindings_appLabel": "Alkalmazás {number}",
-  "keybindings_appDesc": "Váltás a(z) #{number}. alkalmazásra"
+  "keybindings_appDesc": "Váltás a(z) #{number}. alkalmazásra",
+  "appForm_allowNotifications": "Értesítések engedélyezése",
+  "appForm_allowNotificationsDesc": "Muximux értesítési híd engedélyezése ehhez az alkalmazáshoz",
+  "appForm_helpAllowNotifications": "A böngészők blokkolják a Notifications API-t a cross-origin iframe-ekben. Ha engedélyezve van, ez az alkalmazás üzenetet küldhet a Muximux-nak, amely a Muximux origin alatt jelenít meg értesítést. Az értesítésre kattintva erre az alkalmazásra vált.",
+  "appForm_permissionsAll": "Összes engedély megadása",
+  "appForm_permissionsDesc": "Böngészőfunkciók delegálása a beágyazott iframe-nek. Ezek nélkül a modern böngészők blokkolják a kamera, mikrofon, geolocation és hasonló API-kat a cross-origin tartalom számára.",
+  "appForm_sectionPermissions": "Engedélyek",
+  "common_readMore": "Tovább",
+  "general_collapsibleToolbar": "Összecsukható eszköztár",
+  "general_collapsibleToolbarDesc": "Eszközgombok elrejtése egy fogaskerék mögött, amely rámutatásra jelenik meg",
+  "general_overviewButton": "Áttekintés gomb",
+  "general_overviewButtonDesc": "Válassza ki, hogyan jelenjen meg az áttekintés gomb a navigációs sávban",
+  "general_overviewCustom": "Egyéni",
+  "general_overviewHidden": "Rejtett",
+  "general_overviewHouse": "Ház ikon",
+  "general_overviewLogo": "Logó"
 }

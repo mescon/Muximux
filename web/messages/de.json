@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Vorherige App",
   "keybindings_prevAppDesc": "Zur vorherigen App wechseln",
   "keybindings_appLabel": "App {number}",
-  "keybindings_appDesc": "Zu App #{number} wechseln"
+  "keybindings_appDesc": "Zu App #{number} wechseln",
+  "appForm_allowNotifications": "Benachrichtigungen erlauben",
+  "appForm_allowNotificationsDesc": "Die Muximux-Benachrichtigungsbrücke für diese App aktivieren",
+  "appForm_helpAllowNotifications": "Browser blockieren die Notifications API in iframes mit fremder Herkunft. Wenn aktiviert, kann diese App eine Nachricht an Muximux senden, um eine Benachrichtigung unter der Herkunft von Muximux anzuzeigen. Ein Klick auf die Benachrichtigung wechselt zu dieser App.",
+  "appForm_permissionsAll": "Alle Berechtigungen erlauben",
+  "appForm_permissionsDesc": "Browser-Funktionen an das eingebettete iframe delegieren. Ohne diese blockieren moderne Browser Kamera, Mikrofon, Geolocation und ähnliche APIs für Inhalte mit fremder Herkunft.",
+  "appForm_sectionPermissions": "Berechtigungen",
+  "common_readMore": "Mehr erfahren",
+  "general_collapsibleToolbar": "Einklappbare Werkzeugleiste",
+  "general_collapsibleToolbarDesc": "Werkzeug-Buttons hinter einem Zahnrad verstecken, das bei Hover erscheint",
+  "general_overviewButton": "Übersichts-Button",
+  "general_overviewButtonDesc": "Wählen Sie, wie der Übersichts-Button in der Navigationsleiste erscheint",
+  "general_overviewCustom": "Benutzerdefiniert",
+  "general_overviewHidden": "Ausgeblendet",
+  "general_overviewHouse": "Haus-Icon",
+  "general_overviewLogo": "Logo"
 }

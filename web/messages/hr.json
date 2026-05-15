@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Prethodna aplikacija",
   "keybindings_prevAppDesc": "Prebaci na prethodnu aplikaciju",
   "keybindings_appLabel": "Aplikacija {number}",
-  "keybindings_appDesc": "Prebaci na aplikaciju #{number}"
+  "keybindings_appDesc": "Prebaci na aplikaciju #{number}",
+  "appForm_allowNotifications": "Dopusti obavijesti",
+  "appForm_allowNotificationsDesc": "Omogući Muximux most za obavijesti za ovu aplikaciju",
+  "appForm_helpAllowNotifications": "Preglednici blokiraju Notifications API u iframeovima s različitog porijekla. Kada je omogućeno, ova aplikacija može poslati poruku Muximuxu da prikaže obavijest pod Muximuxovim porijeklom. Klik na obavijest prebacuje na ovu aplikaciju.",
+  "appForm_permissionsAll": "Dopusti sve dozvole",
+  "appForm_permissionsDesc": "Delegirajte značajke preglednika ugrađenom iframeu. Bez ovoga, moderni preglednici blokiraju kameru, mikrofon, geolocation i slične API-je za sadržaj s različitog porijekla.",
+  "appForm_sectionPermissions": "Dozvole",
+  "common_readMore": "Pročitaj više",
+  "general_collapsibleToolbar": "Sklopiva alatna traka",
+  "general_collapsibleToolbarDesc": "Sakrij pomoćne gumbe iza zupčanika koji se otkriva prijelaskom miša",
+  "general_overviewButton": "Gumb za pregled",
+  "general_overviewButtonDesc": "Odaberite kako se gumb za pregled prikazuje u navigacijskoj traci",
+  "general_overviewCustom": "Prilagođeno",
+  "general_overviewHidden": "Skriveno",
+  "general_overviewHouse": "Ikona kuće",
+  "general_overviewLogo": "Logotip"
 }

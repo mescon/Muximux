@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Předchozí aplikace",
   "keybindings_prevAppDesc": "Přepnout na předchozí aplikaci",
   "keybindings_appLabel": "Aplikace {number}",
-  "keybindings_appDesc": "Přepnout na aplikaci #{number}"
+  "keybindings_appDesc": "Přepnout na aplikaci #{number}",
+  "appForm_allowNotifications": "Povolit oznámení",
+  "appForm_allowNotificationsDesc": "Povolit most oznámení Muximux pro tuto aplikaci",
+  "appForm_helpAllowNotifications": "Prohlížeče blokují Notifications API v iframech z jiných domén. Když je tato volba povolena, aplikace může odeslat zprávu do Muximux, který zobrazí oznámení pod svou doménou. Kliknutím na oznámení se přepnete do této aplikace.",
+  "appForm_permissionsAll": "Povolit všechna oprávnění",
+  "appForm_permissionsDesc": "Delegovat funkce prohlížeče vloženému iframe. Bez nich moderní prohlížeče blokují kameru, mikrofon, geolocation a podobná API pro obsah z jiných domén.",
+  "appForm_sectionPermissions": "Oprávnění",
+  "common_readMore": "Číst více",
+  "general_collapsibleToolbar": "Skládací panel nástrojů",
+  "general_collapsibleToolbarDesc": "Skrýt tlačítka nástrojů za ozubené kolečko, které se odkryje po najetí",
+  "general_overviewButton": "Tlačítko přehledu",
+  "general_overviewButtonDesc": "Zvolte, jak se tlačítko přehledu zobrazí v navigační liště",
+  "general_overviewCustom": "Vlastní",
+  "general_overviewHidden": "Skryté",
+  "general_overviewHouse": "Ikona domku",
+  "general_overviewLogo": "Logo"
 }

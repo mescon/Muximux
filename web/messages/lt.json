@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Ankstesnė programa",
   "keybindings_prevAppDesc": "Perjungti į ankstesnę programą",
   "keybindings_appLabel": "Programa {number}",
-  "keybindings_appDesc": "Perjungti į programą #{number}"
+  "keybindings_appDesc": "Perjungti į programą #{number}",
+  "appForm_allowNotifications": "Leisti pranešimus",
+  "appForm_allowNotificationsDesc": "Įjungti Muximux pranešimų tiltą šiai programai",
+  "appForm_helpAllowNotifications": "Naršyklės blokuoja Notifications API skirtingos kilmės iframe languose. Įjungus, ši programa gali siųsti pranešimą Muximux, kad jis būtų rodomas po Muximux kilme. Spustelėjus pranešimą, persijungiama į šią programą.",
+  "appForm_permissionsAll": "Leisti visus leidimus",
+  "appForm_permissionsDesc": "Suteikti naršyklės funkcijas įterptam iframe. Be jų, šiuolaikinės naršyklės blokuoja kamerą, mikrofoną, geolocation ir panašius API skirtingos kilmės turiniui.",
+  "appForm_sectionPermissions": "Leidimai",
+  "common_readMore": "Skaityti daugiau",
+  "general_collapsibleToolbar": "Sutraukiama įrankių juosta",
+  "general_collapsibleToolbarDesc": "Slėpti pagalbinius mygtukus už krumpliaračio, kuris pasirodo užvedus pelę",
+  "general_overviewButton": "Apžvalgos mygtukas",
+  "general_overviewButtonDesc": "Pasirinkite, kaip apžvalgos mygtukas rodomas navigacijos juostoje",
+  "general_overviewCustom": "Pasirinktinis",
+  "general_overviewHidden": "Paslėptas",
+  "general_overviewHouse": "Namo piktograma",
+  "general_overviewLogo": "Logotipas"
 }

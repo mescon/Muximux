@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "पिछला ऐप",
   "keybindings_prevAppDesc": "सूची में पिछले ऐप पर जाएं",
   "keybindings_appLabel": "ऐप {number}",
-  "keybindings_appDesc": "ऐप #{number} पर जाएं"
+  "keybindings_appDesc": "ऐप #{number} पर जाएं",
+  "appForm_allowNotifications": "नोटिफिकेशन की अनुमति दें",
+  "appForm_allowNotificationsDesc": "इस ऐप के लिए Muximux नोटिफिकेशन ब्रिज सक्षम करें",
+  "appForm_helpAllowNotifications": "ब्राउज़र cross-origin iframe में Notifications API को ब्लॉक करते हैं। सक्षम होने पर, यह ऐप Muximux को एक संदेश भेज सकता है ताकि Muximux के origin के अंतर्गत नोटिफिकेशन दिखाया जा सके। नोटिफिकेशन पर क्लिक करने से इस ऐप पर स्विच हो जाता है।",
+  "appForm_permissionsAll": "सभी अनुमतियाँ दें",
+  "appForm_permissionsDesc": "एम्बेडेड iframe को ब्राउज़र सुविधाएं सौंपें। इनके बिना, आधुनिक ब्राउज़र cross-origin सामग्री के लिए कैमरा, माइक्रोफ़ोन, geolocation और इसी तरह के API ब्लॉक कर देते हैं।",
+  "appForm_sectionPermissions": "अनुमतियाँ",
+  "common_readMore": "और पढ़ें",
+  "general_collapsibleToolbar": "संकुचनीय टूलबार",
+  "general_collapsibleToolbarDesc": "यूटिलिटी बटन को एक cogwheel के पीछे छिपाएं जो होवर पर दिखता है",
+  "general_overviewButton": "अवलोकन बटन",
+  "general_overviewButtonDesc": "चुनें कि नेविगेशन बार में अवलोकन बटन कैसे दिखाई दे",
+  "general_overviewCustom": "कस्टम",
+  "general_overviewHidden": "छिपा हुआ",
+  "general_overviewHouse": "घर का आइकन",
+  "general_overviewLogo": "लोगो"
 }

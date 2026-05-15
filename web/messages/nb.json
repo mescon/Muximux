@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Forrige app",
   "keybindings_prevAppDesc": "Bytt til forrige app i listen",
   "keybindings_appLabel": "App {number}",
-  "keybindings_appDesc": "Bytt til app #{number}"
+  "keybindings_appDesc": "Bytt til app #{number}",
+  "appForm_allowNotifications": "Tillat varsler",
+  "appForm_allowNotificationsDesc": "Aktiver Muximux-varselbroen for denne appen",
+  "appForm_helpAllowNotifications": "Nettlesere blokkerer Notifications API i iframes på tvers av opphav. Når dette er aktivert, kan appen sende en melding til Muximux for å vise et varsel under Muximux' opphav. Klikk på varselet for å bytte til denne appen.",
+  "appForm_permissionsAll": "Tillat alle tillatelser",
+  "appForm_permissionsDesc": "Deleger nettleserfunksjoner til den innebygde iframen. Uten disse blokkerer moderne nettlesere kamera, mikrofon, geolocation og lignende API-er for innhold på tvers av opphav.",
+  "appForm_sectionPermissions": "Tillatelser",
+  "common_readMore": "Les mer",
+  "general_collapsibleToolbar": "Sammenleggbar verktøylinje",
+  "general_collapsibleToolbarDesc": "Skjul verktøyknapper bak et tannhjul som vises ved hovring",
+  "general_overviewButton": "Oversiktsknapp",
+  "general_overviewButtonDesc": "Velg hvordan oversiktsknappen vises i navigasjonsfeltet",
+  "general_overviewCustom": "Egendefinert",
+  "general_overviewHidden": "Skjult",
+  "general_overviewHouse": "Husikon",
+  "general_overviewLogo": "Logo"
 }

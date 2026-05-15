@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Föregående app",
   "keybindings_prevAppDesc": "Byt till föregående app i listan",
   "keybindings_appLabel": "App {number}",
-  "keybindings_appDesc": "Byt till app #{number}"
+  "keybindings_appDesc": "Byt till app #{number}",
+  "appForm_allowNotifications": "Tillåt notifieringar",
+  "appForm_allowNotificationsDesc": "Aktivera Muximux notifieringsbrygga för denna app",
+  "appForm_helpAllowNotifications": "Webbläsare blockerar Notifications API i iframes med annan ursprungsdomän. När detta är aktiverat kan appen skicka ett meddelande till Muximux som visar en notifiering under Muximux egen domän. Att klicka på notifieringen växlar till denna app.",
+  "appForm_permissionsAll": "Tillåt alla behörigheter",
+  "appForm_permissionsDesc": "Delegera webbläsarfunktioner till den inbäddade iframen. Utan dessa blockerar moderna webbläsare kamera, mikrofon, geolocation och liknande API:er för innehåll med annan ursprungsdomän.",
+  "appForm_sectionPermissions": "Behörigheter",
+  "common_readMore": "Läs mer",
+  "general_collapsibleToolbar": "Hopfällbart verktygsfält",
+  "general_collapsibleToolbarDesc": "Dölj verktygsknappar bakom ett kugghjul som visas vid hovring",
+  "general_overviewButton": "Översiktsknapp",
+  "general_overviewButtonDesc": "Välj hur översiktsknappen visas i navigeringsfältet",
+  "general_overviewCustom": "Anpassad",
+  "general_overviewHidden": "Dold",
+  "general_overviewHouse": "Husikon",
+  "general_overviewLogo": "Logotyp"
 }

@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "App precedente",
   "keybindings_prevAppDesc": "Passa all'app precedente nella lista",
   "keybindings_appLabel": "App {number}",
-  "keybindings_appDesc": "Passa all'app #{number}"
+  "keybindings_appDesc": "Passa all'app #{number}",
+  "appForm_allowNotifications": "Consenti notifiche",
+  "appForm_allowNotificationsDesc": "Attiva il bridge di notifiche di Muximux per questa app",
+  "appForm_helpAllowNotifications": "I browser bloccano le Notifications API negli iframe cross-origin. Quando attivato, questa app può inviare un messaggio a Muximux per mostrare una notifica sotto l'origine di Muximux. Cliccando sulla notifica si passa a questa app.",
+  "appForm_permissionsAll": "Consenti tutti i permessi",
+  "appForm_permissionsDesc": "Delega le funzionalità del browser all'iframe incorporato. Senza questi, i browser moderni bloccano fotocamera, microfono, geolocalizzazione e API simili per contenuti cross-origin.",
+  "appForm_sectionPermissions": "Permessi",
+  "common_readMore": "Leggi di più",
+  "general_collapsibleToolbar": "Barra strumenti comprimibile",
+  "general_collapsibleToolbarDesc": "Nascondi i pulsanti di utilità dietro un ingranaggio che appare al passaggio del mouse",
+  "general_overviewButton": "Pulsante panoramica",
+  "general_overviewButtonDesc": "Scegli come appare il pulsante panoramica nella barra di navigazione",
+  "general_overviewCustom": "Personalizzato",
+  "general_overviewHidden": "Nascosto",
+  "general_overviewHouse": "Icona casa",
+  "general_overviewLogo": "Logo"
 }

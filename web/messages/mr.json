@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "मागील अ‍ॅप",
   "keybindings_prevAppDesc": "यादीतील मागील अ‍ॅपवर जा",
   "keybindings_appLabel": "अ‍ॅप {number}",
-  "keybindings_appDesc": "अ‍ॅप #{number} वर जा"
+  "keybindings_appDesc": "अ‍ॅप #{number} वर जा",
+  "appForm_allowNotifications": "सूचना अनुमती द्या",
+  "appForm_allowNotificationsDesc": "या अॅपसाठी Muximux सूचना ब्रिज सक्षम करा",
+  "appForm_helpAllowNotifications": "ब्राउझर्स क्रॉस-ओरिजिन iframes मध्ये Notifications API ब्लॉक करतात. सक्षम केल्यावर, हे अॅप Muximux ला संदेश पाठवू शकते आणि Muximux च्या ओरिजिन अंतर्गत सूचना दाखवू शकते. सूचनेवर क्लिक केल्यास या अॅपवर स्विच होते.",
+  "appForm_permissionsAll": "सर्व परवानग्या द्या",
+  "appForm_permissionsDesc": "एम्बेड केलेल्या iframe ला ब्राउझर वैशिष्ट्ये नियुक्त करा. यांच्याशिवाय, आधुनिक ब्राउझर्स क्रॉस-ओरिजिन सामग्रीसाठी कॅमेरा, मायक्रोफोन, geolocation आणि तत्सम API ब्लॉक करतात.",
+  "appForm_sectionPermissions": "परवानग्या",
+  "common_readMore": "अधिक वाचा",
+  "general_collapsibleToolbar": "लपवता येणारा टूलबार",
+  "general_collapsibleToolbarDesc": "होव्हरवर उघडणाऱ्या कॉगव्हीलमागे युटिलिटी बटणे लपवा",
+  "general_overviewButton": "विहंगावलोकन बटण",
+  "general_overviewButtonDesc": "नेव्हिगेशन बारमध्ये विहंगावलोकन बटण कसे दिसावे ते निवडा",
+  "general_overviewCustom": "सानुकूल",
+  "general_overviewHidden": "लपवलेले",
+  "general_overviewHouse": "घर आयकॉन",
+  "general_overviewLogo": "लोगो"
 }

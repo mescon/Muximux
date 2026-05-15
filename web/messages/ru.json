@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Предыдущее приложение",
   "keybindings_prevAppDesc": "Переключиться на предыдущее приложение",
   "keybindings_appLabel": "Приложение {number}",
-  "keybindings_appDesc": "Переключиться на приложение #{number}"
+  "keybindings_appDesc": "Переключиться на приложение #{number}",
+  "appForm_allowNotifications": "Разрешить уведомления",
+  "appForm_allowNotificationsDesc": "Включить мост уведомлений Muximux для этого приложения",
+  "appForm_helpAllowNotifications": "Браузеры блокируют Notifications API в cross-origin iframe. Когда включено, приложение может отправить сообщение в Muximux, чтобы показать уведомление от имени Muximux. Клик по уведомлению переключает на это приложение.",
+  "appForm_permissionsAll": "Разрешить все разрешения",
+  "appForm_permissionsDesc": "Делегировать возможности браузера встроенному iframe. Без этого современные браузеры блокируют доступ к камере, микрофону, geolocation и подобным API для cross-origin контента.",
+  "appForm_sectionPermissions": "Разрешения",
+  "common_readMore": "Подробнее",
+  "general_collapsibleToolbar": "Сворачиваемая панель инструментов",
+  "general_collapsibleToolbarDesc": "Скрывать служебные кнопки за шестерёнкой, появляющейся при наведении",
+  "general_overviewButton": "Кнопка обзора",
+  "general_overviewButtonDesc": "Выберите, как кнопка обзора отображается в панели навигации",
+  "general_overviewCustom": "Пользовательская",
+  "general_overviewHidden": "Скрыта",
+  "general_overviewHouse": "Иконка домика",
+  "general_overviewLogo": "Логотип"
 }

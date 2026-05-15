@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Iepriekšējā lietotne",
   "keybindings_prevAppDesc": "Pārslēgties uz iepriekšējo lietotni",
   "keybindings_appLabel": "Lietotne {number}",
-  "keybindings_appDesc": "Pārslēgties uz lietotni #{number}"
+  "keybindings_appDesc": "Pārslēgties uz lietotni #{number}",
+  "appForm_allowNotifications": "Atļaut paziņojumus",
+  "appForm_allowNotificationsDesc": "Iespējot Muximux paziņojumu tiltu šai lietotnei",
+  "appForm_helpAllowNotifications": "Pārlūki bloķē Notifications API cross-origin iframe iekšienē. Kad iespējots, šī lietotne var nosūtīt ziņu Muximux, lai parādītu paziņojumu Muximux izcelsmē. Klikšķis uz paziņojuma pārslēdz uz šo lietotni.",
+  "appForm_permissionsAll": "Atļaut visas atļaujas",
+  "appForm_permissionsDesc": "Deleģēt pārlūka funkcijas iegultajam iframe. Bez tām mūsdienu pārlūki bloķē kameru, mikrofonu, geolocation un līdzīgus API cross-origin saturam.",
+  "appForm_sectionPermissions": "Atļaujas",
+  "common_readMore": "Lasīt vairāk",
+  "general_collapsibleToolbar": "Sakļaujamā rīkjosla",
+  "general_collapsibleToolbarDesc": "Sakļaut utilītpogas aiz zobratiņa, kas parādās novietojot peli virs tā",
+  "general_overviewButton": "Pārskata poga",
+  "general_overviewButtonDesc": "Izvēlieties, kā pārskata poga parādās navigācijas joslā",
+  "general_overviewCustom": "Pielāgota",
+  "general_overviewHidden": "Paslēpta",
+  "general_overviewHouse": "Mājiņas ikona",
+  "general_overviewLogo": "Logotips"
 }

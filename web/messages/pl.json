@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Poprzednia aplikacja",
   "keybindings_prevAppDesc": "Przełącz na poprzednią aplikację",
   "keybindings_appLabel": "Aplikacja {number}",
-  "keybindings_appDesc": "Przełącz na aplikację #{number}"
+  "keybindings_appDesc": "Przełącz na aplikację #{number}",
+  "appForm_allowNotifications": "Zezwól na powiadomienia",
+  "appForm_allowNotificationsDesc": "Włącz most powiadomień Muximux dla tej aplikacji",
+  "appForm_helpAllowNotifications": "Przeglądarki blokują Notifications API w iframe'ach z innego źródła. Po włączeniu ta aplikacja może wysłać wiadomość do Muximux, aby wyświetlić powiadomienie z poziomu źródła Muximux. Kliknięcie powiadomienia przełącza na tę aplikację.",
+  "appForm_permissionsAll": "Zezwól na wszystkie uprawnienia",
+  "appForm_permissionsDesc": "Deleguj funkcje przeglądarki do osadzonego iframe. Bez tego nowoczesne przeglądarki blokują kamerę, mikrofon, geolokalizację i podobne API dla treści z innego źródła.",
+  "appForm_sectionPermissions": "Uprawnienia",
+  "common_readMore": "Czytaj więcej",
+  "general_collapsibleToolbar": "Zwijany pasek narzędzi",
+  "general_collapsibleToolbarDesc": "Ukryj przyciski narzędziowe za kółkiem zębatym, które pojawia się po najechaniu",
+  "general_overviewButton": "Przycisk przeglądu",
+  "general_overviewButtonDesc": "Wybierz, jak przycisk przeglądu pojawia się na pasku nawigacji",
+  "general_overviewCustom": "Własny",
+  "general_overviewHidden": "Ukryty",
+  "general_overviewHouse": "Ikona domu",
+  "general_overviewLogo": "Logo"
 }

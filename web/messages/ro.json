@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Aplicația anterioară",
   "keybindings_prevAppDesc": "Comută la aplicația anterioară",
   "keybindings_appLabel": "Aplicația {number}",
-  "keybindings_appDesc": "Comută la aplicația #{number}"
+  "keybindings_appDesc": "Comută la aplicația #{number}",
+  "appForm_allowNotifications": "Permite notificările",
+  "appForm_allowNotificationsDesc": "Activează puntea de notificări Muximux pentru această aplicație",
+  "appForm_helpAllowNotifications": "Browserele blochează Notifications API în iframe-urile cross-origin. Când este activată, această aplicație poate trimite un mesaj către Muximux pentru a afișa o notificare din originea Muximux. Apăsând pe notificare, comuți la această aplicație.",
+  "appForm_permissionsAll": "Permite toate permisiunile",
+  "appForm_permissionsDesc": "Deleagă funcționalitățile browserului către iframe-ul încorporat. Fără acestea, browserele moderne blochează camera, microfonul, geolocation și alte API-uri similare pentru conținutul cross-origin.",
+  "appForm_sectionPermissions": "Permisiuni",
+  "common_readMore": "Citește mai mult",
+  "general_collapsibleToolbar": "Bară de instrumente pliabilă",
+  "general_collapsibleToolbarDesc": "Ascunde butoanele utilitare în spatele unei rotițe care apare la trecerea cursorului",
+  "general_overviewButton": "Buton prezentare generală",
+  "general_overviewButtonDesc": "Alege cum apare butonul de prezentare generală în bara de navigare",
+  "general_overviewCustom": "Personalizat",
+  "general_overviewHidden": "Ascuns",
+  "general_overviewHouse": "Pictogramă casă",
+  "general_overviewLogo": "Logo"
 }

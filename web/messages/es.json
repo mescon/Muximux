@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "App anterior",
   "keybindings_prevAppDesc": "Cambiar a la app anterior de la lista",
   "keybindings_appLabel": "App {number}",
-  "keybindings_appDesc": "Cambiar a la app #{number}"
+  "keybindings_appDesc": "Cambiar a la app #{number}",
+  "appForm_allowNotifications": "Permitir notificaciones",
+  "appForm_allowNotificationsDesc": "Activar el puente de notificaciones de Muximux para esta app",
+  "appForm_helpAllowNotifications": "Los navegadores bloquean la Notifications API en iframes de origen cruzado. Cuando está activada, esta app puede enviar un mensaje a Muximux para mostrar una notificación bajo el origen de Muximux. Al hacer clic en la notificación se cambia a esta app.",
+  "appForm_permissionsAll": "Permitir todos los permisos",
+  "appForm_permissionsDesc": "Delegar funciones del navegador al iframe integrado. Sin esto, los navegadores modernos bloquean cámara, micrófono, geolocalización y APIs similares para contenido de origen cruzado.",
+  "appForm_sectionPermissions": "Permisos",
+  "common_readMore": "Leer más",
+  "general_collapsibleToolbar": "Barra de herramientas plegable",
+  "general_collapsibleToolbarDesc": "Ocultar los botones de utilidad tras un engranaje que se revela al pasar el cursor",
+  "general_overviewButton": "Botón de resumen",
+  "general_overviewButtonDesc": "Elige cómo aparece el botón de resumen en la barra de navegación",
+  "general_overviewCustom": "Personalizado",
+  "general_overviewHidden": "Oculto",
+  "general_overviewHouse": "Icono de casa",
+  "general_overviewLogo": "Logo"
 }

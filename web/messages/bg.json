@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Предишно приложение",
   "keybindings_prevAppDesc": "Превключи към предишното приложение",
   "keybindings_appLabel": "Приложение {number}",
-  "keybindings_appDesc": "Превключи към приложение #{number}"
+  "keybindings_appDesc": "Превключи към приложение #{number}",
+  "appForm_allowNotifications": "Позволи известия",
+  "appForm_allowNotificationsDesc": "Активирай моста за известия на Muximux за това приложение",
+  "appForm_helpAllowNotifications": "Браузърите блокират Notifications API в iframe-ове от различен произход. Когато е активирано, това приложение може да изпрати съобщение до Muximux, за да покаже известие под произхода на Muximux. Кликването върху известието превключва към това приложение.",
+  "appForm_permissionsAll": "Позволи всички разрешения",
+  "appForm_permissionsDesc": "Делегирай функции на браузъра към вградения iframe. Без тях, модерните браузъри блокират камера, микрофон, geolocation и подобни API за съдържание от различен произход.",
+  "appForm_sectionPermissions": "Разрешения",
+  "common_readMore": "Прочети повече",
+  "general_collapsibleToolbar": "Сгъваема лента с инструменти",
+  "general_collapsibleToolbarDesc": "Скрий бутоните за инструменти зад зъбно колело, което се показва при задържане на курсора",
+  "general_overviewButton": "Бутон за преглед",
+  "general_overviewButtonDesc": "Избери как се показва бутонът за преглед в навигационната лента",
+  "general_overviewCustom": "Персонализиран",
+  "general_overviewHidden": "Скрит",
+  "general_overviewHouse": "Икона на къща",
+  "general_overviewLogo": "Лого"
 }

@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "前のアプリ",
   "keybindings_prevAppDesc": "リストの前のアプリに切り替え",
   "keybindings_appLabel": "アプリ {number}",
-  "keybindings_appDesc": "アプリ #{number} に切り替え"
+  "keybindings_appDesc": "アプリ #{number} に切り替え",
+  "appForm_allowNotifications": "通知を許可",
+  "appForm_allowNotificationsDesc": "このアプリで Muximux の通知ブリッジを有効にします",
+  "appForm_helpAllowNotifications": "ブラウザはクロスオリジン iframe 内での Notifications API をブロックします。有効にすると、このアプリは Muximux にメッセージを送信し、Muximux のオリジンで通知を表示できます。通知をクリックするとこのアプリに切り替わります。",
+  "appForm_permissionsAll": "すべての権限を許可",
+  "appForm_permissionsDesc": "ブラウザ機能を埋め込み iframe に委譲します。これがないと、最近のブラウザはクロスオリジンコンテンツに対してカメラ、マイク、位置情報、その他類似の API をブロックします。",
+  "appForm_sectionPermissions": "権限",
+  "common_readMore": "続きを読む",
+  "general_collapsibleToolbar": "折りたたみ可能なツールバー",
+  "general_collapsibleToolbarDesc": "ホバーで表示される歯車の後ろにユーティリティボタンを格納",
+  "general_overviewButton": "概要ボタン",
+  "general_overviewButtonDesc": "ナビゲーションバーでの概要ボタンの表示方法を選択",
+  "general_overviewCustom": "カスタム",
+  "general_overviewHidden": "非表示",
+  "general_overviewHouse": "ハウスアイコン",
+  "general_overviewLogo": "ロゴ"
 }

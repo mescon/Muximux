@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Önceki uygulama",
   "keybindings_prevAppDesc": "Listedeki önceki uygulamaya geç",
   "keybindings_appLabel": "Uygulama {number}",
-  "keybindings_appDesc": "#{number} uygulamasına geç"
+  "keybindings_appDesc": "#{number} uygulamasına geç",
+  "appForm_allowNotifications": "Bildirimlere izin ver",
+  "appForm_allowNotificationsDesc": "Bu uygulama için Muximux bildirim köprüsünü etkinleştir",
+  "appForm_helpAllowNotifications": "Tarayıcılar, çapraz kaynaklı iframe'lerde Notifications API'sini engeller. Etkinleştirildiğinde bu uygulama Muximux'a mesaj göndererek Muximux'un kaynağı altında bir bildirim gösterebilir. Bildirime tıklamak bu uygulamaya geçiş yapar.",
+  "appForm_permissionsAll": "Tüm izinlere izin ver",
+  "appForm_permissionsDesc": "Tarayıcı özelliklerini gömülü iframe'e devret. Bunlar olmadan modern tarayıcılar; çapraz kaynaklı içerik için kamera, mikrofon, geolocation ve benzeri API'leri engeller.",
+  "appForm_sectionPermissions": "İzinler",
+  "common_readMore": "Devamını oku",
+  "general_collapsibleToolbar": "Daraltılabilir Araç Çubuğu",
+  "general_collapsibleToolbarDesc": "Yardımcı düğmeleri, fareyle üzerine gelindiğinde açılan bir çark simgesinin arkasına gizle",
+  "general_overviewButton": "Genel Bakış Düğmesi",
+  "general_overviewButtonDesc": "Genel bakış düğmesinin navigasyon çubuğunda nasıl görüneceğini seçin",
+  "general_overviewCustom": "Özel",
+  "general_overviewHidden": "Gizli",
+  "general_overviewHouse": "Ev Simgesi",
+  "general_overviewLogo": "Logo"
 }

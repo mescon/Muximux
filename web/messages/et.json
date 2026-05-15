@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Eelmine rakendus",
   "keybindings_prevAppDesc": "Lülitu eelmisele rakendusele",
   "keybindings_appLabel": "Rakendus {number}",
-  "keybindings_appDesc": "Lülitu rakendusele #{number}"
+  "keybindings_appDesc": "Lülitu rakendusele #{number}",
+  "appForm_allowNotifications": "Luba teavitused",
+  "appForm_allowNotificationsDesc": "Luba selle rakenduse jaoks Muximuxi teavitussild",
+  "appForm_helpAllowNotifications": "Brauserid blokeerivad Notifications API teiste domeenide iframe'ides. Kui see on lubatud, saab rakendus saata Muximuxile sõnumi, et kuvada teavitus Muximuxi domeeni alt. Teavitusele klõpsamine lülitub sellele rakendusele.",
+  "appForm_permissionsAll": "Luba kõik õigused",
+  "appForm_permissionsDesc": "Delegeeri brauseri funktsioonid manustatud iframe'ile. Ilma nendeta blokeerivad kaasaegsed brauserid kaamera, mikrofoni, geolocation ja sarnased API-d teiste domeenide sisu jaoks.",
+  "appForm_sectionPermissions": "Õigused",
+  "common_readMore": "Loe rohkem",
+  "general_collapsibleToolbar": "Ahendatav tööriistariba",
+  "general_collapsibleToolbarDesc": "Peida utiliitide nupud hammasratta taha, mis avaneb hõljumisel",
+  "general_overviewButton": "Ülevaate nupp",
+  "general_overviewButtonDesc": "Vali, kuidas ülevaate nupp navigeerimisribal kuvatakse",
+  "general_overviewCustom": "Kohandatud",
+  "general_overviewHidden": "Peidetud",
+  "general_overviewHouse": "Maja ikoon",
+  "general_overviewLogo": "Logo"
 }

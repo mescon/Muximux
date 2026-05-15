@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Edellinen sovellus",
   "keybindings_prevAppDesc": "Vaihda edelliseen sovellukseen",
   "keybindings_appLabel": "Sovellus {number}",
-  "keybindings_appDesc": "Vaihda sovellukseen #{number}"
+  "keybindings_appDesc": "Vaihda sovellukseen #{number}",
+  "appForm_allowNotifications": "Salli ilmoitukset",
+  "appForm_allowNotificationsDesc": "Ota tämän sovelluksen Muximux-ilmoitussilta käyttöön",
+  "appForm_helpAllowNotifications": "Selaimet estävät Notifications API:n cross-origin-iframe-kehyksissä. Kun tämä on käytössä, sovellus voi lähettää viestin Muximuxille, joka näyttää ilmoituksen Muximuxin originin alla. Ilmoituksen napsauttaminen vaihtaa tähän sovellukseen.",
+  "appForm_permissionsAll": "Salli kaikki käyttöoikeudet",
+  "appForm_permissionsDesc": "Delegoi selaimen ominaisuudet upotetulle iframe-kehykselle. Ilman näitä modernit selaimet estävät kameran, mikrofonin, geolocationin ja vastaavat API:t cross-origin-sisällölle.",
+  "appForm_sectionPermissions": "Käyttöoikeudet",
+  "common_readMore": "Lue lisää",
+  "general_collapsibleToolbar": "Kutistettava työkalupalkki",
+  "general_collapsibleToolbarDesc": "Piilota työkalupainikkeet rattaan taakse, joka tulee näkyviin hiiren osoittaessa",
+  "general_overviewButton": "Yleiskatsauspainike",
+  "general_overviewButtonDesc": "Valitse miten yleiskatsauspainike näkyy navigaatiopalkissa",
+  "general_overviewCustom": "Mukautettu",
+  "general_overviewHidden": "Piilotettu",
+  "general_overviewHouse": "Talokuvake",
+  "general_overviewLogo": "Logo"
 }

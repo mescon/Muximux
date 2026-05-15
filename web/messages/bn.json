@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "আগের অ্যাপ",
   "keybindings_prevAppDesc": "তালিকায় আগের অ্যাপে যান",
   "keybindings_appLabel": "অ্যাপ {number}",
-  "keybindings_appDesc": "অ্যাপ #{number}-এ যান"
+  "keybindings_appDesc": "অ্যাপ #{number}-এ যান",
+  "appForm_allowNotifications": "নোটিফিকেশন অনুমতি দিন",
+  "appForm_allowNotificationsDesc": "এই অ্যাপের জন্য Muximux নোটিফিকেশন ব্রিজ সক্রিয় করুন",
+  "appForm_helpAllowNotifications": "ব্রাউজারগুলি cross-origin iframe-এ Notifications API ব্লক করে। সক্রিয় থাকলে, এই অ্যাপ Muximux-এ একটি মেসেজ পাঠাতে পারে যাতে Muximux-এর origin-এর অধীনে নোটিফিকেশন দেখানো হয়। নোটিফিকেশনে ক্লিক করলে এই অ্যাপে স্যুইচ হবে।",
+  "appForm_permissionsAll": "সব অনুমতি দিন",
+  "appForm_permissionsDesc": "এম্বেড করা iframe-এ ব্রাউজার বৈশিষ্ট্য অর্পণ করুন। এগুলি ছাড়া, আধুনিক ব্রাউজারগুলি cross-origin কন্টেন্টের জন্য ক্যামেরা, মাইক্রোফোন, geolocation এবং অনুরূপ API ব্লক করে।",
+  "appForm_sectionPermissions": "অনুমতি",
+  "common_readMore": "আরও পড়ুন",
+  "general_collapsibleToolbar": "সঙ্কোচনীয় টুলবার",
+  "general_collapsibleToolbarDesc": "হোভারে প্রকাশিত একটি কগহুইলের পেছনে ইউটিলিটি বোতামগুলি লুকান",
+  "general_overviewButton": "সংক্ষিপ্ত বিবরণ বোতাম",
+  "general_overviewButtonDesc": "নেভিগেশন বারে সংক্ষিপ্ত বিবরণ বোতাম কীভাবে প্রদর্শিত হবে তা নির্বাচন করুন",
+  "general_overviewCustom": "কাস্টম",
+  "general_overviewHidden": "লুকানো",
+  "general_overviewHouse": "ঘরের আইকন",
+  "general_overviewLogo": "লোগো"
 }

@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Ứng dụng trước",
   "keybindings_prevAppDesc": "Chuyển sang ứng dụng trước",
   "keybindings_appLabel": "Ứng dụng {number}",
-  "keybindings_appDesc": "Chuyển sang ứng dụng #{number}"
+  "keybindings_appDesc": "Chuyển sang ứng dụng #{number}",
+  "appForm_allowNotifications": "Cho phép thông báo",
+  "appForm_allowNotificationsDesc": "Bật cầu nối thông báo Muximux cho ứng dụng này",
+  "appForm_helpAllowNotifications": "Trình duyệt chặn Notifications API trong iframe cross-origin. Khi bật, ứng dụng này có thể gửi tin nhắn đến Muximux để hiển thị thông báo dưới origin của Muximux. Nhấp vào thông báo sẽ chuyển đến ứng dụng này.",
+  "appForm_permissionsAll": "Cho phép tất cả quyền",
+  "appForm_permissionsDesc": "Ủy quyền các tính năng trình duyệt cho iframe nhúng. Nếu không có, các trình duyệt hiện đại sẽ chặn camera, micro, geolocation và các API tương tự đối với nội dung cross-origin.",
+  "appForm_sectionPermissions": "Quyền",
+  "common_readMore": "Đọc thêm",
+  "general_collapsibleToolbar": "Thanh công cụ thu gọn",
+  "general_collapsibleToolbarDesc": "Ẩn các nút tiện ích sau bánh răng, hiện ra khi di chuột qua",
+  "general_overviewButton": "Nút tổng quan",
+  "general_overviewButtonDesc": "Chọn cách nút tổng quan hiển thị trong thanh điều hướng",
+  "general_overviewCustom": "Tùy chỉnh",
+  "general_overviewHidden": "Ẩn",
+  "general_overviewHouse": "Biểu tượng ngôi nhà",
+  "general_overviewLogo": "Logo"
 }

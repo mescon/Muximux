@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Попередній додаток",
   "keybindings_prevAppDesc": "Перейти до попереднього додатка",
   "keybindings_appLabel": "Додаток {number}",
-  "keybindings_appDesc": "Перейти до додатка #{number}"
+  "keybindings_appDesc": "Перейти до додатка #{number}",
+  "appForm_allowNotifications": "Дозволити сповіщення",
+  "appForm_allowNotificationsDesc": "Увімкнути міст сповіщень Muximux для цього застосунку",
+  "appForm_helpAllowNotifications": "Браузери блокують Notifications API у крос-доменних iframe. Коли увімкнено, цей застосунок може надіслати повідомлення до Muximux, щоб показати сповіщення з origin Muximux. Клік на сповіщенні перемикає на цей застосунок.",
+  "appForm_permissionsAll": "Дозволити всі дозволи",
+  "appForm_permissionsDesc": "Делегує функції браузера вбудованому iframe. Без них сучасні браузери блокують камеру, мікрофон, geolocation та подібні API для крос-доменного вмісту.",
+  "appForm_sectionPermissions": "Дозволи",
+  "common_readMore": "Читати далі",
+  "general_collapsibleToolbar": "Згортана панель інструментів",
+  "general_collapsibleToolbarDesc": "Приховувати допоміжні кнопки за шестернею, що з'являється при наведенні",
+  "general_overviewButton": "Кнопка огляду",
+  "general_overviewButtonDesc": "Оберіть, як кнопка огляду відображається на панелі навігації",
+  "general_overviewCustom": "Власна",
+  "general_overviewHidden": "Прихована",
+  "general_overviewHouse": "Іконка будинку",
+  "general_overviewLogo": "Логотип"
 }

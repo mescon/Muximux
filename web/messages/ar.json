@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "التطبيق السابق",
   "keybindings_prevAppDesc": "التبديل إلى التطبيق السابق في القائمة",
   "keybindings_appLabel": "التطبيق {number}",
-  "keybindings_appDesc": "التبديل إلى التطبيق #{number}"
+  "keybindings_appDesc": "التبديل إلى التطبيق #{number}",
+  "appForm_allowNotifications": "السماح بالإشعارات",
+  "appForm_allowNotificationsDesc": "تفعيل جسر إشعارات Muximux لهذا التطبيق",
+  "appForm_helpAllowNotifications": "تحظر المتصفحات Notifications API داخل iframes من أصول مختلفة (cross-origin). عند التفعيل، يمكن لهذا التطبيق إرسال رسالة إلى Muximux لعرض إشعار من أصل Muximux. النقر على الإشعار ينقلك إلى هذا التطبيق.",
+  "appForm_permissionsAll": "السماح بجميع الأذونات",
+  "appForm_permissionsDesc": "تفويض ميزات المتصفح إلى iframe المضمّن. بدونها، تحظر المتصفحات الحديثة الكاميرا والميكروفون وgeolocation وواجهات API مشابهة للمحتوى من أصول مختلفة.",
+  "appForm_sectionPermissions": "الأذونات",
+  "common_readMore": "اقرأ المزيد",
+  "general_collapsibleToolbar": "شريط أدوات قابل للطي",
+  "general_collapsibleToolbarDesc": "طي أزرار الأدوات خلف ترس يظهر عند التمرير",
+  "general_overviewButton": "زر النظرة العامة",
+  "general_overviewButtonDesc": "اختر كيف يظهر زر النظرة العامة في شريط التنقل",
+  "general_overviewCustom": "مخصص",
+  "general_overviewHidden": "مخفي",
+  "general_overviewHouse": "أيقونة منزل",
+  "general_overviewLogo": "الشعار"
 }

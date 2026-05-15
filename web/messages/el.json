@@ -707,5 +707,20 @@
   "keybindings_prevAppLabel": "Προηγούμενη εφαρμογή",
   "keybindings_prevAppDesc": "Μετάβαση στην προηγούμενη εφαρμογή",
   "keybindings_appLabel": "Εφαρμογή {number}",
-  "keybindings_appDesc": "Μετάβαση στην εφαρμογή #{number}"
+  "keybindings_appDesc": "Μετάβαση στην εφαρμογή #{number}",
+  "appForm_allowNotifications": "Να επιτρέπονται οι ειδοποιήσεις",
+  "appForm_allowNotificationsDesc": "Ενεργοποιήστε τη γέφυρα ειδοποιήσεων του Muximux για αυτήν την εφαρμογή",
+  "appForm_helpAllowNotifications": "Τα προγράμματα περιήγησης μπλοκάρουν το Notifications API σε iframes διαφορετικής προέλευσης (cross-origin). Όταν είναι ενεργοποιημένο, αυτή η εφαρμογή μπορεί να στείλει μήνυμα στο Muximux για να εμφανίσει ειδοποίηση κάτω από την προέλευση του Muximux. Κάνοντας κλικ στην ειδοποίηση γίνεται εναλλαγή σε αυτήν την εφαρμογή.",
+  "appForm_permissionsAll": "Παραχώρηση όλων των δικαιωμάτων",
+  "appForm_permissionsDesc": "Παραχωρήστε λειτουργίες του προγράμματος περιήγησης στο ενσωματωμένο iframe. Χωρίς αυτές, τα σύγχρονα προγράμματα περιήγησης μπλοκάρουν την κάμερα, το μικρόφωνο, τη γεωτοποθεσία και παρόμοια APIs για περιεχόμενο διαφορετικής προέλευσης.",
+  "appForm_sectionPermissions": "Δικαιώματα",
+  "common_readMore": "Διαβάστε περισσότερα",
+  "general_collapsibleToolbar": "Πτυσσόμενη γραμμή εργαλείων",
+  "general_collapsibleToolbarDesc": "Απόκρυψη κουμπιών βοηθημάτων πίσω από έναν τροχό που εμφανίζεται κατά την αιώρηση",
+  "general_overviewButton": "Κουμπί επισκόπησης",
+  "general_overviewButtonDesc": "Επιλέξτε πώς εμφανίζεται το κουμπί επισκόπησης στη μπάρα πλοήγησης",
+  "general_overviewCustom": "Προσαρμοσμένο",
+  "general_overviewHidden": "Κρυφό",
+  "general_overviewHouse": "Εικονίδιο σπιτιού",
+  "general_overviewLogo": "Λογότυπο"
 }
